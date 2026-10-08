@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v11.5 -->
+<!-- Dialed In v11.6 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="11.5">
+    <meta name="dialed-in-version" content="11.6">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -2717,7 +2717,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v11.5</div>
+            <div class="app-version">Dialed In · v11.6</div>
         </div>
     </div>
 
@@ -5289,10 +5289,17 @@
             // ===================== Barista coach (v11.5) =====================
             // Reads what you wrote, weighs the recipe against your best shot on this coffee, learns your grinder,
             // and gives one change at a time, with the why, the next recipe, and the context behind it.
-            coachRead(text) {
+            coachRead(text, ctx) {
                 const out = { under: 0, over: 0, weak: 0, strong: 0, good: 0, quotes: [] };
-                const s = String(text || '').toLowerCase().replace(/[\u2018\u2019]/g, "'");
+                const s = String(text || '').toLowerCase().replace(/[‘’]/g, "'");
                 if (!s.trim()) return out;
+                // v11.6: "I cooked" / "we cooked" is praise on a 4★+ shot or next to praise words
+                const praised = (ctx && Number(ctx.rating) >= 4) || s.split(/[.!?;\n]+/).some(sent => {
+                    const re = /\b(sweet|balanced|smooth|juicy|perfect|delicious|amazing|yummy|fuego|great|tasty|so good|really good|love)\b/g;
+                    let m;
+                    while ((m = re.exec(sent))) { const lead = sent.slice(Math.max(0, m.index - 20), m.index); if (!/\b(not|no|never|without)\b[^,]*$|n't\s+(\w+\s+)?$/.test(lead)) return true; }
+                    return false;
+                });
                 const rules = [
                     [/\bsour(ness)?\b/g, 'under', 1.5], [/\btart\b/g, 'under', 0.7], [/\bsharp\b/g, 'under', 0.8], [/\bsalty\b/g, 'under', 1.1],
                     [/\bgrassy\b|\bvegetal\b/g, 'under', 0.8], [/\bunder[- ]?extract\w*/g, 'under', 1.2], [/\btoo (acidic|bright)\b/g, 'under', 0.9],
@@ -5315,7 +5322,14 @@
                             if (/\bless\b/.test(lead)) k *= -0.3;
                             if (/\b(really|very|super|so|too|way|still|extremely|crazy)\b/.test(lead)) k *= 1.4;
                             if (hedged && side !== 'good') k *= 0.5;
-                            if (side === 'over' && /^(over|cook)/.test(m[0]) && (deliberate || /\b(i|we)\s+$/.test(before))) k *= deliberate ? 0.2 : 0.6;
+                            const cookWord = side === 'over' && /cook/.test(m[0]), bareCook = cookWord && /^cook/.test(m[0]);
+                            if (bareCook && /\bover[- ]?$/.test(before)) continue;   // "over cooked" counts once, via the over- rule
+                            const objIt = /^\s+(it|again)\b/.test(sent.slice(m.index + m[0].length));
+                            const firstPerson = /\b(i|we)\s+(just\s+|really\s+|totally\s+|so\s+)?$/.test(before);
+                            if (bareCook && !objIt && firstPerson && praised && !deliberate) { out.good += 0.6; continue; }   // "I COOKED!" = nailed it
+                            if (side === 'over' && /^over/.test(m[0]) && !cookWord && (deliberate || /\b(i|we)\s+$/.test(before))) k *= deliberate ? 0.2 : 0.6;
+                            else if (cookWord && deliberate) k *= 0.2;
+                            else if (bareCook && !objIt && firstPerson) k *= 0.6;   // bare "I cooked" on a so-so shot: ambiguous, keep it mild
                             out[side] += k;
                             if (k > 0.5 && !hedged && side !== 'good' && out.quotes.length < 3) {
                                 const lead2 = before.trim().split(/\s+/).slice(-2); while (lead2.length && /^(be|is|was|it|its|it's|that|the|a|and|but|so|to|of)$/.test(lead2[0])) lead2.shift();
@@ -5353,22 +5367,53 @@
                     .sort((a, b) => this.localTime(a.date) - this.localTime(b.date));
             },
 
-            // which way is finer on this person's grinder, and their usual step, learned from their own shots
-            grindModel(owner, method) {
-                const list = this.brewsOf(owner).filter(b => (b.method || '') === method && this.grindNum(b.grind) !== null && this.num(b.time) > 0)
+            // letter settings sort by number, then letter: 6E < 8A < 8e
+            grindOrd(v) {
+                const n = this.grindNum(v);
+                if (n !== null) return n;
+                const m = /^(\d+(?:[.,]\d+)?)\s*([a-z])$/i.exec(String(v === null || v === undefined ? '' : v).trim());
+                return m ? Number(m[1].replace(',', '.')) + (m[2].toLowerCase().charCodeAt(0) - 96) / 100 : null;
+            },
+
+            // v11.6: which way is finer, and the usual step, from this person's own shots up to this one.
+            // Whole steps vs decimals and step size: this coffee first, then the last 30 days, then all-time.
+            grindModel(owner, method, c) {
+                const t = c ? this.localTime(c.date) : NaN;
+                const all = this.brewsOf(owner).filter(b => (b.method || '') === method && this.grindOrd(b.grind) !== null && this.num(b.time) > 0 && (!Number.isFinite(t) || !(this.localTime(b.date) > t)))
                     .sort((a, b) => this.localTime(a.date) - this.localTime(b.date));
-                let s = 0; const steps = [];
-                for (let i = 1; i < list.length; i++) {
-                    if (this.groupKeyOfBrew(list[i]) !== this.groupKeyOfBrew(list[i - 1])) continue;
-                    const dg = this.grindNum(list[i].grind) - this.grindNum(list[i - 1].grind), dt = this.num(list[i].time) - this.num(list[i - 1].time);
-                    if (Math.abs(dg) < 1e-9) continue;
-                    steps.push(Math.abs(dg));
-                    s += Math.sign(dg) * Math.sign(dt) * Math.min(1, Math.abs(dt) / 5);
-                }
-                steps.sort((a, b) => a - b);
-                const ints = list.every(b => Number.isInteger(this.grindNum(b.grind)));
-                const step = steps.length ? steps[Math.floor(steps.length / 2)] : (ints ? 1 : 0.1);
-                return { lowerFiner: s <= 0, step: Math.min(step, ints ? 2 : 0.3), learned: steps.length >= 2 };
+                const key = c ? c.beanKey : null;
+                // direction: consecutive shots on the same coffee, written the same way (numbers vs letters); changes under 4 s are noise
+                const dirOf = list => {
+                    let s = 0; const pairs = [];
+                    for (let i = 1; i < list.length; i++) {
+                        const a = list[i - 1], b = list[i];
+                        if (this.groupKeyOfBrew(a) !== this.groupKeyOfBrew(b) || (this.grindNum(a.grind) === null) !== (this.grindNum(b.grind) === null)) continue;
+                        const dg = this.grindOrd(b.grind) - this.grindOrd(a.grind), dt = this.num(b.time) - this.num(a.time);
+                        if (Math.abs(dg) < 1e-9 || Math.abs(dt) < 4) continue;
+                        const w = Math.sign(dg) * Math.sign(dt) * Math.min(1, Math.abs(dt) / 5);
+                        s += w; pairs.push({ from: a, to: b, dt, w });
+                    }
+                    const ev = pairs.filter(x => Math.sign(x.w) === Math.sign(s)).sort((x, y) => Math.abs(y.dt) - Math.abs(x.dt))[0] || null;   // an example that agrees
+                    return { s, ev };
+                };
+                const dirTiers = [all.filter(b => key && this.groupKeyOfBrew(b) === key), all.filter(b => Number.isFinite(t) && t - this.localTime(b.date) <= 30 * 864e5), all].map(dirOf);
+                const dir = dirTiers.find(d => Math.abs(d.s) >= 0.8) || dirTiers[2];
+                const s = dir.s, dirEv = dir.ev;
+                const numeric = all.filter(b => this.grindNum(b.grind) !== null);
+                const tiers = [['this coffee', numeric.filter(b => key && this.groupKeyOfBrew(b) === key)],
+                    ['last 30 days', numeric.filter(b => Number.isFinite(t) && t - this.localTime(b.date) <= 30 * 864e5)],
+                    ['all-time', numeric]];
+                const stepsOf = list => { const out = []; for (let i = 1; i < list.length; i++) { if (this.groupKeyOfBrew(list[i]) !== this.groupKeyOfBrew(list[i - 1])) continue; const d = Math.round(Math.abs(this.grindNum(list[i].grind) - this.grindNum(list[i - 1].grind)) * 100) / 100; if (d > 0) out.push(d); } return out; };
+                const wholeTier = tiers.find(([, l]) => l.length >= 2);
+                const ints = wholeTier ? wholeTier[1].every(b => Number.isInteger(this.grindNum(b.grind))) : !(c && /[.,]\d*[1-9]/.test(String(c.grind || '')));
+                let stepFrom = '', steps = [];
+                for (const [name, l] of tiers) { const st = stepsOf(l); if (st.length) { stepFrom = name; steps = st; break; } }
+                // the usual step = the most common one (ties go to the smaller, gentler move)
+                const freq = new Map(); steps.forEach(d => freq.set(d, (freq.get(d) || 0) + 1));
+                let step = steps.length ? [...freq.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0][0] : (ints ? 1 : 0.1);
+                const curDecimal = !!c && /^\s*\d+[.,]\d*[1-9]/.test(String(c.grind === null || c.grind === undefined ? '' : c.grind));
+                step = Math.min(step, curDecimal ? 0.3 : 2);
+                return { lowerFiner: s <= 0, step, learned: steps.length >= 2, ints, stepFrom, dirSure: Math.abs(s) >= 0.8, dirEv };
             },
 
             nextGrind(g, dir, gm) {
@@ -5397,6 +5442,15 @@
                 return { n: rows.length, r0: q(ratios, 0.25), r1: q(ratios, 0.75), t0: q(times, 0.25), t1: q(times, 0.75), tm: q(times, 0.5) };
             },
 
+            // v11.6: median time of this person's other 4★+ shots on this coffee (null under 2 shots)
+            coachCoffeeTimes(c) {
+                const ts = this.brewsOf(c.owner).filter(b => (b.method || '') === c.method && String(b.id) !== c.id && this.groupKeyOfBrew(b) === c.beanKey && this.normalizeRating(b.rating) >= 4 && this.num(b.time) > 0)
+                    .map(b => this.num(b.time)).sort((x, y) => x - y);
+                if (ts.length < 2) return null;
+                const h = ts.length / 2;
+                return { n: ts.length, tm: ts.length % 2 ? ts[Math.floor(h)] : (ts[h - 1] + ts[h]) / 2 };
+            },
+
             coachBean(c) {
                 const bean = this.beans.get(c.beanId) || Array.from(this.beans.values()).find(b => this.beanGroupKey(b) === c.beanKey) || {};
                 const counts = new Map();
@@ -5416,7 +5470,7 @@
                 let ref = null;
                 past.forEach(b => { const r = rate(b); if (r <= 0) return; const br = ref ? rate(ref) : -1; if (r > br || (r === br && this.localTime(b.date) >= this.localTime(ref.date))) ref = b; });
                 const refR = ref ? rate(ref) : 0;
-                const read = this.coachRead(c.text);
+                const read = this.coachRead(c.text, { rating: c.rating });
                 const tags = (c.flavors || []).map(f => String(f).toLowerCase());
                 const tagU = tags.filter(t => ['sour', 'sharp', 'salty', 'grassy', 'thin'].includes(t)).length, tagO = tags.filter(t => ['bitter', 'harsh', 'ashy', 'drying', 'burnt', 'astringent'].includes(t)).length;
                 let U = read.under + Math.min(2, tagU) * 1.1 + (c.verdict === 'sour' ? 1.6 : 0), O = read.over + Math.min(2, tagO) * 1.0 + (c.verdict === 'bitter' ? 1.6 : 0);
@@ -5427,11 +5481,18 @@
                 const weak = read.weak + (v('body') !== null && v('body') <= 3 && U < 1 && O < 1 ? 0.6 : 0), strong = read.strong;
                 const ratio = c.dose > 0 && c.yield > 0 ? c.yield / c.dose : 0;
                 const refRatio = ref ? this.ratioOf(ref) : 0, refT = ref ? this.num(ref.time) : 0;
-                const dR = ratio && refRatio ? ratio - refRatio : 0, dT = c.time > 0 && refT > 0 ? c.time - refT : null;
-                const gm = this.grindModel(c.owner, c.method);
+                const dR = ratio && refRatio ? ratio - refRatio : 0;
+                let dT = c.time > 0 && refT > 0 ? c.time - refT : null;
+                const gm = this.grindModel(c.owner, c.method, c);
                 const drift = this.coachDrift(c, past);
                 const pal = this.coachPalate(c.owner, c.method, c.id);
                 const bean = this.coachBean(c);
+                // v11.6: time baseline = your best shot's time, unless it's an outlier; then your usual on this coffee, then your usual overall
+                const cof = this.coachCoffeeTimes(c);
+                const usual = cof ? { t: cof.tm, label: 'your usual on this coffee' } : pal ? { t: pal.tm, label: 'your usual' } : null;
+                const refOut = !!(refT > 0 && usual && Math.abs(refT - usual.t) > 8);
+                if (refOut && c.time > 0) dT = c.time - usual.t;
+                const tLabel = refOut ? usual.label : 'your best', tLabelShot = refOut ? usual.label : 'your best shot';
                 const ev = [], why = [];
                 // no best shot yet: read time against what espresso normally takes
                 let tU = 0, tO = 0;
@@ -5451,14 +5512,14 @@
                 if (tagU) ev.push({ side: 'under', text: 'Tagged sour/sharp' });
                 if (tagO) ev.push({ side: 'over', text: 'Tagged bitter/harsh' });
                 if (esp && dR >= 0.3) ev.push({ side: 'over', text: `Ran long: 1:${this.fmtNum(ratio, 1)} vs 1:${this.fmtNum(refRatio, 1)}` });
-                if (esp && dT !== null && dT <= -4) ev.push({ side: 'under', text: `Ran ${this.fmtNum(-dT)} s faster than your best` });
-                if (esp && dT !== null && dT >= 6) ev.push({ side: 'over', text: `Ran ${this.fmtNum(dT)} s slower than your best` });
+                if (esp && dT !== null && dT <= -4) ev.push({ side: 'under', text: `Ran ${this.fmtNum(-dT)} s faster than ${tLabel}` });
+                if (esp && dT !== null && dT >= 6) ev.push({ side: 'over', text: `Ran ${this.fmtNum(dT)} s slower than ${tLabel}` });
                 if (drift) ev.push({ side: 'under', text: `Same grind running faster (${this.fmtNum(drift.from)} s \u2192 ${this.fmtNum(drift.lo)}\u2013${this.fmtNum(drift.hi)} s)` });
                 // the recipe we steer toward
                 const dose = ref && Math.abs(this.num(ref.dose) - c.dose) >= 0.5 ? this.num(ref.dose) : (c.dose || this.num(ref && ref.dose));
                 const tRatio = refRatio || (pal ? (pal.r0 + pal.r1) / 2 : (esp ? (bean.light ? 2.4 : bean.dark ? 2 : 2.2) : 0));
-                let aimBase = refT || (pal ? (pal.t0 + pal.t1) / 2 : 30);
-                if (pal) aimBase = Math.abs(aimBase - pal.tm) > 8 ? pal.tm : aimBase; else aimBase = Math.min(Math.max(aimBase, 24), 45);
+                let aimBase = refOut ? usual.t : (refT || (cof ? cof.tm : pal ? (pal.t0 + pal.t1) / 2 : 30));
+                if (!usual) aimBase = Math.min(Math.max(aimBase, 24), 45);
                 let aim = esp ? [Math.round(aimBase), Math.round(aimBase + (drift ? 6 : 4))] : null;
                 const recipe = (grindStr, d, y) => [grindStr, d > 0 && y > 0 ? `${this.fmtNum(d, 1)} g \u2192 ${this.fmtNum(y, 1)} g (1:${this.fmtNum(y / d, 1)})` : '', aim ? `aim ${aim[0]}\u2013${aim[1]} s` : ''].filter(Boolean).join(' \u00b7 ');
                 const keepG = this.grindText(c.grind) ? `grind ${this.grindText(c.grind)}` : '';
@@ -5471,7 +5532,7 @@
                 const confOf = sc => sc >= 3 ? 'strong read' : sc >= 1.8 ? 'likely' : 'possible';
                 let mode = 'fix', head = '', next = '', conf = '';
                 const words = side => quote(side).length ? `Your notes say ${quote(side).slice(0, 2).join(' and ')}.` : '';
-                if (c.rating > 0 && (ref ? (c.rating > refR || (c.rating === refR && Math.max(U0, O0) < 1.5)) : (c.rating >= 4 && Math.max(U0, O0) < 1.5))) {
+                if (c.rating >= 4 && (ref ? (c.rating > refR || (c.rating === refR && Math.max(U0, O0) < 1.5)) : Math.max(U0, O0) < 1.5)) {   // v11.6: 'best yet' needs 4★+
                     mode = 'refine';
                     if (esp && c.time > 0) aim = [Math.round(c.time - 2), Math.round(c.time + 2)];
                     const best = ref ? `It beats your ${this.fmtNum(refR)}\u2605 from ${this.shortDate(ref.date)}.` : 'Your first rated shot of this coffee.';
@@ -5508,7 +5569,7 @@
                         why.push(words('under') || 'It read sour.');
                     }
                     if (drift) why.push(`At ${keepG || 'this grind'} your shots ran ${this.fmtNum(drift.from)} s on ${this.shortDate(drift.first.date)} and ${this.fmtNum(drift.lo)}\u2013${this.fmtNum(drift.hi)} s lately: the coffee is aging, so it needs a finer grind to hit the same time.`);
-                    else if (dT !== null && dT <= -4) why.push(`It ran ${this.fmtNum(-dT)} s faster than your best shot.`);
+                    else if (dT !== null && dT <= -4) why.push(`It ran ${this.fmtNum(-dT)} s faster than ${tLabelShot}.`);
                 } else if (O >= 1.2 && O >= U * 1.3) {
                     conf = confOf(O + (dR >= 0.3 ? 0.8 : 0) + (dT !== null && dT >= 6 ? 0.8 : 0));
                     if (esp && dR >= 0.3) {
@@ -5525,7 +5586,7 @@
                         head = esp ? `Over-extracted: ${goDir('coarser', coarser)}.` : `Over-extracted: ${goDir('coarser', coarser)}, or brew a little shorter.`;
                         next = recipe(coarser, dose, esp ? backYield : c.yield);
                         why.push(words('over') || 'It read bitter.');
-                        if (dT !== null && dT >= 6) why.push(`It ran ${this.fmtNum(dT)} s slower than your best shot.`);
+                        if (dT !== null && dT >= 6) why.push(`It ran ${this.fmtNum(dT)} s slower than ${tLabelShot}.`);
                     }
                 } else if (weak >= 1 || strong >= 1) {
                     mode = 'ratio'; conf = 'likely';
@@ -5554,6 +5615,8 @@
                     next = recipe(keepG, c.dose, c.yield);
                     why.push('One shot can be noise; if it tastes the same twice, the notes will tell us which way to go.');
                 }
+                if (next && finer !== coarser && this.grindNum(c.grind) === null && this.grindOrd(c.grind) !== null && gm.dirSure && gm.dirEv && (next.startsWith(finer) || next.startsWith(coarser)))
+                    why.push(`On your grinder, ${gm.lowerFiner ? 'higher' : 'lower'} settings are coarser: going from ${this.grindText(gm.dirEv.from.grind)} to ${this.grindText(gm.dirEv.to.grind)} took your shot from ${this.fmtNum(this.num(gm.dirEv.from.time))} s to ${this.fmtNum(this.num(gm.dirEv.to.time))} s.`);
                 if (mode === 'refine') for (let i = ev.length - 1; i >= 0; i--) if (!/^\u201c/.test(ev[i].text)) ev.splice(i, 1);
                 const ctx = [];
                 if (ref) ctx.push([mode === 'refine' ? 'Your previous best' : 'Your best on this coffee', `${this.shortDate(ref.date)} \u00b7 ${this.fmtNum(refR)}\u2605 \u00b7 ${this.recipeLine(ref, true)}`]);
@@ -5837,6 +5900,17 @@
                         if (k && coachOwners.length > 1) { const others = brews.filter(b => this.getBrewOwner(b) !== c.owner && /[a-z]/i.test(this.grindText(b.grind))).map(b => this.grindText(b.grind)); check(!others.some(g => g && g !== this.grindText(c.grind) && !this.coachPast(c).some(x => this.grindText(x.grind) === g) && (k.next || '').includes(`grind ${g}`)), `coach ${i} never borrows another person's grind`); }
                     }
                     check(this.coachRead('still really sour').under > 1.5 && this.coachRead('not bitter').over === 0 && this.coachRead('less sour').under < 0 && this.coachRead('I over extracted to see if that would help').over < 0.5, 'notes reader: intensity, negation, improvement, intent');
+                    // 13b. barista coach v11.6
+                    section = 'coach';
+                    check(this.coachRead('because I COOKED! super sweet and tasty', { rating: 5 }).over === 0 && this.coachRead('because I COOKED!', { rating: 4.5 }).good > 0 && this.coachRead('we cooked. so good').over === 0, 'slang: "I cooked" on a great shot or next to praise is praise');
+                    check(this.coachRead('cooked it again', { rating: 5 }).over >= 1 && this.coachRead('I overcooked it', { rating: 5 }).over >= 1 && this.coachRead('we cooked again', { rating: 4 }).over >= 1, 'slang: "cooked it", "overcooked", "cooked again" mean over-extracted');
+                    check(this.coachRead('we cooked', { rating: 2 }).over > 0 && this.coachRead('over cooked').over < 1.5, 'slang: bare "we cooked" on a weak shot stays a mild over read; "over cooked" counts once');
+                    check(this.grindOrd('8e') > this.grindOrd('8A') && this.grindOrd('8A') > this.grindOrd('6E') && this.grindOrd('14') === 14 && this.grindOrd('Click 18') === null, 'letter grinds order by number, then letter');
+                    for (let i = 0; i < 60 && brews.length; i++) {
+                        const b = pick(brews);
+                        const k = safe('coach under 4', () => this.coach({ ...this.coachFromBrew(b), id: `st-c4-${i}`, rating: pick([0.5, 1, 2, 2.5, 3, 3.5]) }));
+                        check(k && k.mode !== 'refine' && !/best yet|Perfect score/i.test(k.head), `coach ${i}: no "best yet" under 4 stars`);
+                    }
                     if (onProgress) onProgress('done');
                 } finally {
                     this.push = realPush;
