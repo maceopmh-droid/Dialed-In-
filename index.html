@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v11.6 -->
+<!-- Dialed In v11.7 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="11.6">
+    <meta name="dialed-in-version" content="11.7">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -2717,7 +2717,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v11.6</div>
+            <div class="app-version">Dialed In · v11.7</div>
         </div>
     </div>
 
@@ -2773,7 +2773,7 @@
                 </div>
             </div>
 
-            <form onsubmit="app.handleBrewSubmit(event)">
+            <form onsubmit="app.handleBrewSubmit(event)" oninput="app.onBrewFormInput(event)">
                 <input type="hidden" name="id" id="brew-edit-id">
 
                 <div class="brew-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem;">
@@ -5345,7 +5345,7 @@
             coachFromBrew(brew) {
                 return { id: String(brew.id), owner: this.getBrewOwner(brew), beanKey: this.groupKeyOfBrew(brew), beanId: String(brew.beanId || ''), method: brew.method || '', date: brew.date,
                     grind: brew.grind, dose: this.num(brew.dose), yield: this.num(brew.yield), time: this.num(brew.time), rating: this.normalizeRating(brew.rating),
-                    text: this.getBrewNotes(brew), flavors: this.extractFlavors(brew), values: this.shapeValues(brew), tasted: this.tastedKeys(brew), verdict: String(brew.verdict || '') };
+                    text: this.getBrewNotes(brew), flavors: this.extractFlavors(brew), values: this.shapeValues(brew), tasted: this.tastedKeys(brew), tastedExplicit: Array.isArray(brew.tasted), verdict: String(brew.verdict || '') };
             },
 
             coachFromForm() {
@@ -5356,7 +5356,7 @@
                 return { id: editing, owner: this.user, beanKey: this.activeGroup ? this.beanGroupKey(this.activeGroup.meta) : '', beanId: String(this.activeId || ''), method: r.method,
                     date: existing ? existing.date : new Date().toISOString(), grind: form && form.grind ? form.grind.value : '', dose: this.num(r.dose), yield: this.num(r.yield), time: this.num(r.time),
                     rating: form && form.rating ? this.normalizeRating(form.rating.value) : 0, text: form && form.notes ? form.notes.value : '', flavors: [...this.selFlavors],
-                    values: this.formTasteValues(), tasted: [...this.tasteTouched] };
+                    values: this.formTasteValues(), tasted: [...this.tasteTouched], tastedExplicit: true };
             },
 
             // shots on this coffee by this person and method, up to this one (older cards never see the future)
@@ -5394,11 +5394,13 @@
                         s += w; pairs.push({ from: a, to: b, dt, w });
                     }
                     const ev = pairs.filter(x => Math.sign(x.w) === Math.sign(s)).sort((x, y) => Math.abs(y.dt) - Math.abs(x.dt))[0] || null;   // an example that agrees
-                    return { s, ev };
+                    return { s, ev, pairs };
                 };
-                const dirTiers = [all.filter(b => key && this.groupKeyOfBrew(b) === key), all.filter(b => Number.isFinite(t) && t - this.localTime(b.date) <= 30 * 864e5), all].map(dirOf);
-                const dir = dirTiers.find(d => Math.abs(d.s) >= 0.8) || dirTiers[2];
-                const s = dir.s, dirEv = dir.ev;
+                // v11.7: a grinder's direction doesn't change with the coffee, so use every shot so far written the same way as this one
+                const curLetter = !!c && this.grindNum(c.grind) === null && this.grindOrd(c.grind) !== null;
+                const dir = dirOf(all.filter(b => (this.grindNum(b.grind) === null) === curLetter));
+                const s = dir.s;
+                const dirEv = (key && dir.pairs.filter(x => Math.sign(x.w) === Math.sign(s) && this.groupKeyOfBrew(x.to) === key).sort((x, y) => Math.abs(y.dt) - Math.abs(x.dt))[0]) || dir.ev;
                 const numeric = all.filter(b => this.grindNum(b.grind) !== null);
                 const tiers = [['this coffee', numeric.filter(b => key && this.groupKeyOfBrew(b) === key)],
                     ['last 30 days', numeric.filter(b => Number.isFinite(t) && t - this.localTime(b.date) <= 30 * 864e5)],
@@ -5407,7 +5409,8 @@
                 const wholeTier = tiers.find(([, l]) => l.length >= 2);
                 const ints = wholeTier ? wholeTier[1].every(b => Number.isInteger(this.grindNum(b.grind))) : !(c && /[.,]\d*[1-9]/.test(String(c.grind || '')));
                 let stepFrom = '', steps = [];
-                for (const [name, l] of tiers) { const st = stepsOf(l); if (st.length) { stepFrom = name; steps = st; break; } }
+                for (const [name, l] of tiers) { const st = stepsOf(l); if (st.length >= 2) { stepFrom = name; steps = st; break; } }   // v11.7: 2+ changes before a tier counts
+                if (!steps.length) for (const [name, l] of tiers) { const st = stepsOf(l); if (st.length) { stepFrom = name; steps = st; break; } }
                 // the usual step = the most common one (ties go to the smaller, gentler move)
                 const freq = new Map(); steps.forEach(d => freq.set(d, (freq.get(d) || 0) + 1));
                 let step = steps.length ? [...freq.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0][0] : (ints ? 1 : 0.1);
@@ -5476,8 +5479,20 @@
                 let U = read.under + Math.min(2, tagU) * 1.1 + (c.verdict === 'sour' ? 1.6 : 0), O = read.over + Math.min(2, tagO) * 1.0 + (c.verdict === 'bitter' ? 1.6 : 0);
                 const sliderOnly = !read.quotes.length && !tagU && !tagO && !c.verdict;
                 const v = k => (c.tasted || []).includes(k) ? Number(c.values[k]) : null;
-                if (v('bitterness') !== null) O += v('bitterness') >= 9 ? 1.0 : v('bitterness') >= 7 ? 0.6 : 0;
-                if (v('acidity') !== null && v('acidity') >= 8 && (v('sweetness') === null || v('sweetness') <= 5)) U += 0.6;
+                const absO = v('bitterness') !== null ? (v('bitterness') >= 9 ? 1.0 : v('bitterness') >= 7 ? 0.6 : 0) : 0;
+                const absU = v('acidity') !== null && v('acidity') >= 8 && (v('sweetness') === null || v('sweetness') <= 5) ? 0.6 : 0;
+                // v11.7: slider moves against your best shot of this coffee (2+ points): more acidity = sour side, more bitterness = bitter side,
+                // and less sweetness strengthens whichever side it goes with
+                let sU = 0, sO = 0, sSweet = false;
+                if (ref && c.tastedExplicit) {   // only shots logged with "move only what felt different" (older rows rated each slider on its own)
+                    const rv = this.shapeValues(ref);
+                    const d = k => v(k) !== null ? v(k) - Number(rv[k]) : null;
+                    const da = d('acidity'), db = d('bitterness'), ds = d('sweetness');
+                    if (da !== null && da >= 2) sU = Math.min(1.2, 0.6 + 0.2 * (da - 2));
+                    if (db !== null && db >= 2) sO = Math.min(1.2, 0.6 + 0.2 * (db - 2));
+                    if (ds !== null && ds <= -2) { const k = Math.min(0.8, 0.4 + 0.2 * (-ds - 2)); if (sU > 0 && sU >= sO) { sU += k; sSweet = true; } else if (sO > 0) { sO += k; sSweet = true; } }
+                }
+                U += Math.max(absU, sU); O += Math.max(absO, sO);
                 const weak = read.weak + (v('body') !== null && v('body') <= 3 && U < 1 && O < 1 ? 0.6 : 0), strong = read.strong;
                 const ratio = c.dose > 0 && c.yield > 0 ? c.yield / c.dose : 0;
                 const refRatio = ref ? this.ratioOf(ref) : 0, refT = ref ? this.num(ref.time) : 0;
@@ -5501,6 +5516,7 @@
                     else if (c.time < 22) { tU += c.time < 18 ? 1.2 : 0.8; ev.push({ side: 'under', text: `Ran fast (${this.fmtNum(c.time)} s)` }); }
                 }
                 if (esp && ref && dT !== null) { if (dT <= -4) tU += dT <= -7 ? 1.2 : 0.8; else if (dT >= 6) tO += dT >= 9 ? 1.2 : 0.8; }
+                if (esp && c.time > 0 && c.time < 20) tU = Math.max(tU, 1.6);   // v11.7: under 20 s is fast, whatever the best shot did
                 // time supports the taste; it only adds weight when the notes don't strongly say the opposite
                 const U0 = U, O0 = O;
                 if (O0 < 1.2) U += tU;
@@ -5511,6 +5527,8 @@
                 if (c.verdict === 'sour' || c.verdict === 'bitter') ev.push({ side: c.verdict === 'sour' ? 'under' : 'over', text: `Marked ${c.verdict}` });
                 if (tagU) ev.push({ side: 'under', text: 'Tagged sour/sharp' });
                 if (tagO) ev.push({ side: 'over', text: 'Tagged bitter/harsh' });
+                if (sU >= 1.2 && sU >= sO) ev.push({ side: 'under', text: `Sliders: more acidic${sSweet ? ', less sweet' : ''} than your best` });
+                else if (sO >= 1.2) ev.push({ side: 'over', text: `Sliders: more bitter${sSweet ? ', less sweet' : ''} than your best` });
                 if (esp && dR >= 0.3) ev.push({ side: 'over', text: `Ran long: 1:${this.fmtNum(ratio, 1)} vs 1:${this.fmtNum(refRatio, 1)}` });
                 if (esp && dT !== null && dT <= -4) ev.push({ side: 'under', text: `Ran ${this.fmtNum(-dT)} s faster than ${tLabel}` });
                 if (esp && dT !== null && dT >= 6) ev.push({ side: 'over', text: `Ran ${this.fmtNum(dT)} s slower than ${tLabel}` });
@@ -5532,7 +5550,12 @@
                 const confOf = sc => sc >= 3 ? 'strong read' : sc >= 1.8 ? 'likely' : 'possible';
                 let mode = 'fix', head = '', next = '', conf = '';
                 const words = side => quote(side).length ? `Your notes say ${quote(side).slice(0, 2).join(' and ')}.` : '';
-                if (c.rating >= 4 && (ref ? (c.rating > refR || (c.rating === refR && Math.max(U0, O0) < 1.5)) : Math.max(U0, O0) < 1.5)) {   // v11.6: 'best yet' needs 4★+
+                const blank = !(c.dose > 0) && !(c.yield > 0) && !(c.time > 0) && !c.text && !(c.tasted || []).length && !tags.length && !c.verdict && !(c.rating > 0);
+                if (blank) {   // v11.7: nothing entered yet (the log form): ask, don't compare blanks
+                    mode = 'ask'; conf = '';
+                    head = 'Tell me how it tasted and I\'ll tell you what to change.';
+                    why.push('A word or two in Observations is enough: sour, bitter, thin, sweet, harsh.');
+                } else if (c.rating >= 4 && (ref ? (c.rating > refR || (c.rating === refR && Math.max(U0, O0) < 1.5)) : Math.max(U0, O0) < 1.5)) {   // v11.6: 'best yet' needs 4★+
                     mode = 'refine';
                     if (esp && c.time > 0) aim = [Math.round(c.time - 2), Math.round(c.time + 2)];
                     const best = ref ? `It beats your ${this.fmtNum(refR)}\u2605 from ${this.shortDate(ref.date)}.` : 'Your first rated shot of this coffee.';
@@ -5592,18 +5615,26 @@
                     mode = 'ratio'; conf = 'likely';
                     if (weak >= 1) { head = esp ? `A bit weak: keep the grind, stop earlier at ${Math.round(c.yield - 3)} g.` : 'A bit weak: same grind, a little more coffee.'; next = recipe(keepG, c.dose, esp ? c.yield - 3 : c.yield); why.push('Thin without sour or bitter points to strength (ratio), not extraction.'); }
                     else { head = esp ? `A bit strong: keep the grind and let it run to ${Math.round(c.yield + 3)} g.` : 'A bit strong: same grind, a little more water.'; next = recipe(keepG, c.dose, esp ? c.yield + 3 : c.yield); why.push('Heavy without bitterness points to strength, not extraction.'); }
+                } else if (ref && c.rating > 0 && c.rating >= refR) {
+                    // v11.7: under 4★ but level with or better than the best so far: don't send them back to a worse recipe
+                    mode = 'hold'; conf = 'possible';
+                    head = c.rating > refR ? `Better than your ${this.fmtNum(refR)}\u2605 best, but not there yet.` : `Level with your ${this.fmtNum(refR)}\u2605 best, but not there yet.`;
+                    next = recipe(keepG, c.dose, c.yield);
+                    why.push(`Repeat it and add a word on what tasted off (sour, bitter, thin); the next tip will say which way to go.`);
                 } else if (ref) {
                     mode = 'toward'; conf = 'likely';
+                    if (esp && refT > 0) aim = [Math.round(refT), Math.round(refT + 4)];   // v11.7: going back to that recipe means its time too
+                    const dTr = c.time > 0 && refT > 0 ? c.time - refT : null;
                     const diffs = [];
                     if (esp && Math.abs(dR) >= 0.15) diffs.push([Math.abs(dR) * 10, `ratio (1:${this.fmtNum(ratio, 1)} vs 1:${this.fmtNum(refRatio, 1)})`]);
-                    if (Math.abs(this.num(ref.dose) - c.dose) >= 0.5) diffs.push([Math.abs(this.num(ref.dose) - c.dose) * 3, `dose (${this.fmtNum(c.dose, 1)} g vs ${this.fmtNum(this.num(ref.dose), 1)} g)`]);
-                    if (esp && dT !== null && Math.abs(dT) >= 4) diffs.push([Math.abs(dT) / 2, `time (${this.fmtNum(c.time)} s vs ${this.fmtNum(refT)} s)`]);
+                    if (c.dose > 0 && Math.abs(this.num(ref.dose) - c.dose) >= 0.5) diffs.push([Math.abs(this.num(ref.dose) - c.dose) * 3, `dose (${this.fmtNum(c.dose, 1)} g vs ${this.fmtNum(this.num(ref.dose), 1)} g)`]);
+                    if (esp && dTr !== null && Math.abs(dTr) >= 4) diffs.push([Math.abs(dTr) / 2, `time (${this.fmtNum(c.time)} s vs ${this.fmtNum(refT)} s)`]);
                     diffs.sort((a, b) => b[0] - a[0]);
-                    head = diffs.length ? `Close. Head back to your ${this.fmtNum(refR)}\u2605 recipe.` : 'Same recipe as your best. Repeat it and focus on prep.';
+                    head = diffs.length ? `${!(c.rating > 0) || refR - c.rating <= 1 ? 'Close. ' : ''}Head back to your ${this.fmtNum(refR)}\u2605 recipe.` : 'Same recipe as your best. Repeat it and focus on prep.';
                     next = recipe(keepG, this.num(ref.dose), this.num(ref.yield));
                     const prev = past[past.length - 1];
                     if (prev && this.grindText(prev.grind) && !this.sameGrind(prev.grind, c.grind) && c.rating > rate(prev) && rate(prev) > 0) why.push(`Your move from grind ${this.grindText(prev.grind)} to ${this.grindText(c.grind)} worked (${this.fmtNum(rate(prev))}\u2605 \u2192 ${this.fmtNum(c.rating)}\u2605): keep it.`);
-                    else if (this.grindText(ref.grind) && !this.sameGrind(ref.grind, c.grind)) why.push(`Stay at ${keepG}: grind follows the coffee as it ages, so steer with dose and ratio.`);
+                    else if (keepG && this.grindText(ref.grind) && !this.sameGrind(ref.grind, c.grind)) why.push(`Stay at ${keepG}: grind follows the coffee as it ages, so steer with dose and ratio.`);
                     why.unshift(diffs.length ? `The biggest difference from your ${this.shortDate(ref.date)} shot is the ${diffs[0][1]}.` : 'Nothing in your notes points to a change, so consistency is the lever: same dose, same prep, same timing.');
                 } else if (!c.text && !(c.tasted || []).length && !tags.length && !c.verdict) {
                     mode = 'ask'; conf = '';
@@ -5910,6 +5941,21 @@
                         const b = pick(brews);
                         const k = safe('coach under 4', () => this.coach({ ...this.coachFromBrew(b), id: `st-c4-${i}`, rating: pick([0.5, 1, 2, 2.5, 3, 3.5]) }));
                         check(k && k.mode !== 'refine' && !/best yet|Perfect score/i.test(k.head), `coach ${i}: no "best yet" under 4 stars`);
+                    }
+                    // 13c. barista coach v11.7
+                    section = 'coach';
+                    {
+                        const any = brews.find(b => b.method === 'Espresso') || brews[0];
+                        if (any) {
+                            const blank = safe('blank form', () => this.coach({ ...this.coachFromBrew(any), id: 'st-blank', dose: 0, yield: 0, time: 0, rating: 0, text: '', tasted: [], flavors: [], verdict: '' }));
+                            check(blank && blank.mode === 'ask' && !/0 g|Stay at :/.test([blank.head, blank.next, ...blank.why].join(' ')), 'blank log form asks instead of comparing empty fields');
+                        }
+                    }
+                    for (let i = 0; i < 60 && brews.length; i++) {
+                        const b = pick(brews);
+                        const k = safe('coach progress', () => this.coach(this.coachFromBrew(b)));
+                        const refR = k && k.ref ? this.normalizeRating(k.ref.rating) : 0, r = this.normalizeRating(b.rating);
+                        check(k && !(r > 0 && refR > 0 && r >= refR && /Head back to your/.test(k.head)) && !(/^Close\./.test(k.head) && r > 0 && refR - r > 1), `coach ${i}: never steers back to a worse best, "Close." only when close`);
                     }
                     if (onProgress) onProgress('done');
                 } finally {
@@ -9028,6 +9074,13 @@
                 return `<div class="next-card${a.ok ? '' : ' empty'}"><div class="next-title">Next shot${a.conf ? ` · ${this.esc(a.conf)}` : ''}</div><div class="next-headline">${this.esc(a.head)}</div>${a.ok && a.detail ? `<div class="next-detail">${this.esc(a.detail)}</div>` : ''}${a.note ? `<div class="next-detail">${this.esc(a.note)}</div>` : ''}${ev}${ref}</div>`;
             },
 
+            // v11.7: the Next-shot tip follows everything you type, not just notes and sliders
+            onBrewFormInput(e) {
+                const t = e && e.target;
+                if (!t || !/^(grind|dose|yield|time|rating|recipe-ratio|time-input)$/.test(t.name || t.id || '')) return;
+                this.renderTasteTip();   // right away: a deferred refresh could miss the last keystroke
+            },
+
             renderTasteTip() {
                 const box = document.getElementById('taste-tip');
                 if (!box) return;
@@ -10649,6 +10702,7 @@
                     const input = document.getElementById('time-input');
                     if (input) input.value = Math.round(t.acc);
                     this.paintTimer();
+                    this.renderTasteTip();
                     return;
                 }
                 t.on = true;
