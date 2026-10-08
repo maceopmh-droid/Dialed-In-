@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v11.7 -->
+<!-- Dialed In v11.8 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="11.7">
+    <meta name="dialed-in-version" content="11.8">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -2420,6 +2420,22 @@
         .coach-ctx { margin-top: 10px; padding-top: 9px; border-top: 1px solid rgba(var(--matcha-rgb), 0.16); display: grid; gap: 5px; font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
         .coach-ctx b { color: var(--ink-2); font-weight: 700; margin-right: 6px; }
         .next-card.coach.refine { border-color: rgba(var(--matcha-rgb), 0.45); }
+
+        /* ===== polish (v11.8) ===== */
+        .session-photo-wrap.is-broken { display: none; }
+        .card-tabs { justify-content: space-between; }
+        .card-tab { padding: 8px 8px; letter-spacing: 0.02em; }
+        .insight-tab, .cal-btn, .equipment-edit, .equipment-delete { position: relative; }
+        .insight-tab::after, .cal-btn::after, .like-btn::after, .equipment-edit::after, .equipment-delete::after { content: ''; position: absolute; inset: -8px -4px; }
+        button[onclick="app.addUser()"] { white-space: nowrap; flex-shrink: 0; }
+        .modal-card .taste-card + label { margin-top: 1.7rem; }
+        .fab-last-label { margin: 20px 0 10px; font-size: 0.98rem; font-weight: 700; color: var(--ink); }
+        .log-date, .panel-empty, .mob-item { color: var(--text-muted); }
+        :root[data-theme="dark"] .user-delete, :root[data-theme="dark"] .equipment-delete { color: #2B1412; }
+        :root[data-theme="dark"] .streak-chip { color: #E2AE5C; }
+        :root[data-theme="dark"] .streak-chip { color: #E2AE5C; }
+        :root[data-theme="dark"] .seg-control button[aria-pressed="true"] { background: rgba(255, 255, 255, 0.09); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), var(--shadow-soft); }
+        .ns:not(.set) .ns-val, .ns:not(.set) .ns-sep { visibility: hidden; }   /* keeps the row height: no jump when a slider is set */
     </style>
 </head>
 <body>
@@ -2717,7 +2733,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v11.7</div>
+            <div class="app-version">Dialed In · v11.8</div>
         </div>
     </div>
 
@@ -2818,32 +2834,32 @@
                     <div id="taste-target" class="taste-target" hidden></div>
                     <div id="taste-shape" class="taste-shape"></div>
                     <div class="ns" data-k="acidity" style="--c:#EDB92E">
-                        <div class="ns-head"><span class="ns-name"><i class="ns-dot"></i>Acidity</span><span class="ns-read"><b class="ns-val">–</b> · <span class="ns-word">not set</span></span></div>
+                        <div class="ns-head"><span class="ns-name"><i class="ns-dot"></i>Acidity</span><span class="ns-read"><b class="ns-val">–</b><span class="ns-sep"> · </span><span class="ns-word">not set</span></span></div>
                         <div class="ns-track"><input type="range" name="acidity" min="1" max="10" step="1" value="5" aria-label="Acidity" oninput="app.onTasteInput('acidity', this.value)"><span class="ns-ghost" hidden></span></div>
                         <div class="ns-ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
                     </div>
                     <div class="ns" data-k="sweetness" style="--c:#EE7A62">
-                        <div class="ns-head"><span class="ns-name"><i class="ns-dot"></i>Sweetness</span><span class="ns-read"><b class="ns-val">–</b> · <span class="ns-word">not set</span></span></div>
+                        <div class="ns-head"><span class="ns-name"><i class="ns-dot"></i>Sweetness</span><span class="ns-read"><b class="ns-val">–</b><span class="ns-sep"> · </span><span class="ns-word">not set</span></span></div>
                         <div class="ns-track"><input type="range" name="sweetness" min="1" max="10" step="1" value="5" aria-label="Sweetness" oninput="app.onTasteInput('sweetness', this.value)"><span class="ns-ghost" hidden></span></div>
                         <div class="ns-ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
                     </div>
                     <div class="ns" data-k="body" style="--c:#A0663F">
-                        <div class="ns-head"><span class="ns-name"><i class="ns-dot"></i>Body</span><span class="ns-read"><b class="ns-val">–</b> · <span class="ns-word">not set</span></span></div>
+                        <div class="ns-head"><span class="ns-name"><i class="ns-dot"></i>Body</span><span class="ns-read"><b class="ns-val">–</b><span class="ns-sep"> · </span><span class="ns-word">not set</span></span></div>
                         <div class="ns-track"><input type="range" name="body" min="1" max="10" step="1" value="5" aria-label="Body" oninput="app.onTasteInput('body', this.value)"><span class="ns-ghost" hidden></span></div>
                         <div class="ns-ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
                     </div>
                     <div class="ns" data-k="finish" style="--c:#5F8FDB">
-                        <div class="ns-head"><span class="ns-name"><i class="ns-dot"></i>Finish</span><span class="ns-read"><b class="ns-val">–</b> · <span class="ns-word">not set</span></span></div>
+                        <div class="ns-head"><span class="ns-name"><i class="ns-dot"></i>Finish</span><span class="ns-read"><b class="ns-val">–</b><span class="ns-sep"> · </span><span class="ns-word">not set</span></span></div>
                         <div class="ns-track"><input type="range" name="finish" min="1" max="10" step="1" value="5" aria-label="Finish" oninput="app.onTasteInput('finish', this.value)"><span class="ns-ghost" hidden></span></div>
                         <div class="ns-ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
                     </div>
                     <div class="ns" data-k="bitterness" style="--c:#8A63C4">
-                        <div class="ns-head"><span class="ns-name"><i class="ns-dot"></i>Bitterness</span><span class="ns-read"><b class="ns-val">–</b> · <span class="ns-word">not set</span></span></div>
+                        <div class="ns-head"><span class="ns-name"><i class="ns-dot"></i>Bitterness</span><span class="ns-read"><b class="ns-val">–</b><span class="ns-sep"> · </span><span class="ns-word">not set</span></span></div>
                         <div class="ns-track"><input type="range" name="bitterness" min="1" max="10" step="1" value="5" aria-label="Bitterness" oninput="app.onTasteInput('bitterness', this.value)"><span class="ns-ghost" hidden></span></div>
                         <div class="ns-ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
                     </div>
                     <div class="ns" data-k="balance" style="--c:#36B38C">
-                        <div class="ns-head"><span class="ns-name"><i class="ns-dot"></i>Complexity</span><span class="ns-read"><b class="ns-val">–</b> · <span class="ns-word">not set</span></span></div>
+                        <div class="ns-head"><span class="ns-name"><i class="ns-dot"></i>Complexity</span><span class="ns-read"><b class="ns-val">–</b><span class="ns-sep"> · </span><span class="ns-word">not set</span></span></div>
                         <div class="ns-track"><input type="range" name="balance" min="1" max="10" step="1" value="5" aria-label="Complexity" oninput="app.onTasteInput('balance', this.value)"><span class="ns-ghost" hidden></span></div>
                         <div class="ns-ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
                     </div>
@@ -3915,15 +3931,16 @@
                     .split('|')
                     .map(item => String(item || '').trim())
                     .filter(Boolean);
+                const giveUp = () => { imgEl.onerror = null; const wrap = imgEl.closest('.session-photo-wrap'); if (wrap) wrap.classList.add('is-broken'); else imgEl.hidden = true; };   // v11.8: only when every source failed
                 if (!list.length) {
-                    imgEl.onerror = null;
+                    giveUp();
                     return;
                 }
                 let idx = Number(imgEl.getAttribute('data-fallback-index') || '0');
                 if (!Number.isFinite(idx)) idx = 0;
                 idx += 1;
                 if (idx >= list.length) {
-                    imgEl.onerror = null;
+                    giveUp();
                     return;
                 }
                 imgEl.setAttribute('data-fallback-index', String(idx));
@@ -5957,6 +5974,9 @@
                         const refR = k && k.ref ? this.normalizeRating(k.ref.rating) : 0, r = this.normalizeRating(b.rating);
                         check(k && !(r > 0 && refR > 0 && r >= refR && /Head back to your/.test(k.head)) && !(/^Close\./.test(k.head) && r > 0 && refR - r > 1), `coach ${i}: never steers back to a worse best, "Close." only when close`);
                     }
+                    // 15. polish (v11.8)
+                    section = 'screens';
+                    check(this.coverArt({ roaster: '\u{1F1E8}\u{1F1F2}', name: 'Mystery' }).initials === '\u{1F1E8}\u{1F1F2}' && this.coverArt({ roaster: 'Urbana Roasters' }).initials === 'UR' && this.coverArt({ name: 'x' }).initials === 'X', 'cover tiles: whole flag emoji, letters otherwise');
                     if (onProgress) onProgress('done');
                 } finally {
                     this.push = realPush;
@@ -6360,7 +6380,10 @@
                 const hue = hues[h % hues.length];
                 const roast = String((bean && bean.roast) || '').toLowerCase();
                 const l = roast.includes('dark') ? 30 : roast.includes('medium') ? 42 : 54;
-                const initials = String((bean && (bean.roaster || bean.name)) || '?').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+                const words = String((bean && (bean.roaster || bean.name)) || '?').trim().split(/\s+/).filter(Boolean);
+                const first = w => { const m = /^(?:[\u{1F1E6}-\u{1F1FF}]{2}|\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*|.)/u.exec(w); return m ? m[0] : ''; };
+                const g0 = words.length ? first(words[0]) : '?';
+                const initials = /\p{Extended_Pictographic}|[\u{1F1E6}-\u{1F1FF}]/u.test(g0) ? g0 : (words.slice(0, 2).map(first).join('').toUpperCase() || '?');   // v11.8
                 return { bg: `linear-gradient(145deg, hsl(${hue} 46% ${l + 14}%), hsl(${(hue + 24) % 360} 42% ${l - 6}%))`, initials };
             },
 
@@ -8219,7 +8242,7 @@
                 const dots = r.weeks.map((on, i) => `<span class="week-dot${on ? ' on' : ''}" title="${i === 7 ? 'This week' : `${7 - i} week${7 - i === 1 ? '' : 's'} ago`}"></span>`).join('');
                 const streak = r.streak >= 2 ? `<span class="streak-chip">${r.streak}-day streak</span>` : '';
                 const last = r.lastT ? `Last brewed ${this.formatRelativeDate(r.lastT)}` : 'No sessions yet';
-                return `<section class="profile-card profile-hero"><div class="hero-row"><div class="hero-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(user))}</div><div><div class="hero-name">${this.esc(user)}${user === this.user ? '<span class="you-tag">You</span>' : ''}</div><div class="hero-sub">${this.esc(last)}</div></div></div><div class="rhythm"><div class="week-dots">${dots}</div><div class="rhythm-text">Brewed in ${r.active} of the last 8 weeks</div>${streak}</div><div class="stat-row"><div class="stat-box"><div class="stat-num">${brews.length}</div><div class="stat-cap">Sessions</div></div><div class="stat-box"><div class="stat-num">${beans}</div><div class="stat-cap">Beans</div></div><div class="stat-box"><div class="stat-num">${methods}</div><div class="stat-cap">Methods</div></div></div></section>`;
+                return `<section class="profile-card profile-hero"><div class="hero-row"><div class="hero-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(user))}</div><div><div class="hero-name">${this.esc(user)}${user === this.user ? '<span class="you-tag">You</span>' : ''}</div><div class="hero-sub">${this.esc(last)}</div></div></div><div class="rhythm"><div class="week-dots">${dots}</div><div class="rhythm-text">Brewed in ${r.active} of the last 8 weeks</div>${streak}</div><div class="stat-row"><div class="stat-box"><div class="stat-num">${brews.length}</div><div class="stat-cap">${brews.length === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${beans}</div><div class="stat-cap">${beans === 1 ? 'Bean' : 'Beans'}</div></div><div class="stat-box"><div class="stat-num">${methods}</div><div class="stat-cap">${methods === 1 ? 'Method' : 'Methods'}</div></div></div></section>`;
             },
 
             palateFor(user) {
@@ -8592,8 +8615,9 @@
                     let best = '';
                     if (s.best) {
                         const photo = this.normalizePhoto(s.best.photo);
-                        const src = photo ? (this.buildDriveFallbackUrls(photo.fileId || this.extractDriveFileId(photo.url), photo.url)[0] || photo.url) : '';
-                        best = `<div class="recap-best">${src ? `<img src="${this.esc(src)}" alt="Best shot" loading="lazy">` : ''}<div class="recap-best-text"><b>Best shot</b> · ${this.esc(this.shortDate(s.best.date))}<br>${this.esc(this.beanLabel(this.beans.get(String(s.best.beanId))))} · ${this.esc(this.fmtNum(this.normalizeRating(s.best.rating)))}★</div></div>`;
+                        const fb = photo ? this.buildDriveFallbackUrls(photo.fileId || this.extractDriveFileId(photo.url), photo.url) : [];
+                        const src = photo ? (fb[0] || photo.url) : '';
+                        best = `<div class="recap-best">${src ? `<img src="${this.esc(src)}" alt="Best shot" loading="lazy" data-fallback-index="0" data-fallbacks="${this.esc(fb.join('|'))}" onerror="app.handlePhotoFallback(this)">` : ''}<div class="recap-best-text"><b>Best shot</b> · ${this.esc(this.shortDate(s.best.date))}<br>${this.esc(this.beanLabel(this.beans.get(String(s.best.beanId))))} · ${this.esc(this.fmtNum(this.normalizeRating(s.best.rating)))}★</div></div>`;
                     }
                     body = `<div class="recap-grid">${boxes}</div>${best}<div class="recap-lines">${lines}</div><button type="button" class="btn-outline recap-share" onclick="app.shareRecap()">Share Recap Image</button>`;
                 }
