@@ -1,6 +1,9 @@
 <!DOCTYPE html>
+<!-- Dialed In v11.3 -->
 <html lang="en">
 <head>
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta name="dialed-in-version" content="11.3">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -2398,6 +2401,28 @@
         .recipe-card .method-extras label { margin-top: 0 !important; }
         .guide-until { margin-top: 4px; font-size: clamp(1.9rem, 8.5vw, 2.5rem); font-weight: 750; letter-spacing: -0.01em; color: var(--gc); font-variant-numeric: tabular-nums; line-height: 1.1; }
         .guide-until small { display: block; margin-top: 2px; font-size: 0.95rem; font-weight: 650; color: var(--text-muted); letter-spacing: 0; }
+
+        /* ===== DI logo + header title (v11.3) ===== */
+        :root, .logo-light { --lg-hi: #6C8F70; --lg-lo: #3D5943; --lg-caphi: #8DAE90; --lg-caplo: #3F5B45; --lg-cremahi: #F7EFDF; --lg-cremamid: #E4D1B0; --lg-cremalo: #BC9C70; --lg-shadow: rgba(30, 45, 32, 0.28); }
+        :root[data-theme="dark"], .logo-dark { --lg-hi: #D3E8CF; --lg-lo: #84AE89; --lg-caphi: #E3F1DF; --lg-caplo: #7AA37F; --lg-cremahi: #F3E7CF; --lg-cremamid: #DCC6A0; --lg-cremalo: #A88A60; --lg-shadow: rgba(0, 0, 0, 0.6); }
+        .lg-s-hi { stop-color: var(--lg-hi); } .lg-s-lo { stop-color: var(--lg-lo); }
+        .lg-s-caphi { stop-color: var(--lg-caphi); } .lg-s-caplo { stop-color: var(--lg-caplo); }
+        .lg-s-cremahi { stop-color: var(--lg-cremahi); } .lg-s-cremamid { stop-color: var(--lg-cremamid); } .lg-s-cremalo { stop-color: var(--lg-cremalo); }
+        .lg-s-sheen { stop-color: #fff; stop-opacity: 0.34; } .lg-s-clear { stop-color: #fff; stop-opacity: 0; }
+        .app-logo { display: none; overflow: visible; filter: drop-shadow(0 2px 3px var(--lg-shadow)); }
+        .app-logo .lg-cap { stroke: var(--paper); stroke-width: 2.6; }
+        .app-logo .lg-face-edge { fill: none; stroke: rgba(74, 48, 18, 0.4); stroke-width: 1.5; }
+        .app-logo .lg-glint { fill: #fff; opacity: 0.55; }
+        .app-logo .lg-rim { fill: none; stroke: rgba(255, 255, 255, 0.45); stroke-width: 1.4; }
+        #sidebar h1 .app-logo { display: block; height: 42px; width: 41px; margin-bottom: 14px; }
+        #view-title { font-weight: 800; letter-spacing: -0.02em; }
+        @media (max-width: 768px) {
+            .header-sticky > .app-logo { display: block; position: absolute; left: 50%; top: calc(var(--safe-top) + 6px); height: 31px; width: 30px; transform: translateX(-50%); pointer-events: none; }
+            .header-controls { gap: 8px; }
+            .locker-btn { width: 40px; height: 40px; min-height: 40px; padding: 0; justify-content: center; position: relative; border-radius: 12px; }
+            .locker-btn .locker-count { position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 5px; font-size: 0.6rem; background: var(--matcha); color: var(--on-matcha); box-shadow: 0 0 0 2px var(--paper); }
+        }
+        .app-version { margin-top: 14px; text-align: center; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; color: var(--text-faint); }
     </style>
 </head>
 <body>
@@ -2430,7 +2455,7 @@
 
     <!-- Desktop Sidebar -->
     <div id="sidebar">
-        <h1>Dialed In</h1>
+        <h1><svg class="app-logo" viewBox="-4 -19 133 138" role="img" aria-label="Dialed In"><defs><linearGradient id="lgBS" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" class="lg-s-hi"/><stop offset="1" class="lg-s-lo"/></linearGradient><linearGradient id="lgSS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="lg-s-sheen"/><stop offset="0.55" class="lg-s-clear"/></linearGradient><linearGradient id="lgCS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="lg-s-caphi"/><stop offset="1" class="lg-s-caplo"/></linearGradient><radialGradient id="lgFS" cx="0.38" cy="0.3" r="0.9"><stop offset="0" class="lg-s-cremahi"/><stop offset="0.6" class="lg-s-cremamid"/><stop offset="1" class="lg-s-cremalo"/></radialGradient><linearGradient id="lgPS" x1="0" y1="0" x2="1" y2="0.15"><stop offset="0" class="lg-s-hi"/><stop offset="1" class="lg-s-lo"/></linearGradient></defs><path fill="url(#lgBS)" fill-rule="evenodd" d="M13 0H50C80 0 100 20 100 50S80 100 50 100H13Z M38 19H50C70 19 81 31 81 50S70 81 50 81H38Z"/><path fill="url(#lgSS)" fill-rule="evenodd" d="M13 0H50C80 0 100 20 100 50S80 100 50 100H13Z M38 19H50C70 19 81 31 81 50S70 81 50 81H38Z"/><ellipse class="lg-cap" fill="url(#lgCS)" cx="13" cy="50" rx="12.5" ry="50"/><ellipse class="lg-face" fill="url(#lgFS)" cx="12.3" cy="50" rx="8.6" ry="43.5"/><ellipse class="lg-face-edge" cx="12.3" cy="50" rx="8.6" ry="43.5"/><ellipse class="lg-glint" cx="10.4" cy="23" rx="2.1" ry="9"/><path fill="url(#lgPS)" d="M102 -15Q112 50 102 115L125 77V23Z"/><path class="lg-rim" d="M102 -15Q112 50 102 115"/></svg>Dialed In</h1>
         <button class="nav-btn active" data-tab="my" onclick="app.setTab('my')">
             <svg class="icon"><use href="#i-coffee"/></svg>
             My Collection
@@ -2461,6 +2486,7 @@
     <!-- Main Content -->
     <div id="main-content">
         <div class="header-sticky">
+            <svg class="app-logo" viewBox="-4 -19 133 138" role="img" aria-label="Dialed In"><defs><linearGradient id="lgBH" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" class="lg-s-hi"/><stop offset="1" class="lg-s-lo"/></linearGradient><linearGradient id="lgSH" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="lg-s-sheen"/><stop offset="0.55" class="lg-s-clear"/></linearGradient><linearGradient id="lgCH" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="lg-s-caphi"/><stop offset="1" class="lg-s-caplo"/></linearGradient><radialGradient id="lgFH" cx="0.38" cy="0.3" r="0.9"><stop offset="0" class="lg-s-cremahi"/><stop offset="0.6" class="lg-s-cremamid"/><stop offset="1" class="lg-s-cremalo"/></radialGradient><linearGradient id="lgPH" x1="0" y1="0" x2="1" y2="0.15"><stop offset="0" class="lg-s-hi"/><stop offset="1" class="lg-s-lo"/></linearGradient></defs><path fill="url(#lgBH)" fill-rule="evenodd" d="M13 0H50C80 0 100 20 100 50S80 100 50 100H13Z M38 19H50C70 19 81 31 81 50S70 81 50 81H38Z"/><path fill="url(#lgSH)" fill-rule="evenodd" d="M13 0H50C80 0 100 20 100 50S80 100 50 100H13Z M38 19H50C70 19 81 31 81 50S70 81 50 81H38Z"/><ellipse class="lg-cap" fill="url(#lgCH)" cx="13" cy="50" rx="12.5" ry="50"/><ellipse class="lg-face" fill="url(#lgFH)" cx="12.3" cy="50" rx="8.6" ry="43.5"/><ellipse class="lg-face-edge" cx="12.3" cy="50" rx="8.6" ry="43.5"/><ellipse class="lg-glint" cx="10.4" cy="23" rx="2.1" ry="9"/><path fill="url(#lgPH)" d="M102 -15Q112 50 102 115L125 77V23Z"/><path class="lg-rim" d="M102 -15Q112 50 102 115"/></svg>
             <div class="header-top">
                 <div style="flex: 1;">
                     <h2 id="view-title">My Collection</h2>
@@ -2695,6 +2721,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
+            <div class="app-version">Dialed In · v11.3</div>
         </div>
     </div>
 
