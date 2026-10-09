@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v12.7 -->
+<!-- Dialed In v12.8 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="12.7">
+    <meta name="dialed-in-version" content="12.8">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -2895,6 +2895,12 @@
         @keyframes streak-flicker { 0% { transform: scale(1, 1) rotate(-3deg); } 40% { transform: scale(0.94, 1.08) rotate(2deg); } 70% { transform: scale(1.05, 0.95) rotate(-1deg); } 100% { transform: scale(0.97, 1.05) rotate(3deg); } }
         @keyframes streak-ember { 0% { opacity: 0; transform: translate(0, 0) scale(1); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--edx), -20px) scale(0.35); } }
         @media (prefers-reduced-motion: reduce) { .streak-chip .ember { display: none; } .streak-chip.heat::before, .streak-chip.heat.shine::after { animation: none !important; } }
+
+        /* ===== v12.8: tap targets for iPhone haptics ===== */
+        :where(html.hx-on) :where(.like-btn, .cmt-like, .dh-want, [onclick*="app.pickNote("], [onclick*="app.cycleNote("], #timer-btn, [onclick*="app.resetTimer("], [onclick*="app.guideStartPause("], [onclick*="app.guideNext("], [onclick*="app.finishGuide("], [onclick*="app.setRecipeLock("], [onclick*="app.useRecipe("], [onclick*="app.saveRecipe("], [onclick*="app.cloneLatestSession("], .modal form button[type="submit"], .comment-submit, .aw-reveal-btn) { position: relative; }
+        label.hx { position: absolute; inset: var(--hx-inset, 0); z-index: 3; display: block; margin: 0; padding: 0; border: 0; background: transparent; opacity: 0; border-radius: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
+        .like-btn > label.hx { --hx-inset: -8px -4px; }
+        #hx-switch { position: fixed; left: 0; bottom: 0; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -3193,7 +3199,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v12.7</div>
+            <div class="app-version">Dialed In · v12.8</div>
         </div>
     </div>
 
@@ -4106,6 +4112,7 @@
                 this.watchInitials();
                 this.watchLikeLines();
                 this.installHaptics();
+                this.installTapHaptics();
                 this.setTab(this.tab);
                 this.bootFromCache().then(() => {
                     if (this.user) this.sync();
@@ -6800,7 +6807,7 @@
                 }
                 // a centered initial stays as it is when it's the same letter
                 if (a.firstElementChild && a.firstElementChild.classList.contains('ini') && a.textContent === b.textContent && a.matches(INITIAL_SEL)) return a;
-                const ac = [...a.childNodes], bc = [...b.childNodes];
+                const ac = [...a.childNodes].filter(c => !(c.nodeType === 1 && c.classList.contains('hx'))), bc = [...b.childNodes];
                 const n = Math.min(ac.length, bc.length);
                 for (let i = 0; i < n; i++) this.morphEl(ac[i], bc[i]);
                 for (let i = n; i < bc.length; i++) a.appendChild(bc[i]);
@@ -8351,6 +8358,7 @@
                 this._hapticAt = now;
                 this._hapticLog = (this._hapticLog || []).concat([kind]).slice(-50);
                 const buzz = { tap: 10, tick: 5, success: [12, 70, 18], cue: 90, warn: [25, 60, 25, 60, 25], finish: [120, 80, 120] }[kind] || 10;
+                if (this._hxOn && (kind === 'tap' || kind === 'success' || kind === 'warn')) return;
                 try {
                     if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') { navigator.vibrate(buzz); return; }
                 } catch (e) {}
@@ -8430,6 +8438,67 @@
                 wrap('revealAwards', always('success'));
                 ['delete', 'deleteBean', 'removeComment', 'removeBeanComment', 'unpinMaster'].forEach(n => wrap(n, pushes('warn')));
                 wrap('deleteRecipe', { before() { return app.myRecipes().length; }, after(b) { return app.myRecipes().length < b ? 'warn' : null; } });
+            },
+
+            // ---- v12.8: iPhone haptics need a real tap on a switch's label (iOS 26.5+)
+            installTapHaptics() {
+                if (this._hxOn || typeof document === 'undefined' || typeof MutationObserver === 'undefined') return;
+                const nav = typeof navigator !== 'undefined' ? navigator : {};
+                const ios = /iP(hone|od|ad)/.test(nav.userAgent || '') || (nav.platform === 'MacIntel' && nav.maxTouchPoints > 1);
+                if (!ios || typeof nav.vibrate === 'function') return;
+                this._hxOn = true;
+                document.documentElement.classList.add('hx-on');
+                const HOSTS = '.like-btn, .cmt-like, .dh-want, [onclick*="app.pickNote("], [onclick*="app.cycleNote("], #timer-btn, [onclick*="app.resetTimer("], [onclick*="app.guideStartPause("], [onclick*="app.guideNext("], [onclick*="app.finishGuide("], [onclick*="app.setRecipeLock("], [onclick*="app.useRecipe("], [onclick*="app.saveRecipe("], [onclick*="app.cloneLatestSession("], .modal form button[type="submit"], .comment-submit, .aw-reveal-btn';
+                const sw = document.createElement('input');
+                sw.type = 'checkbox'; sw.id = 'hx-switch'; sw.setAttribute('switch', ''); sw.tabIndex = -1; sw.setAttribute('aria-hidden', 'true');
+                document.body.appendChild(sw);
+                const ensure = host => {
+                    if (!host || !host.isConnected || host.querySelector(':scope > label.hx')) return;
+                    const l = document.createElement('label'); l.className = 'hx'; l.htmlFor = 'hx-switch'; l.setAttribute('aria-hidden', 'true');
+                    host.appendChild(l);
+                };
+                const scan = root => { if (root.nodeType !== 1) return; if (root.matches(HOSTS)) ensure(root); root.querySelectorAll(HOSTS).forEach(ensure); };
+                const roots = new Set(); let queued = false;
+                const run = () => { queued = false; const list = [...roots]; roots.clear(); list.forEach(r => { if (r.isConnected) scan(r); }); };
+                new MutationObserver(recs => {
+                    recs.forEach(r => {
+                        r.addedNodes.forEach(n => { if (n.nodeType === 1 && !n.classList.contains('hx')) roots.add(n); });
+                        if (r.target.nodeType === 1 && r.target.matches && r.target.matches(HOSTS)) roots.add(r.target);
+                    });
+                    if (roots.size && !queued) { queued = true; requestAnimationFrame(run); }
+                }).observe(document.body, { childList: true, subtree: true });
+                scan(document.body);
+                // a tap on a label: nothing else sees that click; the switch flips (the tick), then the button gets its click
+                let pending = null, hxSubmit = null;
+                const forward = () => {
+                    const p = pending; pending = null;
+                    if (!p || !p.host.isConnected) return;
+                    p.host.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true, view: window, detail: 1, screenX: p.e.screenX, screenY: p.e.screenY, clientX: p.e.clientX, clientY: p.e.clientY }));
+                };
+                window.addEventListener('click', e => {
+                    const t = e.target;
+                    if (t === sw) { e.stopPropagation(); forward(); setTimeout(() => { if (document.activeElement === sw) sw.blur(); }, 0); return; }
+                    if (!(t instanceof Element) || !t.classList.contains('hx')) return;
+                    e.stopPropagation();
+                    const host = t.parentElement;
+                    if (pending) forward();
+                    pending = { host, e };
+                    let off = false; try { off = localStorage.getItem('dialed_haptics') === 'off'; } catch (err) {}
+                    const quiet = off || (host.matches('.like-btn, .cmt-like') && host.classList.contains('liked'));   // unliking stays silent
+                    if (quiet) { e.preventDefault(); forward(); return; }
+                    this._hxTaps = (this._hxTaps || 0) + 1;
+                    if (host.type === 'submit' && host.form) hxSubmit = { form: host.form, at: Date.now(), done: false };
+                    setTimeout(() => { if (pending && pending.e === e) forward(); }, 80);   // in case the switch never answers
+                }, true);
+                // a Save button with a label inside can get pressed twice in one tap (the label's tap and the forwarded one):
+                // only the first submit of that tap goes through
+                window.addEventListener('submit', e => {
+                    if (!hxSubmit || e.target !== hxSubmit.form || Date.now() - hxSubmit.at > 1500) return;
+                    if (hxSubmit.done) { e.preventDefault(); e.stopImmediatePropagation(); return; }
+                    hxSubmit.done = true;
+                }, true);
+                // the Main-profile toggle in the log form is a real switch now: iOS ticks it on its own
+                const master = document.getElementById('isMasterInput'); if (master) master.setAttribute('switch', '');
             },
 
             renderThread(kind, target, opts = {}) {
