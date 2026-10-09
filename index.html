@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v12.9 -->
+<!-- Dialed In v12.10 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="12.9">
+    <meta name="dialed-in-version" content="12.10">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -3204,7 +3204,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v12.9</div>
+            <div class="app-version">Dialed In · v12.10</div>
         </div>
     </div>
 
@@ -5822,7 +5822,7 @@
                 document.addEventListener('pointerdown', e => {
                     const track = e.target && e.target.closest ? e.target.closest('.rt-track') : null;
                     if (!track) return;
-                    drag = { track, x: e.clientX, y: e.clientY, moved: false, horiz: false, id: e.pointerId };
+                    drag = { track, x: e.clientX, y: e.clientY, moved: false, horiz: false, id: e.pointerId, via: !!(e.target && e.target.classList && e.target.classList.contains('hx')) };
                 }, true);
                 document.addEventListener('pointermove', e => {
                     if (!drag || e.pointerId !== drag.id) return;
@@ -5832,7 +5832,13 @@
                 }, true);
                 const end = e => {
                     if (!drag || e.pointerId !== drag.id) return;
-                    if (!drag.moved && e.type === 'pointerup') setFrom(drag.track, e.clientX);
+                    if (!drag.moved && e.type === 'pointerup') {
+                        if (this._hxOn && drag.via) {
+                            // v12.10 (iPhone): move once the tap has landed; changing the page mid-tap can cancel the tap and its tick
+                            const p = this._tapSet = { track: drag.track, x: e.clientX, set: setFrom };
+                            setTimeout(() => { if (this._tapSet === p) { this._tapSet = null; p.set(p.track, p.x); } }, 450);
+                        } else setFrom(drag.track, e.clientX);
+                    }
                     drag = null;
                 };
                 document.addEventListener('pointerup', end, true);
@@ -5858,7 +5864,7 @@
                 document.addEventListener('pointerdown', e => {
                     const track = e.target && e.target.closest ? e.target.closest('#brew-modal .ns-track') : null;
                     if (!track) return;
-                    drag = { track, x: e.clientX, y: e.clientY, moved: false, horiz: false, id: e.pointerId };
+                    drag = { track, x: e.clientX, y: e.clientY, moved: false, horiz: false, id: e.pointerId, via: !!(e.target && e.target.classList && e.target.classList.contains('hx')) };
                 }, true);
                 document.addEventListener('pointermove', e => {
                     if (!drag || e.pointerId !== drag.id) return;
@@ -5868,7 +5874,13 @@
                 }, true);
                 const end = e => {
                     if (!drag || e.pointerId !== drag.id) return;
-                    if (!drag.moved && e.type === 'pointerup') setFrom(drag.track, e.clientX);
+                    if (!drag.moved && e.type === 'pointerup') {
+                        if (this._hxOn && drag.via) {
+                            // v12.10 (iPhone): move once the tap has landed; changing the page mid-tap can cancel the tap and its tick
+                            const p = this._tapSet = { track: drag.track, x: e.clientX, set: setFrom };
+                            setTimeout(() => { if (this._tapSet === p) { this._tapSet = null; p.set(p.track, p.x); } }, 450);
+                        } else setFrom(drag.track, e.clientX);
+                    }
                     drag = null;
                 };
                 document.addEventListener('pointerup', end, true);
@@ -8548,6 +8560,7 @@
                     if (hxSubmit.done) { e.preventDefault(); e.stopImmediatePropagation(); return; }
                     hxSubmit.done = true;
                 }, true);
+                document.addEventListener('click', e => { const p = this._tapSet; if (p && e.target === p.track) { this._tapSet = null; p.set(p.track, p.x); } }, true);
                 // the Main-profile toggle in the log form is a real switch now: iOS ticks it on its own
                 const master = document.getElementById('isMasterInput'); if (master) master.setAttribute('switch', '');
             },
