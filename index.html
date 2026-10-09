@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v12.8 -->
+<!-- Dialed In v12.9 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="12.8">
+    <meta name="dialed-in-version" content="12.9">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -2901,6 +2901,11 @@
         label.hx { position: absolute; inset: var(--hx-inset, 0); z-index: 3; display: block; margin: 0; padding: 0; border: 0; background: transparent; opacity: 0; border-radius: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
         .like-btn > label.hx { --hx-inset: -8px -4px; }
         #hx-switch { position: fixed; left: 0; bottom: 0; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
+
+        /* ===== v12.9: star rating track + slider haptics ===== */
+        .rt-track { position: relative; touch-action: pan-y; cursor: pointer; padding: 12px 0; margin: -12px 0; }
+        .rt-track input[type="range"] { pointer-events: none; }
+        :where(html.hx-on) :where(.ns-ticks span) { position: relative; }
     </style>
 </head>
 <body>
@@ -3199,7 +3204,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v12.8</div>
+            <div class="app-version">Dialed In · v12.9</div>
         </div>
     </div>
 
@@ -3364,7 +3369,7 @@
                 <label>Session Rating (Optional)</label>
                 <div class="rating-slider-group">
                     <div class="rating-display unrated" id="rating-display">Skip Rating</div>
-                    <input type="range" name="rating" id="rating-slider" min="0" max="5" value="0" step="0.5" oninput="app.updateRatingDisplay(this.value)">
+                    <div class="rt-track"><input type="range" name="rating" id="rating-slider" min="0" max="5" value="0" step="0.5" aria-label="Session rating" oninput="app.updateRatingDisplay(this.value)"></div>
                     <div class="rating-skip">
                         <button type="button" onclick="app.skipRating()">Skip Rating</button>
                     </div>
@@ -4113,6 +4118,7 @@
                 this.watchLikeLines();
                 this.installHaptics();
                 this.installTapHaptics();
+                this.bindRatingSlider();
                 this.setTab(this.tab);
                 this.bootFromCache().then(() => {
                     if (this.user) this.sync();
@@ -5793,6 +5799,46 @@
             },
 
             // ---- sliders: one tap sets a value, sideways drags slide, vertical swipes still scroll the sheet
+            // ---- v12.9: the star rating slides like the taste sliders: one tap sets it, sideways drags slide it
+            bindRatingSlider() {
+                if (this._ratingBound) return;
+                this._ratingBound = true;
+                let drag = null;
+                const valueAt = (track, x) => {
+                    const input = track.querySelector('input');
+                    const r = input.getBoundingClientRect();
+                    const pos = Math.min(1, Math.max(0, (x - r.left - 10) / Math.max(1, r.width - 20)));
+                    return Math.round(pos * 10) / 2;
+                };
+                const setFrom = (track, x) => {
+                    const input = track.querySelector('input');
+                    if (!input) return;
+                    const v = valueAt(track, x);
+                    if (Number(input.value) === v) return;
+                    input.value = v;
+                    this.updateRatingDisplay(v);
+                    this.haptic('tick');
+                };
+                document.addEventListener('pointerdown', e => {
+                    const track = e.target && e.target.closest ? e.target.closest('.rt-track') : null;
+                    if (!track) return;
+                    drag = { track, x: e.clientX, y: e.clientY, moved: false, horiz: false, id: e.pointerId };
+                }, true);
+                document.addEventListener('pointermove', e => {
+                    if (!drag || e.pointerId !== drag.id) return;
+                    const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+                    if (!drag.moved && Math.hypot(dx, dy) > 6) { drag.moved = true; drag.horiz = Math.abs(dx) >= Math.abs(dy); }
+                    if (drag.horiz) setFrom(drag.track, e.clientX);
+                }, true);
+                const end = e => {
+                    if (!drag || e.pointerId !== drag.id) return;
+                    if (!drag.moved && e.type === 'pointerup') setFrom(drag.track, e.clientX);
+                    drag = null;
+                };
+                document.addEventListener('pointerup', end, true);
+                document.addEventListener('pointercancel', end, true);
+            },
+
             bindTasteSliders() {
                 if (this.slidersBound) return;
                 this.slidersBound = true;
@@ -8355,6 +8401,7 @@
                 } catch (e) {}
                 const now = Date.now();
                 if (kind === 'tick' && now - (this._hapticAt || 0) < 35) return;
+                if (kind === 'tick' && this._hxOn && this._hxPress && !this._hxPress.moved && now - this._hxPress.at < 1500) return;
                 this._hapticAt = now;
                 this._hapticLog = (this._hapticLog || []).concat([kind]).slice(-50);
                 const buzz = { tap: 10, tick: 5, success: [12, 70, 18], cue: 90, warn: [25, 60, 25, 60, 25], finish: [120, 80, 120] }[kind] || 10;
@@ -8448,7 +8495,7 @@
                 if (!ios || typeof nav.vibrate === 'function') return;
                 this._hxOn = true;
                 document.documentElement.classList.add('hx-on');
-                const HOSTS = '.like-btn, .cmt-like, .dh-want, [onclick*="app.pickNote("], [onclick*="app.cycleNote("], #timer-btn, [onclick*="app.resetTimer("], [onclick*="app.guideStartPause("], [onclick*="app.guideNext("], [onclick*="app.finishGuide("], [onclick*="app.setRecipeLock("], [onclick*="app.useRecipe("], [onclick*="app.saveRecipe("], [onclick*="app.cloneLatestSession("], .modal form button[type="submit"], .comment-submit, .aw-reveal-btn';
+                const HOSTS = '.ns-track, .ns-ticks span, .rt-track, .like-btn, .cmt-like, .dh-want, [onclick*="app.pickNote("], [onclick*="app.cycleNote("], #timer-btn, [onclick*="app.resetTimer("], [onclick*="app.guideStartPause("], [onclick*="app.guideNext("], [onclick*="app.finishGuide("], [onclick*="app.setRecipeLock("], [onclick*="app.useRecipe("], [onclick*="app.saveRecipe("], [onclick*="app.cloneLatestSession("], .modal form button[type="submit"], .comment-submit, .aw-reveal-btn';
                 const sw = document.createElement('input');
                 sw.type = 'checkbox'; sw.id = 'hx-switch'; sw.setAttribute('switch', ''); sw.tabIndex = -1; sw.setAttribute('aria-hidden', 'true');
                 document.body.appendChild(sw);
@@ -8470,6 +8517,10 @@
                 scan(document.body);
                 // a tap on a label: nothing else sees that click; the switch flips (the tick), then the button gets its click
                 let pending = null, hxSubmit = null;
+                // a press that starts on a label: a tap (ticks through the label) or a slide (can't tick on iOS 26.5+)
+                window.addEventListener('pointerdown', e => { const t = e.target; this._hxPress = t instanceof Element && t.classList.contains('hx') ? { at: Date.now(), x: e.clientX, y: e.clientY, moved: false } : null; }, true);
+                window.addEventListener('pointermove', e => { const p = this._hxPress; if (p && !p.moved && Math.hypot(e.clientX - p.x, e.clientY - p.y) > 6) p.moved = true; }, true);
+                window.addEventListener('click', e => { if (e.target instanceof Element && e.target.classList.contains('hx')) setTimeout(() => { this._hxPress = null; }, 0); }, true);   // that tap is done
                 const forward = () => {
                     const p = pending; pending = null;
                     if (!p || !p.host.isConnected) return;
