@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v12.11 -->
+<!-- Dialed In v12.12 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="12.11">
+    <meta name="dialed-in-version" content="12.12">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -2921,12 +2921,15 @@
         .rt-track input[type="range"].rated { background: linear-gradient(90deg, rgba(var(--gold-rgb), 0.45), rgb(var(--gold-rgb)) calc(13px + (100% - 26px) * var(--p, 0)), rgba(var(--hair-rgb), 0.12) calc(13px + (100% - 26px) * var(--p, 0))); }
         :root[data-theme="dark"] .ns.set .ns-track input[type="range"] { background: linear-gradient(90deg, rgba(var(--c-rgb, 125, 137, 132), 0.4), rgb(var(--c-rgb, 125, 137, 132)) calc(13px + (100% - 26px) * var(--p, 0)), rgba(var(--hair-rgb), 0.1) calc(13px + (100% - 26px) * var(--p, 0))); }
         :root[data-theme="dark"] .rt-track input[type="range"].rated { background: linear-gradient(90deg, rgba(var(--gold-rgb), 0.4), rgb(var(--gold-rgb)) calc(13px + (100% - 26px) * var(--p, 0)), rgba(var(--hair-rgb), 0.1) calc(13px + (100% - 26px) * var(--p, 0))); }
-        .ns-track input[type="range"]::-webkit-slider-thumb, .rt-track input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; box-sizing: border-box; width: 26px; height: 26px; border-radius: 50%; border: 3px solid var(--surface) !important; background: radial-gradient(circle at 36% 30%, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 58%), rgb(var(--c-rgb, 125, 137, 132)) !important; box-shadow: 0 0 0 4px rgba(var(--c-rgb, 125, 137, 132), 0.16), 0 3px 8px rgba(0, 0, 0, 0.26), inset 0 -2px 3px rgba(0, 0, 0, 0.12) !important; }
-        .rt-track input[type="range"]::-webkit-slider-thumb { background: radial-gradient(circle at 36% 30%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 58%), rgb(var(--gold-rgb)) !important; box-shadow: 0 0 0 4px rgba(var(--gold-rgb), 0.18), 0 3px 8px rgba(0, 0, 0, 0.26), inset 0 -2px 3px rgba(0, 0, 0, 0.12) !important; }
-        :root[data-theme="dark"] .ns-track input[type="range"]::-webkit-slider-thumb, :root[data-theme="dark"] .rt-track input[type="range"]::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(var(--c-rgb, 125, 137, 132), 0.2), 0 3px 10px rgba(0, 0, 0, 0.55), inset 0 -2px 3px rgba(0, 0, 0, 0.18) !important; }
-        :root[data-theme="dark"] .rt-track input[type="range"]::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(var(--gold-rgb), 0.2), 0 3px 10px rgba(0, 0, 0, 0.55), inset 0 -2px 3px rgba(0, 0, 0, 0.18) !important; }
-        .ns-track input[type="range"]::-moz-range-thumb, .rt-track input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 26px; height: 26px; border: 3px solid var(--surface) !important; background: rgb(var(--c-rgb, 125, 137, 132)) !important; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.26); }
-        .rt-track input[type="range"]::-moz-range-thumb { background: rgb(var(--gold-rgb)) !important; }
+        /* v12.12: handle = a bead in the slider's color, lit from above; 26px box (taps map the same), 20px dot */
+        .ns-track input[type="range"]::-webkit-slider-thumb, .rt-track input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; box-sizing: border-box; width: 26px; height: 26px; border-radius: 50%; border: 3px solid transparent !important; background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 60%) padding-box, linear-gradient(rgb(var(--c-rgb, 125, 137, 132)), rgb(var(--c-rgb, 125, 137, 132))) padding-box, radial-gradient(circle at 50% 54%, rgba(0, 0, 0, 0.3) 9.5px, rgba(0, 0, 0, 0.1) 11px, rgba(0, 0, 0, 0) 13px) border-box !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -1px 2px rgba(0, 0, 0, 0.14) !important; }
+        .rt-track input[type="range"]::-webkit-slider-thumb { background: linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0) 60%) padding-box, linear-gradient(rgb(var(--gold-rgb)), rgb(var(--gold-rgb))) padding-box, radial-gradient(circle at 50% 54%, rgba(0, 0, 0, 0.3) 9.5px, rgba(0, 0, 0, 0.1) 11px, rgba(0, 0, 0, 0) 13px) border-box !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -1px 2px rgba(0, 0, 0, 0.14) !important; }
+        :root[data-theme="dark"] .ns-track input[type="range"]::-webkit-slider-thumb { background: linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0) 60%) padding-box, linear-gradient(rgb(var(--c-rgb, 125, 137, 132)), rgb(var(--c-rgb, 125, 137, 132))) padding-box, radial-gradient(circle at 50% 54%, rgba(0, 0, 0, 0.7) 9.5px, rgba(0, 0, 0, 0.3) 11px, rgba(0, 0, 0, 0) 13px) border-box !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 2px rgba(0, 0, 0, 0.2) !important; }
+        :root[data-theme="dark"] .rt-track input[type="range"]::-webkit-slider-thumb { background: linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0) 60%) padding-box, linear-gradient(rgb(var(--gold-rgb)), rgb(var(--gold-rgb))) padding-box, radial-gradient(circle at 50% 54%, rgba(0, 0, 0, 0.7) 9.5px, rgba(0, 0, 0, 0.3) 11px, rgba(0, 0, 0, 0) 13px) border-box !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 2px rgba(0, 0, 0, 0.2) !important; }
+        .ns-track input[type="range"]::-moz-range-thumb, .rt-track input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 26px; height: 26px; border-radius: 50%; border: 3px solid transparent !important; background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 60%) padding-box, linear-gradient(rgb(var(--c-rgb, 125, 137, 132)), rgb(var(--c-rgb, 125, 137, 132))) padding-box, radial-gradient(circle at 50% 54%, rgba(0, 0, 0, 0.3) 9.5px, rgba(0, 0, 0, 0.1) 11px, rgba(0, 0, 0, 0) 13px) border-box !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -1px 2px rgba(0, 0, 0, 0.14) !important; }
+        .rt-track input[type="range"]::-moz-range-thumb { background: linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0) 60%) padding-box, linear-gradient(rgb(var(--gold-rgb)), rgb(var(--gold-rgb))) padding-box, radial-gradient(circle at 50% 54%, rgba(0, 0, 0, 0.3) 9.5px, rgba(0, 0, 0, 0.1) 11px, rgba(0, 0, 0, 0) 13px) border-box !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -1px 2px rgba(0, 0, 0, 0.14) !important; }
+        :root[data-theme="dark"] .ns-track input[type="range"]::-moz-range-thumb { background: linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0) 60%) padding-box, linear-gradient(rgb(var(--c-rgb, 125, 137, 132)), rgb(var(--c-rgb, 125, 137, 132))) padding-box, radial-gradient(circle at 50% 54%, rgba(0, 0, 0, 0.7) 9.5px, rgba(0, 0, 0, 0.3) 11px, rgba(0, 0, 0, 0) 13px) border-box !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 2px rgba(0, 0, 0, 0.2) !important; }
+        :root[data-theme="dark"] .rt-track input[type="range"]::-moz-range-thumb { background: linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0) 60%) padding-box, linear-gradient(rgb(var(--gold-rgb)), rgb(var(--gold-rgb))) padding-box, radial-gradient(circle at 50% 54%, rgba(0, 0, 0, 0.7) 9.5px, rgba(0, 0, 0, 0.3) 11px, rgba(0, 0, 0, 0) 13px) border-box !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 2px rgba(0, 0, 0, 0.2) !important; }
         /* the flavor wheel: lit from above, lifted off the page, raised center */
         .wheel-svg.interactive { filter: drop-shadow(0 10px 20px rgba(var(--hair-rgb), 0.2)) drop-shadow(0 2px 4px rgba(var(--hair-rgb), 0.1)); }
         :root[data-theme="dark"] .wheel-svg.interactive { filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.5)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3)); }
@@ -3233,7 +3236,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v12.11</div>
+            <div class="app-version">Dialed In · v12.12</div>
         </div>
     </div>
 
