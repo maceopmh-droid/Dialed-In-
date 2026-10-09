@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v12.3 -->
+<!-- Dialed In v12.4 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="12.3">
+    <meta name="dialed-in-version" content="12.4">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -2813,6 +2813,24 @@
         .sc-recipe b { font-weight: 750; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         .sc-recipe em { margin-left: auto; flex-shrink: 0; font-style: normal; font-size: 0.64rem; font-weight: 750; letter-spacing: 0.02em; color: var(--matcha-ink); background: rgba(var(--matcha-rgb), 0.13); border: 1px solid rgba(var(--matcha-rgb), 0.16); padding: 2px 8px; border-radius: 999px; }
         .fab-art b { font-family: var(--font-bean); font-weight: 600; letter-spacing: 0.02em; }
+
+        /* ===== v12.4: coffee page session cards = feed session cards ===== */
+        .log-row.sc-log { display: block; padding: 0; overflow: hidden; }
+        .sc-log .feed-head { gap: 10px; }
+        /* master profiles */
+        .master-pill .sc-strip { margin-top: 10px; }
+        .master-pill .master-note { margin-top: 9px; }
+        /* roaster under the name */
+        .lib-roaster { font-size: 0.86rem; font-weight: 500; color: var(--text-muted); margin: 2px 0 12px; }
+        @media (min-width: 769px) { .card-rating ~ .lib-name { padding-right: 92px; } }
+        .feed-card .fb-roaster { margin: 2px 0 8px; font-size: 0.78rem; font-weight: 600; color: var(--text-muted); }
+        .fb-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+        .fb-tags .tag { margin: 0; }
+        .top-flavors .fam-chip, .side-flavors .fam-chip, .palate-group .fam-chip { font-size: 0.7rem; padding: 3px 9px; }
+        .flv-note.fam-chip { gap: 6px; font-size: 0.78rem; padding: 4px 10px; white-space: normal; background: rgba(var(--fc-rgb), 0.14); }
+        :root[data-theme="dark"] .flv-note.fam-chip { background: rgba(var(--fc-rgb), 0.24); }
+        .flv-note.fam-chip > i { display: none; }
+        .flv-note.fam-chip .flv-dots b.on { background: rgb(var(--fc-rgb)); }
     </style>
 </head>
 <body>
@@ -3111,7 +3129,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v12.3</div>
+            <div class="app-version">Dialed In · v12.4</div>
         </div>
     </div>
 
@@ -3200,8 +3218,8 @@
 
                 <div id="recipe-card" class="recipe-card" hidden></div>
                 <div class="brew-grid-3" id="recipe-fields" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.2rem;">
-                    <div id="fld-dose"><label id="lbl-dose">In (g)</label><input type="number" step="0.1" name="dose" required oninput="app.onRecipeInput('dose')"></div>
-                    <div id="fld-yield"><label id="lbl-yield">Out (g)</label><input type="number" step="0.1" name="yield" required oninput="app.onRecipeInput('yield')"></div>
+                    <div id="fld-dose"><label id="lbl-dose">Dose (g)</label><input type="number" step="0.1" name="dose" required oninput="app.onRecipeInput('dose')"></div>
+                    <div id="fld-yield"><label id="lbl-yield">Pull (g)</label><input type="number" step="0.1" name="yield" required oninput="app.onRecipeInput('yield')"></div>
                     <div id="fld-time"><label id="lbl-time">Time (s)</label><input type="number" name="time" id="time-input" step="1" min="0" inputmode="decimal" required></div>
                 </div>
                 <div id="method-extras" class="method-extras" hidden></div>
@@ -3341,7 +3359,7 @@
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem;">
                     <div>
                         <label>Method</label>
-                        <select name="method" required>
+                        <select name="method" required onchange="app.masterLabels(this.value)">
                             <option value="Espresso">Espresso</option>
                             <option value="Pour Over">Pour Over</option>
                             <option value="French Press">French Press</option>
@@ -3354,9 +3372,9 @@
                 </div>
 
                 <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.2rem;">
-                    <div><label>In (g)</label><input type="number" step="0.1" name="dose" required></div>
-                    <div><label>Out (g)</label><input type="number" step="0.1" name="yield" required></div>
-                    <div><label>Time (s)</label><input type="number" name="time" required></div>
+                    <div><label id="master-lbl-dose">Dose (g)</label><input type="number" step="0.1" name="dose" required></div>
+                    <div><label id="master-lbl-yield">Pull (g)</label><input type="number" step="0.1" name="yield" required></div>
+                    <div><label id="master-lbl-time">Time (s)</label><input type="number" name="time" required></div>
                 </div>
 
                 <label>Equipment Used</label>
@@ -3419,12 +3437,12 @@
 
         // ---- per-method logging (v11): same form, labels and extras change with the method
         const METHOD_PROFILES = {
-            'Espresso': { dose: 'In (g)', yld: 'Out (g)', time: 'Time (s)', ratio: 2, extras: [], recipes: false },
-            'Pour Over': { dose: 'Coffee (g)', yld: 'Water (g)', time: 'Total time (s)', ratio: 16, extras: ['brewer', 'temp'], recipes: true },
-            'French Press': { dose: 'Coffee (g)', yld: 'Water (g)', time: 'Total time (s)', ratio: 16, extras: ['temp'], recipes: true },
-            'Aeropress': { dose: 'Coffee (g)', yld: 'Water (g)', time: 'Total time (s)', ratio: 15, extras: ['temp', 'inverted'], recipes: true },
-            'Moka Pot': { dose: 'Coffee (g)', yld: 'Water (g)', time: 'Time (s)', ratio: 9, extras: ['heat', 'preheated'], recipes: true },
-            'Cold Brew': { dose: 'Coffee (g)', yld: 'Water (g)', time: 'Steep (hours)', ratio: 8, extras: [], recipes: true, hours: true }
+            'Espresso': { dose: 'Dose (g)', yld: 'Pull (g)', time: 'Time (s)', ratio: 2, extras: [], recipes: false },
+            'Pour Over': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Total time (s)', ratio: 16, extras: ['brewer', 'temp'], recipes: true },
+            'French Press': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Total time (s)', ratio: 16, extras: ['temp'], recipes: true },
+            'Aeropress': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Total time (s)', ratio: 15, extras: ['temp', 'inverted'], recipes: true },
+            'Moka Pot': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Time (s)', ratio: 9, extras: ['heat', 'preheated'], recipes: true },
+            'Cold Brew': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Steep (hours)', ratio: 8, extras: [], recipes: true, hours: true }
         };
         const STEP_KINDS = {
             pour: { label: 'Pour', color: '#4F86D9' }, wait: { label: 'Wait', color: '#8A958C' }, swirl: { label: 'Swirl', color: '#D9A03A' },
@@ -4246,7 +4264,7 @@
             formatRating(value) {
                 const n = this.normalizeRating(value);
                 if (!n) return '';
-                return `${n.toFixed(1).replace(/\.0$/, '')}/5`;
+                return `${n.toFixed(1).replace(/\.0$/, '')}`;
             },
 
             starFill(value) {
@@ -4975,7 +4993,7 @@
                     const d = !sameOwner ? '<span class="cmp-d note">different grinders</span>' : (this.sameGrind(A.grind, Bv.grind) ? '<span class="cmp-d same">same</span>' : (this.grindNum(A.grind) !== null && this.grindNum(Bv.grind) !== null ? chip(this.grindNum(A.grind), this.grindNum(Bv.grind), null) : '<span class="cmp-d neutral">changed</span>'));
                     rows.push(['Grind', this.esc(ga || '–'), this.esc(gb || '–'), d]);
                 }
-                [['Dose', 'dose', 'g'], ['Yield', 'yield', 'g'], ['Time', 'time', 's']].forEach(([lbl, k, kind]) => { const av = num(A[k]), bv = num(Bv[k]); if (av !== null || bv !== null) rows.push([lbl, fmt(av, kind), fmt(bv, kind), chip(av, bv, null)]); });
+                [['Dose', 'dose', 'g'], [(() => { const e = x => !x.method || x.method === 'Espresso'; return e(A) && e(Bv) ? 'Pull' : !e(A) && !e(Bv) ? 'Water' : 'Pull / water'; })(), 'yield', 'g'], ['Time', 'time', 's']].forEach(([lbl, k, kind]) => { const av = num(A[k]), bv = num(Bv[k]); if (av !== null || bv !== null) rows.push([lbl, fmt(av, kind), fmt(bv, kind), chip(av, bv, null)]); });
                 const ra = this.ratioOf(A) || null, rb = this.ratioOf(Bv) || null;
                 if (ra || rb) rows.push(['Ratio', fmt(ra, 'ratio'), fmt(rb, 'ratio'), chip(ra, rb, null)]);
                 const rta = this.normalizeRating(A.rating) || null, rtb = this.normalizeRating(Bv.rating) || null;
@@ -8421,9 +8439,9 @@
                                 </div>
                                 <div class="feed-type">${this.esc(entry.kindLabel || 'Bean')}</div>
                             </div>
-                            <div class="feed-card-subtitle">${this.esc(bean.roaster || 'Roaster')}</div>
-                            <div class="feed-card-title">${this.esc(bean.name || beanName)}</div>
-                            ${topTags.length ? `<div class="feed-context">${topTags.map(tag => `<span class="feed-pill">${this.esc(tag)}</span>`).join('')}</div>` : ''}
+                            <div class="feed-card-title" style="margin-top:11px">${this.esc(bean.name || beanName)}</div>
+                            ${bean.roaster ? `<div class="fb-roaster">${this.esc(bean.roaster)}</div>` : ''}
+                            ${topTags.length ? `<div class="fb-tags">${topTags.map(tag => `<span class="tag">${this.esc(tag)}</span>`).join('')}</div>` : ''}
                             ${this.renderThread('bean', { ...bean, comments }, { inputId: `feed-comment-input-bean-${bean.id}`, lead: `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('bean', bean.id)}"${this.likePopStyle('bean', bean.id)} onclick="app.toggleBeanLike('${this.esc(bean.id)}', event)" title="Like bean">
                                     <svg class="heart-icon"><use href="#i-heart"/></svg>
                                 </button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}<span class="social-owner-actions"><button class="btn-outline feed-open-link" type="button" onclick="app.openFeedTarget('${this.esc(bean.id)}','',false); event.stopPropagation();">
@@ -8608,12 +8626,10 @@
                                 <span>${this.esc(this.formatRating(avgRating))}</span>
                             </div>
                         ` : ''}
-                        <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:2px; color:#999; margin-bottom:8px;">
-                            ${this.esc(bean.roaster || '')}
-                        </div>
-                        <div class="lib-name" style="font-size:1.5rem; font-weight:700; margin-bottom:12px;">
+                        <div class="lib-name" style="font-size:1.5rem; font-weight:700;">
                             ${this.esc(bean.name || '')}
                         </div>
+                        ${bean.roaster ? `<div class="lib-roaster">${this.esc(bean.roaster)}</div>` : '<div class="lib-roaster"></div>'}
                         <div style="margin-bottom:12px;">
                             ${bean.variety ? `<span class="tag">${this.esc(bean.variety)}</span>` : ''}
                             ${bean.origin ? `<span class="tag">${this.esc(bean.origin)}</span>` : ''}
@@ -8628,7 +8644,7 @@
                         </div>
                         ${topFlavors.length ? `
                             <div class="top-flavors">
-                                ${topFlavors.map(flavor => `<span class="flavor-mini">${this.esc(flavor)}</span>`).join('')}
+                                ${topFlavors.map(flavor => this.famChip(flavor)).join('')}
                             </div>
                         ` : ''}
                         <div class="card-illustration">
@@ -8832,7 +8848,7 @@
                 else if ((this.grindText(prev.grind) || this.grindText(brew.grind)) && !this.sameGrind(prev.grind, brew.grind)) rows.push(`<div class="vs-label">Grind</div><div class="vs-values">${this.esc(this.grindText(prev.grind) || '–')} → ${this.esc(this.grindText(brew.grind) || '–')}</div><div class="vs-delta neutral">changed</div>`);
                 else if (this.grindText(brew.grind)) rows.push(`<div class="vs-label">Grind</div><div class="vs-values">${this.esc(this.grindText(brew.grind))}</div><div class="vs-delta same">same</div>`);
                 add('Dose', this.num(prev.dose), this.num(brew.dose), grams, grams, null);
-                add('Yield', this.num(prev.yield), this.num(brew.yield), grams, grams, null);
+                add(!brew.method || brew.method === 'Espresso' ? 'Pull' : 'Water', this.num(prev.yield), this.num(brew.yield), grams, grams, null);
                 add('Ratio', this.ratioOf(prev), this.ratioOf(brew), v => `1:${this.fmtNum(v, 2)}`, v => this.fmtNum(v, 2), null);
                 add('Time', this.num(prev.time), this.num(brew.time), v => `${n1(v)}\u00A0s`, v => `${n1(v)}\u00A0s`, null);
                 add('Rating', this.normalizeRating(prev.rating), this.normalizeRating(brew.rating), v => `${n1(v)}★`, n1, true);
@@ -9017,8 +9033,7 @@
                 const hex = at && at.f >= 0 ? NOTE_WHEEL[at.f].color : '#7D8984';
                 const s = String(this.normalizeHexColor(hex) || '#7D8984').slice(1);
                 const rgb = [0, 2, 4].map(i => parseInt(s.slice(i, i + 2), 16)).join(', ');
-                const style = `--fc-rgb:${rgb};--fc-ink:${this.hexMix(hex, '#1d2420', 0.38)};--fc-ink-d:${this.hexMix(hex, '#ffffff', 0.5)}`;
-                return `<span class="fam-chip" style="${style}">${this.esc(name)}</span>`;
+                return `<span class="fam-chip" style="${this.famVars(hex)}">${this.esc(name)}</span>`;
             },
 
             // the star widget stays beside the name unless that would split a word or squeeze the name past two lines;
@@ -9035,6 +9050,12 @@
                 if (split || name.getBoundingClientRect().height > lh * 2.4) row.classList.add('dh-wrap');
             },
 
+            famVars(hex) {
+                const s = String(this.normalizeHexColor(hex) || '#7D8984').slice(1);
+                const rgb = [0, 2, 4].map(i => parseInt(s.slice(i, i + 2), 16)).join(', ');
+                return `--fc-rgb:${rgb};--fc-ink:${this.hexMix(hex, '#1d2420', 0.38)};--fc-ink-d:${this.hexMix(hex, '#ffffff', 0.5)}`;
+            },
+
             // the star widget on the coffee page: stars, average, rated-session count, faces of everyone who brewed it
             beanStarsHtml(brews, avg, rated) {
                 const tally = new Map();
@@ -9046,6 +9067,57 @@
                     + (people.length > shown.length ? `<i class="more" style="z-index:1">+${people.length - shown.length}</i>` : '');
                 const stars = avg > 0 ? `<span class="star-meter" style="--fill:${this.starFill(avg)}%"></span><b class="dh-avg">${this.esc(this.formatRating(avg).replace('/5', ''))}</b><span class="dh-n" title="${rated} rated session${rated === 1 ? '' : 's'}">${rated}</span>` : '';
                 return `${stars}${people.length ? `<span class="dh-faces" aria-label="Brewed by ${this.esc(people.join(', '))}">${faces}</span>` : ''}`;
+            },
+
+            // ---- v12.4: a session on the coffee page: the same card as the feed (plus edit / delete on your own)
+            renderLogCard(log) {
+                const owner = this.getBrewOwner(log);
+                const color = this.getUserColor(owner, log.actorColor || '');
+                const rating = this.normalizeRating(log.rating);
+                const flavors = this.extractFlavors(log).slice(0, 4);
+                const gear = [...this.resolveEquipmentNames(log), ...this.sessionExtras(log)];
+                const likes = this.normalizeLikeList(log.likes, owner);
+                const unlocks = this.achievementUnlockByBrew.get(String(log.id)) || [];
+                const notes = this.getBrewNotes(log);
+                const bean = this.beans.get(String(log.beanId || ''));
+                const coffeeName = (bean ? String(bean.name || '').trim() : '') || 'Coffee';
+                const roasterName = bean ? String(bean.roaster || '').trim() : '';
+                const id = this.esc(log.id);
+                const lead = `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('brew', log.id)}"${this.likePopStyle('brew', log.id)} onclick="app.toggleLike('${id}', event)" title="Like session"><svg class="heart-icon"><use href="#i-heart"/></svg></button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}${owner === this.user ? `<span class="social-owner-actions"><button class="btn-clean" onclick="app.editBrew('${id}')" title="Edit session"><svg class="icon" style="width:14px;height:14px;"><use href="#i-edit-2"/></svg></button><button class="btn-clean danger" onclick="app.delete('brew','${id}')" title="Delete session"><svg class="icon" style="width:14px;height:14px;"><use href="#i-trash-2"/></svg></button></span>` : ''}`;
+                return `
+                        <div class="feed-card-body">
+                            <div class="feed-head">
+                                <div class="feed-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(owner))}</div>
+                                <div class="feed-meta">
+                                    <div class="feed-actor" style="color:${this.esc(color)};">${this.esc(owner)}</div>
+                                    <div class="feed-time">${this.esc(this.formatRelativeDate(log.date))}</div>
+                                </div>
+                                <div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(log.method)}"/></svg>${this.esc(log.method || 'Espresso')}</div>
+                            </div>
+                            <div class="sc-title">
+                                <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster">${this.esc(roasterName)}</div>` : ''}</div>
+                                ${rating > 0 ? `<div class="sc-rate"><span class="star-meter" style="--fill:${this.starFill(rating)}%"></span><b>${this.esc(this.formatRating(rating))}</b></div>` : ''}
+                            </div>
+                            ${this.recipeStripHtml(log)}
+                            ${this.renderCardTabs(log)}
+                            <div class="card-pane${this.cardTab(log) === 'session' ? ' active' : ''}" data-pane="session">
+                            ${flavors.length ? `<div class="sc-notes">${flavors.map(f => this.famChip(f)).join('')}</div>` : ''}
+                            ${gear.length ? `<div class="sc-gear">${gear.map(g => this.esc(g)).join('<i></i>')}</div>` : ''}
+                            ${this.renderSessionPhoto(log, 'feed')}
+                            ${notes ? `<div class="feed-note">${this.esc(notes)}</div>` : ''}
+                            ${unlocks.map(unlock => `<div class="achievement-inline">${this.esc(this.formatAchievementLine(unlock, unlock.user === this.user))}</div>`).join('')}
+                            </div>
+                            ${this.lazyPanes(log)}
+                            ${this.renderThread('brew', log, { inputId: `comment-input-${log.id}`, anchorId: `comments-${log.id}`, lead })}
+                        </div>
+                    `;
+            },
+
+            // the master form's labels follow its method, like the log form's
+            masterLabels(method) {
+                const p = METHOD_PROFILES[method] || METHOD_PROFILES.Espresso;
+                const set = (id, t) => { const el = document.getElementById(id); if (el) el.textContent = t; };
+                set('master-lbl-dose', p.dose); set('master-lbl-yield', p.yld); set('master-lbl-time', p.time);
             },
 
             renderDetailExtras(group, brews) {
@@ -9127,7 +9199,7 @@
                 }).join('');
                 const flavors = this.getTopFlavors(list, 3);
                 const avgRating = this.calculateAverageRating(list);
-                return `<div class="side-card"><div class="side-name" style="color:${this.esc(color)};">${this.esc(owner)}</div><div class="side-stat">${list.length} session${list.length === 1 ? '' : 's'} · ${this.esc(methods.join(', ') || '-')}${avgRating > 0 ? ` · avg ${this.esc(this.formatRating(avgRating))}` : ''}</div><div class="side-label">${pickLabel}${pick && pick.method ? ` · ${this.esc(pick.method)}` : ''}</div><div class="side-recipe">${this.esc(this.recipeLine(pick, false) || '-')}</div><div class="taste-bars">${bars}</div>${flavors.length ? `<div class="side-flavors">${flavors.map(f => `<span class="flavor-mini">${this.esc(f)}</span>`).join('')}</div>` : ''}</div>`;
+                return `<div class="side-card"><div class="side-name" style="color:${this.esc(color)};">${this.esc(owner)}</div><div class="side-stat">${list.length} session${list.length === 1 ? '' : 's'} · ${this.esc(methods.join(', ') || '-')}${avgRating > 0 ? ` · avg ${this.esc(this.formatRating(avgRating))}★` : ''}</div><div class="side-label">${pickLabel}${pick && pick.method ? ` · ${this.esc(pick.method)}` : ''}</div><div class="side-recipe">${this.esc(this.recipeLine(pick, false) || '-')}</div><div class="taste-bars">${bars}</div>${flavors.length ? `<div class="side-flavors">${flavors.map(f => this.famChip(f)).join('')}</div>` : ''}</div>`;
             },
 
             dialinSeries() {
@@ -9352,11 +9424,11 @@
 
             renderPalateCard(user) {
                 const p = this.palateFor(user);
-                const chips = (label, items) => (items.length ? `<div class="palate-group"><span class="palate-key">${label}</span>${items.map(i => `<span class="flavor-mini">${this.esc(i.label)}</span>`).join('')}</div>` : '');
+                const chips = (label, items) => (items.length ? `<div class="palate-group"><span class="palate-key">${label}</span>${items.map(i => label === 'Notes' ? this.famChip(i.label) : `<span class="flavor-mini">${this.esc(i.label)}</span>`).join('')}</div>` : '');
                 const groups = p && p.count >= 3
                     ? [chips('Notes', p.notes), chips('Origins', p.origins), chips('Process', p.processes), chips('Roast', p.roasts), chips('Variety', p.varieties), chips('Methods', p.methods)].join('')
                     : '';
-                const meta = p && p.rated ? `<div class="palate-meta">Weighted by ${p.rated} rated session${p.rated === 1 ? '' : 's'} · avg ${this.esc(this.formatRating(p.avgRating))}</div>` : '';
+                const meta = p && p.rated ? `<div class="palate-meta">Weighted by ${p.rated} rated session${p.rated === 1 ? '' : 's'} · avg ${this.esc(this.formatRating(p.avgRating))}★</div>` : '';
                 return `<section class="profile-card"><h4 class="section-label">${user === this.user ? 'Your palate' : `${this.esc(user)}'s palate`}</h4><div class="palate-summary">${this.esc(this.palateSentence(p))}</div>${groups ? `<div class="palate-groups">${groups}</div>` : ''}${meta}</section>`;
             },
 
@@ -11143,8 +11215,8 @@
 
             noteChipsHtml(notes, withCounts) {
                 return notes.map(x => {
-                    const color = x.f >= 0 ? NOTE_WHEEL[x.f].color : 'var(--text-muted)';
-                    return `<span class="flv-note" style="--fc:${color}"><i></i>${this.esc(x.n)}${withCounts ? (x.count > 1 ? `<em>×${x.count}</em>` : '') : `<span class="flv-dots">${[1, 2, 3].map(k => `<b class="${k <= x.strength ? 'on' : ''}"></b>`).join('')}</span>`}</span>`;
+                    const color = x.f >= 0 ? NOTE_WHEEL[x.f].color : '#7D8984';
+                    return `<span class="flv-note fam-chip" style="${this.famVars(color)}">${this.esc(x.n)}${withCounts ? (x.count > 1 ? `<em>×${x.count}</em>` : '') : `<span class="flv-dots">${[1, 2, 3].map(k => `<b class="${k <= x.strength ? 'on' : ''}"></b>`).join('')}</span>`}</span>`;
                 }).join('');
             },
 
@@ -11335,17 +11407,9 @@
                                 </div>
                             ` : ''}
                         </div>
-                        <div style="font-weight:700; font-size:1.05rem; margin-top:6px;">
-                            ${this.esc(profile.dose)}g → ${this.esc(profile.yield)}g <span style="font-weight:200; color:#CCC;">|</span> ${this.esc(profile.time)}s
-                        </div>
-                        <div class="master-meta">
-                            <span class="master-chip">${this.esc(profile.method || 'Method N/A')}</span>
-                            <span class="master-chip">Grind ${this.esc(profile.grind || '-')}</span>
-                            ${eq.length ? `<span class="master-chip">${this.esc(eq.join(' • '))}</span>` : '<span class="master-chip">Equipment N/A</span>'}
-                        </div>
-                        <div style="font-size:0.78rem; color:#5b655b; margin-top:7px; line-height:1.35;">
-                            ${this.esc(notes || 'No tasting notes yet.')}
-                        </div>
+                        ${this.recipeStripHtml({ ...master, ...profile, method: profile.method || master.method })}
+                        ${(() => { const g = [profile.method || master.method || 'Espresso', ...eq]; return `<div class="sc-gear">${g.map(x => this.esc(x)).join('<i></i>')}</div>`; })()}
+                        ${notes ? `<div class="feed-note master-note">${this.esc(notes)}</div>` : ''}
                     `;
                     masterBox.appendChild(card);
                 });
@@ -11361,7 +11425,7 @@
                 const logItems = [];
                 [...brews].sort((a, b) => this.toTime(b.date) - this.toTime(a.date)).forEach(log => {
                     const row = document.createElement('div');
-                    row.className = 'log-row';
+                    row.className = 'log-row sc-card sc-log';
                     row.id = `log-${log.id}`;
                     row.setAttribute('data-card-brew', String(log.id));
 
@@ -11382,60 +11446,8 @@
                         ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>`
                         : '';
 
-                    const rowHtml = `
-                        <div class="log-main ${hasRightContent ? 'has-right' : 'no-right'}">
-                            <div class="log-wide">${this.renderCardTabs(log)}</div>
-                            <div class="card-pane${this.cardTab(log) === 'session' ? ' active' : ''}" data-pane="session">
-                            <div class="log-left-col">
-                                <div class="log-date">
-                                    ${new Date(log.date).toLocaleDateString()} • ${this.esc(logOwner)}
-                                </div>
-                                <div class="log-metrics">
-                                    ${this.esc(this.metricLine(log))}
-                                </div>
-                                <div class="method-line">
-                                    <svg class="method-icon"><use href="${this.methodIconUse(log.method)}"/></svg>
-                                    <span>${this.esc(log.method || '-')}</span>
-                                </div>
-                                ${equipmentNames.length ? `
-                                    <div class="equipment-display">
-                                        ${equipmentNames.map(name => `<span class="equipment-tag">${this.esc(name)}</span>`).join('')}
-                                    </div>
-                                ` : ''}
-                            </div>
-                            ${hasRightContent ? `
-                                <div class="log-right-col">
-                                    ${rating > 0 ? `
-                                        <div class="rating-inline">
-                                            <span class="star-meter" style="--fill:${this.starFill(rating)}%"></span>
-                                            <span style="color:var(--gold); font-weight:700; font-size:0.9rem;">${this.esc(this.formatRating(rating))}</span>
-                                        </div>
-                                    ` : ''}
-                                    ${brewFlavors.length ? `
-                                        <div class="log-right-flavors">
-                                            ${brewFlavors.map(flavor => `<span class="flavor-mini">${this.esc(flavor)}</span>`).join('')}
-                                        </div>
-                                    ` : ''}
-                                </div>
-                            ` : ''}
-                            ${noteText ? `<div class="log-note-wide log-wide">${this.esc(noteText)}</div>` : ''}
-                            <div class="log-wide">
-                                ${this.renderSessionPhoto(log, 'detail')}
-                            </div>
-                            ${unlocks.map(unlock => `<div class="achievement-inline log-wide">${this.esc(this.formatAchievementLine(unlock, unlock.user === this.user))}</div>`).join('')}
-                            </div>
-                            ${this.lazyPanes(log)}
-                            ${this.renderThread('brew', log, { inputId: `comment-input-${log.id}`, wide: true, anchorId: `comments-${log.id}`, lead: `<button class="social-btn like-btn ${isLiked ? 'liked' : ''}${this.likePopClass('brew', log.id)}"${this.likePopStyle('brew', log.id)} onclick="app.toggleLike('${this.esc(log.id)}', event)" title="Like session">
-                                            <svg class="heart-icon"><use href="#i-heart"/></svg>
-                                        </button>${socialNote}${logOwner === this.user ? `<span class="social-owner-actions"><button class="btn-clean" onclick="app.editBrew('${this.esc(log.id)}')" title="Edit session">
-                                                <svg class="icon" style="width:14px;height:14px;"><use href="#i-edit-2"/></svg>
-                                            </button>
-                                            <button class="btn-clean danger" onclick="app.delete('brew','${this.esc(log.id)}')" title="Delete session">
-                                                <svg class="icon" style="width:14px;height:14px;"><use href="#i-trash-2"/></svg>
-                                            </button></span>` : ''}` })}
-                        </div>
-                    `;
-                    if (keyedLogs) logItems.push({ key: row.id, html: `<div class="log-row" id="${this.esc(row.id)}" data-card-brew="${this.esc(String(log.id))}">${rowHtml}</div>` });
+                    const rowHtml = this.renderLogCard(log);
+                    if (keyedLogs) logItems.push({ key: row.id, html: `<div class="log-row sc-card sc-log" id="${this.esc(row.id)}" data-card-brew="${this.esc(String(log.id))}">${rowHtml}</div>` });
                     else { row.innerHTML = rowHtml; logBox.appendChild(row); }
                 });
                 if (keyedLogs) this.patchKeyed(logBox, logItems, this._logHtml);
@@ -11887,6 +11899,7 @@
                 const profile = this.getMasterProfile(brew);
                 form.elements.id.value = brew.id;
                 form.method.value = profile.method || 'Espresso';
+                this.masterLabels(form.method.value);
                 form.grind.value = profile.grind ?? '';
                 form.dose.value = profile.dose ?? '';
                 form.yield.value = profile.yield ?? '';
