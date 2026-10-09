@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v12.5 -->
+<!-- Dialed In v12.6 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="12.5">
+    <meta name="dialed-in-version" content="12.6">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -2863,6 +2863,38 @@
             .aw-icon { box-shadow: 0 6px 14px rgba(var(--ac-rgb, 138, 149, 140), 0.32); }
             .aw-tile .aw-stat { color: var(--ink); }
         }
+
+        /* ===== v12.6: faces on the comments button ===== */
+        .thread.compact .thread-toggle.has-faces { padding-right: 7px; }
+        .thread.compact .thread-toggle .thread-faces { display: inline-flex; align-items: center; margin: -3px 0 -3px 1px; padding-left: 8px; border-left: 1px solid rgba(var(--hair-rgb), 0.13); }
+        .thread.compact .thread-toggle .thread-faces i { width: 22px; height: 22px; margin-left: 0; display: inline-grid; place-items: center; font-style: normal; font-size: 0.6rem; font-weight: 800; color: #fff; box-shadow: 0 0 0 2px var(--surface), 0 3px 8px rgba(var(--hair-rgb), 0.18); position: relative; }
+        .thread.compact .thread-toggle .thread-faces i + i { margin-left: -5px; }
+        .thread.compact .thread-toggle .thread-faces i.more { background: var(--surface-2); color: var(--ink-2); font-size: 0.56rem; }
+
+        /* ===== v12.6: profile card showpiece + streak heat ===== */
+        .profile-view .profile-card.profile-hero { background: radial-gradient(120% 95% at 0% 0%, rgba(var(--pc-rgb, 78, 107, 82), 0.15), transparent 62%), linear-gradient(180deg, rgba(var(--glass-rgb), 0.98), rgba(var(--glass-rgb), 0.9)); border: 1px solid rgba(var(--pc-rgb, 78, 107, 82), 0.24); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), var(--shadow-soft); }
+        :root[data-theme="dark"] .profile-view .profile-card.profile-hero { background: radial-gradient(120% 95% at 0% 0%, rgba(var(--pc-rgb, 78, 107, 82), 0.26), transparent 64%), linear-gradient(180deg, rgba(var(--glass-rgb), 0.98), rgba(var(--glass-rgb), 0.9)); border-color: rgba(var(--pc-rgb, 78, 107, 82), 0.32); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), var(--shadow-soft); }
+        .profile-hero .hero-avatar { box-shadow: 0 0 0 3px var(--surface), 0 0 0 4px rgba(var(--pc-rgb, 78, 107, 82), 0.28), 0 8px 22px rgba(var(--pc-rgb, 78, 107, 82), 0.38); }
+        .profile-hero .stat-box { background: linear-gradient(180deg, rgba(var(--pc-rgb, 78, 107, 82), 0.085), rgba(var(--pc-rgb, 78, 107, 82), 0.03)); border: 1px solid rgba(var(--pc-rgb, 78, 107, 82), 0.14); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 4px 12px rgba(var(--pc-rgb, 78, 107, 82), 0.07); }
+        :root[data-theme="dark"] .profile-hero .stat-box { background: linear-gradient(180deg, rgba(var(--pc-rgb, 78, 107, 82), 0.17), rgba(var(--pc-rgb, 78, 107, 82), 0.07)); border-color: rgba(var(--pc-rgb, 78, 107, 82), 0.24); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 12px rgba(0, 0, 0, 0.18); }
+        .profile-hero .week-dot { box-shadow: inset 0 1px 1px rgba(var(--hair-rgb), 0.08); }
+        .profile-hero .week-dot.on { background: linear-gradient(180deg, rgba(var(--matcha-rgb), 0.82), var(--matcha)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 6px rgba(var(--matcha-rgb), 0.3); }
+        .streak-chip.heat, :root[data-theme="dark"] .streak-chip.heat { position: relative; isolation: isolate; display: inline-flex; align-items: center; gap: 5px; color: var(--sk); background: linear-gradient(135deg, var(--s1), var(--s2)); border: 1px solid rgba(255, 255, 255, 0.28); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 3px 10px var(--sg); text-shadow: var(--sts, none); }
+        .streak-chip.heat > span { position: relative; z-index: 1; }
+        .profile-hero .rhythm .streak-chip { order: 1; margin-left: auto; }
+        .profile-hero .rhythm .rhythm-text { order: 2; flex-basis: 100%; }
+        .streak-chip.heat::before { content: ''; position: absolute; inset: 0; border-radius: inherit; z-index: -1; box-shadow: 0 0 var(--sr) var(--sg), 0 0 calc(var(--sr) * 2.2) var(--sg2); opacity: 0.7; animation: streak-breathe var(--sp) ease-in-out infinite; }
+        .streak-chip.heat.shine::after { content: ''; position: absolute; inset: 0; border-radius: inherit; z-index: 0; pointer-events: none; background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.55) 50%, transparent 62%) no-repeat; background-size: 260% 100%; background-position: 160% 0; animation: streak-shine calc(var(--sp) * 2.2) ease-in-out infinite; }
+        .streak-chip .flame { display: block; position: relative; z-index: 1; width: var(--fs); height: var(--fs); margin: calc((13px - var(--fs)) / 2 - 1px) 0 calc((13px - var(--fs)) / 2) -2px; fill: var(--sfl); transform-origin: 50% 88%; filter: drop-shadow(0 0 2px var(--sfg)); animation: streak-flicker var(--sf) ease-in-out infinite alternate; }
+        .streak-chip .flame .flame-core { fill: var(--sfc); }
+        .streak-chip .ember { position: absolute; z-index: 2; left: var(--ex); bottom: 55%; width: var(--es); height: var(--es); border-radius: 50%; background: var(--sec); box-shadow: 0 0 4px var(--sec); opacity: 0; pointer-events: none; animation: streak-ember var(--ed) ease-out infinite; animation-delay: var(--edl); }
+        .streak-chip.heat.blaze, :root[data-theme="dark"] .streak-chip.heat.blaze { background: linear-gradient(90deg, var(--s2), var(--s1) 25%, var(--s2) 50%, var(--s1) 75%, var(--s2)); background-size: 200% 100%; animation: streak-blaze calc(var(--sp) * 1.6) linear infinite; }
+        @keyframes streak-blaze { 0% { background-position: 0% 0; } 100% { background-position: 100% 0; } }
+        @keyframes streak-breathe { 0%, 100% { opacity: 0.45; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
+        @keyframes streak-shine { 0%, 55% { background-position: 160% 0; } 100% { background-position: -60% 0; } }
+        @keyframes streak-flicker { 0% { transform: scale(1, 1) rotate(-3deg); } 40% { transform: scale(0.94, 1.08) rotate(2deg); } 70% { transform: scale(1.05, 0.95) rotate(-1deg); } 100% { transform: scale(0.97, 1.05) rotate(3deg); } }
+        @keyframes streak-ember { 0% { opacity: 0; transform: translate(0, 0) scale(1); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--edx), -20px) scale(0.35); } }
+        @media (prefers-reduced-motion: reduce) { .streak-chip .ember { display: none; } .streak-chip.heat::before, .streak-chip.heat.shine::after { animation: none !important; } }
     </style>
 </head>
 <body>
@@ -3161,7 +3193,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v12.5</div>
+            <div class="app-version">Dialed In · v12.6</div>
         </div>
     </div>
 
@@ -4072,6 +4104,7 @@
                 if (!this.user) this.openSettings();
                 else this.updateBadge('connecting');
                 this.watchInitials();
+                this.watchLikeLines();
                 this.setTab(this.tab);
                 this.bootFromCache().then(() => {
                     if (this.user) this.sync();
@@ -8205,6 +8238,78 @@
                 return kind === 'bean' ? this.beans.get(String(id)) : this.brews.get(String(id));
             },
 
+            // ---- v12.6: who's in a thread, for the comments button (most comments first, then newest)
+            commentPeople(comments) {
+                const tally = new Map();
+                (comments || []).forEach((c, i) => { if (!c || !c.user) return; const t = tally.get(c.user) || { n: 0, last: -1 }; t.n++; t.last = i; tally.set(c.user, t); });
+                return [...tally.entries()].sort((a, b) => (b[1].n - a[1].n) || (b[1].last - a[1].last)).map(e => e[0]);
+            },
+
+            commentFacesHtml(comments) {
+                const people = this.commentPeople(comments);
+                if (!people.length) return '';
+                const shown = people.slice(0, 3);
+                return `<span class="thread-faces" aria-hidden="true">${shown.map((p, i) => `<i style="background:${this.esc(this.getUserColor(p))};z-index:${9 - i}">${this.esc(this.feedInitial(p))}</i>`).join('')}${people.length > shown.length ? `<i class="more" style="z-index:1">+${people.length - shown.length}</i>` : ''}</span>`;
+            },
+
+            commentButtonLabel(comments) {
+                const n = comments.length;
+                if (!n) return 'Add a comment';
+                const people = this.commentPeople(comments);
+                const names = people.length <= 2 ? people.join(' and ') : `${people.slice(0, -1).join(', ')} and ${people[people.length - 1]}`;
+                return `${n} comment${n === 1 ? '' : 's'}${names ? ` from ${names}` : ''}`;
+            },
+
+            // ---- v12.6: a like line that doesn't fit its row says it shorter instead of cutting a name off
+            likeLineShort(line) {
+                const lead = line.parentElement;
+                const btn = lead && lead.querySelector('.like-btn');
+                const m = btn && (btn.getAttribute('onclick') || '').match(/toggle(Bean)?Like\('([^']+)'/);
+                if (!m) return '';
+                const item = m[1] ? this.beans.get(m[2]) : this.brews.get(m[2]);
+                if (!item) return '';
+                const owner = m[1] ? String(item.user || item.owner || 'Unknown') : this.getBrewOwner(item);
+                const likes = [...new Set(this.normalizeLikeList(item.likes, owner).map(n => String(n || '').trim()).filter(Boolean))];
+                return likes.length > 1 ? `${likes[0]} +${likes.length - 1} liked` : '';
+            },
+
+            fitLikeLines(lines) {
+                const fit = this._likeFit;
+                const list = [...lines].filter(l => l && l.isConnected);
+                list.forEach(l => {
+                    const cur = l.textContent; let st = fit.get(l);
+                    if (!st || (cur !== st.full && cur !== st.short)) { st = { full: cur, short: null }; fit.set(l, st); }
+                    if (cur !== st.full) l.textContent = st.full;
+                });
+                list.filter(l => l.clientWidth > 0 && l.scrollWidth > l.clientWidth + 1).forEach(l => {
+                    const st = fit.get(l);
+                    if (st.short === null) st.short = this.likeLineShort(l);
+                    if (st.short) l.textContent = st.short;
+                });
+            },
+
+            watchLikeLines() {
+                if (this._likeFit || typeof MutationObserver === 'undefined' || typeof document === 'undefined' || !document.body) return;
+                this._likeFit = new WeakMap();
+                const SEL = '.thread-lead .social-like-line';
+                const pending = new Set(); let queued = false;
+                const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(entries => this.fitLikeLines(entries.map(e => e.target))) : null;
+                const run = () => { queued = false; const list = [...pending]; pending.clear(); list.forEach(l => { if (!l.isConnected && ro) ro.unobserve(l); }); this.fitLikeLines(list); };
+                const add = l => { if (!l.isConnected) return; const st = this._likeFit.get(l); if (st && st.short && l.textContent === st.short) return; if (!st && ro) ro.observe(l); pending.add(l); };
+                new MutationObserver(recs => {
+                    recs.forEach(r => {
+                        const t = r.target.nodeType === 1 ? r.target : r.target.parentElement;
+                        const own = t && t.closest ? t.closest('.social-like-line') : null;
+                        if (own && own.matches(SEL)) add(own);
+                        r.addedNodes.forEach(n => { if (n.nodeType !== 1) return; if (n.matches(SEL)) add(n); else if (n.querySelector('.social-like-line')) n.querySelectorAll(SEL).forEach(add); });
+                        if (ro) r.removedNodes.forEach(n => { if (n.nodeType !== 1) return; if (n.matches(SEL)) ro.unobserve(n); else if (n.querySelector('.social-like-line')) n.querySelectorAll(SEL).forEach(l => ro.unobserve(l)); });
+                    });
+                    if (pending.size && !queued) { queued = true; requestAnimationFrame(run); }
+                }).observe(document.body, { childList: true, subtree: true, characterData: true });
+                if (!ro) window.addEventListener('resize', () => { document.querySelectorAll(SEL).forEach(l => pending.add(l)); if (!queued) { queued = true; requestAnimationFrame(run); } });
+                document.querySelectorAll(SEL).forEach(add);
+            },
+
             renderThread(kind, target, opts = {}) {
                 const id = String(target.id);
                 const key = this.threadKey(kind, id);
@@ -8249,7 +8354,7 @@
                     : `app.handleFeedCommentKey(event, '${kind}', '${this.esc(id)}')`;
                 return `
                     <div class="thread${open ? ' open' : ''}${opts.wide ? ' log-wide' : ''}${opts.lead !== undefined ? ' compact' : ''}" data-thread="${this.esc(key)}" ${opts.anchorId ? `id="${this.esc(opts.anchorId)}"` : ''} onclick="event.stopPropagation()">
-                        ${opts.lead !== undefined ? `<div class="thread-row"><div class="thread-lead">${opts.lead}</div><button type="button" class="thread-toggle" aria-expanded="${open}" aria-label="${comments.length ? `${comments.length} comment${comments.length === 1 ? '' : 's'}` : 'Add a comment'}" onclick="app.toggleThread('${kind}','${this.esc(id)}',event)"><svg class="icon"><use href="#i-message-square"/></svg>${comments.length ? `<b>${comments.length}</b>` : ''}</button></div>` : `
+                        ${opts.lead !== undefined ? `<div class="thread-row"><div class="thread-lead">${opts.lead}</div><button type="button" class="thread-toggle${comments.length ? ' has-faces' : ''}" aria-expanded="${open}" aria-label="${this.esc(this.commentButtonLabel(comments))}" onclick="app.toggleThread('${kind}','${this.esc(id)}',event)"><svg class="icon"><use href="#i-message-square"/></svg>${comments.length ? `<b>${comments.length}</b>${this.commentFacesHtml(comments)}` : ''}</button></div>` : `
                         <button type="button" class="thread-toggle" aria-expanded="${open}" onclick="app.toggleThread('${kind}','${this.esc(id)}',event)">
                             <svg class="icon"><use href="#i-message-square"/></svg>
                             <span class="thread-label">${comments.length ? `Comments <b>${comments.length}</b>` : 'Add a comment'}</span>
@@ -9394,6 +9499,33 @@
                 return { weeks, active: weeks.filter(Boolean).length, streak, lastT };
             },
 
+            // ---- v12.6: the streak badge, hotter every day (gold -> amber -> ember red, tops out at 30 days)
+            streakChipHtml(n) {
+                n = Math.floor(Number(n) || 0);
+                if (n < 2) return '';
+                const heat = Math.pow(Math.min(1, (n - 2) / 28), 0.8);
+                const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t)).join(', ');
+                const top = [[247, 208, 118], [250, 168, 72], [244, 112, 58]], bot = [[224, 160, 60], [228, 108, 40], [190, 48, 32]];
+                const seg = heat < 0.5 ? 0 : 1, t = heat < 0.5 ? heat / 0.5 : (heat - 0.5) / 0.5;
+                const glow = mix([232, 176, 72], [242, 92, 42], heat);
+                const light = heat < 0.62;
+                const vars = [
+                    `--s1:rgb(${mix(top[seg], top[seg + 1], t)})`, `--s2:rgb(${mix(bot[seg], bot[seg + 1], t)})`,
+                    `--sg:rgba(${glow}, ${(0.34 + 0.5 * heat).toFixed(2)})`, `--sg2:rgba(${glow}, ${(0.4 * heat * heat).toFixed(2)})`, `--sr:${Math.round(6 + 30 * heat)}px`,
+                    `--fs:${(12 + 6 * heat).toFixed(1)}px`, `--es:${(3 + 1.5 * heat).toFixed(1)}px`,
+                    `--sp:${(3.4 - 1.7 * heat).toFixed(2)}s`, `--sf:${(1.3 - 0.75 * heat).toFixed(2)}s`,
+                    `--sk:${light ? '#4A2906' : '#FFFFFF'}`, `--sts:${light ? 'none' : '0 1px 1px rgba(90, 20, 0, 0.35)'}`,
+                    `--sfl:${light ? '#C8461A' : '#FFE29A'}`, `--sfc:${light ? '#F7B23B' : '#FFFFFF'}`, `--sfg:${light ? 'rgba(255, 190, 90, 0.7)' : 'rgba(255, 236, 160, 0.9)'}`,
+                    `--sec:${light ? '#FFB347' : '#FFD27A'}`
+                ].join(';');
+                const embers = n >= 10 ? Math.min(8, 2 + Math.floor((n - 10) / 3)) : 0;
+                const em = Array.from({ length: embers }, (_, i) => {
+                    const x = 14 + ((i * 37) % 72), dx = ((i % 2 ? 1 : -1) * (3 + (i * 5) % 7)), dur = (2.6 - 0.9 * heat + (i % 3) * 0.35).toFixed(2), dl = ((i * 0.53) % 2).toFixed(2);
+                    return `<i class="ember" style="--ex:${x}%;--edx:${dx}px;--ed:${dur}s;--edl:${dl}s"></i>`;
+                }).join('');
+                return `<span class="streak-chip heat${n >= 5 ? ' shine' : ''}${n >= 20 ? ' blaze' : ''}" style="${vars}" title="${n} days in a row">${n >= 3 ? `<svg class="flame" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.6 2.2c.5 3-1 4.8-2.5 6.4C8.5 10.3 7 12 7 14.9a5 5 0 0 0 10 0c0-2.1-.9-3.8-2-5.1.1 1.5-.5 2.8-1.5 3.3.4-3.8-.6-7.6-.9-10.9Z"/><path class="flame-core" d="M12 13.4c-1 1-1.7 1.9-1.7 3.1a1.7 1.7 0 0 0 3.4 0c0-1.1-.7-2-1.7-3.1Z"/></svg>` : ''}<span>${n}-day streak</span>${em}</span>`;
+            },
+
             renderProfileHero(user) {
                 const color = this.getUserColor(user);
                 const brews = this.brewsOf(user);
@@ -9401,9 +9533,9 @@
                 const beans = new Set(brews.map(b => this.groupKeyOfBrew(b))).size;
                 const methods = new Set(brews.map(b => b.method).filter(Boolean)).size;
                 const dots = r.weeks.map((on, i) => `<span class="week-dot${on ? ' on' : ''}" title="${i === 7 ? 'This week' : `${7 - i} week${7 - i === 1 ? '' : 's'} ago`}"></span>`).join('');
-                const streak = r.streak >= 2 ? `<span class="streak-chip">${r.streak}-day streak</span>` : '';
+                const streak = this.streakChipHtml(r.streak);
                 const last = r.lastT ? `Last brewed ${this.formatRelativeDate(r.lastT)}` : 'No sessions yet';
-                return `<section class="profile-card profile-hero"><div class="hero-row"><div class="hero-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(user))}</div><div><div class="hero-name">${this.esc(user)}${user === this.user ? '<span class="you-tag">You</span>' : ''}</div><div class="hero-sub">${this.esc(last)}</div></div></div><div class="rhythm"><div class="week-dots">${dots}</div><div class="rhythm-text">Brewed in ${r.active} of the last 8 weeks</div>${streak}</div><div class="stat-row"><div class="stat-box"><div class="stat-num">${brews.length}</div><div class="stat-cap">${brews.length === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${beans}</div><div class="stat-cap">${beans === 1 ? 'Bean' : 'Beans'}</div></div><div class="stat-box"><div class="stat-num">${methods}</div><div class="stat-cap">${methods === 1 ? 'Method' : 'Methods'}</div></div></div></section>`;
+                return `<section class="profile-card profile-hero" style="--pc-rgb:${this.hexRgb(color)}"><div class="hero-row"><div class="hero-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(user))}</div><div><div class="hero-name">${this.esc(user)}${user === this.user ? '<span class="you-tag">You</span>' : ''}</div><div class="hero-sub">${this.esc(last)}</div></div></div><div class="rhythm"><div class="week-dots">${dots}</div><div class="rhythm-text">Brewed in ${r.active} of the last 8 weeks</div>${streak}</div><div class="stat-row"><div class="stat-box"><div class="stat-num">${brews.length}</div><div class="stat-cap">${brews.length === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${beans}</div><div class="stat-cap">${beans === 1 ? 'Bean' : 'Beans'}</div></div><div class="stat-box"><div class="stat-num">${methods}</div><div class="stat-cap">${methods === 1 ? 'Method' : 'Methods'}</div></div></div></section>`;
             },
 
             palateFor(user) {
