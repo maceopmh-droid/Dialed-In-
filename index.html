@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v12.2 -->
+<!-- Dialed In v12.3 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="12.2">
+    <meta name="dialed-in-version" content="12.3">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -2779,7 +2779,7 @@
         .sc-gear { margin-top: 9px; font-size: 0.74rem; font-weight: 600; color: var(--text-muted); line-height: 1.35; }
         .sc-gear i { display: inline-block; width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: 0.55; vertical-align: middle; margin: 0 7px; }
         .sc-card .session-photo-wrap { margin-top: 11px; }
-        .sc-card .feed-card-body .card-tabs { margin: 2px -12px -14px; }
+        .sc-card .feed-card-body .card-tabs { margin: 0 -12px -16px; }
         .sc-card .feed-note { margin-top: 10px; }
 
         /* ===== speed (v12.2) ===== */
@@ -2806,6 +2806,13 @@
         .fab-tile:not(.empty) .fab-name { font-weight: 600; font-size: 0.8rem; }
         .fp-main b { font-weight: 600; }
         .wr-bean { font-weight: 700; letter-spacing: -0.02em; }
+
+        /* ===== v12.3: recipe band, favorites initials ===== */
+        .sc-recipe { grid-column: 1 / -1; display: flex; align-items: center; gap: 7px; min-width: 0; padding: 8px 10px 7px; font-size: 0.76rem; color: var(--ink-2); box-shadow: inset 0 -1px 0 rgba(var(--matcha-rgb), 0.14); }
+        .sc-recipe .icon { width: 14px; height: 14px; flex-shrink: 0; color: var(--matcha); }
+        .sc-recipe b { font-weight: 750; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+        .sc-recipe em { margin-left: auto; flex-shrink: 0; font-style: normal; font-size: 0.64rem; font-weight: 750; letter-spacing: 0.02em; color: var(--matcha-ink); background: rgba(var(--matcha-rgb), 0.13); border: 1px solid rgba(var(--matcha-rgb), 0.16); padding: 2px 8px; border-radius: 999px; }
+        .fab-art b { font-family: var(--font-bean); font-weight: 600; letter-spacing: 0.02em; }
     </style>
 </head>
 <body>
@@ -2823,7 +2830,7 @@
         <symbol id="i-edit-2" viewBox="0 0 24 24"><path d="M4.5 19.5l.9-4L15.6 5.3a2 2 0 0 1 2.9 0l.2.2a2 2 0 0 1 0 2.9L8.5 18.6Z"/><path d="M13.8 7.1l3.1 3.1"/></symbol>
         <symbol id="i-trash-2" viewBox="0 0 24 24"><path d="M4.5 7h15"/><path d="M9.5 7V4.6h5V7"/><path d="M6.5 7l.8 12a2 2 0 0 0 2 1.9h5.4a2 2 0 0 0 2-1.9l.8-12"/><path d="M10.2 11v6M13.8 11v6"/></symbol>
         <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6.5 9.5 5.5 5.5 5.5-5.5"/></symbol>
-        <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M7.2 4h9.6a1.2 1.2 0 0 1 1.2 1.2V20l-6-3.9L6 20V5.2A1.2 1.2 0 0 1 7.2 4Z"/></symbol><symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 19.6s-7.3-4.4-7.3-9.6A4.1 4.1 0 0 1 12 7.6a4.1 4.1 0 0 1 7.3 2.4c0 5.2-7.3 9.6-7.3 9.6Z"/></symbol>
+        <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M7.2 4h9.6a1.2 1.2 0 0 1 1.2 1.2V20l-6-3.9L6 20V5.2A1.2 1.2 0 0 1 7.2 4Z"/></symbol><symbol id="i-recipe" viewBox="0 0 24 24"><path d="M6.5 4.5h9A2.5 2.5 0 0 1 18 7v13H9a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6.5 17.5A2.5 2.5 0 0 1 9 15h9"/><path d="M10 8.5h4.5M10 11.5h3"/></symbol><symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 19.6s-7.3-4.4-7.3-9.6A4.1 4.1 0 0 1 12 7.6a4.1 4.1 0 0 1 7.3 2.4c0 5.2-7.3 9.6-7.3 9.6Z"/></symbol>
         <symbol id="i-message-square" viewBox="0 0 24 24"><path d="M20 11.6a7.6 7.6 0 0 1-11.1 6.7L4.2 19.6l1.3-4.3A7.6 7.6 0 1 1 20 11.6Z"/></symbol>
         <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5.5M11 6.5 5.5 12l5.5 5.5"/></symbol>
         <symbol id="i-bean-line" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="6.1" ry="8.7" transform="rotate(35 12 12)"/><path d="M9.3 5.9c2.3 2.4.3 4.4 2.5 6.2s.7 4.3 2.9 6"/></symbol>
@@ -3104,7 +3111,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v12.2</div>
+            <div class="app-version">Dialed In · v12.3</div>
         </div>
     </div>
 
@@ -4320,6 +4327,40 @@
                 return out.sort((a, b) => a.localeCompare(b));
             },
 
+            // ---- v12.3: who a comment replies to and who liked it, saved beside the comments (the backend drops both
+            // from the comments themselves)
+            commentMetaOf(list) {
+                const meta = {};
+                (Array.isArray(list) ? list : []).forEach(c => {
+                    if (!c || !c.id) return;
+                    const e = {};
+                    if (c.parentId) e.p = String(c.parentId);
+                    if (Array.isArray(c.likes) && c.likes.length) e.l = c.likes.map(String);
+                    if (e.p || e.l) meta[String(c.id)] = e;
+                });
+                return meta;
+            },
+
+            withCommentMeta(list, meta) {
+                if (!Array.isArray(list) || !meta || typeof meta !== 'object') return list;
+                return list.map(c => {
+                    const m = c && c.id !== undefined ? meta[String(c.id)] : null;
+                    if (!m) return c;
+                    return { ...c, parentId: c.parentId || m.p || '', likes: Array.isArray(c.likes) ? c.likes : (Array.isArray(m.l) ? m.l : []) };
+                });
+            },
+
+            // ---- v12.3: the recipe a session used (preset or saved), shown across the top of the recipe strip
+            recipeBandHtml(b) {
+                const name = String(b.recipeName || '').trim();
+                if (!name) return '';
+                const key = name.toLowerCase();
+                const preset = BUILTIN_RECIPES.some(r => String(r.name).toLowerCase() === key);
+                const saved = !preset && this.myRecipes(this.getBrewOwner(b)).some(r => String(r.name).toLowerCase() === key);
+                const kind = preset ? 'Preset' : saved ? 'Saved recipe' : 'Recipe';
+                return `<div class="sc-recipe"><svg class="icon"><use href="#i-recipe"/></svg><b>${this.esc(name)}</b><em>${kind}</em></div>`;
+            },
+
             normalizeCommentList(values, baseId = 'item', fallbackTime = '') {
                 const out = [];
                 (Array.isArray(values) ? values : []).forEach((item, idx) => {
@@ -5025,7 +5066,7 @@
                     if (!event.id) return null;
                     const owner = String(event.owner || event.user || event.actor || 'Unknown');
                     const likes = this.normalizeLikeList(event.likes, owner);
-                    const comments = this.normalizeCommentList(event.comments, `bean-${event.id}`, event.date || event.eventAt || now);
+                    const comments = this.normalizeCommentList(this.withCommentMeta(event.comments, event.commentMeta), `bean-${event.id}`, event.date || event.eventAt || now);
                     return {
                         ...event,
                         id: String(event.id),
@@ -5044,7 +5085,7 @@
                     if (!event.id || !event.beanId) return null;
                     const owner = String(event.owner || event.user || event.actor || 'Unknown');
                     const likes = this.normalizeLikeList(event.likes, owner);
-                    const comments = this.normalizeCommentList(event.comments, `brew-${event.id}`, event.date || event.eventAt || now);
+                    const comments = this.normalizeCommentList(this.withCommentMeta(event.comments, event.commentMeta), `brew-${event.id}`, event.date || event.eventAt || now);
                     const photo = this.normalizePhoto(event.photo);
                     const rawMaster = (event.masterProfile && typeof event.masterProfile === 'object') ? event.masterProfile : null;
                     const masterProfile = rawMaster ? {
@@ -5593,6 +5634,7 @@
             },
 
             async push(payload, opts = {}) {
+                if (payload && Array.isArray(payload.comments)) payload = { ...payload, commentMeta: this.commentMetaOf(payload.comments) };
                 const waitForFresh = this.shouldWaitForFreshData(payload);
                 const base = waitForFresh ? this.recordFor(payload) : null;
                 const now = new Date().toISOString();
@@ -6725,17 +6767,21 @@
             appendFeedChunk(grid, count) {
                 const entries = this.feedEntries.slice(0, 220);
                 const end = Math.min(entries.length, (this._feedShown || 0) + count);
-                const frag = document.createDocumentFragment();
+                const frag = document.createDocumentFragment(), added = [];
                 for (let i = this._feedShown || 0; i < end; i++) {
                     const e = entries[i], key = this.feedKey(e);
                     if (this._feedHtml.has(key)) continue;
                     const html = this.feedCardHtml(e);
                     if (!html) continue;
                     this._feedHtml.set(key, html);
-                    frag.appendChild(this.htmlEl(html, key));
+                    const el = this.htmlEl(html, key);
+                    added.push(el);
+                    frag.appendChild(el);
                 }
                 grid.appendChild(frag);
                 this._feedShown = end;
+                // center their initials before this frame paints (the watcher would only get to them next frame)
+                added.forEach(el => this.centerInitials(el));
             },
 
             // the rest of the feed right after the first screen is up: one small batch per frame (taps and scrolling stay
@@ -8314,8 +8360,9 @@
                                 <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster">${this.esc(roasterName)}</div>` : ''}</div>
                                 ${rating > 0 ? `<div class="sc-rate"><span class="star-meter" style="--fill:${this.starFill(rating)}%"></span><b>${this.esc(this.formatRating(rating).replace('/5', ''))}</b></div>` : ''}
                             </div>
-                            <div class="card-pane${this.cardTab(brew) === 'session' ? ' active' : ''}" data-pane="session">
                             ${this.recipeStripHtml(brew)}
+                            ${this.renderCardTabs(brew)}
+                            <div class="card-pane${this.cardTab(brew) === 'session' ? ' active' : ''}" data-pane="session">
                             ${flavors.length ? `<div class="sc-notes">${flavors.map(f => this.famChip(f)).join('')}</div>` : ''}
                             ${gear.length ? `<div class="sc-gear">${gear.map(g => this.esc(g)).join('<i></i>')}</div>` : ''}
                             ${this.renderSessionPhoto(brew, 'feed')}
@@ -8323,7 +8370,6 @@
                             ${unlocks.map(unlock => `<div class="achievement-inline">${this.esc(this.formatAchievementLine(unlock, unlock.user === this.user))}</div>`).join('')}
                             </div>
                             ${this.lazyPanes(brew)}
-                            ${this.renderCardTabs(brew)}
                             ${this.renderThread('brew', brew, { inputId: `feed-comment-input-brew-${brew.id}`, lead: `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('brew', brew.id)}"${this.likePopStyle('brew', brew.id)} onclick="app.toggleLike('${this.esc(brew.id)}', event)" title="Like session">
                                     <svg class="heart-icon"><use href="#i-heart"/></svg>
                                 </button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}` })}
@@ -8342,7 +8388,7 @@
                 const t = !(time > 0) ? '–' : hours ? `${this.esc(this.fmtNum(time, 1))}<small>h</small>` : esp ? `${this.esc(this.fmtNum(time))}<small>s</small>` : this.esc(this.clock(time));
                 const grind = this.grindText(b.grind);
                 const cell = (v, label, sub) => `<div class="sc-cell"><b>${v}</b><span>${this.esc(label)}${sub ? ` · <em>${this.esc(sub)}</em>` : ''}</span></div>`;
-                return `<div class="sc-strip feed-card-metrics">${cell(grams(dose), 'Dose')}${cell(grams(yld), esp ? 'Pull' : 'Water', ratio)}${cell(t, hours ? 'Steep' : 'Time')}${cell(grind ? this.esc(grind) : '–', 'Grind')}</div>`;
+                return `<div class="sc-strip feed-card-metrics">${this.recipeBandHtml(b)}${cell(grams(dose), 'Dose')}${cell(grams(yld), esp ? 'Pull' : 'Water', ratio)}${cell(t, hours ? 'Steep' : 'Time')}${cell(grind ? this.esc(grind) : '–', 'Grind')}</div>`;
             },
 
             // brewer, temperature, heat, inverted: the extras the old recipe line carried
@@ -8743,7 +8789,7 @@
                 const brew = this.brews.get(id);
                 this.cardTabs.set(id, tab);
                 this.dirtyKeys(`session:${id}`, `log-${id}`);
-                // tabs at the bottom of a feed card stay under your finger when the pane above changes height
+                // the tab row stays under your finger if anything above it changes height
                 const tabsEl = event && event.target && event.target.closest ? event.target.closest('.card-tabs') : null;
                 const scroller = tabsEl && tabsEl.closest('#grid') ? document.getElementById('main-content') : null;
                 const before = scroller ? tabsEl.getBoundingClientRect().top : null;
