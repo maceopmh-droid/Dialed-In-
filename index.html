@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v12.10 -->
+<!-- Dialed In v12.11 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="12.10">
+    <meta name="dialed-in-version" content="12.11">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -2906,6 +2906,35 @@
         .rt-track { position: relative; touch-action: pan-y; cursor: pointer; padding: 12px 0; margin: -12px 0; }
         .rt-track input[type="range"] { pointer-events: none; }
         :where(html.hx-on) :where(.ns-ticks span) { position: relative; }
+
+        /* ===== v12.11: taste section look ===== */
+        :root { --gold-rgb: 227, 174, 69; }
+        :root[data-theme="dark"] { --gold-rgb: 235, 190, 92; }
+        /* room for the toggles' glow inside their scrolling row */
+        .shape-ctl { padding: 8px 12px 16px; margin: 0 -12px -16px; }
+        .mrc-swipe { padding-top: 12px; margin-top: -12px; padding-bottom: 22px; margin-bottom: -18px; padding-left: 16px; padding-right: 16px; margin-left: -16px; margin-right: -16px; scroll-padding-left: 16px; }
+        /* sliders: recessed track that fills to the handle, raised handle */
+        .ns-track input[type="range"], .rt-track input[type="range"] { height: 6px; margin-top: 4px; border-radius: 999px; background: rgba(var(--hair-rgb), 0.12); box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.22), inset 0 0 0 1px rgba(var(--hair-rgb), 0.05); }
+        .rt-track input[type="range"] { margin-top: 0; }
+        :root[data-theme="dark"] .ns-track input[type="range"], :root[data-theme="dark"] .rt-track input[type="range"] { background: rgba(var(--hair-rgb), 0.1); box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(var(--hair-rgb), 0.04); }
+        .ns.set .ns-track input[type="range"] { background: linear-gradient(90deg, rgba(var(--c-rgb, 125, 137, 132), 0.45), rgb(var(--c-rgb, 125, 137, 132)) calc(13px + (100% - 26px) * var(--p, 0)), rgba(var(--hair-rgb), 0.12) calc(13px + (100% - 26px) * var(--p, 0))); }
+        .rt-track input[type="range"].rated { background: linear-gradient(90deg, rgba(var(--gold-rgb), 0.45), rgb(var(--gold-rgb)) calc(13px + (100% - 26px) * var(--p, 0)), rgba(var(--hair-rgb), 0.12) calc(13px + (100% - 26px) * var(--p, 0))); }
+        :root[data-theme="dark"] .ns.set .ns-track input[type="range"] { background: linear-gradient(90deg, rgba(var(--c-rgb, 125, 137, 132), 0.4), rgb(var(--c-rgb, 125, 137, 132)) calc(13px + (100% - 26px) * var(--p, 0)), rgba(var(--hair-rgb), 0.1) calc(13px + (100% - 26px) * var(--p, 0))); }
+        :root[data-theme="dark"] .rt-track input[type="range"].rated { background: linear-gradient(90deg, rgba(var(--gold-rgb), 0.4), rgb(var(--gold-rgb)) calc(13px + (100% - 26px) * var(--p, 0)), rgba(var(--hair-rgb), 0.1) calc(13px + (100% - 26px) * var(--p, 0))); }
+        .ns-track input[type="range"]::-webkit-slider-thumb, .rt-track input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; box-sizing: border-box; width: 26px; height: 26px; border-radius: 50%; border: 3px solid var(--surface) !important; background: radial-gradient(circle at 36% 30%, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 58%), rgb(var(--c-rgb, 125, 137, 132)) !important; box-shadow: 0 0 0 4px rgba(var(--c-rgb, 125, 137, 132), 0.16), 0 3px 8px rgba(0, 0, 0, 0.26), inset 0 -2px 3px rgba(0, 0, 0, 0.12) !important; }
+        .rt-track input[type="range"]::-webkit-slider-thumb { background: radial-gradient(circle at 36% 30%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 58%), rgb(var(--gold-rgb)) !important; box-shadow: 0 0 0 4px rgba(var(--gold-rgb), 0.18), 0 3px 8px rgba(0, 0, 0, 0.26), inset 0 -2px 3px rgba(0, 0, 0, 0.12) !important; }
+        :root[data-theme="dark"] .ns-track input[type="range"]::-webkit-slider-thumb, :root[data-theme="dark"] .rt-track input[type="range"]::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(var(--c-rgb, 125, 137, 132), 0.2), 0 3px 10px rgba(0, 0, 0, 0.55), inset 0 -2px 3px rgba(0, 0, 0, 0.18) !important; }
+        :root[data-theme="dark"] .rt-track input[type="range"]::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(var(--gold-rgb), 0.2), 0 3px 10px rgba(0, 0, 0, 0.55), inset 0 -2px 3px rgba(0, 0, 0, 0.18) !important; }
+        .ns-track input[type="range"]::-moz-range-thumb, .rt-track input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 26px; height: 26px; border: 3px solid var(--surface) !important; background: rgb(var(--c-rgb, 125, 137, 132)) !important; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.26); }
+        .rt-track input[type="range"]::-moz-range-thumb { background: rgb(var(--gold-rgb)) !important; }
+        /* the flavor wheel: lit from above, lifted off the page, raised center */
+        .wheel-svg.interactive { filter: drop-shadow(0 10px 20px rgba(var(--hair-rgb), 0.2)) drop-shadow(0 2px 4px rgba(var(--hair-rgb), 0.1)); }
+        :root[data-theme="dark"] .wheel-svg.interactive { filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.5)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3)); }
+        .wheel-svg .wc-hi { stop-color: #fff; stop-opacity: 0.6; }
+        .wheel-svg .wc-lo { stop-color: #fff; stop-opacity: 0; }
+        :root[data-theme="dark"] .wheel-svg .wc-hi { stop-opacity: 0.12; }
+        .wheel-svg .w-center { stroke: rgba(var(--hair-rgb), 0.1); }
+        :where(html.hx-on) .note-wheel { position: relative; }
     </style>
 </head>
 <body>
@@ -3204,7 +3233,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v12.10</div>
+            <div class="app-version">Dialed In · v12.11</div>
         </div>
     </div>
 
@@ -5807,7 +5836,7 @@
                 const valueAt = (track, x) => {
                     const input = track.querySelector('input');
                     const r = input.getBoundingClientRect();
-                    const pos = Math.min(1, Math.max(0, (x - r.left - 10) / Math.max(1, r.width - 20)));
+                    const pos = Math.min(1, Math.max(0, (x - r.left - 13) / Math.max(1, r.width - 26)));
                     return Math.round(pos * 10) / 2;
                 };
                 const setFrom = (track, x) => {
@@ -8507,7 +8536,7 @@
                 if (!ios || typeof nav.vibrate === 'function') return;
                 this._hxOn = true;
                 document.documentElement.classList.add('hx-on');
-                const HOSTS = '.ns-track, .ns-ticks span, .rt-track, .like-btn, .cmt-like, .dh-want, [onclick*="app.pickNote("], [onclick*="app.cycleNote("], #timer-btn, [onclick*="app.resetTimer("], [onclick*="app.guideStartPause("], [onclick*="app.guideNext("], [onclick*="app.finishGuide("], [onclick*="app.setRecipeLock("], [onclick*="app.useRecipe("], [onclick*="app.saveRecipe("], [onclick*="app.cloneLatestSession("], .modal form button[type="submit"], .comment-submit, .aw-reveal-btn';
+                const HOSTS = '.note-wheel, .ns-track, .ns-ticks span, .rt-track, .like-btn, .cmt-like, .dh-want, [onclick*="app.pickNote("], [onclick*="app.cycleNote("], #timer-btn, [onclick*="app.resetTimer("], [onclick*="app.guideStartPause("], [onclick*="app.guideNext("], [onclick*="app.finishGuide("], [onclick*="app.setRecipeLock("], [onclick*="app.useRecipe("], [onclick*="app.saveRecipe("], [onclick*="app.cloneLatestSession("], .modal form button[type="submit"], .comment-submit, .aw-reveal-btn';
                 const sw = document.createElement('input');
                 sw.type = 'checkbox'; sw.id = 'hx-switch'; sw.setAttribute('switch', ''); sw.tabIndex = -1; sw.setAttribute('aria-hidden', 'true');
                 document.body.appendChild(sw);
@@ -8543,8 +8572,14 @@
                     if (t === sw) { e.stopPropagation(); forward(); setTimeout(() => { if (document.activeElement === sw) sw.blur(); }, 0); return; }
                     if (!(t instanceof Element) || !t.classList.contains('hx')) return;
                     e.stopPropagation();
-                    const host = t.parentElement;
+                    let host = t.parentElement;
                     if (pending) forward();
+                    if (host.classList.contains('note-wheel')) {   // v12.11: pass the tap through to what's under it
+                        t.style.pointerEvents = 'none'; const under = document.elementFromPoint(e.clientX, e.clientY); t.style.pointerEvents = '';
+                        const hit = under && under.closest ? under.closest('[onclick]') : null;
+                        if (!hit || !host.contains(hit)) { e.preventDefault(); return; }
+                        host = hit;
+                    }
                     pending = { host, e };
                     let off = false; try { off = localStorage.getItem('dialed_haptics') === 'off'; } catch (err) {}
                     const quiet = off || (host.matches('.like-btn, .cmt-like') && host.classList.contains('liked'));   // unliking stays silent
@@ -11335,6 +11370,8 @@
                     if (valEl) valEl.textContent = set ? String(v) : '–';
                     if (wordEl) wordEl.textContent = set ? this.tasteWord(k, v) : 'not set';
                     row.querySelectorAll('.ns-ticks span').forEach((t, i) => t.classList.toggle('on', set && i + 1 === v));
+                    if (input) input.style.setProperty('--p', ((Math.min(10, Math.max(1, v)) - 1) / 9).toFixed(4));
+                    if (!row.style.getPropertyValue('--c-rgb')) { const c = row.style.getPropertyValue('--c').trim(); if (/^#/.test(c)) row.style.setProperty('--c-rgb', this.hexRgb(c)); }
                     const ghost = row.querySelector('.ns-ghost');
                     const rv = ref ? this.tasteValue(ref, k) : null;
                     if (ghost) {
@@ -11525,7 +11562,13 @@
                 const center = fam == null
                     ? `<circle class="w-center" cx="${cx}" cy="${cy}" r="${r0 - 4}"></circle><text class="w-ctext" x="${cx}" y="${cy - 5}" text-anchor="middle">${opts.interactive ? 'Tap a' : 'Flavor'}</text><text class="w-ctext" x="${cx}" y="${cy + 12}" text-anchor="middle">${opts.interactive ? 'family' : 'wheel'}</text>`
                     : `<circle class="w-center" cx="${cx}" cy="${cy}" r="${r0 - 4}" onclick="app.setWheel(null, null, event)" role="button" tabindex="0" aria-label="All families"></circle><text class="w-ctext" x="${cx}" y="${cy - 5}" text-anchor="middle" style="font-size:${NOTE_WHEEL[fam].fam.length > 9 ? 11 : 13}px">${this.esc(NOTE_WHEEL[fam].fam)}</text><text class="w-csub" x="${cx}" y="${cy + 12}" text-anchor="middle">‹ All families</text>`;
-                return `<svg class="wheel-svg${opts.interactive ? ' interactive' : ''}" viewBox="0 0 320 320" role="group" aria-label="Flavor wheel">${parts}${center}</svg>`;
+                // v12.11: lit from above, raised center
+                const uid = (this._wheelN = (this._wheelN || 0) + 1);
+                const defs = `<defs><linearGradient id="wsh${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.26"/><stop offset="0.42" stop-color="#fff" stop-opacity="0.05"/><stop offset="0.58" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.2"/></linearGradient><radialGradient id="wcn${uid}" cx="0.5" cy="0.28" r="0.8"><stop offset="0" class="wc-hi"/><stop offset="1" class="wc-lo"/></radialGradient><filter id="wlf${uid}" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000" flood-opacity="0.3"/></filter></defs>`;
+                const ring = `<path class="w-sheen" d="M${cx - r1} ${cy} A${r1} ${r1} 0 1 0 ${cx + r1} ${cy} A${r1} ${r1} 0 1 0 ${cx - r1} ${cy} Z M${cx - r0} ${cy} A${r0} ${r0} 0 1 1 ${cx + r0} ${cy} A${r0} ${r0} 0 1 1 ${cx - r0} ${cy} Z" fill="url(#wsh${uid})" fill-rule="evenodd" pointer-events="none"></path>`;
+                const wedges = (parts.match(/<path[^>]*><\/path>/g) || []).join(''), labels = parts.replace(/<path[^>]*><\/path>/g, '');
+                const mid = center.replace(/<circle class="w-center"([^>]*)><\/circle>/, (m, a) => `<circle class="w-center" filter="url(#wlf${uid})"${a}></circle><circle class="w-csheen" cx="${cx}" cy="${cy}" r="${r0 - 4}" fill="url(#wcn${uid})" pointer-events="none"></circle>`);
+                return `<svg class="wheel-svg${opts.interactive ? ' interactive' : ''}" viewBox="0 0 320 320" role="group" aria-label="Flavor wheel">${defs}${wedges}${ring}${labels}${mid}</svg>`;
             },
 
             renderNotePicker() {
@@ -12870,6 +12913,8 @@
 
             updateRatingDisplay(value) {
                 const display = document.getElementById('rating-display');
+                const rIn = document.getElementById('rating-slider');
+                if (rIn) { const rv = this.normalizeRating(value); rIn.style.setProperty('--p', (rv / 5).toFixed(4)); rIn.classList.toggle('rated', rv > 0); }
                 const rating = this.normalizeRating(value);
                 if (!rating) {
                     display.innerText = 'Skip Rating';
