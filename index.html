@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v11.10 -->
+<!-- Dialed In v12.0 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="11.10">
+    <meta name="dialed-in-version" content="12.0">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -2468,12 +2468,251 @@
             38% { opacity: 1; transform: scale(1.2); }
             100% { opacity: 0; transform: scale(0.3); }
         }
+
+        /* ===== group goal bar (v12.0) ===== */
+        .cq-bar { position: relative; overflow: visible; display: block; isolation: isolate; }
+        .cq-bar .cq-layer { position: absolute; inset: 0; border-radius: 999px; pointer-events: none; }
+        .cq-bar .cq-paint { overflow: hidden; clip-path: inset(0 var(--cq-r1) 0 0 round 999px); }
+        .cq-bar .cq-glow { z-index: -1; filter: blur(7px) saturate(1.35); opacity: 0.55; clip-path: inset(-24px calc(var(--cq-r1) - 24px) -24px -24px round 999px); }
+        :root[data-theme="dark"] .cq-bar .cq-glow { opacity: 0.9; filter: blur(8px) saturate(1.6) brightness(1.3); }
+        .cq-bar .cq-g, .cq-bar .cq-run { position: absolute; top: 0; bottom: 0; left: 0; width: 100%; background: var(--cq-g); }
+        .cq-bar .cq-g, .cq-bar .cq-run { box-shadow: none; height: auto; }
+        .cq-bar .cq-run { width: 200%; background: var(--cq-loop); background-size: 50% 100%; background-repeat: repeat-x; opacity: 0; }
+        .cq-bar.grow .cq-paint { animation: cq-grow-paint 1100ms cubic-bezier(0.25, 0.8, 0.3, 1) both; animation-delay: var(--cq-grow-at, 0ms); }
+        .cq-bar.grow .cq-glow { animation: cq-grow-glow 1100ms cubic-bezier(0.25, 0.8, 0.3, 1) both; animation-delay: var(--cq-grow-at, 0ms); }
+        .cq-bar.loop .cq-run { animation: cq-loop 2600ms cubic-bezier(0.55, 0, 0.25, 1) both; animation-delay: var(--cq-loop-at, 0ms); }
+        @keyframes cq-grow-paint { from { clip-path: inset(0 var(--cq-r0) 0 0 round 999px); } to { clip-path: inset(0 var(--cq-r1) 0 0 round 999px); } }
+        @keyframes cq-grow-glow {
+            0% { clip-path: inset(-24px calc(var(--cq-r0) - 24px) -24px -24px round 999px); }
+            70% { opacity: 1; }
+            100% { clip-path: inset(-24px calc(var(--cq-r1) - 24px) -24px -24px round 999px); }
+        }
+        @keyframes cq-loop {
+            0% { transform: translateX(-50%); opacity: 0; }
+            7% { opacity: 1; }
+            93% { opacity: 1; }
+            100% { transform: translateX(0); opacity: 0; }
+        }
+        @media (prefers-reduced-motion: reduce) { .cq-bar .cq-paint, .cq-bar .cq-glow, .cq-bar .cq-run { animation: none !important; } }
+
+        /* ===== monthly awards (v12.0) ===== */
+        .aw-tile .aw-stat { color: color-mix(in srgb, var(--ac) 52%, var(--ink)); font-weight: 700; }
+        :root[data-theme="dark"] .aw-tile .aw-stat { color: color-mix(in srgb, var(--ac) 74%, var(--ink)); }
+        .aw-rival { margin-top: 4px; font-size: 0.72rem; font-weight: 400; color: color-mix(in srgb, var(--text-muted) 62%, var(--ink)); line-height: 1.3; }
+        .aw-champ { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: 12px; border-radius: 16px; background: linear-gradient(120deg, rgba(227, 174, 69, 0.20), rgba(227, 174, 69, 0.06)); border: 1px solid rgba(227, 174, 69, 0.38); }
+        .aw-crown { width: 38px; height: 38px; flex-shrink: 0; border-radius: 12px; display: grid; place-items: center; background: #E3AE45; color: #fff; box-shadow: 0 6px 16px rgba(227, 174, 69, 0.45); }
+        .aw-crown .icon { width: 21px; height: 21px; }
+        .aw-champ-title { font-size: 0.98rem; font-weight: 800; color: var(--ink); letter-spacing: -0.01em; }
+        .aw-champ-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 3px; font-size: 0.76rem; font-weight: 650; color: var(--text-muted); }
+        .aw-champ-sub .aw-face, .aw-race .aw-face { width: 17px; height: 17px; font-size: 0.55rem; margin-right: 3px; vertical-align: -3px; }
+        .aw-race { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--linen); font-size: 0.76rem; font-weight: 650; color: var(--text-muted); }
+        .aw-race-label { color: var(--ink-2); font-weight: 750; }
+        .aw-locked { position: relative; min-height: 236px; border-radius: 16px; overflow: hidden; }
+        .aw-ghost { filter: blur(7px) saturate(0.9); opacity: 0.75; pointer-events: none; user-select: none; }
+        .aw-ghost .aw-tile { min-height: 64px; }
+        .aw-ghost-bar { display: block; height: 9px; border-radius: 6px; margin-top: 6px; background: color-mix(in srgb, var(--ac) 30%, var(--surface-2)); }
+        .aw-lock-card { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; gap: 6px; }
+        .aw-lock-icon { width: 46px; height: 46px; border-radius: 15px; display: grid; place-items: center; background: var(--surface); color: var(--ink); box-shadow: 0 10px 26px rgba(var(--hair-rgb), 0.18); margin-bottom: 4px; }
+        .aw-lock-icon .icon { width: 22px; height: 22px; }
+        .aw-lock-title { font-size: 1.2rem; font-weight: 820; color: var(--ink); letter-spacing: -0.02em; }
+        .aw-lock-sub { font-size: 0.84rem; color: var(--ink-2); max-width: 260px; line-height: 1.4; }
+        .aw-lock-count { margin-top: 6px; font-size: 0.74rem; font-weight: 750; color: var(--matcha-ink); background: rgba(var(--matcha-rgb), 0.14); padding: 5px 11px; border-radius: 999px; }
+        .aw-tile.sealed .aw-win, .aw-tile.sealed .aw-stat { color: transparent; text-shadow: 0 0 9px color-mix(in srgb, var(--ac) 55%, transparent); user-select: none; }
+        .aw-tile.sealed .aw-face { filter: blur(4px); }
+        .aw-tile.sealed .aw-icon { filter: saturate(0.7); }
+        .aw-reveal-btn { width: 100%; margin-top: 14px; }
+        .crew-awards.revealing .aw-tile { animation: aw-flip 620ms cubic-bezier(0.2, 0.8, 0.25, 1) both; animation-delay: calc(var(--i) * 150ms + var(--aw-at, 0ms)); }
+        .crew-awards.revealing .aw-champ { animation: aw-champ 700ms cubic-bezier(0.2, 0.9, 0.3, 1.25) both; animation-delay: calc(var(--n) * 150ms + 250ms + var(--aw-at, 0ms)); }
+        @keyframes aw-flip { 0% { opacity: 0; transform: perspective(600px) rotateX(-80deg) translateY(8px); filter: blur(6px); } 60% { opacity: 1; filter: blur(0); } 100% { opacity: 1; transform: none; filter: none; } }
+        @keyframes aw-champ { 0% { opacity: 0; transform: scale(0.85); } 100% { opacity: 1; transform: none; } }
+        .aw-teaser-icons { display: flex; align-items: center; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+        .aw-teaser-icons .aw-icon { width: 30px; height: 30px; border-radius: 10px; }
+        .aw-teaser-icons .aw-icon .icon { width: 16px; height: 16px; }
+        .aw-teaser-count { margin-left: 4px; font-size: 0.8rem; font-weight: 700; color: var(--ink-2); }
+        @media (prefers-reduced-motion: reduce) { .crew-awards.revealing .aw-tile, .crew-awards.revealing .aw-champ { animation: none !important; } }
+
+        /* ===== recaps (v12.0) ===== */
+        .mob-item, .nav-btn, .profile-tabs button { position: relative; }
+        .nav-dot { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: #F1C64D; box-shadow: 0 0 0 3px rgba(241, 198, 77, 0.18), 0 0 14px rgba(241, 198, 77, 0.9); pointer-events: none; }
+        .mob-item .nav-dot { top: -3px; left: calc(50% + 8px); }
+        .nav-btn .nav-dot { top: 50%; right: 16px; margin-top: -4.5px; }
+        .profile-tabs .nav-dot { top: 5px; right: 7px; width: 7px; height: 7px; }
+        .recap-new { display: inline-block; font-size: 0.68rem; font-weight: 800; color: #8C6D12; background: rgba(241, 198, 77, 0.24); padding: 3px 9px; border-radius: 999px; margin-left: 8px; vertical-align: 3px; }
+        :root[data-theme="dark"] .recap-new { color: #F1C64D; background: rgba(241, 198, 77, 0.14); }
+        .mrc-card { position: relative; border-radius: 20px; padding: 16px 16px 15px; color: #fff; overflow: hidden; margin-top: 12px; box-shadow: 0 12px 28px rgba(var(--hair-rgb), 0.16); }
+        .profile-section { min-width: 0; grid-template-columns: minmax(0, 1fr); }
+        .profile-section > * { min-width: 0; }
+        .mrc-swipe { display: flex; align-items: flex-start; gap: 10px; margin-top: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; padding-bottom: 14px; margin-bottom: -10px; }
+        .mrc-swipe::-webkit-scrollbar { display: none; }
+        .mrc-swipe > .mrc-card { flex: 0 0 calc(100% - 26px); margin-top: 0; scroll-snap-align: start; scroll-snap-stop: always; box-shadow: 0 8px 18px rgba(var(--hair-rgb), 0.14); }
+        .mrc-swipe > .mrc-card:last-child { scroll-snap-align: end; }
+        .mrc-dots { display: flex; justify-content: center; gap: 7px; margin-top: 4px; }
+        .mrc-dots button { width: 7px; height: 7px; padding: 0; border: none; border-radius: 999px; background: rgba(var(--hair-rgb), 0.22); cursor: pointer; position: relative; transition: width 0.2s, background 0.2s; }
+        .mrc-dots button::after { content: ''; position: absolute; inset: -9px -6px; }
+        .mrc-dots button.on { width: 18px; background: var(--matcha); }
+        .mrc-you { background: radial-gradient(circle at 92% 0%, rgba(255, 255, 255, 0.22), transparent 46%), linear-gradient(155deg, color-mix(in srgb, var(--uc) 88%, #000), color-mix(in srgb, var(--uc) 46%, #000)); }
+        .mrc-crew { background: radial-gradient(circle at 92% 0%, rgba(255, 255, 255, 0.2), transparent 46%), linear-gradient(0deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.06)), var(--crew-g); }
+        .mrc-kicker { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 750; opacity: 0.95; }
+        .mrc-face { width: 22px; height: 22px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 0.64rem; font-weight: 800; color: #fff; box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55); flex-shrink: 0; }
+        .mrc-faces { display: inline-flex; gap: 6px; }
+        .mrc-head { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+        .mrc-big { font-size: 3.1rem; font-weight: 860; letter-spacing: -0.05em; line-height: 0.95; font-variant-numeric: tabular-nums; }
+        .mrc-sub { font-size: 0.9rem; font-weight: 700; opacity: 0.9; line-height: 1.2; }
+        .mrc-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin-top: 12px; }
+        .mrc-stats div { background: rgba(255, 255, 255, 0.14); border-radius: 12px; padding: 8px 11px; min-width: 0; }
+        .mrc-stats b { display: block; font-size: 1.08rem; font-weight: 820; letter-spacing: -0.01em; }
+        .mrc-stats span { display: block; font-size: 0.72rem; font-weight: 650; opacity: 0.82; margin-top: 1px; }
+        .mrc-lines { margin-top: 11px; display: grid; gap: 6px; font-size: 0.86rem; }
+        .mrc-lines div { display: flex; justify-content: space-between; gap: 12px; }
+        .mrc-lines span { opacity: 0.8; font-weight: 600; flex-shrink: 0; }
+        .mrc-lines b { font-weight: 750; text-align: right; overflow-wrap: anywhere; }
+        .mrc-card .recap-best { background: rgba(0, 0, 0, 0.18); margin-top: 11px; padding: 8px; }
+        .mrc-card .recap-best img { width: 54px; height: 54px; }
+        .mrc-card .recap-best-text { color: inherit; }
+        .mrc-board { display: grid; gap: 7px; margin-top: 12px; }
+        .mrc-board > div { display: grid; grid-template-columns: 6.4rem 1fr 2rem; gap: 10px; align-items: center; font-size: 0.86rem; font-weight: 750; }
+        .mrc-name { display: inline-flex; align-items: center; gap: 7px; min-width: 0; padding-left: 2px; }
+        .mrc-nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .mrc-board i { display: block; height: 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.2); overflow: hidden; }
+        .mrc-board i b { display: block; height: 100%; border-radius: inherit; background: rgba(255, 255, 255, 0.92); }
+        .mrc-n { text-align: right; font-variant-numeric: tabular-nums; }
+        .recap-locked { position: relative; min-height: 230px; border-radius: 16px; overflow: hidden; }
+        .recap-ghost { filter: blur(7px); opacity: 0.7; pointer-events: none; user-select: none; }
+        .recap-ghost .stat-num { color: transparent; }
+        .recap-ghost .stat-num::before { content: ''; display: block; height: 26px; width: 60%; border-radius: 8px; background: rgba(var(--hair-rgb), 0.14); }
+        .recap-ghost-line { height: 12px; border-radius: 6px; background: rgba(var(--hair-rgb), 0.1); margin-top: 14px; }
+
+        /* ===== Year in Coffee story (v12.0) ===== */
+        .yic-cover { position: relative; display: flex; align-items: center; gap: 14px; width: 100%; margin: 0 0 14px; padding: 18px; border: none; border-radius: 18px; cursor: pointer; text-align: left; overflow: hidden; color: #F3E3CF; background: radial-gradient(circle at 85% 20%, color-mix(in srgb, var(--uc) 55%, transparent), transparent 55%), radial-gradient(circle at 10% 110%, rgba(226, 185, 136, 0.35), transparent 50%), #24170F; box-shadow: 0 14px 30px rgba(36, 23, 15, 0.28); font: inherit; }
+        .yic-cover-year { font-size: 2.6rem; font-weight: 850; letter-spacing: -0.05em; line-height: 0.9; }
+        .yic-cover-text { flex: 1; min-width: 0; }
+        .yic-cover-title { display: block; font-size: 1.02rem; font-weight: 780; line-height: 1.25; }
+        .yic-cover-sub { display: block; font-size: 0.8rem; opacity: 0.75; margin-top: 3px; line-height: 1.3; }
+        .yic-play { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: #F3E3CF; color: #24170F; flex-shrink: 0; }
+        .yic-play .icon { width: 20px; height: 20px; fill: currentColor; stroke: none; margin-left: 3px; }
+
+        #wrapped { position: fixed; inset: 0; z-index: 9000; background: #120B07; color: #fff; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif; }
+        .wr-bars { position: absolute; top: calc(10px + env(safe-area-inset-top)); left: 12px; right: 12px; display: flex; gap: 4px; z-index: 5; }
+        .wr-bars i { flex: 1; height: 3px; border-radius: 3px; background: rgba(255, 255, 255, 0.3); overflow: hidden; }
+        .wr-bars b { display: block; height: 100%; width: 0; background: rgba(255, 255, 255, 0.95); }
+        .wr-bars i.past b { width: 100%; }
+        .wr-bars i.now b { animation: wr-fill var(--dur, 6500ms) linear forwards; }
+        #wrapped.paused .wr-bars i.now b, #wrapped.paused .wr-slide * { animation-play-state: paused !important; }
+        .wr-top { position: absolute; top: calc(22px + env(safe-area-inset-top)); left: 16px; right: 10px; display: flex; align-items: center; justify-content: space-between; z-index: 6; font-size: 0.8rem; font-weight: 700; }
+        .wr-who { display: inline-flex; align-items: center; gap: 8px; opacity: 0.92; }
+        .wr-who b { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 0.7rem; color: #fff; box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55); }
+        .wr-close { width: 40px; height: 40px; border: none; border-radius: 50%; background: rgba(0, 0, 0, 0.18); color: inherit; display: grid; place-items: center; cursor: pointer; }
+        .wr-close .icon { width: 20px; height: 20px; }
+        .wr-stage { position: absolute; inset: 0; }
+        .wr-slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: calc(78px + env(safe-area-inset-top)) 26px calc(40px + env(safe-area-inset-bottom)); overflow: hidden; }
+        .wr-slide > * { position: relative; z-index: 1; }
+        .wr-k { font-size: 1.25rem; font-weight: 750; letter-spacing: -0.01em; line-height: 1.2; opacity: 0.92; }
+        .wr-big { font-size: clamp(4.6rem, 26vw, 8.4rem); font-weight: 860; letter-spacing: -0.06em; line-height: 0.9; margin: 8px 0 6px; font-variant-numeric: tabular-nums; }
+        .wr-big.word { font-size: clamp(3rem, 15vw, 5.2rem); letter-spacing: -0.045em; line-height: 0.95; }
+        .wr-unit { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+        .wr-p { font-size: 1.06rem; font-weight: 600; line-height: 1.42; margin-top: 14px; max-width: 30em; opacity: 0.9; }
+        .wr-p b { font-weight: 800; }
+        .wr-small { font-size: 0.86rem; font-weight: 650; opacity: 0.72; margin-top: 10px; }
+        .wr-in { animation: wr-rise 700ms cubic-bezier(0.2, 0.8, 0.25, 1) both; animation-delay: calc(var(--d, 0) * 110ms + 120ms); }
+        @keyframes wr-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+        @keyframes wr-fill { from { width: 0; } to { width: 100%; } }
+        @keyframes wr-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+        @keyframes wr-pop { 0% { opacity: 0; transform: scale(0.6) rotate(-6deg); } 70% { opacity: 1; transform: scale(1.06); } 100% { opacity: 1; transform: none; } }
+
+        .wr-t-espresso { background: radial-gradient(circle at 18% 12%, #4A2C1C, transparent 55%), radial-gradient(circle at 100% 100%, color-mix(in srgb, var(--uc) 35%, transparent), transparent 50%), #1E1410; color: #F3E3CF; }
+        .wr-t-crema { background: radial-gradient(circle at 80% 10%, #FBE8CC, transparent 50%), linear-gradient(165deg, #F0D5AE, #DDB07A); color: #2B1A11; }
+        .wr-t-cherry { background: radial-gradient(circle at 15% 85%, #E0604F, transparent 55%), linear-gradient(160deg, #B83A2E, #6E1D16); color: #FFF0E6; }
+        .wr-t-matcha { background: radial-gradient(circle at 85% 15%, #8DB08A, transparent 50%), linear-gradient(160deg, #5C7C5C, #26392A); color: #EFF6EA; }
+        .wr-t-night { background: radial-gradient(circle at 80% 18%, #3B4590, transparent 50%), linear-gradient(170deg, #1E2347, #0C0E20); color: #E9EBFF; }
+        .wr-t-gold { background: radial-gradient(circle at 20% 15%, #FFE29A, transparent 50%), linear-gradient(160deg, #E8B44C, #A8701A); color: #2A1906; }
+        .wr-t-crew { background: radial-gradient(circle at 80% 12%, rgba(255, 255, 255, 0.28), transparent 45%), linear-gradient(0deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.05)), var(--crew-g, #3B2A20); color: #fff; }
+        .wr-t-you { background: radial-gradient(circle at 85% 12%, color-mix(in srgb, var(--uc) 60%, #fff), transparent 45%), linear-gradient(165deg, var(--uc), color-mix(in srgb, var(--uc) 45%, #000)); color: #fff; }
+
+        .wr-ring { position: absolute !important; display: block !important; right: -110px; top: 12%; width: 380px; height: 380px; opacity: 0.2; z-index: 0 !important; pointer-events: none; }
+        #wrapped.wr-light .wr-top { color: #2B1A11; }
+        #wrapped.wr-light .wr-bars i { background: rgba(43, 26, 17, 0.2); }
+        #wrapped.wr-light .wr-bars b { background: rgba(43, 26, 17, 0.8); }
+        #wrapped.wr-light .wr-close { background: rgba(43, 26, 17, 0.1); }
+        .wr-cover-year { font-size: clamp(6rem, 38vw, 11rem); font-weight: 880; letter-spacing: -0.07em; line-height: 0.82; }
+        .wr-hint { position: absolute !important; bottom: calc(28px + env(safe-area-inset-bottom)); left: 26px; font-size: 0.86rem; font-weight: 700; opacity: 0.65; }
+
+        .wr-rank { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 12px; }
+        .wr-rank li { display: grid; grid-template-columns: 2.1rem 1fr; gap: 10px; align-items: baseline; }
+        .wr-rank .n { font-size: 1.5rem; font-weight: 860; letter-spacing: -0.04em; opacity: 0.55; font-variant-numeric: tabular-nums; }
+        .wr-rank .t { font-size: 1.12rem; font-weight: 780; line-height: 1.2; overflow-wrap: anywhere; }
+        .wr-rank .s { display: block; font-size: 0.82rem; font-weight: 650; opacity: 0.7; margin-top: 2px; }
+        .wr-rank li:first-child .t { font-size: 1.6rem; letter-spacing: -0.02em; }
+        .wr-rank li:first-child .n { opacity: 1; }
+
+        .wr-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+        .wr-chip { padding: 8px 13px; border-radius: 999px; font-size: 0.92rem; font-weight: 750; background: rgba(255, 255, 255, 0.16); }
+        .wr-t-crema .wr-chip, .wr-t-gold .wr-chip { background: rgba(43, 26, 17, 0.1); }
+        .wr-chip em { font-style: normal; opacity: 0.65; margin-left: 5px; }
+
+        .wr-bars-h { display: grid; gap: 12px; margin-top: 20px; }
+        .wr-bar-row { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: end; font-size: 0.98rem; font-weight: 750; }
+        .wr-bar-row .track { grid-column: 1 / -1; height: 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.14); overflow: hidden; }
+        .wr-t-crema .wr-bar-row .track, .wr-t-gold .wr-bar-row .track { background: rgba(43, 26, 17, 0.1); }
+        .wr-bar-row .fill { display: block; height: 100%; border-radius: 999px; background: currentColor; transform-origin: left; animation: wr-grow 900ms cubic-bezier(0.2, 0.8, 0.25, 1) both; animation-delay: calc(var(--d, 0) * 120ms + 300ms); }
+        .wr-bar-row .v { font-variant-numeric: tabular-nums; opacity: 0.8; }
+
+        .wr-months { display: grid; grid-template-columns: repeat(12, 1fr); gap: 5px; align-items: end; height: 120px; margin-top: 22px; }
+        .wr-months span { display: block; border-radius: 6px 6px 3px 3px; background: rgba(255, 255, 255, 0.28); transform-origin: bottom; animation: wr-grow-y 800ms cubic-bezier(0.2, 0.8, 0.25, 1) both; animation-delay: calc(var(--d, 0) * 50ms + 250ms); min-height: 3px; }
+        .wr-months span.peak { background: currentColor; }
+        .wr-months-l { display: grid; grid-template-columns: repeat(12, 1fr); gap: 5px; margin-top: 6px; font-size: 0.7rem; font-weight: 750; opacity: 0.6; text-align: center; }
+        @keyframes wr-grow-y { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
+        .wr-stars { font-size: 2.6rem; letter-spacing: 0.04em; color: #F1C64D; margin: 6px 0 2px; }
+        .wr-photo { position: absolute !important; inset: 0; z-index: 0 !important; background-size: cover; background-position: center; opacity: 0.35; filter: saturate(1.1); }
+        .wr-photo::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(30, 20, 16, 0.55), rgba(30, 20, 16, 0.92) 65%); }
+        .wr-quote { font-size: 1.06rem; font-weight: 600; line-height: 1.4; margin-top: 16px; padding-left: 12px; border-left: 3px solid currentColor; opacity: 0.9; }
+        .wr-shape { width: min(330px, 86vw); aspect-ratio: 4 / 3; margin: 6px 0 4px -10px; display: block; }
+
+        .wr-badges { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+        .wr-badge { display: flex; gap: 10px; align-items: center; padding: 11px; border-radius: 16px; background: rgba(255, 255, 255, 0.2); min-width: 0; }
+        .wr-t-gold .wr-badge { background: rgba(255, 250, 235, 0.42); }
+        .wr-badge .ic { width: 34px; height: 34px; flex-shrink: 0; border-radius: 11px; display: grid; place-items: center; color: #fff; background: var(--ac, #2A1906); }
+        .wr-badge .ic .icon { width: 18px; height: 18px; }
+        .wr-badge .bt { font-size: 0.86rem; font-weight: 800; line-height: 1.15; }
+        .wr-badge .bw { font-size: 0.78rem; font-weight: 700; opacity: 0.75; margin-top: 2px; overflow-wrap: anywhere; }
+        .wr-badges.reveal .wr-badge { animation: wr-pop 600ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both; animation-delay: calc(var(--d, 0) * 260ms + 500ms); }
+
+        .wr-summary { margin-top: 10px; padding: 20px; border-radius: 24px; background: rgba(0, 0, 0, 0.2); display: grid; grid-template-columns: 1fr 1fr; gap: 16px 14px; }
+        .wr-summary div { min-width: 0; }
+        .wr-summary .l { font-size: 0.74rem; font-weight: 750; opacity: 0.7; }
+        .wr-summary .v { font-size: 1.32rem; font-weight: 840; letter-spacing: -0.02em; line-height: 1.15; overflow-wrap: anywhere; }
+        .wr-summary .wide { grid-column: 1 / -1; }
+        .wr-actions { display: flex; gap: 10px; margin-top: 18px; position: relative; z-index: 7 !important; }
+        .wr-actions button { flex: 1; padding: 13px 10px; border: none; border-radius: 999px; font: inherit; font-weight: 800; font-size: 0.95rem; cursor: pointer; background: rgba(255, 255, 255, 0.92); color: #1E1410; }
+        .wr-actions button.ghost { background: rgba(0, 0, 0, 0.22); color: inherit; }
+        .wr-faces { display: inline-flex; gap: 5px; vertical-align: middle; margin-right: 8px; }
+        .wr-face { width: 26px; height: 26px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 0.72rem; font-weight: 800; color: #fff; border: 2px solid rgba(255, 255, 255, 0.5); }
+        @media (prefers-reduced-motion: reduce) { #wrapped * { animation: none !important; } }
+        @media (max-height: 700px) { .wr-big { font-size: clamp(4rem, 21vw, 6.4rem); } .wr-rank { gap: 8px; } .wr-p { margin-top: 10px; } .wr-months { height: 90px; } }
+
+        /* ===== social row (v12.0) ===== */
+        .thread.compact { --thr-bg: rgba(var(--hair-rgb), 0.05); margin-top: 6px; background: none; border: none; border-radius: 0; overflow: visible; }
+        .thread.compact .thread-row { display: flex; align-items: stretch; gap: 8px; min-height: 38px; }
+        .thread.compact .thread-lead { flex: 1; min-width: 0; display: flex; align-items: center; gap: 2px; }
+        .thread.compact .thread-lead .like-btn { margin-left: -6px; flex-shrink: 0; }
+        .thread.compact .thread-lead .social-like-line { flex: 1; min-width: 0; margin: 0 0 0 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.8rem; }
+        .thread.compact .thread-lead .social-owner-actions { display: inline-flex; align-items: center; gap: 2px; margin-left: auto; flex-shrink: 0; }
+        .thread.compact .thread-toggle { position: relative; width: auto; flex-shrink: 0; align-self: center; gap: 7px; padding: 9px 14px; border: none; border-radius: 14px; background: var(--thr-bg); color: var(--text-muted); font-size: 0.88rem; }
+        .thread.compact .thread-toggle b { color: var(--ink); font-weight: 750; }
+        .thread.compact.open .thread-toggle { align-self: stretch; border-radius: 14px 14px 0 0; }
+        .thread.compact.open .thread-toggle::before { content: ''; position: absolute; left: -14px; bottom: 0; width: 14px; height: 14px; pointer-events: none; background: radial-gradient(circle at 0 0, transparent 13.5px, var(--thr-bg) 14px); }
+        .thread.compact .thread-body { background: var(--thr-bg); border-radius: 16px 0 16px 16px; padding: 8px 14px 14px; }
+
+        /* ===== centered initials (v12.0) ===== */
+        .feed-avatar, .cmt-avatar, .person-dot, .hero-avatar, .aw-face, .cq-face b, .thread-faces i, .wr-face, .wr-who b, .mrc-face { letter-spacing: 0; text-indent: 0; }
+        .ini { display: inline-block; line-height: 1; will-change: auto; }
     </style>
 </head>
 <body>
     <!-- SVG Icon Definitions -->
     <svg><defs>
-        <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4.6"/><circle cx="12" cy="12" r="1.2"/></symbol><symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 4.5h8v4.2a4 4 0 0 1-8 0Z"/><path d="M8 6H5.2a2.6 2.6 0 0 0 2.9 3.6M16 6h2.8a2.6 2.6 0 0 1-2.9 3.6"/><path d="M12 12.7v3.6M8.8 20h6.4M9.8 16.3h4.4l.6 3.7H9.2Z"/></symbol><symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.8"/><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M5.6 18.4l1.6-1.6M16.8 7.2l1.6-1.6"/></symbol><symbol id="i-moon" viewBox="0 0 24 24"><path d="M19.5 14.6A7.6 7.6 0 0 1 9.4 4.5a7.6 7.6 0 1 0 10.1 10.1Z"/></symbol><symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="m15.3 8.7-1.9 4.7-4.7 1.9 1.9-4.7Z"/></symbol><symbol id="i-star" viewBox="0 0 24 24"><path d="m12 4.2 2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 16.6l-4.8 2.5.9-5.4-3.9-3.8 5.4-.8Z"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8.6A1.6 1.6 0 0 1 5.6 7h2.2l1.4-2h5.6l1.4 2h2.2A1.6 1.6 0 0 1 20 8.6v8.8a1.6 1.6 0 0 1-1.6 1.6H5.6A1.6 1.6 0 0 1 4 17.4Z"/><circle cx="12" cy="12.6" r="3.4"/></symbol><symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 3.5 20 6.5l-3 3"/><path d="M4 11.5v-1a4 4 0 0 1 4-4h12"/><path d="m7 20.5-3-3 3-3"/><path d="M20 12.5v1a4 4 0 0 1-4 4H4"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m15.5 15.5 4.6 4.6"/></symbol><symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21Z"/><circle cx="12" cy="10" r="2.4"/></symbol><symbol id="i-coffee" viewBox="0 0 24 24"><path d="M5 9h11v4.5A5.5 5.5 0 0 1 10.5 19h0A5.5 5.5 0 0 1 5 13.5Z"/><path d="M16 10.5h1.25a2.75 2.75 0 0 1 0 5.5H15.4"/><path d="M8.5 3.5c-.6.9.6 1.6 0 2.6M12 3.5c-.6.9.6 1.6 0 2.6"/><path d="M4 21.5h14"/></symbol>
+        <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4.6"/><circle cx="12" cy="12" r="1.2"/></symbol><symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 4.5h8v4.2a4 4 0 0 1-8 0Z"/><path d="M8 6H5.2a2.6 2.6 0 0 0 2.9 3.6M16 6h2.8a2.6 2.6 0 0 1-2.9 3.6"/><path d="M12 12.7v3.6M8.8 20h6.4M9.8 16.3h4.4l.6 3.7H9.2Z"/></symbol><symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.8"/><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M5.6 18.4l1.6-1.6M16.8 7.2l1.6-1.6"/></symbol><symbol id="i-moon" viewBox="0 0 24 24"><path d="M19.5 14.6A7.6 7.6 0 0 1 9.4 4.5a7.6 7.6 0 1 0 10.1 10.1Z"/></symbol><symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="m15.3 8.7-1.9 4.7-4.7 1.9 1.9-4.7Z"/></symbol><symbol id="i-star" viewBox="0 0 24 24"><path d="m12 4.2 2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 16.6l-4.8 2.5.9-5.4-3.9-3.8 5.4-.8Z"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8.6A1.6 1.6 0 0 1 5.6 7h2.2l1.4-2h5.6l1.4 2h2.2A1.6 1.6 0 0 1 20 8.6v8.8a1.6 1.6 0 0 1-1.6 1.6H5.6A1.6 1.6 0 0 1 4 17.4Z"/><circle cx="12" cy="12.6" r="3.4"/></symbol><symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 3.5 20 6.5l-3 3"/><path d="M4 11.5v-1a4 4 0 0 1 4-4h12"/><path d="m7 20.5-3-3 3-3"/><path d="M20 12.5v1a4 4 0 0 1-4 4H4"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m15.5 15.5 4.6 4.6"/></symbol><symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21Z"/><circle cx="12" cy="10" r="2.4"/></symbol><symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 21c-3.6 0-6.2-2.5-6.2-5.9 0-2.7 1.7-4.6 3.3-6.3.2 1.6 1 2.7 2.1 3.2-.3-3 1-6 3.6-8 0 2.9 1.4 4.6 2.6 6.3 1 1.4 1.8 2.9 1.8 4.8 0 3.4-3.6 5.9-7.2 5.9Z"/></symbol><symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M3.6 12h16.8M12 3.6c2.3 2.4 3.4 5.2 3.4 8.4s-1.1 6-3.4 8.4c-2.3-2.4-3.4-5.2-3.4-8.4S9.7 6 12 3.6Z"/></symbol><symbol id="i-trend" viewBox="0 0 24 24"><path d="m4 17 5.5-5.5 3.5 3.5L20 8"/><path d="M14.5 8H20v5.5"/></symbol><symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2-5 4 10 2-5h6"/></symbol><symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3 5.5 13.2H12L11 21l7.5-10.2H12Z"/></symbol><symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="2.4"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></symbol><symbol id="i-crown" viewBox="0 0 24 24"><path d="m4 8.5 3.8 3.4L12 5.5l4.2 6.4L20 8.5 18.4 18H5.6Z"/><path d="M5.8 20.5h12.4"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.4"/><path d="M8.2 10.5V8a3.8 3.8 0 0 1 7.6 0v2.5"/></symbol><symbol id="i-medal" viewBox="0 0 24 24"><circle cx="12" cy="14.5" r="5"/><path d="M8.6 10.8 6 3.5h4l2 4.2 2-4.2h4l-2.6 7.3"/></symbol><symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5Z"/></symbol><symbol id="i-coffee" viewBox="0 0 24 24"><path d="M5 9h11v4.5A5.5 5.5 0 0 1 10.5 19h0A5.5 5.5 0 0 1 5 13.5Z"/><path d="M16 10.5h1.25a2.75 2.75 0 0 1 0 5.5H15.4"/><path d="M8.5 3.5c-.6.9.6 1.6 0 2.6M12 3.5c-.6.9.6 1.6 0 2.6"/><path d="M4 21.5h14"/></symbol>
         <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.2" r="3.3"/><path d="M3.4 19.5a5.6 5.6 0 0 1 11.2 0"/><path d="M15.8 5.1a3.2 3.2 0 0 1 0 6.2M17.4 14.3a5.3 5.3 0 0 1 3.2 5.2"/></symbol>
         <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.7"/><path d="M5 20.2a7 7 0 0 1 14 0"/></symbol>
         <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5.5v13M5.5 12h13"/></symbol>
@@ -2765,7 +3004,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v11.10</div>
+            <div class="app-version">Dialed In · v12.0</div>
         </div>
     </div>
 
@@ -3069,6 +3308,7 @@
             ['balance', 'Complexity', ['Simple', 'Some depth', 'Layered']]
         ];
         const TASTE_KEYS = TASTE_META.map(m => m[0]);
+        const INITIAL_SEL = '.feed-avatar, .cmt-avatar, .person-dot, .hero-avatar, .aw-face, .cq-face b, .thread-faces i, .wr-face, .wr-who b, .mrc-face';
 
         // ---- per-method logging (v11): same form, labels and extras change with the method
         const METHOD_PROFILES = {
@@ -3585,6 +3825,67 @@
             nextFreshExpiry: Infinity,
             refreshingDetail: false,
 
+            // ---- v12.0: center each initial's ink (not just its text box) in its circle
+            centerInitials(root) {
+                if (typeof document === 'undefined' || typeof getComputedStyle !== 'function') return;
+                const scope = root && root.querySelectorAll ? root : document;
+                const els = scope.querySelectorAll(INITIAL_SEL);
+                if (!els.length) return;
+                if (!this._icCtx) { const c = document.createElement('canvas'); this._icCtx = c.getContext ? c.getContext('2d') : null; this._icCache = new Map(); }
+                const ctx = this._icCtx;
+                if (!ctx || typeof ctx.measureText !== 'function') return;
+                els.forEach(el => {
+                    const node = el.firstChild;
+                    if (!node || node.nodeType !== 3 || el.childNodes.length !== 1) return;
+                    const ch = node.nodeValue.trim();
+                    if (!ch || ch.length > 2) return;
+                    const cs = getComputedStyle(el);
+                    const font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+                    const key = `${font}|${ch}`;
+                    let d = this._icCache.get(key);
+                    if (!d) {
+                        // ink shape from canvas, measured big (small sizes come back rounded) and scaled down
+                        const BIG = 200, size = parseFloat(cs.fontSize) || 12, k = size / BIG;
+                        ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${BIG}px ${cs.fontFamily}`;
+                        const m = ctx.measureText(ch);
+                        const ok = [m.actualBoundingBoxLeft, m.actualBoundingBoxRight, m.actualBoundingBoxAscent, m.actualBoundingBoxDescent].every(Number.isFinite);
+                        // where the browser actually puts the baseline inside the letter's box (font tables don't say reliably)
+                        const box = document.createElement('div');
+                        box.style.cssText = 'position:absolute;left:-9999px;top:0;visibility:hidden;pointer-events:none';
+                        const probeSpan = document.createElement('span');
+                        probeSpan.className = 'ini';
+                        Object.assign(probeSpan.style, { fontStyle: cs.fontStyle, fontWeight: cs.fontWeight, fontSize: cs.fontSize, fontFamily: cs.fontFamily });
+                        probeSpan.textContent = ch;
+                        const mark = document.createElement('i');
+                        mark.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline';
+                        probeSpan.appendChild(mark);
+                        box.appendChild(probeSpan);
+                        document.body.appendChild(box);
+                        const sr = probeSpan.getBoundingClientRect();
+                        const base = mark.getBoundingClientRect().top - sr.top;
+                        box.remove();
+                        d = ok && sr.height > 0 ? {
+                            x: k * (m.width / 2 - (m.actualBoundingBoxRight - m.actualBoundingBoxLeft) / 2),
+                            y: sr.height / 2 - (base + k * (m.actualBoundingBoxDescent - m.actualBoundingBoxAscent) / 2)
+                        } : { x: 0, y: 0 };
+                        this._icCache.set(key, d);
+                    }
+                    const span = document.createElement('span');
+                    span.className = 'ini';
+                    span.textContent = ch;
+                    span.style.transform = `translate(${d.x.toFixed(2)}px, ${d.y.toFixed(2)}px)`;
+                    el.replaceChildren(span);
+                });
+            },
+
+            watchInitials() {
+                if (typeof MutationObserver === 'undefined' || typeof document === 'undefined' || !document.body) return;
+                let queued = false;
+                const run = () => { queued = false; this.centerInitials(); };
+                new MutationObserver(() => { if (queued) return; queued = true; requestAnimationFrame(run); }).observe(document.body, { childList: true, subtree: true });
+                this.centerInitials();
+            },
+
             init() {
                 this.initFlavors();
                 this.bindGlobalHandlers();
@@ -3604,6 +3905,7 @@
                 if (mobileMethod) mobileMethod.value = this.currentMethodFilter;
                 if (!this.user) this.openSettings();
                 else this.updateBadge('connecting');
+                this.watchInitials();
                 this.setTab(this.tab);
                 this.bootFromCache().then(() => {
                     if (this.user) this.sync();
@@ -3613,6 +3915,7 @@
                 }, 30000);
                 document.addEventListener('visibilitychange', () => {
                     if (!document.hidden && Date.now() - this.lastSyncAt > 5000) this.sync({ silent: true });
+                    if (!document.hidden && this.tab === 'feed') this.playCrewLoop();
                 });
             },
 
@@ -3637,6 +3940,7 @@
 
                 document.addEventListener('keydown', (event) => {
                     if (event.key !== 'Escape') return;
+                    if (this._wr) return;
                     this.closeModals();
                     this.closeDetail();
                     this.closeMobileControls();
@@ -6128,6 +6432,102 @@
                 return won;
             },
 
+            // ---- v12.0: the group goal bar. Parts glow in each person's color and blend into their neighbors.
+            hexMix(a, b, t = 0.5) {
+                const p = h => { const s = String(this.normalizeHexColor(h) || '#888888').slice(1); return [0, 2, 4].map(i => parseInt(s.slice(i, i + 2), 16)); };
+                const x = p(a), y = p(b);
+                return '#' + x.map((v, i) => Math.round(v + (y[i] - v) * t).toString(16).padStart(2, '0')).join('');
+            },
+
+            crewBarHtml(q, segs) {
+                // parts as fractions of the whole bar, in order, never past the end
+                let used = 0;
+                const parts = segs.map(s => { const w = Math.max(0, Math.min(1 - used, s.w)); used += w; return { p: s.p, w, c: this.getUserColor(s.p) }; }).filter(s => s.w > 0);
+                const total = Math.min(1, used);
+                const aria = `role="progressbar" aria-valuemin="0" aria-valuemax="${q.target}" aria-valuenow="${q.progress}"`;
+                if (!parts.length) return `<div class="cq-bar" ${aria}></div>`;
+                const pct = v => `${(v * 100).toFixed(2)}%`;
+                // stops along the whole bar: each part is solid in its middle and blends with its neighbor around the seam
+                const stops = [`${parts[0].c} 0%`];
+                let x = 0;
+                parts.forEach((s, i) => {
+                    x += s.w;
+                    const n = parts[i + 1];
+                    if (!n) return;
+                    const h = Math.min(0.06, 0.35 * Math.min(s.w, n.w));
+                    stops.push(`${s.c} ${pct(x - h)}`, `${n.c} ${pct(x + h)}`);
+                });
+                const last = parts[parts.length - 1].c;
+                stops.push(`${last} ${pct(total)}`, `transparent ${pct(total)}`);
+                const g = `linear-gradient(90deg, ${stops.join(', ')})`;
+                // the done-loop tile: same parts, with the last color blending back into the first at the edges so it wraps
+                let loop = '';
+                const done = q.done && total >= 0.999;
+                if (done && parts.length > 1) {
+                    const hw = Math.min(0.05, 0.35 * Math.min(parts[0].w, parts[parts.length - 1].w));
+                    const mid = this.hexMix(last, parts[0].c);
+                    const inner = stops.slice(1, -2);
+                    loop = `linear-gradient(90deg, ${mid} 0%, ${parts[0].c} ${pct(hw)}, ${inner.join(', ')}${inner.length ? ', ' : ''}${last} ${pct(1 - hw)}, ${mid} 100%)`;
+                }
+                // what you saw last time: a part that landed since then grows in
+                const key = `${q.start}:${q.type}`;
+                const grow = this.crewGrowFor(key, total);
+                const loopT = done && loop ? this.crewLoopElapsed() : null;
+                const cls = ['cq-bar', done ? 'done' : '', grow ? 'grow' : '', loopT !== null ? 'loop' : ''].filter(Boolean).join(' ');
+                const style = [`--cq-g:${g}`, loop ? `--cq-loop:${loop}` : '', `--cq-r1:${pct(1 - total)}`, grow ? `--cq-r0:${pct(1 - grow.from)}` : '', grow ? `--cq-grow-at:${-grow.t}ms` : '', loopT !== null ? `--cq-loop-at:${-loopT}ms` : ''].filter(Boolean).join(';');
+                const layer = (name) => `<div class="cq-layer ${name}"><i class="cq-g"></i>${loop ? '<i class="cq-run"></i>' : ''}</div>`;
+                return `<div class="${cls}" ${aria} style="${this.esc(style)}" title="${this.esc(parts.map(s => s.p).join(', '))}">${layer('cq-glow')}${layer('cq-paint')}</div>`;
+            },
+
+            motionOK() {
+                try { return !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { return true; }
+            },
+
+            // how far the bar was the last time you looked at it (per week's goal); grows from there once
+            crewGrowFor(key, total) {
+                const G = this._cqGrow;
+                if (G && G.key === key && Math.abs(G.to - total) < 1e-6) {
+                    const t = Date.now() - G.at;
+                    if (t < 1100) return { from: G.from, t: Math.max(0, t) };
+                    return null;
+                }
+                let seen = null;
+                try { seen = JSON.parse(localStorage.getItem('dialed_cq_seen') || 'null'); } catch (e) { seen = null; }
+                const from = seen && seen.key === key ? Number(seen.frac) || 0 : 0;
+                try { localStorage.setItem('dialed_cq_seen', JSON.stringify({ key, frac: total })); } catch (e) {}
+                if (!seen || !(total > from + 1e-6) || !this.motionOK() || typeof document === 'undefined' || document.hidden) return null;
+                this._cqGrow = { key, from, to: total, at: Date.now() };
+                // if the goal just got finished, the loop waits for the grow
+                if (total >= 0.999) this._cqLoop = { at: Date.now() + 1000 };
+                return { from, t: 0 };
+            },
+
+            crewLoopElapsed() {
+                if (this._cqLoopPending && this.motionOK()) {
+                    this._cqLoopPending = false;
+                    if (!this._cqLoop || Date.now() - this._cqLoop.at > 2600) this._cqLoop = { at: Date.now() };
+                }
+                const L = this._cqLoop;
+                if (!L) return null;
+                const t = Date.now() - L.at;
+                if (t >= 2600) { this._cqLoop = null; return null; }
+                return t;
+            },
+
+            // run the done-loop now (opening the feed, or coming back to the app on the feed)
+            playCrewLoop() {
+                if (!this.motionOK()) return;
+                const bar = typeof document !== 'undefined' && document.querySelector ? document.querySelector('.crew-quest .cq-bar.done') : null;
+                if (!bar || !bar.querySelector || !bar.querySelector('.cq-run') || !bar.classList || !bar.style || typeof bar.style.setProperty !== 'function') { this._cqLoopPending = true; return; }
+                const G = this._cqGrow;
+                const wait = G && Date.now() - G.at < 1100 ? 1100 - (Date.now() - G.at) - 100 : 0;
+                this._cqLoop = { at: Date.now() + Math.max(0, wait) };
+                bar.classList.remove('loop');
+                void bar.offsetWidth;
+                bar.style.setProperty('--cq-loop-at', `${Math.max(0, wait)}ms`);
+                bar.classList.add('loop');
+            },
+
             renderCrewQuest() {
                 if (!this.brews.size) return '';
                 const q = this.crewQuest();
@@ -6135,15 +6535,14 @@
                 const segs = q.type === 'everyone'
                     ? q.people.filter(p => (q.counts[p] || 0) >= q.per).map(p => ({ p, w: 1 / q.target }))
                     : q.by.map(([p, n]) => ({ p, w: Math.min(n, q.target) / q.target }));
-                let used = 0;
-                const bar = segs.map(s => { const w = Math.max(0, Math.min(1 - used, s.w)); used += w; return w > 0 ? `<i style="width:${(w * 100).toFixed(2)}%;background:${this.esc(this.getUserColor(s.p))}" title="${this.esc(s.p)}"></i>` : ''; }).join('');
+                const bar = this.crewBarHtml(q, segs);
                 const faces = q.by.map(([p, n]) => `<span class="cq-face"><b style="background:${this.esc(this.getUserColor(p))}">${this.esc(this.feedInitial(p))}</b>${n}</span>`).join('');
                 const left = q.done ? 'Done together' : (q.daysLeft <= 1 ? 'Last day' : `${q.daysLeft} days left`);
                 return `
                     <section class="feed-card crew-quest${q.done ? ' done' : ''}" aria-label="Group goal">
                         <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-target"/></svg>Group goal · this week</span><span class="cq-left">${this.esc(left)}</span></div>
                         <div class="cq-title">${this.esc(q.title)}</div>
-                        <div class="cq-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${q.target}" aria-valuenow="${q.progress}">${bar}</div>
+                        ${bar}
                         <div class="cq-meta"><span><b>${q.progress}</b> of ${q.target} ${this.esc(q.unit)}${q.detail ? ` · ${this.esc(q.detail)}` : ''}</span></div>
                         <div class="cq-foot">${faces || '<span class="cq-empty">First session this week starts the bar.</span>'}${won ? `<span class="cq-won"><svg class="icon"><use href="#i-trophy"/></svg>${won} goal${won === 1 ? '' : 's'} reached together</span>` : ''}</div>
                     </section>`;
@@ -6163,10 +6562,15 @@
                     if (!rows.length) return null;
                     const best = low ? Math.min(...rows.map(r => r[1])) : Math.max(...rows.map(r => r[1]));
                     const names = rows.filter(r => Math.abs(r[1] - best) < 1e-9).map(r => r[0]).sort();
-                    return names.length > 2 ? null : { names, value: best };
+                    if (names.length > 2) return null;
+                    // v12.0: who came closest
+                    const others = [...t.entries()].filter(([n, v]) => !names.includes(n) && (low ? Number.isFinite(v) : v > 0));
+                    let runner = null;
+                    if (others.length) { const rv = low ? Math.min(...others.map(r => r[1])) : Math.max(...others.map(r => r[1])); runner = { names: others.filter(r => Math.abs(r[1] - rv) < 1e-9).map(r => r[0]).sort(), value: rv }; }
+                    return { names, value: best, runner };
                 };
                 const out = [];
-                const add = (key, title, icon, color, res, stat) => { if (res) out.push({ key, title, icon, color, winners: res.names, value: res.value, stat: stat(res.value) }); };
+                const add = (key, title, icon, color, res, stat, more = {}) => { if (res) out.push({ key, title, icon, color, winners: res.names, value: res.value, stat: stat(res.value), runner: res.runner || null, ...more }); };
                 add('early', 'Early Bird', 'i-sun', '#E3AE45', top(tally(x => { const h = this.sessionHour(x); return h !== null && h >= 4 && h < 9 ? 1 : 0; }), 2), v => `${v} sessions before 9 am`);
                 add('night', 'Night Owl', 'i-moon', '#6A7FC1', top(tally(x => { const h = this.sessionHour(x); return h !== null && (h >= 21 || h < 4) ? 1 : 0; }), 2), v => `${v} sessions after 9 pm`);
                 const grindChanges = new Map(), loyal = new Map(), explore = new Map(), notes = new Map();
@@ -6211,13 +6615,138 @@
                 add('chatter', 'Chatterbox', 'i-message-square', '#3F8FB0', top(comments, 2), v => `${v} comments`);
                 add('photo', 'Photographer', 'i-camera', '#7D6A58', top(tally(x => x.photo ? 1 : 0), 2), v => `${v} sessions with photos`);
                 add('notes', 'Flavor Hunter', 'i-leaf-line', '#A06F98', top(notes, 3), v => `${v} different tasting notes`);
+                // ---- v12.0: more awards
+                add('workhorse', 'The Workhorse', 'i-coffee', '#8A6240', top(tally(() => 1), 5), v => `${v} sessions`);
+                const ratedTop = list.filter(x => this.normalizeRating(x.rating) >= 4);
+                if (ratedTop.length) {
+                    const likesOf = x => (Array.isArray(x.likes) ? x.likes.length : 0);
+                    const bestR = Math.max(...ratedTop.map(x => this.normalizeRating(x.rating)));
+                    const tops = ratedTop.filter(x => this.normalizeRating(x.rating) === bestR).sort((u, v) => likesOf(v) - likesOf(u) || this.localTime(u.date) - this.localTime(v.date));
+                    const shot = tops[0], shotBean = this.beans.get(String(shot.beanId));
+                    add('shot', 'Shot of the Month', 'i-medal', '#C49A2C', { names: [owner(shot)], value: bestR, runner: null }, v => `${this.fmtNum(v)}★ · ${shotBean ? (String(shotBean.name || '').trim() || this.beanLabel(shotBean)) : 'a coffee'}, ${this.shortDate(shot.date)}`, { shotId: String(shot.id) });
+                }
+                const [pa, pb] = this.monthRange(y, m - 1);
+                const prevList = this.sessionsBetween(pa, pb);
+                const avgOf = rows => { const r = rows.map(x => this.normalizeRating(x.rating)).filter(v => v > 0); return r.length >= 3 ? r.reduce((s, v) => s + v, 0) / r.length : null; };
+                const gain = new Map();
+                byPerson.forEach((rows, p) => { const nowAvg = avgOf(rows), before = avgOf(prevList.filter(x => owner(x) === p)); if (nowAvg !== null && before !== null && nowAvg - before >= 0.3) gain.set(p, Math.round((nowAvg - before) * 10) / 10); });
+                add('improved', 'Most Improved', 'i-trend', '#2E9E6B', top(gain, 0.3), v => `+${this.fmtNum(v, 1)}★ on last month's average`);
+                const streak = new Map();
+                byPerson.forEach((rows, p) => { const days = [...new Set(rows.map(x => this.dayNum(this.localTime(x.date))))].sort((u, v) => u - v); let best = 0, run = 0, prev = null; days.forEach(d => { run = prev !== null && d === prev + 1 ? run + 1 : 1; best = Math.max(best, run); prev = d; }); streak.set(p, best); });
+                add('streak', 'Streak Master', 'i-flame', '#E0663A', top(streak, 3), v => `${v} days in a row`);
+                add('weekend', 'Weekend Warrior', 'i-calendar', '#5B7BD5', top(tally(x => { const d = new Date(this.localTime(x.date)).getDay(); return d === 0 || d === 6 ? 1 : 0; }), 3), v => `${v} weekend sessions`);
+                const origins = new Map();
+                byPerson.forEach((rows, p) => origins.set(p, new Set(rows.map(x => String(this.originOf(x) || '').toLowerCase()).filter(Boolean)).size));
+                add('globe', 'Globetrotter', 'i-globe', '#2F8F9D', top(origins, 3), v => `${v} origins`);
+                add('fan', 'Fan Favorite', 'i-award', '#D45D8A', top(tally(x => (Array.isArray(x.likes) ? x.likes.filter(n => String(n || '').trim() && String(n).trim() !== owner(x)).length : 0)), 2), v => `${v} likes received`);
+                const steady = new Map();
+                byPerson.forEach((rows, p) => { const r = rows.filter(x => /espresso/i.test(String(x.method || ''))).map(x => this.num(x.yield) / this.num(x.dose)).filter(v => Number.isFinite(v) && v > 0.5 && v < 6); if (r.length >= 5) { const mu = r.reduce((s, v) => s + v, 0) / r.length; steady.set(p, Math.sqrt(r.reduce((s, v) => s + (v - mu) ** 2, 0) / r.length)); } });
+                if (steady.size >= 2) add('metronome', 'The Metronome', 'i-pulse', '#6B6FB5', top(steady, 0, true), v => `steadiest espresso ratio (±${this.fmtNum(Math.max(0.01, v), 2)})`);
+                const comeback = new Map(), comebackInfo = new Map();
+                byPerson.forEach((rows, p) => { const last = new Map(); rows.forEach(x => { const k = this.groupKeyOfBrew(x), r = this.normalizeRating(x.rating); if (!(r > 0)) return; const before = last.get(k); if (before !== undefined && r >= 4 && r - before >= 1.5 && (!comeback.has(p) || r - before > comeback.get(p))) { comeback.set(p, r - before); comebackInfo.set(p, { from: before, to: r, bean: (bn => bn ? (String(bn.name || '').trim() || this.beanLabel(bn)) : 'a coffee')(this.beans.get(String(x.beanId))) }); } last.set(k, r); }); });
+                const cb = top(comeback, 1.5);
+                if (cb) { const info = comebackInfo.get(cb.names[0]); add('comeback', 'Comeback Kid', 'i-bolt', '#D9822B', cb, () => `${this.fmtNum(info.from)}★ to ${this.fmtNum(info.to)}★ on ${info.bean}`); }
+                const ORDER = ['shot', 'workhorse', 'dialed', 'improved', 'comeback', 'streak', 'early', 'night', 'weekend', 'tinker', 'metronome', 'loyal', 'explorer', 'globe', 'notes', 'critic', 'fan', 'hype', 'chatter', 'photo'];
+                out.sort((u, v) => (ORDER.indexOf(u.key) + 1 || 99) - (ORDER.indexOf(v.key) + 1 || 99));
+
                 return out;
             },
 
+            awardMonthKey(d) {
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            },
+
             awardMonths() {
-                const now = new Date(), out = [];
-                for (let i = 0; i < 12; i++) { const d = new Date(now.getFullYear(), now.getMonth() - i, 1); const [a, b] = this.monthRange(d.getFullYear(), d.getMonth()); if (this.sessionsBetween(a, b).length) out.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`); }
+                // v12.0: this month is always listed (locked until the 1st); finished months with sessions follow
+                const now = new Date(), out = [this.awardMonthKey(now)];
+                for (let i = 1; i < 13; i++) { const d = new Date(now.getFullYear(), now.getMonth() - i, 1); const [a, b] = this.monthRange(d.getFullYear(), d.getMonth()); if (this.sessionsBetween(a, b).length) out.push(this.awardMonthKey(d)); }
                 return out;
+            },
+
+            monthLocked(key) {
+                const [y, m] = String(key).split('-').map(Number);
+                const now = new Date();
+                return y > now.getFullYear() || (y === now.getFullYear() && m - 1 >= now.getMonth());
+            },
+
+            unlockLabel(date) {
+                return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+            },
+
+            daysUntil(date) {
+                const now = new Date();
+                const a = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+                return Math.max(0, Math.round((new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() - a) / 864e5));
+            },
+
+            seenList(store) {
+                try { const v = JSON.parse(localStorage.getItem(store) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; }
+            },
+
+            markSeen(store, key) {
+                const list = this.seenList(store);
+                const k = `${this.user || 'anon'}:${key}`;
+                if (list.includes(k)) return;
+                list.push(k);
+                try { localStorage.setItem(store, JSON.stringify(list.slice(-60))); } catch (e) {}
+            },
+
+            hasSeen(store, key) {
+                return this.seenList(store).includes(`${this.user || 'anon'}:${key}`);
+            },
+
+            // last month's awards wait sealed until you reveal them
+            awardsNeedReveal(key, awards) {
+                const now = new Date();
+                const prev = this.awardMonthKey(new Date(now.getFullYear(), now.getMonth() - 1, 1));
+                return key === prev && awards.length > 0 && !this.hasSeen('dialed_awards_revealed', key);
+            },
+
+            awardStandings(awards) {
+                const m = new Map();
+                awards.forEach(a => a.winners.forEach(n => m.set(n, (m.get(n) || 0) + 1)));
+                return [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+            },
+
+            // every finished month of the year so far, added up
+            awardYearRace(y) {
+                const m = new Map();
+                let months = 0;
+                for (let i = 0; i < 12; i++) {
+                    const key = `${y}-${String(i + 1).padStart(2, '0')}`;
+                    if (this.monthLocked(key)) break;
+                    const aw = this.crewAwards(y, i);
+                    if (aw.length) months++;
+                    aw.forEach(a => a.winners.forEach(n => m.set(n, (m.get(n) || 0) + 1)));
+                }
+                return { months, rows: [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])) };
+            },
+
+            awardRivalry(aw, prevAward) {
+                // short on purpose: it sits under the stat in a narrow tile
+                const parts = [];
+                if (prevAward && prevAward.winners.length) parts.push(aw.winners.some(n => prevAward.winners.includes(n)) ? 'Defended' : `Took it from ${prevAward.winners.join(' & ')}`);
+                const r = aw.runner;
+                if (r && r.names.length && aw.key !== 'shot') {
+                    const who = r.names.join(' & ');
+                    const isInt = Number.isInteger(aw.value) && Number.isInteger(r.value);
+                    const diff = Math.abs(aw.value - r.value);
+                    if (isInt && diff === 1) parts.push(`by 1 over ${who}`);
+                    else if (isInt) parts.push(`${who} had ${r.value}`);
+                    else if (aw.key === 'critic') parts.push(`${who} had ${this.fmtNum(r.value, 1)}★`);
+                    else if (diff < 0.15) parts.push(`${who} right behind`);
+                    else parts.push(`${who} next`);
+                }
+                const line = parts.join(' · ');
+                return line ? line.charAt(0).toUpperCase() + line.slice(1) : '';
+            },
+
+            crewAwardsMemo(y, m) {
+                const stamp = `${this.eventLog ? this.eventLog.length : 0}:${this.brews.size}:${this.beans.size}`;
+                if (!this._awMemo || this._awMemo.stamp !== stamp) this._awMemo = { stamp, map: new Map() };
+                const k = `${y}-${m}`;
+                if (!this._awMemo.map.has(k)) this._awMemo.map.set(k, this.crewAwards(y, m));
+                return this._awMemo.map.get(k);
             },
 
             monthName(key, long = true) {
@@ -6225,59 +6754,126 @@
                 return new Date(y, m - 1, 1).toLocaleDateString(undefined, long ? { month: 'long', year: 'numeric' } : { month: 'long' });
             },
 
-            awardTilesHtml(awards, compact = false) {
-                return awards.map(aw => `
-                    <div class="aw-tile${compact ? ' compact' : ''}" style="--ac:${this.esc(aw.color)}">
+            awardTilesHtml(awards, compact = false, opts = {}) {
+                return awards.map((aw, i) => {
+                    const rival = opts.rivalry ? opts.rivalry(aw) : '';
+                    return `
+                    <div class="aw-tile${compact ? ' compact' : ''}${opts.sealed ? ' sealed' : ''}" style="--ac:${this.esc(aw.color)};--i:${i}">
                         <span class="aw-icon"><svg class="icon"><use href="#${this.esc(aw.icon)}"/></svg></span>
                         <div class="aw-body"><div class="aw-title">${this.esc(aw.title)}</div>
-                        <div class="aw-win">${aw.winners.map(n => `<b class="aw-face" style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</b>${this.esc(n)}`).join('<span class="aw-amp">&amp;</span>')}</div>
-                        ${compact ? '' : `<div class="aw-stat">${this.esc(aw.stat)}</div>`}</div>
-                    </div>`).join('');
+                        <div class="aw-win">${opts.sealed ? '<b class="aw-face" style="background:var(--text-faint)">?</b>Sealed' : aw.winners.map(n => `<b class="aw-face" style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</b>${this.esc(n)}`).join('<span class="aw-amp">&amp;</span>')}</div>
+                        ${compact ? '' : `<div class="aw-stat">${opts.sealed ? 'Revealed when you tap below' : this.esc(aw.stat)}</div>`}
+                        ${rival && !opts.sealed ? `<div class="aw-rival">${this.esc(rival)}</div>` : ''}</div>
+                    </div>`;
+                }).join('');
             },
 
             renderCrewAwardsCard() {
                 const months = this.awardMonths();
-                if (!months.length) return '';
+                if (!this.brews.size) return '';
                 if (!months.includes(this.awardsMonth)) {
-                    const count = key => { const [yy, mm] = key.split('-').map(Number); return this.crewAwards(yy, mm - 1).length; };
-                    const now = new Date();
-                    const thisKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-                    const earlyMonth = now.getDate() <= 7 && (!months.includes(thisKey) || count(thisKey) < 3);
-                    const prev = months.find(k => k !== thisKey);
-                    this.awardsMonth = earlyMonth && prev ? prev : months[0];
+                    // open on the most recent finished month; this month stays locked
+                    this.awardsMonth = months.find(k => !this.monthLocked(k)) || months[0];
                 }
-                const [y, m] = this.awardsMonth.split('-').map(Number);
-                const awards = this.crewAwards(y, m - 1);
-                const now = new Date();
-                const live = y === now.getFullYear() && m - 1 === now.getMonth();
-                return `
+                const key = this.awardsMonth;
+                const [y, m] = key.split('-').map(Number);
+                const name = this.monthName(key, false);
+                const picker = `<select class="recap-select" aria-label="Award month" onchange="app.setAwardsMonth(this.value)">${months.map(k => `<option value="${k}"${k === key ? ' selected' : ''}>${this.esc(this.monthName(k))}${this.monthLocked(k) ? ' (locked)' : ''}</option>`).join('')}</select>`;
+                const head = sub => `<div class="aw-head"><div><div class="label">Monthly awards</div><div class="aw-sub">${sub}</div></div>${picker}</div>`;
+                if (this.monthLocked(key)) {
+                    const unlock = new Date(y, m, 1);
+                    const days = this.daysUntil(unlock);
+                    const ghosts = [['i-sun', '#E3AE45'], ['i-medal', '#C49A2C'], ['i-moon', '#6A7FC1'], ['i-flame', '#E0663A'], ['i-compass', '#5F8FDB'], ['i-star', '#36A57F']]
+                        .map(([icon, c]) => `<div class="aw-tile" style="--ac:${c}"><span class="aw-icon"><svg class="icon"><use href="#${icon}"/></svg></span><div class="aw-body" style="flex:1"><span class="aw-ghost-bar" style="width:70%"></span><span class="aw-ghost-bar" style="width:45%"></span></div></div>`).join('');
+                    return `
                     <div class="profile-card crew-awards" id="crew-awards">
-                        <div class="aw-head"><div><div class="label">Monthly awards</div><div class="aw-sub">${live ? 'So far this month' : 'Final'} · from everyone's sessions</div></div>
-                        <select class="recap-select" aria-label="Award month" onchange="app.setAwardsMonth(this.value)">${months.map(k => `<option value="${k}"${k === this.awardsMonth ? ' selected' : ''}>${this.esc(this.monthName(k))}</option>`).join('')}</select></div>
-                        ${awards.length ? `<div class="aw-grid">${this.awardTilesHtml(awards)}</div>` : '<div class="panel-empty">Awards appear once the crew logs a few more sessions this month.</div>'}
+                        ${head(`In progress · unlocks ${this.esc(this.unlockLabel(unlock))}`)}
+                        <div class="aw-locked">
+                            <div class="aw-grid aw-ghost" aria-hidden="true">${ghosts}</div>
+                            <div class="aw-lock-card">
+                                <span class="aw-lock-icon"><svg class="icon"><use href="#i-lock"/></svg></span>
+                                <div class="aw-lock-title">Come back ${this.esc(this.unlockLabel(unlock))}</div>
+                                <div class="aw-lock-sub">${this.esc(name)}'s awards are still up for grabs. Winners are revealed on the 1st.</div>
+                                <div class="aw-lock-count">${days === 0 ? 'Tomorrow' : `${days} day${days === 1 ? '' : 's'} to go`}</div>
+                            </div>
+                        </div>
+                    </div>`;
+                }
+                const awards = this.crewAwardsMemo(y, m - 1);
+                if (!awards.length) return `<div class="profile-card crew-awards" id="crew-awards">${head('Final · from everyone\'s sessions')}<div class="panel-empty">Not enough sessions in ${this.esc(name)} for awards.</div></div>`;
+                if (this.awardsNeedReveal(key, awards)) {
+                    return `
+                    <div class="profile-card crew-awards" id="crew-awards">
+                        ${head('Final · ready to reveal')}
+                        <div class="aw-grid">${this.awardTilesHtml(awards, false, { sealed: true })}</div>
+                        <button type="button" class="btn-primary aw-reveal-btn" onclick="app.revealAwards('${key}')">Reveal ${this.esc(name)}'s awards</button>
+                    </div>`;
+                }
+                const prevD = new Date(y, m - 2, 1);
+                const prevAwards = this.crewAwardsMemo(prevD.getFullYear(), prevD.getMonth());
+                const prevBy = new Map(prevAwards.map(a => [a.key, a]));
+                const standings = this.awardStandings(awards);
+                const topN = standings.length ? standings[0][1] : 0;
+                const champs = standings.filter(r => r[1] === topN).map(r => r[0]);
+                const face = n => `<b class="aw-face" style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</b>`;
+                const champ = standings.length ? `
+                        <div class="aw-champ">
+                            <span class="aw-crown"><svg class="icon"><use href="#i-crown"/></svg></span>
+                            <div class="aw-champ-body"><div class="aw-champ-title">${champs.length === 1 ? `${this.esc(champs[0])} takes ${this.esc(name)}` : `${this.esc(champs.join(' & '))} share ${this.esc(name)}`}</div>
+                            <div class="aw-champ-sub">${standings.map(([n, c]) => `<span>${face(n)}${this.esc(n)} ${c}</span>`).join('')}</div></div>
+                        </div>` : '';
+                const race = this.awardYearRace(y);
+                const raceHtml = race.months >= 2 && race.rows.length ? `<div class="aw-race"><span class="aw-race-label">${y} award race</span>${race.rows.map(([n, c]) => `<span>${face(n)}${this.esc(n)} ${c}</span>`).join('')}</div>` : '';
+                const R = this._awReveal;
+                const revealT = R && R.key === key ? Date.now() - R.at : -1;
+                const revealing = revealT >= 0 && revealT < awards.length * 150 + 1200 && this.motionOK();
+                return `
+                    <div class="profile-card crew-awards${revealing ? ' revealing' : ''}" id="crew-awards" style="--n:${awards.length}${revealing ? `;--aw-at:${-revealT}ms` : ''}">
+                        ${head('Final · from everyone\'s sessions')}
+                        ${champ}
+                        <div class="aw-grid">${this.awardTilesHtml(awards, false, { rivalry: aw => this.awardRivalry(aw, prevBy.get(aw.key)) })}</div>
+                        ${raceHtml}
                     </div>`;
             },
 
             setAwardsMonth(key) { this.awardsMonth = key; this.render(); },
 
+            revealAwards(key) {
+                this.markSeen('dialed_awards_revealed', key);
+                this.awardsMonth = key;
+                this._awReveal = { key, at: Date.now() };
+                this.render();
+            },
+
             renderAwardsTeaser() {
                 const now = new Date();
                 if (now.getDate() > 4) return '';
                 const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-                const awards = this.crewAwards(prev.getFullYear(), prev.getMonth());
+                const awards = this.crewAwardsMemo(prev.getFullYear(), prev.getMonth());
                 if (awards.length < 2) return '';
-                const key = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, '0')}`;
+                const key = this.awardMonthKey(prev);
+                const name = this.monthName(key, false);
+                if (this.awardsNeedReveal(key, awards)) {
+                    return `
+                    <section class="feed-card aw-teaser sealed" onclick="app.openAwards('${key}', true)" role="button" tabindex="0">
+                        <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-trophy"/></svg>${this.esc(name)}'s awards are in</span><span class="cq-left">Tap to reveal ›</span></div>
+                        <div class="aw-teaser-icons">${awards.slice(0, 9).map(a => `<span class="aw-icon" style="--ac:${this.esc(a.color)}"><svg class="icon"><use href="#${this.esc(a.icon)}"/></svg></span>`).join('')}<span class="aw-teaser-count">${awards.length} awards waiting</span></div>
+                    </section>`;
+                }
                 return `
                     <section class="feed-card aw-teaser" onclick="app.openAwards('${key}')" role="button" tabindex="0">
-                        <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-trophy"/></svg>${this.esc(this.monthName(key, false))}'s awards are in</span><span class="cq-left">See all ›</span></div>
+                        <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-trophy"/></svg>${this.esc(name)}'s awards are in</span><span class="cq-left">See all ›</span></div>
                         <div class="aw-grid compact">${this.awardTilesHtml(awards.slice(0, 4), true)}</div>
                     </section>`;
             },
 
-            openAwards(key) {
+            openAwards(key, reveal = false) {
                 this.awardsMonth = key;
                 this.profileSection = 'activity';
+                this._noRecapJump = true;
                 this.setTab('profile');
+                this._noRecapJump = false;
+                if (reveal) this.revealAwards(key);
                 setTimeout(() => { const el = document.getElementById('crew-awards'); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60);
             },
 
@@ -6883,6 +7479,8 @@
 
             setTab(tab) {
                 if (tab === 'profile' && this.tab !== 'profile') this.profileUser = this.user;
+                const freshRecap = tab === 'profile' && this.tab !== 'profile' && !this._noRecapJump ? this.freshRecap() : null;
+                if (freshRecap) { this.profileSection = 'activity'; this.recapPeriod = freshRecap; setTimeout(() => { const el = document.getElementById('recap-card'); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); }
                 this.tab = tab;
                 document.querySelectorAll('.nav-btn, .mob-item').forEach(el => el.classList.remove('active'));
                 document.querySelectorAll(`[data-tab="${tab}"]`).forEach(el => el.classList.add('active'));
@@ -6892,6 +7490,7 @@
                 this.closeMobileControls();
                 this.updateAchievementCount();
                 this.render();
+                if (tab === 'feed') this.playCrewLoop();
             },
 
             beanGroupKey(bean) {
@@ -7231,13 +7830,14 @@
                     ? `app.handleCommentKey(event, '${this.esc(id)}')`
                     : `app.handleFeedCommentKey(event, '${kind}', '${this.esc(id)}')`;
                 return `
-                    <div class="thread${open ? ' open' : ''}${opts.wide ? ' log-wide' : ''}" data-thread="${this.esc(key)}" ${opts.anchorId ? `id="${this.esc(opts.anchorId)}"` : ''} onclick="event.stopPropagation()">
+                    <div class="thread${open ? ' open' : ''}${opts.wide ? ' log-wide' : ''}${opts.lead !== undefined ? ' compact' : ''}" data-thread="${this.esc(key)}" ${opts.anchorId ? `id="${this.esc(opts.anchorId)}"` : ''} onclick="event.stopPropagation()">
+                        ${opts.lead !== undefined ? `<div class="thread-row"><div class="thread-lead">${opts.lead}</div><button type="button" class="thread-toggle" aria-expanded="${open}" aria-label="${comments.length ? `${comments.length} comment${comments.length === 1 ? '' : 's'}` : 'Add a comment'}" onclick="app.toggleThread('${kind}','${this.esc(id)}',event)"><svg class="icon"><use href="#i-message-square"/></svg>${comments.length ? `<b>${comments.length}</b>` : ''}</button></div>` : `
                         <button type="button" class="thread-toggle" aria-expanded="${open}" onclick="app.toggleThread('${kind}','${this.esc(id)}',event)">
                             <svg class="icon"><use href="#i-message-square"/></svg>
                             <span class="thread-label">${comments.length ? `Comments <b>${comments.length}</b>` : 'Add a comment'}</span>
                             ${people.length ? `<span class="thread-faces">${people.map(n => `<i style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</i>`).join('')}</span>` : ''}
                             <svg class="icon thread-chev"><use href="#i-chevron-down"/></svg>
-                        </button>
+                        </button>`}
                         <div class="thread-body">
                             ${list || '<div class="thread-empty">No comments yet. Start the conversation.</div>'}
                             <div class="cmt-compose">
@@ -7422,18 +8022,9 @@
                             ${this.renderFlavorPane(brew)}
                             ${this.renderVsPane(brew)}
                             ${this.renderNextPane(brew)}
-                            ${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}
-                            <div class="social-bar">
-                                <button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('brew', brew.id)}"${this.likePopStyle('brew', brew.id)} onclick="app.toggleLike('${this.esc(brew.id)}', event)" title="Like session">
+                            ${this.renderThread('brew', brew, { inputId: `feed-comment-input-brew-${brew.id}`, lead: `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('brew', brew.id)}"${this.likePopStyle('brew', brew.id)} onclick="app.toggleLike('${this.esc(brew.id)}', event)" title="Like session">
                                     <svg class="heart-icon"><use href="#i-heart"/></svg>
-                                </button>
-                                <button class="social-btn comment-btn" onclick="app.openThread('brew','${this.esc(brew.id)}', event)" title="Comment">
-                                    <svg class="icon"><use href="#i-message-square"/></svg>
-                                    ${comments.length ? comments.length : ''}
-                                    
-                                </button>
-                            </div>
-                            ${this.renderFeedCommentsForBrew(brew)}
+                                </button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}` })}
                         </div>
                     </article>
                 `;
@@ -7462,21 +8053,11 @@
                             <div class="feed-card-subtitle">${this.esc(bean.roaster || 'Roaster')}</div>
                             <div class="feed-card-title">${this.esc(bean.name || beanName)}</div>
                             ${topTags.length ? `<div class="feed-context">${topTags.map(tag => `<span class="feed-pill">${this.esc(tag)}</span>`).join('')}</div>` : ''}
-                            ${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}
-                            <div class="social-bar">
-                                <button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('bean', bean.id)}"${this.likePopStyle('bean', bean.id)} onclick="app.toggleBeanLike('${this.esc(bean.id)}', event)" title="Like bean">
+                            ${this.renderThread('bean', { ...bean, comments }, { inputId: `feed-comment-input-bean-${bean.id}`, lead: `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('bean', bean.id)}"${this.likePopStyle('bean', bean.id)} onclick="app.toggleBeanLike('${this.esc(bean.id)}', event)" title="Like bean">
                                     <svg class="heart-icon"><use href="#i-heart"/></svg>
-                                </button>
-                                <button class="social-btn comment-btn" onclick="app.openThread('bean','${this.esc(bean.id)}', event)" title="Comment">
-                                    <svg class="icon"><use href="#i-message-square"/></svg>
-                                    ${comments.length ? comments.length : ''}
-                                    
-                                </button>
-                                <button class="btn-outline feed-open-link" type="button" onclick="app.openFeedTarget('${this.esc(bean.id)}','',false); event.stopPropagation();">
+                                </button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}<span class="social-owner-actions"><button class="btn-outline feed-open-link" type="button" onclick="app.openFeedTarget('${this.esc(bean.id)}','',false); event.stopPropagation();">
                                     Open Bean
-                                </button>
-                            </div>
-                            ${this.renderFeedCommentsForBean({ ...bean, comments })}
+                                </button></span>` })}
                         </div>
                     </article>
                 `;
@@ -7560,6 +8141,7 @@
                 this.renderScreen();
                 this.restoreDrafts(drafts);
                 this.fillShapeImages();
+                this.updateRecapDot();
             },
 
             renderScreen() {
@@ -8215,7 +8797,8 @@
                     return `<button type="button" class="person-chip${name === who ? ' active' : ''}" data-name="${this.esc(name)}" onclick="app.setProfileUser(this.getAttribute('data-name'))"><span class="person-dot" style="background:${this.esc(color)};">${this.esc(this.feedInitial(name))}</span>${this.esc(name)}${name === this.user ? ' <span class="you-tag">You</span>' : ''}</button>`;
                 }).join('');
                 const section = ['overview', 'taste', 'activity'].includes(this.profileSection) ? this.profileSection : 'overview';
-                const tabs = `<div class="seg-control profile-tabs" role="tablist" aria-label="Profile sections">${[['overview', 'Overview'], ['taste', 'Taste'], ['activity', 'Activity']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === section}" aria-pressed="${k === section}" onclick="app.setProfileSection('${k}')">${l}</button>`).join('')}</div>`;
+                const freshRecap = who === this.user ? this.freshRecap() : null;
+                const tabs = `<div class="seg-control profile-tabs" role="tablist" aria-label="Profile sections">${[['overview', 'Overview'], ['taste', 'Taste'], ['activity', 'Activity']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === section}" aria-pressed="${k === section}" onclick="app.setProfileSection('${k}')">${l}${k === 'activity' && freshRecap && section !== 'activity' ? '<span class="nav-dot"></span>' : ''}</button>`).join('')}</div>`;
                 const cards = section === 'taste'
                     ? [this.renderPalateCard(who), who === this.user ? this.renderFriendPalates() : '', this.renderMatchesCard(who), this.renderWantCard(who)]
                     : section === 'activity'
@@ -8513,7 +9096,134 @@
                     months.add(`m:${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
                     years.add(`y:${d.getFullYear()}`);
                 });
+                // v12.0: this month and this year are always listed (locked until they're over; the year opens Dec 20)
+                if (months.size) {
+                    const now = new Date();
+                    months.add(`m:${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`);
+                    years.add(`y:${now.getFullYear()}`);
+                }
                 return [...months].sort().reverse().concat([...years].sort().reverse());
+            },
+
+            periodLocked(p) {
+                if (String(p).startsWith('y:')) return Date.now() < this.periodUnlockDate(p).getTime();
+                return this.monthLocked(String(p).slice(2));
+            },
+
+            periodUnlockDate(p) {
+                if (String(p).startsWith('y:')) return new Date(Number(String(p).slice(2)), 11, 20);
+                const [y, m] = String(p).slice(2).split('-').map(Number);
+                return new Date(y, m, 1);
+            },
+
+            // the recap that just came out and you haven't looked at yet: last month's on the 1st-3rd, the year's on Dec 20-23
+            freshRecap(user = this.user) {
+                if (!user) return null;
+                const now = new Date();
+                let p = null;
+                if (now.getMonth() === 11 && now.getDate() >= 20 && now.getDate() <= 23) p = `y:${now.getFullYear()}`;
+                else if (now.getDate() <= 3) { const d = new Date(now.getFullYear(), now.getMonth() - 1, 1); p = `m:${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; }
+                if (!p || this.periodLocked(p)) return null;
+                const [a, b] = this.periodRange(p);
+                if (!this.brewsOf(user).some(x => { const t = this.toTime(x.date); return t >= a && t < b; })) return null;
+                return this.hasSeen('dialed_recap_seen', p) ? null : p;
+            },
+
+            // ---- v12.0: the monthly recap as two cards, styled like the Year in Coffee but calm (no slides, nothing moves)
+            monthCrewStats(period) {
+                const [a, b] = this.periodRange(period);
+                const list = this.sessionsBetween(a, b);
+                const owner = x => this.getBrewOwner(x);
+                const by = new Map();
+                list.forEach(x => by.set(owner(x), (by.get(owner(x)) || 0) + 1));
+                const people = [...by.entries()].sort((p, q) => q[1] - p[1] || p[0].localeCompare(q[0]));
+                const ratingOf = x => this.normalizeRating(x.rating);
+                const likesOf = x => (Array.isArray(x.likes) ? x.likes.filter(n => String(n || '').trim() && String(n).trim() !== owner(x)).length : 0);
+                const groups = new Map();
+                list.forEach(x => { const k = this.groupKeyOfBrew(x); const g = groups.get(k) || { n: 0, who: new Set(), bean: this.beans.get(String(x.beanId)) }; g.n++; g.who.add(owner(x)); groups.set(k, g); });
+                const ranked = [...groups.values()].sort((p, q) => q.n - p.n);
+                const coffee = ranked.find(g => g.who.size > 1) || ranked[0] || null;
+                const days = new Map();
+                list.forEach(x => { const k = this.dayKey(this.localTime(x.date)); days.set(k, (days.get(k) || 0) + 1); });
+                const busiest = [...days.entries()].sort((p, q) => q[1] - p[1] || p[0].localeCompare(q[0]))[0] || null;
+                let goals = 0;
+                for (let ws = this.weekStartOf(a); ws < b; ws = this.weekStartOf(ws + 7 * 864e5 + 3 * 3600e3)) { if (ws < a) continue; if (ws + 7 * 864e5 > Date.now()) break; if (this.crewQuest(ws + 3 * 864e5).done) goals++; }
+                const key = period.slice(2);
+                const [y, m] = key.split('-').map(Number);
+                const awards = this.crewAwardsMemo(y, m - 1);
+                const st = this.awardStandings(awards);
+                // no spoilers: the champion only shows once you've revealed the month's awards
+                const champ = st.length && !this.awardsNeedReveal(key, awards) ? st.filter(r => r[1] === st[0][1]).map(r => r[0]) : [];
+                const rated = list.filter(x => ratingOf(x) > 0);
+                return { count: list.length, people, grams: list.reduce((s, x) => s + this.num(x.dose), 0), fives: rated.filter(x => ratingOf(x) >= 5).length, avg: rated.length ? rated.reduce((s, x) => s + ratingOf(x), 0) / rated.length : 0, likes: list.reduce((s, x) => s + likesOf(x), 0), coffee, busiest, goals, champ, sealed: !!st.length && !champ.length };
+            },
+
+            monthCardsHtml(user, s, period, best) {
+                const esc = v => this.esc(v);
+                const month = this.monthName(period.slice(2), false);
+                const face = n => `<b class="mrc-face" style="background:${esc(this.getUserColor(n))}">${esc(this.feedInitial(n))}</b>`;
+                const amount = g => g >= 1000 ? `${this.fmtNum(g / 1000, 2)} kg` : `${Math.round(g)} g`;
+                const stats = [[amount(s.grams), 'coffee'], [s.avgRating ? `${this.fmtNum(s.avgRating, 1)}★` : '—', 'average rating'], [`${s.longestStreak} day${s.longestStreak === 1 ? '' : 's'}`, 'longest run'], [String(s.newBeans || 0), `new coffee${s.newBeans === 1 ? '' : 's'}`]];
+                const lines = [];
+                if (s.topBean) lines.push(['Top coffee', `${s.topBean.name || s.topBean.label} · ${s.topBean.count}×`]);
+                if (s.topMethod) lines.push(['Method', `${s.topMethod.label} · ${s.topMethod.count}×`]);
+                if (s.buddy) lines.push(['Brew buddy', s.buddy.name]);
+                const row = ([l, v]) => `<div><span>${esc(l)}</span><b>${esc(v)}</b></div>`;
+                const you = `
+                    <div class="mrc-card mrc-you" style="--uc:${esc(this.getUserColor(user))}">
+                        <div class="mrc-kicker">${face(user)}${esc(user)} · ${esc(month)}</div>
+                        <div class="mrc-head"><span class="mrc-big">${s.count}</span><span class="mrc-sub">session${s.count === 1 ? '' : 's'}<br>on ${s.days} day${s.days === 1 ? '' : 's'}</span></div>
+                        <div class="mrc-stats">${stats.map(([v, l]) => `<div><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join('')}</div>
+                        ${lines.length ? `<div class="mrc-lines">${lines.map(row).join('')}</div>` : ''}
+                        ${best}
+                    </div>`;
+                const c = this.monthCrewStats(period);
+                if (c.people.length < 2) return you;
+                const names = c.people.map(p => p[0]);
+                const crewG = `linear-gradient(150deg, ${names.map((n, i) => `${this.hexMix(this.getUserColor(n), '#000000', 0.12)} ${Math.round(i / Math.max(1, names.length - 1) * 100)}%`).join(', ')})`;
+                const max = c.people[0][1];
+                const board = c.people.map(([n, k]) => `<div><span class="mrc-name">${face(n)}<span class="mrc-nm">${esc(n)}</span></span><i><b style="width:${(k / max * 100).toFixed(1)}%"></b></i><span class="mrc-n">${k}</span></div>`).join('');
+                const cstats = [[amount(c.grams), 'coffee'], [String(c.fives), `5★ shot${c.fives === 1 ? '' : 's'}`], [String(c.likes), `like${c.likes === 1 ? '' : 's'}`], [String(c.goals), `goal${c.goals === 1 ? '' : 's'} reached`]];
+                const clines = [];
+                if (c.coffee && c.coffee.bean) clines.push(['Crew coffee', `${String(c.coffee.bean.name || '').trim() || this.beanLabel(c.coffee.bean)} · ${c.coffee.n}×`]);
+                if (c.busiest && c.busiest[1] > 1) clines.push(['Busiest day', `${new Date(this.parseLocalDate(c.busiest[0])).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · ${c.busiest[1]} sessions`]);
+                if (c.champ.length) clines.push(['Champion', c.champ.join(' & ')]);
+                else if (c.sealed) clines.push(['Awards', 'ready to reveal']);
+                const crew = `
+                    <div class="mrc-card mrc-crew" style="--crew-g:${esc(crewG)}">
+                        <div class="mrc-kicker"><span class="mrc-faces">${names.map(face).join('')}</span>The crew · ${esc(month)}</div>
+                        <div class="mrc-head"><span class="mrc-big">${c.count}</span><span class="mrc-sub">sessions<br>together</span></div>
+                        <div class="mrc-board">${board}</div>
+                        <div class="mrc-stats">${cstats.map(([v, l]) => `<div><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join('')}</div>
+                        ${clines.length ? `<div class="mrc-lines">${clines.map(row).join('')}</div>` : ''}
+                    </div>`;
+                // side by side: swipe left for the crew, right to come back
+                return `<div class="mrc-swipe" onscroll="app.recapSwipeDots(this)">${you}${crew}</div><div class="mrc-dots" role="tablist" aria-label="Recap cards"><button type="button" class="on" aria-label="Your card" onclick="app.recapSwipeTo(this, 0)"></button><button type="button" aria-label="The crew's card" onclick="app.recapSwipeTo(this, 1)"></button></div>`;
+            },
+
+            recapSwipeDots(el) {
+                const max = el.scrollWidth - el.clientWidth;
+                const i = max > 0 && el.scrollLeft > max / 2 ? 1 : 0;
+                const dots = el.nextElementSibling;
+                if (dots) [...dots.children].forEach((d, k) => d.classList.toggle('on', k === i));
+            },
+
+            recapSwipeTo(btn, i) {
+                const el = btn.parentElement.previousElementSibling;
+                if (!el) return;
+                const left = i ? el.scrollWidth - el.clientWidth : 0;
+                if (el.scrollTo) el.scrollTo({ left, behavior: this.motionOK() ? 'smooth' : 'auto' }); else el.scrollLeft = left;
+            },
+
+            updateRecapDot() {
+                if (typeof document === 'undefined') return;
+                const fresh = this.freshRecap();
+                document.querySelectorAll('.mob-item[data-tab="profile"], .nav-btn[data-tab="profile"]').forEach(el => {
+                    let dot = el.querySelector('.nav-dot');
+                    if (fresh && !dot) { dot = document.createElement('span'); dot.className = 'nav-dot'; el.appendChild(dot); }
+                    if (dot) dot.title = fresh ? `${this.periodLabel(fresh)} is ready` : '';
+                    if (!fresh && dot) dot.remove();
+                });
             },
 
             periodLabel(p) {
@@ -8563,7 +9273,8 @@
                 const topBean = countBy(b => this.groupKeyOfBrew(b))[0];
                 if (topBean) {
                     const sample = brews.find(b => this.groupKeyOfBrew(b) === topBean[0]);
-                    s.topBean = { label: this.beanLabel(this.beans.get(String(sample.beanId))), count: topBean[1] };
+                    const topB = this.beans.get(String(sample.beanId));
+                    s.topBean = { label: this.beanLabel(topB), name: topB ? String(topB.name || '').trim() : '', count: topBean[1] };
                 }
                 const topRoaster = countBy(b => {
                     const bean = this.beans.get(String(b.beanId));
@@ -8623,24 +9334,48 @@
 
             renderRecapCard(user) {
                 const periods = this.recapPeriods(user);
-                if (!periods.length) return '<section class="profile-card"><h4 class="section-label">Recap</h4><div class="panel-empty">No sessions yet.</div></section>';
-                const d = new Date(Date.now());
-                const nowKey = `m:${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                if (!periods.length) return '<section class="profile-card" id="recap-card"><h4 class="section-label">Recap</h4><div class="panel-empty">No sessions yet.</div></section>';
                 const countIn = p => {
                     const [start, end] = this.periodRange(p);
                     return this.brewsOf(user).filter(b => { const t = this.toTime(b.date); return t >= start && t < end; }).length;
                 };
-                // default to the most recent month that has a full recap (early in a month, that's usually last month)
-                const fallback = periods.find(p => p.startsWith('m:') && countIn(p) >= 3) || (periods.includes(nowKey) ? nowKey : periods[0]);
+                // open on the most recent finished month with a real recap; this month (and the year, until Dec 20) stay locked
+                const open = periods.filter(p => !this.periodLocked(p));
+                const fallback = open.find(p => p.startsWith('m:') && countIn(p) >= 3) || open.find(p => p.startsWith('m:')) || periods[0];
                 const period = this.recapPeriod && periods.includes(this.recapPeriod) ? this.recapPeriod : fallback;
+                const whose = user === this.user ? 'Your' : `${user}'s`;
+                const options = periods.map(p => `<option value="${p}"${p === period ? ' selected' : ''}>${this.esc(this.periodLabel(p))}${this.periodLocked(p) ? ' (locked)' : ''}</option>`).join('');
+                const isYear = period.startsWith('y:');
+                // "New" stays on for this visit; the dot clears once you've seen it
+                const fresh = user === this.user ? this.freshRecap(user) : null;
+                if (fresh && fresh === period) { this._recapNew = period; this.markSeen('dialed_recap_seen', period); }
+                const isNew = user === this.user && this._recapNew === period;
+                const title = `<div class="recap-title">${this.esc(whose)} ${this.esc(this.periodLabel(period))}${isNew ? '<span class="recap-new">New</span>' : ''}</div>`;
+                const head = `<div class="recap-head">${title}<select class="recap-select" aria-label="Recap period" onchange="app.setRecapPeriod(this.value)">${options}</select></div>`;
+                if (this.periodLocked(period)) {
+                    const unlock = this.periodUnlockDate(period);
+                    const days = this.daysUntil(unlock);
+                    const ghosts = [1, 2, 3, 4].map(() => '<div class="stat-box"><div class="stat-num">0</div><div class="stat-cap">&nbsp;</div></div>').join('');
+                    const sub = isYear
+                        ? `${user === this.user ? 'Your' : `${this.esc(user)}'s`} whole ${this.esc(period.slice(2))} in coffee, told in stories. It opens on Dec 20.`
+                        : `${user === this.user ? 'Your' : `${this.esc(user)}'s`} ${this.esc(this.monthName(period.slice(2), false))} recap opens when the month is over.`;
+                    return `<section class="profile-card" id="recap-card"><h4 class="section-label">Recap</h4>${head}
+                        <div class="recap-locked">
+                            <div class="recap-ghost" aria-hidden="true"><div class="recap-grid">${ghosts}</div><div class="recap-ghost-line" style="width:80%"></div><div class="recap-ghost-line" style="width:60%"></div><div class="recap-ghost-line" style="width:70%"></div></div>
+                            <div class="aw-lock-card">
+                                <span class="aw-lock-icon"><svg class="icon"><use href="#i-lock"/></svg></span>
+                                <div class="aw-lock-title">Come back ${this.esc(this.unlockLabel(unlock))}</div>
+                                <div class="aw-lock-sub">${sub}</div>
+                                <div class="aw-lock-count">${days === 1 ? 'Tomorrow' : `${days} days to go`}</div>
+                            </div>
+                        </div></section>`;
+                }
                 const s = this.recapStats(user, period);
                 this.lastRecap = s;
                 const min = s.isYear ? 10 : 3;
-                const whose = user === this.user ? 'Your' : `${user}'s`;
-                const options = periods.map(p => `<option value="${p}"${p === period ? ' selected' : ''}>${this.esc(this.periodLabel(p))}</option>`).join('');
                 let body;
                 if (s.count < min) {
-                    body = `<div class="panel-empty">${s.count} session${s.count === 1 ? '' : 's'} so far. The recap fills in at ${min}.</div>`;
+                    body = `<div class="panel-empty">${s.count} session${s.count === 1 ? '' : 's'} in ${this.esc(s.label)}. The recap fills in at ${min}.</div>`;
                 } else {
                     const boxes = this.recapNumbers(s).map(([n, cap]) => `<div class="stat-box"><div class="stat-num">${this.esc(n)}</div><div class="stat-cap">${cap}</div></div>`).join('');
                     const lines = this.recapLines(s).map(([label, value]) => `<div class="recap-line"><span>${label}</span><span>${this.esc(value)}</span></div>`).join('');
@@ -8649,11 +9384,575 @@
                         const photo = this.normalizePhoto(s.best.photo);
                         const fb = photo ? this.buildDriveFallbackUrls(photo.fileId || this.extractDriveFileId(photo.url), photo.url) : [];
                         const src = photo ? (fb[0] || photo.url) : '';
-                        best = `<div class="recap-best">${src ? `<img src="${this.esc(src)}" alt="Best shot" loading="lazy" data-fallback-index="0" data-fallbacks="${this.esc(fb.join('|'))}" onerror="app.handlePhotoFallback(this)">` : ''}<div class="recap-best-text"><b>Best shot</b> · ${this.esc(this.shortDate(s.best.date))}<br>${this.esc(this.beanLabel(this.beans.get(String(s.best.beanId))))} · ${this.esc(this.fmtNum(this.normalizeRating(s.best.rating)))}★</div></div>`;
+                        best = `<div class="recap-best">${src ? `<img src="${this.esc(src)}" alt="Best shot" loading="lazy" data-fallback-index="0" data-fallbacks="${this.esc(fb.join('|'))}" onerror="app.handlePhotoFallback(this)">` : ''}<div class="recap-best-text"><b>Best shot</b> · ${this.esc(this.shortDate(s.best.date))}<br>${this.esc((bn => bn ? (String(bn.name || '').trim() || this.beanLabel(bn)) : 'Coffee')(this.beans.get(String(s.best.beanId))))} · ${this.esc(this.fmtNum(this.normalizeRating(s.best.rating)))}★</div></div>`;
                     }
-                    body = `<div class="recap-grid">${boxes}</div>${best}<div class="recap-lines">${lines}</div><button type="button" class="btn-outline recap-share" onclick="app.shareRecap()">Share Recap Image</button>`;
+                    const cover = isYear && typeof this.yearCoverHtml === 'function' ? this.yearCoverHtml(user, Number(period.slice(2))) : '';
+                    const share = '<button type="button" class="btn-outline recap-share" onclick="app.shareRecap()">Share Recap Image</button>';
+                    // a month gets two calm cards (you, then the crew); the year keeps the big story
+                    body = isYear ? `${cover}<div class="recap-grid">${boxes}</div>${best}<div class="recap-lines">${lines}</div>${share}` : `${this.monthCardsHtml(user, s, period, best)}${share}`;
                 }
-                return `<section class="profile-card"><h4 class="section-label">Recap</h4><div class="recap-head"><div class="recap-title">${this.esc(whose)} ${this.esc(s.label)}</div><select class="recap-select" onchange="app.setRecapPeriod(this.value)">${options}</select></div>${body}</section>`;
+                return `<section class="profile-card" id="recap-card"><h4 class="section-label">Recap</h4>${head}${body}</section>`;
+            },
+
+            // ===================== Year in Coffee story (v12.0) =====================
+            yearCoverHtml(user, year) {
+                const mine = user === this.user;
+                return `<button type="button" class="yic-cover" style="--uc:${this.esc(this.getUserColor(user))}" data-name="${this.esc(user)}" onclick="app.openWrapped(this.getAttribute('data-name'), ${Number(year)})">
+                    <span class="yic-cover-year">${Number(year)}</span>
+                    <span class="yic-cover-text"><span class="yic-cover-title">${mine ? 'Play your' : `Play ${this.esc(user)}'s`} Year in Coffee</span><span class="yic-cover-sub">${mine ? 'Your' : 'Their'} year in stories, then the whole crew's</span></span>
+                    <span class="yic-play"><svg class="icon"><use href="#i-play"/></svg></span>
+                </button>`;
+            },
+
+            wrappedData(user, year) {
+                const [a, b] = [new Date(year, 0, 1).getTime(), new Date(year + 1, 0, 1).getTime()];
+                const all = this.sessionsBetween(a, b).sort((u, v) => this.localTime(u.date) - this.localTime(v.date));
+                const owner = x => this.getBrewOwner(x);
+                const mine = all.filter(x => owner(x) === user);
+                const D = { user, year, color: this.getUserColor(user), count: mine.length };
+                if (!mine.length) return D;
+                const countBy = (rows, fn) => { const m = new Map(); rows.forEach(x => { const k = fn(x); if (k) m.set(k, (m.get(k) || 0) + 1); }); return [...m.entries()].sort((p, q) => q[1] - p[1] || String(p[0]).localeCompare(String(q[0]))); };
+                const beanOf = x => this.beans.get(String(x.beanId));
+                const ratingOf = x => this.normalizeRating(x.rating);
+                const people = countBy(all, owner);
+                D.people = people;
+                D.rank = people.findIndex(p => p[0] === user) + 1;
+                const days = [...new Set(mine.map(x => this.dayNum(this.localTime(x.date))))].sort((p, q) => p - q);
+                D.days = days.length;
+                let best = 0, run = 0, prev = null, runStart = null, bestStart = null, bestEnd = null;
+                days.forEach(d => { if (prev !== null && d === prev + 1) run++; else { run = 1; runStart = d; } if (run > best) { best = run; bestStart = runStart; bestEnd = d; } prev = d; });
+                D.streak = { days: best, from: bestStart !== null ? new Date(bestStart * 864e5) : null, to: bestEnd !== null ? new Date(bestEnd * 864e5) : null };
+                D.grams = mine.reduce((s, x) => s + this.num(x.dose), 0);
+                D.out = mine.reduce((s, x) => s + this.num(x.yield), 0);
+                const isEsp = x => /espresso/i.test(String(x.method || ''));
+                const inHours = x => { const prof = METHOD_PROFILES[x.method]; return !!(prof && prof.hours); };
+                const secsOf = rows => rows.reduce((s, x) => { const t = this.num(x.time); return s + (!inHours(x) && t > 0 && t < 3600 ? t : 0); }, 0);
+                D.secs = secsOf(mine);
+                D.shots = mine.filter(isEsp).length;
+                D.espOut = mine.filter(isEsp).reduce((s, x) => s + this.num(x.yield), 0);
+                D.water = mine.filter(x => !isEsp(x)).reduce((s, x) => s + this.num(x.yield), 0);
+                // coffees
+                const byCoffee = countBy(mine, x => this.groupKeyOfBrew(x));
+                D.coffees = byCoffee.length;
+                D.topCoffees = byCoffee.slice(0, 5).map(([k, n]) => {
+                    const rows = mine.filter(x => this.groupKeyOfBrew(x) === k), bean = beanOf(rows[0]);
+                    const r = rows.map(ratingOf).filter(v => v > 0);
+                    return { name: bean ? String(bean.name || '').trim() || this.beanLabel(bean) : 'Coffee', roaster: bean ? String(bean.roaster || '').trim() : '', count: n, avg: r.length ? r.reduce((s, v) => s + v, 0) / r.length : 0 };
+                });
+                D.origins = countBy(mine, x => { const o = String(this.originOf(x) || '').trim(); return o ? o.charAt(0).toUpperCase() + o.slice(1) : ''; });
+                D.roasters = countBy(mine, x => { const bn = beanOf(x); return bn ? String(bn.roaster || '').trim() : ''; });
+                D.methods = countBy(mine, x => String(x.method || '').trim());
+                // rhythm
+                D.months = Array.from({ length: 12 }, (_, i) => mine.filter(x => new Date(this.localTime(x.date)).getMonth() === i).length);
+                D.peakMonth = D.months.indexOf(Math.max(...D.months));
+                const wd = countBy(mine, x => String(new Date(this.localTime(x.date)).getDay() + 1));
+                D.weekday = wd.length ? Number(wd[0][0]) - 1 : null;
+                const hours = countBy(mine, x => { const h = this.sessionHour(x); return h === null ? '' : String(h + 1); });
+                D.hour = hours.length ? Number(hours[0][0]) - 1 : null;
+                const early = mine.filter(x => { const h = this.sessionHour(x); return h !== null && h >= 4 && h < 9; }).length;
+                const late = mine.filter(x => { const h = this.sessionHour(x); return h !== null && (h >= 21 || h < 4); }).length;
+                // ratings
+                const rated = mine.filter(x => ratingOf(x) > 0);
+                D.rated = rated.length;
+                D.avg = rated.length ? rated.reduce((s, x) => s + ratingOf(x), 0) / rated.length : 0;
+                D.fives = rated.filter(x => ratingOf(x) >= 5).length;
+                const likesOf = x => (Array.isArray(x.likes) ? x.likes.filter(n => String(n || '').trim() && String(n).trim() !== owner(x)).length : 0);
+                if (rated.length) {
+                    const top = Math.max(...rated.map(ratingOf));
+                    const shot = rated.filter(x => ratingOf(x) === top).sort((p, q) => likesOf(q) - likesOf(p) || this.localTime(p.date) - this.localTime(q.date))[0];
+                    const photo = this.normalizePhoto(shot.photo);
+                    const fb = photo ? this.buildDriveFallbackUrls(photo.fileId || this.extractDriveFileId(photo.url), photo.url) : [];
+                    D.best = { rating: top, bean: beanOf(shot), date: shot.date, dose: this.num(shot.dose), yld: this.num(shot.yield), time: this.num(shot.time), grind: this.grindText(shot.grind), method: shot.method || '', notes: String(this.getBrewNotes(shot) || '').trim(), photo: fb[0] || (photo ? photo.url : ''), likes: likesOf(shot) };
+                }
+                // taste
+                const tasted = mine.filter(x => this.tastedKeys(x).length);
+                if (tasted.length >= 4) {
+                    const vals = {}, seen = {};
+                    TASTE_KEYS.forEach(k => { const v = tasted.map(x => this.tasteValue(x, k)).filter(v => v !== null); seen[k] = v.length; vals[k] = v.length ? v.reduce((s, n) => s + n, 0) / v.length : 5; });
+                    const label = k => (TASTE_META.find(m => m[0] === k) || [k, k])[1];
+                    const ranked = TASTE_KEYS.filter(k => seen[k] >= 3 && k !== 'bitterness').sort((p, q) => vals[q] - vals[p]);
+                    D.taste = { vals, n: tasted.length, top: ranked[0] ? { key: ranked[0], label: label(ranked[0]), v: vals[ranked[0]] } : null };
+                }
+                D.notes = countBy(mine.flatMap(x => this.extractFlavors(x).map(n => ({ n }))), o => { const t = String(o.n || '').trim(); return t ? t.charAt(0).toUpperCase() + t.slice(1).toLowerCase() : ''; });
+                // dial-in
+                let changes = 0; const lastGrind = new Map(), perCoffee = new Map();
+                mine.forEach(x => {
+                    const k = this.groupKeyOfBrew(x), g = this.grindText(x.grind);
+                    if (g && lastGrind.has(k) && !this.sameGrind(lastGrind.get(k), g)) changes++;
+                    if (g) lastGrind.set(k, g);
+                    const c = perCoffee.get(k) || { n: 0, hit: 0, bean: beanOf(x) };
+                    c.n++; if (!c.hit && ratingOf(x) >= 4.5) c.hit = c.n;
+                    perCoffee.set(k, c);
+                });
+                D.grindChanges = changes;
+                const hits = [...perCoffee.values()].filter(c => c.hit);
+                D.fastest = hits.length ? hits.sort((p, q) => p.hit - q.hit || q.n - p.n)[0] : null;
+                const chased = [...perCoffee.values()].sort((p, q) => q.n - p.n)[0];
+                D.chased = chased && chased.n >= 5 ? chased : null;
+                const goodEsp = mine.filter(x => /espresso/i.test(String(x.method || '')) && ratingOf(x) >= 4 && this.num(x.dose) > 0 && this.num(x.yield) > 0 && this.num(x.time) > 0);
+                if (goodEsp.length >= 3) {
+                    const med = arr => { const s = [...arr].sort((p, q) => p - q); return s[Math.floor(s.length / 2)]; };
+                    D.sweet = { ratio: med(goodEsp.map(x => this.num(x.yield) / this.num(x.dose))), time: med(goodEsp.map(x => this.num(x.time))), n: goodEsp.length };
+                }
+                // social
+                const inYear = ts => { const t = this.localTime(ts); return t >= a && t < b; };
+                D.likesGiven = all.filter(x => owner(x) !== user && Array.isArray(x.likes) && x.likes.map(n => String(n).trim()).includes(user)).length;
+                D.likesGot = mine.reduce((s, x) => s + likesOf(x), 0);
+                let said = 0, heard = 0;
+                [...this.brews.values(), ...this.beans.values()].forEach(x => this.normalizeCommentList(x.comments, `wr-${x.id}`, x.date).forEach(c => { if (!inYear(c.timestamp)) return; if (c.user === user) said++; else if ((x.beanId !== undefined ? owner(x) : String(x.user || '')) === user) heard++; }));
+                D.commentsMade = said; D.commentsGot = heard;
+                const myKeys = new Set(mine.map(x => this.groupKeyOfBrew(x)));
+                const shared = new Map();
+                all.forEach(x => { const o = owner(x); if (o !== user && myKeys.has(this.groupKeyOfBrew(x))) { if (!shared.has(o)) shared.set(o, new Set()); shared.get(o).add(this.groupKeyOfBrew(x)); } });
+                const buddy = [...shared.entries()].sort((p, q) => q[1].size - p[1].size || p[0].localeCompare(q[0]))[0];
+                D.buddy = buddy ? { name: buddy[0], coffees: buddy[1].size } : null;
+                // monthly awards
+                const won = new Map(); let champMonths = [];
+                const race = new Map();
+                for (let m = 0; m < 12; m++) {
+                    const key = `${year}-${String(m + 1).padStart(2, '0')}`;
+                    if (this.monthLocked(key)) break;
+                    const aw = this.crewAwardsMemo(year, m);
+                    aw.forEach(x => x.winners.forEach(n => race.set(n, (race.get(n) || 0) + 1)));
+                    aw.filter(x => x.winners.includes(user)).forEach(x => { const e = won.get(x.key) || { title: x.title, icon: x.icon, color: x.color, n: 0 }; e.n++; won.set(x.key, e); });
+                    const st = this.awardStandings(aw);
+                    if (st.length && st[0][0] === user && (st.length === 1 || st[1][1] < st[0][1])) champMonths.push(m);
+                }
+                D.awards = [...won.values()].sort((p, q) => q.n - p.n || p.title.localeCompare(q.title));
+                D.awardCount = D.awards.reduce((s, x) => s + x.n, 0);
+                D.champMonths = champMonths;
+                D.race = [...race.entries()].sort((p, q) => q[1] - p[1] || p[0].localeCompare(q[0]));
+                // personality: the trait where you lead the crew by the most
+                const traitOf = (rows, who) => {
+                    const r = rows.filter(x => ratingOf(x) > 0);
+                    let ch = 0; const lg = new Map(); rows.forEach(x => { const k = this.groupKeyOfBrew(x), g = this.grindText(x.grind); if (g && lg.has(k) && !this.sameGrind(lg.get(k), g)) ch++; if (g) lg.set(k, g); });
+                    const coffeesN = new Set(rows.map(x => this.groupKeyOfBrew(x))).size;
+                    const topShare = rows.length ? Math.max(...countBy(rows, x => this.groupKeyOfBrew(x)).map(e => e[1])) / rows.length : 0;
+                    const hr = rows.map(x => this.sessionHour(x)).filter(h => h !== null);
+                    const social = all.filter(x => owner(x) !== who && Array.isArray(x.likes) && x.likes.map(n => String(n).trim()).includes(who)).length;
+                    return {
+                        tinkerer: rows.length ? ch / rows.length : 0,
+                        explorer: rows.length ? coffeesN / Math.sqrt(rows.length) : 0,
+                        loyalist: topShare,
+                        early: hr.length ? hr.filter(h => h >= 4 && h < 9).length / hr.length : 0,
+                        owl: hr.length ? hr.filter(h => h >= 21 || h < 4).length / hr.length : 0,
+                        perfectionist: r.length >= 5 ? r.filter(x => ratingOf(x) >= 4.5).length / r.length : 0,
+                        critic: r.length >= 5 ? 5 - r.reduce((s, x) => s + ratingOf(x), 0) / r.length : 0,
+                        social: rows.length ? social / rows.length : 0
+                    };
+                };
+                const crewTraits = people.filter(p => p[1] >= 5).map(([n]) => [n, traitOf(all.filter(x => owner(x) === n), n)]);
+                const mineT = traitOf(mine, user);
+                const P = {
+                    tinkerer: ['The Tinkerer', 'You never leave a dial alone. More grind changes per session than anyone, chasing the next half star.'],
+                    explorer: ['The Explorer', 'New bag, new adventure. You worked through more different coffees than the rest of the crew.'],
+                    loyalist: ['The Loyalist', 'When you find the one, you stay. Your favorite coffee owned your year.'],
+                    early: ['The Early Bird', 'First light, first shot. More of your coffee happened before 9 am than anyone else\'s.'],
+                    owl: ['The Night Owl', 'Espresso after dark doesn\'t scare you. Your grinder works the late shift.'],
+                    perfectionist: ['The Perfectionist', 'You don\'t settle. A bigger share of your shots hit 4.5★ or better than anyone\'s.'],
+                    critic: ['The Critic', 'Stars from you are earned. Toughest ratings in the crew, and everyone knows it.'],
+                    social: ['The Hype Machine', 'You show up for everyone else\'s coffee. Most likes handed out per session.']
+                };
+                let pick = null, margin = -Infinity;
+                Object.keys(P).forEach(k => {
+                    const vals = crewTraits.map(([, t]) => t[k]);
+                    const others = crewTraits.filter(([n]) => n !== user).map(([, t]) => t[k]);
+                    if (!(mineT[k] > 0)) return;
+                    const spread = Math.max(...vals, mineT[k]) - Math.min(...vals, mineT[k]) || 1;
+                    const lead = (mineT[k] - (others.length ? Math.max(...others) : 0)) / spread;
+                    if (lead > margin) { margin = lead; pick = k; }
+                });
+                D.persona = pick ? { key: pick, title: P[pick][0], text: P[pick][1] } : { key: 'daily', title: 'The Daily Grinder', text: 'Steady, every week. Coffee is part of how your days go.' };
+                // the crew
+                const C = { sessions: all.length, grams: all.reduce((s, x) => s + this.num(x.dose), 0), coffees: new Set(all.map(x => this.groupKeyOfBrew(x))).size, origins: new Set(all.map(x => String(this.originOf(x) || '').toLowerCase()).filter(Boolean)).size, people };
+                C.fives = people.map(([n]) => [n, all.filter(x => owner(x) === n && ratingOf(x) >= 5).length]);
+                let goals = 0;
+                for (let t = this.weekStartOf(a) + 3 * 864e5; t < Math.min(b, Date.now()); t += 7 * 864e5) { const ws = this.weekStartOf(t); if (ws + 7 * 864e5 > Date.now()) break; const q = this.crewQuest(t); if (q.done) goals++; }
+                C.goals = goals;
+                // the crew's coffee: the most-brewed one that more than one of you brewed (else simply the most-brewed)
+                const byGroup = countBy(all, x => this.groupKeyOfBrew(x));
+                const sharedTop = byGroup.find(([k]) => new Set(all.filter(x => this.groupKeyOfBrew(x) === k).map(owner)).size > 1);
+                const crewCoffee = sharedTop || byGroup[0];
+                if (crewCoffee) {
+                    const rows = all.filter(x => this.groupKeyOfBrew(x) === crewCoffee[0]);
+                    C.coffee = { bean: beanOf(rows[0]), n: crewCoffee[1], who: [...new Set(rows.map(owner))].sort() };
+                }
+                const loved = countBy(all, x => this.groupKeyOfBrew(x)).map(([k]) => { const r = all.filter(x => this.groupKeyOfBrew(x) === k).map(ratingOf).filter(v => v > 0); return { k, n: r.length, avg: r.length ? r.reduce((s, v) => s + v, 0) / r.length : 0 }; }).filter(e => e.n >= 5).sort((p, q) => q.avg - p.avg)[0];
+                if (loved) C.loved = { bean: beanOf(all.find(x => this.groupKeyOfBrew(x) === loved.k)), avg: loved.avg, n: loved.n };
+                // the year's awards
+                const yearly = [];
+                const lead = (pairs, min = 1, low = false) => { const rows = pairs.filter(p => low ? Number.isFinite(p[1]) : p[1] >= min); if (!rows.length) return null; const v = low ? Math.min(...rows.map(p => p[1])) : Math.max(...rows.map(p => p[1])); const names = rows.filter(p => Math.abs(p[1] - v) < 1e-9).map(p => p[0]).sort(); return names.length > 2 ? null : { names, v }; };
+                const ppl = people.map(p => p[0]);
+                const per = fn => ppl.map(n => [n, fn(all.filter(x => owner(x) === n), n)]);
+                const award = (title, icon, color, res, stat) => { if (res) yearly.push({ title, icon, color, winners: res.names, stat: stat(res.v) }); };
+                award('Brewer of the Year', 'i-coffee', '#8A6240', lead(per(r => r.length), 10), v => `${v} sessions`);
+                const allRated = all.filter(x => ratingOf(x) > 0);
+                if (allRated.length) {
+                    const top = Math.max(...allRated.map(ratingOf));
+                    const shot = allRated.filter(x => ratingOf(x) === top).sort((p, q) => likesOf(q) - likesOf(p) || this.localTime(p.date) - this.localTime(q.date))[0];
+                    const bn = beanOf(shot);
+                    yearly.push({ title: 'Shot of the Year', icon: 'i-medal', color: '#C49A2C', winners: [owner(shot)], stat: `${this.fmtNum(top)}★ · ${bn ? String(bn.name || '').trim() || this.beanLabel(bn) : 'a coffee'}, ${this.shortDate(shot.date)}` });
+                }
+                award('Award Champion', 'i-crown', '#E3AE45', lead(D.race, 2), v => `${v} monthly awards`);
+                award('Explorer of the Year', 'i-compass', '#5F8FDB', lead(per(r => new Set(r.map(x => this.groupKeyOfBrew(x))).size), 3), v => `${v} different coffees`);
+                award('Palate of the Year', 'i-leaf-line', '#A06F98', lead(per(r => new Set(r.flatMap(x => this.extractFlavors(x).map(n => n.toLowerCase()))).size), 5), v => `${v} different tasting notes`);
+                award('Iron Streak', 'i-flame', '#E0663A', lead(per(r => { const ds = [...new Set(r.map(x => this.dayNum(this.localTime(x.date))))].sort((p, q) => p - q); let bst = 0, rn = 0, pv = null; ds.forEach(d => { rn = pv !== null && d === pv + 1 ? rn + 1 : 1; bst = Math.max(bst, rn); pv = d; }); return bst; }), 4), v => `${v} days in a row`);
+                award('Crowd Favorite', 'i-award', '#D45D8A', lead(per(r => r.reduce((s, x) => s + likesOf(x), 0)), 5), v => `${v} likes received`);
+                const improve = per(r => { const rr = r.filter(x => ratingOf(x) > 0); if (rr.length < 10) return -Infinity; const h = Math.floor(rr.length / 2); const avg = xs => xs.reduce((s, x) => s + ratingOf(x), 0) / xs.length; return Math.round((avg(rr.slice(h)) - avg(rr.slice(0, h))) * 10) / 10; });
+                award('Most Improved', 'i-trend', '#2E9E6B', lead(improve, 0.2), v => `+${this.fmtNum(v, 1)}★ from the first half of the year to the second`);
+                C.yearly = yearly;
+                // ---- everyone combined, the same depth as the personal slides
+                C.days = new Set(all.map(x => this.dayNum(this.localTime(x.date)))).size;
+                C.secs = secsOf(all);
+                C.shots = all.filter(isEsp).length;
+                C.espOut = all.filter(isEsp).reduce((s, x) => s + this.num(x.yield), 0);
+                C.water = all.filter(x => !isEsp(x)).reduce((s, x) => s + this.num(x.yield), 0);
+                C.methods = countBy(all, x => String(x.method || '').trim());
+                C.originList = countBy(all, x => { const o = String(this.originOf(x) || '').trim(); return o ? o.charAt(0).toUpperCase() + o.slice(1) : ''; });
+                C.roasters = countBy(all, x => { const bn = beanOf(x); return bn ? String(bn.roaster || '').trim() : ''; });
+                C.topCoffees = byGroup.slice(0, 5).map(([k, n]) => { const rows = all.filter(x => this.groupKeyOfBrew(x) === k), bn = beanOf(rows[0]); const r = rows.map(ratingOf).filter(v => v > 0); return { name: bn ? String(bn.name || '').trim() || this.beanLabel(bn) : 'Coffee', roaster: bn ? String(bn.roaster || '').trim() : '', count: n, who: [...new Set(rows.map(owner))].sort(), avg: r.length ? r.reduce((s, v) => s + v, 0) / r.length : 0 }; });
+                C.months = Array.from({ length: 12 }, (_, i) => all.filter(x => new Date(this.localTime(x.date)).getMonth() === i).length);
+                C.peakMonth = C.months.indexOf(Math.max(...C.months));
+                const cwd = countBy(all, x => String(new Date(this.localTime(x.date)).getDay() + 1));
+                C.weekday = cwd.length ? Number(cwd[0][0]) - 1 : null;
+                const chr = countBy(all, x => { const h = this.sessionHour(x); return h === null ? '' : String(h + 1); });
+                C.hour = chr.length ? Number(chr[0][0]) - 1 : null;
+                const busy = countBy(all, x => this.dayKey(this.localTime(x.date)))[0];
+                C.busiest = busy ? { key: busy[0], n: busy[1], who: [...new Set(all.filter(x => this.dayKey(this.localTime(x.date)) === busy[0]).map(owner))].sort() } : null;
+                const cdays = [...new Set(all.map(x => this.dayNum(this.localTime(x.date))))].sort((p, q) => p - q);
+                let cb = 0, cr = 0, cp = null, cs = null, cbs = null, cbe = null;
+                cdays.forEach(d => { if (cp !== null && d === cp + 1) cr++; else { cr = 1; cs = d; } if (cr > cb) { cb = cr; cbs = cs; cbe = d; } cp = d; });
+                C.streak = { days: cb, from: cbs !== null ? new Date(cbs * 864e5) : null, to: cbe !== null ? new Date(cbe * 864e5) : null };
+                const cRated = all.filter(x => ratingOf(x) > 0);
+                C.rated = cRated.length;
+                C.avg = cRated.length ? cRated.reduce((s, x) => s + ratingOf(x), 0) / cRated.length : 0;
+                C.fiveTotal = cRated.filter(x => ratingOf(x) >= 5).length;
+                const cTasted = all.filter(x => this.tastedKeys(x).length);
+                if (cTasted.length >= 6) {
+                    const vals = {}, seen = {};
+                    TASTE_KEYS.forEach(k => { const v = cTasted.map(x => this.tasteValue(x, k)).filter(v => v !== null); seen[k] = v.length; vals[k] = v.length ? v.reduce((s, n) => s + n, 0) / v.length : 5; });
+                    const label = k => (TASTE_META.find(m => m[0] === k) || [k, k])[1];
+                    const ranked = TASTE_KEYS.filter(k => seen[k] >= 3 && k !== 'bitterness').sort((p, q) => vals[q] - vals[p]);
+                    C.taste = { vals, n: cTasted.length, top: ranked[0] ? { label: label(ranked[0]), v: vals[ranked[0]] } : null };
+                }
+                C.notes = countBy(all.flatMap(x => this.extractFlavors(x).map(n => ({ n }))), o => { const t = String(o.n || '').trim(); return t ? t.charAt(0).toUpperCase() + t.slice(1).toLowerCase() : ''; });
+                C.likes = all.reduce((s, x) => s + likesOf(x), 0);
+                let cc = 0;
+                [...this.brews.values(), ...this.beans.values()].forEach(x => this.normalizeCommentList(x.comments, `wrc-${x.id}`, x.date).forEach(c => { if (inYear(c.timestamp)) cc++; }));
+                C.comments = cc;
+                const liked = all.filter(x => likesOf(x) > 0).sort((p, q) => likesOf(q) - likesOf(p) || this.localTime(p.date) - this.localTime(q.date))[0];
+                if (liked) C.mostLiked = { owner: owner(liked), bean: beanOf(liked), n: likesOf(liked), date: liked.date, rating: ratingOf(liked) };
+                // with a small crew, lots of sessions tie for "most liked": count the ones everyone else liked instead
+                C.allLiked = people.length > 1 ? all.filter(x => likesOf(x) >= people.length - 1).length : 0;
+                const pairs = new Map();
+                all.forEach(x => (Array.isArray(x.likes) ? x.likes : []).forEach(n => { const from = String(n || '').trim(), to = owner(x); if (from && from !== to) { const k = `${from}→${to}`; pairs.set(k, (pairs.get(k) || 0) + 1); } }));
+                const fan = [...pairs.entries()].sort((p, q) => q[1] - p[1] || p[0].localeCompare(q[0]))[0];
+                if (fan) { const [from, to] = fan[0].split('→'); C.fan = { from, to, n: fan[1] }; }
+                D.crew = C;
+                return D;
+            },
+
+            // espresso is weighed coming out; filter, press, moka and cold brew record the water going in
+            wrappedLiquid(X) {
+                const L = g => this.fmtNum(g / 1000, 1);
+                const parts = [];
+                if (X.shots && X.espOut > 0) parts.push(`<b>${X.shots}</b> espresso shot${X.shots === 1 ? '' : 's'}, ${X.espOut >= 1000 ? `${L(X.espOut)} litres` : `${Math.round(X.espOut)} g`} in the cup`);
+                if (X.water > 50) parts.push(`${X.water >= 1000 ? `<b>${L(X.water)} litres</b>` : `<b>${Math.round(X.water)} g</b>`} of water through filters, presses and pots`);
+                return parts.length ? ` ${parts.join('. ').replace(/^./, c => c.toUpperCase())}.` : '';
+            },
+
+            wrappedSlides(D) {
+                const S = [];
+                const esc = v => this.esc(v);
+                const fmt = (v, d = 0) => Number(v).toLocaleString(undefined, { maximumFractionDigits: d, minimumFractionDigits: 0 });
+                const you = D.user === this.user;
+                const Y = you ? 'You' : D.user;
+                const y = you ? 'you' : D.user;
+                const your = you ? 'Your' : `${D.user}'s`;
+                const yourL = you ? 'your' : `${D.user}'s`;
+                const face = n => `<span class="wr-face" style="background:${esc(this.getUserColor(n))}">${esc(this.feedInitial(n))}</span>`;
+                const monthL = i => new Date(D.year, i, 1).toLocaleDateString(undefined, { month: 'long' });
+                const dayL = i => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][i];
+                const hourL = h => { const d = new Date(2020, 0, 1, h); return d.toLocaleTimeString(undefined, { hour: 'numeric' }).replace(':00', ''); };
+                const beanName = bn => bn ? (String(bn.name || '').trim() || this.beanLabel(bn)) : 'a coffee';
+                const ring = '<svg class="wr-ring" viewBox="0 0 200 200" role="presentation"><g fill="none" stroke="currentColor"><path d="M100 18c46 0 82 35 82 81s-37 83-83 83-81-38-81-83 36-81 82-81Z" stroke-width="7"/><path d="M101 30c39 0 70 31 70 70s-32 70-71 70-69-31-69-70 31-70 70-70Z" stroke-width="2" opacity=".6"/><path d="M40 60c10-14 26-26 44-30" stroke-width="3" opacity=".5"/></g></svg>';
+                const add = (theme, html, dur = 6500, bg = '') => S.push({ theme, html, dur, bg });
+
+                add('espresso', `${ring}<div class="wr-k wr-in" style="--d:0">${esc(your)} year in coffee</div><div class="wr-cover-year wr-in" style="--d:1">${D.year}</div><div class="wr-p wr-in" style="--d:2">${D.count} sessions, ${D.coffees} coffee${D.coffees === 1 ? '' : 's'}, one year. Let's see how ${y} brewed.</div><div class="wr-hint">Tap to start</div>`, 5000);
+
+                const others = D.people.filter(p => p[0] !== D.user);
+                let rankLine = '';
+                if (D.people.length > 1) {
+                    if (D.rank === 1) rankLine = `That's the most in the crew${others.length ? `. ${esc(others[0][0])} was next with ${others[0][1]}` : ''}.`;
+                    else { const ahead = D.people[D.rank - 2]; rankLine = `#${D.rank} in the crew, ${ahead[1] - D.count} behind ${esc(ahead[0])}.`; }
+                }
+                add('you', `<div class="wr-k wr-in" style="--d:0">${esc(Y)} logged</div><div class="wr-big wr-in" style="--d:1" data-count="${D.count}">${D.count}</div><div class="wr-unit wr-in" style="--d:2">sessions</div><div class="wr-p wr-in" style="--d:3">On <b>${D.days}</b> different day${D.days === 1 ? '' : 's'}. ${rankLine}</div>`);
+
+                if (D.grams > 0) {
+                    const kg = D.grams / 1000;
+                    const bags = Math.max(1, Math.round(D.grams / 340));
+                    const litres = D.out / 1000;
+                    const hrs = Math.floor(D.secs / 3600), mins = Math.round((D.secs % 3600) / 60);
+                    add('crema', `<div class="wr-k wr-in" style="--d:0">That's</div><div class="wr-big wr-in" style="--d:1" data-count="${kg >= 1 ? kg.toFixed(1) : Math.round(D.grams)}" data-dec="${kg >= 1 ? 1 : 0}">${kg >= 1 ? fmt(kg, 1) : Math.round(D.grams)}</div><div class="wr-unit wr-in" style="--d:2">${kg >= 1 ? 'kilos' : 'grams'} of coffee beans</div><div class="wr-p wr-in" style="--d:3">About <b>${bags} bag${bags === 1 ? '' : 's'}</b>.${this.wrappedLiquid(D)}${D.secs > 600 ? ` And <b>${hrs ? `${hrs} h ` : ''}${mins} min</b> of watching it brew.` : ''}</div>`);
+                }
+
+                if (D.topCoffees.length) {
+                    const rows = D.topCoffees.map((c, i) => `<li class="wr-in" style="--d:${i + 1}"><span class="n">${i + 1}</span><span class="t">${esc(c.name)}<span class="s">${c.roaster ? `${esc(c.roaster)} · ` : ''}${c.count} session${c.count === 1 ? '' : 's'}${c.avg ? ` · ${this.fmtNum(c.avg, 1)}★ avg` : ''}</span></span></li>`).join('');
+                    add('espresso', `<div class="wr-k wr-in" style="--d:0">${esc(your)} top coffee${D.topCoffees.length > 1 ? 's' : ''}</div><ol class="wr-rank">${rows}</ol>`, 8000);
+                }
+
+                if (D.origins.length) {
+                    const chips = D.origins.slice(0, 8).map(([o, n], i) => `<span class="wr-chip wr-in" style="--d:${i + 3}">${esc(o)}<em>${n}</em></span>`).join('');
+                    const roaster = D.roasters[0];
+                    add('matcha', `<div class="wr-k wr-in" style="--d:0">${esc(Y)} tasted coffee from</div><div class="wr-big wr-in" style="--d:1" data-count="${D.origins.length}">${D.origins.length}</div><div class="wr-unit wr-in" style="--d:2">origin${D.origins.length === 1 ? '' : 's'}</div><div class="wr-chips">${chips}</div>${roaster ? `<div class="wr-p wr-in" style="--d:6">Top roaster: <b>${esc(roaster[0])}</b>, ${roaster[1]} session${roaster[1] === 1 ? '' : 's'}.</div>` : ''}`, 7500);
+                }
+
+                if (D.methods.length) {
+                    if (D.methods.length === 1) add('crema', `<div class="wr-k wr-in" style="--d:0">How ${y} brewed</div><div class="wr-big word wr-in" style="--d:1">${esc(D.methods[0][0])}</div><div class="wr-p wr-in" style="--d:2">Every single time. All <b>${D.count}</b> sessions.</div>`);
+                    else {
+                        const max = D.methods[0][1];
+                        const rows = D.methods.slice(0, 5).map(([m, n], i) => `<div class="wr-bar-row wr-in" style="--d:${i + 1}"><span>${esc(m)}</span><span class="v">${n / D.count < 0.01 ? '<1' : Math.round(n / D.count * 100)}%</span><span class="track"><span class="fill" style="width:${(n / max * 100).toFixed(1)}%;--d:${i}"></span></span></div>`).join('');
+                        add('crema', `<div class="wr-k wr-in" style="--d:0">How ${y} brewed</div><div class="wr-big word wr-in" style="--d:1">${esc(D.methods[0][0])}</div><div class="wr-p wr-in" style="--d:2">led the way, with ${D.methods.length - 1} other method${D.methods.length === 2 ? '' : 's'} in the mix.</div><div class="wr-bars-h">${rows}</div>`, 7500);
+                    }
+                }
+
+                if (D.count >= 5) {
+                    const max = Math.max(...D.months) || 1;
+                    const bars = D.months.map((n, i) => `<span class="${i === D.peakMonth ? 'peak' : ''}" style="height:${Math.max(3, n / max * 100)}%;--d:${i}" title="${esc(monthL(i))}: ${n}"></span>`).join('');
+                    const labels = D.months.map((_, i) => `<span>${esc(monthL(i).charAt(0))}</span>`).join('');
+                    const when = D.hour === null ? '' : D.hour < 12 ? 'a morning brewer' : D.hour < 17 ? 'an afternoon brewer' : D.hour < 21 ? 'an evening brewer' : 'a night owl';
+                    add('night', `<div class="wr-k wr-in" style="--d:0">${esc(your)} busiest month was</div><div class="wr-big word wr-in" style="--d:1">${esc(monthL(D.peakMonth))}</div><div class="wr-p wr-in" style="--d:2"><b>${D.months[D.peakMonth]}</b> sessions.${D.weekday !== null ? ` Favorite day: <b>${dayL(D.weekday)}</b>.` : ''}${when ? ` Usually around <b>${hourL(D.hour)}</b>, so ${you ? "you're" : `${esc(D.user)} is`} ${when}.` : ''}</div><div class="wr-months wr-in" style="--d:3">${bars}</div><div class="wr-months-l">${labels}</div>`, 7500);
+                }
+
+                if (D.streak.days >= 3) {
+                    const f = d => d ? d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' }) : '';
+                    add('cherry', `<div class="wr-k wr-in" style="--d:0">Longest streak</div><div class="wr-big wr-in" style="--d:1" data-count="${D.streak.days}">${D.streak.days}</div><div class="wr-unit wr-in" style="--d:2">days in a row</div><div class="wr-p wr-in" style="--d:3">${f(D.streak.from)} to ${f(D.streak.to)}. Coffee every single day.</div>`);
+                }
+
+                if (D.best) {
+                    const b = D.best;
+                    const stars = '★'.repeat(Math.floor(b.rating)) + (b.rating % 1 ? '½' : '');
+                    const recipe = [b.dose && b.yld ? `${this.fmtNum(b.dose)} g → ${this.fmtNum(b.yld)} g` : '', b.time ? `${this.fmtNum(b.time)} s` : '', b.grind && you ? `grind ${b.grind}` : ''].filter(Boolean).join(' · ');
+                    const note = b.notes.length > 150 ? `${b.notes.slice(0, 147).trim()}…` : b.notes;
+                    add('espresso', `${b.photo ? `<div class="wr-photo" style="background-image:url('${esc(b.photo)}')"></div>` : ''}<div class="wr-k wr-in" style="--d:0">${esc(your)} shot of the year</div><div class="wr-stars wr-in" style="--d:1">${stars}</div><div class="wr-big word wr-in" style="--d:2">${esc(beanName(b.bean))}</div><div class="wr-p wr-in" style="--d:3">${b.bean && b.bean.roaster ? `${esc(b.bean.roaster)} · ` : ''}${esc(this.shortDate(b.date))}${b.method ? ` · ${esc(b.method)}` : ''}${recipe ? `<br><b>${esc(recipe)}</b>` : ''}</div>${note ? `<div class="wr-quote wr-in" style="--d:4">${esc(note)}</div>` : ''}`, 8000);
+                }
+
+                if (D.taste || D.notes.length >= 3) {
+                    const img = D.taste && typeof FlavorShape !== 'undefined' ? (() => { try { return FlavorShape.snapshot(D.taste.vals, null, { width: 330, height: 248, zoom: 1.1, labels: false }); } catch (e) { return ''; } })() : '';
+                    const chips = D.notes.slice(0, 6).map(([n, c], i) => `<span class="wr-chip wr-in" style="--d:${i + 3}">${esc(n)}<em>${c}</em></span>`).join('');
+                    const chase = D.taste && D.taste.top ? `${esc(Y)} chase${you ? '' : 's'} <b>${esc(D.taste.top.label.toLowerCase())}</b>: ${this.fmtNum(D.taste.top.v, 1)} out of 10 on average.` : '';
+                    add('crema', `<div class="wr-k wr-in" style="--d:0">${esc(your)} flavor shape</div>${img ? `<img class="wr-shape wr-in" style="--d:1" src="${img}" alt="">` : ''}${chase ? `<div class="wr-p wr-in" style="--d:2">${chase}</div>` : ''}${chips ? `<div class="wr-small wr-in" style="--d:2">Notes ${y} found most</div><div class="wr-chips">${chips}</div>` : ''}`, 8000);
+                }
+
+                if (D.grindChanges >= 3 || D.fastest || D.sweet) {
+                    const lines = [];
+                    if (D.fastest) lines.push(`Fastest dial-in: <b>${esc(beanName(D.fastest.bean))}</b>, 4.5★ ${D.fastest.hit === 1 ? 'on the first try' : `by session ${D.fastest.hit}`}.`);
+                    if (D.chased && (!D.fastest || D.chased !== D.fastest)) lines.push(`Most chased: <b>${esc(beanName(D.chased.bean))}</b>, ${D.chased.n} sessions.`);
+                    if (D.sweet) lines.push(`${esc(your)} espresso sweet spot: <b>1:${this.fmtNum(D.sweet.ratio, 1)} in ${Math.round(D.sweet.time)} s</b>.`);
+                    add('matcha', `<div class="wr-k wr-in" style="--d:0">The dial-in</div><div class="wr-big wr-in" style="--d:1" data-count="${D.grindChanges}">${D.grindChanges}</div><div class="wr-unit wr-in" style="--d:2">grind change${D.grindChanges === 1 ? '' : 's'}</div>${lines.map((l, i) => `<div class="wr-p wr-in" style="--d:${i + 3};margin-top:${i ? 6 : 16}px">${l}</div>`).join('')}`, 8000);
+                }
+
+                add('you', `<div class="wr-k wr-in" style="--d:0">${esc(your)} coffee personality</div><div class="wr-big word wr-in" style="--d:1">${esc(D.persona.title)}</div><div class="wr-p wr-in" style="--d:2">${esc(D.persona.text)}</div>`, 7000);
+
+                if (D.awardCount) {
+                    const badges = D.awards.slice(0, 6).map((a, i) => `<div class="wr-badge wr-in" style="--d:${i + 3};--ac:${esc(a.color)}"><span class="ic"><svg class="icon"><use href="#${esc(a.icon)}"/></svg></span><div><div class="bt">${esc(a.title)}</div><div class="bw">×${a.n}</div></div></div>`).join('');
+                    const champ = D.champMonths.length ? `Champion of ${D.champMonths.map(monthL).join(', ').replace(/, ([^,]*)$/, ' and $1')}.` : '';
+                    const race = D.race.length > 1 ? `<div class="wr-small wr-in" style="--d:9">Award race: ${D.race.map(([n, c]) => `${n === D.user && you ? 'You' : esc(n)} ${c}`).join(' · ')}</div>` : '';
+                    add('gold', `<div class="wr-k wr-in" style="--d:0">${esc(Y)} took home</div><div class="wr-big wr-in" style="--d:1" data-count="${D.awardCount}">${D.awardCount}</div><div class="wr-unit wr-in" style="--d:2">monthly award${D.awardCount === 1 ? '' : 's'}</div>${champ ? `<div class="wr-p wr-in" style="--d:3">${champ}</div>` : ''}<div class="wr-badges">${badges}</div>${race}`, 8500);
+                }
+
+                if (D.likesGiven + D.likesGot + D.commentsMade > 0) {
+                    add('cherry', `<div class="wr-k wr-in" style="--d:0">The social side</div><div class="wr-big wr-in" style="--d:1" data-count="${D.likesGiven}">${D.likesGiven}</div><div class="wr-unit wr-in" style="--d:2">likes handed out</div><div class="wr-p wr-in" style="--d:3"><b>${D.likesGot}</b> like${D.likesGot === 1 ? '' : 's'} back on ${yourL} sessions${D.commentsMade ? `, and <b>${D.commentsMade}</b> comment${D.commentsMade === 1 ? '' : 's'} written` : ''}.${D.buddy ? `<br>Brew buddy: <b>${esc(D.buddy.name)}</b>, ${D.buddy.coffees} coffee${D.buddy.coffees === 1 ? '' : 's'} in common.` : ''}</div>`);
+                }
+
+                // ---- the crew: everyone combined
+                const C = D.crew;
+                if (C && C.people.length > 1) {
+                    const names = C.people.map(p => p[0]);
+                    const crewG = `linear-gradient(160deg, ${names.map((n, i) => `${this.getUserColor(n)} ${Math.round(i / Math.max(1, names.length - 1) * 100)}%`).join(', ')})`;
+                    const who = list => list.length === C.people.length ? `all ${list.length} of you` : esc(list.join(' & '));
+                    const facesOf = list => `<span class="wr-faces">${list.map(face).join('')}</span>`;
+                    add('crew', `<div class="wr-k wr-in" style="--d:0">And together, the crew logged</div><div class="wr-big wr-in" style="--d:1" data-count="${C.sessions}">${C.sessions}</div><div class="wr-unit wr-in" style="--d:2">sessions</div><div class="wr-p wr-in" style="--d:3">${facesOf(names)}${C.people.length} people, coffee on <b>${C.days}</b> different days.${C.goals ? `<br><b>${C.goals}</b> group goal${C.goals === 1 ? '' : 's'} reached together.` : ''}</div>`, 6500, crewG);
+
+                    const ckg = C.grams / 1000, cbags = Math.max(1, Math.round(C.grams / 340));
+                    const ch = Math.floor(C.secs / 3600), cm = Math.round((C.secs % 3600) / 60);
+                    add('crema', `<div class="wr-k wr-in" style="--d:0">Between you, that's</div><div class="wr-big wr-in" style="--d:1" data-count="${ckg >= 1 ? ckg.toFixed(1) : Math.round(C.grams)}" data-dec="${ckg >= 1 ? 1 : 0}">${ckg >= 1 ? fmt(ckg, 1) : Math.round(C.grams)}</div><div class="wr-unit wr-in" style="--d:2">${ckg >= 1 ? 'kilos' : 'grams'} of coffee beans</div><div class="wr-p wr-in" style="--d:3">About <b>${cbags} bags</b>.${this.wrappedLiquid(C)}${C.secs > 600 ? ` <b>${ch ? `${ch} h ` : ''}${cm} min</b> of brewing, all told.` : ''}</div>`);
+
+                    const max = C.people[0][1];
+                    const rows = C.people.map(([n, c], i) => { const f = (C.fives.find(e => e[0] === n) || [n, 0])[1]; return `<div class="wr-bar-row wr-in" style="--d:${i + 1};color:${esc(this.getUserColor(n))}"><span style="color:#EFF6EA">${i + 1}. ${esc(n)}</span><span class="v" style="color:#EFF6EA">${c}${f ? ` · ${f}×5★` : ''}</span><span class="track"><span class="fill" style="width:${(c / max * 100).toFixed(1)}%;--d:${i}"></span></span></div>`; }).join('');
+                    add('matcha', `<div class="wr-k wr-in" style="--d:0">The ${D.year} leaderboard</div><div class="wr-big word wr-in" style="--d:1">${esc(C.people[0][0])}</div><div class="wr-p wr-in" style="--d:2">brewed the most, with ${C.people[0][1]} sessions.</div><div class="wr-bars-h">${rows}</div>`, 7500);
+
+                    if (C.topCoffees.length) {
+                        const list = C.topCoffees.map((c, i) => `<li class="wr-in" style="--d:${i + 1}"><span class="n">${i + 1}</span><span class="t">${esc(c.name)}<span class="s">${c.roaster ? `${esc(c.roaster)} · ` : ''}${c.count} sessions · ${c.who.map(n => esc(n)).join(', ')}</span></span></li>`).join('');
+                        add('espresso', `<div class="wr-k wr-in" style="--d:0">The crew's top coffees</div><ol class="wr-rank">${list}</ol>`, 8000);
+                    }
+
+                    if (C.methods.length) {
+                        const mmax = C.methods[0][1];
+                        const mrows = C.methods.slice(0, 6).map(([m, n], i) => `<div class="wr-bar-row wr-in" style="--d:${i + 1}"><span>${esc(m)}</span><span class="v">${n} · ${n / C.sessions < 0.01 ? '<1' : Math.round(n / C.sessions * 100)}%</span><span class="track"><span class="fill" style="width:${(n / mmax * 100).toFixed(1)}%;--d:${i}"></span></span></div>`).join('');
+                        add('cherry', `<div class="wr-k wr-in" style="--d:0">The crew's go-to method</div><div class="wr-big word wr-in" style="--d:1">${esc(C.methods[0][0])}</div><div class="wr-p wr-in" style="--d:2">${C.methods.length === 1 ? 'Every single session.' : `${C.methods.length} methods in all.`}${C.shots ? ` <b>${C.shots}</b> espresso shot${C.shots === 1 ? '' : 's'} pulled.` : ''}</div>${C.methods.length > 1 ? `<div class="wr-bars-h">${mrows}</div>` : ''}`, 7500);
+                    }
+
+                    if (C.originList.length) {
+                        const chips = C.originList.slice(0, 10).map(([o, n], i) => `<span class="wr-chip wr-in" style="--d:${i + 3}">${esc(o)}<em>${n}</em></span>`).join('');
+                        const roaster = C.roasters[0];
+                        add('matcha', `<div class="wr-k wr-in" style="--d:0">Together you tasted</div><div class="wr-big wr-in" style="--d:1" data-count="${C.originList.length}">${C.originList.length}</div><div class="wr-unit wr-in" style="--d:2">origins, ${C.coffees} coffees</div><div class="wr-chips">${chips}</div>${roaster ? `<div class="wr-p wr-in" style="--d:7">The crew's roaster: <b>${esc(roaster[0])}</b>, ${roaster[1]} sessions${C.roasters.length > 1 ? ` (of ${C.roasters.length} roasters)` : ''}.</div>` : ''}`, 7500);
+                    }
+
+                    if (C.sessions >= 10) {
+                        const cmax = Math.max(...C.months) || 1;
+                        const bars = C.months.map((n, i) => `<span class="${i === C.peakMonth ? 'peak' : ''}" style="height:${Math.max(3, n / cmax * 100)}%;--d:${i}" title="${esc(monthL(i))}: ${n}"></span>`).join('');
+                        const labels = C.months.map((_, i) => `<span>${esc(monthL(i).charAt(0))}</span>`).join('');
+                        const bd = C.busiest ? new Date(this.parseLocalDate(C.busiest.key)).toLocaleDateString(undefined, { month: 'long', day: 'numeric' }) : '';
+                        add('night', `<div class="wr-k wr-in" style="--d:0">The crew's busiest month</div><div class="wr-big word wr-in" style="--d:1">${esc(monthL(C.peakMonth))}</div><div class="wr-p wr-in" style="--d:2"><b>${C.months[C.peakMonth]}</b> sessions.${C.busiest && C.busiest.n > 1 ? ` Busiest single day: <b>${esc(bd)}</b>, ${C.busiest.n} sessions${C.busiest.who.length > 1 ? ` from ${who(C.busiest.who)}` : ''}.` : ''}${C.weekday !== null ? ` Favorite day: <b>${dayL(C.weekday)}</b>.` : ''}${C.hour !== null ? ` Peak hour: <b>${hourL(C.hour)}</b>.` : ''}</div><div class="wr-months wr-in" style="--d:3">${bars}</div><div class="wr-months-l">${labels}</div>`, 8000);
+                    }
+
+                    if (C.streak.days >= 3) {
+                        const f = d => d ? d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' }) : '';
+                        add('cherry', `<div class="wr-k wr-in" style="--d:0">The grinder never rested for</div><div class="wr-big wr-in" style="--d:1" data-count="${C.streak.days}">${C.streak.days}</div><div class="wr-unit wr-in" style="--d:2">days straight</div><div class="wr-p wr-in" style="--d:3">${f(C.streak.from)} to ${f(C.streak.to)}: at least one of you brewed every day.</div>`);
+                    }
+
+                    if (C.rated) {
+                        const topFive = [...C.fives].sort((p, q) => q[1] - p[1])[0];
+                        add('gold', `<div class="wr-k wr-in" style="--d:0">Five-star shots, all of you</div><div class="wr-big wr-in" style="--d:1" data-count="${C.fiveTotal}">${C.fiveTotal}</div><div class="wr-unit wr-in" style="--d:2">perfect cups</div><div class="wr-p wr-in" style="--d:3">Out of <b>${C.rated}</b> rated sessions, averaging <b>${this.fmtNum(C.avg, 1)}★</b>.${topFive && topFive[1] ? ` Most 5★: <b>${esc(topFive[0])}</b> with ${topFive[1]}.` : ''}</div>`);
+                    }
+
+                    if (C.taste || C.notes.length >= 3) {
+                        const img = C.taste && typeof FlavorShape !== 'undefined' ? (() => { try { return FlavorShape.snapshot(C.taste.vals, null, { width: 330, height: 248, zoom: 1.1, labels: false }); } catch (e) { return ''; } })() : '';
+                        const chips = C.notes.slice(0, 8).map(([n, c], i) => `<span class="wr-chip wr-in" style="--d:${i + 3}">${esc(n)}<em>${c}</em></span>`).join('');
+                        add('crema', `<div class="wr-k wr-in" style="--d:0">The crew's flavor shape</div>${img ? `<img class="wr-shape wr-in" style="--d:1" src="${img}" alt="">` : ''}${C.taste && C.taste.top ? `<div class="wr-p wr-in" style="--d:2">Together you chase <b>${esc(C.taste.top.label.toLowerCase())}</b>: ${this.fmtNum(C.taste.top.v, 1)} out of 10 across ${C.taste.n} tasted sessions.</div>` : ''}${chips ? `<div class="wr-small wr-in" style="--d:2">Notes the crew found most</div><div class="wr-chips">${chips}</div>` : ''}`, 8000);
+                    }
+
+                    if (C.likes + C.comments > 0) {
+                        const ml = C.mostLiked;
+                        add('espresso', `<div class="wr-k wr-in" style="--d:0">The crew handed out</div><div class="wr-big wr-in" style="--d:1" data-count="${C.likes}">${C.likes}</div><div class="wr-unit wr-in" style="--d:2">like${C.likes === 1 ? '' : 's'}</div><div class="wr-p wr-in" style="--d:3">and wrote <b>${C.comments}</b> comment${C.comments === 1 ? '' : 's'}.${C.allLiked > 1 ? `<br><b>${C.allLiked}</b> sessions got a like from everyone else.` : ml ? `<br>Most-liked session: <b>${esc(ml.owner)}'s ${esc(beanName(ml.bean))}</b>, ${this.shortDate(ml.date)}, with ${ml.n} like${ml.n === 1 ? '' : 's'}.` : ''}${C.fan ? `<br>Biggest fan: <b>${esc(C.fan.from)}</b>, who liked ${esc(C.fan.to)}'s sessions ${C.fan.n} times.` : ''}</div>`, 7500);
+                    }
+
+                    if (C.coffee) {
+                        const shared = C.coffee.who.length > 1;
+                        add('crema', `<div class="wr-k wr-in" style="--d:0">The crew's coffee of the year</div><div class="wr-big word wr-in" style="--d:1">${esc(beanName(C.coffee.bean))}</div><div class="wr-p wr-in" style="--d:2">${C.coffee.bean && C.coffee.bean.roaster ? `${esc(C.coffee.bean.roaster)}. ` : ''}Brewed <b>${C.coffee.n}</b> times${shared ? ` by ${who(C.coffee.who)}` : ` by ${esc(C.coffee.who[0])}`}.</div>${C.loved && C.loved.bean && this.beanGroupKey(C.loved.bean) !== this.beanGroupKey(C.coffee.bean) ? `<div class="wr-p wr-in" style="--d:3">Most loved: <b>${esc(beanName(C.loved.bean))}</b>, ${this.fmtNum(C.loved.avg, 1)}★ across ${C.loved.n} rated sessions.</div>` : ''}`);
+                    }
+                    if (C.yearly.length) {
+                        const badges = C.yearly.map((x, i) => `<div class="wr-badge" style="--d:${i};--ac:${esc(x.color)}"><span class="ic"><svg class="icon"><use href="#${esc(x.icon)}"/></svg></span><div style="min-width:0"><div class="bt">${esc(x.title)}</div><div class="bw">${esc(x.winners.join(' & '))}</div></div></div>`).join('');
+                        add('gold', `<div class="wr-k wr-in" style="--d:0">The ${D.year} Golden Portafilters</div><div class="wr-p wr-in" style="--d:1;margin-top:6px">The year's awards, from everyone's sessions.</div><div class="wr-badges reveal">${badges}</div>`, Math.max(8000, C.yearly.length * 260 + 4500));
+                    }
+                }
+
+                const kg = D.grams >= 1000 ? `${this.fmtNum(D.grams / 1000, 1)} kg` : `${Math.round(D.grams)} g`;
+                add('you', `<div class="wr-k wr-in" style="--d:0">${esc(your)} ${D.year} in coffee</div><div class="wr-summary wr-in" style="--d:1">
+                    <div><div class="l">Sessions</div><div class="v">${D.count}</div></div>
+                    <div><div class="l">Coffee</div><div class="v">${kg}</div></div>
+                    ${D.topCoffees[0] ? `<div class="wide"><div class="l">Top coffee</div><div class="v">${esc(D.topCoffees[0].name)}</div></div>` : ''}
+                    <div><div class="l">Personality</div><div class="v">${esc(D.persona.title.replace(/^The /, ''))}</div></div>
+                    <div><div class="l">${D.awardCount ? 'Awards' : 'Best shot'}</div><div class="v">${D.awardCount ? D.awardCount : D.best ? `${this.fmtNum(D.best.rating)}★` : '—'}</div></div>
+                </div><div class="wr-actions wr-in" style="--d:2"><button type="button" onclick="app.shareWrapped()">Share</button><button type="button" class="ghost" onclick="app.wrappedGo(0)">Replay</button><button type="button" class="ghost" onclick="app.closeWrapped()">Done</button></div>`, 60000);
+                return S;
+            },
+
+            openWrapped(user, year) {
+                const D = this.wrappedData(user, Number(year));
+                if (!D.count) { this.showToast('No sessions that year yet.'); return; }
+                const slides = this.wrappedSlides(D);
+                this.closeWrapped(true);
+                const el = document.createElement('div');
+                el.id = 'wrapped';
+                el.setAttribute('role', 'dialog');
+                el.setAttribute('aria-label', `${D.user}'s ${D.year} Year in Coffee`);
+                el.style.setProperty('--uc', D.color);
+                el.innerHTML = `<div class="wr-bars">${slides.map(() => '<i><b></b></i>').join('')}</div>
+                    <div class="wr-top"><span class="wr-who"><b style="background:${this.esc(D.color)}">${this.esc(this.feedInitial(D.user))}</b>${this.esc(D.user)} · ${D.year}</span><button type="button" class="wr-close" aria-label="Close" onclick="app.closeWrapped()"><svg class="icon"><use href="#i-x"/></svg></button></div>
+                    <div class="wr-stage"></div>`;
+                document.body.appendChild(el);
+                this._wr = { D, slides, i: 0, el, prevOverflow: document.body.style.overflow };
+                document.body.style.overflow = 'hidden';
+                let down = 0, held = false, holdTimer = null;
+                el.addEventListener('pointerdown', e => {
+                    if (e.target.closest('button')) return;
+                    down = Date.now(); held = false;
+                    holdTimer = setTimeout(() => { held = true; el.classList.add('paused'); }, 220);
+                });
+                const up = e => {
+                    if (!down) return;
+                    clearTimeout(holdTimer);
+                    const wasHeld = held; down = 0; held = false;
+                    el.classList.remove('paused');
+                    if (wasHeld || e.target.closest('button')) return;
+                    const x = e.clientX / (window.innerWidth || 1);
+                    this.wrappedGo(this._wr.i + (x < 0.3 ? -1 : 1));
+                };
+                el.addEventListener('pointerup', up);
+                el.addEventListener('pointercancel', () => { clearTimeout(holdTimer); down = 0; held = false; el.classList.remove('paused'); });
+                this._wrKey = e => { if (!this._wr) return; if (e.key === 'Escape') this.closeWrapped(); if (e.key === 'ArrowRight' || e.key === ' ') this.wrappedGo(this._wr.i + 1); if (e.key === 'ArrowLeft') this.wrappedGo(this._wr.i - 1); };
+                document.addEventListener('keydown', this._wrKey);
+                this.wrappedGo(0);
+            },
+
+            wrappedGo(i) {
+                const W = this._wr;
+                if (!W) return;
+                if (i >= W.slides.length) { this.closeWrapped(); return; }
+                W.i = Math.max(0, i);
+                const s = W.slides[W.i];
+                const stage = W.el.querySelector('.wr-stage');
+                stage.innerHTML = `<section class="wr-slide wr-t-${s.theme}" style="--uc:${this.esc(W.D.color)}${s.bg ? `;--crew-g:${this.esc(s.bg)}` : ''}">${s.html}</section>`;
+                W.el.classList.toggle('wr-light', s.theme === 'crema' || s.theme === 'gold');
+                W.el.querySelectorAll('.wr-bars i').forEach((bar, k) => {
+                    bar.className = k < W.i ? 'past' : k === W.i ? 'now' : '';
+                    const b = bar.querySelector('b');
+                    b.style.animation = 'none'; void b.offsetWidth; b.style.animation = '';
+                    if (k === W.i) { bar.style.setProperty('--dur', `${s.dur}ms`); b.onanimationend = () => { if (this._wr === W && W.i === k) this.wrappedGo(k + 1); }; } else b.onanimationend = null;
+                });
+                // numbers count up
+                const motion = this.motionOK();
+                stage.querySelectorAll('[data-count]').forEach(el => {
+                    const end = Number(el.getAttribute('data-count')), dec = Number(el.getAttribute('data-dec') || 0);
+                    if (!motion || !(end > 0)) return;
+                    const t0 = performance.now() + 220, dur = 1100;
+                    const tick = now => { if (!el.isConnected) return; const k = Math.min(1, Math.max(0, (now - t0) / dur)); const v = end * (1 - Math.pow(1 - k, 3)); el.textContent = v.toLocaleString(undefined, { maximumFractionDigits: dec, minimumFractionDigits: dec }); if (k < 1) requestAnimationFrame(tick); };
+                    el.textContent = (0).toLocaleString(undefined, { minimumFractionDigits: dec, maximumFractionDigits: dec });
+                    requestAnimationFrame(tick);
+                });
+            },
+
+            closeWrapped(silent = false) {
+                const W = this._wr;
+                const el = document.getElementById('wrapped');
+                if (el) el.remove();
+                if (W) document.body.style.overflow = W.prevOverflow || '';
+                if (this._wrKey) document.removeEventListener('keydown', this._wrKey);
+                this._wr = null; this._wrKey = null;
+            },
+
+            async shareWrapped() {
+                const W = this._wr;
+                if (!W) return;
+                const D = W.D;
+                const canvas = document.createElement('canvas');
+                canvas.width = 1080; canvas.height = 1920;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return;
+                const font = (w, s) => `${w} ${s}px -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif`;
+                const g = ctx.createLinearGradient(0, 0, 0, 1920);
+                g.addColorStop(0, D.color); g.addColorStop(1, this.hexMix(D.color, '#000000', 0.55));
+                ctx.fillStyle = g; ctx.fillRect(0, 0, 1080, 1920);
+                ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.font = font(800, 44); ctx.fillText(`${D.user}'s year in coffee`, 90, 200);
+                ctx.fillStyle = '#FFFFFF'; ctx.font = font(900, 300); ctx.fillText(String(D.year), 70, 480);
+                const kg = D.grams >= 1000 ? `${this.fmtNum(D.grams / 1000, 1)} kg` : `${Math.round(D.grams)} g`;
+                const rows = [['Sessions', String(D.count)], ['Coffee', kg], ['Top coffee', D.topCoffees[0] ? D.topCoffees[0].name : '—'], ['Personality', D.persona.title], ['Monthly awards', String(D.awardCount || 0)], ['Best shot', D.best ? `${this.fmtNum(D.best.rating)}★ ${D.best.bean ? (D.best.bean.name || '') : ''}` : '—']];
+                let y = 660;
+                rows.forEach(([l, v]) => {
+                    ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = font(750, 38); ctx.fillText(l, 90, y);
+                    ctx.fillStyle = '#FFFFFF'; ctx.font = font(850, 76); ctx.fillText(this.fitText(ctx, v, 900), 90, y + 88);
+                    y += 190;
+                });
+                ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.font = font(750, 36); ctx.fillText('Logged with Dialed In', 90, 1830);
+                const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+                if (!blob) return;
+                const file = new File([blob], `dialed-in-${D.year}.png`, { type: 'image/png' });
+                try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: `${D.user}'s ${D.year} in coffee` }); return; } } catch (err) { if (err && err.name === 'AbortError') return; }
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a'); a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 4000);
             },
 
             fitText(ctx, text, max) {
@@ -9611,32 +10910,14 @@
                             ${this.renderFlavorPane(log)}
                             ${this.renderVsPane(log)}
                             ${this.renderNextPane(log)}
-                            <div class="log-wide">
-                                ${socialNote}
-                                <div class="social-bar session-social">
-                                    <div class="social-main-actions">
-                                        <button class="social-btn like-btn ${isLiked ? 'liked' : ''}${this.likePopClass('brew', log.id)}"${this.likePopStyle('brew', log.id)} onclick="app.toggleLike('${this.esc(log.id)}', event)" title="Like session">
+                            ${this.renderThread('brew', log, { inputId: `comment-input-${log.id}`, wide: true, anchorId: `comments-${log.id}`, lead: `<button class="social-btn like-btn ${isLiked ? 'liked' : ''}${this.likePopClass('brew', log.id)}"${this.likePopStyle('brew', log.id)} onclick="app.toggleLike('${this.esc(log.id)}', event)" title="Like session">
                                             <svg class="heart-icon"><use href="#i-heart"/></svg>
-                                        </button>
-                                        <button class="social-btn comment-btn" onclick="app.openThread('brew','${this.esc(log.id)}', event)" title="Comment">
-                                            <svg class="icon"><use href="#i-message-square"/></svg>
-                                            ${comments.length ? comments.length : ''}
-                                            
-                                        </button>
-                                    </div>
-                                    ${logOwner === this.user ? `
-                                        <div class="social-owner-actions">
-                                            <button class="btn-clean" onclick="app.editBrew('${this.esc(log.id)}')" title="Edit session">
+                                        </button>${socialNote}${logOwner === this.user ? `<span class="social-owner-actions"><button class="btn-clean" onclick="app.editBrew('${this.esc(log.id)}')" title="Edit session">
                                                 <svg class="icon" style="width:14px;height:14px;"><use href="#i-edit-2"/></svg>
                                             </button>
                                             <button class="btn-clean danger" onclick="app.delete('brew','${this.esc(log.id)}')" title="Delete session">
                                                 <svg class="icon" style="width:14px;height:14px;"><use href="#i-trash-2"/></svg>
-                                            </button>
-                                        </div>
-                                    ` : ''}
-                                </div>
-                            </div>
-                            ${this.renderThread('brew', log, { inputId: `comment-input-${log.id}`, wide: true, anchorId: `comments-${log.id}` })}
+                                            </button></span>` : ''}` })}
                         </div>
                     `;
                     logBox.appendChild(row);
