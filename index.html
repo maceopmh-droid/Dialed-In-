@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v12.6 -->
+<!-- Dialed In v12.7 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="12.6">
+    <meta name="dialed-in-version" content="12.7">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -3193,7 +3193,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v12.6</div>
+            <div class="app-version">Dialed In · v12.7</div>
         </div>
     </div>
 
@@ -4105,6 +4105,7 @@
                 else this.updateBadge('connecting');
                 this.watchInitials();
                 this.watchLikeLines();
+                this.installHaptics();
                 this.setTab(this.tab);
                 this.bootFromCache().then(() => {
                     if (this.user) this.sync();
@@ -7166,7 +7167,7 @@
                 for (let i = 0; i < 12; i++) {
                     const key = `${y}-${String(i + 1).padStart(2, '0')}`;
                     if (this.monthLocked(key)) break;
-                    const aw = this.crewAwards(y, i);
+                    const aw = this.crewAwardsMemo(y, i);   // v12.7: the frozen months
                     if (aw.length) months++;
                     aw.forEach(a => a.winners.forEach(n => m.set(n, (m.get(n) || 0) + 1)));
                 }
@@ -7192,10 +7193,40 @@
                 return line ? line.charAt(0).toUpperCase() + line.slice(1) : '';
             },
 
+            // ---- v12.7: everything as it stood at a moment (the event log replayed up to time t), for finished months
+            withStateAsOf(t, fn) {
+                const keep = { beans: this.beans, brews: this.brews, gear: this.gearByUser, flavors: this.customFlavors };
+                this.beans = new Map(); this.brews = new Map(); this.gearByUser = new Map(); this.customFlavors = new keep.flavors.constructor();
+                try {
+                    (this.eventLog || []).forEach(e => { const at = e && e.eventAt ? this.toTime(e.eventAt) : NaN; if (!Number.isFinite(at) || at <= t) this.applyEvent(e); });
+                    return fn();
+                } finally {
+                    this.beans = keep.beans; this.brews = keep.brews; this.gearByUser = keep.gear; this.customFlavors = keep.flavors;
+                }
+            },
+
+            // a month freezes when it closes; months that closed before the awards existed (v12.0, Oct 8 2026, 7:46 pm
+            // Central) freeze at that moment instead, so they stay exactly as everyone first saw them
+            awardsCutoff(y, m) { return Math.max(this.monthRange(y, m)[1], Date.parse('2026-10-09T00:46:16Z')); },
+
             crewAwardsMemo(y, m) {
+                const k = `${y}-${m}`;
+                const cut = this.awardsCutoff(y, m);
+                if (Date.now() >= cut) {
+                    // v12.7: a finished month: frozen at its close, so later edits can't change the winners
+                    const log = this.eventLog || [];
+                    let n = 0, last = 0;
+                    log.forEach(e => { const at = e && e.eventAt ? this.toTime(e.eventAt) : NaN; if (!Number.isFinite(at) || at <= cut) { n++; if (at > last) last = at; } });
+                    const stamp = `${n}:${last}`;
+                    if (!this._awFrozen) this._awFrozen = new Map();
+                    const hit = this._awFrozen.get(k);
+                    if (hit && hit.stamp === stamp) return hit.awards;
+                    const awards = this.withStateAsOf(cut, () => this.crewAwards(y, m));
+                    this._awFrozen.set(k, { stamp, awards });
+                    return awards;
+                }
                 const stamp = `${this.eventLog ? this.eventLog.length : 0}:${this.brews.size}:${this.beans.size}`;
                 if (!this._awMemo || this._awMemo.stamp !== stamp) this._awMemo = { stamp, map: new Map() };
-                const k = `${y}-${m}`;
                 if (!this._awMemo.map.has(k)) this._awMemo.map.set(k, this.crewAwards(y, m));
                 return this._awMemo.map.get(k);
             },
@@ -7848,7 +7879,7 @@
             },
 
             guideCue(done) {
-                try { if (navigator.vibrate) navigator.vibrate(done ? [120, 80, 120] : 90); } catch (e) {}
+                this.haptic(done ? 'finish' : 'cue');
                 if (!this.guideSound) return;
                 try {
                     const ctx = this.audioCtx || (this.audioCtx = new (window.AudioContext || window.webkitAudioContext)());
@@ -8308,6 +8339,97 @@
                 }).observe(document.body, { childList: true, subtree: true, characterData: true });
                 if (!ro) window.addEventListener('resize', () => { document.querySelectorAll(SEL).forEach(l => pending.add(l)); if (!queued) { queued = true; requestAnimationFrame(run); } });
                 document.querySelectorAll(SEL).forEach(add);
+            },
+
+            // ---- v12.7: haptics. kind: tap | tick | success | cue | warn | finish
+            haptic(kind = 'tap') {
+                try {
+                    if (localStorage.getItem('dialed_haptics') === 'off') return;
+                } catch (e) {}
+                const now = Date.now();
+                if (kind === 'tick' && now - (this._hapticAt || 0) < 35) return;
+                this._hapticAt = now;
+                this._hapticLog = (this._hapticLog || []).concat([kind]).slice(-50);
+                const buzz = { tap: 10, tick: 5, success: [12, 70, 18], cue: 90, warn: [25, 60, 25, 60, 25], finish: [120, 80, 120] }[kind] || 10;
+                try {
+                    if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') { navigator.vibrate(buzz); return; }
+                } catch (e) {}
+                const clicks = { success: 2, cue: 2, warn: 3, finish: 3 }[kind] || 1;
+                for (let i = 0; i < clicks; i++) { if (i === 0) this.hapticClick(); else setTimeout(() => this.hapticClick(), i * 120); }
+            },
+
+            hapticClick() {
+                try {
+                    let label = this._hapticEl;
+                    if (!label || !label.isConnected) {
+                        label = document.createElement('label');
+                        label.setAttribute('aria-hidden', 'true');
+                        label.setAttribute('data-haptic', '');
+                        label.style.display = 'none';
+                        const input = document.createElement('input');
+                        input.type = 'checkbox';
+                        input.setAttribute('switch', '');
+                        input.tabIndex = -1;
+                        label.appendChild(input);
+                        const quiet = e => e.stopPropagation();
+                        label.addEventListener('click', quiet);
+                        input.addEventListener('click', quiet);
+                        input.addEventListener('change', quiet);
+                        document.head.appendChild(label);
+                        this._hapticEl = label;
+                    }
+                    label.click();
+                } catch (e) {}
+            },
+
+            // wrap an action so it buzzes when it really did something; only the outermost action buzzes
+            installHaptics() {
+                if (this._hapticsOn) return;
+                this._hapticsOn = true;
+                const app = this;
+                let depth = 0;
+                const wrap = (name, decide) => {
+                    const orig = app[name];
+                    if (typeof orig !== 'function') return;
+                    app[name] = function (...args) {
+                        const before = depth === 0 ? decide.before.apply(app, args) : undefined;
+                        depth++;
+                        let out;
+                        try { out = orig.apply(app, args); } finally { depth--; }
+                        if (depth === 0) { try { const k = decide.after.call(app, before, args, out); if (k) app.haptic(k); } catch (e) {} }
+                        return out;
+                    };
+                };
+                const always = kind => ({ before() {}, after() { return kind; } });
+                const pushes = kind => ({ before() { return app._pushCount || 0; }, after(b) { return (app._pushCount || 0) > b ? kind : null; } });
+                const liked = (list) => (list || []).includes(app.user);
+                // count pushes (the sign an action went through)
+                const push = app.push;
+                app.push = function (...args) { app._pushCount = (app._pushCount || 0) + 1; return push.apply(app, args); };
+                wrap('toggleLike', { before(id) { const b = app.brews.get(String(id)); return b ? liked(app.normalizeLikeList(b.likes, app.getBrewOwner(b))) : true; }, after(was) { return was ? null : 'tap'; } });
+                wrap('toggleBeanLike', { before(id) { const b = app.beans.get(String(id)); return b ? liked(app.normalizeLikeList(b.likes, String(b.user || b.owner || ''))) : true; }, after(was) { return was ? null : 'tap'; } });
+                wrap('toggleCommentLike', {
+                    before(kind, id, cid) {
+                        const t = kind === 'bean' ? app.beans.get(String(id)) : app.brews.get(String(id));
+                        const c = t && app.normalizeCommentList(t.comments, `${kind}-${id}`, t.date).find(x => x.id === String(cid));
+                        return c ? c.likes.includes(app.user) : true;
+                    },
+                    after(was) { return was ? null : 'tap'; }
+                });
+                ['toggleWantToTry', 'pickNote', 'setWheel', 'toggleTimer', 'guideStartPause', 'guideNext', 'finishGuide', 'useRecipe', 'cloneLatestSession', 'toggleGuideSound'].forEach(n => wrap(n, always('tap')));
+                // Reset only when you press it (opening a new log resets the timer quietly)
+                const pressed = fn => { const ev = typeof window !== 'undefined' ? window.event : null; const t = ev && ev.target; return !!(t && t.closest && t.closest(`[onclick*="${fn}("]`)); };
+                wrap('resetTimer', { before() {}, after() { return pressed('resetTimer') ? 'tap' : null; } });
+                wrap('setRecipeLock', { before() { return app.recipeLock; }, after(b) { return app.recipeLock !== b ? 'tap' : null; } });
+                wrap('cycleNote', always('tick'));
+                wrap('onTasteInput', always('tick'));   // only ever called as you move a taste slider
+                wrap('updateRatingDisplay', { before() {}, after() { const ev = typeof window !== 'undefined' ? window.event : null; return ev && ev.type === 'input' && ev.target && ev.target.id === 'rating-slider' ? 'tick' : null; } });   // not when a form opens
+                wrap('onBrewFormInput', { before() {}, after(b, [e]) { const t = e && e.target; return t && t.type === 'checkbox' ? 'tap' : null; } });
+                ['handleBrewSubmit', 'handleBeanSubmit', 'handleMasterSubmit', 'addComment', 'addBeanComment'].forEach(n => wrap(n, pushes('success')));
+                wrap('saveRecipe', { before() { return app.myRecipes().length; }, after(b) { return app.myRecipes().length > b ? 'success' : null; } });
+                wrap('revealAwards', always('success'));
+                ['delete', 'deleteBean', 'removeComment', 'removeBeanComment', 'unpinMaster'].forEach(n => wrap(n, pushes('warn')));
+                wrap('deleteRecipe', { before() { return app.myRecipes().length; }, after(b) { return app.myRecipes().length < b ? 'warn' : null; } });
             },
 
             renderThread(kind, target, opts = {}) {
