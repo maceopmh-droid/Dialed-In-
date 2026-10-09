@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v12.4 -->
+<!-- Dialed In v12.5 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="12.4">
+    <meta name="dialed-in-version" content="12.5">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -2831,6 +2831,38 @@
         :root[data-theme="dark"] .flv-note.fam-chip { background: rgba(var(--fc-rgb), 0.24); }
         .flv-note.fam-chip > i { display: none; }
         .flv-note.fam-chip .flv-dots b.on { background: rgb(var(--fc-rgb)); }
+
+        /* ===== v12.5: one rule for shading ===== */
+        /* plain information on a card: flat tints, no shine, no shadow */
+        .fam-chip { background: rgba(var(--fc-rgb), 0.13); border-color: rgba(var(--fc-rgb), 0.22); box-shadow: none; }
+        :root[data-theme="dark"] .fam-chip { background: rgba(var(--fc-rgb), 0.22); border-color: rgba(var(--fc-rgb), 0.3); box-shadow: none; }
+        .sc-method, :root[data-theme="dark"] .sc-method { background: rgba(var(--matcha-rgb), 0.09); border-color: transparent; box-shadow: none; }
+        .pick.fam-pick { background: rgba(var(--fc-rgb), 0.12); border-color: rgba(var(--fc-rgb), 0.24); color: var(--fc-ink); }
+        :root[data-theme="dark"] .pick.fam-pick { background: rgba(var(--fc-rgb), 0.22); border-color: rgba(var(--fc-rgb), 0.3); color: var(--fc-ink-d); }
+        .pick.fam-pick .pick-dot { display: none; }
+        /* options in a row: flat until picked ... */
+        .person-chip { background: rgba(var(--hair-rgb), 0.05); border-color: transparent; }
+        .chip-btn:not([aria-pressed="true"]), .note-chip:not([aria-pressed="true"]) { background: rgba(var(--hair-rgb), 0.045); box-shadow: none; }
+        /* ... shaded when picked, like the active tab */
+        .chip-btn[aria-pressed="true"], .note-chip[aria-pressed="true"], .verdict-chip.selected { background: var(--grad-matcha); color: var(--on-matcha); border-color: transparent; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 12px rgba(var(--matcha-rgb), 0.26); }
+        .person-chip.active { background: var(--surface); border-color: rgba(var(--matcha-rgb), 0.45); box-shadow: 0 0 0 2px rgba(var(--matcha-rgb), 0.12), var(--shadow-soft); }
+        .card-tab.active, .insight-tab.active, .filter-chip.active, .sort-option.selected { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 12px rgba(var(--matcha-rgb), 0.26); }
+        /* buttons on their own: raised, the same as Library and edit / delete */
+        .btn-outline, .thread.compact:not(.open) .thread-toggle, .cal-btn { background: linear-gradient(180deg, rgba(var(--glass-rgb), 0.96), rgba(var(--glass-rgb), 0.78)); box-shadow: inset 0 0 0 1px rgba(var(--hair-rgb), 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 6px 16px rgba(var(--hair-rgb), 0.08); }
+        .btn-outline { border-color: transparent; }
+        :root[data-theme="dark"] .btn-outline, :root[data-theme="dark"] .thread.compact:not(.open) .thread-toggle, :root[data-theme="dark"] .cal-btn { background: linear-gradient(180deg, rgba(var(--hair-rgb), 0.11), rgba(var(--hair-rgb), 0.06)); box-shadow: inset 0 0 0 1px rgba(var(--hair-rgb), 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 6px 16px rgba(0, 0, 0, 0.22); }
+        .btn-outline[style*="background:none"], :root[data-theme="dark"] .btn-outline[style*="background:none"] { box-shadow: none; }
+        .btn-outline:active, .thread.compact:not(.open) .thread-toggle:active, .cal-btn:active { transform: scale(0.97); }
+        .cal-btn:disabled, :root[data-theme="dark"] .cal-btn:disabled { box-shadow: inset 0 0 0 1px rgba(var(--hair-rgb), 0.09); }
+        .equipment-edit, .equipment-delete, .user-delete { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 4px 12px rgba(var(--hair-rgb), 0.14); }
+        .user-delete:disabled { box-shadow: none; }
+        /* award tiles on phones that don't know color-mix */
+        @supports not (background: color-mix(in srgb, red 50%, blue)) {
+            .aw-tile { background: rgba(var(--ac-rgb, 138, 149, 140), 0.09); border-color: rgba(var(--ac-rgb, 138, 149, 140), 0.22); }
+            :root[data-theme="dark"] .aw-tile { background: rgba(var(--ac-rgb, 138, 149, 140), 0.14); }
+            .aw-icon { box-shadow: 0 6px 14px rgba(var(--ac-rgb, 138, 149, 140), 0.32); }
+            .aw-tile .aw-stat { color: var(--ink); }
+        }
     </style>
 </head>
 <body>
@@ -3129,7 +3161,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v12.4</div>
+            <div class="app-version">Dialed In · v12.5</div>
         </div>
     </div>
 
@@ -7144,7 +7176,7 @@
                 return awards.map((aw, i) => {
                     const rival = opts.rivalry ? opts.rivalry(aw) : '';
                     return `
-                    <div class="aw-tile${compact ? ' compact' : ''}${opts.sealed ? ' sealed' : ''}" style="--ac:${this.esc(aw.color)};--i:${i}">
+                    <div class="aw-tile${compact ? ' compact' : ''}${opts.sealed ? ' sealed' : ''}" style="--ac:${this.esc(aw.color)};--ac-rgb:${this.hexRgb(aw.color)};--i:${i}">
                         <span class="aw-icon"><svg class="icon"><use href="#${this.esc(aw.icon)}"/></svg></span>
                         <div class="aw-body"><div class="aw-title">${this.esc(aw.title)}</div>
                         <div class="aw-win">${opts.sealed ? '<b class="aw-face" style="background:var(--text-faint)">?</b>Sealed' : aw.winners.map(n => `<b class="aw-face" style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</b>${this.esc(n)}`).join('<span class="aw-amp">&amp;</span>')}</div>
@@ -7170,7 +7202,7 @@
                     const unlock = new Date(y, m, 1);
                     const days = this.daysUntil(unlock);
                     const ghosts = [['i-sun', '#E3AE45'], ['i-medal', '#C49A2C'], ['i-moon', '#6A7FC1'], ['i-flame', '#E0663A'], ['i-compass', '#5F8FDB'], ['i-star', '#36A57F']]
-                        .map(([icon, c]) => `<div class="aw-tile" style="--ac:${c}"><span class="aw-icon"><svg class="icon"><use href="#${icon}"/></svg></span><div class="aw-body" style="flex:1"><span class="aw-ghost-bar" style="width:70%"></span><span class="aw-ghost-bar" style="width:45%"></span></div></div>`).join('');
+                        .map(([icon, c]) => `<div class="aw-tile" style="--ac:${c};--ac-rgb:${this.hexRgb(c)}"><span class="aw-icon"><svg class="icon"><use href="#${icon}"/></svg></span><div class="aw-body" style="flex:1"><span class="aw-ghost-bar" style="width:70%"></span><span class="aw-ghost-bar" style="width:45%"></span></div></div>`).join('');
                     return `
                     <div class="profile-card crew-awards" id="crew-awards">
                         ${head(`In progress · unlocks ${this.esc(this.unlockLabel(unlock))}`)}
@@ -9118,6 +9150,12 @@
                 const p = METHOD_PROFILES[method] || METHOD_PROFILES.Espresso;
                 const set = (id, t) => { const el = document.getElementById(id); if (el) el.textContent = t; };
                 set('master-lbl-dose', p.dose); set('master-lbl-yield', p.yld); set('master-lbl-time', p.time);
+            },
+
+            // "r, g, b" for a #hex color (so tints work without color-mix)
+            hexRgb(hex) {
+                const s = String(this.normalizeHexColor(hex) || '#8A958C').slice(1);
+                return [0, 2, 4].map(i => parseInt(s.slice(i, i + 2), 16)).join(', ');
             },
 
             renderDetailExtras(group, brews) {
@@ -11123,7 +11161,7 @@
                         const lv = this.noteIntensity[nm] || 2;
                         const at = this.noteLocate(nm);
                         const color = at ? NOTE_WHEEL[at.f].color : 'var(--text-muted)';
-                        return `<span class="pick" style="--fc:${color}"><i class="pick-dot"></i>${this.esc(nm)}<button type="button" class="dots" onclick="app.cycleNote('${this.esc(nm)}', event)" aria-label="${this.esc(nm)} strength ${lv} of 3">${[1, 2, 3].map(i => `<i class="${i <= lv ? 'on' : ''}"></i>`).join('')}</button><button type="button" class="x" onclick="app.pickNote('${this.esc(nm)}', event)" aria-label="Remove ${this.esc(nm)}">×</button></span>`;
+                        return `<span class="pick fam-pick" style="--fc:${color};${this.famVars(/^#/.test(color) ? color : '#7D8984')}"><i class="pick-dot"></i>${this.esc(nm)}<button type="button" class="dots" onclick="app.cycleNote('${this.esc(nm)}', event)" aria-label="${this.esc(nm)} strength ${lv} of 3">${[1, 2, 3].map(i => `<i class="${i <= lv ? 'on' : ''}"></i>`).join('')}</button><button type="button" class="x" onclick="app.pickNote('${this.esc(nm)}', event)" aria-label="Remove ${this.esc(nm)}">×</button></span>`;
                     }).join('')}</div>` : '';
                 }
                 const hints = document.getElementById('note-hints');
