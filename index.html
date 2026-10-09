@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v12.1 -->
+<!-- Dialed In v12.2 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="12.1">
+    <meta name="dialed-in-version" content="12.2">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -2503,7 +2503,8 @@
         .aw-crown .icon { width: 21px; height: 21px; }
         .aw-champ-title { font-size: 0.98rem; font-weight: 800; color: var(--ink); letter-spacing: -0.01em; }
         .aw-champ-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 3px; font-size: 0.76rem; font-weight: 650; color: var(--text-muted); }
-        .aw-champ-sub .aw-face, .aw-race .aw-face { width: 17px; height: 17px; font-size: 0.55rem; margin-right: 3px; vertical-align: -3px; }
+        .aw-champ-sub > span, .aw-race > span:not(.aw-race-label) { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+        .aw-champ-sub .aw-face, .aw-race .aw-face { flex-shrink: 0; width: 18px; height: 18px; font-size: 0.58rem; }
         .aw-race { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--linen); font-size: 0.76rem; font-weight: 650; color: var(--text-muted); }
         .aw-race-label { color: var(--ink-2); font-weight: 750; }
         .aw-locked { position: relative; min-height: 236px; border-radius: 16px; overflow: hidden; }
@@ -2707,8 +2708,104 @@
         @media (max-width: 768px) { .feed-list { gap: 13px; } }
 
         /* ===== centered initials (v12.0) ===== */
-        .feed-avatar, .cmt-avatar, .person-dot, .hero-avatar, .aw-face, .cq-face b, .thread-faces i, .wr-face, .wr-who b, .mrc-face { letter-spacing: 0; text-indent: 0; }
+        .feed-avatar, .cmt-avatar, .person-dot, .hero-avatar, .aw-face, .cq-face b, .thread-faces i, .wr-face, .wr-who b, .mrc-face, .dh-faces i { letter-spacing: 0; text-indent: 0; }
         .ini { display: inline-block; line-height: 1; will-change: auto; }
+
+        /* ===== coffee page header (v12.2) ===== */
+        .detail-hero { padding: calc(1.6rem + var(--safe-top)) 3rem 2.4rem; }
+        .dh-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 36px; margin-bottom: 14px; }
+        .dh-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+        .detail-hero .hero-actions { position: static; top: auto; right: auto; gap: 8px; }
+        .detail-hero .hero-actions .btn-clean { width: 36px; height: 36px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 6px 16px rgba(var(--hair-rgb), 0.08); }
+        .detail-hero .hero-actions .btn-clean .icon { width: 15px; height: 15px; }
+        .dh-pill { display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 15px 0 12px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink); background: linear-gradient(180deg, rgba(var(--glass-rgb), 0.92), rgba(var(--glass-rgb), 0.7)); border: 1px solid rgba(var(--hair-rgb), 0.1); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 6px 16px rgba(var(--hair-rgb), 0.08); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); transition: background 0.2s, color 0.2s, box-shadow 0.2s; }
+        .dh-pill .icon { width: 14px; height: 14px; flex-shrink: 0; }
+        .dh-pill:active { transform: scale(0.97); }
+        .dh-want { color: var(--matcha-ink); }
+        .dh-want.active { color: var(--on-matcha); background: var(--grad-matcha); border-color: transparent; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 6px 16px rgba(var(--matcha-rgb), 0.3); }
+        .dh-want.active .icon { fill: currentColor; }
+        .dh-name-row { display: flex; align-items: flex-start; gap: 12px; }
+        .dh-name-row #d-name { flex: 1; min-width: 0; margin: 0; line-height: 1.12; overflow-wrap: break-word; }
+        .dh-stars { flex-shrink: 0; margin: calc((2.2rem * 1.12 - 34px) / 2) 0 0; padding: 0 6px 0 11px; height: 34px; gap: 7px; border-radius: 999px; font-size: 0.82rem; }
+        .dh-stars .star-meter { font-size: 0.78rem; letter-spacing: 1px; }
+        .dh-avg { font-weight: 800; color: var(--matcha-ink); }
+        .dh-n { padding-left: 7px; border-left: 1px solid rgba(var(--matcha-rgb), 0.28); color: var(--text-muted); font-weight: 750; line-height: 1.1; }
+        .dh-faces { display: inline-flex; align-items: center; padding-left: 1px; }
+        .dh-stars > .dh-faces:first-child { margin-left: -5px; }
+        .dh-faces i { width: 22px; height: 22px; border-radius: 50%; display: inline-grid; place-items: center; font-style: normal; font-size: 0.6rem; font-weight: 800; color: #fff; box-shadow: 0 0 0 2px var(--surface), 0 3px 8px rgba(var(--hair-rgb), 0.18); position: relative; }
+        .dh-faces i + i { margin-left: -5px; }
+        .dh-faces i.more { background: var(--surface-2); color: var(--ink-2); font-size: 0.56rem; }
+        .dh-name-row.dh-wrap { flex-wrap: wrap; row-gap: 9px; }
+        .dh-name-row.dh-wrap #d-name { flex-basis: 100%; }
+        .dh-name-row.dh-wrap .dh-stars { margin-top: 0; }
+        .dh-name-row.dh-wrap + .dh-roaster { margin-top: 9px; }
+        .dh-roaster { color: var(--text-muted); font-size: 1.02rem; font-weight: 500; margin: 5px 0 12px; }
+        .detail-hero .roast-date-line { margin: -6px 0 10px; }
+        .dh-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+        .dh-tags .tag { margin: 0; }
+        .dh-tags .tag[hidden] { display: none; }
+        .dh-flavors { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+        .dh-flavors:empty { display: none; }
+        /* flavor chips colored by family, shaded, no dots (coffee page + session cards) */
+        .fam-chip { display: inline-flex; align-items: center; font-size: 0.74rem; font-weight: 700; line-height: 1.2; padding: 4px 10px; border-radius: 999px; color: var(--fc-ink); background: linear-gradient(180deg, rgba(var(--fc-rgb), 0.19), rgba(var(--fc-rgb), 0.1)); border: 1px solid rgba(var(--fc-rgb), 0.26); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 2px 6px rgba(var(--fc-rgb), 0.1); white-space: nowrap; }
+        :root[data-theme="dark"] .fam-chip { color: var(--fc-ink-d); background: linear-gradient(180deg, rgba(var(--fc-rgb), 0.3), rgba(var(--fc-rgb), 0.16)); border-color: rgba(var(--fc-rgb), 0.38); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 2px 8px rgba(0, 0, 0, 0.2); }
+        @media (max-width: 768px) {
+            .detail-hero { padding: calc(1rem + var(--safe-top)) 1.05rem 1.2rem; }
+            .dh-stars { margin-top: calc((1.8rem * 1.12 - 34px) / 2); }
+        }
+
+        /* ===== session card, recipe strip (v12.2) ===== */
+        .sc-card .feed-head { gap: 10px; }
+        .sc-card .feed-avatar { width: 32px; height: 32px; }
+        .sc-method { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px 5px 8px; text-transform: none; letter-spacing: 0.01em; font-size: 0.72rem; font-weight: 750; color: var(--matcha-ink); background: linear-gradient(180deg, rgba(var(--matcha-rgb), 0.13), rgba(var(--matcha-rgb), 0.07)); border: 1px solid rgba(var(--matcha-rgb), 0.16); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4); }
+        :root[data-theme="dark"] .sc-method { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06); }
+        .sc-method .method-icon { display: block; width: 14px; height: 14px; flex-shrink: 0; }
+        .sc-title { display: flex; align-items: flex-start; gap: 12px; margin: 11px 0 10px; }
+        .sc-name { flex: 1; min-width: 0; }
+        .sc-card .feed-card-title { margin: 0; font-size: 1.14rem; font-weight: 800; letter-spacing: -0.015em; line-height: 1.2; overflow-wrap: anywhere; }
+        .sc-roaster { margin-top: 2px; font-size: 0.78rem; font-weight: 600; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sc-rate { flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; margin-top: 2px; }
+        .sc-rate .star-meter { font-size: 0.8rem; letter-spacing: 1px; }
+        .sc-rate b { font-size: 0.86rem; font-weight: 800; color: var(--gold); }
+        .sc-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; padding: 0; font-size: inherit; font-weight: inherit; border-radius: 14px; background: linear-gradient(180deg, rgba(var(--matcha-rgb), 0.085), rgba(var(--matcha-rgb), 0.035)); border: 1px solid rgba(var(--matcha-rgb), 0.13); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 4px 14px rgba(var(--matcha-rgb), 0.06); overflow: hidden; }
+        :root[data-theme="dark"] .sc-strip { background: linear-gradient(180deg, rgba(var(--matcha-rgb), 0.16), rgba(var(--matcha-rgb), 0.07)); border-color: rgba(var(--matcha-rgb), 0.22); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 14px rgba(0, 0, 0, 0.16); }
+        .sc-cell { min-width: 0; padding: 9px 10px 8px; display: flex; flex-direction: column; gap: 2px; }
+        .sc-cell + .sc-cell { box-shadow: inset 1px 0 0 rgba(var(--matcha-rgb), 0.14); }
+        .sc-cell b { font-size: 1.06rem; font-weight: 800; color: var(--ink); letter-spacing: -0.01em; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sc-cell b small { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); margin-left: 1px; }
+        .sc-cell span { font-size: 0.66rem; font-weight: 650; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sc-cell span em { font-style: normal; font-weight: 750; color: var(--matcha-ink); }
+        .sc-notes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+        .sc-gear { margin-top: 9px; font-size: 0.74rem; font-weight: 600; color: var(--text-muted); line-height: 1.35; }
+        .sc-gear i { display: inline-block; width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: 0.55; vertical-align: middle; margin: 0 7px; }
+        .sc-card .session-photo-wrap { margin-top: 11px; }
+        .sc-card .feed-card-body .card-tabs { margin: 2px -12px -14px; }
+        .sc-card .feed-note { margin-top: 10px; }
+
+        /* ===== speed (v12.2) ===== */
+        .cq-bar.grow-wait .cq-paint { clip-path: inset(0 var(--cq-r0) 0 0 round 999px); }
+        .cq-bar.grow-wait .cq-glow { clip-path: inset(-24px calc(var(--cq-r0) - 24px) -24px -24px round 999px); }
+        /* favorites: plain block layout (no flex inside the button, which some Safari versions shrink-wrap) and a true
+           square from the column width without relying on aspect-ratio */
+        .fab-tile { display: block; width: 100%; box-sizing: border-box; align-self: start; }
+        .fab-tile > .fab-art { display: block; width: 100%; height: 0; padding: 0 0 100%; aspect-ratio: auto; box-sizing: border-box; }
+        .fab-tile > .fab-art.empty { padding-bottom: calc(100% - 3px); }
+        .fab-tile > .fab-art > b, .fab-tile > .fab-art > .icon { position: absolute; left: 50%; top: 50%; -webkit-transform: translate(-50%, -50%); transform: translate(-50%, -50%); margin: 0; white-space: nowrap; }
+        .fab-tile > .fab-art::after { top: 0; right: 0; bottom: 0; left: 0; }
+        .fab-tile > .fab-name { margin-top: 5px; }
+        .fab-tile > .fab-roaster { display: block; margin-top: 2px; }
+
+        /* ===== coffee names in New York (v12.2) ===== */
+        :root { --font-bean: ui-serif, -apple-system-ui-serif, "New York", "Iowan Old Style", Georgia, serif; }
+        #d-name, .feed-card-title, .lib-name, .fab-tile:not(.empty) .fab-name, .fp-main b, .wr-bean, .wr-rank .t { font-family: var(--font-bean); }
+        .wr-rank .t .s { font-family: var(--font-main); }
+        #d-name { font-weight: 600; letter-spacing: -0.012em; }
+        .sc-card .feed-card-title { font-size: 1.24rem; font-weight: 600; letter-spacing: -0.006em; line-height: 1.18; }
+        .feed-card-title { font-weight: 600; letter-spacing: -0.004em; }
+        .lib-name { font-weight: 600 !important; letter-spacing: -0.01em; }
+        .fab-tile:not(.empty) .fab-name { font-weight: 600; font-size: 0.8rem; }
+        .fp-main b { font-weight: 600; }
+        .wr-bean { font-weight: 700; letter-spacing: -0.02em; }
     </style>
 </head>
 <body>
@@ -2726,7 +2823,7 @@
         <symbol id="i-edit-2" viewBox="0 0 24 24"><path d="M4.5 19.5l.9-4L15.6 5.3a2 2 0 0 1 2.9 0l.2.2a2 2 0 0 1 0 2.9L8.5 18.6Z"/><path d="M13.8 7.1l3.1 3.1"/></symbol>
         <symbol id="i-trash-2" viewBox="0 0 24 24"><path d="M4.5 7h15"/><path d="M9.5 7V4.6h5V7"/><path d="M6.5 7l.8 12a2 2 0 0 0 2 1.9h5.4a2 2 0 0 0 2-1.9l.8-12"/><path d="M10.2 11v6M13.8 11v6"/></symbol>
         <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6.5 9.5 5.5 5.5 5.5-5.5"/></symbol>
-        <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 19.6s-7.3-4.4-7.3-9.6A4.1 4.1 0 0 1 12 7.6a4.1 4.1 0 0 1 7.3 2.4c0 5.2-7.3 9.6-7.3 9.6Z"/></symbol>
+        <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M7.2 4h9.6a1.2 1.2 0 0 1 1.2 1.2V20l-6-3.9L6 20V5.2A1.2 1.2 0 0 1 7.2 4Z"/></symbol><symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 19.6s-7.3-4.4-7.3-9.6A4.1 4.1 0 0 1 12 7.6a4.1 4.1 0 0 1 7.3 2.4c0 5.2-7.3 9.6-7.3 9.6Z"/></symbol>
         <symbol id="i-message-square" viewBox="0 0 24 24"><path d="M20 11.6a7.6 7.6 0 0 1-11.1 6.7L4.2 19.6l1.3-4.3A7.6 7.6 0 1 1 20 11.6Z"/></symbol>
         <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5.5M11 6.5 5.5 12l5.5 5.5"/></symbol>
         <symbol id="i-bean-line" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="6.1" ry="8.7" transform="rotate(35 12 12)"/><path d="M9.3 5.9c2.3 2.4.3 4.4 2.5 6.2s.7 4.3 2.9 6"/></symbol>
@@ -2880,28 +2977,29 @@
     <!-- Detail View -->
     <div id="detail-view">
         <div class="detail-hero">
-            <button class="btn-outline" style="margin-bottom:1.5rem; display:flex; gap:10px; align-items:center; width:auto;" onclick="app.closeDetail()">
-                <svg class="icon" style="width:14px;height:14px;"><use href="#i-arrow-left"/></svg> Library
-            </button>
-            <div class="hero-actions">
-                <button class="btn-clean" onclick="app.editBean()"><svg class="icon"><use href="#i-edit-2"/></svg></button>
-                <button class="btn-clean danger" onclick="app.deleteBean()"><svg class="icon"><use href="#i-trash-2"/></svg></button>
+            <div class="dh-top">
+                <button type="button" class="dh-pill dh-back" onclick="app.closeDetail()"><svg class="icon"><use href="#i-arrow-left"/></svg>Library</button>
+                <div class="dh-actions">
+                    <button type="button" id="d-want-btn" class="dh-pill dh-want" onclick="app.toggleWantToTry()" style="display:none;" aria-pressed="false"><svg class="icon"><use href="#i-bookmark"/></svg><span>Want to try</span></button>
+                    <div class="hero-actions">
+                        <button class="btn-clean" onclick="app.editBean()" aria-label="Edit coffee"><svg class="icon"><use href="#i-edit-2"/></svg></button>
+                        <button class="btn-clean danger" onclick="app.deleteBean()" aria-label="Delete coffee"><svg class="icon"><use href="#i-trash-2"/></svg></button>
+                    </div>
+                </div>
             </div>
-            <h2 id="d-name">Name</h2>
-            <div id="d-roaster" style="color:var(--text-muted); font-size:1.1rem; margin-top:8px; font-weight:500; margin-bottom: 1rem;">Roaster</div>
+            <div class="dh-name-row">
+                <h2 id="d-name">Name</h2>
+                <div id="d-rating-summary" class="rating-summary liquid-glass dh-stars"></div>
+            </div>
+            <div id="d-roaster" class="dh-roaster">Roaster</div>
             <div id="d-roast-date" class="roast-date-line" style="display:none;"></div>
-            
-            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 1rem;">
+            <div class="dh-tags">
                 <span class="tag" id="d-variety">-</span>
                 <span class="tag" id="d-origin">-</span>
                 <span class="tag" id="d-process">-</span>
                 <span class="tag" id="d-roast">-</span>
             </div>
-            <div id="d-rating-summary" class="rating-summary liquid-glass"></div>
-
-            <!-- Top 3 Flavors in Detail Hero -->
-            <div id="d-top-flavors" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom: 1.5rem;"></div>
-            <div class="want-row"><button type="button" id="d-want-btn" class="want-btn" onclick="app.toggleWantToTry()" style="display:none;">Want to Try</button><span id="d-want-line" class="want-line"></span></div>
+            <div id="d-top-flavors" class="dh-flavors"></div>
 
             <div style="display:grid; grid-template-columns:1fr auto; gap:8px;">
                 <button class="btn-primary" onclick="app.openBrewModal()">
@@ -3006,7 +3104,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v12.1</div>
+            <div class="app-version">Dialed In · v12.2</div>
         </div>
     </div>
 
@@ -3310,7 +3408,7 @@
             ['balance', 'Complexity', ['Simple', 'Some depth', 'Layered']]
         ];
         const TASTE_KEYS = TASTE_META.map(m => m[0]);
-        const INITIAL_SEL = '.feed-avatar, .cmt-avatar, .person-dot, .hero-avatar, .aw-face, .cq-face b, .thread-faces i, .wr-face, .wr-who b, .mrc-face';
+        const INITIAL_SEL = '.feed-avatar, .cmt-avatar, .person-dot, .hero-avatar, .aw-face, .cq-face b, .thread-faces i, .wr-face, .wr-who b, .mrc-face, .dh-faces i';
 
         // ---- per-method logging (v11): same form, labels and extras change with the method
         const METHOD_PROFILES = {
@@ -3831,7 +3929,8 @@
             centerInitials(root) {
                 if (typeof document === 'undefined' || typeof getComputedStyle !== 'function') return;
                 const scope = root && root.querySelectorAll ? root : document;
-                const els = scope.querySelectorAll(INITIAL_SEL);
+                const els = [...scope.querySelectorAll(INITIAL_SEL)];
+                if (root && root.matches && root.matches(INITIAL_SEL)) els.unshift(root);
                 if (!els.length) return;
                 if (!this._icCtx) { const c = document.createElement('canvas'); this._icCtx = c.getContext ? c.getContext('2d') : null; this._icCache = new Map(); }
                 const ctx = this._icCtx;
@@ -3882,9 +3981,17 @@
 
             watchInitials() {
                 if (typeof MutationObserver === 'undefined' || typeof document === 'undefined' || !document.body) return;
+                // v12.2: only what was just added gets looked at
+                const roots = new Set();
                 let queued = false;
-                const run = () => { queued = false; this.centerInitials(); };
-                new MutationObserver(() => { if (queued) return; queued = true; requestAnimationFrame(run); }).observe(document.body, { childList: true, subtree: true });
+                const run = () => { queued = false; const list = [...roots]; roots.clear(); list.forEach(r => { if (r.isConnected) this.centerInitials(r); }); };
+                new MutationObserver(recs => {
+                    recs.forEach(r => r.addedNodes.forEach(n => {
+                        if (n.nodeType === 1) { if (!n.classList.contains('ini')) roots.add(n); }
+                        else if (n.nodeType === 3 && n.parentElement) roots.add(n.parentElement);
+                    }));
+                    if (roots.size && !queued) { queued = true; requestAnimationFrame(run); }
+                }).observe(document.body, { childList: true, subtree: true });
                 this.centerInitials();
             },
 
@@ -4324,6 +4431,7 @@
                             src="${this.esc(src)}"
                             alt="Session photo"
                             loading="lazy"
+                            decoding="async"
                             data-fallback-index="0"
                             data-fallbacks="${this.esc(fallbacks.join('|'))}"
                             onerror="app.handlePhotoFallback(this)"
@@ -5484,7 +5592,7 @@
                 if (document.getElementById('brew-modal') && document.getElementById('brew-modal').classList.contains('active')) this.renderNotePicker();
             },
 
-            async push(payload) {
+            async push(payload, opts = {}) {
                 const waitForFresh = this.shouldWaitForFreshData(payload);
                 const base = waitForFresh ? this.recordFor(payload) : null;
                 const now = new Date().toISOString();
@@ -5504,9 +5612,13 @@
                 this.optimisticPending = true;
                 this.eventLog = [...this.eventLog, event].sort((a, b) => this.toTime(a.eventAt || a.date) - this.toTime(b.eventAt || b.date));
                 this.feedEntries = this.buildFeedEntries(this.eventLog);
-                this.render();
-                if (document.getElementById('detail-view').classList.contains('active') && this.activeGroup) {
-                    this.refreshDetail();
+                if (opts.quiet && this.patchLikeDom(payload.id)) {
+                    this.gridStale = true;   // drawn in place; the next sync tidies anything else
+                } else {
+                    this.render();
+                    if (document.getElementById('detail-view').classList.contains('active') && this.activeGroup) {
+                        this.refreshDetail();
+                    }
                 }
 
                 if (waitForFresh) {
@@ -6467,8 +6579,8 @@
                 const key = `${q.start}:${q.type}`;
                 const grow = this.crewGrowFor(key, total);
                 const loopT = done ? this.crewLoopElapsed() : null;
-                const cls = ['cq-bar', done ? 'done' : '', grow ? 'grow' : '', loopT !== null ? 'loop' : ''].filter(Boolean).join(' ');
-                const style = [`--cq-g:${g}`, `--cq-r1:${pct(1 - total)}`, grow ? `--cq-r0:${pct(1 - grow.from)}` : '', grow ? `--cq-grow-at:${-grow.t}ms` : '', loopT !== null ? `--cq-loop-at:${-loopT}ms` : ''].filter(Boolean).join(';');
+                const cls = ['cq-bar', done ? 'done' : '', grow ? (grow.wait ? 'grow-wait' : 'grow') : '', loopT !== null ? 'loop' : ''].filter(Boolean).join(' ');
+                const style = [`--cq-g:${g}`, `--cq-r1:${pct(1 - total)}`, grow ? `--cq-r0:${pct(1 - grow.from)}` : '', grow && !grow.wait ? `--cq-grow-at:${-grow.t}ms` : '', loopT !== null ? `--cq-loop-at:${-loopT}ms` : ''].filter(Boolean).join(';');
                 return `<div class="${cls}" ${aria} style="${this.esc(style)}" title="${this.esc(parts.map(s => s.p).join(', '))}"><div class="cq-layer cq-glow"><i class="cq-g"></i></div><div class="cq-layer cq-paint"><i class="cq-g"></i>${done ? '<i class="cq-sheen"></i>' : ''}</div></div>`;
             },
 
@@ -6480,6 +6592,7 @@
             crewGrowFor(key, total) {
                 const G = this._cqGrow;
                 if (G && G.key === key && Math.abs(G.to - total) < 1e-6) {
+                    if (!G.at) { this.startCrewGrowSoon(); return { from: G.from, wait: true }; }
                     const t = Date.now() - G.at;
                     if (t < 1100) return { from: G.from, t: Math.max(0, t) };
                     return null;
@@ -6489,17 +6602,13 @@
                 const from = seen && seen.key === key ? Number(seen.frac) || 0 : 0;
                 try { localStorage.setItem('dialed_cq_seen', JSON.stringify({ key, frac: total })); } catch (e) {}
                 if (!seen || !(total > from + 1e-6) || !this.motionOK() || typeof document === 'undefined' || document.hidden) return null;
-                this._cqGrow = { key, from, to: total, at: Date.now() };
-                // if the goal just got finished, the loop waits for the grow
-                if (total >= 0.999) this._cqLoop = { at: Date.now() + 1000 };
-                return { from, t: 0 };
+                // v12.2: hold at where it was; it grows half a second after the page has drawn
+                this._cqGrow = { key, from, to: total, at: 0 };
+                this.startCrewGrowSoon();
+                return { from, wait: true };
             },
 
             crewLoopElapsed() {
-                if (this._cqLoopPending && this.motionOK()) {
-                    this._cqLoopPending = false;
-                    if (!this._cqLoop || Date.now() - this._cqLoop.at > 1700) this._cqLoop = { at: Date.now() };
-                }
                 const L = this._cqLoop;
                 if (!L) return null;
                 const t = Date.now() - L.at;
@@ -6507,18 +6616,238 @@
                 return t;
             },
 
-            // run the done-loop now (opening the feed, or coming back to the app on the feed)
+            // the done-sheen, each time the feed opens: half a second after the page has drawn
             playCrewLoop() {
-                if (!this.motionOK()) return;
-                const bar = typeof document !== 'undefined' && document.querySelector ? document.querySelector('.crew-quest .cq-bar.done') : null;
-                if (!bar || !bar.querySelector || !bar.querySelector('.cq-sheen') || !bar.classList || !bar.style || typeof bar.style.setProperty !== 'function') { this._cqLoopPending = true; return; }
-                const G = this._cqGrow;
-                const wait = G && Date.now() - G.at < 1100 ? 1100 - (Date.now() - G.at) - 100 : 0;
-                this._cqLoop = { at: Date.now() + Math.max(0, wait) };
-                bar.classList.remove('loop');
-                void bar.offsetWidth;
-                bar.style.setProperty('--cq-loop-at', `${Math.max(0, wait)}ms`);
-                bar.classList.add('loop');
+                if (!this.motionOK() || this._cqLoopTimer) return;
+                this._cqLoopTimer = true;
+                this.afterSettle(() => {
+                    this._cqLoopTimer = false;
+                    if (this.tab !== 'feed' || (typeof document !== 'undefined' && document.hidden)) return;
+                    const G = this._cqGrow;
+                    if (G && (!G.at || Date.now() - G.at < 1100)) return;   // a grow is playing; it brings its own sheen
+                    const bar = typeof document !== 'undefined' && document.querySelector ? document.querySelector('.crew-quest .cq-bar.done') : null;
+                    if (!bar || !bar.querySelector || !bar.querySelector('.cq-sheen') || !bar.classList || !bar.style || typeof bar.style.setProperty !== 'function') return;
+                    this._cqLoop = { at: Date.now() };
+                    this.dirtyKeys('top:quest');
+                    bar.classList.remove('loop');
+                    void bar.offsetWidth;
+                    bar.style.setProperty('--cq-loop-at', '0ms');
+                    bar.classList.add('loop');
+                }, 500);
+            },
+
+            // ---- v12.2: redraw only what changed
+            canPatchDom(el) {
+                if (this._canPatch === undefined) {
+                    try {
+                        const t = document.createElement('template');
+                        this._canPatch = !!(t && t.content && typeof t.content.querySelector === 'function' && typeof Element !== 'undefined' && Element.prototype.replaceWith && typeof document.createDocumentFragment === 'function');
+                    } catch (e) { this._canPatch = false; }
+                }
+                return this._canPatch && (!el || (typeof el.insertBefore === 'function' && 'firstElementChild' in el));
+            },
+
+            htmlEl(html, key) {
+                const t = document.createElement('template');
+                t.innerHTML = String(html).trim();
+                let el = t.content.firstElementChild;
+                if (!el || t.content.childNodes.length !== 1) {
+                    el = document.createElement('div');
+                    el.style.display = 'contents';
+                    el.append(...t.content.childNodes);
+                }
+                if (key) el.setAttribute('data-fkey', key);
+                return el;
+            },
+
+            // make the live node `a` look like the new node `b`, keeping every part that's already right
+            morphEl(a, b) {
+                if (a.nodeType !== b.nodeType || a.nodeName !== b.nodeName) { a.replaceWith(b); return b; }
+                if (a.nodeType !== 1) { if (a.nodeValue !== b.nodeValue) a.nodeValue = b.nodeValue; return a; }
+                const img = a.nodeName === 'IMG';
+                const shape = img && a.hasAttribute('data-shape-for') && a.getAttribute('data-shape-for') === b.getAttribute('data-shape-for');
+                const photo = img && a.hasAttribute('data-fallbacks') && a.getAttribute('data-fallbacks') === b.getAttribute('data-fallbacks');
+                for (const { name } of [...a.attributes]) if (!b.hasAttribute(name) && !(shape && name === 'src')) a.removeAttribute(name);
+                for (const { name, value } of [...b.attributes]) {
+                    if (photo && (name === 'src' || name === 'data-fallback-index')) continue;
+                    if (a.getAttribute(name) !== value) a.setAttribute(name, value);
+                }
+                // a centered initial stays as it is when it's the same letter
+                if (a.firstElementChild && a.firstElementChild.classList.contains('ini') && a.textContent === b.textContent && a.matches(INITIAL_SEL)) return a;
+                const ac = [...a.childNodes], bc = [...b.childNodes];
+                const n = Math.min(ac.length, bc.length);
+                for (let i = 0; i < n; i++) this.morphEl(ac[i], bc[i]);
+                for (let i = n; i < bc.length; i++) a.appendChild(bc[i]);
+                for (let i = n; i < ac.length; i++) ac[i].remove();
+                return a;
+            },
+
+            // children of `box` keyed by data-fkey; `map` remembers the html each one was drawn from
+            patchKeyed(box, items, map) {
+                const live = new Map();
+                [...box.children].forEach(el => { const k = el.getAttribute('data-fkey'); if (k && !live.has(k)) live.set(k, el); else el.remove(); });
+                const seen = new Set();
+                items = items.filter(it => it.html && !seen.has(it.key) && seen.add(it.key));
+                live.forEach((el, k) => { if (!seen.has(k)) { el.remove(); map.delete(k); } });
+                let prev = null;
+                items.forEach(it => {
+                    let el = live.get(it.key);
+                    if (el && map.get(it.key) !== it.html) el = this.morphEl(el, this.htmlEl(it.html, it.key));
+                    else if (!el) el = this.htmlEl(it.html, it.key);
+                    map.set(it.key, it.html);
+                    const at = prev ? prev.nextElementSibling : box.firstElementChild;
+                    if (at !== el) box.insertBefore(el, at);
+                    prev = el;
+                });
+            },
+
+            // something on screen was changed by hand: the next redraw re-checks it instead of trusting the saved html
+            dirtyKeys(...keys) {
+                keys.forEach(k => { if (this._feedHtml) this._feedHtml.delete(k); if (this._logHtml) this._logHtml.delete(k); });
+            },
+
+            // first paint, then `ms` more
+            afterSettle(fn, ms = 0) {
+                const raf = typeof requestAnimationFrame === 'function' ? requestAnimationFrame : (f => setTimeout(f, 16));
+                raf(() => raf(() => setTimeout(fn, ms)));
+            },
+
+            feedKey(e) {
+                return `${e.kind}:${e.brewId || e.beanId || e.id || ''}`;
+            },
+
+            feedCardHtml(e) {
+                if (e.kind === 'session') return this.renderFeedSessionCard(e);
+                if (e.kind === 'bean' || e.kind === 'library') return this.renderFeedBeanCard(e);
+                return '';
+            },
+
+            appendFeedChunk(grid, count) {
+                const entries = this.feedEntries.slice(0, 220);
+                const end = Math.min(entries.length, (this._feedShown || 0) + count);
+                const frag = document.createDocumentFragment();
+                for (let i = this._feedShown || 0; i < end; i++) {
+                    const e = entries[i], key = this.feedKey(e);
+                    if (this._feedHtml.has(key)) continue;
+                    const html = this.feedCardHtml(e);
+                    if (!html) continue;
+                    this._feedHtml.set(key, html);
+                    frag.appendChild(this.htmlEl(html, key));
+                }
+                grid.appendChild(frag);
+                this._feedShown = end;
+            },
+
+            // the rest of the feed right after the first screen is up: one small batch per frame (taps and scrolling stay
+            // smooth), paused while the goal animation plays
+            queueFeedRest() {
+                if (this._feedRestQueued) return;
+                if ((this._feedShown || 0) >= Math.min(220, this.feedEntries.length)) return;
+                this._feedRestQueued = true;
+                const step = () => {
+                    const grid = document.getElementById('grid');
+                    if (this.tab !== 'feed' || !grid || grid.getAttribute('data-view') !== 'feed' || !this._feedHtml) { this._feedRestQueued = false; return; }
+                    if (this.crewAnimating() || (typeof document !== 'undefined' && document.hidden)) { setTimeout(step, 200); return; }
+                    const t0 = Date.now();
+                    do { this.appendFeedChunk(grid, 3); } while (Date.now() - t0 < 12 && this._feedShown < Math.min(220, this.feedEntries.length));
+                    // one small batch per frame, so each frame only lays out what was just added
+                    if (this._feedShown < Math.min(220, this.feedEntries.length)) raf(step);
+                    else this._feedRestQueued = false;
+                };
+                const raf = typeof requestAnimationFrame === 'function' ? requestAnimationFrame : (f => setTimeout(f, 16));
+                this.afterSettle(step, 0);
+                this.bindFeedScroll();
+            },
+
+            // scrolling faster than the fill: draw more right away
+            bindFeedScroll() {
+                if (this._feedScrollBound) return;
+                const sc = document.getElementById('main-content');
+                if (!sc || typeof sc.addEventListener !== 'function') return;
+                this._feedScrollBound = true;
+                sc.addEventListener('scroll', () => {
+                    if (this.tab !== 'feed' || !this._feedHtml) return;
+                    if ((this._feedShown || 0) >= Math.min(220, this.feedEntries.length)) return;
+                    if (sc.scrollTop + sc.clientHeight < sc.scrollHeight - 1600) return;
+                    const grid = document.getElementById('grid');
+                    if (grid && grid.getAttribute('data-view') === 'feed') this.appendFeedChunk(grid, 12);
+                }, { passive: true });
+            },
+
+            // the whole feed, now (for anything that needs a card further down)
+            flushFeed() {
+                const grid = document.getElementById('grid');
+                if (this.tab !== 'feed' || !grid || grid.getAttribute('data-view') !== 'feed' || !this._feedHtml) return;
+                this.appendFeedChunk(grid, 220);
+            },
+
+            // ---- v12.2: the coffee-page / card panes, worked out when opened
+            paneHtml(brew, key) {
+                if (key === 'flavor') return this.renderFlavorPane(brew);
+                if (key === 'vs') return this.renderVsPane(brew);
+                return this.renderNextPane(brew);
+            },
+
+            lazyPanes(brew) {
+                const active = this.cardTab(brew);
+                return ['flavor', 'vs', 'next'].map(k => active === k ? this.paneHtml(brew, k) : `<div class="card-pane pane-block log-wide" data-pane="${k}" data-lazy="${k}"></div>`).join('');
+            },
+
+            // ---- v12.2: a like changes only its own heart and "liked" line
+            patchLikeDom(brewId) {
+                if (!this.canPatchDom()) return false;
+                const id = String(brewId);
+                const brew = this.brews.get(id);
+                if (!brew) return false;
+                const likes = this.normalizeLikeList(brew.likes, this.getBrewOwner(brew));
+                const on = likes.includes(this.user);
+                const pop = on && this.likePopElapsed('brew', id) >= 0;
+                this.dirtyKeys(`session:${id}`, `log-${id}`);
+                document.querySelectorAll('[data-card-brew]').forEach(card => {
+                    if (card.getAttribute('data-card-brew') !== id) return;
+                    const lead = card.querySelector('.thread-lead');
+                    const btn = lead && lead.querySelector('.like-btn');
+                    if (!btn) return;
+                    const had = btn.classList.contains('pop');
+                    btn.classList.toggle('liked', on);
+                    btn.classList.remove('pop');
+                    btn.style.removeProperty('--pop-at');
+                    if (pop) { if (had) void btn.offsetWidth; btn.classList.add('pop'); }
+                    let line = lead.querySelector('.social-like-line');
+                    if (likes.length) {
+                        if (!line) { line = document.createElement('div'); line.className = 'social-like-line'; btn.after(line); }
+                        line.textContent = this.formatLikers(likes);
+                    } else if (line) line.remove();
+                });
+                return true;
+            },
+
+            // ---- v12.2: the goal animation waits for the page
+            // a goal animation is playing right now (the feed holds its last cards until it's done)
+            crewAnimating() {
+                const now = Date.now(), G = this._cqGrow, L = this._cqLoop;
+                if (G && G.at && now - G.at < 1150) return true;
+                return !!(L && now >= L.at && now - L.at < 1750);
+            },
+
+            startCrewGrowSoon() {
+                if (this._cqGrowTimer) return;
+                this._cqGrowTimer = true;
+                this.afterSettle(() => {
+                    this._cqGrowTimer = false;
+                    const G = this._cqGrow;
+                    if (!G || G.at) return;
+                    if (this.tab !== 'feed' || (typeof document !== 'undefined' && document.hidden)) return;   // plays next time the feed is up
+                    G.at = Date.now();
+                    if (G.to >= 0.999) this._cqLoop = { at: G.at + 1000 };
+                    const bar = document.querySelector('.crew-quest .cq-bar.grow-wait');
+                    if (!bar || !bar.classList || !bar.style || typeof bar.style.setProperty !== 'function') return;
+                    this.dirtyKeys('top:quest');
+                    bar.classList.remove('grow-wait');
+                    bar.style.setProperty('--cq-grow-at', '0ms');
+                    bar.classList.add('grow');
+                    if (G.to >= 0.999 && bar.classList.contains('done')) { bar.style.setProperty('--cq-loop-at', '1000ms'); bar.classList.add('loop'); }
+                }, 500);
             },
 
             renderCrewQuest() {
@@ -7847,6 +8176,8 @@
             setThreadDom(key, open) {
                 document.querySelectorAll('[data-thread]').forEach(el => {
                     if (el.getAttribute('data-thread') !== key) return;
+                    const host = el.closest ? el.closest('[data-fkey]') : null;
+                    if (host) this.dirtyKeys(host.getAttribute('data-fkey'));
                     el.classList.toggle('open', open);
                     const t = el.querySelector('.thread-toggle');
                     if (t) t.setAttribute('aria-expanded', String(open));
@@ -7961,18 +8292,15 @@
                 const color = this.getUserColor(owner, entry.actorColor || '');
                 const bean = this.beans.get(String(brew.beanId || ''));
                 const roasterName = bean ? String(bean.roaster || '').trim() : '';
-                const coffeeName = bean ? String(bean.name || '').trim() : String(entry.beanName || 'Coffee');
-                const beanName = roasterName ? `${roasterName} | ${coffeeName || 'Coffee'}` : (coffeeName || 'Coffee');
+                const coffeeName = (bean ? String(bean.name || '').trim() : String(entry.beanName || '')) || 'Coffee';
                 const rating = this.normalizeRating(brew.rating);
                 const flavors = this.extractFlavors(brew).slice(0, 4);
-                const equipmentNames = this.resolveEquipmentNames(brew);
+                const gear = [...this.resolveEquipmentNames(brew), ...this.sessionExtras(brew)];
                 const likes = this.normalizeLikeList(brew.likes, owner);
-                const comments = Array.isArray(brew.comments) ? brew.comments : [];
                 const unlocks = this.achievementUnlockByBrew.get(String(brew.id)) || [];
-                const grind = this.grindNum(brew.grind) || 0;
-                const grindDisplay = this.grindText(brew.grind) || '-';
+                const notes = this.getBrewNotes(brew);
                 return `
-                    <article class="feed-card feed-session-card" data-card-brew="${this.esc(brew.id)}" onclick="app.openFeedTarget('${this.esc(brew.beanId || '')}','${this.esc(brew.id)}',true)">
+                    <article class="feed-card feed-session-card sc-card" data-card-brew="${this.esc(brew.id)}" onclick="app.openFeedTarget('${this.esc(brew.beanId || '')}','${this.esc(brew.id)}',true)">
                         <div class="feed-card-body">
                             <div class="feed-head">
                                 <div class="feed-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(owner))}</div>
@@ -7980,47 +8308,51 @@
                                     <div class="feed-actor" style="color:${this.esc(color)};">${this.esc(owner)}</div>
                                     <div class="feed-time" data-time="${this.esc(String(entry.date || brew.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || brew.date))}</div>
                                 </div>
-                                <div class="feed-type">Session</div>
+                                <div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(brew.method)}"/></svg>${this.esc(brew.method || 'Espresso')}</div>
                             </div>
-                            <div class="feed-card-title">${this.esc(beanName)}</div>
-                            ${this.renderCardTabs(brew)}
+                            <div class="sc-title">
+                                <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster">${this.esc(roasterName)}</div>` : ''}</div>
+                                ${rating > 0 ? `<div class="sc-rate"><span class="star-meter" style="--fill:${this.starFill(rating)}%"></span><b>${this.esc(this.formatRating(rating).replace('/5', ''))}</b></div>` : ''}
+                            </div>
                             <div class="card-pane${this.cardTab(brew) === 'session' ? ' active' : ''}" data-pane="session">
-                            <div class="feed-card-metrics">
-                                ${this.esc(this.metricLine(brew))}
-                            </div>
-                            <div class="method-line" style="margin-top:6px;">
-                                <svg class="method-icon"><use href="${this.methodIconUse(brew.method)}"/></svg>
-                                <span>${this.esc(brew.method || '-')}</span>
-                            </div>
-                            ${rating > 0 ? `
-                                <div class="rating-inline">
-                                    <span class="star-meter" style="--fill:${this.starFill(rating)}%"></span>
-                                    <span style="color:var(--gold); font-weight:700; font-size:0.9rem;">${this.esc(this.formatRating(rating))}</span>
-                                </div>
-                            ` : ''}
-                            ${flavors.length ? `
-                                <div class="feed-context">
-                                    ${flavors.map(flavor => `<span class="feed-pill">${this.esc(flavor)}</span>`).join('')}
-                                </div>
-                            ` : ''}
-                            ${equipmentNames.length ? `
-                                <div class="equipment-display">
-                                    ${equipmentNames.map(name => `<span class="equipment-tag">${this.esc(name)}</span>`).join('')}
-                                </div>
-                            ` : ''}
+                            ${this.recipeStripHtml(brew)}
+                            ${flavors.length ? `<div class="sc-notes">${flavors.map(f => this.famChip(f)).join('')}</div>` : ''}
+                            ${gear.length ? `<div class="sc-gear">${gear.map(g => this.esc(g)).join('<i></i>')}</div>` : ''}
                             ${this.renderSessionPhoto(brew, 'feed')}
-                            ${this.getBrewNotes(brew) ? `<div class="feed-note">${this.esc(this.getBrewNotes(brew))}</div>` : ''}
+                            ${notes ? `<div class="feed-note">${this.esc(notes)}</div>` : ''}
                             ${unlocks.map(unlock => `<div class="achievement-inline">${this.esc(this.formatAchievementLine(unlock, unlock.user === this.user))}</div>`).join('')}
                             </div>
-                            ${this.renderFlavorPane(brew)}
-                            ${this.renderVsPane(brew)}
-                            ${this.renderNextPane(brew)}
+                            ${this.lazyPanes(brew)}
+                            ${this.renderCardTabs(brew)}
                             ${this.renderThread('brew', brew, { inputId: `feed-comment-input-brew-${brew.id}`, lead: `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('brew', brew.id)}"${this.likePopStyle('brew', brew.id)} onclick="app.toggleLike('${this.esc(brew.id)}', event)" title="Like session">
                                     <svg class="heart-icon"><use href="#i-heart"/></svg>
                                 </button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}` })}
                         </div>
                     </article>
                 `;
+            },
+
+            // ---- v12.2: the recipe as four cells (Dose / Pull or Water / Time or Steep / Grind)
+            recipeStripHtml(b) {
+                const esp = !b.method || b.method === 'Espresso';
+                const dose = this.num(b.dose), yld = this.num(b.yield), time = this.num(b.time);
+                const hours = b.timeUnit === 'h' || b.method === 'Cold Brew';
+                const grams = v => v > 0 ? `${this.esc(this.fmtNum(v, 1))}<small>g</small>` : '–';
+                const ratio = dose > 0 && yld > 0 ? `1:${this.fmtNum(yld / dose, 1)}` : '';
+                const t = !(time > 0) ? '–' : hours ? `${this.esc(this.fmtNum(time, 1))}<small>h</small>` : esp ? `${this.esc(this.fmtNum(time))}<small>s</small>` : this.esc(this.clock(time));
+                const grind = this.grindText(b.grind);
+                const cell = (v, label, sub) => `<div class="sc-cell"><b>${v}</b><span>${this.esc(label)}${sub ? ` · <em>${this.esc(sub)}</em>` : ''}</span></div>`;
+                return `<div class="sc-strip feed-card-metrics">${cell(grams(dose), 'Dose')}${cell(grams(yld), esp ? 'Pull' : 'Water', ratio)}${cell(t, hours ? 'Steep' : 'Time')}${cell(grind ? this.esc(grind) : '–', 'Grind')}</div>`;
+            },
+
+            // brewer, temperature, heat, inverted: the extras the old recipe line carried
+            sessionExtras(b) {
+                const out = [];
+                if (b.brewer) out.push(String(b.brewer));
+                if (b.temp) out.push(`${this.fmtNum(b.temp)}°C`);
+                if (b.heat) out.push(`${b.heat} heat`);
+                if (b.inverted) out.push('Inverted');
+                return out;
             },
 
             renderFeedBeanCard(entry) {
@@ -8061,14 +8393,24 @@
                 const entries = this.feedEntries.slice(0, 220);
                 if (!entries.length) {
                     grid.innerHTML = '<div style="text-align:center; color:#999; padding:3rem;">No feed activity yet.</div>';
+                    if (grid.removeAttribute) grid.removeAttribute('data-view');
+                    this._feedHtml = null;
                     return;
                 }
-
-                grid.innerHTML = this.renderWelcomeBack() + this.renderCrewQuest() + this.renderAwardsTeaser() + entries.map(entry => {
-                    if (entry.kind === 'session') return this.renderFeedSessionCard(entry);
-                    if (entry.kind === 'bean' || entry.kind === 'library') return this.renderFeedBeanCard(entry);
-                    return '';
-                }).join('');
+                const tops = [['top:welcome', this.renderWelcomeBack()], ['top:quest', this.renderCrewQuest()], ['top:teaser', this.renderAwardsTeaser()]];
+                if (!this.canPatchDom(grid)) {
+                    grid.innerHTML = tops.map(t => t[1]).join('') + entries.map(e => this.feedCardHtml(e)).join('');
+                    return;
+                }
+                // v12.2: keep what's already drawn; draw the first screens now and the rest right after
+                const keep = grid.getAttribute('data-view') === 'feed' && this._feedHtml;
+                if (!keep) { this._feedHtml = new Map(); this._feedShown = 0; grid.innerHTML = ''; grid.setAttribute('data-view', 'feed'); }
+                const n = Math.min(entries.length, Math.max(keep ? this._feedShown || 0 : 0, 12));
+                const items = tops.filter(t => t[1] && t[1].trim()).map(([key, html]) => ({ key, html }));
+                for (let i = 0; i < n; i++) items.push({ key: this.feedKey(entries[i]), html: this.feedCardHtml(entries[i]) });
+                this.patchKeyed(grid, items, this._feedHtml);
+                this._feedShown = n;
+                this.queueFeedRest();
             },
 
             openFeedTarget(beanId, brewId = '', openComments = false) {
@@ -8140,7 +8482,10 @@
             renderScreen() {
                 const grid = document.getElementById('grid');
                 grid.className = this.tab === 'feed' ? 'feed-list' : (this.tab === 'profile' ? 'profile-view' : 'grid');
-                grid.innerHTML = '';
+                if (!(this.tab === 'feed' && grid.getAttribute && grid.getAttribute('data-view') === 'feed')) {
+                    grid.innerHTML = '';
+                    if (grid.removeAttribute) grid.removeAttribute('data-view');
+                }
                 this.updateAchievementCount();
                 const desktopSearch = document.getElementById('search-input');
                 const mobileSearch = document.getElementById('search-input-mobile');
@@ -8220,7 +8565,7 @@
                         <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:2px; color:#999; margin-bottom:8px;">
                             ${this.esc(bean.roaster || '')}
                         </div>
-                        <div style="font-size:1.5rem; font-weight:700; margin-bottom:12px;">
+                        <div class="lib-name" style="font-size:1.5rem; font-weight:700; margin-bottom:12px;">
                             ${this.esc(bean.name || '')}
                         </div>
                         <div style="margin-bottom:12px;">
@@ -8395,13 +8740,25 @@
             setCardTab(brewId, tab, event) {
                 if (event) event.stopPropagation();
                 const id = String(brewId);
+                const brew = this.brews.get(id);
                 this.cardTabs.set(id, tab);
+                this.dirtyKeys(`session:${id}`, `log-${id}`);
+                // tabs at the bottom of a feed card stay under your finger when the pane above changes height
+                const tabsEl = event && event.target && event.target.closest ? event.target.closest('.card-tabs') : null;
+                const scroller = tabsEl && tabsEl.closest('#grid') ? document.getElementById('main-content') : null;
+                const before = scroller ? tabsEl.getBoundingClientRect().top : null;
                 document.querySelectorAll('[data-card-brew]').forEach(card => {
                     if (card.getAttribute('data-card-brew') !== id) return;
+                    const ph = card.querySelector(`[data-lazy="${tab}"]`);
+                    if (ph && brew && this.canPatchDom()) { const el = this.htmlEl(this.paneHtml(brew, tab)); ph.replaceWith(el); }
                     card.querySelectorAll('.card-tab').forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-tab-key') === tab));
                     card.querySelectorAll('.card-pane').forEach(pane => pane.classList.toggle('active', pane.getAttribute('data-pane') === tab));
                     if (tab === 'flavor') this.fillShapeImages(card);
                 });
+                if (scroller && before !== null && tabsEl.isConnected) {
+                    const d = tabsEl.getBoundingClientRect().top - before;
+                    if (Math.abs(d) > 1) scroller.scrollTop += d;
+                }
             },
 
             renderVsPane(brew) {
@@ -8608,6 +8965,43 @@
             },
 
             // ---- bean page extras ----
+            // ---- v12.2: a flavor note as a chip in its wheel family's color (shaded, no dot)
+            famChip(name) {
+                const at = this.noteLocate(name);
+                const hex = at && at.f >= 0 ? NOTE_WHEEL[at.f].color : '#7D8984';
+                const s = String(this.normalizeHexColor(hex) || '#7D8984').slice(1);
+                const rgb = [0, 2, 4].map(i => parseInt(s.slice(i, i + 2), 16)).join(', ');
+                const style = `--fc-rgb:${rgb};--fc-ink:${this.hexMix(hex, '#1d2420', 0.38)};--fc-ink-d:${this.hexMix(hex, '#ffffff', 0.5)}`;
+                return `<span class="fam-chip" style="${style}">${this.esc(name)}</span>`;
+            },
+
+            // the star widget stays beside the name unless that would split a word or squeeze the name past two lines;
+            // then it sits just under the name instead
+            fitBeanHeader() {
+                const row = document.querySelector('.dh-name-row'), name = document.getElementById('d-name');
+                if (!row || !name || !row.classList || typeof name.getBoundingClientRect !== 'function' || typeof getComputedStyle !== 'function') return;
+                row.classList.remove('dh-wrap');
+                // a word that won't fit beside the widget would be split mid-word: drop the widget instead
+                name.style.overflowWrap = 'normal';
+                const split = name.scrollWidth > name.clientWidth + 1;
+                name.style.overflowWrap = '';
+                const lh = parseFloat(getComputedStyle(name).lineHeight) || 32;
+                if (split || name.getBoundingClientRect().height > lh * 2.4) row.classList.add('dh-wrap');
+            },
+
+            // the star widget on the coffee page: stars, average, rated-session count, faces of everyone who brewed it
+            beanStarsHtml(brews, avg, rated) {
+                const tally = new Map();
+                (brews || []).forEach(b => { const o = this.getBrewOwner(b); if (o) tally.set(o, (tally.get(o) || 0) + 1); });
+                const people = [...tally.entries()].sort((a, b) => (b[1] - a[1]) || a[0].localeCompare(b[0])).map(e => e[0]);
+                if (!(avg > 0) && !people.length) return '';
+                const shown = people.slice(0, 4);
+                const faces = shown.map((p, i) => `<i style="background:${this.esc(this.getUserColor(p))};z-index:${9 - i}" title="${this.esc(p)}">${this.esc(this.feedInitial(p))}</i>`).join('')
+                    + (people.length > shown.length ? `<i class="more" style="z-index:1">+${people.length - shown.length}</i>` : '');
+                const stars = avg > 0 ? `<span class="star-meter" style="--fill:${this.starFill(avg)}%"></span><b class="dh-avg">${this.esc(this.formatRating(avg).replace('/5', ''))}</b><span class="dh-n" title="${rated} rated session${rated === 1 ? '' : 's'}">${rated}</span>` : '';
+                return `${stars}${people.length ? `<span class="dh-faces" aria-label="Brewed by ${this.esc(people.join(', '))}">${faces}</span>` : ''}`;
+            },
+
             renderDetailExtras(group, brews) {
                 const meta = group.meta || {};
                 const roastLine = document.getElementById('d-roast-date');
@@ -8625,9 +9019,12 @@
                 if (btn) {
                     btn.style.display = (this.user && (!mineAlready || on)) ? 'inline-flex' : 'none';
                     btn.classList.toggle('active', on);
-                    btn.innerText = on ? 'On Your List' : 'Want to Try';
+                    if (btn.setAttribute) btn.setAttribute('aria-pressed', String(on));
+                    const label = btn.querySelector ? btn.querySelector('span') : null;
+                    if (label && label.tagName) label.textContent = on ? 'On your list' : 'Want to try';
+                    else btn.innerText = on ? 'On Your List' : 'Want to Try';
                 }
-                if (line) line.innerText = wanters.length ? `Want to try: ${wanters.join(', ')}` : '';
+                if (line) line.innerText = '';
             },
 
             toggleWantToTry() {
@@ -9808,7 +10205,7 @@
                     const stars = '★'.repeat(Math.floor(b.rating)) + (b.rating % 1 ? '½' : '');
                     const recipe = [b.dose && b.yld ? `${this.fmtNum(b.dose)} g → ${this.fmtNum(b.yld)} g` : '', b.time ? `${this.fmtNum(b.time)} s` : '', b.grind && you ? `grind ${b.grind}` : ''].filter(Boolean).join(' · ');
                     const note = b.notes.length > 150 ? `${b.notes.slice(0, 147).trim()}…` : b.notes;
-                    add('espresso', `${b.photo ? `<div class="wr-photo" style="background-image:url('${esc(b.photo)}')"></div>` : ''}<div class="wr-k wr-in" style="--d:0">${esc(your)} shot of the year</div><div class="wr-stars wr-in" style="--d:1">${stars}</div><div class="wr-big word wr-in" style="--d:2">${esc(beanName(b.bean))}</div><div class="wr-p wr-in" style="--d:3">${b.bean && b.bean.roaster ? `${esc(b.bean.roaster)} · ` : ''}${esc(this.shortDate(b.date))}${b.method ? ` · ${esc(b.method)}` : ''}${recipe ? `<br><b>${esc(recipe)}</b>` : ''}</div>${note ? `<div class="wr-quote wr-in" style="--d:4">${esc(note)}</div>` : ''}`, 8000);
+                    add('espresso', `${b.photo ? `<div class="wr-photo" style="background-image:url('${esc(b.photo)}')"></div>` : ''}<div class="wr-k wr-in" style="--d:0">${esc(your)} shot of the year</div><div class="wr-stars wr-in" style="--d:1">${stars}</div><div class="wr-big word wr-in wr-bean" style="--d:2">${esc(beanName(b.bean))}</div><div class="wr-p wr-in" style="--d:3">${b.bean && b.bean.roaster ? `${esc(b.bean.roaster)} · ` : ''}${esc(this.shortDate(b.date))}${b.method ? ` · ${esc(b.method)}` : ''}${recipe ? `<br><b>${esc(recipe)}</b>` : ''}</div>${note ? `<div class="wr-quote wr-in" style="--d:4">${esc(note)}</div>` : ''}`, 8000);
                 }
 
                 if (D.taste || D.notes.length >= 3) {
@@ -9904,7 +10301,7 @@
 
                     if (C.coffee) {
                         const shared = C.coffee.who.length > 1;
-                        add('crema', `<div class="wr-k wr-in" style="--d:0">The crew's coffee of the year</div><div class="wr-big word wr-in" style="--d:1">${esc(beanName(C.coffee.bean))}</div><div class="wr-p wr-in" style="--d:2">${C.coffee.bean && C.coffee.bean.roaster ? `${esc(C.coffee.bean.roaster)}. ` : ''}Brewed <b>${C.coffee.n}</b> times${shared ? ` by ${who(C.coffee.who)}` : ` by ${esc(C.coffee.who[0])}`}.</div>${C.loved && C.loved.bean && this.beanGroupKey(C.loved.bean) !== this.beanGroupKey(C.coffee.bean) ? `<div class="wr-p wr-in" style="--d:3">Most loved: <b>${esc(beanName(C.loved.bean))}</b>, ${this.fmtNum(C.loved.avg, 1)}★ across ${C.loved.n} rated sessions.</div>` : ''}`);
+                        add('crema', `<div class="wr-k wr-in" style="--d:0">The crew's coffee of the year</div><div class="wr-big word wr-in wr-bean" style="--d:1">${esc(beanName(C.coffee.bean))}</div><div class="wr-p wr-in" style="--d:2">${C.coffee.bean && C.coffee.bean.roaster ? `${esc(C.coffee.bean.roaster)}. ` : ''}Brewed <b>${C.coffee.n}</b> times${shared ? ` by ${who(C.coffee.who)}` : ` by ${esc(C.coffee.who[0])}`}.</div>${C.loved && C.loved.bean && this.beanGroupKey(C.loved.bean) !== this.beanGroupKey(C.coffee.bean) ? `<div class="wr-p wr-in" style="--d:3">Most loved: <b>${esc(beanName(C.loved.bean))}</b>, ${this.fmtNum(C.loved.avg, 1)}★ across ${C.loved.n} rated sessions.</div>` : ''}`);
                     }
                     if (C.yearly.length) {
                         const badges = C.yearly.map((x, i) => `<div class="wr-badge" style="--d:${i};--ac:${esc(x.color)}"><span class="ic"><svg class="icon"><use href="#${esc(x.icon)}"/></svg></span><div style="min-width:0"><div class="bt">${esc(x.title)}</div><div class="bw">${esc(x.winners.join(' & '))}</div></div></div>`).join('');
@@ -10851,25 +11248,17 @@
                 const overallRating = this.calculateAverageRating(brews);
                 const ratedCount = brews.filter(item => this.normalizeRating(item.rating) > 0).length;
                 const ratingSummary = document.getElementById('d-rating-summary');
-                if (overallRating > 0) {
-                    ratingSummary.style.display = 'inline-flex';
-                    ratingSummary.innerHTML = `
-                        <span class="star-meter" style="--fill:${this.starFill(overallRating)}%"></span>
-                        <span>${this.esc(this.formatRating(overallRating))}</span>
-                        <span style="opacity:0.72;">(${ratedCount} rated session${ratedCount !== 1 ? 's' : ''})</span>
-                    `;
-                } else {
-                    ratingSummary.style.display = 'none';
-                    ratingSummary.innerHTML = '';
-                }
+                const starsHtml = this.beanStarsHtml(brews, overallRating, ratedCount);
+                ratingSummary.style.display = starsHtml ? 'inline-flex' : 'none';
+                ratingSummary.innerHTML = starsHtml;
+                this.fitBeanHeader();
 
                 const topFlavors = this.getTopFlavors(brews, 3);
-                document.getElementById('d-top-flavors').innerHTML = topFlavors.map(flavor => `<span class="flavor-mini">${this.esc(flavor)}</span>`).join('');
+                document.getElementById('d-top-flavors').innerHTML = topFlavors.map(flavor => this.famChip(flavor)).join('');
 
                 this.renderBeanFlavor(brews);
                 this.detailBrews = [...brews];
                 this.setDetailTab(this.detailTab || 'timeline');
-                this.renderComparePanel();
 
                 const masters = [...brews]
                     .filter(brew => brew.isMaster === true || brew.isMaster === 'true')
@@ -10916,7 +11305,14 @@
                 });
 
                 const logBox = document.getElementById('d-logs');
-                logBox.innerHTML = '';
+                const keyedLogs = this.canPatchDom(logBox);
+                const logGroup = this.activeGroup ? this.activeGroup.ids.join(',') : '';
+                if (!keyedLogs || logBox.getAttribute('data-keyed') !== logGroup || !this._logHtml) {
+                    logBox.innerHTML = '';
+                    this._logHtml = new Map();
+                    if (keyedLogs) logBox.setAttribute('data-keyed', logGroup);
+                }
+                const logItems = [];
                 [...brews].sort((a, b) => this.toTime(b.date) - this.toTime(a.date)).forEach(log => {
                     const row = document.createElement('div');
                     row.className = 'log-row';
@@ -10940,7 +11336,7 @@
                         ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>`
                         : '';
 
-                    row.innerHTML = `
+                    const rowHtml = `
                         <div class="log-main ${hasRightContent ? 'has-right' : 'no-right'}">
                             <div class="log-wide">${this.renderCardTabs(log)}</div>
                             <div class="card-pane${this.cardTab(log) === 'session' ? ' active' : ''}" data-pane="session">
@@ -10982,9 +11378,7 @@
                             </div>
                             ${unlocks.map(unlock => `<div class="achievement-inline log-wide">${this.esc(this.formatAchievementLine(unlock, unlock.user === this.user))}</div>`).join('')}
                             </div>
-                            ${this.renderFlavorPane(log)}
-                            ${this.renderVsPane(log)}
-                            ${this.renderNextPane(log)}
+                            ${this.lazyPanes(log)}
                             ${this.renderThread('brew', log, { inputId: `comment-input-${log.id}`, wide: true, anchorId: `comments-${log.id}`, lead: `<button class="social-btn like-btn ${isLiked ? 'liked' : ''}${this.likePopClass('brew', log.id)}"${this.likePopStyle('brew', log.id)} onclick="app.toggleLike('${this.esc(log.id)}', event)" title="Like session">
                                             <svg class="heart-icon"><use href="#i-heart"/></svg>
                                         </button>${socialNote}${logOwner === this.user ? `<span class="social-owner-actions"><button class="btn-clean" onclick="app.editBrew('${this.esc(log.id)}')" title="Edit session">
@@ -10995,8 +11389,10 @@
                                             </button></span>` : ''}` })}
                         </div>
                     `;
-                    logBox.appendChild(row);
+                    if (keyedLogs) logItems.push({ key: row.id, html: `<div class="log-row" id="${this.esc(row.id)}" data-card-brew="${this.esc(String(log.id))}">${rowHtml}</div>` });
+                    else { row.innerHTML = rowHtml; logBox.appendChild(row); }
                 });
+                if (keyedLogs) this.patchKeyed(logBox, logItems, this._logHtml);
             },
 
             refreshDetail() {
@@ -11066,7 +11462,7 @@
                 const updatedLikes = liked ? likes.filter(name => name !== this.user) : [...likes, this.user];
                 const updated = this.withBrewOwner({ ...brew, likes: updatedLikes }, brew);
                 if (!liked) this.likePopStart('brew', brewId);
-                this.push({ type: 'brew', ...updated });
+                this.push({ type: 'brew', ...updated }, { quiet: true });
                 this.showToast(liked ? 'Like removed.' : 'Session liked.');
             },
 
