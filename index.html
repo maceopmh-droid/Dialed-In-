@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v12.12 -->
+<!-- Dialed In v13.0 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="12.12">
+    <meta name="dialed-in-version" content="13.0">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -2938,6 +2938,113 @@
         :root[data-theme="dark"] .wheel-svg .wc-hi { stop-opacity: 0.12; }
         .wheel-svg .w-center { stroke: rgba(var(--hair-rgb), 0.1); }
         :where(html.hx-on) .note-wheel { position: relative; }
+
+        /* ===== v13.0: Roasters ===== */
+        .lib-switch { grid-column: 1 / -1; grid-template-columns: 1fr 1fr; margin-bottom: 0; }
+        .grid > .lib-switch + .lib-filter { grid-column: 1 / -1; }
+        .lib-filter { display: flex; align-items: center; gap: 8px; margin-top: -1rem; }
+        .lib-filter .chip-btn { display: inline-flex; align-items: center; gap: 6px; }
+        .lib-filter .chip-btn .icon { width: 12px; height: 12px; }
+        .roaster-list { display: flex; flex-direction: column; gap: 14px; max-width: 760px; }
+        .roaster-list .lib-switch { margin-bottom: 4px; }
+        .ro-sorts { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 6px 12px 12px; margin: -6px -12px -10px; }
+        .ro-sorts::-webkit-scrollbar { display: none; }
+        .ro-sorts .chip-btn { flex-shrink: 0; white-space: nowrap; }
+        .ro-tile { position: relative; display: grid; place-items: center; flex-shrink: 0; width: 54px; height: 54px; border-radius: 16px; color: rgba(255, 255, 255, 0.96); font-family: var(--font-bean); font-weight: 700; font-size: 1.05rem; letter-spacing: 0.03em; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 8px 18px rgba(var(--hair-rgb), 0.16); overflow: hidden; }
+        .ro-tile::after { content: ''; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(255, 255, 255, 0.22), transparent 45%); pointer-events: none; }
+        .ro-tile.big { width: 66px; height: 66px; border-radius: 19px; font-size: 1.3rem; }
+        .ro-card { padding: 16px 16px 15px; gap: 0; cursor: pointer; border-radius: 20px; }
+        .ro-head { display: flex; align-items: center; gap: 13px; min-width: 0; }
+        .ro-main { flex: 1; min-width: 0; }
+        .ro-name { display: block; font-family: var(--font-bean); font-weight: 600; font-size: 1.28rem; letter-spacing: -0.01em; line-height: 1.15; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ro-rate { display: flex; align-items: center; gap: 6px; margin-top: 3px; font-size: 0.82rem; font-weight: 750; color: var(--gold); }
+        .ro-rate .star-meter { font-size: 0.8rem; letter-spacing: 1px; }
+        .ro-meta { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+        .ro-meta .dh-faces { margin-left: auto; }
+        .ro-meta .ro-heart { width: 14px; height: 14px; color: #D45D8A; fill: currentColor; flex-shrink: 0; }
+        .ro-beans { display: flex; flex-wrap: nowrap; align-items: center; gap: 6px; margin-top: 10px; overflow: hidden; }
+        .ro-bean { flex-shrink: 0; white-space: nowrap; border: 1px solid rgba(var(--hair-rgb), 0.08); background: rgba(var(--hair-rgb), 0.045); color: var(--ink-2); border-radius: 999px; padding: 5px 11px; font: inherit; font-family: var(--font-bean); font-size: 0.84rem; font-weight: 600; cursor: pointer; }
+        .ro-bean:active { transform: scale(0.97); }
+        .ro-more { flex-shrink: 0; white-space: nowrap; font-size: 0.78rem; font-weight: 650; color: var(--text-muted); padding: 0 2px; }
+        .ro-bean[hidden], .ro-more[hidden] { display: none; }
+        .ro-merge { border-color: rgba(var(--matcha-rgb), 0.32); }
+        .ro-merge p { margin: 0 0 12px; font-size: 0.9rem; line-height: 1.45; color: var(--ink-2); }
+        .ro-merge p b { color: var(--ink); }
+        .ro-merge-actions { display: flex; gap: 8px; }
+        .ro-merge-actions button { width: auto; flex: 0 0 auto; margin: 0; padding: 10px 18px; font-size: 0.82rem; }
+        .ro-empty { text-align: center; color: var(--text-muted); padding: 2.5rem 1rem; }
+        /* the roaster's name as a link */
+        .ro-link { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .ro-link:active { opacity: 0.6; }
+        button.ro-link { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; display: inline-flex; align-items: center; gap: 4px; text-align: left; }
+        .ro-chev { width: 15px; height: 15px; transform: rotate(-90deg); opacity: 0.55; flex-shrink: 0; }
+        /* the roaster page */
+        #roaster-view { display: none; position: fixed; inset: 0; background: var(--paper); z-index: 5000; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        #roaster-view.active { display: block; }
+        .ro-page { max-width: 760px; margin: 0 auto; padding: calc(1.6rem + var(--safe-top)) 3rem calc(140px + var(--safe-bottom)); display: flex; flex-direction: column; gap: 14px; }
+        .ro-top { margin-bottom: 0; }
+        .ro-top .dh-back { min-width: 0; max-width: 62%; }
+        .ro-top .dh-back span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .ro-top .btn-clean { width: 36px; height: 36px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 6px 16px rgba(var(--hair-rgb), 0.08); }
+        .ro-top .btn-clean .icon { width: 15px; height: 15px; }
+        .ro-top .ro-fav[aria-pressed="true"] { color: #D45D8A; }
+        .ro-top .ro-fav[aria-pressed="true"] .icon { fill: currentColor; }
+        .ro-hero { display: grid; gap: 14px; padding: 18px; }
+        .ro-hero-row { display: flex; align-items: center; gap: 14px; min-width: 0; }
+        .ro-hero h2 { margin: 0; font-family: var(--font-bean); font-weight: 600; font-size: 1.75rem; line-height: 1.1; letter-spacing: -0.012em; overflow-wrap: anywhere; }
+        .ro-where { margin-top: 4px; font-size: 0.82rem; color: var(--text-muted); line-height: 1.4; overflow-wrap: anywhere; }
+        .ro-where a { color: var(--matcha); text-decoration: none; font-weight: 650; }
+        .ro-add { margin-top: 5px; padding: 0; border: 0; background: none; font: inherit; font-size: 0.8rem; font-weight: 700; color: var(--matcha); cursor: pointer; }
+        .ro-note { margin: -4px 0 0; font-size: 0.86rem; color: var(--text-muted); line-height: 1.45; }
+        .ro-style { margin: 0; font-size: 0.95rem; line-height: 1.5; color: var(--ink-2); }
+        .ro-hero .stat-row { grid-template-columns: repeat(4, 1fr); gap: 7px; }
+        .ro-hero .stat-box { padding: 10px 4px; min-width: 0; }
+        .ro-hero .stat-num { font-size: 1.15rem; white-space: nowrap; }
+        .ro-hero .stat-num.word { font-size: 0.9rem; line-height: 1.45rem; letter-spacing: -0.01em; }
+        .ro-hero .stat-num small { color: var(--gold); font-size: 0.78em; margin-left: 1px; }
+        .ro-hero .stat-cap { white-space: nowrap; letter-spacing: 0.2px; font-size: 0.55rem; }
+        .ro-bar-h { font-size: 0.8rem; font-weight: 750; color: var(--ink); margin-bottom: 7px; }
+        .ro-bar { display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: rgba(var(--hair-rgb), 0.08); gap: 2px; }
+        .ro-bar i { display: block; height: 100%; min-width: 3px; }
+        .ro-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 8px; font-size: 0.76rem; color: var(--text-muted); font-weight: 600; }
+        .ro-legend b { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+        .ro-sec > .label:first-child { font-size: 1.02rem; font-weight: 750; letter-spacing: -0.01em; text-transform: none; color: var(--ink); margin-bottom: 2px; }
+        .ro-sub { font-size: 0.8rem; color: var(--text-muted); margin: 0 0 10px; line-height: 1.4; }
+        button.ro-sec { display: block; width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+        button.ro-sec:active { transform: scale(0.99); }
+        .ro-best { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+        .ro-best-main { flex: 1; min-width: 0; }
+        .ro-best-name { font-family: var(--font-bean); font-weight: 600; font-size: 1.15rem; color: var(--ink); }
+        .ro-best-line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 3px; font-size: 0.8rem; color: var(--text-muted); }
+        .ro-best-line .star-meter { font-size: 0.78rem; letter-spacing: 1px; }
+        .ro-best-recipe { margin-top: 3px; font-size: 0.82rem; font-weight: 650; color: var(--ink-2); }
+        .ro-go { width: 16px; height: 16px; transform: rotate(-90deg); color: var(--text-faint); flex-shrink: 0; }
+        .ro-cof { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 0; border: 0; border-top: 1px solid rgba(var(--hair-rgb), 0.07); background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+        .ro-cof:first-of-type { border-top: 0; }
+        .ro-cof-main { flex: 1; min-width: 0; }
+        .ro-cof-name { display: block; font-family: var(--font-bean); font-weight: 600; font-size: 1.02rem; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ro-cof-sub { display: block; margin-top: 1px; font-size: 0.74rem; color: var(--text-muted); font-weight: 600; }
+        .ro-meter { width: 46px; height: 6px; border-radius: 999px; background: rgba(var(--hair-rgb), 0.09); overflow: hidden; flex-shrink: 0; }
+        .ro-meter i { display: block; height: 100%; border-radius: 999px; background: var(--gold); }
+        .ro-cof-n { width: 34px; text-align: right; font-size: 0.8rem; color: var(--gold); font-weight: 750; flex-shrink: 0; white-space: nowrap; }
+        .ro-who { display: flex; align-items: center; gap: 10px; padding: 7px 0; }
+        .ro-who .person-dot { width: 30px; height: 30px; font-size: 0.72rem; }
+        .ro-who-t { flex: 1; min-width: 0; font-size: 0.9rem; font-weight: 750; color: var(--ink); }
+        .ro-who-t small { display: block; font-size: 0.76rem; font-weight: 500; color: var(--text-muted); margin-top: 1px; }
+        .ro-badge { flex-shrink: 0; font-size: 0.7rem; font-weight: 750; color: var(--matcha); background: rgba(var(--matcha-rgb), 0.12); padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
+        .ro-esp { font-size: 0.92rem; line-height: 1.5; color: var(--ink-2); margin-top: 6px; }
+        .ro-esp b { color: var(--ink); white-space: nowrap; }
+        .ro-acts { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 2px; }
+        .ro-acts .btn-outline { width: auto; padding: 12px 16px; }
+        #roaster-modal textarea { min-height: 76px; resize: vertical; }
+        .ro-fab-empty { margin: 0; }
+        .ro-fab .fab-art b { font-family: var(--font-bean); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18); }
+        
+        :root[data-theme="dark"] .ro-merge { border-color: rgba(var(--matcha-rgb), 0.36); }
+        @media (max-width: 768px) {
+            .ro-page { padding: calc(1.6rem + var(--safe-top)) 1.05rem calc(140px + var(--safe-bottom)); }
+            .roaster-list { max-width: none; }
+        }
     </style>
 </head>
 <body>
@@ -3106,6 +3213,26 @@
         </div>
     </div>
 
+    <!-- Roaster page (v13.0) -->
+    <div id="roaster-view" aria-hidden="true"><div class="ro-page" id="ro-page"></div></div>
+
+    <!-- Roaster details (v13.0) -->
+    <div id="roaster-modal" class="modal" onclick="if(event.target===this) app.closeModals()">
+        <div class="modal-card">
+            <h2 id="roaster-modal-title">Roaster</h2>
+            <form onsubmit="app.saveRoasterEdit(event)">
+                <input type="hidden" name="key">
+                <label>Location</label>
+                <input type="text" name="location" placeholder="e.g., Cincinnati, OH" autocomplete="off">
+                <label>Website</label>
+                <input type="text" name="website" placeholder="e.g., deeperrootscoffee.com" autocomplete="off" autocapitalize="off" inputmode="url">
+                <label>Note</label>
+                <textarea name="note" placeholder="Anything worth remembering about them"></textarea>
+                <button type="submit" class="btn-primary" style="margin-top: 2rem;">Save</button>
+            </form>
+        </div>
+    </div>
+
     <!-- Detail View -->
     <div id="detail-view">
         <div class="detail-hero">
@@ -3236,7 +3363,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v12.12</div>
+            <div class="app-version">Dialed In · v13.0</div>
         </div>
     </div>
 
@@ -3248,7 +3375,7 @@
                 <input type="hidden" name="id" id="bean-edit-id">
                 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem;">
-                    <div><label>Roaster</label><input type="text" name="roaster" required></div>
+                    <div><label>Roaster</label><input type="text" name="roaster" list="roaster-names" autocomplete="off" required><datalist id="roaster-names"></datalist></div>
                     <div><label>Name</label><input type="text" name="name" required></div>
                 </div>
                 
@@ -3962,6 +4089,291 @@
                 return fallback;
             }
         };
+
+        // Roasters (v13.0): everything about roasters, computed from the logged coffees and sessions each time it's asked for.
+        // Plain functions, no DOM: the app calls RoasterEngine.build(app); node tests call it with a small stand-in.
+        // ctx needs: beans (Map id -> bean), brews (Map id -> brew), gearByUser (Map user -> gear record),
+        //            normalizeRating(v), localTime(v) (ms in the person's local time), getBrewOwner(brew), beanGroupKey(bean)
+        const RoasterEngine = (() => {
+            // ---- names
+            const fold = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '');
+            const keyOf = name => String(name || '').trim().replace(/\s+/g, ' ').toLowerCase();
+            const GENERIC = new Set(['roasters', 'roaster', 'roastery', 'roasting', 'roastworks', 'coffee', 'coffees', 'co', 'company', 'collective', 'the', 'and', '&']);
+            const words = name => fold(name).toLowerCase().replace(/[()]/g, ' ').split(/[^a-z0-9\u{1F1E6}-\u{1F1FF}]+/u).filter(Boolean);
+            const core = name => words(name).filter(w => !GENERIC.has(w)).join(' ');
+            const squash = name => fold(name).toLowerCase().replace(/[^a-z0-9]/g, '');
+            const initials = name => words(name).map(w => w[0]).join('');
+
+            // ---- countries (coffee-growing), with other spellings and a few well-known regions
+            const COUNTRIES = ['Angola', 'Bolivia', 'Brazil', 'Burundi', 'Cameroon', 'Central African Republic', 'China', 'Colombia', 'Costa Rica', 'Cuba', 'DR Congo', 'Dominican Republic', 'Ecuador', 'El Salvador', 'Ethiopia', 'Guatemala', 'Guinea', 'Haiti', 'Hawaii', 'Honduras', 'India', 'Indonesia', 'Ivory Coast', 'Jamaica', 'Kenya', 'Laos', 'Madagascar', 'Malawi', 'Mexico', 'Myanmar', 'Nepal', 'Nicaragua', 'Panama', 'Papua New Guinea', 'Peru', 'Philippines', 'Puerto Rico', 'Rwanda', 'Sierra Leone', 'Sri Lanka', 'Tanzania', 'Thailand', 'Timor-Leste', 'Togo', 'Uganda', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe', 'Taiwan', 'Australia', 'Paraguay', 'Ghana', 'Nigeria', 'Liberia', 'Gabon', 'Benin', 'Mozambique', 'South Sudan', 'Sudan', 'Congo', 'Equatorial Guinea', 'Saint Helena', 'Galapagos', 'Trinidad and Tobago', 'Malaysia', 'Cambodia', 'Japan', 'United States', 'Belize', 'Guyana', 'Suriname', 'Burkina Faso', 'Mali', 'Senegal', 'Comoros', 'Mauritius', 'Reunion', 'Samoa', 'Fiji', 'Vanuatu', 'Solomon Islands', 'Tonga', 'New Caledonia'];
+            const OTHER = { brasil: 'Brazil', columbia: 'Colombia', 'cote divoire': 'Ivory Coast', 'cote d ivoire': 'Ivory Coast', drc: 'DR Congo', 'dr congo': 'DR Congo', 'democratic republic of the congo': 'DR Congo', 'democratic republic of congo': 'DR Congo', 'east timor': 'Timor-Leste', 'timor leste': 'Timor-Leste', timor: 'Timor-Leste', png: 'Papua New Guinea', 'viet nam': 'Vietnam', burma: 'Myanmar', usa: 'United States', 'u s': 'United States', 'united states of america': 'United States', mejico: 'Mexico', 'el salvadore': 'El Salvador', salvador: 'El Salvador', ethopia: 'Ethiopia', ethiopa: 'Ethiopia', guatamala: 'Guatemala', cameron: 'Cameroon', hondouras: 'Honduras', kenia: 'Kenya', peru: 'Peru',
+                // regions people write instead of the country
+                sumatra: 'Indonesia', java: 'Indonesia', sulawesi: 'Indonesia', bali: 'Indonesia', flores: 'Indonesia', aceh: 'Indonesia', toraja: 'Indonesia',
+                yirgacheffe: 'Ethiopia', yirgachefe: 'Ethiopia', sidamo: 'Ethiopia', sidama: 'Ethiopia', guji: 'Ethiopia', harrar: 'Ethiopia', harar: 'Ethiopia', limu: 'Ethiopia', jimma: 'Ethiopia', gedeo: 'Ethiopia',
+                huila: 'Colombia', narino: 'Colombia', cauca: 'Colombia', tolima: 'Colombia', antioquia: 'Colombia', quindio: 'Colombia', santander: 'Colombia',
+                huehuetenango: 'Guatemala', acatenango: 'Guatemala', atitlan: 'Guatemala', tarrazu: 'Costa Rica', 'west valley': 'Costa Rica', cerrado: 'Brazil', 'minas gerais': 'Brazil', mogiana: 'Brazil', 'sul de minas': 'Brazil',
+                nyeri: 'Kenya', kirinyaga: 'Kenya', embu: 'Kenya', kiambu: 'Kenya', kona: 'Hawaii', 'big island': 'Hawaii', boquete: 'Panama', kivu: 'DR Congo', cajamarca: 'Peru', 'yunnan': 'China', 'chikmagalur': 'India', 'coorg': 'India' };
+            const COUNTRY_BY = {};
+            COUNTRIES.forEach(c => { COUNTRY_BY[fold(c).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()] = c; });
+            Object.entries(OTHER).forEach(([k, v]) => { COUNTRY_BY[k] = v; });
+            const COUNTRY_KEYS = Object.keys(COUNTRY_BY).sort((a, b) => b.length - a.length);
+            // one written part -> a country, or '' when it names none
+            const countryIn = part => {
+                const t = ' ' + fold(part).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim() + ' ';
+                for (const k of COUNTRY_KEYS) if (t.includes(' ' + k + ' ')) return COUNTRY_BY[k];
+                return '';
+            };
+            const tidy = s => String(s || '').trim().replace(/\s+/g, ' ');
+            const NOT_PLACE = /^(-+|n\/?a|none|unknown|\?+|tbd|blend|blends|house blend|espresso blend|various|varies|multiple|mixed|multi[- ]?origin|single[- ]?origin|world|several)$/i;
+            // "Inzá, Colombia" -> [Colombia]; "Brasil, Guatemala, Ethiopia" -> 3 countries; "South America" -> ["South America"]
+            const originsOf = text => {
+                if (NOT_PLACE.test(tidy(text))) return [];
+                const parts = String(text || '').split(/,|\/|&|\+|;|\band\b/i).map(tidy).filter(p => p && !NOT_PLACE.test(p));
+                if (!parts.length) return [];
+                const found = parts.map(countryIn);
+                const named = found.filter(Boolean);
+                const out = named.length ? named : parts;            // parts that aren't countries next to a country are its regions
+                return [...new Set(out)];
+            };
+
+            // ---- roast and process
+            const ROASTS = ['Light', 'Medium-Light', 'Medium', 'Medium-Dark', 'Dark'];
+            const roastOf = v => {
+                const t = fold(v).toLowerCase().replace(/[^a-z]+/g, ' ').trim();
+                if (!t) return '';
+                if (/\bmedium (to )?light\b|\blight (to )?medium\b|\bmed light\b/.test(t)) return 'Medium-Light';
+                if (/\bmedium (to )?dark\b|\bdark (to )?medium\b|\bmed dark\b/.test(t)) return 'Medium-Dark';
+                if (/\b(extra |very )?light\b|\bcinnamon\b|\bnordic\b|\bblonde?\b/.test(t)) return 'Light';
+                if (/\bdark\b|\bfrench\b|\bitalian\b/.test(t)) return 'Dark';
+                if (/\bmedium\b|\bmed\b|\bcity\b/.test(t)) return 'Medium';
+                return '';
+            };
+            const PROCESSES = ['Washed', 'Natural', 'Honey', 'Fermented', 'Anaerobic', 'Mixed'];
+            // every process a written process counts toward ("Washed, Fermented" -> both)
+            const processesOf = v => {
+                const t = ' ' + fold(v).toLowerCase().replace(/[^a-z]+/g, ' ').trim() + ' ';
+                if (!t.trim() || /^ (n a|none|unknown) $/.test(t)) return [];
+                const out = [];
+                if (/ (washed|wet|fully washed|semi washed|wet hulled|giling basah) /.test(t)) out.push('Washed');
+                if (/ (natural|naturals|dry|sun dried|dry processed) /.test(t)) out.push('Natural');
+                if (/ (honey|honeys|pulped natural|miel) /.test(t)) out.push('Honey');
+                if (/ (ferment|fermented|fermentation|co ferment|co fermented|cofermented|carbonic|maceration|macerated|thermal shock|koji|yeast|lactic|extended) /.test(t)) out.push('Fermented');
+                if (/ (anaerobic|anaerobically|anoxic) /.test(t)) out.push('Anaerobic');
+                if (/ (mixed|blend|various|multiple|assorted) /.test(t)) out.push('Mixed');
+                if (out.length) return out;
+                return [tidy(v).replace(/\b\w/g, c => c.toUpperCase())];   // unrecognized: as written
+            };
+            const PROC_WORD = { Washed: ['washed coffees', 'washed'], Natural: ['naturals', 'natural'], Honey: ['honeys', 'honey'], Fermented: ['fermented lots', 'fermented'], Anaerobic: ['anaerobic lots', 'anaerobic'], Mixed: ['mixed-process blends', 'mixed-process'] };
+            const procNoun = p => (PROC_WORD[p] || [`${p.toLowerCase()} coffees`])[0];
+            const procAdj = p => (PROC_WORD[p] || [null, p.toLowerCase()])[1];
+
+            // ---- small helpers
+            const mean = a => a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0;
+            const f1 = n => (Math.round(n * 10) / 10).toFixed(1);
+            const fmtStar = n => { const v = Math.round(n * 2) / 2; return `${v % 1 ? v.toFixed(1) : v.toFixed(0)}★`; };
+            const listAnd = a => a.length <= 1 ? (a[0] || '') : a.length === 2 ? `${a[0]} and ${a[1]}` : `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}`;
+            const numWord = n => ['No', 'One', 'Two', 'Three', 'Four'][n] || String(n);
+            const hashHue = s => { let h = 0; for (const ch of String(s)) h = (h * 31 + ch.codePointAt(0)) >>> 0; return [28, 18, 42, 8, 150, 168, 200, 330, 270, 95, 120, 352][h % 12]; };
+
+            // ---- saved roaster records live in each person's gear record: { merged: [[a, b, at]], notSame: [[a, b, at]], fav: [key], info: { key: { location, website, note, at } } }
+            const prefsOf = (ctx, user) => { const g = ctx.gearByUser && ctx.gearByUser.get(String(user || '')); const r = g && g.roasters && typeof g.roasters === 'object' ? g.roasters : {}; return { merged: Array.isArray(r.merged) ? r.merged : [], notSame: Array.isArray(r.notSame) ? r.notSame : [], fav: Array.isArray(r.fav) ? r.fav : [], info: r.info && typeof r.info === 'object' ? r.info : {} }; };
+            const allPrefs = ctx => [...(ctx.gearByUser ? ctx.gearByUser.keys() : [])].map(u => ({ user: u, ...prefsOf(ctx, u) }));
+
+            function build(ctx) {
+                const beans = [...ctx.beans.values()].filter(b => b && keyOf(b.roaster));
+                const brews = [...ctx.brews.values()];
+                const prefs = allPrefs(ctx);
+                // spellings: the same name in any case / spacing is one roaster
+                const spell = new Map();   // key -> { key, names: Map(name -> sessions), beans: [] }
+                const byBean = new Map();
+                beans.forEach(b => { const k = keyOf(b.roaster); if (!spell.has(k)) spell.set(k, { key: k, names: new Map(), beans: [] }); spell.get(k).beans.push(b); byBean.set(String(b.id), k); });
+                const brewsOfKey = new Map();
+                brews.forEach(br => { const k = byBean.get(String(br.beanId)); if (!k) return; if (!brewsOfKey.has(k)) brewsOfKey.set(k, []); brewsOfKey.get(k).push(br); });
+                spell.forEach(s => { s.beans.forEach(b => { const n = tidy(b.roaster); s.names.set(n, (s.names.get(n) || 0) + 0.001); }); (brewsOfKey.get(s.key) || []).forEach(br => { const b = ctx.beans.get(String(br.beanId)); const n = tidy(b.roaster); s.names.set(n, (s.names.get(n) || 0) + 1); }); });
+                // merges (anyone's) join spellings into one roaster
+                const parent = new Map(); const find = k => { while (parent.has(k) && parent.get(k) !== k) k = parent.get(k); return k; };
+                const union = (a, b) => { a = find(a); b = find(b); if (a !== b) parent.set(b, a); };
+                prefs.forEach(p => p.merged.forEach(m => { if (Array.isArray(m) && m[0] && m[1]) { const a = keyOf(m[0]), b = keyOf(m[1]); if (!parent.has(a)) parent.set(a, a); if (!parent.has(b)) parent.set(b, b); union(a, b); } }));
+                const clusterOf = k => find(keyOf(k));
+                const clusters = new Map();
+                spell.forEach(s => { const c = clusterOf(s.key); if (!clusters.has(c)) clusters.set(c, []); clusters.get(c).push(s); });
+                const roasters = [...clusters.entries()].map(([ck, parts]) => roasterFrom(ctx, ck, parts, brewsOfKey));
+                // the roaster each person brews most (ties: the one brewed more recently)
+                const top = {};
+                roasters.forEach(r => r.people.forEach(p => { const t = top[p.name]; if (!t || p.sessions > t.sessions || (p.sessions === t.sessions && p.last > t.last)) top[p.name] = { key: r.key, sessions: p.sessions, last: p.last }; }));
+                roasters.forEach(r => r.people.forEach(p => { p.top = !!(top[p.name] && top[p.name].key === r.key); }));
+                // favorites and details
+                const favBy = {}; prefs.forEach(p => { favBy[p.user] = new Set(p.fav.map(clusterOf)); });
+                const info = {}; prefs.forEach(p => Object.entries(p.info).forEach(([k, v]) => { if (!v || typeof v !== 'object') return; const c = clusterOf(k); const at = Date.parse(v.at || 0) || 0; if (!info[c] || at >= info[c].atMs) info[c] = { location: tidy(v.location), website: tidy(v.website), note: tidy(v.note), atMs: at }; }));
+                roasters.forEach(r => { r.info = info[r.key] || null; r.favBy = Object.keys(favBy).filter(u => favBy[u].has(r.key)); });
+                const byKey = new Map(roasters.map(r => [r.key, r]));
+                // look-alike names that nobody has merged or said aren't the same
+                const notSame = new Set(); prefs.forEach(p => p.notSame.forEach(m => { if (Array.isArray(m) && m[0] && m[1]) { const a = clusterOf(m[0]), b = clusterOf(m[1]); notSame.add(a < b ? `${a}|${b}` : `${b}|${a}`); } }));
+                const suggestions = [];
+                for (let i = 0; i < roasters.length; i++) for (let j = i + 1; j < roasters.length; j++) {
+                    const a = roasters[i], b = roasters[j];
+                    const pair = a.key < b.key ? `${a.key}|${b.key}` : `${b.key}|${a.key}`;
+                    if (notSame.has(pair) || !looksSame(a, b)) continue;
+                    const [big, small] = a.sessions >= b.sessions ? [a, b] : [b, a];
+                    suggestions.push({ a: big, b: small, keys: [big.key, small.key], weight: a.sessions + b.sessions });
+                }
+                suggestions.sort((x, y) => y.weight - x.weight);
+                return { roasters, byKey, clusterOf: name => clusterOf(name), suggestions, keyOfBean: b => b ? clusterOf(b.roaster) : '' };
+            }
+
+            // two roasters whose names look like the same roaster
+            function looksSame(a, b) {
+                const names = r => r.spellings.length ? r.spellings : [r.name];
+                for (const x of names(a)) for (const y of names(b)) {
+                    const sx = squash(x), sy = squash(y);
+                    if (sx && sx === sy) return true;                                   // case, spacing, punctuation
+                    const cx = core(x), cy = core(y);
+                    if (cx && cy && cx === cy && cx.replace(/\s/g, '').length >= 3) return true;   // "Urbana" vs "Urbana Roasters"
+                    const wx = ` ${words(x).join(' ')} `, wy = ` ${words(y).join(' ')} `;
+                    const [shortW, longW] = wx.length < wy.length ? [wx, wy] : [wy, wx];
+                    if (shortW.trim().length >= 4 && longW.includes(shortW)) return true;          // one name inside the other, whole words
+                    const ix = initials(x), iy = initials(y), tx = squash(x), ty = squash(y);       // "DRC" vs "Deeper Roots Coffee"
+                    if (words(y).length >= 2 && tx.length >= 2 && tx.length <= 5 && words(x).length === 1 && tx === iy) return true;
+                    if (words(x).length >= 2 && ty.length >= 2 && ty.length <= 5 && words(y).length === 1 && ty === ix) return true;
+                }
+                return false;
+            }
+
+            function roasterFrom(ctx, key, parts, brewsOfKey) {
+                const beans = parts.flatMap(p => p.beans);
+                const brews = parts.flatMap(p => brewsOfKey.get(p.key) || []);
+                const nameTally = new Map(); parts.forEach(p => p.names.forEach((n, nm) => nameTally.set(nm, (nameTally.get(nm) || 0) + n)));
+                const spellings = [...nameTally.entries()].sort((a, b) => b[1] - a[1]).map(([n]) => n);
+                const name = spellings[0] || key;
+                const rating = br => ctx.normalizeRating(br.rating);
+                const rated = brews.map(rating).filter(r => r > 0);
+                const beanOf = br => ctx.beans.get(String(br.beanId));
+                const t = br => ctx.localTime(br.date);
+                // coffees: the same name from this roaster is one coffee, whoever logged it
+                const cof = new Map();
+                beans.forEach(b => { const ck = keyOf(b.name) || String(b.id); if (!cof.has(ck)) cof.set(ck, { key: ck, name: tidy(b.name) || 'Coffee', beanIds: [], brews: [], latest: 0, origin: '', process: '', roast: '' }); const c = cof.get(ck); c.beanIds.push(String(b.id)); const bt = ctx.localTime(b.date) || 0; if (bt >= c.latest || !c.origin) { if (tidy(b.origin)) c.origin = tidy(b.origin); if (tidy(b.process)) c.process = tidy(b.process); if (tidy(b.roast)) c.roast = tidy(b.roast); c.latest = Math.max(c.latest, bt); } });
+                const cofOfBean = new Map(); cof.forEach(c => c.beanIds.forEach(id => cofOfBean.set(id, c)));
+                brews.forEach(br => { const c = cofOfBean.get(String(br.beanId)); if (c) c.brews.push(br); });
+                const coffees = [...cof.values()].map(c => { const r = c.brews.map(rating).filter(x => x > 0); const last = c.brews.reduce((m, br) => Math.max(m, t(br) || 0), 0);
+                    // open the coffee page on the version people brew most (a coffee logged by two people opens their shared page anyway)
+                    const tally = new Map(); c.brews.forEach(br => tally.set(String(br.beanId), (tally.get(String(br.beanId)) || 0) + 1));
+                    const beanId = [...tally.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || c.beanIds[0];
+                    return { key: c.key, name: c.name, beanId, beanIds: c.beanIds, sessions: c.brews.length, rated: r.length, avg: mean(r), last, origin: c.origin, process: c.process, roast: c.roast, origins: originsOf(c.origin), processes: processesOf(c.process), roastLevel: roastOf(c.roast) }; });
+                // best-rated first (ties: more sessions); coffees nobody rated go last
+                coffees.sort((a, b) => (b.rated > 0) - (a.rated > 0) || b.avg - a.avg || b.sessions - a.sessions || a.name.localeCompare(b.name));
+                const coffeeById = new Map(); coffees.forEach(c => c.beanIds.forEach(id => coffeeById.set(id, c)));
+                const coffeeOfBrew = br => coffeeById.get(String(br.beanId));
+                // what a session counts toward comes from its own coffee record, exactly as that person logged it
+                const recs = new Map();
+                const recOf = br => { const id = String(br.beanId); if (!recs.has(id)) { const b = ctx.beans.get(id) || {}; recs.set(id, { origins: originsOf(b.origin), processes: processesOf(b.process), roastLevel: roastOf(b.roast) }); } return recs.get(id); };
+                // people
+                const ppl = new Map();
+                brews.forEach(br => { const n = ctx.getBrewOwner(br); if (!ppl.has(n)) ppl.set(n, { name: n, sessions: 0, ratings: [], last: 0 }); const p = ppl.get(n); p.sessions++; const r = rating(br); if (r > 0) p.ratings.push(r); p.last = Math.max(p.last, t(br) || 0); });
+                const people = [...ppl.values()].map(p => ({ name: p.name, sessions: p.sessions, rated: p.ratings.length, avg: mean(p.ratings), last: p.last })).sort((a, b) => b.sessions - a.sessions || b.last - a.last || a.name.localeCompare(b.name));
+                const loggers = [...new Set(beans.map(b => String(b.user || b.owner || '').trim()).filter(Boolean))];
+                // roast and process, in sessions
+                const roast = {}; const proc = {};
+                brews.forEach(br => { const c = recOf(br); if (c.roastLevel) roast[c.roastLevel] = (roast[c.roastLevel] || 0) + 1; c.processes.forEach(p => { proc[p] = (proc[p] || 0) + 1; }); });
+                // best shot: highest rated (ties: most recent)
+                const best = brews.filter(br => rating(br) > 0).sort((a, b) => rating(b) - rating(a) || (t(b) || 0) - (t(a) || 0))[0] || null;
+                // espresso: the group's 4★+ shots
+                const shots = brews.filter(br => String(br.method || '') === 'Espresso' && rating(br) >= 4);
+                const ratios = shots.map(br => { const d = +br.dose, y = +br.yield; return d > 0 && y > 0 ? y / d : 0; }).filter(Boolean);
+                const times = shots.map(br => +br.time).filter(x => x > 0);
+                const espresso = shots.length >= 2 && (ratios.length >= 2 || times.length >= 2) ? { shots: shots.length, ratio: ratios.length ? [Math.min(...ratios), Math.max(...ratios)] : null, time: times.length ? [Math.min(...times), Math.max(...times)] : null } : null;
+                const last = brews.reduce((m, br) => Math.max(m, t(br) || 0), 0);
+                const r = { key, name, spellings, beans, brews, coffees, people, loggers, sessions: brews.length, rated: rated.length, avg: mean(rated), last, roast, proc, best, bestCoffee: best ? coffeeOfBrew(best) : null, espresso, hue: hashHue(key) };
+                r.style = houseStyle(r, rating, recOf);
+                return r;
+            }
+
+            // ---- the three-sentence description, from the data (no AI)
+            function houseStyle(r, rating, recOf) {
+                const out = [];
+                const total = r.sessions;
+                // 1. roast + process
+                const roastE = ROASTS.map(l => [l, r.roast[l] || 0]).filter(e => e[1] > 0);
+                const roastN = roastE.reduce((s, e) => s + e[1], 0);
+                let roastAdj = '';
+                if (roastN) {
+                    const topR = [...roastE].sort((a, b) => b[1] - a[1])[0];
+                    const low = s => s.toLowerCase();
+                    const cap = s => s.charAt(0).toUpperCase() + low(s).slice(1);
+                    if (topR[1] / roastN >= 0.95) roastAdj = cap(topR[0]);
+                    else if (topR[1] / roastN >= 0.7) roastAdj = `Mostly ${low(topR[0])}`;
+                    else roastAdj = `${cap(roastE[0][0])}-to-${low(roastE[roastE.length - 1][0])}`;
+                }
+                // processes ranked by sessions x average rating
+                const procStats = statsBy(r.brews, br => recOf(br).processes, rating);
+                const procTotal = procStats.reduce((n, p) => n + p.sessions, 0);   // a "Washed, Fermented" session counts toward both
+                const share = p => procTotal ? p.sessions / procTotal : 0;
+                const byScore = [...procStats].sort(byRank);
+                const bySessions = [...procStats].sort((a, b) => b.sessions - a.sessions || b.score - a.score);
+                const originStats = statsBy(r.brews, br => recOf(br).origins, rating);
+                const noOrigins = !originStats.length;
+                let s1 = '';
+                const roastWord = roastAdj ? `${roastAdj} roasts` : 'Roasts';
+                if (bySessions.length && share(bySessions[0]) >= 0.9) { const pa = listAnd(bySessions.filter(p => share(p) >= 0.9).map(p => procAdj(p.key))); s1 = roastAdj ? `${roastAdj}, ${pa} coffees` : `${pa.charAt(0).toUpperCase() + pa.slice(1)} coffees`; }
+                else if (bySessions.length && share(bySessions[0]) >= 0.6) { const rest = byScore.filter(p => p.key !== bySessions[0].key && share(p) >= 0.1).slice(0, 2).map(p => procAdj(p.key)); s1 = `${roastWord}, mostly ${procAdj(bySessions[0].key)}${rest.length ? `, with some ${listAnd(rest)} lots` : ''}`; }
+                else if (byScore.length) s1 = `${roastWord} that range across ${listAnd(byScore.slice(0, 3).map(p => procAdj(p.key)))} lots`;
+                else if (roastAdj) s1 = roastWord;
+                if (s1) out.push(s1 + (noOrigins && total ? '; origins not logged yet.' : '.'));
+                else if (noOrigins && total) out.push('Origins not logged yet.');
+                // 2. origins, blends split into their countries
+                if (!noOrigins) {
+                    const ranked = [...originStats].sort(byRank);
+                    const blends = r.coffees.filter(c => c.sessions > 0 && c.origins.length > 1);
+                    const brewedCoffees = r.coffees.filter(c => c.sessions > 0);
+                    if (ranked.length === 1) out.push(s1 ? `All from ${ranked[0].key} so far.` : `All from ${ranked[0].key} so far.`);
+                    else if (brewedCoffees.length === 1 && blends.length === 1) out.push(`Blended from ${listAnd(blends[0].origins)}.`);
+                    else { const more = ranked.length - 3; const follow = ranked.slice(1, 3).map(x => x.key); out.push(`${ranked[0].key} leads, followed by ${more > 0 ? `${follow.join(', ')} and ${more} more` : listAnd(follow)}.`); }
+                }
+                // 3. one finding
+                out.push(finding(r, rating, procStats, originStats));
+                return out.filter(Boolean).join(' ');
+            }
+
+            // most brewed AND best rated: score = sessions x average; an exact tie goes to the better-rated one
+            const byRank = (a, b) => Math.round(b.score * 1e6) - Math.round(a.score * 1e6) || b.avg - a.avg || b.sessions - a.sessions || a.key.localeCompare(b.key);
+
+            // sessions, rated, average and score (sessions x average) for each value a session counts toward
+            function statsBy(brews, keysOf, rating) {
+                const m = new Map();
+                brews.forEach(br => { [...new Set(keysOf(br))].forEach(k => { if (!m.has(k)) m.set(k, { key: k, sessions: 0, ratings: [] }); const x = m.get(k); x.sessions++; const r = rating(br); if (r > 0) x.ratings.push(r); }); });
+                return [...m.values()].map(x => { const avg = mean(x.ratings); return { key: x.key, sessions: x.sessions, rated: x.ratings.length, avg, score: x.sessions * avg }; });
+            }
+
+            function finding(r, rating, procStats, originStats) {
+                const total = r.sessions;
+                if (!total) return 'No sessions yet.';
+                if (total < 3) {
+                    if (total === 1) { const br = r.brews[0], c = r.coffees.find(x => x.sessions); const rr = rating(br); return `One session so far: ${c ? c.name : 'one coffee'}${rr ? `, ${fmtStar(rr)}` : ''}.`; }
+                    return `Two sessions so far${r.rated ? `, averaging ${f1(r.avg)}★` : ''}.`;
+                }
+                const MIN = 5;
+                const cands = [];
+                const consider = (stats, kind) => {
+                    const base = [...stats].sort((a, b) => b.sessions - a.sessions || b.score - a.score)[0];
+                    if (!base || base.rated < MIN || base.sessions < MIN) return;
+                    stats.forEach(x => { if (x.key === base.key || x.rated < MIN) return; cands.push({ kind, x, base, gap: x.avg - base.avg }); });
+                };
+                consider(procStats, 'process'); consider(originStats, 'origin');
+                const noun = c => c.kind === 'process' ? procNoun(c.x.key) : `coffees from ${c.x.key}`;
+                const adj = c => c.kind === 'process' ? procAdj(c.base.key) : `from ${c.base.key}`;
+                const up = cands.filter(c => c.gap >= 0.3 - 1e-9).sort((a, b) => b.gap - a.gap)[0];
+                if (up) return `Their ${noun(up)} shine brightest (${f1(up.x.avg)}★ vs ${f1(up.base.avg)}★ ${adj(up)}).`;
+                const down = cands.filter(c => c.gap <= -0.5 + 1e-9).sort((a, b) => a.gap - b.gap)[0];
+                if (down) return `Their ${noun(down)} trail the rest (${f1(down.x.avg)}★ vs ${f1(down.base.avg)}★ ${adj(down)}).`;
+                const brewed = r.coffees.filter(c => c.sessions > 0);
+                const solid = brewed.filter(c => c.rated >= MIN).sort((a, b) => b.avg - a.avg || b.sessions - a.sessions);
+                if (brewed.length > 1 && solid.length) return `${solid[0].name} is their standout so far (${f1(solid[0].avg)}★ over ${solid[0].sessions} sessions).`;
+                const most = [...brewed].sort((a, b) => b.sessions - a.sessions || b.avg - a.avg)[0];
+                if (most && most.rated) return `${most.name} averages ${f1(most.avg)}★ over ${most.sessions} session${most.sessions === 1 ? '' : 's'}.`;
+                return `${numWord(total)} sessions so far.`;
+            }
+
+            return { build, keyOf, originsOf, processesOf, roastOf, looksSame, ROASTS, PROCESSES, fmtStar, f1, hashHue, prefsOf };
+        })();
 
         const app = {
             user: localStorage.getItem('dialed_user'),
@@ -5439,6 +5851,7 @@
                 } else {
                     this.render();
                 }
+                if (this.roasterViewActive()) this.renderRoasterPage();
             },
 
             isDetailActive() {
@@ -5468,6 +5881,7 @@
                 const grid = document.getElementById('grid');
                 if (grid && grid.contains(el)) return true;
                 const detail = document.getElementById('detail-view');
+                if (this.roasterViewActive() && document.getElementById('roaster-view').contains(el)) return true;
                 return Boolean(detail && this.isDetailActive() && detail.contains(el));
             },
 
@@ -6469,6 +6883,26 @@
                         if (seen.size % 8 === 0) await tick();
                     }
                     if (onProgress) onProgress('pages');
+                    // 4b. roasters (v13.0): the list and every roaster's page
+                    section = 'roasters';
+                    const keepMode = this.libraryMode;
+                    safe('roaster list', () => { this.setTab('shared'); this.setLibraryMode('roasters'); });
+                    const rg = document.getElementById('grid');
+                    check(rg && rg.querySelector('.ro-sorts') && !bad(rg.innerText), 'roaster list renders');
+                    check(noOverflow(), 'roaster list fits the screen');
+                    const roD = safe('roaster data', () => this.roasterData());
+                    for (const r of (roD ? roD.roasters : [])) {
+                        safe('roaster page', () => this.openRoaster(r.key));
+                        const page = document.getElementById('ro-page'), rv = document.getElementById('roaster-view');
+                        check(this.roasterViewActive() && page && page.querySelector('.ro-hero') && !bad(page.innerText), `roaster ${r.key} page`);
+                        check(typeof r.style === 'string' && r.style.length > 8 && !bad(r.style) && !/ {2}|\.\.|\. \./.test(r.style), `roaster ${r.key} description reads cleanly`);
+                        check(!/\bgrind\b(?! numbers differ)/i.test(page.innerText), `roaster ${r.key} shows no grind`);
+                        check(rv && rv.scrollWidth <= rv.clientWidth + 2, `roaster ${r.key} page fits the screen`);
+                        safe('roaster back', () => this.goBackPage());
+                    }
+                    check(!this.roasterViewActive(), 'roaster pages close');
+                    this.libraryMode = keepMode;
+                    await tick();
                     // 5. tip engine, thousands of random shots
                     section = 'tips';
                     const rated = brews.filter(b => this.normalizeRating(b.rating) > 0);
@@ -7608,13 +8042,15 @@
                 const mine = who === this.user;
                 const slots = this.fabFourOf(who);
                 const last = this.lastFourOf(who);
-                if (!mine && !slots.some(Boolean) && !last.length) return '';
+                const favRo = this.favRoastersOf(who);
+                if (!mine && !slots.some(Boolean) && !last.length && !favRo.length) return '';
                 const tiles = slots.map((id, i) => this.fabTileHtml(id, { user: who, editable: mine, click: mine ? `app.openFabPicker(${i})` : '' })).join('');
                 return `
                     <div class="profile-card fab-four">
                         <div class="label">Favorites</div>
                         <div class="fab-sub">${mine ? 'Up to four coffees you love. Tap a slot to add or change one.' : (slots.some(Boolean) ? `${this.esc(who)}'s favorite coffees.` : `${this.esc(who)} hasn't picked favorites yet.`)}</div>
                         <div class="fab-row">${tiles}</div>
+                        ${this.favRoastersHtml(who, favRo, mine)}
                         ${last.length ? `<div class="label fab-last-label">Recently brewed</div><div class="fab-row small">${last.map(x => this.fabTileHtml(x.beanId, { user: who, small: true })).join('')}</div>` : ''}
                     </div>`;
             },
@@ -7657,7 +8093,8 @@
                     items: this.gearItemsFor(mine ? mine.items : this.equipment),
                     lastByMethod: (mine && mine.lastByMethod && typeof mine.lastByMethod === 'object') ? mine.lastByMethod : (this.lastEquipment || {}),
                     fabFour: slots,
-                    recipes: this.myRecipes()
+                    recipes: this.myRecipes(),
+                    ...this.roasterCarry()
                 });
                 this.closeModals();
             },
@@ -7884,6 +8321,7 @@
                     lastByMethod: (mine && mine.lastByMethod && typeof mine.lastByMethod === 'object') ? mine.lastByMethod : (this.lastEquipment || {}),
                     fabFour: this.fabFourOf(this.user),
                     recipes: this.myRecipes(),
+                    ...this.roasterCarry(),
                     ...extra
                 });
             },
@@ -8805,7 +9243,7 @@
                                 <div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(brew.method)}"/></svg>${this.esc(brew.method || 'Espresso')}</div>
                             </div>
                             <div class="sc-title">
-                                <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster">${this.esc(roasterName)}</div>` : ''}</div>
+                                <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(roasterName)}" onclick="app.openRoasterFrom(this, event)">${this.esc(roasterName)}</span></div>` : ''}</div>
                                 ${rating > 0 ? `<div class="sc-rate"><span class="star-meter" style="--fill:${this.starFill(rating)}%"></span><b>${this.esc(this.formatRating(rating).replace('/5', ''))}</b></div>` : ''}
                             </div>
                             ${this.recipeStripHtml(brew)}
@@ -8870,7 +9308,7 @@
                                 <div class="feed-type">${this.esc(entry.kindLabel || 'Bean')}</div>
                             </div>
                             <div class="feed-card-title" style="margin-top:11px">${this.esc(bean.name || beanName)}</div>
-                            ${bean.roaster ? `<div class="fb-roaster">${this.esc(bean.roaster)}</div>` : ''}
+                            ${bean.roaster ? `<div class="fb-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(bean.roaster)}" onclick="app.openRoasterFrom(this, event)">${this.esc(bean.roaster)}</span></div>` : ''}
                             ${topTags.length ? `<div class="fb-tags">${topTags.map(tag => `<span class="tag">${this.esc(tag)}</span>`).join('')}</div>` : ''}
                             ${this.renderThread('bean', { ...bean, comments }, { inputId: `feed-comment-input-bean-${bean.id}`, lead: `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('bean', bean.id)}"${this.likePopStyle('bean', bean.id)} onclick="app.toggleBeanLike('${this.esc(bean.id)}', event)" title="Like bean">
                                     <svg class="heart-icon"><use href="#i-heart"/></svg>
@@ -8905,6 +9343,403 @@
                 this.patchKeyed(grid, items, this._feedHtml);
                 this._feedShown = n;
                 this.queueFeedRest();
+            },
+
+
+            // ===================== v13.0: Roasters =====================
+            roasterData() {
+                const last = this.eventLog && this.eventLog.length ? this.eventLog[this.eventLog.length - 1] : null;
+                const sig = `${this.beans.size}|${this.brews.size}|${this.eventLog ? this.eventLog.length : 0}|${last ? (last.eventAt || last.date || '') : ''}|${this.gearByUser.size}`;
+                if (this._roData && this._roSig === sig && this._roMaps === this.beans && this._roBrewMap === this.brews && this._roGear === this.gearByUser) return this._roData;
+                this._roSig = sig; this._roMaps = this.beans; this._roBrewMap = this.brews; this._roGear = this.gearByUser;
+                this._roData = RoasterEngine.build(this);
+                return this._roData;
+            },
+
+            roasterKey(name) { return this.roasterData().clusterOf(name); },
+
+            roasterInitials(name) {
+                const words = String(name || '?').trim().split(/\s+/).map(w => w.replace(/[^\p{L}\p{N}\u{1F1E6}-\u{1F1FF}\p{Extended_Pictographic}]/gu, '')).filter(Boolean);
+                if (!words.length) return '?';
+                const first = w => { const m = /^(?:[\u{1F1E6}-\u{1F1FF}]{2}|\p{Extended_Pictographic}(?:️|‍\p{Extended_Pictographic})*|.)/u.exec(w); return m ? m[0] : ''; };
+                const g0 = first(words[0]);
+                if (/\p{Extended_Pictographic}|[\u{1F1E6}-\u{1F1FF}]/u.test(g0)) return g0;
+                return words.slice(0, 2).map(first).join('').toUpperCase();
+            },
+
+            // a roaster's colors: picked for a few roasters, otherwise from its name (the same on every phone)
+            ROASTER_COLORS: {
+                'urbana roasters': ['#B5DDF7', '#6FAAD9', '111, 170, 217'],          // baby blue
+                'urbana': ['#B5DDF7', '#6FAAD9', '111, 170, 217'],
+                'deeper roots coffee': ['#1B6B63', '#073632', '20, 92, 85'],       // dark turquoise green
+                'deeper roots': ['#1B6B63', '#073632', '20, 92, 85'],
+                'drc': ['#1B6B63', '#073632', '20, 92, 85']
+            },
+
+            roasterPaint(r) {
+                const set = this.ROASTER_COLORS[r.key] || this.ROASTER_COLORS[RoasterEngine.keyOf(r.name)];
+                if (set) return { bg: `linear-gradient(145deg, ${set[0]}, ${set[1]})`, rgb: set[2] };
+                const h = r.hue;
+                const rgb = (() => { const hh = h / 360, s = 0.44, l = 0.5; const k = n => (n + hh * 12) % 12, a = s * Math.min(l, 1 - l), f = n => Math.round(255 * (l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1)))); return `${f(0)}, ${f(8)}, ${f(4)}`; })();
+                return { bg: `linear-gradient(145deg, hsl(${h} 44% 60%), hsl(${(h + 24) % 360} 40% 40%))`, rgb };
+            },
+
+            roasterTileHtml(r, big = false) {
+                return `<span class="ro-tile${big ? ' big' : ''}" aria-hidden="true" style="background:${this.roasterPaint(r).bg}">${this.esc(this.roasterInitials(r.name))}</span>`;
+            },
+
+            // ---- saved choices: each person's gear record carries { merged, notSame, fav, info }
+            roasterPrefsOf(user) {
+                const rec = this.gearByUser.get(String(user || ''));
+                return rec && rec.roasters && typeof rec.roasters === 'object' ? rec.roasters : null;
+            },
+
+            roasterCarry() {
+                const r = this.roasterPrefsOf(this.user);
+                return r ? { roasters: r } : {};
+            },
+
+            saveRoasterPrefs(change) {
+                if (!this.user) { this.showToast('Pick who you are in Settings first.'); return false; }
+                const cur = RoasterEngine.prefsOf(this, this.user);
+                const next = { merged: [...cur.merged], notSame: [...cur.notSame], fav: [...cur.fav], info: { ...cur.info } };
+                change(next);
+                this.pushGearWith({ roasters: next });
+                return true;
+            },
+
+            mergeRoasters(a, b) {
+                const D = this.roasterData(), A = D.byKey.get(a), B = D.byKey.get(b);
+                if (!A || !B) return;
+                if (this.saveRoasterPrefs(p => { p.merged.push([A.name, B.name, new Date().toISOString()]); })) this.showToast(`Merged into ${A.sessions >= B.sessions ? A.name : B.name}.`);
+            },
+
+            notSameRoasters(a, b) {
+                const D = this.roasterData(), A = D.byKey.get(a), B = D.byKey.get(b);
+                if (!A || !B) return;
+                if (this.saveRoasterPrefs(p => { p.notSame.push([A.name, B.name, new Date().toISOString()]); })) this.showToast('Got it. They stay separate.');
+            },
+
+            toggleRoasterFav(key) {
+                const r = this.roasterData().byKey.get(key);
+                if (!r) return;
+                const on = r.favBy.includes(this.user);
+                const keys = new Set([r.key, ...r.spellings.map(n => RoasterEngine.keyOf(n))]);
+                this.saveRoasterPrefs(p => { p.fav = p.fav.filter(k => !keys.has(this.roasterKey(k))); if (!on) p.fav.push(r.name); });
+                this.renderRoasterPage();
+            },
+
+            // ---- favorite roasters on the profile's Favorites card
+            favRoastersOf(who) {
+                const D = this.roasterData();
+                const mine = r => (r.people.find(p => p.name === who) || { sessions: 0 }).sessions;
+                return D.roasters.filter(r => r.favBy.includes(who)).sort((a, b) => mine(b) - mine(a) || a.name.localeCompare(b.name));
+            },
+
+            favRoastersHtml(who, list, mine) {
+                if (!list.length && !mine) return '';
+                const tiles = list.map(r => { const p = r.people.find(x => x.name === who); const paint = this.roasterPaint(r);
+                    return `<button type="button" class="fab-tile small ro-fab" data-roaster-key="${this.esc(r.key)}" onclick="app.openRoaster(this.getAttribute('data-roaster-key'))" aria-label="${this.esc(r.name)}"><span class="fab-art" style="background:${paint.bg}"><b>${this.esc(this.roasterInitials(r.name))}</b>${p && p.rated ? `<em>${this.esc(RoasterEngine.f1(p.avg))}★</em>` : ''}</span><span class="fab-name">${this.esc(r.name)}</span><span class="fab-roaster">${p ? `${p.sessions} session${p.sessions === 1 ? '' : 's'}` : 'Not brewed yet'}</span></button>`; }).join('');
+                return `<div class="label fab-last-label">Favorite roasters</div>${list.length ? `<div class="fab-row small">${tiles}</div>` : `<div class="fab-sub ro-fab-empty">Tap the heart on a roaster's page to add it here.</div>`}`;
+            },
+
+            // a one-word name wider than its tile gets a little smaller instead of being cut off
+            fitRoasterTileNames(root) {
+                const scope = root || document;
+                if (!scope || !scope.querySelectorAll || typeof getComputedStyle !== 'function') return;
+                scope.querySelectorAll('.ro-fab .fab-name').forEach(el => {
+                    el.style.fontSize = '';
+                    let px = parseFloat(getComputedStyle(el).fontSize) || 11;
+                    while (el.scrollWidth > el.clientWidth + 1 && px > 9) { px -= 0.5; el.style.fontSize = `${px}px`; }
+                });
+            },
+
+            // ---- the library switch
+            setLibraryMode(mode) {
+                this.libraryMode = mode === 'roasters' ? 'roasters' : 'coffees';
+                this.render();
+                window.scrollTo(0, 0);
+            },
+
+            setRoasterSort(k) { this.roasterSort = k; this.render(); },
+
+            libSwitchHtml() {
+                const m = this.libraryMode === 'roasters' ? 'roasters' : 'coffees';
+                return `<div class="seg-control lib-switch" role="tablist" aria-label="Library">${[['coffees', 'Coffees'], ['roasters', 'Roasters']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === m}" aria-pressed="${k === m}" onclick="app.setLibraryMode('${k}')">${l}</button>`).join('')}</div>`;
+            },
+
+            roasterFilterHtml() {
+                const r = this.roasterFilter ? this.roasterData().byKey.get(this.roasterFilter) : null;
+                if (!r) return '';
+                return `<div class="lib-filter"><button type="button" class="chip-btn" aria-pressed="true" onclick="app.clearRoasterFilter()" aria-label="Show every roaster's coffees">${this.esc(r.name)}<svg class="icon"><use href="#i-x"/></svg></button></div>`;
+            },
+
+            clearRoasterFilter() { this.roasterFilter = ''; this.render(); },
+
+            sortRoasters(list) {
+                const k = this.roasterSort || 'brewed';
+                const name = r => r.name.replace(/[^\p{L}\p{N} ]/gu, '').trim().toLowerCase() || '￿';
+                const by = {
+                    brewed: (a, b) => b.sessions - a.sessions || b.last - a.last,
+                    rated: (a, b) => (b.rated >= 3) - (a.rated >= 3) || b.avg - a.avg || b.rated - a.rated,
+                    recent: (a, b) => b.last - a.last || b.sessions - a.sessions,
+                    az: (a, b) => name(a).localeCompare(name(b))
+                }[k] || ((a, b) => b.sessions - a.sessions);
+                return [...list].sort((a, b) => by(a, b) || a.name.localeCompare(b.name));
+            },
+
+            roasterPeopleLabel(r) {
+                const names = r.people.length ? r.people.map(p => p.name) : r.loggers;
+                return names.length <= 2 ? names.join(' and ') : `${names[0]} +${names.length - 1}`;
+            },
+
+            renderRoasterList(grid, q) {
+                grid.className = 'roaster-list';
+                const D = this.roasterData();
+                let list = D.roasters;
+                if (q) list = list.filter(r => [r.name, ...r.spellings].some(n => n.toLowerCase().includes(q)));
+                list = this.sortRoasters(list);
+                const sorts = [['brewed', 'Most brewed'], ['rated', 'Top rated'], ['recent', 'Recent'], ['az', 'A–Z']];
+                const cur = this.roasterSort || 'brewed';
+                const s = !q && D.suggestions[0];
+                const merge = s ? `<div class="profile-card ro-merge"><p><b>${this.esc(s.b.name)}</b> (${this.esc(this.roasterPeopleLabel(s.b))}, ${s.b.sessions} session${s.b.sessions === 1 ? '' : 's'}) and <b>${this.esc(s.a.name)}</b> (${this.esc(this.roasterPeopleLabel(s.a))}, ${s.a.sessions} session${s.a.sessions === 1 ? '' : 's'}) look like the same roaster. Merge them so their stats add up?</p><div class="ro-merge-actions"><button type="button" class="btn-primary" onclick="app.mergeRoasters('${this.esc(s.a.key)}', '${this.esc(s.b.key)}')">Merge</button><button type="button" class="btn-outline" onclick="app.notSameRoasters('${this.esc(s.a.key)}', '${this.esc(s.b.key)}')">Not the same</button></div></div>` : '';
+                grid.innerHTML = [
+                    this.libSwitchHtml(),
+                    `<div class="ro-sorts" role="group" aria-label="Sort roasters">${sorts.map(([k, l]) => `<button type="button" class="chip-btn" aria-pressed="${k === cur}" onclick="app.setRoasterSort('${k}')">${l}</button>`).join('')}</div>`,
+                    merge,
+                    list.length ? list.map(r => this.roasterCardHtml(r)).join('') : `<div class="ro-empty">${q ? 'No roasters match your search.' : 'No roasters yet. Add a coffee and its roaster shows up here.'}</div>`
+                ].join('');
+                this.fitRoasterBeans(grid);
+                if (!this._roResize) {   // re-fit the coffee lines when the width changes or the fonts arrive
+                    this._roResize = true;
+                    window.addEventListener('resize', () => this.fitRoastersSoon());
+                    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => this.fitRoastersSoon());
+                }
+            },
+
+            roasterCardHtml(r) {
+                const fav = this.user && r.favBy.includes(this.user);
+                const faces = r.people.slice(0, 3).map((p, i) => `<i style="background:${this.esc(this.getUserColor(p.name))};z-index:${9 - i}">${this.esc(this.feedInitial(p.name))}</i>`).join('') + (r.people.length > 3 ? `<i class="more">+${r.people.length - 3}</i>` : '');
+                const n = r.coffees.length;
+                return `<div class="card ro-card" role="button" tabindex="0" data-roaster-key="${this.esc(r.key)}" onclick="app.openRoaster(this.getAttribute('data-roaster-key'))">
+                    <div class="ro-head">${this.roasterTileHtml(r)}<div class="ro-main"><span class="ro-name">${this.esc(r.name)}</span>${r.rated ? `<div class="ro-rate"><span class="star-meter" style="--fill:${this.starFill(r.avg)}%"></span><span>${this.esc(RoasterEngine.f1(r.avg))}</span></div>` : ''}</div></div>
+                    <div class="ro-meta"><span>${n} coffee${n === 1 ? '' : 's'} · ${r.sessions} session${r.sessions === 1 ? '' : 's'}</span>${fav ? '<svg class="icon ro-heart" aria-label="Favorite"><use href="#i-heart"/></svg>' : ''}${faces ? `<span class="dh-faces" aria-label="${this.esc(r.people.map(p => p.name).join(', '))}">${faces}</span>` : ''}</div>
+                    <div class="ro-beans" data-total="${n}">${r.coffees.map(c => `<button type="button" class="ro-bean" data-bean="${this.esc(c.beanId)}" onclick="event.stopPropagation(); app.openCoffeeFromRoaster(this.getAttribute('data-bean'))">${this.esc(c.name)}</button>`).join('')}<span class="ro-more" hidden></span></div>
+                </div>`;
+            },
+
+            // one line of coffees, best-rated first: as many as fit, then "+N others"; never wraps, never cuts a name
+            fitRoasterBeans(root) {
+                const scope = root || document;
+                if (!scope || !scope.querySelectorAll) return;
+                scope.querySelectorAll('.ro-beans').forEach(box => {
+                    const chips = [...box.querySelectorAll('.ro-bean')], more = box.querySelector('.ro-more'), total = Number(box.getAttribute('data-total')) || chips.length;
+                    if (!box.clientWidth) return;
+                    chips.forEach(c => { c.hidden = false; });
+                    box.hidden = false;
+                    let shown = chips.length;
+                    const label = () => { const k = total - shown; more.hidden = k <= 0; more.textContent = `+${k} other${k === 1 ? '' : 's'}`; };
+                    const fits = () => box.scrollWidth <= box.clientWidth + 1;
+                    label();
+                    while (!fits() && shown > 0) { chips[--shown].hidden = true; label(); }
+                    if (!shown) box.hidden = true;   // not even one name fits: leave the line out rather than cut a name
+                });
+            },
+
+            // ---- going between pages: a stack, so Back steps back one page at a time
+            roasterViewActive() { const v = document.getElementById('roaster-view'); return Boolean(v && v.classList.contains('active')); },
+
+            snapPage() {
+                if (this.roasterViewActive()) return { kind: 'roaster', key: this.roasterOpen, scroll: document.getElementById('roaster-view').scrollTop };
+                if (this.isDetailActive()) return { kind: 'bean', group: { meta: this.activeGroup.meta, ids: [...this.activeGroup.ids], users: new Set(this.activeGroup.users) }, scroll: document.getElementById('detail-view').scrollTop };
+                return null;
+            },
+
+            openRoasterFrom(el, ev) {
+                if (ev) { ev.stopPropagation(); ev.preventDefault(); }
+                const name = el && el.getAttribute('data-roaster');
+                if (!name) return;
+                this.openRoaster(this.roasterKey(name));
+            },
+
+            openRoaster(key) {
+                const r = this.roasterData().byKey.get(key);
+                if (!r) { this.showToast('That roaster has no coffees anymore.'); return; }
+                const from = this.snapPage();
+                if (from && !(from.kind === 'roaster' && from.key === key)) { this.navStack = this.navStack || []; this.navStack.push(from); }
+                if (!from) this.navStack = [];
+                document.getElementById('detail-view').classList.remove('active');
+                this.roasterOpen = key;
+                const v = document.getElementById('roaster-view');
+                v.classList.add('active'); v.setAttribute('aria-hidden', 'false');
+                this.renderRoasterPage();
+                v.scrollTop = 0;
+            },
+
+            openCoffeeFromRoaster(beanId) {
+                const from = this.snapPage();
+                if (from) { this.navStack = this.navStack || []; this.navStack.push(from); } else this.navStack = [];
+                this.hideRoasterView();
+                this._navKeep = true;
+                this.openFeedTarget(beanId, '', false);
+                this._navKeep = false;
+                const d = document.getElementById('detail-view'); if (d) d.scrollTop = 0;
+            },
+
+            hideRoasterView() {
+                const v = document.getElementById('roaster-view');
+                if (v) { v.classList.remove('active'); v.setAttribute('aria-hidden', 'true'); }
+            },
+
+            // Back: the page before this one, or the library
+            goBackPage() {
+                const prev = (this.navStack || []).pop();
+                if (!prev) { this.hideRoasterView(); document.getElementById('detail-view').classList.remove('active'); this.openCommentId = null; this.roasterOpen = ''; this.render(); return; }
+                if (prev.kind === 'roaster' && this.roasterData().byKey.get(prev.key)) {
+                    document.getElementById('detail-view').classList.remove('active'); this.openCommentId = null;
+                    this.roasterOpen = prev.key;
+                    const v = document.getElementById('roaster-view'); v.classList.add('active'); v.setAttribute('aria-hidden', 'false');
+                    this.renderRoasterPage(); v.scrollTop = prev.scroll || 0;
+                    return;
+                }
+                if (prev.kind === 'bean') {
+                    const ids = prev.group.ids.filter(id => this.beans.has(String(id)));
+                    if (ids.length) {
+                        this.hideRoasterView();
+                        const brews = Array.from(this.brews.values()).filter(b => ids.includes(b.beanId));
+                        this._navKeep = true;
+                        this.openDetail({ ...prev.group, ids }, brews);
+                        this._navKeep = false;
+                        document.getElementById('detail-view').scrollTop = prev.scroll || 0;
+                        return;
+                    }
+                }
+                this.goBackPage();   // that page is gone: step back once more
+            },
+
+            backLabel() {
+                const prev = (this.navStack || [])[this.navStack ? this.navStack.length - 1 : 0];
+                if (!prev) return 'Library';
+                if (prev.kind === 'roaster') { const r = this.roasterData().byKey.get(prev.key); return r ? r.name : 'Back'; }
+                return (prev.group && prev.group.meta && prev.group.meta.name) || 'Back';
+            },
+
+            setDetailBackLabel() {
+                const b = document.querySelector('#detail-view .dh-back');
+                if (!b) return;
+                const text = this.backLabel();
+                let span = b.querySelector('.dh-back-t');
+                if (!span) { [...b.childNodes].forEach(n => { if (n.nodeType === 3) n.remove(); }); span = document.createElement('span'); span.className = 'dh-back-t'; b.appendChild(span); }
+                span.textContent = text;
+            },
+
+            roasterLastLabel(t) {
+                if (!t) return '–';
+                const d = this.dayNum(Date.now()) - this.dayNum(t);
+                if (d <= 0) return 'Today';
+                if (d === 1) return 'Yesterday';
+                const dt = new Date(t), now = new Date();
+                return dt.toLocaleDateString(undefined, dt.getFullYear() === now.getFullYear() ? { month: 'short', day: 'numeric' } : { month: 'short', year: 'numeric' });
+            },
+
+            roasterBarHtml(label, counts, order, colors) {
+                let e = Object.entries(counts || {}).filter(([, v]) => v > 0);
+                if (!e.length) return '';
+                e = order ? e.sort((a, b) => order.indexOf(a[0]) - order.indexOf(b[0])) : e.sort((a, b) => b[1] - a[1]);
+                const total = e.reduce((s, [, v]) => s + v, 0);
+                const pct = v => Math.max(1, Math.round((v / total) * 100));
+                const col = k => colors[k] || '#8E958F';
+                const word = k => k.charAt(0) + k.slice(1).toLowerCase();
+                return `<div class="ro-barwrap"><div class="ro-bar-h">${label}</div><div class="ro-bar" role="img" aria-label="${this.esc(label)}: ${this.esc(e.map(([k, v]) => `${word(k)} ${pct(v)}%`).join(', '))}">${e.map(([k, v]) => `<i style="flex:${v} 1 0;background:${col(k)}"></i>`).join('')}</div><div class="ro-legend">${e.map(([k, v]) => `<span><b style="background:${col(k)}"></b>${this.esc(word(k))} ${pct(v)}%</span>`).join('')}</div></div>`;
+            },
+
+            renderRoasterPage() {
+                const page = document.getElementById('ro-page');
+                if (!page || !this.roasterViewActive()) return;
+                const r = this.roasterData().byKey.get(this.roasterOpen);
+                if (!r) { this.goBackPage(); return; }
+                const esc = s => this.esc(s);
+                const fav = this.user && r.favBy.includes(this.user);
+                const info = r.info || {};
+                const site = info.website ? info.website.replace(/^https?:\/\//i, '').replace(/\/$/, '') : '';
+                const href = info.website ? (/^https?:\/\//i.test(info.website) ? info.website : `https://${info.website}`) : '';
+                const where = [info.location ? esc(info.location) : '', site ? `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(site)}</a>` : ''].filter(Boolean).join(' · ');
+                const n = r.coffees.length;
+                const ROAST_C = { Light: '#D7B188', 'Medium-Light': '#B88A5F', Medium: '#8E6542', 'Medium-Dark': '#6B4832', Dark: '#45301F' };
+                const PROC_C = { Washed: '#4F86A6', Natural: '#B4566E', Honey: '#D4A238', Fermented: '#7A5D8F', Anaerobic: '#563F6E', Mixed: '#8E958F' };
+                const rgb = this.roasterPaint(r).rgb;
+                const best = r.best, bc = r.bestCoffee;
+                const bestCard = best && bc ? `<button type="button" class="profile-card ro-sec" data-bean="${esc(bc.beanId)}" onclick="app.openCoffeeFromRoaster(this.getAttribute('data-bean'))"><div class="label">Best shot</div><div class="ro-best"><div class="ro-best-main"><div class="ro-best-name">${esc(bc.name)}</div><div class="ro-best-line"><span>${esc(this.getBrewOwner(best))} · ${esc(this.shortDate(best.date))}</span><span class="star-meter" style="--fill:${this.starFill(best.rating)}%"></span><span>${esc(this.formatRating(best.rating))}</span></div>${this.recipeLine(best, false) ? `<div class="ro-best-recipe">${esc(best.method || '')}${best.method ? ' · ' : ''}${esc(this.recipeLine(best, false))}</div>` : ''}</div><svg class="icon ro-go"><use href="#i-chevron-down"/></svg></div></button>` : '';
+                const coffees = `<section class="profile-card ro-sec"><div class="label">Their coffees</div>${r.coffees.map(c => `<button type="button" class="ro-cof" data-bean="${esc(c.beanId)}" onclick="app.openCoffeeFromRoaster(this.getAttribute('data-bean'))"><span class="ro-cof-main"><span class="ro-cof-name">${esc(c.name)}</span><span class="ro-cof-sub">${c.sessions} session${c.sessions === 1 ? '' : 's'}</span></span>${c.rated ? `<span class="ro-meter"><i style="width:${(c.avg / 5) * 100}%"></i></span><span class="ro-cof-n">${RoasterEngine.f1(c.avg)}★</span>` : ''}<svg class="icon ro-go"><use href="#i-chevron-down"/></svg></button>`).join('')}</section>`;
+                const who = r.people.length ? `<section class="profile-card ro-sec"><div class="label">Who drinks it</div>${r.people.map(p => `<div class="ro-who"><span class="person-dot" style="background:${esc(this.getUserColor(p.name))}">${esc(this.feedInitial(p.name))}</span><span class="ro-who-t">${esc(p.name)}<small>${p.sessions} session${p.sessions === 1 ? '' : 's'}${p.rated ? ` · ${RoasterEngine.f1(p.avg)}★ average` : ''}</small></span>${p.top ? `<span class="ro-badge">${esc(p.name)}'s top roaster</span>` : ''}</div>`).join('')}</section>` : '';
+                const e = r.espresso;
+                const range = (a, f) => a ? (Math.abs(a[1] - a[0]) < 1e-9 ? f(a[0]) : `${f(a[0])}–${f(a[1])}`) : '';
+                const ratio = e && e.ratio ? range(e.ratio, x => `1:${x.toFixed(1)}`) : '', secs = e && e.time ? range(e.time, x => `${this.fmtNum(x, 0)}`) + ' s' : '';
+                const esp = e ? `<section class="profile-card ro-sec"><div class="label">Dialing in their espresso</div><div class="ro-esp">The group's 4★+ shots of their coffees ran ${ratio ? `<b>${esc(ratio)}</b>` : ''}${ratio && secs ? ' in ' : ''}${secs ? `<b>${esc(secs)}</b>` : ''}.</div><div class="ro-sub" style="margin:6px 0 0">From ${e.shots} shots. Ratios and times only: grind numbers differ by grinder.</div></section>` : '';
+                page.innerHTML = `
+                    <div class="dh-top ro-top"><button type="button" class="dh-pill dh-back" onclick="app.goBackPage()"><svg class="icon"><use href="#i-arrow-left"/></svg><span>${esc(this.backLabel())}</span></button><div class="dh-actions"><button type="button" class="btn-clean ro-fav" aria-pressed="${fav}" aria-label="${fav ? 'Remove from favorites' : 'Favorite this roaster'}" onclick="app.toggleRoasterFav('${esc(r.key)}')"><svg class="icon"><use href="#i-heart"/></svg></button><button type="button" class="btn-clean" aria-label="Edit roaster details" onclick="app.openRoasterEdit('${esc(r.key)}')"><svg class="icon"><use href="#i-edit-2"/></svg></button></div></div>
+                    <section class="profile-card profile-hero ro-hero" style="--pc-rgb:${rgb}">
+                        <div class="ro-hero-row">${this.roasterTileHtml(r, true)}<div style="min-width:0"><h2>${esc(r.name)}</h2>${where ? `<div class="ro-where">${where}</div>` : `<button type="button" class="ro-add" onclick="app.openRoasterEdit('${esc(r.key)}')">+ Add location &amp; website</button>`}</div></div>
+                        ${info.note ? `<p class="ro-note">${esc(info.note)}</p>` : ''}
+                        <p class="ro-style">${esc(r.style)}</p>
+                        <div class="stat-row"><div class="stat-box"><div class="stat-num">${n}</div><div class="stat-cap">${n === 1 ? 'Coffee' : 'Coffees'}</div></div><div class="stat-box"><div class="stat-num">${r.sessions}</div><div class="stat-cap">${r.sessions === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${r.rated ? `${RoasterEngine.f1(r.avg)}<small>★</small>` : '–'}</div><div class="stat-cap">${r.rated} rated</div></div><div class="stat-box"><div class="stat-num word">${esc(this.roasterLastLabel(r.last))}</div><div class="stat-cap">Last brewed</div></div></div>
+                        ${this.roasterBarHtml('Roast', r.roast, RoasterEngine.ROASTS, ROAST_C)}
+                        ${this.roasterBarHtml('Process', r.proc, null, PROC_C)}
+                    </section>
+                    ${bestCard}${coffees}${who}${esp}
+                    <div class="ro-acts"><button type="button" class="btn-primary" onclick="app.logCoffeeForRoaster('${esc(r.key)}')"><svg class="icon" style="width:16px;height:16px;stroke:currentColor"><use href="#i-plus"/></svg>Log a coffee</button><button type="button" class="btn-outline" onclick="app.showRoasterCoffees('${esc(r.key)}')">All coffees</button></div>`;
+            },
+
+            openRoasterEdit(key) {
+                const r = this.roasterData().byKey.get(key);
+                if (!r) return;
+                const f = document.querySelector('#roaster-modal form'), info = r.info || {};
+                f.elements.key.value = r.key; f.elements.location.value = info.location || ''; f.elements.website.value = info.website || ''; f.elements.note.value = info.note || '';
+                document.getElementById('roaster-modal-title').innerText = r.name;
+                this.openModal('roaster-modal');
+            },
+
+            saveRoasterEdit(ev) {
+                if (ev) ev.preventDefault();
+                const f = document.querySelector('#roaster-modal form');
+                const r = this.roasterData().byKey.get(f.elements.key.value);
+                if (!r) { this.closeModals(); return; }
+                const val = n => String(f.elements[n].value || '').trim().replace(/\s+/g, ' ').slice(0, n === 'note' ? 280 : 120);
+                const ok = this.saveRoasterPrefs(p => { p.info[r.name] = { location: val('location'), website: val('website'), note: val('note'), at: new Date().toISOString() }; });
+                this.closeModals();
+                if (ok) { this.renderRoasterPage(); this.showToast('Saved.'); }
+            },
+
+            logCoffeeForRoaster(key) {
+                const r = this.roasterData().byKey.get(key);
+                this.openBeanModal();
+                const f = this.getBeanForm();
+                if (r && f && f.elements.roaster) f.elements.roaster.value = r.name;
+                setTimeout(() => { if (f && f.elements.name) f.elements.name.focus(); }, 60);
+            },
+
+            showRoasterCoffees(key) {
+                this.navStack = [];
+                this.hideRoasterView();
+                document.getElementById('detail-view').classList.remove('active');
+                this.roasterOpen = '';
+                this.roasterFilter = key;
+                this.libraryMode = 'coffees';
+                this.setTab('shared');
+                window.scrollTo(0, 0);
+            },
+
+            // the add-coffee form suggests the roasters already logged (the names they go by)
+            fillRoasterSuggestions() {
+                const list = document.getElementById('roaster-names');
+                if (!list) return;
+                const names = this.sortRoasters(this.roasterData().roasters).map(r => r.name);
+                list.innerHTML = names.map(n => `<option value="${this.esc(n)}"></option>`).join('');
+            },
+
+            fitRoastersSoon() {
+                clearTimeout(this._roFitT);
+                this._roFitT = setTimeout(() => this.fitRoasterBeans(document.getElementById('grid')), 80);
             },
 
             openFeedTarget(beanId, brewId = '', openComments = false) {
@@ -9002,6 +9837,8 @@
                     return;
                 }
 
+                if (this.tab === 'shared' && this.libraryMode === 'roasters') { this.renderRoasterList(grid, searchQuery); return; }
+
                 let list = this.buildBeanGroups();
 
                 if (this.tab === 'my') {
@@ -9018,6 +9855,11 @@
 
                 if (this.currentMethodFilter !== 'all') {
                     list = list.filter(item => item.brews.some(brew => brew.method === this.currentMethodFilter));
+                }
+
+                if (this.tab === 'shared' && this.roasterFilter) {
+                    if (!this.roasterData().byKey.get(this.roasterFilter)) this.roasterFilter = '';
+                    else list = list.filter(item => this.roasterKey(item.group.meta.roaster) === this.roasterFilter);
                 }
 
                 if (this.currentSort === 'recent') {
@@ -9059,7 +9901,7 @@
                         <div class="lib-name" style="font-size:1.5rem; font-weight:700;">
                             ${this.esc(bean.name || '')}
                         </div>
-                        ${bean.roaster ? `<div class="lib-roaster">${this.esc(bean.roaster)}</div>` : '<div class="lib-roaster"></div>'}
+                        ${bean.roaster ? `<div class="lib-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(bean.roaster)}" onclick="app.openRoasterFrom(this, event)">${this.esc(bean.roaster)}</span></div>` : '<div class="lib-roaster"></div>'}
                         <div style="margin-bottom:12px;">
                             ${bean.variety ? `<span class="tag">${this.esc(bean.variety)}</span>` : ''}
                             ${bean.origin ? `<span class="tag">${this.esc(bean.origin)}</span>` : ''}
@@ -9085,11 +9927,12 @@
                 });
 
                 if (!list.length) {
-                    const message = (searchQuery || this.currentMethodFilter !== 'all')
+                    const message = (searchQuery || this.currentMethodFilter !== 'all' || (this.tab === 'shared' && this.roasterFilter))
                         ? 'No beans match your filters.'
                         : 'No beans yet. Add your first coffee!';
                     grid.innerHTML = `<div style="text-align:center; color:#999; padding:3rem;">${message}</div>`;
                 }
+                if (this.tab === 'shared' && grid.insertAdjacentHTML) grid.insertAdjacentHTML('afterbegin', this.libSwitchHtml() + this.roasterFilterHtml());
             },
 
             // ===================== v9 features =====================
@@ -9525,7 +10368,7 @@
                                 <div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(log.method)}"/></svg>${this.esc(log.method || 'Espresso')}</div>
                             </div>
                             <div class="sc-title">
-                                <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster">${this.esc(roasterName)}</div>` : ''}</div>
+                                <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(roasterName)}" onclick="app.openRoasterFrom(this, event)">${this.esc(roasterName)}</span></div>` : ''}</div>
                                 ${rating > 0 ? `<div class="sc-rate"><span class="star-meter" style="--fill:${this.starFill(rating)}%"></span><b>${this.esc(this.formatRating(rating))}</b></div>` : ''}
                             </div>
                             ${this.recipeStripHtml(log)}
@@ -9755,6 +10598,7 @@
                     tabs,
                     `<div class="profile-section" data-section="${section}">${body}</div>`
                 ].join('');
+                this.fitRoasterTileNames(grid);
             },
 
             setProfileSection(section) {
@@ -11200,7 +12044,8 @@
                     items: this.gearItemsFor(this.equipment),
                     lastByMethod: this.lastEquipment || {},
                     fabFour: this.fabFourOf(this.user),
-                    recipes: this.myRecipes()
+                    recipes: this.myRecipes(),
+                    ...this.roasterCarry()
                 });
             },
 
@@ -11810,7 +12655,10 @@
             },
 
             openDetail(group, brews) {
+                if (!this._navKeep && !this.isDetailActive() && !this.roasterViewActive()) this.navStack = [];   // opened from the library or feed
+                if (!this._navKeep && this.roasterViewActive()) { const from = this.snapPage(); if (from) { this.navStack = this.navStack || []; this.navStack.push(from); } this.hideRoasterView(); }
                 document.getElementById('detail-view').classList.add('active');
+                this.setDetailBackLabel();
                 this.activeGroup = {
                     meta: group.meta,
                     ids: [...group.ids],
@@ -11826,7 +12674,8 @@
 
                 const bean = group.meta;
                 document.getElementById('d-name').innerText = bean.name || '';
-                document.getElementById('d-roaster').innerText = bean.roaster || '';
+                const dRoaster = document.getElementById('d-roaster');
+                dRoaster.innerHTML = bean.roaster ? `<button type="button" class="ro-link" data-roaster="${this.esc(bean.roaster)}" onclick="app.openRoasterFrom(this, event)">${this.esc(bean.roaster)}<svg class="icon ro-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>` : '';
                 document.getElementById('d-variety').innerText = bean.variety || '';
                 document.getElementById('d-variety').hidden = !String(bean.variety || '').trim();
                 document.getElementById('d-origin').innerText = bean.origin || '-';
@@ -11972,6 +12821,7 @@
             },
 
             closeDetail() {
+                if ((this.navStack || []).length) { this.goBackPage(); return; }
                 document.getElementById('detail-view').classList.remove('active');
                 this.openCommentId = null;
             },
@@ -12569,6 +13419,7 @@
                 form.reset();
                 form.elements.id.value = '';
                 document.getElementById('bean-modal-title').innerText = 'New Coffee';
+                this.fillRoasterSuggestions();
                 this.openModal('bean-modal');
             },
 
