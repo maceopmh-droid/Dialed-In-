@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v12.0 -->
+<!-- Dialed In v12.1 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="12.0">
+    <meta name="dialed-in-version" content="12.1">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -2473,27 +2473,26 @@
         .cq-bar { position: relative; overflow: visible; display: block; isolation: isolate; }
         .cq-bar .cq-layer { position: absolute; inset: 0; border-radius: 999px; pointer-events: none; }
         .cq-bar .cq-paint { overflow: hidden; clip-path: inset(0 var(--cq-r1) 0 0 round 999px); }
-        .cq-bar .cq-glow { z-index: -1; filter: blur(7px) saturate(1.35); opacity: 0.55; clip-path: inset(-24px calc(var(--cq-r1) - 24px) -24px -24px round 999px); }
-        :root[data-theme="dark"] .cq-bar .cq-glow { opacity: 0.9; filter: blur(8px) saturate(1.6) brightness(1.3); }
-        .cq-bar .cq-g, .cq-bar .cq-run { position: absolute; top: 0; bottom: 0; left: 0; width: 100%; background: var(--cq-g); }
-        .cq-bar .cq-g, .cq-bar .cq-run { box-shadow: none; height: auto; }
-        .cq-bar .cq-run { width: 200%; background: var(--cq-loop); background-size: 50% 100%; background-repeat: repeat-x; opacity: 0; }
+        .cq-bar { --cq-g0: 0.55; --cq-gf: blur(7px) saturate(1.35); }
+        :root[data-theme="dark"] .cq-bar { --cq-g0: 0.9; --cq-gf: blur(8px) saturate(1.6) brightness(1.3); }
+        .cq-bar .cq-glow { z-index: -1; filter: var(--cq-gf); opacity: var(--cq-g0); clip-path: inset(-24px calc(var(--cq-r1) - 24px) -24px -24px round 999px); }
+        .cq-bar i, .cq-bar i + i { box-shadow: none; }
+        .cq-bar .cq-g { position: absolute; top: 0; bottom: 0; left: 0; width: 100%; height: auto; background: var(--cq-g); }
+        .cq-bar .cq-sheen { position: absolute; top: 0; bottom: 0; left: 0; width: 38%; height: auto; background: linear-gradient(100deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.55) 50%, rgba(255, 255, 255, 0)); transform: translateX(-110%); }
         .cq-bar.grow .cq-paint { animation: cq-grow-paint 1100ms cubic-bezier(0.25, 0.8, 0.3, 1) both; animation-delay: var(--cq-grow-at, 0ms); }
         .cq-bar.grow .cq-glow { animation: cq-grow-glow 1100ms cubic-bezier(0.25, 0.8, 0.3, 1) both; animation-delay: var(--cq-grow-at, 0ms); }
-        .cq-bar.loop .cq-run { animation: cq-loop 2600ms cubic-bezier(0.55, 0, 0.25, 1) both; animation-delay: var(--cq-loop-at, 0ms); }
+        .cq-bar.loop .cq-sheen { animation: cq-sheen 1100ms cubic-bezier(0.45, 0, 0.2, 1) both; animation-delay: var(--cq-loop-at, 0ms); }
+        .cq-bar.loop .cq-glow { animation: cq-swell 1700ms ease-in-out both; animation-delay: var(--cq-loop-at, 0ms); }
+        .cq-bar.grow.loop .cq-glow { animation: cq-grow-glow 1100ms cubic-bezier(0.25, 0.8, 0.3, 1) both, cq-swell 1700ms ease-in-out both; animation-delay: var(--cq-grow-at, 0ms), var(--cq-loop-at, 0ms); }
         @keyframes cq-grow-paint { from { clip-path: inset(0 var(--cq-r0) 0 0 round 999px); } to { clip-path: inset(0 var(--cq-r1) 0 0 round 999px); } }
         @keyframes cq-grow-glow {
             0% { clip-path: inset(-24px calc(var(--cq-r0) - 24px) -24px -24px round 999px); }
             70% { opacity: 1; }
             100% { clip-path: inset(-24px calc(var(--cq-r1) - 24px) -24px -24px round 999px); }
         }
-        @keyframes cq-loop {
-            0% { transform: translateX(-50%); opacity: 0; }
-            7% { opacity: 1; }
-            93% { opacity: 1; }
-            100% { transform: translateX(0); opacity: 0; }
-        }
-        @media (prefers-reduced-motion: reduce) { .cq-bar .cq-paint, .cq-bar .cq-glow, .cq-bar .cq-run { animation: none !important; } }
+        @keyframes cq-sheen { from { transform: translateX(-110%); } to { transform: translateX(290%); } }
+        @keyframes cq-swell { 0%, 40% { opacity: var(--cq-g0); filter: var(--cq-gf); } 70% { opacity: 1; filter: blur(10px) saturate(1.8) brightness(1.5); } 100% { opacity: var(--cq-g0); filter: var(--cq-gf); } }
+        @media (prefers-reduced-motion: reduce) { .cq-bar .cq-paint, .cq-bar .cq-glow, .cq-bar .cq-sheen { animation: none !important; } }
 
         /* ===== monthly awards (v12.0) ===== */
         .aw-tile .aw-stat { color: color-mix(in srgb, var(--ac) 52%, var(--ink)); font-weight: 700; }
@@ -2703,6 +2702,9 @@
         .thread.compact.open .thread-toggle { align-self: stretch; border-radius: 14px 14px 0 0; }
         .thread.compact.open .thread-toggle::before { content: ''; position: absolute; left: -14px; bottom: 0; width: 14px; height: 14px; pointer-events: none; background: radial-gradient(circle at 0 0, transparent 13.5px, var(--thr-bg) 14px); }
         .thread.compact .thread-body { background: var(--thr-bg); border-radius: 16px 0 16px 16px; padding: 8px 14px 14px; }
+        /* v12.1: a little more room between feed cards (1.3x) */
+        .feed-list { gap: 18px; }
+        @media (max-width: 768px) { .feed-list { gap: 13px; } }
 
         /* ===== centered initials (v12.0) ===== */
         .feed-avatar, .cmt-avatar, .person-dot, .hero-avatar, .aw-face, .cq-face b, .thread-faces i, .wr-face, .wr-who b, .mrc-face { letter-spacing: 0; text-indent: 0; }
@@ -3004,7 +3006,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v12.0</div>
+            <div class="app-version">Dialed In · v12.1</div>
         </div>
     </div>
 
@@ -6460,23 +6462,14 @@
                 const last = parts[parts.length - 1].c;
                 stops.push(`${last} ${pct(total)}`, `transparent ${pct(total)}`);
                 const g = `linear-gradient(90deg, ${stops.join(', ')})`;
-                // the done-loop tile: same parts, with the last color blending back into the first at the edges so it wraps
-                let loop = '';
                 const done = q.done && total >= 0.999;
-                if (done && parts.length > 1) {
-                    const hw = Math.min(0.05, 0.35 * Math.min(parts[0].w, parts[parts.length - 1].w));
-                    const mid = this.hexMix(last, parts[0].c);
-                    const inner = stops.slice(1, -2);
-                    loop = `linear-gradient(90deg, ${mid} 0%, ${parts[0].c} ${pct(hw)}, ${inner.join(', ')}${inner.length ? ', ' : ''}${last} ${pct(1 - hw)}, ${mid} 100%)`;
-                }
                 // what you saw last time: a part that landed since then grows in
                 const key = `${q.start}:${q.type}`;
                 const grow = this.crewGrowFor(key, total);
-                const loopT = done && loop ? this.crewLoopElapsed() : null;
+                const loopT = done ? this.crewLoopElapsed() : null;
                 const cls = ['cq-bar', done ? 'done' : '', grow ? 'grow' : '', loopT !== null ? 'loop' : ''].filter(Boolean).join(' ');
-                const style = [`--cq-g:${g}`, loop ? `--cq-loop:${loop}` : '', `--cq-r1:${pct(1 - total)}`, grow ? `--cq-r0:${pct(1 - grow.from)}` : '', grow ? `--cq-grow-at:${-grow.t}ms` : '', loopT !== null ? `--cq-loop-at:${-loopT}ms` : ''].filter(Boolean).join(';');
-                const layer = (name) => `<div class="cq-layer ${name}"><i class="cq-g"></i>${loop ? '<i class="cq-run"></i>' : ''}</div>`;
-                return `<div class="${cls}" ${aria} style="${this.esc(style)}" title="${this.esc(parts.map(s => s.p).join(', '))}">${layer('cq-glow')}${layer('cq-paint')}</div>`;
+                const style = [`--cq-g:${g}`, `--cq-r1:${pct(1 - total)}`, grow ? `--cq-r0:${pct(1 - grow.from)}` : '', grow ? `--cq-grow-at:${-grow.t}ms` : '', loopT !== null ? `--cq-loop-at:${-loopT}ms` : ''].filter(Boolean).join(';');
+                return `<div class="${cls}" ${aria} style="${this.esc(style)}" title="${this.esc(parts.map(s => s.p).join(', '))}"><div class="cq-layer cq-glow"><i class="cq-g"></i></div><div class="cq-layer cq-paint"><i class="cq-g"></i>${done ? '<i class="cq-sheen"></i>' : ''}</div></div>`;
             },
 
             motionOK() {
@@ -6505,12 +6498,12 @@
             crewLoopElapsed() {
                 if (this._cqLoopPending && this.motionOK()) {
                     this._cqLoopPending = false;
-                    if (!this._cqLoop || Date.now() - this._cqLoop.at > 2600) this._cqLoop = { at: Date.now() };
+                    if (!this._cqLoop || Date.now() - this._cqLoop.at > 1700) this._cqLoop = { at: Date.now() };
                 }
                 const L = this._cqLoop;
                 if (!L) return null;
                 const t = Date.now() - L.at;
-                if (t >= 2600) { this._cqLoop = null; return null; }
+                if (t >= 1700) { this._cqLoop = null; return null; }
                 return t;
             },
 
@@ -6518,7 +6511,7 @@
             playCrewLoop() {
                 if (!this.motionOK()) return;
                 const bar = typeof document !== 'undefined' && document.querySelector ? document.querySelector('.crew-quest .cq-bar.done') : null;
-                if (!bar || !bar.querySelector || !bar.querySelector('.cq-run') || !bar.classList || !bar.style || typeof bar.style.setProperty !== 'function') { this._cqLoopPending = true; return; }
+                if (!bar || !bar.querySelector || !bar.querySelector('.cq-sheen') || !bar.classList || !bar.style || typeof bar.style.setProperty !== 'function') { this._cqLoopPending = true; return; }
                 const G = this._cqGrow;
                 const wait = G && Date.now() - G.at < 1100 ? 1100 - (Date.now() - G.at) - 100 : 0;
                 this._cqLoop = { at: Date.now() + Math.max(0, wait) };
@@ -9215,6 +9208,87 @@
                 if (el.scrollTo) el.scrollTo({ left, behavior: this.motionOK() ? 'smooth' : 'auto' }); else el.scrollLeft = left;
             },
 
+            // v12.1: the monthly share image matches the new cards (yours above, the crew's below), story-sized
+            async shareMonthRecap(s) {
+                const user = s.user, period = s.period;
+                const month = this.monthName(period.slice(2));
+                const c = typeof this.monthCrewStats === 'function' ? this.monthCrewStats(period) : null;
+                const crew = c && c.people.length > 1 ? c : null;
+                const W = 1080, PAD = 60, CW = W - PAD * 2, IN = 50;
+                const font = (w, z) => `${w} ${z}px -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif`;
+                const amount = g => g >= 1000 ? `${this.fmtNum(g / 1000, 2)} kg` : `${Math.round(g)} g`;
+                const youStats = [[amount(s.grams), 'coffee'], [s.avgRating ? `${this.fmtNum(s.avgRating, 1)}★` : '—', 'average rating'], [`${s.longestStreak} day${s.longestStreak === 1 ? '' : 's'}`, 'longest run'], [String(s.newBeans || 0), `new coffee${s.newBeans === 1 ? '' : 's'}`]];
+                const youLines = [];
+                if (s.topBean) youLines.push(['Top coffee', `${s.topBean.name || s.topBean.label} · ${s.topBean.count}×`]);
+                if (s.topMethod) youLines.push(['Method', `${s.topMethod.label} · ${s.topMethod.count}×`]);
+                if (s.best) { const bn = this.beans.get(String(s.best.beanId)); youLines.push(['Best shot', `${bn ? (String(bn.name || '').trim() || this.beanLabel(bn)) : 'Coffee'} · ${this.fmtNum(this.normalizeRating(s.best.rating))}★`]); }
+                if (s.buddy) youLines.push(['Brew buddy', s.buddy.name]);
+                const crewStats = crew ? [[amount(crew.grams), 'coffee'], [String(crew.fives), `5★ shot${crew.fives === 1 ? '' : 's'}`], [String(crew.likes), `like${crew.likes === 1 ? '' : 's'}`], [String(crew.goals), `goal${crew.goals === 1 ? '' : 's'} reached`]] : [];
+                const crewLines = [];
+                if (crew && crew.coffee && crew.coffee.bean) crewLines.push(['Crew coffee', `${String(crew.coffee.bean.name || '').trim() || this.beanLabel(crew.coffee.bean)} · ${crew.coffee.n}×`]);
+                if (crew && crew.busiest && crew.busiest[1] > 1) crewLines.push(['Busiest day', `${new Date(this.parseLocalDate(crew.busiest[0])).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · ${crew.busiest[1]} sessions`]);
+                if (crew && crew.champ.length) crewLines.push(['Champion', crew.champ.join(' & ')]);
+                const statsH = 2 * 132 + 22;
+                const youH = 54 + 96 + 170 + statsH + 30 + youLines.length * 58 + 40;
+                const crewH = crew ? 54 + 96 + 170 + crew.people.length * 62 + 20 + statsH + 30 + crewLines.length * 58 + 40 : 0;
+                const H = Math.max(1920, 170 + youH + (crew ? 40 + crewH : 0) + 130);
+                const canvas = document.createElement('canvas');
+                canvas.width = W; canvas.height = H;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return;
+                ctx.fillStyle = '#F4F1EC'; ctx.fillRect(0, 0, W, H);
+                ctx.fillStyle = '#586A58'; ctx.font = font(800, 36); ctx.fillText(`Dialed In · ${month}`, PAD + 6, 110);
+                const face = (n, x, y, r) => { ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.beginPath(); ctx.arc(x, y, r + 5, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = this.getUserColor(n); ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#fff'; ctx.font = font(800, Math.round(r * 0.95)); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(this.feedInitial(n), x, y + 1); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; };
+                const card = (y, h, fill) => { ctx.save(); this.roundRect(ctx, PAD, y, CW, h, 56); ctx.fillStyle = fill; ctx.shadowColor = 'rgba(40,30,20,0.18)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 14; ctx.fill(); ctx.restore(); ctx.save(); this.roundRect(ctx, PAD, y, CW, h, 56); ctx.clip(); const hl = ctx.createRadialGradient(PAD + CW * 0.92, y, 0, PAD + CW * 0.92, y, CW * 0.5); hl.addColorStop(0, 'rgba(255,255,255,0.22)'); hl.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = hl; ctx.fillRect(PAD, y, CW, h); ctx.restore(); };
+                const head = (y, n, sub1, sub2) => { ctx.fillStyle = '#fff'; ctx.font = font(860, 170); const nw = ctx.measureText(String(n)).width; ctx.fillText(String(n), PAD + IN, y + 150); ctx.font = font(700, 44); ctx.globalAlpha = 0.92; ctx.fillText(sub1, PAD + IN + nw + 30, y + 88); ctx.fillText(sub2, PAD + IN + nw + 30, y + 140); ctx.globalAlpha = 1; };
+                const stats = (y, list) => { const bw = (CW - IN * 2 - 22) / 2; list.forEach(([v, l], i) => { const x = PAD + IN + (i % 2) * (bw + 22), yy = y + Math.floor(i / 2) * (132 + 22); ctx.fillStyle = 'rgba(255,255,255,0.14)'; this.roundRect(ctx, x, yy, bw, 132, 30); ctx.fill(); ctx.fillStyle = '#fff'; ctx.font = font(820, 54); ctx.fillText(this.fitText(ctx, v, bw - 60), x + 32, yy + 66); ctx.globalAlpha = 0.82; ctx.font = font(650, 30); ctx.fillText(l, x + 32, yy + 108); ctx.globalAlpha = 1; }); };
+                const lines = (y, list) => { list.forEach(([l, v], i) => { const yy = y + i * 58; ctx.globalAlpha = 0.8; ctx.font = font(600, 36); ctx.fillStyle = '#fff'; ctx.fillText(l, PAD + IN, yy); ctx.globalAlpha = 1; ctx.font = font(750, 36); const t = this.fitText(ctx, v, CW - IN * 2 - 260); ctx.textAlign = 'right'; ctx.fillText(t, PAD + CW - IN, yy); ctx.textAlign = 'left'; }); };
+                // your card
+                let y = 160;
+                const uc = this.getUserColor(user);
+                const ug = ctx.createLinearGradient(PAD, y, PAD + CW * 0.6, y + youH); ug.addColorStop(0, this.hexMix(uc, '#000000', 0.12)); ug.addColorStop(1, this.hexMix(uc, '#000000', 0.54));
+                card(y, youH, ug);
+                face(user, PAD + IN + 26, y + 80, 26);
+                ctx.fillStyle = '#fff'; ctx.font = font(750, 40); ctx.fillText(`${user} · ${this.monthName(period.slice(2), false)}`, PAD + IN + 74, y + 94);
+                head(y + 110, s.count, `session${s.count === 1 ? '' : 's'}`, `on ${s.days} day${s.days === 1 ? '' : 's'}`);
+                stats(y + 330, youStats);
+                lines(y + 330 + statsH + 70, youLines);
+                // the crew's card
+                if (crew) {
+                    y += youH + 40;
+                    const names = crew.people.map(p => p[0]);
+                    const cg = ctx.createLinearGradient(PAD, y, PAD + CW * 0.6, y + crewH);
+                    names.forEach((n, i) => cg.addColorStop(names.length > 1 ? i / (names.length - 1) : 0, this.hexMix(this.getUserColor(n), '#000000', 0.25)));
+                    card(y, crewH, cg);
+                    names.forEach((n, i) => face(n, PAD + IN + 26 + i * 64, y + 80, 26));
+                    ctx.fillStyle = '#fff'; ctx.font = font(750, 40); ctx.fillText(`The crew · ${this.monthName(period.slice(2), false)}`, PAD + IN + 26 + names.length * 64, y + 94);
+                    head(y + 110, crew.count, 'sessions', 'together');
+                    const max = crew.people[0][1], by = y + 330;
+                    crew.people.forEach(([n, k], i) => { const yy = by + i * 62; face(n, PAD + IN + 22, yy + 20, 20); ctx.fillStyle = '#fff'; ctx.font = font(750, 36); ctx.fillText(this.fitText(ctx, n, 200), PAD + IN + 58, yy + 33); const bx = PAD + IN + 290, bw = CW - IN * 2 - 290 - 90; ctx.fillStyle = 'rgba(255,255,255,0.2)'; this.roundRect(ctx, bx, yy + 12, bw, 16, 8); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,0.92)'; this.roundRect(ctx, bx, yy + 12, Math.max(16, bw * k / max), 16, 8); ctx.fill(); ctx.textAlign = 'right'; ctx.fillText(String(k), PAD + CW - IN, yy + 33); ctx.textAlign = 'left'; });
+                    const sy = by + crew.people.length * 62 + 20;
+                    stats(sy, crewStats);
+                    lines(sy + statsH + 70, crewLines);
+                }
+                ctx.fillStyle = '#586A58'; ctx.font = font(700, 30); ctx.fillText('Logged with Dialed In', PAD + 6, H - 70);
+                // always a phone-story frame (9:16): scale down to fit when the cards run long
+                let outCanvas = canvas;
+                if (H > 1920) {
+                    outCanvas = document.createElement('canvas');
+                    outCanvas.width = 1080; outCanvas.height = 1920;
+                    const o = outCanvas.getContext('2d');
+                    const k = 1920 / H;
+                    o.fillStyle = '#F4F1EC'; o.fillRect(0, 0, 1080, 1920);
+                    o.drawImage(canvas, (1080 - W * k) / 2, 0, W * k, 1920);
+                }
+                const blob = await new Promise(r => outCanvas.toBlob(r, 'image/png'));
+                if (!blob) return;
+                const file = new File([blob], `dialed-in-${period.slice(2)}.png`, { type: 'image/png' });
+                try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: `${user}'s ${month}` }); return; } } catch (err) { if (err && err.name === 'AbortError') return; }
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a'); a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 4000);
+            },
+
             updateRecapDot() {
                 if (typeof document === 'undefined') return;
                 const fresh = this.freshRecap();
@@ -9975,6 +10049,7 @@
             async shareRecap() {
                 const s = this.lastRecap;
                 if (!s || !s.count) return;
+                if (!s.isYear && typeof this.shareMonthRecap === 'function') return this.shareMonthRecap(s);
                 const canvas = document.createElement('canvas');
                 canvas.width = 1080;
                 canvas.height = 1350;
