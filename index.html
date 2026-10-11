@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v13.0 -->
+<!-- Dialed In v13.1 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="13.0">
+    <meta name="dialed-in-version" content="13.1">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -3045,6 +3045,25 @@
             .ro-page { padding: calc(1.6rem + var(--safe-top)) 1.05rem calc(140px + var(--safe-bottom)); }
             .roaster-list { max-width: none; }
         }
+
+        /* ===== v13.1 ===== */
+        .cq-bar .cq-glow { display: none !important; }
+        .achievement-inline { -webkit-backdrop-filter: none; backdrop-filter: none; }
+        #grid[data-view="feed"] > .feed-card { content-visibility: auto; contain-intrinsic-size: auto 520px; }
+        .gear-locker .gear-note { margin: 2px 0 12px; font-size: 0.82rem; color: var(--text-muted); line-height: 1.4; }
+        .gear-locker .equipment-list { margin-bottom: 12px; }
+        .settings-note { margin: 0 0 2rem; font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
+        .user-row { display: grid !important; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 8px; }
+        .goal-toggle { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; position: relative; font-size: 0.74rem; font-weight: 700; color: var(--text-muted); margin: 0; }
+        .goal-toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+        .goal-toggle .gt-sw { width: 38px; height: 22px; border-radius: 999px; background: var(--surface-2); position: relative; transition: background 0.25s; box-shadow: inset 0 0 0 1px rgba(var(--hair-rgb), 0.12); }
+        .goal-toggle .gt-sw::before { content: ""; position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: transform 0.25s; }
+        .goal-toggle input:checked + .gt-sw { background: var(--matcha); }
+        .goal-toggle input:checked + .gt-sw::before { transform: translateX(16px); }
+        .goal-toggle input:focus-visible + .gt-sw { outline: 2px solid var(--matcha); outline-offset: 2px; }
+        /* recipe strips: the Pour/Pull column gets room for its ratio */
+        .sc-strip.feed-card-metrics { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 0.85fr); }
+        .sc-strip.feed-card-metrics .sc-cell { padding-left: 8px; padding-right: 8px; }
     </style>
 </head>
 <body>
@@ -3305,36 +3324,7 @@
     </div>
 
     <!-- Settings Modal -->
-    <div id="settings-modal" class="modal" onclick="if(event.target===this) app.closeModals()">
-        <div class="modal-card">
-            <h2>Settings</h2>
-
-            <label>Appearance</label>
-            <div class="seg-control" role="group" aria-label="Appearance">
-                <button type="button" data-theme-opt="system" onclick="app.setThemePref('system')">System</button>
-                <button type="button" data-theme-opt="light" onclick="app.setThemePref('light')">Light</button>
-                <button type="button" data-theme-opt="dark" onclick="app.setThemePref('dark')">Dark</button>
-            </div>
-            
-            <label>Active User</label>
-            <div id="user-list" style="display:grid; gap:0.6rem; margin-bottom: 2rem;"></div>
-
-            <label>Feed Name Color</label>
-            <div class="user-color-row">
-                <input type="color" id="user-color-input" class="user-color-input" onchange="app.saveUserColor(this.value)">
-                <div class="user-color-meta">
-                    <div id="user-color-name" class="user-color-name">Current User</div>
-                    <div id="user-color-value" class="user-color-value">#586A58</div>
-                </div>
-            </div>
-            
-            <div style="display:flex; gap:12px;">
-                <input type="text" id="new-user-input" placeholder="Name" style="margin:0;">
-                <button class="btn-outline" style="width:auto; padding: 12px 24px;" onclick="app.addUser()">+ Add</button>
-            </div>
-
-            <!-- Equipment Locker -->
-            <label style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid var(--linen);">Equipment Locker</label>
+    <div id="gear-park" hidden><div id="equipment-locker" class="profile-card gear-locker"><div class="label">Equipment</div><p class="gear-note">Your machines, grinders and brewers. They show up as choices when you log a session.</p>
             <div class="equipment-list" id="equipment-list"></div>
             
             <div style="display:grid; grid-template-columns:2fr 1fr; gap:8px; margin-bottom: 1rem;">
@@ -3353,6 +3343,34 @@
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                 <button class="btn-primary" id="equipment-save-btn" onclick="app.saveEquipment()">Add Equipment</button>
                 <button class="btn-outline" id="equipment-cancel-btn" onclick="app.cancelEquipmentEdit()" style="display:none;">Cancel Edit</button>
+            </div></div></div>
+    <div id="settings-modal" class="modal" onclick="if(event.target===this) app.closeModals()">
+        <div class="modal-card">
+            <h2>Settings</h2>
+
+            <label>Appearance</label>
+            <div class="seg-control" role="group" aria-label="Appearance">
+                <button type="button" data-theme-opt="system" onclick="app.setThemePref('system')">System</button>
+                <button type="button" data-theme-opt="light" onclick="app.setThemePref('light')">Light</button>
+                <button type="button" data-theme-opt="dark" onclick="app.setThemePref('dark')">Dark</button>
+            </div>
+            
+            <label>Active User</label>
+            <div id="user-list" style="display:grid; gap:0.6rem; margin-bottom: 0.6rem;"></div>
+            <p class="settings-note">Turn off Goals for anyone who only brews now and then, and they won't count toward the weekly group goal.</p>
+
+            <label>Feed Name Color</label>
+            <div class="user-color-row">
+                <input type="color" id="user-color-input" class="user-color-input" onchange="app.saveUserColor(this.value)">
+                <div class="user-color-meta">
+                    <div id="user-color-name" class="user-color-name">Current User</div>
+                    <div id="user-color-value" class="user-color-value">#586A58</div>
+                </div>
+            </div>
+            
+            <div style="display:flex; gap:12px;">
+                <input type="text" id="new-user-input" placeholder="Name" style="margin:0;">
+                <button class="btn-outline" style="width:auto; padding: 12px 24px;" onclick="app.addUser()">+ Add</button>
             </div>
 
             <!-- Export Data -->
@@ -3363,7 +3381,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v13.0</div>
+            <div class="app-version">Dialed In · v13.1</div>
         </div>
     </div>
 
@@ -3612,7 +3630,7 @@
                 </div>
 
                 <label>Equipment Used</label>
-                <div id="master-equipment-empty" style="display:none; font-size:0.8rem; color:#7a7a7a; margin-bottom:8px;">No equipment in locker yet. Add gear in Settings.</div>
+                <div id="master-equipment-empty" style="display:none; font-size:0.8rem; color:#7a7a7a; margin-bottom:8px;">No equipment yet. Add gear on your profile.</div>
                 <div class="equipment-selector" id="master-equipment-selector"></div>
 
                 <label>Tasting Notes</label>
@@ -5516,7 +5534,7 @@
                     const d = !sameOwner ? '<span class="cmp-d note">different grinders</span>' : (this.sameGrind(A.grind, Bv.grind) ? '<span class="cmp-d same">same</span>' : (this.grindNum(A.grind) !== null && this.grindNum(Bv.grind) !== null ? chip(this.grindNum(A.grind), this.grindNum(Bv.grind), null) : '<span class="cmp-d neutral">changed</span>'));
                     rows.push(['Grind', this.esc(ga || '–'), this.esc(gb || '–'), d]);
                 }
-                [['Dose', 'dose', 'g'], [(() => { const e = x => !x.method || x.method === 'Espresso'; return e(A) && e(Bv) ? 'Pull' : !e(A) && !e(Bv) ? 'Water' : 'Pull / water'; })(), 'yield', 'g'], ['Time', 'time', 's']].forEach(([lbl, k, kind]) => { const av = num(A[k]), bv = num(Bv[k]); if (av !== null || bv !== null) rows.push([lbl, fmt(av, kind), fmt(bv, kind), chip(av, bv, null)]); });
+                [['Dose', 'dose', 'g'], [(() => { const e = x => !x.method || x.method === 'Espresso'; return e(A) && e(Bv) ? 'Pull' : !e(A) && !e(Bv) ? 'Pour' : 'Pull / water'; })(), 'yield', 'g'], ['Time', 'time', 's']].forEach(([lbl, k, kind]) => { const av = num(A[k]), bv = num(Bv[k]); if (av !== null || bv !== null) rows.push([lbl, fmt(av, kind), fmt(bv, kind), chip(av, bv, null)]); });
                 const ra = this.ratioOf(A) || null, rb = this.ratioOf(Bv) || null;
                 if (ra || rb) rows.push(['Ratio', fmt(ra, 'ratio'), fmt(rb, 'ratio'), chip(ra, rb, null)]);
                 const rta = this.normalizeRating(A.rating) || null, rtb = this.normalizeRating(Bv.rating) || null;
@@ -5707,6 +5725,8 @@
             applyEvent(event) {
                 if (!event) return;
                 if (event.type === 'gear') {
+                    // v13.1: one shared record holds group settings (who counts toward group goals)
+                    if (String(event.owner) === '__group__') { this.groupSettings = event; return; }
                     this.gearByUser.set(String(event.owner), event);
                     return;
                 }
@@ -6165,8 +6185,10 @@
                 this.brews.clear();
                 this.customFlavors.clear();
                 this.gearByUser.clear();
+                this.groupSettings = null;
                 events.forEach(event => this.applyEvent(event));
                 this.applyGearFromCloud();
+                this.syncKnownUsers();
                 this.eventLog = events;
                 this.feedEntries = this.buildFeedEntries(events);
                 this.updateAchievementCount();
@@ -7132,7 +7154,46 @@
                 const since = now - 56 * 864e5, set = new Set();
                 this.brews.forEach(b => { const t = this.localTime(b.date); if (t >= since && t <= now + 864e5) set.add(this.getBrewOwner(b)); });
                 if (this.user) set.add(this.user);
-                return [...set].filter(Boolean).sort();
+                return [...set].filter(Boolean).filter(n => !this.goalExcluded(n)).sort();
+            },
+
+            // v13.1: anyone who has logged anything shows up on every device (the list used to live only on each phone)
+            syncKnownUsers() {
+                let added = false;
+                const seen = new Map(this.users.map(u => [String(u).toLowerCase(), u]));
+                const add = n => {
+                    n = String(n || '').trim();
+                    if (!n || n.length > 40 || n.startsWith('__') || /^(unknown|undefined|null)$/i.test(n) || seen.has(n.toLowerCase())) return;
+                    seen.set(n.toLowerCase(), n); this.users.push(n); added = true;
+                };
+                this.beans.forEach(b => add(b.owner || b.user));
+                this.brews.forEach(b => add(this.getBrewOwner(b)));
+                this.gearByUser.forEach((g, owner) => add(owner));
+                if (added) { try { localStorage.setItem('dialed_users', JSON.stringify(this.users)); } catch (e) {} }
+                return added;
+            },
+
+            hasLoggedData(name) {
+                const k = String(name || '').toLowerCase();
+                return Array.from(this.brews.values()).some(b => String(this.getBrewOwner(b)).toLowerCase() === k) || Array.from(this.beans.values()).some(b => String(b.owner || b.user || '').toLowerCase() === k);
+            },
+
+            // v13.1: people switched off here don't count toward group goals (shared with everyone)
+            goalExcluded(name) {
+                const ex = this.groupSettings && Array.isArray(this.groupSettings.goalExclude) ? this.groupSettings.goalExclude : [];
+                const k = String(name || '').toLowerCase();
+                return ex.some(x => String(x).toLowerCase() === k);
+            },
+
+            setGoalExcluded(name, excluded) {
+                const cur = this.groupSettings && Array.isArray(this.groupSettings.goalExclude) ? this.groupSettings.goalExclude.slice() : [];
+                const next = excluded ? [...new Set([...cur.filter(x => String(x).toLowerCase() !== String(name).toLowerCase()), name])] : cur.filter(x => String(x).toLowerCase() !== String(name).toLowerCase());
+                const rec = { type: 'gear', id: 'gear-__group__', user: '__group__', owner: '__group__', items: [], lastByMethod: {}, goalExclude: next };
+                this.groupSettings = { ...(this.groupSettings || {}), ...rec };
+                this.push(rec);
+                this.haptic('tick');
+                this.showToast(excluded ? `${name} won't count toward group goals.` : `${name} counts toward group goals again.`);
+                if (this.tab === 'feed' && typeof this.render === 'function') this.render();
             },
 
             originOf(b) {
@@ -7218,18 +7279,16 @@
                 const aria = `role="progressbar" aria-valuemin="0" aria-valuemax="${q.target}" aria-valuenow="${q.progress}"`;
                 if (!parts.length) return `<div class="cq-bar" ${aria}></div>`;
                 const pct = v => `${(v * 100).toFixed(2)}%`;
-                // stops along the whole bar: each part is solid in its middle and blends with its neighbor around the seam
-                const stops = [`${parts[0].c} 0%`];
+                // v13.1: solid parts with a thin gap between people, like the roast bars (no blending, no glow)
+                const stops = [];
                 let x = 0;
                 parts.forEach((s, i) => {
-                    x += s.w;
-                    const n = parts[i + 1];
-                    if (!n) return;
-                    const h = Math.min(0.06, 0.35 * Math.min(s.w, n.w));
-                    stops.push(`${s.c} ${pct(x - h)}`, `${n.c} ${pct(x + h)}`);
+                    const a = x, z = x + s.w; x = z;
+                    const lastPart = i === parts.length - 1;
+                    stops.push(`${s.c} ${i ? `calc(${pct(a)} + 1px)` : '0%'}`, `${s.c} ${lastPart ? pct(z) : `calc(${pct(z)} - 1px)`}`);
+                    if (!lastPart) stops.push(`transparent calc(${pct(z)} - 1px)`, `transparent calc(${pct(z)} + 1px)`);
                 });
-                const last = parts[parts.length - 1].c;
-                stops.push(`${last} ${pct(total)}`, `transparent ${pct(total)}`);
+                stops.push(`transparent ${pct(total)}`);
                 const g = `linear-gradient(90deg, ${stops.join(', ')})`;
                 const done = q.done && total >= 0.999;
                 // what you saw last time: a part that landed since then grows in
@@ -9037,8 +9096,8 @@
                     hxSubmit.done = true;
                 }, true);
                 document.addEventListener('click', e => { const p = this._tapSet; if (p && e.target === p.track) { this._tapSet = null; p.set(p.track, p.x); } }, true);
-                // the Main-profile toggle in the log form is a real switch now: iOS ticks it on its own
-                const master = document.getElementById('isMasterInput'); if (master) master.setAttribute('switch', '');
+                // v13.1: the master toggle is a plain checkbox again (as a native iOS switch its slider stopped moving); the tick comes from the haptics helper
+                const master = document.getElementById('isMasterInput'); if (master) { master.removeAttribute('switch'); master.addEventListener('change', () => this.haptic('tick')); }
             },
 
             renderThread(kind, target, opts = {}) {
@@ -9274,7 +9333,7 @@
                 const t = !(time > 0) ? '–' : hours ? `${this.esc(this.fmtNum(time, 1))}<small>h</small>` : esp ? `${this.esc(this.fmtNum(time))}<small>s</small>` : this.esc(this.clock(time));
                 const grind = this.grindText(b.grind);
                 const cell = (v, label, sub) => `<div class="sc-cell"><b>${v}</b><span>${this.esc(label)}${sub ? ` · <em>${this.esc(sub)}</em>` : ''}</span></div>`;
-                return `<div class="sc-strip feed-card-metrics">${this.recipeBandHtml(b)}${cell(grams(dose), 'Dose')}${cell(grams(yld), esp ? 'Pull' : 'Water', ratio)}${cell(t, hours ? 'Steep' : 'Time')}${cell(grind ? this.esc(grind) : '–', 'Grind')}</div>`;
+                return `<div class="sc-strip feed-card-metrics${esp ? '' : ' sc-pour'}">${this.recipeBandHtml(b)}${cell(grams(dose), 'Dose')}${cell(grams(yld), esp ? 'Pull' : 'Pour', ratio)}${cell(t, hours ? 'Steep' : 'Time')}${cell(grind ? this.esc(grind) : '–', 'Grind')}</div>`;
             },
 
             // brewer, temperature, heat, inverted: the extras the old recipe line carried
@@ -10121,7 +10180,7 @@
                 else if ((this.grindText(prev.grind) || this.grindText(brew.grind)) && !this.sameGrind(prev.grind, brew.grind)) rows.push(`<div class="vs-label">Grind</div><div class="vs-values">${this.esc(this.grindText(prev.grind) || '–')} → ${this.esc(this.grindText(brew.grind) || '–')}</div><div class="vs-delta neutral">changed</div>`);
                 else if (this.grindText(brew.grind)) rows.push(`<div class="vs-label">Grind</div><div class="vs-values">${this.esc(this.grindText(brew.grind))}</div><div class="vs-delta same">same</div>`);
                 add('Dose', this.num(prev.dose), this.num(brew.dose), grams, grams, null);
-                add(!brew.method || brew.method === 'Espresso' ? 'Pull' : 'Water', this.num(prev.yield), this.num(brew.yield), grams, grams, null);
+                add(!brew.method || brew.method === 'Espresso' ? 'Pull' : 'Pour', this.num(prev.yield), this.num(brew.yield), grams, grams, null);
                 add('Ratio', this.ratioOf(prev), this.ratioOf(brew), v => `1:${this.fmtNum(v, 2)}`, v => this.fmtNum(v, 2), null);
                 add('Time', this.num(prev.time), this.num(brew.time), v => `${n1(v)}\u00A0s`, v => `${n1(v)}\u00A0s`, null);
                 add('Rating', this.normalizeRating(prev.rating), this.normalizeRating(brew.rating), v => `${n1(v)}★`, n1, true);
@@ -10598,6 +10657,8 @@
                     tabs,
                     `<div class="profile-section" data-section="${section}">${body}</div>`
                 ].join('');
+                // v13.1: the equipment locker lives on your own profile (Overview), not in Settings
+                this.placeGearLocker(who === this.user && section === 'overview' ? grid.querySelector('.profile-section') : null);
                 this.fitRoasterTileNames(grid);
             },
 
@@ -13519,10 +13580,20 @@
                     removeBtn.className = 'user-delete';
                     removeBtn.type = 'button';
                     removeBtn.innerText = 'Remove';
-                    removeBtn.disabled = (this.users.length <= 1) || (userName === this.user);
+                    const logged = this.hasLoggedData(userName);
+                    removeBtn.disabled = (this.users.length <= 1) || (userName === this.user) || logged;
+                    if (logged) removeBtn.title = 'People who have logged sessions stay on the list';
                     removeBtn.onclick = () => this.deleteUser(userName);
 
+                    // v13.1: counts toward group goals (shared setting)
+                    const goal = document.createElement('label');
+                    goal.className = 'goal-toggle';
+                    goal.title = 'Counts toward group goals';
+                    goal.innerHTML = `<span class="gt-l">Goals</span><input type="checkbox" aria-label="${this.esc(userName)} counts toward group goals"${this.goalExcluded(userName) ? '' : ' checked'}><span class="gt-sw" aria-hidden="true"></span>`;
+                    goal.querySelector('input').addEventListener('change', e => this.setGoalExcluded(userName, !e.target.checked));
+
                     row.appendChild(selectBtn);
+                    row.appendChild(goal);
                     row.appendChild(removeBtn);
                     list.appendChild(row);
                 });
@@ -13641,8 +13712,22 @@
                 this.showToast('Equipment removed.');
             },
 
+            // v13.1: move the equipment locker into your profile, or back to its hidden parking spot
+            placeGearLocker(target) {
+                const gear = this._gearEl || (this._gearEl = document.getElementById('equipment-locker'));
+                const park = document.getElementById('gear-park');
+                if (!gear || !park) return;
+                if (target) { target.appendChild(gear); this.renderEquipmentList(); }
+                else if (gear.parentNode !== park) park.appendChild(gear);
+                if (!this._gearWatch && typeof MutationObserver === 'function') {
+                    const grid = document.getElementById('grid');
+                    if (grid) { this._gearWatch = new MutationObserver(() => { if (!gear.isConnected) park.appendChild(gear); }); this._gearWatch.observe(grid, { childList: true }); }
+                }
+            },
+
             renderEquipmentList() {
-                const list = document.getElementById('equipment-list');
+                const list = (this._gearEl && this._gearEl.querySelector('#equipment-list')) || document.getElementById('equipment-list');
+                if (!list) return;
                 list.innerHTML = '';
                 if (!this.equipment.length) {
                     list.innerHTML = '<div style="text-align:center; color:#999; padding:1rem; font-size:0.85rem;">No equipment added yet</div>';
