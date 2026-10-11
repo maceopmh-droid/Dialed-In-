@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v13.1 -->
+<!-- Dialed In v13.2 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="13.1">
+    <meta name="dialed-in-version" content="13.2">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -3053,14 +3053,15 @@
         .gear-locker .gear-note { margin: 2px 0 12px; font-size: 0.82rem; color: var(--text-muted); line-height: 1.4; }
         .gear-locker .equipment-list { margin-bottom: 12px; }
         .settings-note { margin: 0 0 2rem; font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
-        .user-row { display: grid !important; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 8px; }
-        .goal-toggle { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; position: relative; font-size: 0.74rem; font-weight: 700; color: var(--text-muted); margin: 0; }
-        .goal-toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-        .goal-toggle .gt-sw { width: 38px; height: 22px; border-radius: 999px; background: var(--surface-2); position: relative; transition: background 0.25s; box-shadow: inset 0 0 0 1px rgba(var(--hair-rgb), 0.12); }
-        .goal-toggle .gt-sw::before { content: ""; position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: transform 0.25s; }
-        .goal-toggle input:checked + .gt-sw { background: var(--matcha); }
-        .goal-toggle input:checked + .gt-sw::before { transform: translateX(16px); }
-        .goal-toggle input:focus-visible + .gt-sw { outline: 2px solid var(--matcha); outline-offset: 2px; }
+        .user-row { display: grid !important; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+        .user-row.can-remove { grid-template-columns: minmax(0, 1fr) auto auto; }
+        .user-head { display: flex; justify-content: flex-end; font-size: 0.72rem; font-weight: 650; color: var(--text-muted); letter-spacing: 0; text-transform: none; margin: 0 0 -4px; }
+        .user-row .goal-sw { -webkit-appearance: none; appearance: none; flex: none; position: relative; width: 50px !important; height: 30px !important; min-width: 0 !important; min-height: 0 !important; padding: 0 !important; margin: 0 !important; border: 0 !important; border-radius: 999px !important; background: rgba(var(--hair-rgb), 0.2) !important; box-shadow: inset 0 0 0 1px rgba(var(--hair-rgb), 0.08) !important; cursor: pointer; transition: background 0.22s; }
+        .user-row .goal-sw::before { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); transition: transform 0.22s cubic-bezier(0.3, 0.7, 0.4, 1); }
+        .user-row .goal-sw[aria-checked="true"] { background: var(--matcha) !important; box-shadow: none !important; }
+        .user-row .goal-sw[aria-checked="true"]::before { transform: translateX(20px); }
+        .user-row .goal-sw:focus-visible { outline: 2px solid var(--matcha); outline-offset: 2px; }
+        .gear-view .equipment-item { cursor: default; }
         /* recipe strips: the Pour/Pull column gets room for its ratio */
         .sc-strip.feed-card-metrics { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 0.85fr); }
         .sc-strip.feed-card-metrics .sc-cell { padding-left: 8px; padding-right: 8px; }
@@ -3357,7 +3358,7 @@
             
             <label>Active User</label>
             <div id="user-list" style="display:grid; gap:0.6rem; margin-bottom: 0.6rem;"></div>
-            <p class="settings-note">Turn off Goals for anyone who only brews now and then, and they won't count toward the weekly group goal.</p>
+            <p class="settings-note">Switch off anyone who only brews now and then. They won't count toward the weekly group goal or show up in it.</p>
 
             <label>Feed Name Color</label>
             <div class="user-color-row">
@@ -3381,7 +3382,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v13.1</div>
+            <div class="app-version">Dialed In · v13.2</div>
         </div>
     </div>
 
@@ -7207,8 +7208,9 @@
                 const start = this.weekStartOf(now);
                 const end = this.weekStartOf(start + W + 3 * 3600e3);
                 const people = this.crewPeople(now);
+                const inGoal = b => !this.goalExcluded(this.getBrewOwner(b));
                 const past = [];
-                for (let i = 1; i <= 6; i++) { const ws = this.weekStartOf(start - i * W + 3 * 3600e3); past.push(this.sessionsBetween(ws, this.weekStartOf(ws + W + 3 * 3600e3))); }
+                for (let i = 1; i <= 6; i++) { const ws = this.weekStartOf(start - i * W + 3 * 3600e3); past.push(this.sessionsBetween(ws, this.weekStartOf(ws + W + 3 * 3600e3)).filter(inGoal)); }
                 const counts = past.map(w => w.length).filter(n => n > 0).sort((a, b) => a - b);
                 const base = counts.length ? counts[Math.floor(counts.length / 2)] : 6;
                 const busy = past.filter(w => w.length);
@@ -7218,7 +7220,7 @@
                 const weekNo = Math.round(start / W);
                 const type = types.includes(forceType) ? forceType : types[((weekNo % types.length) + types.length) % types.length];
                 const clampInt = (v, a, b) => Math.max(a, Math.min(b, Math.round(v)));
-                const cur = this.sessionsBetween(start, end).sort((a, b) => this.localTime(a.date) - this.localTime(b.date));
+                const cur = this.sessionsBetween(start, end).filter(inGoal).sort((a, b) => this.localTime(a.date) - this.localTime(b.date));
                 const by = new Map(people.map(p => [p, 0]));
                 const credit = name => by.set(name, (by.get(name) || 0) + 1);
                 let target = 1, progress = 0, title = '', detail = '', unit = '', per = 0;
@@ -10649,7 +10651,7 @@
                     ? [this.renderPalateCard(who), who === this.user ? this.renderFriendPalates() : '', this.renderMatchesCard(who), this.renderWantCard(who)]
                     : section === 'activity'
                         ? [this.renderCrewAwardsCard(), this.renderCalendarCard(who), this.renderRecapCard(who)]
-                        : [this.renderFabFour(who), this.renderAchievementsCard(who)];
+                        : [this.renderFabFour(who), this.renderAchievementsCard(who), who !== this.user ? this.renderGearCard(who) : ''];
                 const body = cards.filter(Boolean).join('') || '<div class="panel-empty">Nothing here yet. Log a few sessions and this fills in.</div>';
                 grid.innerHTML = [
                     `<div class="people-switch">${chips}</div>`,
@@ -13553,6 +13555,10 @@
                 this.renderThemeControl();
                 const list = document.getElementById('user-list');
                 list.innerHTML = '';
+                const head = document.createElement('div');
+                head.className = 'user-head';
+                head.innerHTML = '<span>Counts in group goal</span>';
+                list.appendChild(head);
 
                 this.users.forEach(userName => {
                     const row = document.createElement('div');
@@ -13580,21 +13586,23 @@
                     removeBtn.className = 'user-delete';
                     removeBtn.type = 'button';
                     removeBtn.innerText = 'Remove';
-                    const logged = this.hasLoggedData(userName);
-                    removeBtn.disabled = (this.users.length <= 1) || (userName === this.user) || logged;
-                    if (logged) removeBtn.title = 'People who have logged sessions stay on the list';
+                    // people who have logged sessions stay on the list, so Remove only shows when it would work
+                    const removable = this.users.length > 1 && userName !== this.user && !this.hasLoggedData(userName);
                     removeBtn.onclick = () => this.deleteUser(userName);
 
-                    // v13.1: counts toward group goals (shared setting)
-                    const goal = document.createElement('label');
-                    goal.className = 'goal-toggle';
-                    goal.title = 'Counts toward group goals';
-                    goal.innerHTML = `<span class="gt-l">Goals</span><input type="checkbox" aria-label="${this.esc(userName)} counts toward group goals"${this.goalExcluded(userName) ? '' : ' checked'}><span class="gt-sw" aria-hidden="true"></span>`;
-                    goal.querySelector('input').addEventListener('change', e => this.setGoalExcluded(userName, !e.target.checked));
+                    // v13.2: a real switch for "counts in the group goal" (shared with everyone)
+                    const goal = document.createElement('button');
+                    goal.type = 'button';
+                    goal.className = 'goal-sw';
+                    goal.setAttribute('role', 'switch');
+                    goal.setAttribute('aria-checked', this.goalExcluded(userName) ? 'false' : 'true');
+                    goal.setAttribute('aria-label', `${userName} counts in the group goal`);
+                    goal.onclick = () => { const next = goal.getAttribute('aria-checked') !== 'true'; goal.setAttribute('aria-checked', next ? 'true' : 'false'); this.setGoalExcluded(userName, !next); };
 
+                    row.classList.toggle('can-remove', removable);
                     row.appendChild(selectBtn);
                     row.appendChild(goal);
-                    row.appendChild(removeBtn);
+                    if (removable) row.appendChild(removeBtn);
                     list.appendChild(row);
                 });
 
@@ -13710,6 +13718,16 @@
                 const method = document.getElementById('method-select').value;
                 if (method) this.loadEquipmentForMethod(method);
                 this.showToast('Equipment removed.');
+            },
+
+            // v13.2: someone else's equipment on their profile: see it, not edit it
+            renderGearCard(who) {
+                const rec = this.gearByUser.get(who);
+                const items = rec && rec.items ? this.gearItemsFor(rec.items) : [];
+                const body = items.length
+                    ? `<div class="equipment-list">${items.map(eq => `<div class="equipment-item"><div class="equipment-info"><div class="equipment-name">${this.esc(eq.name)}</div><div class="equipment-type">${this.esc(eq.type)}</div></div></div>`).join('')}</div>`
+                    : `<p class="gear-note">${this.esc(who)} hasn't added any equipment yet.</p>`;
+                return `<div class="profile-card gear-locker gear-view"><div class="label">Equipment</div>${body}</div>`;
             },
 
             // v13.1: move the equipment locker into your profile, or back to its hidden parking spot
