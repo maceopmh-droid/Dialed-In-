@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v13.2 -->
+<!-- Dialed In v13.3 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="13.2">
+    <meta name="dialed-in-version" content="13.3">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -3382,7 +3382,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v13.2</div>
+            <div class="app-version">Dialed In · v13.3</div>
         </div>
     </div>
 
@@ -5561,28 +5561,49 @@
             },
 
             cloneLatestSession() {
-                if (!this.detailBrews.length) {
+                const all = [...(this.detailBrews || [])].sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
+                if (!all.length) {
                     this.showToast('No session available to clone.');
                     return;
                 }
-                const latest = [...this.detailBrews].sort((a, b) => this.toTime(b.date) - this.toTime(a.date))[0];
+                // v13.1: your own latest session on this coffee, not whoever logged last
+                const mine = all.find(b => this.getBrewOwner(b) === this.user);
+                if (mine) {
+                    const kept = (Array.isArray(mine.equipment) ? mine.equipment : []).filter(id => this.equipment.some(eq => eq.id === id));
+                    this.openBrewModal({
+                        method: mine.method || '',
+                        grind: mine.grind ?? '',
+                        dose: mine.dose ?? '',
+                        yield: '',
+                        time: '',
+                        acidity: mine.acidity ?? 5,
+                        sweetness: mine.sweetness ?? 5,
+                        body: mine.body ?? 5,
+                        finish: mine.finish ?? 5,
+                        balance: mine.balance ?? 5,
+                        isMaster: false,
+                        notes: '',
+                        flavors: this.extractFlavors(mine),
+                        equipment: kept.length ? kept : (this.lastEquipment[mine.method || ''] || [])
+                    });
+                    this.showToast('Session cloned. Timer and weights are ready for a live brew.');
+                    return;
+                }
+                // you haven't brewed it yet: their method and dose, your own setup, no grind (grinders differ)
+                const theirs = all[0];
+                const who = this.getBrewOwner(theirs);
                 this.openBrewModal({
-                    method: latest.method || '',
-                    grind: latest.grind ?? '',
-                    dose: latest.dose ?? '',
+                    method: theirs.method || '',
+                    grind: '',
+                    dose: theirs.dose ?? '',
                     yield: '',
                     time: '',
-                    acidity: latest.acidity ?? 5,
-                    sweetness: latest.sweetness ?? 5,
-                    body: latest.body ?? 5,
-                    finish: latest.finish ?? 5,
-                    balance: latest.balance ?? 5,
                     isMaster: false,
                     notes: '',
-                    flavors: this.extractFlavors(latest),
-                    equipment: latest.equipment || []
+                    flavors: [],
+                    equipment: this.lastEquipment[theirs.method || ''] || []
                 });
-                this.showToast('Session cloned. Timer and weights are ready for a live brew.');
+                this.showToast(`You haven't brewed this one yet, so this copies ${who}'s latest recipe. Grind is left blank (different grinders).`);
             },
 
             extractFlavors(brew) {
@@ -10185,6 +10206,9 @@
                 add(!brew.method || brew.method === 'Espresso' ? 'Pull' : 'Pour', this.num(prev.yield), this.num(brew.yield), grams, grams, null);
                 add('Ratio', this.ratioOf(prev), this.ratioOf(brew), v => `1:${this.fmtNum(v, 2)}`, v => this.fmtNum(v, 2), null);
                 add('Time', this.num(prev.time), this.num(brew.time), v => `${n1(v)}\u00A0s`, v => `${n1(v)}\u00A0s`, null);
+                // v13.1: grams out per second (espresso)
+                const flow = b => { const y = this.num(b.yield), t = this.num(b.time); return y > 0 && t > 0 ? Math.round((y / t) * 100) / 100 : 0; };   // rounded so the change matches the numbers shown
+                if ((!brew.method || brew.method === 'Espresso') && (!prev.method || prev.method === 'Espresso') && flow(prev) > 0 && flow(brew) > 0) add('Flow', flow(prev), flow(brew), v => `${this.fmtNum(v, 2)}\u00A0g/s`, v => this.fmtNum(v, 2), null);
                 add('Rating', this.normalizeRating(prev.rating), this.normalizeRating(brew.rating), v => `${n1(v)}★`, n1, true);
                 [['Acidity', 'acidity'], ['Sweetness', 'sweetness'], ['Body', 'body'], ['Finish', 'finish'], ['Bitterness', 'bitterness'], ['Complexity', 'balance']].forEach(([label, key]) => {
                     add(label, this.tasteValue(prev, key) || 0, this.tasteValue(brew, key) || 0, n1, n1, null);
@@ -10196,7 +10220,7 @@
                 const flavors = (added.length || dropped.length)
                     ? `<div class="vs-flavors">${added.map(f => `<span class="vs-flavor plus">+ ${this.esc(f)}</span>`).join('')}${dropped.map(f => `<span class="vs-flavor minus">− ${this.esc(f)}</span>`).join('')}</div>`
                     : '';
-                const days = Math.round((this.toTime(brew.date) - this.toTime(prev.date)) / 864e5);
+                const days = this.dayNum(this.toTime(brew.date)) - this.dayNum(this.toTime(prev.date));   // v13.1: calendar days
                 const head = `vs. ${whose} previous ${method} · ${this.esc(this.shortDate(prev.date))}${days > 0 ? ` · ${days} day${days === 1 ? '' : 's'} earlier` : ''}`;
                 return `<div class="card-pane pane-block log-wide${active}" data-pane="vs"><div class="vs-head">${head}</div><div class="vs-grid">${rows.join('')}</div>${flavors}</div>`;
             },
