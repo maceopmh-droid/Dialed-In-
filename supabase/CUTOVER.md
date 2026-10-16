@@ -4,7 +4,7 @@ The step-by-step for phase 2 of the public-launch plan: the original crew signs 
 Google Sheet to Supabase, without losing a save. Each step can be checked before the next one, and until step 7
 nothing the crew sees changes.
 
-## 1. Create the project (Maceo) — done Oct 16, 2026
+## 1. Create the project (Maceo) — done Oct 16, 2026 (it's in East US, North Virginia)
 
 1. Sign up at supabase.com and create a project in the region closest to Chicago ("East US (Ohio)"). The free plan
    is fine for setting up and testing; switch to Pro (about $25/month) before step 7, because free projects pause
@@ -122,6 +122,13 @@ The Sheet keeps every row it ever had, and the nightly check keeps copying anyth
 - Photos already in Google Drive stay there and keep working; new photos go to Supabase storage.
 
 ## What's in place, and what isn't yet
+
+Done on the real project (Oct 16, 2026): steps 1–3. The database is loaded; every project check passes (privacy
+rules on all 24 tables, signed-out visitors refused, exactly the app's 28 calls callable, private photo bucket); the
+shadow check archived the live Sheet (1,409 distinct saves) and rebuilt the tables from it: 31 coffees, 239
+sessions, 4 people, and the app shows exactly the same thing from either side. Step 5 is done on the branch
+(`live: false`), waiting to ship. Still to do in the dashboard: the code email template and the code length (step
+2); a real email sender before step 7.
 
 Ready and tested: the tables and privacy rules, the app's calls, photo storage, the import from the Sheet, the
 nightly check, sign-in by email code, claiming a name, new profiles, the sign-in screens and the who-sees-what
