@@ -12,7 +12,29 @@ on:
   workflow_dispatch:
 
 jobs:
+  # a quick check of the App Store Connect key with Apple itself (a minute, on Linux), so a key problem is reported in
+  # plain words instead of deep inside Xcode's signing; the build below skips TestFlight when it fails
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      ok: ${{ steps.apple.outputs.ok }}
+      why: ${{ steps.apple.outputs.why }}
+    env:
+      BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID || 'com.dialedincoffeeapp.ios' }}
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the App Store Connect key with Apple
+        id: apple
+        run: |
+          if [ -z "$ASC_KEY_P8" ]; then echo "ok=0" >> "$GITHUB_OUTPUT"; echo "why=none" >> "$GITHUB_OUTPUT"; echo "::notice title=Apple key check::No App Store Connect key yet."; exit 0; fi
+          node native/scripts/apple-check.js
+
   build:
+    needs: check
+    if: always()
     runs-on: macos-15
     timeout-minutes: 45
     permissions:
@@ -88,12 +110,15 @@ jobs:
         run: |
           if [ -z "$ASC_KEY_P8" ] || [ -z "$ASC_KEY_ID" ] || [ -z "$ASC_ISSUER_ID" ] || [ -z "$APPLE_TEAM_ID" ]; then
             echo "skip=1" >> "$GITHUB_OUTPUT"; echo "::notice title=TestFlight::No App Store Connect key yet: built for the simulator only."
+          elif [ "${{ needs.check.outputs.ok }}" != "1" ]; then
+            echo "skip=1" >> "$GITHUB_OUTPUT"; echo "::error title=TestFlight::Not sent: the Apple key check failed (${{ needs.check.outputs.why }}); its message says what to change."
           else echo "::notice title=TestFlight::App Store Connect key found (ids only checked for presence): signing and uploading"; fi
       - name: Sign and send to TestFlight
         if: steps.cfg.outputs.skip != '1'
         working-directory: native
         run: |
           set -eo pipefail
+          ASC_KEY_ID=$(printf '%s' "$ASC_KEY_ID" | tr -d "\"' \t\r\n"); ASC_ISSUER_ID=$(printf '%s' "$ASC_ISSUER_ID" | tr -d "\"' \t\r\n"); APPLE_TEAM_ID=$(printf '%s' "$APPLE_TEAM_ID" | tr -d "\"' \t\r\n")
           mkdir -p "$RUNNER_TEMP/keys"; key="$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8"
           # the .p8 text however it was pasted (one line, no header, quotes, Windows line ends): rebuilt as a proper key file
           body=$(printf '%s' "$ASC_KEY_P8" | tr -d '\r"' | sed -e 's/-----BEGIN [A-Z ]*-----//g' -e 's/-----END [A-Z ]*-----//g' | tr -d ' \n\t')
