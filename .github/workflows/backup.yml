@@ -3,6 +3,8 @@
 # workflow artifact for 30 days. Photos in storage are not included. The repository is public, so anyone signed in
 # to GitHub can download the file, but nobody can open it without the passphrase. Restoring: supabase/README.md.
 # Runs every night (once this file is on main) and when pushed to the `supabase-backup` branch.
+# v14.6: it also reports how much of the free plan is used (database and photos), and fails, so GitHub emails, when
+# either passes 80%.
 name: nightly backup
 on:
   schedule:
@@ -43,3 +45,14 @@ jobs:
           path: ${{ runner.temp }}/out/*.gpg
           retention-days: 30
           if-no-files-found: error
+      - name: Free plan use (fails, so GitHub emails you, when anything passes 80% of the free plan)
+        if: steps.cfg.outputs.skip != '1'
+        run: |
+          set +e
+          read -r db photos files people sessions < <(psql "$DB_URL" -Atq -F' ' -c "select round(pg_database_size(current_database()) / 1048576.0, 1),
+              round(coalesce((select sum((metadata->>'size')::bigint) from storage.objects where bucket_id = 'photos'), 0) / 1048576.0, 1),
+              (select count(*) from storage.objects where bucket_id = 'photos'), (select count(*) from profiles), (select count(*) from sessions where deleted_at is null);")
+          msg="Free plan use: database ${db} MB of 500, photos ${photos} MB of 1,024 (${files} files); ${people} people, ${sessions} sessions"
+          rc=0
+          if awk "BEGIN { exit !(${db:-0} > 400 || ${photos:-0} > 820) }"; then msg="$msg. Getting close to the free plan's limits: time to look at Supabase Pro (or smaller photos)."; rc=1; fi
+          echo "$msg" | tee "$RUNNER_TEMP/u.txt"; bash supabase/report.sh "Free plan" "$RUNNER_TEMP/u.txt"; exit $rc
