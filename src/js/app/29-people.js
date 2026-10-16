@@ -69,7 +69,7 @@
 
             // the one button that fits where you stand with someone
             followBtnHtml(name, rel, cls = '', stop = false) {
-                const n = this.esc(name), a = action => `onclick="${stop ? 'event.stopPropagation(); ' : ''}app.peopleAct('${action}', this.getAttribute('data-name'))" data-name="${n}"`;
+                const n = this.esc(name), a = action => `onclick="${stop ? 'event.stopPropagation(); ' : ''}app.peopleAct('${app.escJs(action)}', this.getAttribute('data-name'))" data-name="${n}"`;
                 if (rel.blocked) return `<button type="button" class="btn-outline pp-act ${cls}" ${a('unblock')}>Unblock</button>`;
                 if (rel.you === 'accepted') return `<button type="button" class="btn-outline pp-act ${cls}" ${a('unfollow')}>Following</button>`;
                 if (rel.you === 'pending') return `<button type="button" class="btn-outline pp-act is-quiet ${cls}" ${a('unfollow')}>Requested</button>`;
@@ -87,7 +87,7 @@
                 const st = this.ppState(), d = st.data;
                 // v14.4: two tabs, People and Groups
                 const tabs = document.getElementById('people-tabs'), q = document.getElementById('people-q');
-                if (tabs) tabs.innerHTML = `<div class="seg-control pp-tabs" role="tablist" aria-label="People or groups">${[['people', 'People'], ['groups', 'Groups']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${(st.tab || 'people') === k}" aria-pressed="${(st.tab || 'people') === k}" onclick="app.setPeopleTab('${k}')">${l}</button>`).join('')}</div>`;
+                if (tabs) tabs.innerHTML = `<div class="seg-control pp-tabs" role="tablist" aria-label="People or groups">${[['people', 'People'], ['groups', 'Groups']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${(st.tab || 'people') === k}" aria-pressed="${(st.tab || 'people') === k}" onclick="app.setPeopleTab('${app.escJs(k)}')">${l}</button>`).join('')}</div>`;
                 if (q) q.hidden = st.tab === 'groups';
                 if (st.tab === 'groups') { this.renderGroups(body); return; }
                 if (st.q.trim().length >= 2) {
