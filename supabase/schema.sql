@@ -163,6 +163,13 @@ create table comments (
   check ((session_id is null) <> (coffee_id is null))      -- on exactly one thing
 );
 
+create table comment_likes (
+  comment_id    uuid not null references comments (id) on delete cascade,
+  user_id       uuid not null references profiles (id) on delete cascade,
+  created_at    timestamptz not null default now(),
+  primary key (comment_id, user_id)
+);
+
 create table coffee_likes (
   coffee_id     uuid not null references coffees (id) on delete cascade,
   user_id       uuid not null references profiles (id) on delete cascade,
@@ -204,6 +211,12 @@ create table flavors (                                 -- custom tasting notes p
   family        text,
   created_by    uuid references profiles (id) on delete set null,
   created_at    timestamptz not null default now()
+);
+
+create table sheet_archive (                          -- every row of the V9 Sheet, exactly as it was (read-only)
+  row_no        integer primary key,
+  logged_at     text,
+  payload       jsonb not null
 );
 
 create table reports (
@@ -298,10 +311,12 @@ alter table likes          enable row level security;
 alter table comments       enable row level security;
 alter table reports        enable row level security;
 alter table coffee_likes   enable row level security;
+alter table comment_likes  enable row level security;
 alter table equipment      enable row level security;
 alter table want_to_try    enable row level security;
 alter table profile_gear   enable row level security;
 alter table flavors        enable row level security;
+alter table sheet_archive  enable row level security;   -- no rules: never readable from the app
 
 -- profiles: everyone signed in sees the card (unless blocked); you edit only your own
 create policy profiles_read  on profiles for select to authenticated using (not blocked_either(me(), id));
@@ -367,6 +382,13 @@ create policy comments_add  on comments for insert to authenticated
                                     or exists (select 1 from coffees k where k.id = coffee_id and k.deleted_at is null)));
 create policy comments_edit on comments for update to authenticated using (author_id = me());
 create policy comments_del  on comments for delete to authenticated using (author_id = me());
+
+-- comment likes: visible with the comment (the comments rule filters the lookup); you like as yourself
+create policy comment_likes_read on comment_likes for select to authenticated
+  using (exists (select 1 from comments c where c.id = comment_id));
+create policy comment_likes_add  on comment_likes for insert to authenticated
+  with check (user_id = me() and exists (select 1 from comments c where c.id = comment_id));
+create policy comment_likes_del  on comment_likes for delete to authenticated using (user_id = me());
 
 -- coffee likes: shared like the coffee; you like as yourself
 create policy coffee_likes_read on coffee_likes for select to authenticated using (not blocked_either(me(), user_id));
