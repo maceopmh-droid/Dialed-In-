@@ -11,6 +11,7 @@
                     // v14.4: a private profile approves its followers
                     const priv = this.peoplePrivacyHtml();
                     if (priv) { const pr = document.createElement('div'); pr.innerHTML = priv; list.appendChild(pr.firstElementChild); }
+                    if (this.acctToolsHtml) { const at = document.createElement('div'); at.innerHTML = this.acctToolsHtml(); list.appendChild(at.firstElementChild); }
                     else if (!this._privLoading) { this._privLoading = true; this.loadPeople(true).then(() => { this._privLoading = false; if (document.getElementById('settings-modal').classList.contains('active')) this.openSettings(); }).catch(() => { this._privLoading = false; }); }
                 }
                 const head = document.createElement('div');

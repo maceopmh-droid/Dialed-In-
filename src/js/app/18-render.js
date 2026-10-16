@@ -97,6 +97,11 @@
                 if (this.tab === 'shared' && this.libraryMode === 'roasters') { this.renderRoasterList(grid, searchQuery); return; }
 
                 let list = this.buildBeanGroups();
+                // v14.4: the library is your circle's; community sessions and coffees (Feed, Community) stay out of it
+                if (this.communityIds && this.communityIds.size) {
+                    list = list.filter(item => item.group.ids.some(id => !this.communityIds.has('bean:' + id)))
+                        .map(item => ({ group: item.group, brews: item.brews.filter(b => !this.communityIds.has('brew:' + b.id)) }));
+                }
 
                 if (this.tab === 'my') {
                     list = list.filter(item => item.group.users.has(this.user));

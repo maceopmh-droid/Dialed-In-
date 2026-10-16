@@ -1,6 +1,13 @@
             // ---- v14.4 (phase 3): People. Find people by name, follow them (friends = you follow each other), answer
             // follow requests when your profile is private, and block. New backend only: on the Sheet none of it shows.
-            ppState() { return this._people || (this._people = { data: null, me: null, at: 0, q: '', results: null, seq: 0, menu: '' }); },
+            ppState() {
+                if (!this._people) {
+                    this._people = { data: null, me: null, at: 0, q: '', results: null, seq: 0, menu: '' };
+                    // the last list this phone saw, so the Profiles row draws right away (refreshed on the first load)
+                    try { const c = JSON.parse(safeGet('dialed_people_cache') || 'null'); if (c && c.who === this.user && c.data && Array.isArray(c.data.following)) this._people.data = c.data; } catch (e) {}
+                }
+                return this._people;
+            },
 
             // who you follow, who follows you and who you've blocked, plus your own profile's privacy (cached a minute)
             async loadPeople(force) {
@@ -10,6 +17,7 @@
                 const [data, me] = await Promise.all([Supa.rpc('my_people', {}), Supa.rpc('my_profile', {})]);
                 st.data = data && typeof data === 'object' ? data : { following: [], followers: [], blocked: [] };
                 st.me = me || null; st.at = Date.now();
+                try { safeSet('dialed_people_cache', JSON.stringify({ who: this.user, data: st.data })); } catch (e) {}
                 return st.data;
             },
 
@@ -24,9 +32,9 @@
                          blocked: (d.blocked || []).some(b => String(b).toLowerCase() === k) };
             },
 
-            openPeople() {
+            openPeople(tab) {
                 if (!this.acctOn()) return;
-                const st = this.ppState(); st.q = ''; st.results = null; st.menu = '';
+                const st = this.ppState(); st.q = ''; st.results = null; st.menu = ''; st.tab = tab === 'groups' ? 'groups' : 'people';
                 const q = document.getElementById('people-q'); if (q) q.value = '';
                 document.getElementById('people-modal').classList.add('active');
                 this.renderPeople();
@@ -60,8 +68,8 @@
             },
 
             // the one button that fits where you stand with someone
-            followBtnHtml(name, rel, cls = '') {
-                const n = this.esc(name), a = action => `onclick="app.peopleAct('${action}', this.getAttribute('data-name'))" data-name="${n}"`;
+            followBtnHtml(name, rel, cls = '', stop = false) {
+                const n = this.esc(name), a = action => `onclick="${stop ? 'event.stopPropagation(); ' : ''}app.peopleAct('${action}', this.getAttribute('data-name'))" data-name="${n}"`;
                 if (rel.blocked) return `<button type="button" class="btn-outline pp-act ${cls}" ${a('unblock')}>Unblock</button>`;
                 if (rel.you === 'accepted') return `<button type="button" class="btn-outline pp-act ${cls}" ${a('unfollow')}>Following</button>`;
                 if (rel.you === 'pending') return `<button type="button" class="btn-outline pp-act is-quiet ${cls}" ${a('unfollow')}>Requested</button>`;
@@ -77,6 +85,11 @@
                 const body = document.getElementById('people-body');
                 if (!body) return;
                 const st = this.ppState(), d = st.data;
+                // v14.4: two tabs, People and Groups
+                const tabs = document.getElementById('people-tabs'), q = document.getElementById('people-q');
+                if (tabs) tabs.innerHTML = `<div class="seg-control pp-tabs" role="tablist" aria-label="People or groups">${[['people', 'People'], ['groups', 'Groups']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${(st.tab || 'people') === k}" aria-pressed="${(st.tab || 'people') === k}" onclick="app.setPeopleTab('${k}')">${l}</button>`).join('')}</div>`;
+                if (q) q.hidden = st.tab === 'groups';
+                if (st.tab === 'groups') { this.renderGroups(body); return; }
                 if (st.q.trim().length >= 2) {
                     if (!st.results) { body.innerHTML = '<p class="pp-empty">Looking…</p>'; return; }
                     body.innerHTML = st.results.length
@@ -139,7 +152,7 @@
                 if (!this.acctOn() || !name || name === this.user || !this.ppState().data) return '';
                 const rel = this.relationTo(name), st = this.ppState(), n = this.esc(name);
                 const tag = rel.friend ? '<span class="you-tag pp-friend">Friends</span>' : rel.followsYou ? '<span class="pp-note">Follows you</span>' : '';
-                const menu = st.menu === name ? `<div class="pp-menu">${rel.followsYou ? `<button type="button" data-name="${n}" onclick="app.peopleAct('remove', this.getAttribute('data-name'))">Remove follower</button>` : ''}${rel.blocked ? '' : `<button type="button" class="pp-danger" data-name="${n}" onclick="app.peopleAct('block', this.getAttribute('data-name'))">Block ${n}</button>`}</div>` : '';
+                const menu = st.menu === name ? `<div class="pp-menu">${rel.followsYou ? `<button type="button" data-name="${n}" onclick="app.peopleAct('remove', this.getAttribute('data-name'))">Remove follower</button>` : ''}<button type="button" data-name="${n}" onclick="app.reportItem('profile', this.getAttribute('data-name'))">Report ${n}</button>${rel.blocked ? '' : `<button type="button" class="pp-danger" data-name="${n}" onclick="app.peopleAct('block', this.getAttribute('data-name'))">Block ${n}</button>`}</div>` : '';
                 return `<div class="hero-follow">${this.followBtnHtml(name, rel, 'hero-act')}${tag}<button type="button" class="btn-clean pp-more" aria-label="More" data-name="${n}" onclick="app.togglePersonMenu(this.getAttribute('data-name'))"><span></span><span></span><span></span></button>${menu}</div>`;
             },
 
@@ -162,4 +175,38 @@
                 if (document.getElementById('settings-modal').classList.contains('active')) this.openSettings();
                 this.sync({ silent: true });
             },
-        };
+
+            // the Profiles row: you, then the people you follow (friends first, most recently brewing first). Each person's
+            // own list, never the same names for everyone. One row, as many as fit; People has the rest.
+            profileRowPeople() {
+                if (!this.acctOn()) return this.knownPeople();
+                const d = this.ppState().data, me = this.user;
+                const last = name => this.brewsOf(name).reduce((m, b) => Math.max(m, this.toTime(b.date) || 0), 0);
+                const byRecent = list => list.map(f => f.name).sort((a, b) => last(b) - last(a) || a.localeCompare(b));
+                const following = d ? (d.following || []).filter(f => f.status === 'accepted') : [];
+                return [...new Set([me, ...byRecent(following.filter(f => f.friend)), ...byRecent(following.filter(f => !f.friend))].filter(Boolean))];
+            },
+
+            // keep the row to one line: hide the chips that don't fit (never you, the person showing, or People)
+            fitPeopleRow(grid) {
+                const row = grid && grid.querySelector && grid.querySelector('.people-switch.one-row');
+                if (!row) return;
+                const chips = [...row.querySelectorAll('.person-chip:not(.pp-chip)')], more = row.querySelector('.pp-chip');
+                chips.forEach(c => { c.hidden = false; });
+                const gap = 8, avail = row.clientWidth - (more ? more.offsetWidth + gap : 0);
+                if (!(avail > 0)) return;
+                const active = row.querySelector('.person-chip.active:not(.pp-chip)');
+                const must = new Set([chips[0], active].filter(Boolean));
+                let used = [...must].reduce((t, c) => t + c.offsetWidth + gap, 0);
+                chips.forEach(c => { if (must.has(c)) return; const w = c.offsetWidth + gap; if (used + w <= avail) used += w; else c.hidden = true; });
+                if (!this._rowFitBound && typeof window !== 'undefined' && window.addEventListener) {
+                    this._rowFitBound = true;
+                    window.addEventListener('resize', () => { if (this.tab === 'profile') this.fitPeopleRow(document.getElementById('grid')); });
+                }
+            },
+
+            setPeopleTab(tab) {
+                const st = this.ppState(); st.tab = tab === 'groups' ? 'groups' : 'people';
+                this.renderPeople();
+                if (st.tab === 'groups') this.loadGroups(true).then(() => this.renderPeople()).catch(e => this.peopleFailed(e));
+            },

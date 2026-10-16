@@ -1,6 +1,6 @@
 # Loads the database into the Supabase project and checks it, from GitHub (which can reach Supabase). Safe to run
-# again: it only loads into an empty project, then checks, then runs the shadow check (tables rebuilt from the live
-# Sheet, compared with the app). Runs when this is pushed to the `supabase-setup` branch, or by hand once on main.
+# again: the tables are only ever made once (an empty project); after that it brings api.sql (the app's calls) up to
+# date, checks the project, runs the shadow check, and after the move carries over late Sheet saves. Runs when this is pushed to the `supabase-setup` branch, or by hand once on main.
 # Needs the secret SUPABASE_DB_PASSWORD or SUPABASE_DB_URL. The logs are public: nothing here prints anyone's data.
 name: supabase setup
 on:
@@ -31,7 +31,13 @@ jobs:
       - name: Load the database (only into an empty project; all three files in one go, all or nothing)
         run: |
           set +e
-          if [ "$(psql "$DB_URL" -Atqc "select to_regclass('public.profiles') is not null")" = "t" ]; then echo "Already loaded: nothing to do." | tee "$RUNNER_TEMP/load.txt"; bash supabase/report.sh "Load" "$RUNNER_TEMP/load.txt"; exit 0; fi
+          if [ "$(psql "$DB_URL" -Atqc "select to_regclass('public.profiles') is not null")" = "t" ]; then
+            # already loaded: bring the app's calls up to date (api.sql only ever replaces functions, triggers and grants, so
+            # it's safe to run again; schema.sql and storage.sql are never rerun)
+            PGOPTIONS='-c client_min_messages=warning' psql "$DB_URL" -1 -q -v ON_ERROR_STOP=1 -f supabase/api.sql 2>&1 | tee "$RUNNER_TEMP/load.txt"; rc=${PIPESTATUS[0]}
+            [ $rc -eq 0 ] && echo "Already loaded: brought api.sql up to date." | tee -a "$RUNNER_TEMP/load.txt"
+            bash supabase/report.sh "Load" "$RUNNER_TEMP/load.txt"; exit $rc
+          fi
           PGOPTIONS='-c client_min_messages=warning' psql "$DB_URL" -1 -q -v ON_ERROR_STOP=1 -f supabase/schema.sql -f supabase/api.sql -f supabase/storage.sql 2>&1 | tee "$RUNNER_TEMP/load.txt"
           rc=${PIPESTATUS[0]}; [ $rc -eq 0 ] && echo "Loaded schema.sql, api.sql and storage.sql." | tee -a "$RUNNER_TEMP/load.txt"
           bash supabase/report.sh "Load" "$RUNNER_TEMP/load.txt"; exit $rc

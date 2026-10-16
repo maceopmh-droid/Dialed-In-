@@ -156,9 +156,13 @@ ok(['Aidan', 'Julian', 'Maceo'].every(n => app.knownPeople().includes(n)) && !ap
 const forMaceo = pull('maceo'); const appM = loadApp(HTML); appM.user = 'Maceo'; appM.process(forMaceo);
 const mine = appM.gearByUser.get('Maceo') || {};
 ok((mine.recipes || []).length === 1 && JSON.stringify(mine.lastByMethod) === '{"Espresso":{"dose":18}}' && (mine.fabFour || []).join() === 'b1', 'Maceo gets his full gear back: recipes, last setup, favorites');
+// v14.4: the sync carries only your circle (friends, private groups, people you follow); a stranger who has never
+// followed anyone gets none of the crew's coffees or sessions, and nobody else's gear
+ok(!pull('stranger').some(e => e.type === 'bean' || e.type === 'brew' || (e.type === 'gear' && e.owner === 'Maceo')), "someone outside the crew who follows nobody gets none of the crew's coffees, sessions or gear in their sync");
+as('stranger', `select follow('maceo');`);   // from here on the stranger follows Maceo (an open profile)
 const forStranger = pull('stranger');
 const st = loadApp(HTML); st.user = 'Stranger'; st.process(forStranger);
-ok(st.beans.size === 1 && st.brews.size === 0, "a stranger sees the coffee (a shared fact) but none of the crew's Friends & groups sessions");
+ok(st.beans.size === 1 && st.brews.size === 0, "once the stranger follows Maceo: his coffee, but none of the crew's Friends & groups sessions");
 const strangerSeesMaceo = forStranger.filter(e => e.type === 'gear' && e.owner === 'Maceo');
 ok(strangerSeesMaceo.length === 1 && strangerSeesMaceo[0].items.map(i => i.name).join() === 'Niche Zero,Decent' && (strangerSeesMaceo[0].fabFour || []).join() === 'b1' &&
    !strangerSeesMaceo[0].recipes.length && !Object.keys(strangerSeesMaceo[0].lastByMethod).length,
@@ -210,6 +214,24 @@ push('maceo', { ...OPEN, audience: 'everyone', photoAudience: 'everyone' });
 let st3 = pull('stranger').find(e => e.id === 's3');
 ok(st3 && st3.photo && st3.photo.fileId === 'drivefile456' && !st3.notes && st3.audience === 'everyone' && !st3.noteAudience,
    'Maceo shares the session and the photo with everyone, keeps the note for friends: a stranger sees the session and photo, not the note');
+// the community feed: everyone's sessions shared with Everyone, a page at a time, for people who follow nobody too
+const W = 'aaaaaaaa-0000-0000-0000-000000000031'; psql(`insert into auth.users values ('${W}');`); AUTH.wanderer = W;
+as('wanderer', `select create_profile('Wanderer');`);
+const feed = (who, extra = '') => JSON.parse(as(who, `select community_feed(${extra});`).out);
+const wf = feed('wanderer');
+ok(!pull('wanderer').some(e => e.id === 's3') && wf.events.some(e => e.type === 'brew' && e.id === 's3' && e.photo && !e.notes) && wf.events.some(e => e.type === 'bean' && e.id === 'b1'),
+   "someone who follows nobody: not in their sync, but Maceo's public session (photo, no note) and its coffee are in the community feed");
+ok(!wf.events.some(e => e.type === 'brew' && e.audience !== 'everyone'), '...and nothing that isn\'t shared with Everyone');
+const p1 = feed('wanderer', 'max_items => 1');
+ok(p1.events.filter(e => e.type === 'brew').length === 1 && p1.next && feed('wanderer', `before => '${p1.next}'`).events.every(e => e.type !== 'brew' || e.id !== p1.events.find(x => x.type === 'brew').id),
+   'it comes a page at a time: "next" gets the older ones, without repeats');
+as('maceo', `select block('Wanderer');`);
+ok(!feed('wanderer').events.some(e => e.id === 's3'), 'blocked either way: gone from the community feed');
+as('maceo', `select unblock('Wanderer');`);
+as('maceo', `select set_private(true);`);
+ok(!feed('wanderer').events.some(e => e.id === 's3') && pull('stranger').some(e => e.id === 's3'), "a private profile's public sessions show only to people they approved (the stranger followed before)");
+as('maceo', `select set_private(false);`);
+ok(/permission denied/.test(as('anon', 'select community_feed();').err || ''), 'not signed in: refused');
 push('maceo', { ...OPEN, dose: 18.2 });
 ok(one(`select s.audience || '|' || n.audience || '|' || p.audience || '|' || s.dose from sessions s join session_notes n on n.session_id = s.id join session_photos p on p.session_id = s.id where s.legacy_id = 's3';`) === 'everyone|friends|everyone|18.2',
    'an edit from a phone that doesn\'t send the settings keeps them as they were');
@@ -296,6 +318,12 @@ ok(fx('maceo', 'select mark_notifications_read();') === '4' && notes('maceo').un
 ok(/permission denied/.test(fx('maceo', `insert into notifications (user_id, actor_id, kind) values (me(), me(), 'like');`)) && notes('julian').items.every(i => i.who !== undefined) && !JSON.stringify(notes('julian')).includes('what grind'),
    "nobody can write a notification directly, and you only ever see your own");
 ok(fx('stranger', `select report('session', '${one("select id from sessions where legacy_id = 's2';")}', 'spam');`) === 'reported' && one(`select count(*) from reports where reason = 'spam';`) === '1', 'anyone can report something');
+push('newbie', { type: 'brew', id: 'bb1', beanId: 'b1', user: 'Brew Buddy', owner: 'Brew Buddy', method: 'Espresso', dose: 18, yield: 36, time: 28, date: '2026-10-08T08:00:00.000Z', audience: 'everyone', likes: [], comments: [] });
+ok(/isn.t there/.test(fx('stranger', `select report_item('session', 's2', 'x');`)), "you can only report what you can see (Maceo's Friends session isn't there for the stranger)");
+ok(fx('stranger', `select report_item('session', 'bb1', 'not coffee');`) === 'reported' && fx('stranger', `select report_item('profile', 'Maceo', null);`) === 'reported' &&
+   one(`select count(*) filter (where target_type = 'session' and reason = 'not coffee') || '|' || count(*) filter (where target_type = 'profile' and target_id = (select id from profiles where legacy_name = 'Maceo')) from reports;`) === '1|1',
+   'report_item: the app reports a session by its id and a profile by name');
+ok(/isn.t there/.test(fx('stranger', `select report_item('session', 'no-such-session');`)) && /permission denied/.test(fx('anon', `select report_item('profile', 'Maceo');`)), '...something that isn\'t there, or signed out, is refused');
 const exported = JSON.parse(fx('maceo', 'select export_my_data();'));
 ok(exported.profile.legacy_name === 'Maceo' && !('auth_id' in exported.profile) && exported.sessions.length >= 2 && exported.coffees.some(k => k.legacy_id === 'b1') && exported.equipment.length === 2,
    'download my data: his profile, sessions, coffees and equipment');

@@ -139,14 +139,11 @@ language sql stable set search_path = public as $$
   where c.deleted_at is null and ((cof is not null and c.coffee_id = cof) or (ses is not null and c.session_id = ses));
 $$;
 
-create or replace function pull_events() returns jsonb
-language plpgsql stable set search_path = public as $$
-declare me_id uuid := me(); out jsonb;
-begin
-  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
-
-  -- coffees
-  select coalesce(jsonb_agg(jsonb_strip_nulls(jsonb_build_object(
+-- one coffee / one session in the app's event format (pull_events and community_feed share them). They run as the
+-- caller, so the row rules decide which notes, photos, likes and comments come along.
+create or replace function internal.coffee_json(k coffees) returns jsonb
+language sql stable set search_path = public as $$
+  select jsonb_strip_nulls(jsonb_build_object(
       'type', 'bean', 'id', coalesce(k.legacy_id, k.id::text),
       'user', internal.name_of(k.owner_id), 'owner', internal.name_of(k.owner_id),
       'actor', internal.name_of(k.owner_id), 'actorColor', internal.color_of(k.owner_id),
@@ -156,12 +153,13 @@ begin
       'likes', coalesce((select jsonb_agg(internal.name_of(l.user_id) order by l.created_at) from coffee_likes l where l.coffee_id = k.id), '[]'::jsonb),
       'comments', internal.comments_json(k.id, null),
       'wantToTry', coalesce((select jsonb_agg(internal.name_of(w.owner_id) order by w.added_at) from want_to_try w where w.coffee_id = k.id), '[]'::jsonb)
-    ))), '[]'::jsonb) into out
-  from coffees k left join roasters r on r.id = k.roaster_id
-  where k.deleted_at is null;
+    ))
+  from (select 1) one left join roasters r on r.id = k.roaster_id;
+$$;
 
-  -- sessions (notes and photos only when their own toggle lets you see them; the row rules handle that)
-  out := out || coalesce((select jsonb_agg(coalesce(s.extras, '{}'::jsonb) || coalesce(s.taste, '{}'::jsonb) || jsonb_strip_nulls(jsonb_build_object(
+create or replace function internal.session_json(s sessions) returns jsonb
+language sql stable set search_path = public as $$
+  select coalesce(s.extras, '{}'::jsonb) || coalesce(s.taste, '{}'::jsonb) || jsonb_strip_nulls(jsonb_build_object(
       'type', 'brew', 'id', coalesce(s.legacy_id, s.id::text),
       'beanId', coalesce(k.legacy_id, s.extras->>'beanId', ''),
       'user', internal.name_of(s.owner_id), 'owner', internal.name_of(s.owner_id),
@@ -179,10 +177,30 @@ begin
       'equipment', coalesce(s.equipment->'ids', '[]'::jsonb), 'equipmentSnapshot', coalesce(s.equipment->'snapshot', '[]'::jsonb),
       'isMaster', coalesce((s.master->>'isMaster')::boolean, false), 'masterProfile', s.master->'profile',
       'date', s.brewed_at, 'eventAt', s.updated_at, 'audience', s.audience, 'noteAudience', n.audience, 'photoAudience', p.audience
-    )))
-  from sessions s left join coffees k on k.id = s.coffee_id
-       left join session_notes n on n.session_id = s.id left join session_photos p on p.session_id = s.id
-  where s.deleted_at is null), '[]'::jsonb);
+    ))
+  from (select 1) one left join coffees k on k.id = s.coffee_id
+       left join session_notes n on n.session_id = s.id left join session_photos p on p.session_id = s.id;
+$$;
+
+create or replace function pull_events() returns jsonb
+language plpgsql stable set search_path = public as $$
+declare me_id uuid := me(); out jsonb; circle uuid[];
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+
+  -- v14.4: your circle (you, your friends, your private groups and the people you follow). The sync carries only their
+  -- coffees and sessions, so it stays small however many people use the app; everyone else's public sessions come a
+  -- page at a time through community_feed.
+  circle := array[me_id] || (select private.my_close_ids()) || (select private.my_following_ids());
+
+  -- coffees: your circle's, and any coffee your circle brewed
+  select coalesce(jsonb_agg(internal.coffee_json(k)), '[]'::jsonb) into out
+  from coffees k
+  where k.deleted_at is null
+    and (k.owner_id = any(circle) or exists (select 1 from sessions s where s.coffee_id = k.id and s.deleted_at is null and s.owner_id = any(circle)));
+
+  -- sessions (notes and photos only when their own toggle lets you see them; the row rules handle that)
+  out := out || coalesce((select jsonb_agg(internal.session_json(s)) from sessions s where s.deleted_at is null and s.owner_id = any(circle)), '[]'::jsonb);
 
   -- your gear in full
   out := out || coalesce((select jsonb_agg(jsonb_build_object('type', 'gear', 'id', 'gear-' || internal.name_of(me_id),
@@ -203,7 +221,8 @@ begin
       'date', coalesce(pg.updated_at, (select max(e.created_at) from equipment e where e.owner_id = o.pid)),
       'eventAt', coalesce(pg.updated_at, (select max(e.created_at) from equipment e where e.owner_id = o.pid))))
     from (select e.owner_id as pid from equipment e where e.owner_id <> me_id union select x.profile_id from internal.public_gear(me_id) x) o
-    left join internal.public_gear(me_id) pg on pg.profile_id = o.pid), '[]'::jsonb);
+    left join internal.public_gear(me_id) pg on pg.profile_id = o.pid
+    where o.pid = any(circle)), '[]'::jsonb);
 
   -- the app's people list: you and everyone in your private groups (its group goal, awards and Settings use it)
   out := out || jsonb_build_array(jsonb_build_object('type', 'gear', 'id', 'gear-__people__', 'user', '__people__', 'owner', '__people__', 'actor', '__people__',
@@ -223,6 +242,28 @@ begin
       'goalExclude', coalesce((select jsonb_agg(distinct internal.name_of(m.user_id)) from group_members m join groups g on g.id = m.group_id
                                where not m.counts_in_goal and not g.is_open), '[]'::jsonb)));
   return out;
+end $$;
+
+-- v14.4: the community feed. Everyone's sessions shared with Everyone that you're allowed to see (the row rules leave
+-- out private profiles you don't follow, and anyone blocked either way), newest first, a page at a time:
+-- community_feed(before => the "next" of the last page). Each page carries the sessions and their coffees in the
+-- app's event format, likes and comments included.
+create index if not exists sessions_public_recent on sessions (brewed_at desc) where deleted_at is null and audience = 'everyone';
+create or replace function community_feed(before timestamptz default null, max_items int default 30) returns jsonb
+language plpgsql stable set search_path = public as $$
+declare me_id uuid := me(); lim int := least(greatest(coalesce(max_items, 30), 1), 60); ids uuid[]; oldest timestamptz;
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  select array_agg(t.id order by t.brewed_at desc), min(t.brewed_at) into ids, oldest
+  from (select s.id, s.brewed_at from sessions s
+        where s.deleted_at is null and s.audience = 'everyone' and (community_feed.before is null or s.brewed_at < community_feed.before)
+        order by s.brewed_at desc limit lim) t;
+  if ids is null then return jsonb_build_object('events', '[]'::jsonb, 'next', null); end if;
+  return jsonb_build_object(
+    'events', coalesce((select jsonb_agg(internal.coffee_json(k)) from coffees k
+                        where k.deleted_at is null and k.id in (select s.coffee_id from sessions s where s.id = any(ids))), '[]'::jsonb)
+           || coalesce((select jsonb_agg(internal.session_json(s) order by s.brewed_at desc) from sessions s where s.id = any(ids)), '[]'::jsonb),
+    'next', case when array_length(ids, 1) = lim then oldest end);
 end $$;
 
 -- ---------------------------------------------------------------- has anything changed? data_version()
@@ -554,6 +595,20 @@ language sql stable set search_path = public as $$
     limit 20) s;
 $$;
 
+-- v14.4, once: the original crew (the Sheet-era private group) start out following each other, so each of them sees
+-- the others in their own Profiles row and People list. Anyone can unfollow afterwards; this never runs again.
+do $$ begin
+  if exists (select 1 from groups where name = 'Original crew') and not exists (select 1 from backend_state where key = 'crew_follows_seeded') then
+    perform set_config('dialed.importing', 'on', true);   -- no "started following you" notifications for this
+    insert into follows (follower, followee, status)
+    select m1.user_id, m2.user_id, 'accepted' from group_members m1 join group_members m2 on m2.group_id = m1.group_id and m2.user_id <> m1.user_id
+    join groups g on g.id = m1.group_id where g.name = 'Original crew' and not g.is_open
+    on conflict (follower, followee) do nothing;
+    insert into backend_state (key, value) values ('crew_follows_seeded', now()::text);
+    perform set_config('dialed.importing', '', true);
+  end if;
+end $$;
+
 -- ---------------------------------------------------------------- groups (phase 3: the database side; no screens yet)
 -- Optional. Open groups anyone can find and join; private groups take an invite code and hold up to 30 people. The
 -- people in your private groups are the app's people list (pull_events), so they share the group goal.
@@ -709,8 +764,9 @@ create or replace function my_notifications(max_count int default 50) returns js
 language sql stable set search_path = public as $$
   select jsonb_build_object(
     'unread', (select count(*) from notifications where user_id = me() and read_at is null),
-    'items', coalesce((select jsonb_agg(jsonb_strip_nulls(jsonb_build_object('id', n.id, 'kind', n.kind, 'who', internal.name_of(n.actor_id), 'at', n.created_at, 'read', n.read_at is not null,
+    'items', coalesce((select jsonb_agg(jsonb_strip_nulls(jsonb_build_object('id', n.id, 'kind', n.kind, 'who', internal.name_of(n.actor_id), 'color', internal.color_of(n.actor_id), 'at', n.created_at, 'read', n.read_at is not null,
                'session', (select coalesce(legacy_id, id::text) from sessions where id = n.session_id),
+               'sessionCoffee', (select coalesce(k.legacy_id, k.id::text) from sessions s join coffees k on k.id = s.coffee_id where s.id = n.session_id),
                'coffee', (select coalesce(legacy_id, id::text) from coffees where id = n.coffee_id),
                'comment', (select left(body, 140) from comments where id = n.comment_id and deleted_at is null),
                'group', (select name from groups where id = n.group_id))) order by n.id desc)
@@ -782,6 +838,22 @@ begin
   return 'reported';
 end $$;
 
+-- v14.4: report something by the names the app knows it by: a profile by name, a session by its id, a comment as
+-- "<session or coffee id>#<comment id>". Only things you can see can be reported.
+create or replace function report_item(kind text, ref text, reason text default null) returns text
+language plpgsql set search_path = public as $$
+declare me_id uuid := me(); target uuid; r text := btrim(coalesce(ref, ''));
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  if kind = 'profile' then target := internal.profile_by_name(r, me_id);
+  elsif kind = 'session' then select id into target from sessions where legacy_id = r or id::text = r limit 1;
+  elsif kind = 'comment' then select id into target from comments where legacy_ref = r or id::text = split_part(r, '#', 2) limit 1;
+  else raise exception 'Report a profile, a session or a comment.' using errcode = '22023'; end if;
+  if target is null then raise exception 'That isn''t there anymore.' using errcode = 'P0002'; end if;
+  insert into reports (reporter_id, target_type, target_id, reason) values (me_id, kind, target, left(nullif(btrim(coalesce(reason, '')), ''), 1000));
+  return 'reported';
+end $$;
+
 -- everything that's yours, to download
 create or replace function export_my_data() returns jsonb
 language sql stable security definer set search_path = public as $$
@@ -826,11 +898,11 @@ end $$;
 grant usage on schema internal to authenticated;
 grant execute on all functions in schema internal to authenticated;
 -- only signed-in people can call these (Postgres lets everyone run a new function unless told otherwise)
-revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean),
+revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int), report_item(text, text, text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version() from public, anon;
-grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean),
+grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int), report_item(text, text, text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version() to authenticated;

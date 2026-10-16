@@ -273,6 +273,7 @@
                                     <button type="button" class="cmt-act" onclick="app.startReply('${app.escJs(kind)}','${app.escJs(id)}','${app.escJs(c.id)}',event)">Reply</button>
                                     ${canEdit ? `<button type="button" class="cmt-act" onclick="app.${editFn}('${app.escJs(id)}', ${i}, event)">Edit</button>` : ''}
                                     ${canDelete ? `<button type="button" class="cmt-act danger" onclick="app.${delFn}('${app.escJs(id)}', ${i}, event)">Delete</button>` : ''}
+                                    ${this.acctOn() && c.user !== this.user ? `<button type="button" class="cmt-act" onclick="app.reportItem('comment','${app.escJs(id)}#${app.escJs(c.id)}', event)">Report</button>` : ''}
                                 </div>
                                 ${c.likes.length ? `<div class="cmt-likers">Liked by ${this.esc(c.likes.slice(0, 3).join(', '))}${c.likes.length > 3 ? ` +${c.likes.length - 3}` : ''}</div>` : ''}
                             </div>
@@ -442,7 +443,7 @@
                                     <div class="feed-actor" style="color:${this.esc(color)};">${this.esc(owner)}</div>
                                     <div class="feed-time" data-time="${this.esc(String(entry.date || brew.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || brew.date))}</div>
                                 </div>
-                                <div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(brew.method)}"/></svg>${this.esc(brew.method || 'Espresso')}</div>
+                                ${entry.community ? this.communityFollowHtml(owner) : ''}<div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(brew.method)}"/></svg>${this.esc(brew.method || 'Espresso')}</div>
                             </div>
                             <div class="sc-title">
                                 <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(roasterName)}" onclick="app.openRoasterFrom(this, event)">${this.esc(roasterName)}</span></div>` : ''}</div>
@@ -523,15 +524,20 @@
             },
 
             renderFeed(grid) {
+                // v14.4: on the new backend the feed has two views: Following (your circle) and Community (everyone)
+                if (this.acctOn() && this.feedMode() === 'community') { this.renderCommunityFeed(grid); return; }
                 grid.className = 'feed-list';
+                if (grid.getAttribute && grid.getAttribute('data-view') === 'community') { grid.removeAttribute('data-view'); this._feedHtml = null; }
                 const entries = this.feedEntries.slice(0, 220);
                 if (!entries.length) {
-                    grid.innerHTML = '<div style="text-align:center; color:#999; padding:3rem;">No feed activity yet.</div>';
+                    grid.innerHTML = this.acctOn()
+                        ? this.feedModeHtml() + '<div class="comm-empty">Nothing here yet. Follow people (Profiles, then People) or see what everyone is brewing in Community.</div>'
+                        : '<div style="text-align:center; color:#999; padding:3rem;">No feed activity yet.</div>';
                     if (grid.removeAttribute) grid.removeAttribute('data-view');
                     this._feedHtml = null;
                     return;
                 }
-                const tops = [['top:welcome', this.renderWelcomeBack()], ['top:quest', this.renderCrewQuest()], ['top:teaser', this.renderAwardsTeaser()]];
+                const tops = [['top:mode', this.feedModeHtml()], ['top:welcome', this.renderWelcomeBack()], ['top:quest', this.renderCrewQuest()], ['top:teaser', this.renderAwardsTeaser()]];
                 if (!this.canPatchDom(grid)) {
                     grid.innerHTML = tops.map(t => t[1]).join('') + entries.map(e => this.feedCardHtml(e)).join('');
                     return;

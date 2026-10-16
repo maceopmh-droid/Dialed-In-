@@ -223,6 +223,8 @@
                     }
                     if (changed) this.persistCloudCache();
                     if (this.adoptSheetOutbox && Cloud.confirms) this.adoptSheetOutbox();   // v14.2: saves made on the Sheet that never left this phone
+                    if (this.checkNotifications) this.checkNotifications();   // v14.4: the bell's unread count
+                    if (this.checkPendingJoin) this.checkPendingJoin();   // v14.4: an invite link opened before signing in
                     if (this.pendingOutbox().some(x => this.outboxDue(x))) setTimeout(() => this.flushOutbox(), 0);
                 } catch (e) {
                     this.syncFailed = true;
@@ -604,6 +606,7 @@
                 this.tombs = new Map();
                 events.forEach(event => this.applyEvent(event));
                 // v13.4: saves still on their way to the sheet go on top of it
+                if (this.applyCommunity) this.applyCommunity();   // v14.4: community records beside your circle's (before the outbox, so a like on one isn't taken for a delete)
                 const pending = this.settleOutbox(items);
                 pending.forEach(event => this.applyEvent(event));
                 this.applyGearFromCloud();
@@ -636,6 +639,7 @@
                 };
                 const event = this.normalizeEvent(draft);
                 if (!event) return;
+                if (this.noteCommunityPush) this.noteCommunityPush(event);
 
                 this.queueOutbox(event, prev);
                 this.applyEvent(event);

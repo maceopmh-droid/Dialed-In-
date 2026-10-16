@@ -176,6 +176,7 @@
                 events.forEach(event => {
                     const ts = event.date || event.eventAt || new Date().toISOString();
                     if ((event.type === 'brew' && !this.brews.has(String(event.id))) || (event.type === 'bean' && !this.beans.has(String(event.id)))) return;   // v13.4: deleted since
+                    if ((event.type === 'brew' || event.type === 'bean') && this.communityIds && this.communityIds.has(`${event.type}:${event.id}`)) return;   // v14.4: someone outside your circle (Community)
                     if (event.type === 'bean') {
                         const beanId = String(event.id || '');
                         if (!beanId) return;

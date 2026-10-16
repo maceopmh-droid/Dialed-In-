@@ -69,6 +69,7 @@
             },
 
             init() {
+                if (this.noteInviteLink) this.noteInviteLink();   // v14.4: ?join=CODE, offered once you're signed in
                 this.initFlavors();
                 this.bindGlobalHandlers();
                 this.applyInitialRoute();

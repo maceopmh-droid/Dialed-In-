@@ -17,13 +17,14 @@
 
             renderProfile(grid) {
                 grid.className = 'profile-view';
-                const people = this.knownPeople();
+                const people = this.profileRowPeople();   // v14.4: you and the people you follow (each person's own row)
                 if (!this.profileUser || !(people.includes(this.profileUser) || this.hasLoggedData(this.profileUser))) this.profileUser = this.user || people[0] || '';
                 const who = this.profileUser;
                 if (!who) {
                     grid.innerHTML = '<div class="panel-empty">Pick a user in Settings to see profiles.</div>';
                     return;
                 }
+                if (this.acctOn() && !people.includes(who)) people.splice(1, 0, who);   // someone opened from People or a card: their chip shows while you look
                 const chips = people.map(name => {
                     const color = this.getUserColor(name);
                     return `<button type="button" class="person-chip${name === who ? ' active' : ''}" data-name="${this.esc(name)}" onclick="app.setProfileUser(this.getAttribute('data-name'))"><span class="person-dot" style="background:${this.esc(color)};">${this.esc(this.feedInitial(name))}</span>${this.esc(name)}${name === this.user ? ' <span class="you-tag">You</span>' : ''}</button>`;
@@ -45,7 +46,7 @@
                         : [this.renderFabFour(who), this.renderAchievementsCard(who), who !== this.user ? this.renderGearCard(who) : ''];
                 const body = cards.filter(Boolean).join('') || '<div class="panel-empty">Nothing here yet. Log a few sessions and this fills in.</div>';
                 grid.innerHTML = [
-                    `<div class="people-switch">${chips}${peopleChip}</div>`,
+                    `<div class="people-switch${this.acctOn() ? ' one-row' : ''}">${chips}${peopleChip}</div>`,
                     this.renderProfileHero(who),
                     tabs,
                     `<div class="profile-section" data-section="${section}">${body}</div>`
@@ -53,6 +54,7 @@
                 // v13.1: the equipment locker lives on your own profile (Overview), not in Settings
                 this.placeGearLocker(who === this.user && section === 'overview' ? grid.querySelector('.profile-section') : null);
                 this.fitRoasterTileNames(grid);
+                this.fitPeopleRow(grid);
             },
 
             setProfileSection(section) {

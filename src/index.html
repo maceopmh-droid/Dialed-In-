@@ -30,6 +30,7 @@
 @@include css/10-v14.css
 @@include css/11-account.css
 @@include css/12-people.css
+@@include css/13-community.css
     </style>
 </head>
 <body>
@@ -40,6 +41,8 @@
         <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.7"/><path d="M5 20.2a7 7 0 0 1 14 0"/></symbol>
         <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5.5v13M5.5 12h13"/></symbol>
         <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7.5h8.5M16.5 7.5H20M4 16.5h3M11 16.5h9"/><circle cx="14.5" cy="7.5" r="2"/><circle cx="9" cy="16.5" r="2"/></symbol>
+        <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4.5c4-2 6.5 2 11 0v8c-4.5 2-7-2-11 0"/></symbol>
+        <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.6 1.9H4.4Z"/><path d="M10 20.4a2.2 2.2 0 0 0 4 0"/></symbol>
         <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="9" r="5.6"/><path d="M8.8 13.7 7.6 21l4.4-2.5 4.4 2.5-1.2-7.3"/><path d="M12 6.6l.8 1.6 1.7.2-1.3 1.2.3 1.7-1.5-.8-1.5.8.3-1.7-1.3-1.2 1.7-.2Z"/></symbol>
         <symbol id="i-share-2" viewBox="0 0 24 24"><circle cx="17.5" cy="5.5" r="2.4"/><circle cx="6.5" cy="12" r="2.4"/><circle cx="17.5" cy="18.5" r="2.4"/><path d="m8.6 10.8 6.8-4M8.6 13.2l6.8 4"/></symbol>
         <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12.5h3.6l2.4-6.3 4.2 12.6 2.6-6.3H21"/></symbol>
@@ -119,6 +122,10 @@
                 </div>
 
                 <div class="header-controls">
+                    <button class="locker-btn notif-btn" id="notif-btn" onclick="app.openNotifications()" title="Notifications" aria-label="Notifications" hidden>
+                        <svg class="icon" style="width:17px;height:17px;"><use href="#i-bell"/></svg>
+                        <span id="notif-count" class="locker-count" hidden></span>
+                    </button>
                     <button class="locker-btn" onclick="app.openAchievementLocker()" title="Achievement Locker">
                         <svg class="icon" style="width:16px;height:16px;"><use href="#i-award"/></svg>
                         <span id="achievement-count" class="locker-count">0</span>
@@ -318,10 +325,19 @@
                 <button class="btn-primary" id="equipment-save-btn" onclick="app.saveEquipment()">Add Equipment</button>
                 <button class="btn-outline" id="equipment-cancel-btn" onclick="app.cancelEquipmentEdit()" style="display:none;">Cancel Edit</button>
             </div></div></div>
+    <!-- Notifications (v14.4, new backend only) -->
+    <div id="notif-modal" class="modal" onclick="if(event.target===this) app.closeNotifications()">
+        <div class="modal-card people-card">
+            <h2>Notifications</h2>
+            <div id="notif-body"></div>
+        </div>
+    </div>
+
     <!-- People (v14.4, new backend only) -->
     <div id="people-modal" class="modal" onclick="if(event.target===this) app.closePeople()">
         <div class="modal-card people-card">
             <h2>People</h2>
+            <div id="people-tabs"></div>
             <input id="people-q" class="pp-search" type="search" placeholder="Find people by name" autocomplete="off" autocapitalize="words" spellcheck="false" oninput="app.peopleSearch(this.value)">
             <div id="people-body"></div>
         </div>
@@ -689,6 +705,11 @@
 @@include js/app/27-settings-equipment-misc.js
 @@include js/app/28-account.js
 @@include js/app/29-people.js
+@@include js/app/30-community.js
+@@include js/app/31-notifications.js
+@@include js/app/32-groups.js
+@@include js/app/33-safety.js
+@@include js/app/99-end.js
 @@include js/99-boot.js
     </script>
 </body>
