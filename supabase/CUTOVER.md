@@ -124,6 +124,9 @@ The Sheet keeps every row it ever had, and the nightly check keeps copying anyth
 
 ## What's in place, and what isn't yet
 
+**Moved Oct 16, 2026 at 9:45 am Central** (`cutover_at` 14:45:26 UTC, after a last shadow check: OK), and v14.3
+(`live: true`) shipped right after. Everyone signs in from here; the Sheet stays as the archive and the way back.
+
 Done on the real project (Oct 16, 2026): steps 1–3. The database is loaded; every project check passes (privacy
 rules on all 24 tables, signed-out visitors refused, exactly the app's 28 calls callable, private photo bucket); the
 shadow check archived the live Sheet (1,409 distinct saves) and rebuilt the tables from it: 31 coffees, 239
