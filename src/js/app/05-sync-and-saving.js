@@ -851,7 +851,11 @@
                                 // v14.2: the new backend answers, so a save it accepted is done (unless a newer edit replaced it meanwhile)
                                 if (r && r.landed && Cloud.confirms && (this.outbox || []).includes(x)) { x.landedAt = Date.now(); x.confirmed = true; this.saveOutbox(); }
                             } catch (e) {
-                                if (e && e.refused && Cloud.confirms && !e.signedOut) { x.netFail = false; }   // the server said no: counts toward giving up
+                                if (e && e.refused && Cloud.confirms && !e.signedOut) {   // the server said no: counts toward giving up
+                                    x.netFail = false;
+                                    // v14.6: a speed limit passes in a few minutes (the retries outlast it); say so once
+                                    if (/going a bit fast/i.test(String(e.message || '')) && Date.now() - (this._fastAt || 0) > 60000) { this._fastAt = Date.now(); this.showToast('You\'re going a bit fast. It\'ll save in a few minutes.'); }
+                                }
                                 else if (e && e.signedOut) { x.netFail = false; x.tries = Math.max(0, x.tries - 1); x.lastTry = 0; this.saveOutbox(); if (this.needSignIn) this.needSignIn(); }   // signed out: it goes as soon as they sign in again (even after a reload)
                                 else { x.netFail = true; x.tries = Math.max(0, x.tries - 1); }   // no connection doesn't count toward giving up
                                 console.error('Push error:', e);

@@ -92,6 +92,29 @@ begin
   insert into backend_state (key, value) values ('word_pattern', coalesce(pat, '')) on conflict (key) do update set value = excluded.value, updated_at = now();
   return coalesce(n, 0);
 end $$;
+-- v14.6: speed limits, so one account can't flood strangers (comments, new sessions and coffees, reports, new
+-- communities). Generous for people logging and talking; a script hits them. Counted when something new is made, by
+-- the server's clock (an app can't backdate its way around them); a save over the limit is refused with a plain message.
+create table if not exists internal.rate_log (profile_id uuid not null, kind text not null, at timestamptz not null default now());
+alter table internal.rate_log enable row level security;
+revoke all on internal.rate_log from public, anon, authenticated;
+create index if not exists rate_log_recent on internal.rate_log (profile_id, kind, at);
+create or replace function internal.rate_hit(pid uuid, what text) returns void
+language plpgsql security definer set search_path = public as $$
+declare lim int[] := case what when 'comment' then array[20, 5, 300]       -- 20 in 5 minutes, 300 a day
+                               when 'session' then array[100, 10, 500]
+                               when 'coffee' then array[50, 10, 300]
+                               when 'report' then array[20, 60, 50]
+                               when 'group' then array[5, 60, 20] else array[100, 10, 1000] end;
+begin
+  if pid is null then return; end if;
+  if (select count(*) from internal.rate_log where profile_id = pid and kind = what and at > now() - make_interval(mins => lim[2])) >= lim[1]
+     or (select count(*) from internal.rate_log where profile_id = pid and kind = what and at > now() - interval '1 day') >= lim[3] then
+    raise exception 'You''re going a bit fast. Wait a few minutes and try again.' using errcode = '22023';
+  end if;
+  insert into internal.rate_log (profile_id, kind) values (pid, what);
+  if random() < 0.02 then delete from internal.rate_log where at < now() - interval '2 days'; end if;
+end $$;
 create or replace function internal.is_new_account(pid uuid) returns boolean
 language sql stable security definer set search_path = public as $$ select coalesce((select joined_at > now() - interval '3 days' from profiles where id = pid), false); $$;
 create or replace function internal.clean_text(t text, strip_links boolean default false) returns text
@@ -565,6 +588,7 @@ begin
     ref := rec || '#' || (c->>'id');
     if lower(btrim(coalesce(c->>'user', ''))) = lower(me_nm) then
       mine := mine || ref;
+      if not exists (select 1 from comments where legacy_ref = ref) then perform internal.rate_hit(me_id, 'comment'); end if;   -- v14.6
       insert into comments (legacy_ref, session_id, coffee_id, author_id, parent_id, body, audience, created_at)
       values (ref, case when kind = 'session' then target end, case when kind = 'coffee' then target end, me_id,
               (select id from comments where legacy_ref = rec || '#' || nullif(c->>'parentId', '')),
@@ -605,6 +629,7 @@ begin
   select * into k from coffees where legacy_id = ev->>'id';
   if not found then
     if lower(btrim(coalesce(ev->>'owner', ev->>'user', me_nm))) <> lower(me_nm) then return; end if;   -- someone else's coffee you can't see
+    perform internal.rate_hit(me_id, 'coffee');   -- v14.6
     insert into coffees (legacy_id, owner_id, roaster_id, roaster_text, name, origin, process, variety, roast, roast_date, created_at)
     values (ev->>'id', me_id, internal.roaster_for(ev->>'roaster', me_id), nullif(btrim(ev->>'roaster'), ''), coalesce(nullif(btrim(ev->>'name'), ''), 'Coffee'),
             nullif(btrim(ev->>'origin'), ''), nullif(btrim(ev->>'process'), ''), nullif(btrim(ev->>'variety'), ''), nullif(btrim(ev->>'roast'), ''),
@@ -653,6 +678,7 @@ begin
   select * into s from sessions where legacy_id = ev->>'id';
   if not found then
     if lower(btrim(coalesce(ev->>'owner', ev->>'user', me_nm))) <> lower(me_nm) then return; end if;
+    perform internal.rate_hit(me_id, 'session');   -- v14.6
     insert into sessions (legacy_id, owner_id, coffee_id, audience, help_wanted, method, grind, dose, yield, time_s, rating, taste, tasted, flavor_notes, extras, equipment, master, brewed_at)
     values (ev->>'id', me_id, cof, coalesce(internal.aud(ev->>'audience'), 'friends'), lower(coalesce(ev->>'helpWanted', '')) = 'true', nullif(btrim(ev->>'method'), ''), nullif(btrim(ev->>'grind'), ''),
             internal.try_num(ev->>'dose'), internal.try_num(ev->>'yield'), internal.try_num(ev->>'time'), internal.rating(ev->>'rating'),
@@ -877,6 +903,7 @@ begin
   if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
   if char_length(n) < 2 or char_length(n) > 60 then raise exception 'Give the community a name (2 to 60 characters).' using errcode = '22023'; end if;
   if not internal.name_ok(n) then raise exception 'Pick another name.' using errcode = '22023'; end if;   -- v14.6: the content filter
+  perform internal.rate_hit(me_id, 'group');   -- v14.6
   insert into groups (name, is_open, owner_id, invite_code, goal_on, awards_on)
   values (n, coalesce(open, false), me_id, case when coalesce(open, false) then null else internal.new_code() end, true, not coalesce(open, false)) returning * into g;
   insert into group_members (group_id, user_id, role) values (g.id, me_id, 'owner');
@@ -1210,10 +1237,13 @@ begin
   if (select count(distinct reporter_id) from reports where target_type = new.target_type and target_id = new.target_id and status in ('open', 'hidden')) >= 3 then
     update reports set status = 'hidden' where target_type = new.target_type and target_id = new.target_id and status = 'open';
   end if;
-  -- v14.6: reviewers hear about every report (the bell, and their phone when notifications are on), so a day is enough
-  for adm in select x::uuid from backend_state, unnest(string_to_array(value, ',')) x where key = 'admins' and x ~ '^[0-9a-f-]{36}$' loop
-    perform internal.notify(adm, new.reporter_id, 'report');
-  end loop;
+  -- v14.6: reviewers hear about every report (the bell, and their phone when notifications are on), so a day is enough;
+  -- once per person and thing (reporting the same thing again doesn't ping them again)
+  if not exists (select 1 from reports r where r.reporter_id = new.reporter_id and r.target_type = new.target_type and r.target_id = new.target_id and r.id <> new.id) then
+    for adm in select x::uuid from backend_state, unnest(string_to_array(value, ',')) x where key = 'admins' and x ~ '^[0-9a-f-]{36}$' loop
+      perform internal.notify(adm, new.reporter_id, 'report');
+    end loop;
+  end if;
   return null;
 end $$;
 drop trigger if exists hide_reported on reports;
@@ -1370,6 +1400,7 @@ create or replace function report(target_type text, target_id uuid, reason text 
 language plpgsql set search_path = public as $$
 begin
   if me() is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  perform internal.rate_hit(me(), 'report');   -- v14.6
   insert into reports (reporter_id, target_type, target_id, reason) values (me(), report.target_type, report.target_id, left(report.reason, 1000));
   return 'reported';
 end $$;
@@ -1386,6 +1417,7 @@ begin
   elsif kind = 'comment' then select id into target from comments where legacy_ref = r or id::text = split_part(r, '#', 2) limit 1;
   else raise exception 'Report a profile, a session or a comment.' using errcode = '22023'; end if;
   if target is null then raise exception 'That isn''t there anymore.' using errcode = 'P0002'; end if;
+  perform internal.rate_hit(me_id, 'report');   -- v14.6
   insert into reports (reporter_id, target_type, target_id, reason) values (me_id, kind, target, left(nullif(btrim(coalesce(reason, '')), ''), 1000));
   return 'reported';
 end $$;

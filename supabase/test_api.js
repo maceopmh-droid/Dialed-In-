@@ -535,6 +535,23 @@ ok(cs.events.some(e => e.type === 'bean' && e.id === 'mb9') && cs.events.some(e 
 ok(JSON.parse(fx('stranger', `select coffee_community('', '');`)).summary === null && cc('stranger', ", max_items => 40").next === null, 'no name: nothing; the last page says so');
 ok(/permission denied/.test(fx('anon', `select coffee_community('sey', 'kenya kiambu');`)), 'not signed in: refused');
 
+// v14.6: speed limits: 20 new comments in 5 minutes (by the server's clock), then "going a bit fast"; reports too
+const spamOn = (n, from = 0) => ({ type: 'brew', id: 'dold', beanId: 'db1', user: 'Discoverer One', owner: 'Discoverer One', method: 'Pour Over', date: ago(24 * 9), audience: 'everyone',
+  notes: 'bright, floral, long sweet finish', rating: 5, likes: [], comments: Array.from({ length: n }, (_, i) => ({ id: 'sp' + (from + i), user: 'Stranger', text: 'nice ' + (from + i), timestamp: '2020-01-01T00:00:00Z', parentId: '', likes: [] })) });
+const tooFast = push('stranger', spamOn(21));
+ok(tooFast.err && /going a bit fast/.test(tooFast.err) && one(`select count(*) from comments where legacy_ref like 'dold#sp%';`) === '0', 'speed limit: 21 new comments at once are refused ("You\'re going a bit fast"), and none of them saved');
+ok(!push('stranger', spamOn(20)).err && one(`select count(*) from comments where legacy_ref like 'dold#sp%';`) === '20', '20 go through (backdated timestamps don\'t matter: the server counts when they arrive)');
+ok(/going a bit fast/.test(push('stranger', spamOn(21)).err || ''), 'the 21st within five minutes is refused');
+ok(!push('stranger', spamOn(20)).err, 're-sending the same 20 is fine (only new comments count)');
+psql(`update internal.rate_log set at = at - interval '6 minutes';`);
+ok(!push('stranger', spamOn(21)).err && one(`select count(*) from comments where legacy_ref like 'dold#sp%';`) === '21', 'five minutes later it goes through');
+psql(`delete from internal.rate_log where kind = 'report';`);
+const repAlerts0 = one(`select count(*) from notifications where kind = 'report';`);
+const reps = Array.from({ length: 21 }, (_, i) => fx('stranger', `select report_item('session', 'dold', 'r${i}');`));
+ok(reps.slice(0, 20).every(r => r === 'reported') && /going a bit fast/.test(reps[20]), 'reports: 20 an hour');
+ok(Number(one(`select count(*) from notifications where kind = 'report';`)) - Number(repAlerts0) <= 1, 'reporting the same thing again doesn\'t alert the reviewer again');
+psql(`delete from internal.rate_log; delete from comments where legacy_ref like 'dold#sp%'; delete from reports where reason ~ '^r[0-9]+$';`);
+
 // the community goal counts Everyone and Friends sessions, not Only me; and says how many people brewed this week
 const g0 = JSON.parse(fx('julian', 'select community_goal();'));
 push('julian', { type: 'brew', id: 'jg2', beanId: 'b1', user: 'Julian', owner: 'Julian', method: 'Espresso', date: NOW(), audience: 'only_me', likes: [], comments: [] });
