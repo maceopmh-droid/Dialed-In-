@@ -6,8 +6,11 @@
 
             feedMode() {
                 if (!this.acctOn()) return 'following';
-                if (!this._feedMode) this._feedMode = safeGet('dialed_feed_mode') === 'community' ? 'community' : 'following';
-                return this._feedMode;
+                if (!this._feedMode) { const saved = safeGet('dialed_feed_mode'); if (saved === 'community' || saved === 'following') this._feedMode = saved; }
+                if (this._feedMode) return this._feedMode;
+                // until you pick: Community for someone who follows nobody and has no group yet (their Following is empty)
+                const d = this.ppState().data;
+                return d && !(d.following || []).length && !this.knownPeople().some(n => n !== this.user) ? 'community' : 'following';
             },
 
             setFeedMode(mode) {

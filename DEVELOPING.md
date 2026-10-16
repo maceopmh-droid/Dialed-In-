@@ -66,6 +66,13 @@ Two backends sit behind it:
   thing it's on. Saves this phone made on the Sheet but never sent are sent once after signing in. None of this
   shows on the Sheet. See `supabase/README.md`.
 
+v14.4 added the community side, each in its own file after `28-account.js` (the app object closes in
+`99-end.js`, so new files go before it): `29-people.js` (the Profiles row of the people you follow, People:
+search, follow, requests, block; the private-profile switch), `30-community.js` (Feed: Following | Community, the
+paged community feed kept beside your circle's records in `communityIds`), `31-notifications.js` (the bell at the
+top of the Feed), `32-groups.js` (People, Groups: create, join by code or `?join=` link, leave) and `33-safety.js`
+(Report, Download my data, Delete account). All of it shows only on the new backend.
+
 Nothing else in the app calls `fetch` for data (the only other `fetch` is the self-update check, which reads
 `index.html`). The screens don't know which backend they're on.
 

@@ -525,6 +525,10 @@
 
             renderFeed(grid) {
                 // v14.4: on the new backend the feed has two views: Following (your circle) and Community (everyone)
+                if (this.acctOn() && !this.ppState().data && !this._peopleLoading) {   // who you follow decides where a newcomer starts
+                    this._peopleLoading = true;
+                    this.loadPeople().then(() => { this._peopleLoading = false; if (this.tab === 'feed') this.render(); }).catch(() => { this._peopleLoading = false; });
+                }
                 if (this.acctOn() && this.feedMode() === 'community') { this.renderCommunityFeed(grid); return; }
                 grid.className = 'feed-list';
                 if (grid.getAttribute && grid.getAttribute('data-view') === 'community') { grid.removeAttribute('data-view'); this._feedHtml = null; }

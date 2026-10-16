@@ -15,7 +15,7 @@ Sheet for everyone until the move (`CUTOVER.md`).
 - `schema.sql`: the tables (profiles, follows, blocks, groups, coffees, sessions, notes, photos, likes, comments,
   reports) and the privacy rules, written as Postgres row-level security. Every read is checked against the
   "Who sees what" rules in the plan before anything leaves the database.
-- `test_rls.py` (53 checks): runs `schema.sql` on a real Postgres and checks, as seven pretend people (you, a friend, a
+- `test_rls.py` (52 checks): runs `schema.sql` on a real Postgres and checks, as seven pretend people (you, a friend, a
   stranger who follows you, a private profile, a private-group buddy, an open-group member, someone who blocked
   you, plus someone signed in with no profile yet and an old name nobody has claimed), exactly which sessions, notes, photos, comments, groups and profiles each can see or change.
 
@@ -58,8 +58,13 @@ The real Sheet export never goes in this repository (it's public and the rows ho
 Load after `schema.sql`. The app keeps reading and writing the same Sheet-style events it uses today; these three
 functions translate, and the privacy rules above decide every read and write (they run as the signed-in person).
 
-- `pull_events()`: everything you may see, as the events the app already understands. Your gear comes back in
-  full; other people's gear is only their equipment (what their profile shows), never recipes or settings.
+- `pull_events()`: your circle, as the events the app already understands: you, your friends, your private
+  groups and the people you follow (their coffees and sessions, with every like and comment you may see). It stays
+  small however many people use the app. Your gear comes back in full; your circle's is only what their profile
+  shows (equipment, favorite coffees), never recipes or settings.
+- `community_feed(before, max_items)` (v14.4): everyone else's sessions shared with Everyone that you may see,
+  newest first, a page at a time (`before` = the `next` of the last page), with their coffees, in the same format.
+  The app keeps these beside your circle's records, so they never count toward your group goal, awards or library.
 - `push_event(ev)`: one save from the app, applied **as the signed-in person, whatever the event says**. A save
   only changes your own part of a record: the fields of your own coffee or session, and your like, comments,
   comment likes and want-to-try flag on anyone's. Replies' parents and comment likes that the app sends on the side
@@ -71,23 +76,29 @@ functions translate, and the privacy rules above decide every read and write (th
   `_`) is the name the app shows; Sheet-era names can't be taken.
 - `my_profile()`: the signed-in person's profile, or null before they claim a name or make one.
 
-Following (the database side of phase 3; the app has no screens for it yet): `follow(name)`, `unfollow(name)`,
+Following (v14.4: Profiles, People): `follow(name)`, `unfollow(name)`,
 `answer_follow(name, accept)` for requests to a private profile, `block(name)` / `unblock(name)`, `my_people()`
-and `find_people(text)`. Following an open profile is immediate; a private one gets a request. Two people who
+and `find_people(text)`; `set_private(on)` turns your profile private (going public again lets in everyone who
+asked). Following an open profile is immediate; a private one gets a request. The original crew start out
+following each other (a one-time step in `api.sql`, after the import). Two people who
 follow each other are friends, and friends see each other's Friends & groups sessions. Blocking ends follows both
 ways, and the blocked person can't find or follow you (they're told there's nobody by that name).
 
-Groups (also the database side of phase 3): `create_group(name, open)`, `join_group(code)` (an open group's id or
+Groups (v14.4: People, Groups; invite links are `<app address>?join=<code>`): `create_group(name, open)`, `join_group(code)` (an open group's id or
 a private group's 8-letter invite code), `leave_group(id)` (the group passes to its longest-standing admin, and
 the last one out closes it), `new_invite(id)`, `remove_member(id, name)`, `set_member_role(id, name, role)`,
 `my_groups()` and `find_groups(text)`. Private groups hold up to 30 people, and their members are each other's
 people list (so they share the group goal); open groups don't change anyone's people list.
 
-Notifications, reporting and your account (the database side of the rest of phase 3): triggers write a
+Notifications, reporting and your account (v14.4: the bell at the top of the Feed; Report on comments, sessions
+and profiles; Settings): triggers write a
 notification when someone likes, comments on or replies to your things, likes your comment, follows you (or asks
 to), approves your request, or joins your group; never for the Sheet's imported history, never twice for the same
 save, never between people who've blocked each other. `my_notifications()` and `mark_notifications_read()` are
-for the bell. `report(type, id, reason)` files a report. `export_my_data()` is "Download my data".
+for the bell. `report_item(kind, ref, reason)` files a report by the names the app knows things by (a profile's
+name, a session's id, `<record id>#<comment id>`), only for things you can see. To review reports, in the SQL
+editor: `select r.created_at, r.target_type, r.reason, r.status from reports r order by r.created_at desc;`
+(and set `status` to `hidden`, `dismissed` or `removed` as you deal with them). `export_my_data()` is "Download my data".
 `delete_account(your name)` deletes the account and everything in it; groups you own pass on, and a coffee other
 people logged sessions on passes to the first of them so their sessions keep it. (Photos in storage have to be
 removed through Supabase's storage API first; the app will do that before calling it.)
@@ -109,6 +120,11 @@ put files in your own folder, and you can read a photo only if you may see the s
 reads `session_photos`, whose own row rules apply). `push_event` refuses a photo path outside your own folder, so
 nobody can point their session at someone else's private photo. The app asks for links that expire after two hours.
 
+**Changing the calls on the live database.** `api.sql` only ever replaces functions, triggers, grants and
+indexes (`create or replace`, `if not exists`), so it can be run again at any time: the `supabase setup` workflow
+does that whenever it runs on a database that's already loaded. `schema.sql` and `storage.sql` are never rerun;
+a change to a table needs its own step.
+
 Signed-out calls are refused outright (Postgres lets anyone run a new function unless told otherwise, so
 `api.sql` revokes that).
 
@@ -116,7 +132,7 @@ Signed-out calls are refused outright (Postgres lets anyone run a new function u
 node supabase/test_api.js --host <postgres socket dir or host> [--user postgres]
 ```
 
-`test_api.js` (99 checks) checks each rule with pretend people, then feeds each person's `pull_events()` to the real app
+`test_api.js` (115 checks) checks each rule with pretend people, then feeds each person's `pull_events()` to the real app
 (from `index.html`) to confirm the app reads it correctly. A private check (not in this repo, it needs the real
 Sheet) imports the history up to Oct 9, has everyone claim their name, compares each person's pull with what the
 app shows from the Sheet, then replays the 250 later real saves through `push_event` and compares again: all
