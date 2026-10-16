@@ -8,7 +8,7 @@ Supabase project until Maceo creates one.
   "Who sees what" rules in the plan before anything leaves the database.
 - `test_rls.py`: runs `schema.sql` on a real Postgres and checks, as seven pretend people (you, a friend, a
   stranger who follows you, a private profile, a private-group buddy, an open-group member, someone who blocked
-  you), exactly which sessions, notes, photos, comments, groups and profiles each can see or change.
+  you, plus someone signed in with no profile yet and an old name nobody has claimed), exactly which sessions, notes, photos, comments, groups and profiles each can see or change.
 
 ```
 python3 supabase/test_rls.py --host <postgres socket dir or host> [--user postgres]
@@ -29,3 +29,6 @@ Design notes:
 - Membership checks go through `is_group_member()`, because a group rule that reads the members table, whose own
   rule reads the groups table, makes Postgres stop with "infinite recursion detected in policy".
 - Old records keep their Sheet ids (`legacy_id`, `legacy_ref`) so the import can line everything up.
+- **Profiles are separate from sign-in accounts** (`profiles.auth_id`). Sheet-era names exist as profiles before
+  anyone signs in, so the import can attach their history; claiming a name just links your new sign-in to it.
+  The rules use `me()`, the signed-in person's profile id. Deleting an account deletes its profile and everything in it.

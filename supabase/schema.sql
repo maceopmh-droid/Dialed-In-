@@ -16,7 +16,10 @@ create type item_audience as enum ('everyone', 'friends');
 
 -- ---------------------------------------------------------------- people
 create table profiles (
-  id            uuid primary key references auth.users (id) on delete cascade,
+  id            uuid primary key default gen_random_uuid(),
+  auth_id       uuid unique references auth.users (id) on delete cascade,   -- null until someone signs in as this
+                                                   -- profile (Sheet-era names exist before they're claimed);
+                                                   -- deleting the account deletes the profile and everything in it
   handle        text not null unique check (handle ~ '^[a-z0-9_]{2,24}$'),
   display_name  text not null check (char_length(display_name) between 1 and 40),
   color         text check (color ~ '^#[0-9a-fA-F]{6}$'),
@@ -170,6 +173,12 @@ create table reports (
 
 -- ---------------------------------------------------------------- who can see what
 -- security definer + a fixed search_path: these read follows/blocks/groups for the check without exposing them
+
+-- the signed-in person's profile id (profiles are separate from sign-in accounts so old names can be claimed)
+create function me() returns uuid
+language sql stable security definer set search_path = public as $$
+  select id from profiles where auth_id = auth.uid();
+$$;
 create function blocked_either(a uuid, b uuid) returns boolean
 language sql stable security definer set search_path = public as $$
   select exists (select 1 from blocks where (blocker = a and blocked = b) or (blocker = b and blocked = a));
@@ -243,68 +252,68 @@ alter table comments       enable row level security;
 alter table reports        enable row level security;
 
 -- profiles: everyone signed in sees the card (unless blocked); you edit only your own
-create policy profiles_read  on profiles for select to authenticated using (not blocked_either(auth.uid(), id));
-create policy profiles_write on profiles for insert to authenticated with check (id = auth.uid());
-create policy profiles_edit  on profiles for update to authenticated using (id = auth.uid());
+create policy profiles_read  on profiles for select to authenticated using (not blocked_either(me(), id));
+create policy profiles_write on profiles for insert to authenticated with check (auth_id = auth.uid());
+create policy profiles_edit  on profiles for update to authenticated using (auth_id = auth.uid());
 
 -- claim codes: never readable from the app; claiming goes through a server function
 -- (no policies = no access for app users)
 
 -- follows: you see your own follows both ways; you create your own (pending if their profile is private)
-create policy follows_read   on follows for select to authenticated using (auth.uid() in (follower, followee));
-create policy follows_add    on follows for insert to authenticated with check (follower = auth.uid() and not blocked_either(follower, followee));
-create policy follows_accept on follows for update to authenticated using (followee = auth.uid());
-create policy follows_remove on follows for delete to authenticated using (auth.uid() in (follower, followee));
+create policy follows_read   on follows for select to authenticated using (me() in (follower, followee));
+create policy follows_add    on follows for insert to authenticated with check (follower = me() and not blocked_either(follower, followee));
+create policy follows_accept on follows for update to authenticated using (followee = me());
+create policy follows_remove on follows for delete to authenticated using (me() in (follower, followee));
 
 -- blocks: yours only
-create policy blocks_mine on blocks for all to authenticated using (blocker = auth.uid()) with check (blocker = auth.uid());
+create policy blocks_mine on blocks for all to authenticated using (blocker = me()) with check (blocker = me());
 
 -- groups: open groups and your groups are visible; members of private groups see each other
-create policy groups_read  on groups for select to authenticated using (is_open or is_group_member(id, auth.uid()));
-create policy groups_add   on groups for insert to authenticated with check (owner_id = auth.uid());
-create policy groups_edit  on groups for update to authenticated using (owner_id = auth.uid());
+create policy groups_read  on groups for select to authenticated using (is_open or is_group_member(id, me()));
+create policy groups_add   on groups for insert to authenticated with check (owner_id = me());
+create policy groups_edit  on groups for update to authenticated using (owner_id = me());
 create policy members_read on group_members for select to authenticated
-  using (is_group_member(group_id, auth.uid()) or exists (select 1 from groups g where g.id = group_id and g.is_open));
+  using (is_group_member(group_id, me()) or exists (select 1 from groups g where g.id = group_id and g.is_open));
 create policy members_join on group_members for insert to authenticated
-  with check (user_id = auth.uid() and exists (select 1 from groups g where g.id = group_id and g.is_open));
-create policy members_leave on group_members for delete to authenticated using (user_id = auth.uid());
+  with check (user_id = me() and exists (select 1 from groups g where g.id = group_id and g.is_open));
+create policy members_leave on group_members for delete to authenticated using (user_id = me());
 
 -- roasters and coffees are shared facts: everyone signed in reads; you add and edit your own
 create policy roasters_read on roasters for select to authenticated using (true);
-create policy roasters_add  on roasters for insert to authenticated with check (created_by = auth.uid());
-create policy coffees_read  on coffees for select to authenticated using (deleted_at is null or owner_id = auth.uid());
-create policy coffees_add   on coffees for insert to authenticated with check (owner_id = auth.uid());
-create policy coffees_edit  on coffees for update to authenticated using (owner_id = auth.uid());
+create policy roasters_add  on roasters for insert to authenticated with check (created_by = me());
+create policy coffees_read  on coffees for select to authenticated using (deleted_at is null or owner_id = me());
+create policy coffees_add   on coffees for insert to authenticated with check (owner_id = me());
+create policy coffees_edit  on coffees for update to authenticated using (owner_id = me());
 
 -- sessions
-create policy sessions_read on sessions for select to authenticated using (can_see_session(auth.uid(), sessions));
-create policy sessions_add  on sessions for insert to authenticated with check (owner_id = auth.uid());
-create policy sessions_edit on sessions for update to authenticated using (owner_id = auth.uid()) with check (owner_id = auth.uid());
-create policy sessions_del  on sessions for delete to authenticated using (owner_id = auth.uid());
+create policy sessions_read on sessions for select to authenticated using (can_see_session(me(), sessions));
+create policy sessions_add  on sessions for insert to authenticated with check (owner_id = me());
+create policy sessions_edit on sessions for update to authenticated using (owner_id = me()) with check (owner_id = me());
+create policy sessions_del  on sessions for delete to authenticated using (owner_id = me());
 
 -- notes and photos: their own toggle, on top of the session's audience
-create policy notes_read  on session_notes for select to authenticated using (can_see_item(auth.uid(), session_id, audience));
+create policy notes_read  on session_notes for select to authenticated using (can_see_item(me(), session_id, audience));
 create policy notes_write on session_notes for all to authenticated
-  using (exists (select 1 from sessions s where s.id = session_id and s.owner_id = auth.uid()))
-  with check (exists (select 1 from sessions s where s.id = session_id and s.owner_id = auth.uid()));
-create policy photos_read  on session_photos for select to authenticated using (can_see_item(auth.uid(), session_id, audience));
+  using (exists (select 1 from sessions s where s.id = session_id and s.owner_id = me()))
+  with check (exists (select 1 from sessions s where s.id = session_id and s.owner_id = me()));
+create policy photos_read  on session_photos for select to authenticated using (can_see_item(me(), session_id, audience));
 create policy photos_write on session_photos for all to authenticated
-  using (exists (select 1 from sessions s where s.id = session_id and s.owner_id = auth.uid()))
-  with check (exists (select 1 from sessions s where s.id = session_id and s.owner_id = auth.uid()));
+  using (exists (select 1 from sessions s where s.id = session_id and s.owner_id = me()))
+  with check (exists (select 1 from sessions s where s.id = session_id and s.owner_id = me()));
 
 -- likes: visible with the session; you like as yourself, on sessions you can see
 create policy likes_read on likes for select to authenticated
-  using (exists (select 1 from sessions s where s.id = session_id and can_see_session(auth.uid(), s)));
+  using (exists (select 1 from sessions s where s.id = session_id and can_see_session(me(), s)));
 create policy likes_add  on likes for insert to authenticated
-  with check (user_id = auth.uid() and exists (select 1 from sessions s where s.id = session_id and can_see_session(auth.uid(), s)));
-create policy likes_del  on likes for delete to authenticated using (user_id = auth.uid());
+  with check (user_id = me() and exists (select 1 from sessions s where s.id = session_id and can_see_session(me(), s)));
+create policy likes_del  on likes for delete to authenticated using (user_id = me());
 
 -- comments
-create policy comments_read on comments for select to authenticated using (can_see_comment(auth.uid(), comments));
+create policy comments_read on comments for select to authenticated using (can_see_comment(me(), comments));
 create policy comments_add  on comments for insert to authenticated
-  with check (author_id = auth.uid() and exists (select 1 from sessions s where s.id = session_id and can_see_session(auth.uid(), s)));
-create policy comments_edit on comments for update to authenticated using (author_id = auth.uid());
-create policy comments_del  on comments for delete to authenticated using (author_id = auth.uid());
+  with check (author_id = me() and exists (select 1 from sessions s where s.id = session_id and can_see_session(me(), s)));
+create policy comments_edit on comments for update to authenticated using (author_id = me());
+create policy comments_del  on comments for delete to authenticated using (author_id = me());
 
 -- reports: you file them; reviewing goes through the admin page (server side)
-create policy reports_add on reports for insert to authenticated with check (reporter_id = auth.uid());
+create policy reports_add on reports for insert to authenticated with check (reporter_id = me());

@@ -10,8 +10,10 @@ import argparse, hashlib, os, subprocess, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DB = 'dialed_rls_test'
-U = {k: f'00000000-0000-0000-0000-00000000000{i}' for i, k in enumerate(
-    ['maceo', 'aidan', 'stranger', 'privy', 'groupie', 'opener', 'blocker'], 1)}
+PEOPLE = ['maceo', 'aidan', 'stranger', 'privy', 'groupie', 'opener', 'blocker']
+U = {k: f'00000000-0000-0000-0000-00000000000{i}' for i, k in enumerate(PEOPLE, 1)}       # profile ids
+AUTH = {k: f'aaaaaaaa-0000-0000-0000-00000000000{i}' for i, k in enumerate(PEOPLE, 1)}    # sign-in ids (different on purpose)
+AUTH['newbie'] = 'aaaaaaaa-0000-0000-0000-000000000099'                                    # signed in, no profile yet
 
 STUB = """
 create schema if not exists auth;
@@ -36,13 +38,18 @@ SESS = {  # name: (owner, audience, deleted)
     'm_me': ('maceo', 'only_me', False), 'm_gone': ('maceo', 'everyone', True),
     'p_every': ('privy', 'everyone', False), 'p_friends': ('privy', 'friends', False),
     'b_every': ('blocker', 'everyone', False),
+    'j_every': ('john', 'everyone', False),
 }
+U['john'] = '00000000-0000-0000-0000-000000000042'
 
 def seed():
     out = []
-    for k, u in U.items():
-        out.append(f"insert into auth.users values ('{u}');")
-        out.append(f"insert into profiles (id, handle, display_name, is_private) values ('{u}', '{k}', '{k.title()}', {str(k == 'privy').lower()});")
+    for a in AUTH.values(): out.append(f"insert into auth.users values ('{a}');")
+    for k in PEOPLE:
+        u = U[k]
+        out.append(f"insert into profiles (id, auth_id, handle, display_name, is_private) values ('{u}', '{AUTH[k]}', '{k}', '{k.title()}', {str(k == 'privy').lower()});")
+    # a Sheet-era name nobody has claimed: a profile with no sign-in, whose old public session still shows
+    out.append("insert into profiles (id, handle, display_name, legacy_name) values ('00000000-0000-0000-0000-000000000042', 'john', 'John', 'John');")
     f = lambda a, b, st='accepted': out.append(f"insert into follows values ('{U[a]}', '{U[b]}', '{st}');")
     f('maceo', 'aidan'); f('aidan', 'maceo')          # friends
     f('stranger', 'maceo')                            # one-way follower
@@ -72,7 +79,7 @@ class PG:
         r = subprocess.run(self.base + ['-d', db, '-f', path], capture_output=True, text=True)
         if r.returncode: sys.exit(f'{path} failed: {r.stderr.strip()[:800]}')
     def as_(self, who, sql):
-        sub = U.get(who, '')
+        sub = AUTH.get(who, '')
         r = self.run(f"set role {'anon' if who == 'anon' else 'authenticated'}; set request.jwt.claim.sub to '{sub}'; {sql}", ok=False)
         return r
 
@@ -94,13 +101,14 @@ def main():
         if r.returncode: return f'ERROR {r.stderr.strip()[:200]}'
         return sorted(names[x] for x in r.stdout.split())
     expect = {
-        'maceo':    ['m_every', 'm_friends', 'm_gone', 'm_me'],        # all of your own, even deleted
-        'aidan':    ['b_every', 'm_every', 'm_friends', 'p_every'],    # friend of Maceo, approved follower of Privy
-        'stranger': ['b_every', 'm_every'],                            # one-way follower; Privy's request is pending
-        'groupie':  ['b_every', 'm_every', 'm_friends'],               # private group with Maceo counts as close
-        'opener':   ['b_every', 'm_every'],                            # an open group doesn't
-        'blocker':  ['b_every'],                                       # blocked Maceo: neither sees the other
-        'anon':     [],                                                # not signed in: nothing
+        'maceo':    ['j_every', 'm_every', 'm_friends', 'm_gone', 'm_me'],        # all of your own, even deleted
+        'aidan':    ['b_every', 'j_every', 'm_every', 'm_friends', 'p_every'],    # Maceo's friend, Privy's approved follower
+        'stranger': ['b_every', 'j_every', 'm_every'],                            # one-way follower; Privy's request pending
+        'groupie':  ['b_every', 'j_every', 'm_every', 'm_friends'],               # a private group with Maceo counts as close
+        'opener':   ['b_every', 'j_every', 'm_every'],                            # an open group doesn't
+        'blocker':  ['b_every', 'j_every'],                                       # blocked Maceo: neither sees the other
+        'newbie':   [],                                                           # signed in, no profile yet: nothing
+        'anon':     [],                                                           # not signed in: nothing
     }
     for who, want in expect.items():
         got = sees(who); ok(got == sorted(want), f'{who} sees sessions {sorted(want)} (got {got})')
