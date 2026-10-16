@@ -21,7 +21,7 @@ jobs:
       APNS_KEY_P8: ${{ secrets.APNS_KEY_P8 }}
       APNS_KEY_ID: ${{ secrets.APNS_KEY_ID }}
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-      BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID || 'com.dialedin.coffee' }}
+      BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID || 'com.dialedincoffeeapp.ios' }}
     steps:
       - uses: actions/checkout@v4
       - name: Is there an access token yet?

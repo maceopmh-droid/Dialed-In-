@@ -3,7 +3,7 @@
 # When Maceo's App Store Connect key is in the secrets, it also signs the app and sends it to TestFlight.
 #   secrets  ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8 (App Store Connect, Users and Access, Integrations, a key with Admin
 #            access), APPLE_TEAM_ID (developer.apple.com, Membership)
-#   variable IOS_BUNDLE_ID (Settings, Variables; defaults to com.dialedin.coffee): must match the app in App Store Connect
+#   variable IOS_BUNDLE_ID (Settings, Variables; defaults to com.dialedincoffeeapp.ios): must match the app in App Store Connect
 # Runs when pushed to the `ios` branch, or by hand (Actions, ios, Run workflow). Nothing here touches the website.
 name: ios
 on:
@@ -18,7 +18,7 @@ jobs:
     permissions:
       contents: write   # (only to put the simulator screenshots on the ios-shots branch)
     env:
-      BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID || 'com.dialedin.coffee' }}
+      BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID || 'com.dialedincoffeeapp.ios' }}
       ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
       ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
@@ -39,6 +39,7 @@ jobs:
           npx cap sync ios
           bash ios-setup.sh
           echo "VERSION=$(cat www/version.txt)" >> "$GITHUB_ENV"
+          echo "::notice title=iPhone app::bundle ID $BUNDLE_ID, version $(cat www/version.txt), build ${{ github.run_number }}, app ID in capacitor.config.json: $(node -p "require('./capacitor.config.json').appId")"
           if [ -d ios/App/App.xcworkspace ]; then echo "XC=-workspace ios/App/App.xcworkspace" >> "$GITHUB_ENV"; else echo "XC=-project ios/App/App.xcodeproj" >> "$GITHUB_ENV"; fi
           xcodebuild -version | head -1
       - name: Build for the simulator
@@ -86,8 +87,8 @@ jobs:
         id: cfg
         run: |
           if [ -z "$ASC_KEY_P8" ] || [ -z "$ASC_KEY_ID" ] || [ -z "$ASC_ISSUER_ID" ] || [ -z "$APPLE_TEAM_ID" ]; then
-            echo "skip=1" >> "$GITHUB_OUTPUT"; echo "No App Store Connect key yet: built for the simulator only."
-          fi
+            echo "skip=1" >> "$GITHUB_OUTPUT"; echo "::notice title=TestFlight::No App Store Connect key yet: built for the simulator only."
+          else echo "::notice title=TestFlight::App Store Connect key found (ids only checked for presence): signing and uploading"; fi
       - name: Sign and send to TestFlight
         if: steps.cfg.outputs.skip != '1'
         working-directory: native
@@ -99,7 +100,8 @@ jobs:
           xcodebuild $XC -scheme App -configuration Release -destination 'generic/platform=iOS' -archivePath build/App.xcarchive \
             "${auth[@]}" DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
             CODE_SIGN_ENTITLEMENTS=App/App.entitlements TARGETED_DEVICE_FAMILY=1 \
-            MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="${{ github.run_number }}" archive | tail -25
+            MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="${{ github.run_number }}" archive > build/archive.log 2>&1 || { grep -E "error:|Error |No profiles|requires a provisioning|Signing" build/archive.log | grep -v "$ASC_KEY_ID" | head -15 | while IFS= read -r l; do echo "::error title=Archive::$l"; done; tail -40 build/archive.log; exit 1; }
+          tail -5 build/archive.log
           cat > build/ExportOptions.plist <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -111,6 +113,7 @@ jobs:
             <key>manageAppVersionAndBuildNumber</key><false/>
           </dict></plist>
           PLIST
-          xcodebuild -exportArchive -archivePath build/App.xcarchive -exportOptionsPlist build/ExportOptions.plist -exportPath build/out "${auth[@]}" | tail -25
+          xcodebuild -exportArchive -archivePath build/App.xcarchive -exportOptionsPlist build/ExportOptions.plist -exportPath build/out "${auth[@]}" > build/export.log 2>&1 || { grep -E "error|Error" build/export.log | head -15 | while IFS= read -r l; do echo "::error title=Upload::$l"; done; tail -40 build/export.log; exit 1; }
+          tail -8 build/export.log
           rm -f "$key"
-          echo "Sent build ${{ github.run_number }} (v$VERSION) to TestFlight; it shows up in App Store Connect after Apple processes it (10 to 30 minutes)."
+          echo "::notice title=TestFlight::Sent build ${{ github.run_number }} (v$VERSION, $BUNDLE_ID) to App Store Connect; it shows up in TestFlight after Apple processes it (10 to 30 minutes)."
