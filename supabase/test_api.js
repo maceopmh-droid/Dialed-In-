@@ -578,12 +578,13 @@ psql(`delete from profiles where handle ~ '^bulk';`);
 
 // --- v14.6: the content filter and report alerts
 ok(fx('wanderer', `select create_group('Meanword club', true);`).includes('Meanword club') || true, '(before the list is loaded nothing is filtered)');
-psql(`insert into blocked_words (word) values ('meanword'), ('very bad'), ('x+y'), ('sucks') on conflict do nothing; select internal.load_word_pattern();`);
+psql(`insert into blocked_words (word) values ('meanword'), ('very bad'), ('x+y'), ('sucks'), ('fuck'), ('fucking'), ('shit'), ('god damn') on conflict do nothing; select internal.load_word_pattern();`);
 psql(`insert into auth.users values ('aaaaaaaa-0000-0000-0000-000000000051');`); AUTH.filt = 'aaaaaaaa-0000-0000-0000-000000000051';
 ok(/Pick another name/.test(fx('filt', `select create_profile('Meanword Mike');`)) && /Pick another name/.test(fx('wanderer', `select create_group('the very  bad crew');`)),
    'a name with a word on the list is refused (profiles and communities), spacing and capitals forgiven');
 ok(/"name": "Meanwordsmith"/.test(fx('filt', `select create_profile('Meanwordsmith');`)), '...but only whole words (Meanwordsmith is fine)');
-ok(one(`select internal.clean_text('this shot sucks');`) === 'this shot sucks', 'fair words about a shot stay ("this shot sucks"), even though the open list has them');
+ok(one(`select internal.clean_text('this shot sucks');`) === 'this shot sucks' && one(`select internal.clean_text('fucking good shot, holy shit, god damn');`) === 'fucking good shot, holy shit, god damn' && one(`select internal.clean_text('fucking meanword');`) === 'fucking •••',
+   'everyday swearing stays ("this shot sucks", "fucking good", "holy shit", "god damn") even though the open list has it; words like slurs are still masked');
 push('filt', { type: 'brew', id: 'fl1', beanId: 'b1', user: 'Meanwordsmith', owner: 'Meanwordsmith', method: 'Espresso', date: new Date().toISOString(), audience: 'everyone', noteAudience: 'everyone',
   notes: 'a MEANWORD shot, see https://spam.example.com/buy', likes: [], comments: [{ id: 'f1', user: 'Meanwordsmith', text: 'meanword! visit www.spam.example.com', timestamp: new Date().toISOString(), audience: 'everyone' }] });
 ok(one(`select body from session_notes n join sessions s on s.id = n.session_id where s.legacy_id = 'fl1';`) === 'a ••• shot, see [link removed]' &&
