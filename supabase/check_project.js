@@ -39,6 +39,8 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   const waiting = one(`select coalesce(string_agg(legacy_name, ', ' order by legacy_name), '') from profiles where legacy_name is not null and auth_id is null;`);
   const newcomers = one(`select count(*) from profiles where legacy_name is null;`);
   console.log(`(signed in and claimed: ${claimed || 'nobody yet'}; not yet: ${waiting || 'nobody'}; new profiles: ${newcomers})`);
+  const seeded = one(`select coalesce((select value from backend_state where key = 'crew_follows_seeded'), '');`);
+  console.log(`(follows: ${one('select count(*) from follows;')}; the original crew started out following each other: ${seeded ? 'yes, ' + seeded.slice(0, 16) : 'not yet'}; groups: ${one('select count(*) from groups;')}; notifications: ${one('select count(*) from notifications;')})`);
 
   // from the outside, the way a phone talks to it, signed out
   const h = { apikey: PUBLISHABLE_KEY, 'Content-Type': 'application/json' };
