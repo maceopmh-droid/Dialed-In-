@@ -35,6 +35,13 @@ jobs:
         run: |
           if [ -z "$ASC_KEY_P8" ]; then echo "ok=0" >> "$GITHUB_OUTPUT"; echo "why=none" >> "$GITHUB_OUTPUT"; echo "::notice title=Apple key check::No App Store Connect key yet."; exit 0; fi
           node native/scripts/apple-check.js
+      - name: Try the signing look-ups (no changes)
+        if: steps.apple.outputs.ok == '1'
+        run: |
+          if [ "${{ steps.apple.outputs.asc_from }}" = "APNS" ]; then ASC_KEY_ID="$APNS_KEY_ID"; ASC_KEY_P8="$APNS_KEY_P8"; fi
+          k="$RUNNER_TEMP/k.p8"; body=$(printf '%s' "$ASC_KEY_P8" | tr -d '\r"' | sed -e 's/-----BEGIN [A-Z ]*-----//g' -e 's/-----END [A-Z ]*-----//g' | tr -d ' \n\t')
+          { echo "-----BEGIN PRIVATE KEY-----"; printf '%s\n' "$body" | fold -w 64; echo "-----END PRIVATE KEY-----"; } > "$k"
+          ASC_KEY_ID="$ASC_KEY_ID" ASC_KEY_FILE="$k" node native/scripts/apple-sign.js --dry; rc=$?; rm -f "$k"; exit $rc
 
   build:
     needs: check
@@ -76,47 +83,12 @@ jobs:
           set -o pipefail
           xcodebuild $XC -scheme App -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath build/dd TARGETED_DEVICE_FAMILY=1 CODE_SIGNING_ALLOWED=NO MARKETING_VERSION="$VERSION" build | tail -25
-      - name: Open it in the simulator and take screenshots
-        working-directory: native
-        continue-on-error: true
-        run: |
-          set -e
-          dev=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for k in sorted(d, reverse=True) if 'iOS' in k for x in d[k] if x['name'].startswith('iPhone 16') or x['name'].startswith('iPhone 17')))")
-          xcrun simctl boot "$dev"; xcrun simctl bootstatus "$dev" -b >/dev/null
-          app=build/dd/Build/Products/Debug-iphonesimulator/App.app
-          xcrun simctl install "$dev" "$app"
-          mkdir -p build/shots
-          for look in light dark; do
-            xcrun simctl ui "$dev" appearance $look
-            xcrun simctl terminate "$dev" "$BUNDLE_ID" 2>/dev/null || true
-            xcrun simctl launch "$dev" "$BUNDLE_ID"
-            sleep 15
-            xcrun simctl io "$dev" screenshot "build/shots/$look.png"
-          done
-          ls -la build/shots
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: simulator-screenshots
-          path: native/build/shots
-          if-no-files-found: ignore
-      - name: Put the screenshots on the ios-shots branch (easier to look at than a zip)
-        if: always()
-        continue-on-error: true
-        run: |
-          [ -d native/build/shots ] && ls native/build/shots/*.png >/dev/null 2>&1 || exit 0
-          d="$RUNNER_TEMP/shots"; rm -rf "$d"; mkdir -p "$d"; cp native/build/shots/*.png "$d/"
-          cd "$d"; git init -q; git checkout -q -b ios-shots
-          git -c user.name=github-actions -c user.email=github-actions@users.noreply.github.com commit -q --allow-empty -m "Simulator screenshots from run ${{ github.run_number }} ($GITHUB_SHA)"
-          git add -A; git -c user.name=github-actions -c user.email=github-actions@users.noreply.github.com commit -q --amend --no-edit
-          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ios-shots
-          echo "screenshots on ios-shots: $(ls)"
       - name: Is there an App Store Connect key yet?
         id: cfg
         run: |
           if [ -z "$ASC_KEY_P8" ] || [ -z "$ASC_KEY_ID" ] || [ -z "$ASC_ISSUER_ID" ] || [ -z "$APPLE_TEAM_ID" ]; then
             echo "skip=1" >> "$GITHUB_OUTPUT"; echo "::notice title=TestFlight::No App Store Connect key yet: built for the simulator only."
-          elif [ "${{ needs.check.outputs.ok }}" != "1" ]; then
+          elif [ "${{ needs.check.outputs.ok }}" != "1" ] || [ "${{ needs.check.result }}" != "success" ]; then
             echo "skip=1" >> "$GITHUB_OUTPUT"; echo "::error title=TestFlight::Not sent: the Apple key check failed (${{ needs.check.outputs.why }}); its message says what to change."
           else echo "::notice title=TestFlight::App Store Connect key found (ids only checked for presence): signing and uploading"; fi
       - name: Sign and send to TestFlight
@@ -199,3 +171,39 @@ jobs:
           [ -f "$S/profile.env" ] && [ ! -f "$S/uploaded" ] || exit 0
           export $(grep -v '^$' "$S/asc.env" | xargs)
           node scripts/apple-sign.js --undo "$S" || true
+      - name: Open it in the simulator and take screenshots
+        if: always()
+        working-directory: native
+        continue-on-error: true
+        run: |
+          set -e
+          dev=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for k in sorted(d, reverse=True) if 'iOS' in k for x in d[k] if x['name'].startswith('iPhone 16') or x['name'].startswith('iPhone 17')))")
+          xcrun simctl boot "$dev"; xcrun simctl bootstatus "$dev" -b >/dev/null
+          app=build/dd/Build/Products/Debug-iphonesimulator/App.app
+          xcrun simctl install "$dev" "$app"
+          mkdir -p build/shots
+          for look in light dark; do
+            xcrun simctl ui "$dev" appearance $look
+            xcrun simctl terminate "$dev" "$BUNDLE_ID" 2>/dev/null || true
+            xcrun simctl launch "$dev" "$BUNDLE_ID"
+            sleep 15
+            xcrun simctl io "$dev" screenshot "build/shots/$look.png"
+          done
+          ls -la build/shots
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: simulator-screenshots
+          path: native/build/shots
+          if-no-files-found: ignore
+      - name: Put the screenshots on the ios-shots branch (easier to look at than a zip)
+        if: always()
+        continue-on-error: true
+        run: |
+          [ -d native/build/shots ] && ls native/build/shots/*.png >/dev/null 2>&1 || exit 0
+          d="$RUNNER_TEMP/shots"; rm -rf "$d"; mkdir -p "$d"; cp native/build/shots/*.png "$d/"
+          cd "$d"; git init -q; git checkout -q -b ios-shots
+          git -c user.name=github-actions -c user.email=github-actions@users.noreply.github.com commit -q --allow-empty -m "Simulator screenshots from run ${{ github.run_number }} ($GITHUB_SHA)"
+          git add -A; git -c user.name=github-actions -c user.email=github-actions@users.noreply.github.com commit -q --amend --no-edit
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ios-shots
+          echo "screenshots on ios-shots: $(ls)"
