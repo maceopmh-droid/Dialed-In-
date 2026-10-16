@@ -1,6 +1,7 @@
 # The App Review account (App Store guideline 2.1: Apple's reviewer needs a way in, and can't receive our emailed
 # codes). Makes (or resets) one account, appreview@dialed-in.app, that signs in with the password in the REVIEW_PASSWORD
-# secret, with a profile called "App Review". The app shows the password step only for that address.
+# secret, with a profile called "App Review" and a few sample coffees and sessions of its own (Only me), so the reviewer
+# finds a working app. The app shows the password step only for that address.
 # Runs when pushed to the `supabase-review` branch; safe to run again (it only resets the password).
 name: supabase review account
 on:
@@ -47,7 +48,25 @@ jobs:
           insert into profiles (auth_id, handle, display_name, color, joined_at)
           select u.id, 'appreview', 'App Review', '#5B8DEF', now() from auth.users u join v on v.email = u.email
           where not exists (select 1 from profiles p where p.auth_id = u.id) and not exists (select 1 from profiles p where p.handle = 'appreview');
+          -- a few of its own coffees and sessions (Only me, so nobody else sees them), so the reviewer finds a working
+          -- profile, coffee pages and the next-shot coach instead of an empty app
+          create temp table rp as select p.id from profiles p join auth.users u on u.id = p.auth_id join v on v.email = u.email;
+          insert into coffees (legacy_id, owner_id, roaster_text, name, origin, process, roast, created_at)
+          select c.lid, rp.id, c.roaster, c.name, c.origin, c.process, 'Light', now() - interval '12 days' from rp,
+                 (values ('review-c1', 'Sample Roasters', 'Ethiopia Guji', 'Ethiopia', 'Washed'), ('review-c2', 'Sample Roasters', 'Colombia Huila', 'Colombia', 'Natural')) c(lid, roaster, name, origin, process)
+          on conflict (legacy_id) do nothing;
+          insert into sessions (legacy_id, owner_id, coffee_id, audience, method, grind, dose, yield, time_s, rating, tasted, brewed_at)
+          select s.lid, rp.id, (select id from coffees where legacy_id = s.cof), 'only_me', s.method, s.grind, s.dose, s.yld, s.t, s.rating, s.tasted, now() - make_interval(days => s.ago)
+          from rp, (values ('review-s1', 'review-c1', 'Espresso', '12', 18, 44, 22, 2.5, '{Sour}'::text[], 10),
+                           ('review-s2', 'review-c1', 'Espresso', '10', 18, 40, 27, 3.5, '{Citrus,Floral}'::text[], 9),
+                           ('review-s3', 'review-c1', 'Espresso', '9', 18, 38, 30, 4.5, '{Jasmine,Citrus,Honey}'::text[], 7),
+                           ('review-s4', 'review-c1', 'Pour Over', '24', 15, 250, 185, 4, '{Floral,Bergamot}'::text[], 5),
+                           ('review-s5', 'review-c2', 'Espresso', '10', 18, 36, 31, 3, '{Bitter}'::text[], 4),
+                           ('review-s6', 'review-c2', 'Espresso', '11', 18, 38, 28, 4, '{Chocolate,Cherry}'::text[], 2),
+                           ('review-s7', 'review-c2', 'French Press', '30', 30, 500, 240, 3.5, '{Chocolate}'::text[], 1)) s(lid, cof, method, grind, dose, yld, t, rating, tasted, ago)
+          on conflict (legacy_id) do nothing;
           select 'review account: ' || u.email || ', profile: ' || coalesce((select display_name from profiles p where p.auth_id = u.id), 'none')
+                 || ', its sample sessions: ' || (select count(*) from sessions s join rp on rp.id = s.owner_id where s.legacy_id like 'review-s%')
           from auth.users u join v on v.email = u.email;
           SQL
           rc=$?; cat "$RUNNER_TEMP/r.txt"; bash supabase/report.sh "Review account" "$RUNNER_TEMP/r.txt"; exit $rc
