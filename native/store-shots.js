@@ -12,7 +12,7 @@
         try { const c = new AbortController(); const t = setTimeout(() => c.abort(), ms); await fetch(C.shotUrl + what, { cache: 'no-store', signal: c.signal }); clearTimeout(t); return true; }
         catch (e) { say('SHOT-FAIL ' + what + ' ' + e); return false; }
     };
-    const shot = async name => { await sleep(C.settle || 1500); say('SHOT ' + name); if (!(await ask('/shot?name=' + encodeURIComponent(name)))) await sleep(8000); };
+    const shot = async name => { await sleep(C.settle || 1500); say('SHOT ' + name); if (!(await ask('/shot?name=' + encodeURIComponent(name), 90000))) await sleep(8000); };
     // the phone's status bar area: things scrolled to the top of the screen go just below it
     const safeTop = () => { const d = document.createElement('div'); d.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:env(safe-area-inset-top);visibility:hidden'; document.body.appendChild(d); const h = d.getBoundingClientRect().height; d.remove(); return h; };
     const scroller = el => { for (let n = el && el.parentElement; n; n = n.parentElement) { const cs = getComputedStyle(n); if (/(auto|scroll)/.test(cs.overflowY) && n.scrollHeight > n.clientHeight) return n; } return document.scrollingElement; };

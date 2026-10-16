@@ -55,6 +55,9 @@ jobs:
           [ -n "$dev" ] || { echo "::error title=Screenshots::No iPhone Pro Max simulator on this runner."; exit 1; }
           echo "simulator: $(xcrun simctl list devices -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['name'] + ' (' + k.split('.')[-1] + ')' for k in d for x in d[k] if x['udid'] == '$dev'))")"
           xcrun simctl boot "$dev"; xcrun simctl bootstatus "$dev" -b >/dev/null
+          python3 -m pip install -q --break-system-packages pillow 2>/dev/null || python3 -m pip install -q pillow
+          xcrun simctl io "$dev" screenshot /tmp/warm.png >/dev/null 2>&1 || true
+          sleep 60   # let the first-boot notices come and go before the app opens
           xcrun simctl status_bar "$dev" override --time "9:41" --dataNetwork wifi --wifiMode active --wifiBars 3 --cellularMode active --cellularBars 4 --batteryState charged --batteryLevel 100
           # the simulator copy only: the screenshot plan and the review account's sign-in
           app=build/dd/Build/Products/Debug-iphonesimulator/App.app
@@ -71,20 +74,37 @@ jobs:
           mkdir -p build/shots
           # the runner's side: the plan asks for each screenshot and waits until it's taken
           cat > build/server.py <<'PY'
-          import http.server, os, subprocess, sys, urllib.parse
+          import http.server, os, subprocess, sys, time, urllib.parse
+          from PIL import Image, ImageChops
           dev, out = sys.argv[1], sys.argv[2]
+          def grab(path): subprocess.run(['xcrun', 'simctl', 'io', dev, 'screenshot', path], capture_output=True)
+          def changed(a, b):   # pixels that differ in the top band, where iOS shows notification banners
+              box = (0, 110, 1320, 480)
+              d = ImageChops.difference(Image.open(a).convert('L').crop(box), Image.open(b).convert('L').crop(box))
+              return sum(1 for v in d.getdata() if v > 24)
           class H(http.server.BaseHTTPRequestHandler):
               def log_message(self, *a): pass
               def do_GET(self):
                   u = urllib.parse.urlparse(self.path); q = urllib.parse.parse_qs(u.query)
                   look = open(os.path.join(out, '.look')).read().strip()
-                  if u.path == '/shot':
+                  if u.path == '/hello':
+                      grab(os.path.join(out, '.warm.png')); print(f'hello {look}', flush=True)
+                  elif u.path == '/shot':
                       name = ''.join(c for c in q.get('name', ['x'])[0] if c.isalnum() or c in '_-')
-                      subprocess.run(['xcrun', 'simctl', 'io', dev, 'screenshot', os.path.join(out, f'{name}_{look}.png')], capture_output=True)
-                      print(f'shot {name}_{look}', flush=True)
+                      final, a, b = os.path.join(out, f'{name}_{look}.png'), os.path.join(out, '.a.png'), os.path.join(out, '.b.png')
+                      # two screenshots 6 s apart must agree at the top, so a passing banner never lands in one
+                      grab(a); tries = 0
+                      while True:
+                          time.sleep(6); grab(b); tries += 1
+                          n = changed(a, b)
+                          if n < 400 or tries >= 5: break
+                          os.replace(b, a)
+                      os.replace(b, final); print(f'shot {name}_{look}' + (f' (after {tries} tries)' if tries > 1 else ''), flush=True)
                   elif u.path == '/done':
                       open(os.path.join(out, f'.done_{look}'), 'w').write(q.get('ok', ['?'])[0]); print(f'done {look} ok={q.get("ok", ["?"])[0]}', flush=True)
-                  self.send_response(200); self.send_header('Access-Control-Allow-Origin', '*'); self.end_headers(); self.wfile.write(b'ok')
+                  try:
+                      self.send_response(200); self.send_header('Access-Control-Allow-Origin', '*'); self.end_headers(); self.wfile.write(b'ok')
+                  except OSError: print('(the app had stopped waiting)', flush=True)
           http.server.ThreadingHTTPServer(('127.0.0.1', 8765), H).serve_forever()
           PY
           echo light > build/shots/.look
