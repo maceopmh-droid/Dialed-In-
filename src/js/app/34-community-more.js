@@ -37,6 +37,10 @@
                 if (!name || name === 'Unknown') return;
                 if (!this.acctOn() && !(this.knownPeople().includes(name) || this.hasLoggedData(name))) return;
                 ['people-modal', 'notif-modal', 'review-modal'].forEach(id => { const m = document.getElementById(id); if (m) m.classList.remove('active'); });
+                // a name on a coffee or roaster page: leave the page for the profile (it would otherwise stay on top)
+                const dv = document.getElementById('detail-view');
+                if (dv && dv.classList.contains('active')) { dv.classList.remove('active'); this.openCommentId = null; this.navStack = []; }
+                if (this.roasterViewActive && this.roasterViewActive()) { this.hideRoasterView(); this.navStack = []; }
                 if (this.acctOn() && name !== this.user && !this.inCircle(name)) {
                     const st = this.profState();
                     if (st.name !== name) { this._prof = { name, events: [], card: null, at: 0, loading: false, error: '' }; this.process(this.cloud.events); }
