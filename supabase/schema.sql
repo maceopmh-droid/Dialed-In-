@@ -29,6 +29,8 @@ create table profiles (
   legacy_name   text unique,                       -- the Sheet-era name this account claimed
   created_at    timestamptz not null default now()
 );
+-- the app knows people by name, so names are unique ignoring capitals
+create unique index profiles_name_key on profiles (lower(display_name));
 
 create table claim_codes (
   code          text primary key,
@@ -107,7 +109,7 @@ create table sessions (
   legacy_id     text unique,
   owner_id      uuid not null references profiles (id) on delete cascade,
   coffee_id     uuid references coffees (id),
-  audience      audience not null default 'everyone',
+  audience      audience not null default 'friends',      -- new sessions start as Friends & groups
   help_wanted   boolean not null default false,
   method        text,
   grind         text,                              -- text on purpose: letter grinds like "3B"

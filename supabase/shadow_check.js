@@ -53,7 +53,7 @@ const key = e => JSON.stringify(canon(e));
 
   // 4. parity
   const events = liveEvents || rows.map(r => JSON.parse(r[6]));
-  if (!report(runParity({ html: HTML, events, psql: PSQL, knownHistory: true }))) ok = false;
+  if (!report(runParity({ html: HTML, events, psql: PSQL, knownHistory: false }))) ok = false;
   console.log(ok ? 'shadow backend: OK' : 'shadow backend: PROBLEMS (see above)');
   process.exit(ok ? 0 : 1);
 })().catch(e => { console.error('ERR', e.message); process.exit(1); });

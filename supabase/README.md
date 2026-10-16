@@ -28,7 +28,7 @@ python3 supabase/test_rls.py --host <postgres socket dir or host> [--user postgr
 ```
 node supabase/import_v9.js --html index.html --rows rows.json --out import.sql --summary summary.json
 psql ... -f supabase/schema.sql && psql ... -f import.sql
-node supabase/parity.js --html index.html --rows rows.json --psql "psql -h HOST -U USER -d DB" --known-history
+node supabase/parity.js --html index.html --rows rows.json --psql "psql -h HOST -U USER -d DB"
 ```
 
 On the Oct 15, 2026 Sheet (1,407 rows): 4 people, 31 coffees, 237 sessions, 252 comments, 296 likes, 217
@@ -36,9 +36,11 @@ photos, 163 notes, 10 pieces of equipment, 29 custom notes; parity: everything m
 skipped (removed, with nothing but an equipment record). Two sessions whose coffee was deleted long ago keep
 their old coffee link in `extras.beanId`.
 
-**Known difference:** achievement levels for "comments written" and "likes received" are counted today by
-walking the history of edits, which the tables don't keep (they hold each record's latest state). Phase 2 should
-count those from what exists (comments you wrote, likes you have). `--known-history` reports them without failing.
+**Achievements:** before v14.2 the app counted "comments written" and "likes received" only when they appeared in a
+later version of a record, and the tables send each record once, as it is now. v14.2 also counts what's on a
+record when it first appears, which changes nothing for the Sheet (a record's first save never has comments or
+likes) and makes the levels match exactly. `--known-history` tolerates the difference when checking an older
+`index.html`.
 
 The real Sheet export never goes in this repository (it's public and the rows hold everyone's notes).
 
@@ -56,6 +58,14 @@ functions translate, and the privacy rules above decide every read and write (th
   deleted, even if an old phone sends the record again. Each coffee keeps the roaster spelling written on it
   (`roaster_text`), while the roasters table groups spellings for roaster pages.
 - `claim_name(code)`: links a new sign-in to a Sheet-era name with its one-time code.
+- `create_profile(handle, color)`: someone new makes a profile. The handle (2 to 24 lowercase letters, numbers or
+  `_`) is the name the app shows; Sheet-era names can't be taken.
+- `my_profile()`: the signed-in person's profile, or null before they claim a name or make one.
+
+`storage.sql` (load after `api.sql`) sets up photo storage: a private bucket, one folder per account. You can only
+put files in your own folder, and you can read a photo only if you may see the session it belongs to (the check
+reads `session_photos`, whose own row rules apply). `push_event` refuses a photo path outside your own folder, so
+nobody can point their session at someone else's private photo. The app asks for links that expire after two hours.
 
 Signed-out calls are refused outright (Postgres lets anyone run a new function unless told otherwise, so
 `api.sql` revokes that).
@@ -77,6 +87,25 @@ four people match. Two things it found about today's data:
   saved under Maceo's name within the same second. The app's edit screen only lets owners edit, so this was a
   one-off cleanup outside the normal screens. In the new backend that kind of fix is maintenance done directly in
   the database, not an app save; the private check applies those saves as the owner.
+
+## Trying the app without a Supabase project: `dev_server.js`
+
+A stand-in for the few parts of Supabase the app uses (email-code sign-in, the database functions, photo storage),
+running every call on a real Postgres with these same SQL files, as the signed-in person. For development and
+tests only: sign-in codes are printed instead of emailed and its tokens aren't signed.
+
+```
+node supabase/dev_server.js --host <postgres socket dir> --fresh [--rows rows.json] --static . --static-port 8080
+# then in the browser's console on http://localhost:8080:
+localStorage.dialed_supabase = JSON.stringify({ url: 'http://localhost:54321', anonKey: 'dev' })
+```
+
+`--fresh` rebuilds the database; `--rows` also imports a Sheet export and prints the claim codes. A private
+browser test drives the real app against it with the real Sheet imported: three people sign in (two claim their
+names, one makes a new profile); each phone's view matches the Sheet's exactly; a session with a photo is logged
+through the form, liked, commented on, edited and deleted; a stranger can't see Friends sessions or get a link to
+their photos; an expired sign-in renews itself; a revoked one keeps saves waiting until the person signs in again;
+saves made offline go when the connection is back; and nothing is ever sent to the Google Sheet.
 
 ## The privacy test
 

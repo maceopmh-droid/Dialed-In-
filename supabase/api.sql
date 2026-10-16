@@ -11,10 +11,10 @@
 
 create schema if not exists internal;
 
--- how the app knows people: the Sheet-era name, else the handle
+-- how the app knows people: the Sheet-era name, else the profile's name (unique, ignoring capitals)
 create or replace function internal.name_of(pid uuid) returns text
 language sql stable security definer set search_path = public as $$
-  select coalesce(legacy_name, handle) from profiles where id = pid;
+  select coalesce(legacy_name, display_name) from profiles where id = pid;
 $$;
 create or replace function internal.color_of(pid uuid) returns text
 language sql stable security definer set search_path = public as $$ select color from profiles where id = pid; $$;
@@ -25,6 +25,14 @@ create or replace function internal.try_date(t text) returns date language plpgs
 begin if t is null or t !~ '^\d{4}-\d{2}-\d{2}' then return null; end if; return left(t, 10)::date; exception when others then return null; end $$;
 create or replace function internal.try_num(t text) returns numeric language plpgsql immutable as $$
 begin if t is null or btrim(t) = '' then return null; end if; return replace(btrim(t), ',', '.')::numeric; exception when others then return null; end $$;
+-- who a session, note, photo or comment is for, when the app says (otherwise null: keep what it was, or the default)
+create or replace function internal.aud(t text) returns audience language sql immutable as $$
+  select case when t in ('everyone', 'friends', 'only_me') then t::audience end;
+$$;
+create or replace function internal.item_aud(t text) returns item_audience language sql immutable as $$
+  select case when t in ('everyone', 'friends') then t::item_audience end;
+$$;
+
 -- the app's star rating: 0-5 in half steps; old 0-10 ratings are halved
 create or replace function internal.rating(t text) returns numeric language plpgsql immutable as $$
 declare n numeric := internal.try_num(t);
@@ -61,8 +69,38 @@ begin
   update profiles set auth_id = uid where legacy_name = c.legacy_name and auth_id is null returning * into p;
   if not found then raise exception 'That name has already been claimed.' using errcode = '23505'; end if;
   update claim_codes set claimed_by = p.id, claimed_at = now() where claim_codes.code = c.code;
-  return jsonb_build_object('id', p.id, 'name', coalesce(p.legacy_name, p.handle), 'handle', p.handle);
+  return jsonb_build_object('id', p.id, 'name', coalesce(p.legacy_name, p.display_name), 'handle', p.handle);
 end $$;
+
+-- a new person (not from the Sheet era) makes their profile. The name is how the app knows them, so it's unique
+-- (ignoring capitals) and can't be a Sheet-era name; the handle is made from it.
+create or replace function create_profile(name text, color text default null) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); n text := regexp_replace(btrim(coalesce(create_profile.name, '')), '\s+', ' ', 'g'); h text; i int := 1; p profiles;
+begin
+  if uid is null then raise exception 'Sign in first.' using errcode = '28000'; end if;
+  if exists (select 1 from profiles where auth_id = uid) then raise exception 'This account already has a profile.' using errcode = '23505'; end if;
+  if char_length(n) < 2 or char_length(n) > 24 or n ~ '[[:cntrl:]<>]' or n like '\_\_%' or n ~* '^(unknown|undefined|null|everyone|system)$' then
+    raise exception 'Use 2 to 24 characters for your name.' using errcode = '22023';
+  end if;
+  if exists (select 1 from profiles where lower(display_name) = lower(n) or lower(legacy_name) = lower(n)) then raise exception 'That name is taken.' using errcode = '23505'; end if;
+  h := left(lower(regexp_replace(n, '[^a-zA-Z0-9_]', '', 'g')), 20);
+  if char_length(h) < 2 then h := 'brewer'; end if;
+  while exists (select 1 from profiles where handle = h || case when i = 1 then '' else i::text end) loop i := i + 1; end loop;
+  begin
+    insert into profiles (auth_id, handle, display_name, color)
+    values (uid, h || case when i = 1 then '' else i::text end, n, case when create_profile.color ~ '^#[0-9a-fA-F]{6}$' then create_profile.color end) returning * into p;
+  exception when unique_violation then   -- someone took it a moment ago
+    raise exception 'That name is taken.' using errcode = '23505';
+  end;
+  return jsonb_build_object('id', p.id, 'name', p.display_name, 'handle', p.handle);
+end $$;
+
+-- the signed-in person's profile, or null when they haven't claimed a name or made one yet
+create or replace function my_profile() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object('id', p.id, 'name', coalesce(p.legacy_name, p.display_name), 'handle', p.handle) from profiles p where p.auth_id = auth.uid();
+$$;
 
 -- ---------------------------------------------------------------- reading: pull_events()
 create or replace function internal.comments_json(cof uuid, ses uuid) returns jsonb
@@ -73,7 +111,8 @@ language sql stable set search_path = public as $$
       'text', c.body,
       'timestamp', c.created_at,
       'parentId', coalesce((select substr(p.legacy_ref, strpos(p.legacy_ref, '#') + 1) from comments p where p.id = c.parent_id), ''),
-      'likes', coalesce((select jsonb_agg(internal.name_of(l.user_id) order by l.created_at) from comment_likes l where l.comment_id = c.id), '[]'::jsonb)
+      'likes', coalesce((select jsonb_agg(internal.name_of(l.user_id) order by l.created_at) from comment_likes l where l.comment_id = c.id), '[]'::jsonb),
+      'audience', c.audience
     ) order by c.created_at, c.legacy_ref), '[]'::jsonb)
   from comments c
   where c.deleted_at is null and ((cof is not null and c.coffee_id = cof) or (ses is not null and c.session_id = ses));
@@ -112,12 +151,13 @@ begin
       'notes', coalesce(n.body, ''),
       'photo', case when p.path is null then null
                     when p.path like 'drive:%' then jsonb_build_object('fileId', substr(p.path, 7), 'url', 'https://drive.google.com/uc?export=view&id=' || substr(p.path, 7))
+                    when p.path like 'sb:%' then jsonb_build_object('path', p.path)   -- in Supabase storage: the app asks for a short-lived link
                     else jsonb_build_object('url', p.path) end,
       'likes', coalesce((select jsonb_agg(internal.name_of(l.user_id) order by l.created_at) from likes l where l.session_id = s.id), '[]'::jsonb),
       'comments', internal.comments_json(null, s.id),
       'equipment', coalesce(s.equipment->'ids', '[]'::jsonb), 'equipmentSnapshot', coalesce(s.equipment->'snapshot', '[]'::jsonb),
       'isMaster', coalesce((s.master->>'isMaster')::boolean, false), 'masterProfile', s.master->'profile',
-      'date', s.brewed_at, 'eventAt', s.updated_at, 'audience', s.audience
+      'date', s.brewed_at, 'eventAt', s.updated_at, 'audience', s.audience, 'noteAudience', n.audience, 'photoAudience', p.audience
     )))
   from sessions s left join coffees k on k.id = s.coffee_id
        left join session_notes n on n.session_id = s.id left join session_photos p on p.session_id = s.id
@@ -192,8 +232,9 @@ begin
       insert into comments (legacy_ref, session_id, coffee_id, author_id, parent_id, body, audience, created_at)
       values (ref, case when kind = 'session' then target end, case when kind = 'coffee' then target end, me_id,
               (select id from comments where legacy_ref = rec || '#' || nullif(c->>'parentId', '')),
-              coalesce(nullif(left(c->>'text', 2000), ''), '…'), 'friends', coalesce(internal.try_ts(c->>'timestamp'), now()))
+              coalesce(nullif(left(c->>'text', 2000), ''), '…'), coalesce(internal.item_aud(c->>'audience'), 'friends'), coalesce(internal.try_ts(c->>'timestamp'), now()))
       on conflict (legacy_ref) do update set body = excluded.body, parent_id = coalesce(comments.parent_id, excluded.parent_id),
+        audience = coalesce(internal.item_aud(c->>'audience'), comments.audience),
         edited_at = case when comments.body is distinct from excluded.body then now() else comments.edited_at end
       where comments.author_id = me_id;
     end if;
@@ -254,12 +295,13 @@ create or replace function internal.session_fields(ev jsonb) returns jsonb langu
        'complexity', case when coalesce(ev->>'complexity', '') <> '' then ev->'complexity' end)),
     'extras', ev - array['type', 'id', 'beanId', 'method', 'grind', 'dose', 'yield', 'time', 'acidity', 'sweetness', 'body', 'finish', 'balance', 'bitterness',
        'complexity', 'isMaster', 'masterProfile', 'notes', 'note', 'observations', 'observation', 'tastingNotes', 'user', 'owner', 'date', 'actor', 'actorColor',
-       'rating', 'likes', 'comments', 'photo', 'equipment', 'equipmentSnapshot', 'eventAt', 'commentMeta', 'tasted', 'flavorNotes', 'audience', 'helpWanted', 'baseAt'],
+       'rating', 'likes', 'comments', 'photo', 'equipment', 'equipmentSnapshot', 'eventAt', 'commentMeta', 'tasted', 'flavorNotes', 'audience', 'noteAudience', 'photoAudience', 'helpWanted', 'baseAt'],
     'equipment', jsonb_build_object('ids', coalesce(ev->'equipment', '[]'::jsonb), 'snapshot', coalesce(ev->'equipmentSnapshot', '[]'::jsonb)),
     'master', case when coalesce(ev->>'isMaster', 'false') = 'true' or jsonb_typeof(ev->'masterProfile') = 'object'
                    then jsonb_build_object('isMaster', coalesce(ev->>'isMaster', 'false') = 'true', 'profile', case when jsonb_typeof(ev->'masterProfile') = 'object' then ev->'masterProfile' end) end,
     'notes', coalesce(nullif(btrim(ev->>'notes'), ''), nullif(btrim(ev->>'note'), ''), nullif(btrim(ev->>'observations'), ''), nullif(btrim(ev->>'observation'), ''), nullif(btrim(ev->>'tastingNotes'), ''), ''),
-    'photo', case when jsonb_typeof(ev->'photo') = 'object' and coalesce(ev->'photo'->>'fileId', '') <> '' then 'drive:' || (ev->'photo'->>'fileId')
+    'photo', case when jsonb_typeof(ev->'photo') = 'object' and (ev->'photo'->>'path') like 'sb:%' then ev->'photo'->>'path'
+                  when jsonb_typeof(ev->'photo') = 'object' and coalesce(ev->'photo'->>'fileId', '') <> '' then 'drive:' || (ev->'photo'->>'fileId')
                   when jsonb_typeof(ev->'photo') = 'object' and (ev->'photo'->>'url') ~ '^https?://' then ev->'photo'->>'url'
                   when jsonb_typeof(ev->'photo') = 'string' and (ev->>'photo') ~ '^https?://' then ev->>'photo' end);
 $$;
@@ -275,7 +317,7 @@ begin
   if not found then
     if lower(btrim(coalesce(ev->>'owner', ev->>'user', me_nm))) <> lower(me_nm) then return; end if;
     insert into sessions (legacy_id, owner_id, coffee_id, audience, method, grind, dose, yield, time_s, rating, taste, tasted, flavor_notes, extras, equipment, master, brewed_at)
-    values (ev->>'id', me_id, cof, 'friends', nullif(btrim(ev->>'method'), ''), nullif(btrim(ev->>'grind'), ''),
+    values (ev->>'id', me_id, cof, coalesce(internal.aud(ev->>'audience'), 'friends'), nullif(btrim(ev->>'method'), ''), nullif(btrim(ev->>'grind'), ''),
             internal.try_num(ev->>'dose'), internal.try_num(ev->>'yield'), internal.try_num(ev->>'time'), internal.rating(ev->>'rating'),
             f->'taste', array(select jsonb_array_elements_text(case when jsonb_typeof(ev->'tasted') = 'array' then ev->'tasted' else '[]'::jsonb end)),
             case when jsonb_typeof(ev->'flavorNotes') = 'object' then ev->'flavorNotes' end, ex, f->'equipment', f->'master',
@@ -283,18 +325,22 @@ begin
     returning * into s;
   elsif s.deleted_at is not null then return;
   elsif s.owner_id = me_id then
-    update sessions set coffee_id = cof, method = nullif(btrim(ev->>'method'), ''), grind = nullif(btrim(ev->>'grind'), ''),
+    update sessions set coffee_id = cof, audience = coalesce(internal.aud(ev->>'audience'), audience), method = nullif(btrim(ev->>'method'), ''), grind = nullif(btrim(ev->>'grind'), ''),
       dose = internal.try_num(ev->>'dose'), yield = internal.try_num(ev->>'yield'), time_s = internal.try_num(ev->>'time'), rating = internal.rating(ev->>'rating'),
       taste = f->'taste', tasted = array(select jsonb_array_elements_text(case when jsonb_typeof(ev->'tasted') = 'array' then ev->'tasted' else '[]'::jsonb end)),
       flavor_notes = case when jsonb_typeof(ev->'flavorNotes') = 'object' then ev->'flavorNotes' end, extras = ex, equipment = f->'equipment', master = f->'master',
       brewed_at = coalesce(internal.try_ts(ev->>'date'), brewed_at), updated_at = now()
     where id = s.id;
   end if;
+  -- a photo in storage must be in your own folder (otherwise anyone could show someone else's private photo)
+  if f->>'photo' like 'sb:%' and f->>'photo' not like 'sb:' || auth.uid()::text || '/%' then f := f - 'photo' || jsonb_build_object('photo', null, 'keep', true); end if;
   if s.owner_id = me_id then
-    if f->>'notes' <> '' then insert into session_notes (session_id, body) values (s.id, f->>'notes') on conflict (session_id) do update set body = excluded.body, updated_at = now();
+    if f->>'notes' <> '' then insert into session_notes (session_id, body, audience) values (s.id, f->>'notes', coalesce(internal.item_aud(ev->>'noteAudience'), 'friends'))
+      on conflict (session_id) do update set body = excluded.body, audience = coalesce(internal.item_aud(ev->>'noteAudience'), session_notes.audience), updated_at = now();
     else delete from session_notes where session_id = s.id; end if;
-    if f->>'photo' is not null then insert into session_photos (session_id, path) values (s.id, f->>'photo') on conflict (session_id) do update set path = excluded.path;
-    elsif jsonb_typeof(ev->'photo') is null or jsonb_typeof(ev->'photo') = 'null' then delete from session_photos where session_id = s.id; end if;
+    if f->>'photo' is not null then insert into session_photos (session_id, path, audience) values (s.id, f->>'photo', coalesce(internal.item_aud(ev->>'photoAudience'), 'friends'))
+      on conflict (session_id) do update set path = excluded.path, audience = coalesce(internal.item_aud(ev->>'photoAudience'), session_photos.audience);
+    elsif f->>'keep' is null and (jsonb_typeof(ev->'photo') is null or jsonb_typeof(ev->'photo') = 'null') then delete from session_photos where session_id = s.id; end if;
   end if;
   perform internal.sync_like('session', s.id, ev->'likes', me_id, me_nm);
   perform internal.sync_comments('session', s.id, ev->>'id', internal.with_comment_meta(ev->'comments', ev->'commentMeta'), me_id, me_nm);
@@ -353,6 +399,10 @@ begin
   if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
   if jsonb_typeof(ev) <> 'object' or coalesce(ev->>'id', '') = '' then raise exception 'A save needs a type and an id.' using errcode = '22023'; end if;
   me_nm := internal.name_of(me_id);
+  -- your color travels on your own saves (a like on someone else's session carries their color, so only when you're the actor)
+  if lower(btrim(coalesce(ev->>'actor', ''))) = lower(me_nm) and ev->>'actorColor' ~ '^#[0-9a-fA-F]{6}$' then
+    update profiles set color = lower(ev->>'actorColor') where id = me_id and color is distinct from lower(ev->>'actorColor');
+  end if;
   if t = 'bean' then perform internal.push_bean(ev, me_id, me_nm);
   elsif t = 'brew' then perform internal.push_brew(ev, me_id, me_nm);
   elsif t = 'gear' then perform internal.push_gear(ev, me_id, me_nm);
@@ -366,6 +416,6 @@ end $$;
 grant usage on schema internal to authenticated;
 grant execute on all functions in schema internal to authenticated;
 -- only signed-in people can call these (Postgres lets everyone run a new function unless told otherwise)
-revoke execute on function pull_events(), push_event(jsonb), claim_name(text) from public, anon;
-grant execute on function pull_events(), push_event(jsonb), claim_name(text) to authenticated;
+revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile() from public, anon;
+grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile() to authenticated;
 revoke execute on all functions in schema internal from public, anon;

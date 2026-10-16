@@ -115,9 +115,9 @@ same('custom notes', '-', 'names', [...A.customFlavors.values()].map(f => f.name
 same('achievements', '-', 'levels', A.achievementLevelsByUser || {}, B.achievementLevelsByUser || {});
 if (process.env.PARITY_DEBUG) { const a = A.achievementLevelsByUser || {}, b = B.achievementLevelsByUser || {}; Object.keys({ ...a, ...b }).forEach(u => Object.keys({ ...(a[u] || {}), ...(b[u] || {}) }).forEach(k => { if (J((a[u] || {})[k]) !== J((b[u] || {})[k])) console.log('  level', u, k, J((a[u] || {})[k]), '->', J((b[u] || {})[k])); })); }
 
-// Achievement levels are counted by walking the history of edits (a comment counts when it appears in a later
-// version of a record). The tables keep each record's latest state, so those levels can't round-trip; phase 2
-// counts them from what exists instead. --known-history reports them without failing.
+// Before v14.2 the app counted "comments written" and "likes received" only when they appeared in a later version
+// of a record, so records sent once with everything on them (as the tables do) counted nothing. v14.2 counts what's
+// on a record when it first appears. --known-history only matters when checking against an older index.html.
 const KNOWN = knownHistory ? diffs.filter(d => d.startsWith('achievements')) : [];
 KNOWN.forEach(d => diffs.splice(diffs.indexOf(d), 1));
 return { compared: `${A.beans.size} coffees, ${A.brews.size} sessions, ${A.knownPeople().length} people`, diffs, details, known: KNOWN };

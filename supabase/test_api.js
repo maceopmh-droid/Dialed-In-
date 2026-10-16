@@ -25,6 +25,13 @@ psql(require('fs').readFileSync(path.join(__dirname, 'schema.sql'), 'utf8'));
 psql(`grant usage on schema public, auth to authenticated, anon; grant select, insert, update, delete on all tables in schema public to authenticated;
       grant execute on all functions in schema public, auth to authenticated, anon;`);
 psql(require('fs').readFileSync(path.join(__dirname, 'api.sql'), 'utf8'));
+// Supabase storage stood in (its objects table, foldername() and row rules switched on), then storage.sql
+psql(`create schema storage; create table storage.buckets (id text primary key, name text, public boolean);
+  create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text references storage.buckets (id), name text, owner uuid, unique (bucket_id, name));
+  create function storage.foldername(name text) returns text[] language sql immutable as $$ select (string_to_array(name, '/'))[1:array_length(string_to_array(name, '/'), 1) - 1] $$;
+  alter table storage.objects enable row level security;
+  grant usage on schema storage to authenticated, anon; grant select, insert, update, delete on storage.objects to authenticated;`);
+psql(require('fs').readFileSync(path.join(__dirname, 'storage.sql'), 'utf8'));
 
 const AUTH = { maceo: 'aaaaaaaa-0000-0000-0000-000000000001', aidan: 'aaaaaaaa-0000-0000-0000-000000000002', julian: 'aaaaaaaa-0000-0000-0000-000000000003', stranger: 'aaaaaaaa-0000-0000-0000-000000000004' };
 const P = { Maceo: '00000000-0000-0000-0000-0000000000a1', Aidan: '00000000-0000-0000-0000-0000000000a2', Julian: '00000000-0000-0000-0000-0000000000a3' };
@@ -147,10 +154,72 @@ as('maceo', `update equipment set hidden = true where name = 'Decent';`);
 ok(!JSON.stringify(pull('stranger')).includes('Decent') && JSON.stringify(pull('maceo')).includes('Decent'), 'equipment Maceo hides is gone for others and still his');
 as('maceo', `update equipment set hidden = false where name = 'Decent';`);
 
+// --- photos in storage: your own folder only; readable by whoever may see that session's photo
+const MPATH = `${AUTH.maceo}/s2-abc123.jpg`;
+ok(as('maceo', `insert into storage.objects (bucket_id, name) values ('photos', '${MPATH}');`).out !== undefined, 'Maceo uploads a photo into his own folder');
+ok(/row-level security/.test(as('maceo', `insert into storage.objects (bucket_id, name) values ('photos', '${AUTH.aidan}/fake.jpg');`).err || ''), "...but not into Aidan's");
+ok(as('aidan', `select count(*) from storage.objects where name = '${MPATH}';`).out === '0', 'before it belongs to a session, nobody else can read it');
+push('maceo', { type: 'brew', id: 's2', beanId: 'b1', user: 'Maceo', owner: 'Maceo', method: 'Pour Over', dose: 15, yield: 250, time: 180, rating: 4.5, date: '2026-10-05T08:00:00.000Z', likes: [], comments: [], photo: { path: 'sb:' + MPATH } });
+ok(one(`select path from session_photos p join sessions s on s.id = p.session_id where s.legacy_id = 's2';`) === 'sb:' + MPATH, 'his session points at it');
+ok(as('aidan', `select count(*) from storage.objects where name = '${MPATH}';`).out === '1' && as('stranger', `select count(*) from storage.objects where name = '${MPATH}';`).out === '0',
+   'now his crew can read the file and a stranger still can\'t (the photo is Friends & groups)');
+const s2pull = pull('aidan').find(e => e.type === 'brew' && e.id === 's2');
+ok(s2pull && s2pull.photo && s2pull.photo.path === 'sb:' + MPATH && !s2pull.photo.url, 'the pull says where the photo is (the app asks storage for a short-lived link)');
+push('aidan', { type: 'brew', id: 'sa', beanId: 'b1', user: 'Aidan', owner: 'Aidan', method: 'Espresso', dose: 18, yield: 36, time: 28, date: '2026-10-06T08:00:00.000Z', likes: [], comments: [], photo: { path: 'sb:' + MPATH } });
+ok(one(`select count(*) from session_photos p join sessions s on s.id = p.session_id where s.legacy_id = 'sa';`) === '0', "Aidan can't point his session at Maceo's photo (that would show it to his own friends)");
+push('maceo', { type: 'brew', id: 's2', beanId: 'b1', user: 'Maceo', owner: 'Maceo', method: 'Pour Over', dose: 15, yield: 250, time: 180, rating: 4.5, date: '2026-10-05T08:00:00.000Z', likes: [], comments: [], photo: { path: 'sb:' + MPATH, url: 'https://example.supabase.co/storage/v1/object/sign/photos/x?token=t' } });
+ok(one(`select path from session_photos p join sessions s on s.id = p.session_id where s.legacy_id = 's2';`) === 'sb:' + MPATH, 'resending the session with its short-lived link keeps the stored path');
+
+// --- your color: from your own saves only (a like on someone else's session carries their color)
+push('aidan', { ...B1, likes: ['Aidan'], actor: 'Maceo', actorColor: '#123456' });
+push('maceo', { ...B1, actor: 'Maceo', actorColor: '#AA3355' });
+ok(one(`select string_agg(legacy_name || '=' || color, ',' order by legacy_name) from profiles where legacy_name in ('Aidan', 'Maceo');`) === 'Aidan=#336699,Maceo=#aa3355',
+   "Maceo's new color is saved from his own save; a like carrying someone else's color changes nothing");
+
+// --- who each part is for: the session, its note, its photo, each comment (all start as Friends & groups)
+const OPEN = { type: 'brew', id: 's3', beanId: 'b1', user: 'Maceo', owner: 'Maceo', method: 'Espresso', dose: 18, yield: 38, time: 27, rating: 4, date: '2026-10-07T08:00:00.000Z',
+  notes: 'tasted like jam', photo: { fileId: 'drivefile456' }, likes: [], comments: [] };
+push('maceo', OPEN);
+ok(one(`select s.audience || '|' || n.audience || '|' || p.audience from sessions s join session_notes n on n.session_id = s.id join session_photos p on p.session_id = s.id where s.legacy_id = 's3';`) === 'friends|friends|friends',
+   'a new session, its note and its photo all start as Friends & groups');
+ok(!pull('stranger').some(e => e.id === 's3'), '...so a stranger sees none of it');
+push('maceo', { ...OPEN, audience: 'everyone', photoAudience: 'everyone' });
+let st3 = pull('stranger').find(e => e.id === 's3');
+ok(st3 && st3.photo && st3.photo.fileId === 'drivefile456' && !st3.notes && st3.audience === 'everyone' && !st3.noteAudience,
+   'Maceo shares the session and the photo with everyone, keeps the note for friends: a stranger sees the session and photo, not the note');
+push('maceo', { ...OPEN, dose: 18.2 });
+ok(one(`select s.audience || '|' || n.audience || '|' || p.audience || '|' || s.dose from sessions s join session_notes n on n.session_id = s.id join session_photos p on p.session_id = s.id where s.legacy_id = 's3';`) === 'everyone|friends|everyone|18.2',
+   'an edit from a phone that doesn\'t send the settings keeps them as they were');
+push('aidan', { ...OPEN, audience: 'everyone', comments: [{ id: 'k9', user: 'Aidan', text: 'public praise', timestamp: '2026-10-07T09:00:00.000Z', audience: 'everyone' },
+  { id: 'k10', user: 'Aidan', text: 'just between us', timestamp: '2026-10-07T09:01:00.000Z' }] });
+st3 = pull('stranger').find(e => e.id === 's3');
+ok(st3 && st3.comments.map(c => c.text).join() === 'public praise' && pull('maceo').find(e => e.id === 's3').comments.length === 2,
+   "Aidan's comment shared with everyone shows to the stranger; his Friends one doesn't (Maceo sees both)");
+push('aidan', { ...OPEN, comments: [{ id: 'k9', user: 'Aidan', text: 'public praise', timestamp: '2026-10-07T09:00:00.000Z', audience: 'friends' }, { id: 'k10', user: 'Aidan', text: 'just between us', timestamp: '2026-10-07T09:01:00.000Z' }] });
+ok(one(`select audience from comments where legacy_ref = 's3#k9';`) === 'friends' && one(`select audience from sessions where legacy_id = 's3';`) === 'everyone',
+   'Aidan can switch his comment back to Friends (and can\'t change who Maceo\'s session is for)');
+push('maceo', { ...OPEN, audience: 'only_me' });
+ok(!pull('aidan').some(e => e.id === 's3') && pull('maceo').some(e => e.id === 's3'), 'a session set to only me disappears for everyone else');
+
+// --- a new person makes a profile (not from the Sheet era)
+const NEW = 'aaaaaaaa-0000-0000-0000-000000000009'; psql(`insert into auth.users values ('${NEW}');`); AUTH.newbie = NEW;
+ok(as('newbie', 'select my_profile();').out === '', 'signed in with no profile yet: my_profile is empty');
+ok(/taken/.test(as('newbie', `select create_profile('Maceo');`).err || ''), "a Sheet-era name can't be taken by someone new");
+ok(/2 to 24/.test(as('newbie', `select create_profile('x');`).err || '') && /2 to 24/.test(as('newbie', `select create_profile('__group__');`).err || ''), 'a one-letter or reserved name is refused with a plain reason');
+ok(/"name": "Brew Buddy"/.test(as('newbie', `select create_profile('  Brew   Buddy ', '#aa5500');`).out || '') && /"handle": "brewbuddy"/.test(as('newbie', 'select my_profile();').out), 'someone new makes a profile (spaces tidied, capitals kept; the handle is made from it) and my_profile returns it');
+psql(`insert into auth.users values ('aaaaaaaa-0000-0000-0000-000000000010');`); AUTH.twin = 'aaaaaaaa-0000-0000-0000-000000000010';
+ok(/taken/.test(as('twin', `select create_profile('brew buddy');`).err || ''), 'names are unique ignoring capitals');
+ok(/"handle": "brewbuddy2"/.test(as('twin', `select create_profile('Brew-Buddy');`).out || ''), 'a different name that makes the same handle gets the next free one');
+ok(/already has a profile/.test(as('newbie', `select create_profile('second');`).err || ''), 'one profile per account');
+ok(/permission denied/.test(as('anon', `select create_profile('sneaky');`).err || ''), 'not signed in: refused');
+
 // round trip: what the app pulls, pushed back unchanged by its owner, changes nothing
-const before = one(`select md5(string_agg(t::text, '' order by t::text)) from (select legacy_id, method, grind, dose, yield, time_s, rating, taste, tasted, flavor_notes, extras, equipment, master, brewed_at from sessions) t;`);
-forMaceo.filter(e => e.type === 'brew').forEach(e => push('maceo', e));
-const after = one(`select md5(string_agg(t::text, '' order by t::text)) from (select legacy_id, method, grind, dose, yield, time_s, rating, taste, tasted, flavor_notes, extras, equipment, master, brewed_at from sessions) t;`);
+const STATE = `select md5(string_agg(t::text, '' order by t::text)) from (select s.legacy_id, method, grind, dose, yield, time_s, rating, taste, tasted, flavor_notes, extras, equipment, master, brewed_at, n.body, p.path,
+  (select count(*) from likes l where l.session_id = s.id), (select count(*) from comments c where c.session_id = s.id) from sessions s
+  left join session_notes n on n.session_id = s.id left join session_photos p on p.session_id = s.id) t;`;
+const before = one(STATE);
+pull('maceo').filter(e => e.type === 'brew').forEach(e => push('maceo', e));
+const after = one(STATE);
 ok(before === after, 'pushing back exactly what was pulled changes nothing (the app can resend safely)');
 
 console.log(fails ? `${fails} API checks FAILED` : 'all API checks passed');
