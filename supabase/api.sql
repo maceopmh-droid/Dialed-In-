@@ -954,40 +954,53 @@ end $$;
 -- brews" becomes a people count. Only totals leave the database, never whose session counted (except your own).
 create or replace function community_goal(tz text default 'America/Chicago') returns jsonb
 language plpgsql stable security definer set search_path = public as $$
+-- v14.5: each target is set by pace: what everyone usually reaches by Saturday midday (day 5.5 of 7) over the last six
+-- weeks, the most recent counting most, scaled to how many people are brewing now (counts scale with people, variety
+-- more slowly). At the usual pace it's done around Friday or Saturday: a challenge most weeks, never out of reach.
 declare
   ws timestamptz := (date_trunc('week', now() at time zone tz)) at time zone tz;
   we timestamptz := ws + interval '7 days';
   types text[] := array['sessions', 'origins', 'rated', 'notes', 'everyone', 'methods'];
-  t text; base numeric; avg_origins numeric; methods_seen int; brewers numeric;
+  t text; est numeric; active_now numeric; methods_seen int;
   target int; progress int; title text; unit text; mine int; brewing int;
 begin
   t := types[1 + ((round(extract(epoch from ws) * 1000 / 604800000)::bigint % 6 + 6) % 6)];
-  with weeks as (select i, ws - i * interval '7 days' as a, ws - (i - 1) * interval '7 days' as b from generate_series(1, 6) i),
-       per as (select w.i, count(s.id) n, count(distinct coalesce(nullif(split_part(k.origin, ',', 1), ''), null)) o, count(distinct s.owner_id) p
-               from weeks w left join sessions s on s.brewed_at >= w.a and s.brewed_at < w.b and s.deleted_at is null and s.audience <> 'only_me' left join coffees k on k.id = s.coffee_id group by w.i)
-  select coalesce((select percentile_disc(0.5) within group (order by n) from per where n > 0), 6),
-         coalesce((select avg(o) from per where n > 0), 1),
-         coalesce((select percentile_disc(0.5) within group (order by p) from per where n > 0), 2)
-    into base, avg_origins, brewers from (select 1) x;
-  select count(distinct method) into methods_seen from sessions where brewed_at >= ws - interval '42 days' and brewed_at < ws and deleted_at is null and audience <> 'only_me' and method is not null;
+  select greatest(1, count(distinct owner_id)) into active_now from sessions
+   where brewed_at >= ws - interval '14 days' and brewed_at < ws and deleted_at is null and audience <> 'only_me';
+  select count(distinct method) into methods_seen from sessions
+   where brewed_at >= ws - interval '42 days' and brewed_at < ws and deleted_at is null and audience <> 'only_me' and method is not null;
+  with weeks as (select v.i, v.w, ws - v.i * interval '7 days' as a from (values (1, 0.30), (2, 0.22), (3, 0.16), (4, 0.13), (5, 0.10), (6, 0.09)) v(i, w)),
+       per as (
+         select wk.w,
+           (select count(distinct s.owner_id) from sessions s where s.brewed_at >= wk.a and s.brewed_at < wk.a + interval '7 days' and s.deleted_at is null and s.audience <> 'only_me') as active,
+           (select jsonb_build_object(
+               'sessions', count(*), 'rated', count(*) filter (where coalesce(s.rating, 0) > 0),
+               'notes', count(*) filter (where coalesce(btrim(s.extras->>'flavors'), '') <> ''),
+               'origins', count(distinct nullif(lower(btrim(split_part(k.origin, ',', 1))), '')),
+               'methods', count(distinct s.method), 'everyone', count(distinct s.owner_id))
+            from sessions s left join coffees k on k.id = s.coffee_id
+            where s.brewed_at >= wk.a and s.brewed_at < wk.a + interval '132 hours' and s.deleted_at is null and s.audience <> 'only_me') as early   -- by Saturday midday
+         from weeks wk)
+  select sum(w * (early->>t)::numeric * case when t in ('origins', 'methods') then sqrt(least(2, greatest(0.5, active_now / active))) else least(2, greatest(0.5, active_now / active)) end) / nullif(sum(w), 0)
+    into est from per where active > 0;
   if t = 'sessions' then
-    target := greatest(4, round(base * 1.15)); title := format('Brew %s sessions together', target); unit := 'sessions';
+    target := greatest(4, round(coalesce(est, 4))); title := format('Brew %s sessions together', target); unit := 'sessions';
     select count(*) into progress from sessions where brewed_at >= ws and brewed_at < we and deleted_at is null and audience <> 'only_me';
   elsif t = 'origins' then
-    target := least(30, greatest(2, round(avg_origins + 1))); title := format('Taste %s different origins', target); unit := 'origins';
+    target := least(30, greatest(2, round(coalesce(est, 2)))); title := format('Taste %s different origins', target); unit := 'origins';
     select count(distinct lower(btrim(split_part(k.origin, ',', 1)))) into progress from sessions s join coffees k on k.id = s.coffee_id
     where s.brewed_at >= ws and s.brewed_at < we and s.deleted_at is null and s.audience <> 'only_me' and coalesce(btrim(split_part(k.origin, ',', 1)), '') <> '';
   elsif t = 'rated' then
-    target := greatest(3, round(base * 0.7)); title := format('Rate %s sessions', target); unit := 'rated';
+    target := greatest(3, round(coalesce(est, 3))); title := format('Rate %s sessions', target); unit := 'rated';
     select count(*) into progress from sessions where brewed_at >= ws and brewed_at < we and deleted_at is null and audience <> 'only_me' and coalesce(rating, 0) > 0;
   elsif t = 'notes' then
-    target := greatest(3, round(base * 0.5)); title := format('Log tasting notes on %s sessions', target); unit := 'with notes';
+    target := greatest(2, round(coalesce(est, 2))); title := format('Log tasting notes on %s sessions', target); unit := 'with notes';
     select count(*) into progress from sessions where brewed_at >= ws and brewed_at < we and deleted_at is null and audience <> 'only_me' and coalesce(btrim(extras->>'flavors'), '') <> '';
   elsif t = 'everyone' then
-    target := greatest(2, round(brewers * 1.1)); title := format('%s people brew this week', target); unit := 'people';
+    target := greatest(2, round(coalesce(est, 2))); title := format('%s people brew this week', target); unit := 'people';
     select count(distinct owner_id) into progress from sessions where brewed_at >= ws and brewed_at < we and deleted_at is null and audience <> 'only_me';
   else
-    target := case when methods_seen >= 3 then 3 else 2 end; title := format('Brew with %s different methods', target); unit := 'methods';
+    target := least(greatest(2, methods_seen), 6, greatest(2, round(coalesce(est, 2)))); title := format('Brew with %s different methods', target); unit := 'methods';
     select count(distinct method) into progress from sessions where brewed_at >= ws and brewed_at < we and deleted_at is null and audience <> 'only_me' and method is not null;
   end if;
   select count(*) into mine from sessions where owner_id = me() and brewed_at >= ws and brewed_at < we and deleted_at is null and audience <> 'only_me';

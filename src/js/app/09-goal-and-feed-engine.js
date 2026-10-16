@@ -97,20 +97,36 @@
                 return bean ? String(bean.origin || '').split(/\s*(?:,|\/|&| and )\s*/)[0].trim() : '';
             },
 
-            // ---- Crew Quest: one shared weekly goal, scaled to how much the crew has been brewing
+            // ---- Crew Quest: one shared weekly goal. v14.5: each target is set by pace: what the group usually reaches by
+            // Saturday midday (day 5.5 of 7) over the last six weeks, the most recent counting most, scaled to how many
+            // people are brewing now. Kept at its usual pace, the group finishes around Friday or Saturday, so it's a
+            // challenge most weeks without being out of reach.
             crewQuest(now = Date.now(), forceType = '') {
-                const W = 7 * 864e5;
+                const W = 7 * 864e5, PACE = 5.5 * 864e5;
                 const start = this.weekStartOf(now);
                 const end = this.weekStartOf(start + W + 3 * 3600e3);
                 const people = this.crewPeople(now);
                 const inGoal = b => !this.goalExcluded(this.getBrewOwner(b));
+                const weights = [0.30, 0.22, 0.16, 0.13, 0.10, 0.09];
                 const past = [];
-                for (let i = 1; i <= 6; i++) { const ws = this.weekStartOf(start - i * W + 3 * 3600e3); past.push(this.sessionsBetween(ws, this.weekStartOf(ws + W + 3 * 3600e3)).filter(inGoal)); }
-                const counts = past.map(w => w.length).filter(n => n > 0).sort((a, b) => a - b);
-                const base = counts.length ? counts[Math.floor(counts.length / 2)] : 6;
-                const busy = past.filter(w => w.length);
-                const avgOrigins = busy.length ? busy.reduce((s, w) => s + new Set(w.map(b => this.originOf(b)).filter(Boolean)).size, 0) / busy.length : 1;
-                const methodsSeen = new Set(past.flat().map(b => b.method).filter(Boolean)).size;
+                for (let i = 1; i <= 6; i++) {
+                    const ws = this.weekStartOf(start - i * W + 3 * 3600e3), all = this.sessionsBetween(ws, this.weekStartOf(ws + W + 3 * 3600e3)).filter(inGoal);
+                    past.push({ w: weights[i - 1], all, early: all.filter(b => this.localTime(b.date) < ws + PACE), active: new Set(all.map(b => this.getBrewOwner(b))).size });
+                }
+                const recent = new Set([...past[0].all, ...past[1].all].map(b => this.getBrewOwner(b))).size;
+                const activeNow = Math.max(1, recent || people.length);
+                const busy = past.filter(x => x.all.length);
+                const origins = list => new Set(list.map(b => this.originOf(b).toLowerCase()).filter(Boolean)).size;
+                const methods = list => new Set(list.map(b => b.method).filter(Boolean)).size;
+                // what the group usually has by Saturday midday, scaled to who's brewing now (counts scale with people,
+                // variety more slowly)
+                const pace = (fn, additive, fallback) => {
+                    if (!busy.length) return fallback;
+                    let sum = 0, wsum = 0;
+                    busy.forEach(x => { const r = Math.max(0.5, Math.min(2, activeNow / Math.max(1, x.active))); sum += x.w * fn(x.early) * (additive ? r : Math.sqrt(r)); wsum += x.w; });
+                    return sum / wsum;
+                };
+                const methodsSeen = methods(past.flatMap(x => x.all));
                 const types = ['sessions', 'origins', 'rated', 'notes', 'everyone', 'methods'];
                 const weekNo = Math.round(start / W);
                 const type = types.includes(forceType) ? forceType : types[((weekNo % types.length) + types.length) % types.length];
@@ -120,27 +136,28 @@
                 const credit = name => by.set(name, (by.get(name) || 0) + 1);
                 let target = 1, progress = 0, title = '', detail = '', unit = '', per = 0;
                 if (type === 'sessions') {
-                    target = clampInt(base * 1.15, 4, 40); cur.forEach(b => credit(this.getBrewOwner(b))); progress = cur.length;
+                    target = clampInt(pace(l => l.length, true, 2 * people.length), 3, 60); cur.forEach(b => credit(this.getBrewOwner(b))); progress = cur.length;
                     title = `Brew ${target} sessions together`; unit = 'sessions';
                 } else if (type === 'origins') {
-                    target = clampInt(avgOrigins + 1, 2, 6);
+                    target = clampInt(pace(origins, false, 2), 2, 8);
                     const seen = new Map(); cur.forEach(b => { const o = this.originOf(b); if (o && !seen.has(o.toLowerCase())) { seen.set(o.toLowerCase(), o); credit(this.getBrewOwner(b)); } });
                     progress = seen.size; title = `Taste ${target} different origins`; unit = 'origins';
                     detail = [...seen.values()].join(', ');
                 } else if (type === 'rated') {
-                    target = clampInt(base * 0.7, 3, 30); cur.filter(b => this.normalizeRating(b.rating) > 0).forEach(b => credit(this.getBrewOwner(b)));
+                    target = clampInt(pace(l => l.filter(b => this.normalizeRating(b.rating) > 0).length, true, people.length + 1), 2, 50); cur.filter(b => this.normalizeRating(b.rating) > 0).forEach(b => credit(this.getBrewOwner(b)));
                     progress = cur.filter(b => this.normalizeRating(b.rating) > 0).length; title = `Rate ${target} sessions`; unit = 'rated';
                 } else if (type === 'notes') {
-                    target = clampInt(base * 0.5, 3, 20); const noted = cur.filter(b => this.extractFlavors(b).length > 0);
+                    target = clampInt(pace(l => l.filter(b => this.extractFlavors(b).length > 0).length, true, people.length), 2, 40); const noted = cur.filter(b => this.extractFlavors(b).length > 0);
                     noted.forEach(b => credit(this.getBrewOwner(b))); progress = noted.length; title = `Log tasting notes on ${target} sessions`; unit = 'with notes';
                 } else if (type === 'everyone') {
-                    per = clampInt(base / Math.max(1, people.length) / 1.2, 1, 5);
+                    // sessions each brewing person usually has by Saturday midday
+                    per = clampInt(busy.length ? busy.reduce((t, x) => t + x.w * x.early.length / Math.max(1, x.active), 0) / busy.reduce((t, x) => t + x.w, 0) : 1, 1, 5);
                     cur.forEach(b => credit(this.getBrewOwner(b)));
                     target = Math.max(1, people.length); progress = people.filter(p => (by.get(p) || 0) >= per).length;
                     title = per === 1 ? 'Everyone brews at least once' : `Everyone brews ${per}+ times`; unit = 'people there';
                     detail = people.map(p => `${p} ${Math.min(by.get(p) || 0, per)}/${per}`).join(' · ');
                 } else {
-                    target = methodsSeen >= 3 ? 3 : 2;
+                    target = clampInt(pace(methods, false, 2), 2, Math.max(2, Math.min(4, methodsSeen)));
                     const seen = new Map(); cur.forEach(b => { const m = b.method; if (m && !seen.has(m)) { seen.set(m, true); credit(this.getBrewOwner(b)); } });
                     progress = seen.size; title = `Brew with ${target} different methods`; unit = 'methods';
                     detail = [...seen.keys()].join(', ');

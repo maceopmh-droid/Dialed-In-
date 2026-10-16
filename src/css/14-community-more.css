@@ -61,3 +61,15 @@
         .grp-empty { margin: 1.4rem 0; padding: 18px 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); }
         .grp-empty b { font-size: 1.05rem; color: var(--ink); }
         .grp-empty p { margin: 6px 0 12px; font-size: 0.9rem; line-height: 1.45; color: var(--text-muted); }
+        /* v14.5: the goal cards, smaller: tighter, the count and the faces share a line when they fit */
+        .crew-quest { display: flex; flex-wrap: wrap; align-items: center; column-gap: 12px; padding: 11px 14px; }
+        .crew-quest > .cq-top, .crew-quest > .cq-title, .crew-quest > .cq-bar { flex: 0 0 100%; }
+        .crew-quest .cq-kicker { font-size: 0.62rem; }
+        .crew-quest .cq-kicker .icon { width: 13px; height: 13px; }
+        .crew-quest .cq-left { font-size: 0.68rem; }
+        .crew-quest .cq-title { font-size: 0.98rem; margin: 3px 0 7px; }
+        .crew-quest .cq-bar { height: 7px; }
+        .crew-quest > .cq-meta { flex: 0 1 auto; min-width: 0; margin-top: 6px; font-size: 0.74rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .crew-quest > .cq-foot { flex: 0 1 auto; margin: 6px 0 0 auto; gap: 8px; font-size: 0.72rem; }
+        .crew-quest .cq-face b { width: 18px; height: 18px; font-size: 0.56rem; }
+        .crew-quest .cq-won .icon { width: 12px; height: 12px; }
