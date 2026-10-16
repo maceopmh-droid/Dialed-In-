@@ -1,0 +1,13 @@
+        /* v14.2: signing in (new backend only) */
+        .wl-code { text-align: center; font-size: 1.5rem; letter-spacing: 0.32em; font-variant-numeric: tabular-nums; padding-left: calc(16px + 0.32em); }
+        .wl-code::placeholder { letter-spacing: 0.32em; color: rgba(var(--hair-rgb), 0.28); }
+        #wl-claim.wl-code { font-size: 1.15rem; letter-spacing: 0.08em; padding-left: 16px; }
+        #wl-claim.wl-code::placeholder { letter-spacing: 0; }
+        .wl-main.is-busy { opacity: 0.6; pointer-events: none; }
+        .acct-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 4px 0 10px; margin-bottom: 4px; border-bottom: 1px solid var(--line); }
+        .acct-dot { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-style: normal; font-weight: 700; font-size: 0.95rem; }
+        .acct-who { display: grid; min-width: 0; }
+        .acct-who b { font-size: 1rem; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .acct-who small { font-size: 0.82rem; color: var(--muted, rgba(var(--hair-rgb), 0.6)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .acct-out { width: auto !important; padding: 9px 16px !important; margin: 0 !important; }
+        .user-switch.acct-name:disabled { opacity: 1; cursor: default; }

@@ -72,7 +72,8 @@
                     url,
                     fileId: String(row.fileId || this.extractDriveFileId(url) || ''),
                     source: String(row.source || 'library'),
-                    addedAt: row.addedAt || new Date().toISOString()
+                    addedAt: row.addedAt || new Date().toISOString(),
+                    ...(row.path ? { path: String(row.path) } : {})   // v14.2: where the new backend stores it (the link expires; this doesn't)
                 };
             },
 

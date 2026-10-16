@@ -80,6 +80,13 @@
             },
 
             knownPeople() {
+                // v14.2: on the new backend your people are you and your private groups, as the server lists them (coffees and
+                // sessions others can see don't make their owners part of your group)
+                if (this.acctOn && this.acctOn()) {
+                    const names = [this.user, ...[...this.peopleState().active.values()].map(p => p.name)].filter(n => n && n !== 'Unknown');
+                    const list = [...new Set(names)].sort((a, b) => a.localeCompare(b));
+                    return this.user && list.includes(this.user) ? [this.user, ...list.filter(n => n !== this.user)] : list;
+                }
                 const gone = this.removedPeople();   // v14.1: removed people leave every list (their sessions stay)
                 const set = new Set((this.users || []).filter(Boolean));
                 const addLogged = n => { n = String(n || ''); if (n && (n === this.user || !gone.has(n.toLowerCase()))) set.add(n); };

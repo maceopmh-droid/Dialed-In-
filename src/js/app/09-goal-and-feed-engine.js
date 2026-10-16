@@ -35,6 +35,14 @@
 
             // v13.1: anyone who has logged anything shows up on every device (the list used to live only on each phone)
             syncKnownUsers() {
+                // v14.2: on the new backend the list is you and your private groups, exactly as the server sends it
+                if (this.acctOn && this.acctOn()) {
+                    const next = this.knownPeople();
+                    const changed = next.join('|') !== (this.users || []).join('|');
+                    this.users = next;
+                    this.peopleState().active.forEach(p => { if (p.color && !this.normalizeHexColor(this.userColors[p.name])) this.setUserColor(p.name, p.color, true); });
+                    return changed;
+                }
                 // v14.0: the shared people list, plus anyone who has logged anything
                 // v14.1: a removal wins, whatever records the person has (only this device's own user is kept)
                 const { active, removed } = this.peopleState();

@@ -2,6 +2,11 @@
                 this.renderThemeControl();
                 const list = document.getElementById('user-list');
                 list.innerHTML = '';
+                // v14.2: on the new backend you are who you signed in as: your account and Sign out, then the goal switches
+                const acct = this.acctOn();
+                const label = document.getElementById('user-list-label'); if (label) label.textContent = acct ? 'You' : 'Active User';
+                const addRow = document.getElementById('add-user-row'); if (addRow) addRow.style.display = acct ? 'none' : 'flex';
+                if (acct) { const me = document.createElement('div'); me.innerHTML = this.acctSettingsHtml(); list.appendChild(me.firstElementChild); }
                 const head = document.createElement('div');
                 head.className = 'user-head';
                 head.innerHTML = '<span>Counts in group goal</span>';
@@ -21,7 +26,9 @@
                         selectBtn.style.background = color;
                         selectBtn.style.color = 'white';
                     }
+                    if (acct) { selectBtn.disabled = true; selectBtn.classList.add('acct-name'); }
                     selectBtn.onclick = () => {
+                        if (acct) return;
                         this.user = userName;
                         safeSet('dialed_user', userName);
                         this.applyGearFromCloud();
@@ -34,7 +41,7 @@
                     removeBtn.type = 'button';
                     removeBtn.innerText = 'Remove';
                     // people who have logged sessions stay on the list, so Remove only shows when it would work
-                    const removable = this.users.length > 1 && userName !== this.user && !this.hasLoggedData(userName);
+                    const removable = !acct && this.users.length > 1 && userName !== this.user && !this.hasLoggedData(userName);
                     removeBtn.onclick = () => this.deleteUser(userName);
 
                     // v13.2: a real switch for "counts in the group goal" (shared with everyone)
@@ -568,6 +575,4 @@
                     chip.classList.toggle('selected', selected.includes(chip.innerText));
                 });
                 if (document.getElementById('note-wheel')) this.renderNotePicker();
-            }
-        };
-
+            },

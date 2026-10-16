@@ -194,6 +194,7 @@
                     const ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
                     const hang = ctl ? setTimeout(() => ctl.abort(), 20000) : null;
                     let text;
+                    const pullStarted = Date.now();
                     try { text = await Cloud.pull(this.syncPosition(), ctl ? { signal: ctl.signal } : {}); } finally { if (hang) clearTimeout(hang); }
                     const json = JSON.parse(text);
                     this.lastCloudAt = Date.now();
@@ -208,6 +209,7 @@
                     }
                     this.lastFullReply = Array.isArray(json) ? text : '';
                     const changed = this.mergeCloudResponse(json);
+                    this.pullStartedFor = pullStarted;   // v14.2: saves the new backend confirmed before this pull began are in it
                     this.syncedOnce = true;
                     const colorsBefore = JSON.stringify(this.userColors);
                     this.process(this.cloud.events);
@@ -224,6 +226,7 @@
                 } catch (e) {
                     this.syncFailed = true;
                     this.updateBadge('error');
+                    if (e && e.signedOut && this.needSignIn) this.needSignIn();   // v14.2: the new backend's sign-in ran out
                     console.error('Sync error:', e);
                 } finally {
                     this.lastSyncAt = Date.now();
@@ -680,7 +683,7 @@
                 }).catch(() => {});
             },
 
-            saveOutbox() { this.idbPut(this.outboxKey(), (this.outbox || []).map(x => ({ k: x.k, ev: x.ev, base: x.base || null, tries: x.tries || 0, lastTry: x.lastTry || 0, at: x.at || 0, landedAt: x.landedAt || 0 }))).catch(() => {}); },
+            saveOutbox() { this.idbPut(this.outboxKey(), (this.outbox || []).map(x => ({ k: x.k, ev: x.ev, base: x.base || null, tries: x.tries || 0, lastTry: x.lastTry || 0, at: x.at || 0, landedAt: x.landedAt || 0, ...(x.confirmed ? { confirmed: true } : {}) }))).catch(() => {}); },
 
             // the record a save replaces (null for something new, a flavor, or a delete of something missing)
             recordOf(p) {
@@ -738,6 +741,11 @@
                 };
                 ob.forEach(x => {
                     const ev = x.ev;
+                    // v14.2: the new backend confirmed it; it stays on top until a pull that began after that, which has it
+                    if (x.confirmed) {
+                        if ((this.pullStartedFor || 0) > (x.landedAt || 0)) { changed = true; return; }
+                        keep.push(x); out.push(ev); return;
+                    }
                     const isRec = ev.type === 'brew' || ev.type === 'bean' || ev.type === 'gear';
                     const theirs = isRec ? cloudRec(ev) : null;
                     if (x.landedAt || landed.has(`${ev.type}:${ev.id}:${ev.eventAt}`)) {
@@ -821,7 +829,7 @@
                         for (const x of (this.outbox || []).filter(y => this.outboxDue(y))) {
                             if ((x.tries || 0) >= 15) {   // the sheet keeps refusing it: stop, and say so
                                 this.outbox = (this.outbox || []).filter(y => y !== x); this.saveOutbox();
-                                this.showToast('One change couldn\'t be saved (the sheet kept refusing it).');
+                                this.showToast(Cloud.confirms ? 'One change couldn\'t be saved (it was refused).' : 'One change couldn\'t be saved (the sheet kept refusing it).');
                                 continue;
                             }
                             if ((x.tries || 0) >= 3 && x.ev.type === 'brew' && x.ev.photo && /^data:/i.test(String(x.ev.photo.url || ''))) {
@@ -831,7 +839,16 @@
                             }
                             x.tries = (x.tries || 0) + 1; x.lastTry = Date.now();
                             this.saveOutbox();
-                            try { await this.postEvent(x.ev); x.netFail = false; sent++; } catch (e) { x.netFail = true; x.tries = Math.max(0, x.tries - 1); console.error('Push error:', e); }   // no connection doesn't count toward giving up
+                            try {
+                                const r = await this.postEvent(x.ev); x.netFail = false; sent++;
+                                // v14.2: the new backend answers, so a save it accepted is done (unless a newer edit replaced it meanwhile)
+                                if (r && r.landed && Cloud.confirms && (this.outbox || []).includes(x)) { x.landedAt = Date.now(); x.confirmed = true; this.saveOutbox(); }
+                            } catch (e) {
+                                if (e && e.refused && Cloud.confirms && !e.signedOut) { x.netFail = false; }   // the server said no: counts toward giving up
+                                else if (e && e.signedOut) { x.netFail = false; x.tries = Math.max(0, x.tries - 1); x.lastTry = 0; this.saveOutbox(); if (this.needSignIn) this.needSignIn(); }   // signed out: it goes as soon as they sign in again (even after a reload)
+                                else { x.netFail = true; x.tries = Math.max(0, x.tries - 1); }   // no connection doesn't count toward giving up
+                                console.error('Push error:', e);
+                            }
                         }
                     } while (this._flushAgain);
                 } finally {

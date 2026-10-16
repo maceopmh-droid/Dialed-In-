@@ -1,6 +1,7 @@
         const app = {
-            user: safeGet('dialed_user'),
-            users: safeParse(safeGet('dialed_users'), ['Maceo', 'Aidan', 'Julian']),
+            // v14.2: on the new backend you are who you signed in as (never a name picked on this phone before), and the server sends the list
+            user: Supa.on() ? Cloud.who() : safeGet('dialed_user'),
+            users: Supa.on() ? (Cloud.who() ? [Cloud.who()] : []) : safeParse(safeGet('dialed_users'), ['Maceo', 'Aidan', 'Julian']),
             userColors: safeParse(safeGet('dialed_user_colors'), {}),
             equipment: safeParse(safeGet('dialed_equipment'), []),
             lastEquipment: safeParse(safeGet('dialed_last_equipment'), {}),

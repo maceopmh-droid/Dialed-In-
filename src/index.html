@@ -28,6 +28,7 @@
 @@include css/08-v12.css
 @@include css/09-roasters-v13.css
 @@include css/10-v14.css
+@@include css/11-account.css
     </style>
 </head>
 <body>
@@ -327,7 +328,7 @@
                 <button type="button" data-theme-opt="dark" onclick="app.setThemePref('dark')">Dark</button>
             </div>
             
-            <label>Active User</label>
+            <label id="user-list-label">Active User</label>
             <div id="user-list" style="display:grid; gap:0.6rem; margin-bottom: 0.6rem;"></div>
             <p class="settings-note">Switch off anyone who only brews now and then. They won't count toward the weekly group goal or show up in it.</p>
 
@@ -340,7 +341,7 @@
                 </div>
             </div>
             
-            <div style="display:flex; gap:12px;">
+            <div id="add-user-row" style="display:flex; gap:12px;">
                 <input type="text" id="new-user-input" placeholder="Name" style="margin:0;">
                 <button class="btn-outline" style="width:auto; padding: 12px 24px;" onclick="app.addUser()">+ Add</button>
             </div>
@@ -675,6 +676,7 @@
 @@include js/app/25-flavor-detail.js
 @@include js/app/26-likes-comments-forms.js
 @@include js/app/27-settings-equipment-misc.js
+@@include js/app/28-account.js
 @@include js/99-boot.js
     </script>
 </body>

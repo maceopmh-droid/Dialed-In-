@@ -165,6 +165,14 @@
                     });
                 };
 
+                // a comment counts toward its writer's "comments written" the first time it's seen
+                const countComment = (comment, fallbackActor, ts, kind, id) => {
+                    const commentActor = String(comment.user || fallbackActor || 'Unknown');
+                    const commenterStats = this.getAchievementStatsForUser(statsByUser, commentActor);
+                    commenterStats.commentsWritten += 1;
+                    appendUnlocks(this.evaluateAchievementUnlocks(commentActor, commenterStats, levelsByUser, comment.timestamp || ts, kind, id), kind, id);
+                };
+
                 events.forEach(event => {
                     const ts = event.date || event.eventAt || new Date().toISOString();
                     if ((event.type === 'brew' && !this.brews.has(String(event.id))) || (event.type === 'bean' && !this.beans.has(String(event.id)))) return;   // v13.4: deleted since
@@ -218,15 +226,17 @@
                             const seenCommentIds = new Set((prevBean.comments || []).map(comment => String(comment.id || '')));
                             comments.forEach(comment => {
                                 if (seenCommentIds.has(String(comment.id || ''))) return;
-                                const commentActor = String(comment.user || actor || 'Unknown');
-                                const commenterStats = this.getAchievementStatsForUser(statsByUser, commentActor);
-                                commenterStats.commentsWritten += 1;
-                                appendUnlocks(
-                                    this.evaluateAchievementUnlocks(commentActor, commenterStats, levelsByUser, comment.timestamp || ts, 'bean', beanId),
-                                    'bean',
-                                    beanId
-                                );
+                                countComment(comment, actor, ts, 'bean', beanId);
                             });
+                        } else {
+                            // v14.2: a coffee that arrives with likes or comments already on it counts them now. The new
+                            // backend sends each record once, as it is today; from the Sheet a coffee's first save has none.
+                            if (likes.length) {
+                                const ownerStats = this.getAchievementStatsForUser(statsByUser, owner);
+                                ownerStats.likesReceived += likes.length;
+                                appendUnlocks(this.evaluateAchievementUnlocks(owner, ownerStats, levelsByUser, ts, 'bean', beanId), 'bean', beanId);
+                            }
+                            comments.forEach(comment => countComment(comment, actor, ts, 'bean', beanId));
                         }
 
                         beanStates.set(beanId, {
@@ -269,6 +279,7 @@
                     ownerStats.likesReceived = Math.max(0, ownerStats.likesReceived + likeDelta);
 
                     if (!prev) {
+                        nextComments.forEach(comment => { if (String(comment.id || '')) countComment(comment, actor, ts, 'brew', brewId); });   // v14.2: as for coffees
                         const bean = this.beans.get(event.beanId);
                         const beanName = bean ? `${bean.roaster || ''} ${bean.name || ''}`.trim() : 'Coffee';
                         items.push({
@@ -289,14 +300,7 @@
                         nextComments.forEach(comment => {
                             const id = String(comment.id || '');
                             if (!id || seen.has(id)) return;
-                            const commentActor = String(comment.user || actor || 'Unknown');
-                            const commenterStats = this.getAchievementStatsForUser(statsByUser, commentActor);
-                            commenterStats.commentsWritten += 1;
-                            appendUnlocks(
-                                this.evaluateAchievementUnlocks(commentActor, commenterStats, levelsByUser, comment.timestamp || ts, 'brew', brewId),
-                                'brew',
-                                brewId
-                            );
+                            countComment(comment, actor, ts, 'brew', brewId);
                         });
                     }
 

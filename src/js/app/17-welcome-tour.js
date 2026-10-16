@@ -72,10 +72,10 @@
                         <div class="wl-hero"><div class="wl-glow"></div><div class="wl-shape" id="wl-shape"></div></div>
                         <h1 class="wl-h1">Dial in every cup.</h1>
                         <p class="wl-lead">Log your brews, see what your friends are pulling, and get a coach that tells you exactly what to change next.</p>
-                        ${G.rows.length ? `<div class="wl-proof">${this.wlFaces(G.rows)}<span>${esc(this.wlNames(G.rows))} · ${esc(G.sessions.toLocaleString())} sessions logged</span></div>` : ''}
+                        ${G.rows.length && !(this.acctOn() && !G.sessions) ? `<div class="wl-proof">${this.wlFaces(G.rows)}<span>${esc(this.wlNames(G.rows))} · ${esc(G.sessions.toLocaleString())} sessions logged</span></div>` : ''}
                         <div class="wl-actions">
-                            <button type="button" class="btn-primary wl-main" onclick="app.wlGo('name')">I'm new to Dialed In</button>
-                            <button type="button" class="btn-outline wl-second" onclick="app.wlGo('returning')">I've been here before</button>
+                            <button type="button" class="btn-primary wl-main" onclick="${this.acctOn() ? "app.wlStart('new')" : "app.wlGo('name')"}">I'm new to Dialed In</button>
+                            <button type="button" class="btn-outline wl-second" onclick="${this.acctOn() ? "app.wlStart('back')" : "app.wlGo('returning')"}">I've been here before</button>
                         </div>
                     </div>`;
                 } else if (s.step === 'returning') {
@@ -156,6 +156,7 @@
                         </div>
                     </div>`;
                 }
+                if (s.step === 'email' || s.step === 'code' || s.step === 'claim') html = this.acctStepHtml(s);   // v14.2: signing in (new backend only)
                 if (this.wlHeroView && this.wlHeroView.stop) this.wlHeroView.stop();
                 wrap.innerHTML = html;
                 const view = document.getElementById('welcome-view'); if (view) view.scrollTop = 0;
@@ -185,8 +186,9 @@
                 if (step === 'gear' && s.step === 'name') {
                     const n = String(s.name || '').trim().replace(/\s+/g, ' ');
                     if (!this.validPersonName(n)) { this.wlShake('wl-name'); return; }
-                    if (this.wlTaken(n)) { this.wlName(n); this.wlShake('wl-name'); return; }
+                    if (this.wlTaken(n) && !this.acctOn()) { this.wlName(n); this.wlShake('wl-name'); return; }
                     s.name = n;
+                    if (this.acctOn() && !(Supa.session() || {}).profile) { this.acctCreate(); return; }   // v14.2: the name becomes your profile (the server checks it's free)
                 }
                 s.step = step;
                 this.renderWelcome();
@@ -207,9 +209,9 @@
                 const n = s.name.trim(), taken = this.wlTaken(n), box = document.getElementById('wl-taken'), next = document.getElementById('wl-next');
                 if (box) {
                     box.hidden = !taken;
-                    box.innerHTML = taken ? `<span>There's already a <b>${this.esc(taken)}</b> here.</span><button type="button" class="wl-pill on" data-person="${this.esc(taken)}" onclick="app.wlPick(this.getAttribute('data-person'))">That's me</button>` : '';
+                    box.innerHTML = taken ? (this.acctOn() ? `<span>There's already a <b>${this.esc(taken)}</b> here. Try another name.</span>` : `<span>There's already a <b>${this.esc(taken)}</b> here.</span><button type="button" class="wl-pill on" data-person="${this.esc(taken)}" onclick="app.wlPick(this.getAttribute('data-person'))">That's me</button>`) : '';
                 }
-                if (next) next.disabled = !this.validPersonName(n) || Boolean(taken);
+                if (next) next.disabled = !this.validPersonName(n) || Boolean(taken) || (this.acctOn() && n.length < 2);
                 const prev = document.getElementById('wl-preview');
                 if (prev) {
                     const name = n || 'You', c = s.color;
@@ -307,15 +309,19 @@
 
             wlFinish(skipCoffee = false) {
                 const s = this.wl; if (!s) return;
-                const name = String(s.name || '').trim(); if (!this.validPersonName(name) || this.wlTaken(name)) { s.step = 'name'; this.renderWelcome(); return; }
+                const acct = this.acctOn() && (Supa.session() || {}).profile;   // v14.2: on the new backend you already are your profile
+                const name = acct ? String(acct.name) : String(s.name || '').trim(); if (!acct && (!this.validPersonName(name) || this.wlTaken(name))) { s.step = 'name'; this.renderWelcome(); return; }
                 const b = s.bean;
                 if (!skipCoffee && !s.pick && (b.roaster.trim() || b.name.trim()) && !(b.roaster.trim() && b.name.trim())) { this.wlShake(b.roaster.trim() ? 'wl-b-name' : 'wl-b-roaster'); this.showToast('Add both the roaster and the coffee name, or skip for now.'); return; }
                 const now = new Date().toISOString(), color = s.color || this.wlFreeColor();
                 // you
-                this.users.push(name); safeSet('dialed_users', JSON.stringify(this.users));
-                this.setUserColor(name, color, true);
-                this.user = name; safeSet('dialed_user', name);
-                this.registerPerson(name, { joinedAt: now, color });
+                if (acct) { this.user = name; this.setUserColor(name, color, true); }
+                else {
+                    this.users.push(name); safeSet('dialed_users', JSON.stringify(this.users));
+                    this.setUserColor(name, color, true);
+                    this.user = name; safeSet('dialed_user', name);
+                    this.registerPerson(name, { joinedAt: now, color });
+                }
                 // your gear
                 this.equipment = s.gear.map((g, i) => ({ id: `${Date.now() + i}`, name: g.name, type: g.type }));
                 this.lastEquipment = {};

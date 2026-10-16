@@ -41,13 +41,30 @@ Saving, syncing, the outbox and merging all live in `src/js/app/05-sync-and-savi
 
 Since v14.2 the app reaches the backend in exactly one place, `Cloud` in `src/js/02-cloud.js`:
 
-- `Cloud.pull({ since, version, anchor }, { signal })` downloads everything newer than `since` and resolves to the reply's text.
-- `Cloud.send(event, { signal })` sends one event. The Sheet's reply can't be read, so the next pull confirms it landed.
-- `Cloud.id` names the backend in the on-device copy of the log and in the outbox. It's still the Sheet's address,
-  so phones keep their saved copy and anything waiting in their outbox.
+- `Cloud.pull({ since, version, anchor }, { signal })` downloads what's new and resolves to the reply's text.
+- `Cloud.send(event, { signal })` sends one event.
+- `Cloud.id` names the backend in the on-device copy of the log and in the outbox (a different backend, or a
+  different signed-in account, starts fresh).
+- `Cloud.confirms` says whether a send's answer can be trusted. The Sheet's can't (it's sent no-cors), so the next
+  pull confirms a save landed. Supabase answers, so a save it accepted is done.
+- `Cloud.who()` is the signed-in person's name on Supabase, and null on the Sheet (where you pick who you are).
+
+Two backends sit behind it:
+
+- **The Google Sheet** (`SheetCloud`), what everyone uses today. `Cloud.id` is still the Sheet's address, so phones
+  keep their saved copy and anything waiting in their outbox.
+- **Supabase** (`SupaCloud`, with sign-in and photos in `Supa`), off until there's a project. It turns on for
+  everyone when `SUPABASE` gets the project's address and public key and `live: true`, or for one phone when
+  `localStorage.dialed_supabase` holds `{ "url": ..., "anonKey": ... }`. People sign in with a code sent to their
+  email, then claim their Sheet-era name with a one-time code (or make a new profile). A pull calls the database
+  function `pull_events()` and gets everything that person may see, in the same event format the app already
+  reads. A save calls `push_event(ev)`. Photos upload to the person's own storage folder and come back through
+  links that expire. See `supabase/README.md`.
 
 Nothing else in the app calls `fetch` for data (the only other `fetch` is the self-update check, which reads
-`index.html`). Moving to a new backend means giving `Cloud` a new implementation; the screens don't change.
+`index.html`). The screens don't know which backend they're on.
+
+To try the app against Supabase without a project, run the stand-in (`supabase/dev_server.js`, below).
 
 ## History
 
@@ -57,6 +74,9 @@ turned that into `src/`. The first build from `src/` is byte-for-byte the live v
 source of truth and the patch modules are frozen history.
 
 ## Tests
+
+Here, and on every push (`.github/workflows/checks.yml`): the build check, the privacy rules
+(`supabase/test_rls.py`) and the app's database calls (`supabase/test_api.js`), on a throwaway Postgres.
 
 The full test battery (the in-app self-test with about 11,400 checks, the browser suites, the 73 feature tests
 and the 104 backend tests) lives in the private build kit, not here. Several suites run on a copy of the real

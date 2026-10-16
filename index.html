@@ -3238,6 +3238,19 @@
             .profile-section[data-section] { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
             .profile-section[data-section] > .panel-empty { grid-column: 1 / -1; }
         }
+        /* v14.2: signing in (new backend only) */
+        .wl-code { text-align: center; font-size: 1.5rem; letter-spacing: 0.32em; font-variant-numeric: tabular-nums; padding-left: calc(16px + 0.32em); }
+        .wl-code::placeholder { letter-spacing: 0.32em; color: rgba(var(--hair-rgb), 0.28); }
+        #wl-claim.wl-code { font-size: 1.15rem; letter-spacing: 0.08em; padding-left: 16px; }
+        #wl-claim.wl-code::placeholder { letter-spacing: 0; }
+        .wl-main.is-busy { opacity: 0.6; pointer-events: none; }
+        .acct-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 4px 0 10px; margin-bottom: 4px; border-bottom: 1px solid var(--line); }
+        .acct-dot { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-style: normal; font-weight: 700; font-size: 0.95rem; }
+        .acct-who { display: grid; min-width: 0; }
+        .acct-who b { font-size: 1rem; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .acct-who small { font-size: 0.82rem; color: var(--muted, rgba(var(--hair-rgb), 0.6)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .acct-out { width: auto !important; padding: 9px 16px !important; margin: 0 !important; }
+        .user-switch.acct-name:disabled { opacity: 1; cursor: default; }
     </style>
 </head>
 <body>
@@ -3537,7 +3550,7 @@
                 <button type="button" data-theme-opt="dark" onclick="app.setThemePref('dark')">Dark</button>
             </div>
             
-            <label>Active User</label>
+            <label id="user-list-label">Active User</label>
             <div id="user-list" style="display:grid; gap:0.6rem; margin-bottom: 0.6rem;"></div>
             <p class="settings-note">Switch off anyone who only brews now and then. They won't count toward the weekly group goal or show up in it.</p>
 
@@ -3550,7 +3563,7 @@
                 </div>
             </div>
             
-            <div style="display:flex; gap:12px;">
+            <div id="add-user-row" style="display:flex; gap:12px;">
                 <input type="text" id="new-user-input" placeholder="Name" style="margin:0;">
                 <button class="btn-outline" style="width:auto; padding: 12px 24px;" onclick="app.addUser()">+ Add</button>
             </div>
@@ -4292,9 +4305,20 @@
 
         // *** CONFIGURATION ***
         const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbxwOpOjQr2Um3y_YIddTIsn8yLAEqyQo5BnF001N9E58O4cT9x-7tMM6XGviIGTkNJp-Q/exec';
+        // v14.2 (phase 2): the Supabase project. Empty until there is one, and `live` stays false until everyone moves
+        // over together. A phone can try it early when 'dialed_supabase' in local storage holds { url, anonKey }.
+        const SUPABASE = { url: '', anonKey: '', live: false };
+        // to try it on one phone before everyone moves: open the app once with ?backend=supabase (and ?backend=sheet to go back)
+        try {
+            const pick = new URLSearchParams(location.search).get('backend');
+            if (pick === 'supabase' && SUPABASE.url && SUPABASE.anonKey) localStorage.setItem('dialed_supabase', JSON.stringify({ url: SUPABASE.url, anonKey: SUPABASE.anonKey }));
+            else if (pick === 'sheet') localStorage.removeItem('dialed_supabase');
+        } catch (e) {}
+
         // v14.2: the one door to the backend. Every load and save in the app goes through Cloud, so a new backend
-        // can be swapped in here without touching the screens. Today it's the Google Sheet (Apps Script).
-        const Cloud = {
+        // can be swapped in here without touching the screens.
+        // Today it's the Google Sheet (Apps Script).
+        const SheetCloud = {
             // names this backend in the on-device copy of the log and in the outbox (a different backend starts fresh)
             id: CLOUD_URL,
             // everything newer than `since`; resolves to the reply's text (JSON)
@@ -4308,6 +4332,152 @@
                 return fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(ev), ...(signal ? { signal } : {}) });
             }
         };
+
+        // Supabase: sign in by email code, then the same two calls as database functions (pull_events, push_event).
+        // The database decides what each person may see and change; the phone only keeps its sign-in.
+        const Supa = {
+            CFG: 'dialed_supabase', SESSION: 'dialed_supabase_session',
+            store(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || 'null'); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} return null; },
+            cfg() {
+                const o = this.store(this.CFG);
+                if (o && o.url && o.anonKey) return o;
+                return SUPABASE.live && SUPABASE.url && SUPABASE.anonKey ? SUPABASE : null;
+            },
+            on() { return Boolean(this.cfg()); },
+            session() { return this.store(this.SESSION); },
+            base() { return String(this.cfg().url).replace(/\/+$/, ''); },
+            // signed in, with a profile (a claimed Sheet-era name or a new one)
+            ready() { const s = this.session(); return Boolean(s && s.refresh_token && s.profile && s.profile.name); },
+            async call(path, body, { auth = true, signal, raw = false, headers = {}, method = 'POST', retried = false } = {}) {
+                const c = this.cfg();
+                if (!c) throw new Error('No backend is set up.');
+                const h = { apikey: c.anonKey, ...headers };
+                if (body !== undefined && !(body instanceof Blob)) h['Content-Type'] = 'application/json';
+                if (auth) h.Authorization = 'Bearer ' + await this.token();
+                const res = await fetch(this.base() + path, { method, headers: h, ...(body !== undefined ? { body: body instanceof Blob ? body : JSON.stringify(body) } : {}), ...(signal ? { signal } : {}) });
+                const text = await res.text();
+                if (res.status === 401 && auth && !retried) {   // the token ran out on the way (or the phone's clock is off): renew it once and try again
+                    const s = this.session(); if (s && s.refresh_token) this.store(this.SESSION, { ...s, expires_at: 0 });
+                    return this.call(path, body, { auth, signal, raw, headers, method, retried: true });
+                }
+                if (!res.ok) {
+                    let j = {}; try { j = JSON.parse(text); } catch (e) {}
+                    const err = new Error(j.message || j.msg || j.error_description || j.error || ('Error ' + res.status));
+                    err.status = res.status;
+                    err.refused = res.status >= 400 && res.status < 500 && res.status !== 408 && res.status !== 429;   // the server said no: retrying won't help
+                    if (res.status === 401) err.signedOut = true;
+                    throw err;
+                }
+                return raw ? text : (text ? JSON.parse(text) : null);
+            },
+            rpc(name, args = {}, opts = {}) { return this.call('/rest/v1/rpc/' + name, args, opts); },
+            // what's kept on the phone after signing in or refreshing
+            keep(j, extra = {}) {
+                const prev = this.session() || {};
+                const s = { ...prev, access_token: j.access_token, refresh_token: j.refresh_token || prev.refresh_token,
+                    expires_at: Number(j.expires_at) || Math.floor(Date.now() / 1000) + (Number(j.expires_in) || 3600),
+                    user: j.user ? { id: j.user.id, email: j.user.email || '' } : prev.user, ...extra };
+                this.store(this.SESSION, s);
+                return s;
+            },
+            async token() {
+                const s = this.session();
+                if (!s || !s.refresh_token) throw Object.assign(new Error('Sign in to sync.'), { refused: true, signedOut: true });
+                if (s.access_token && Number(s.expires_at) - 60 > Date.now() / 1000) return s.access_token;
+                if (!this._refreshing) {
+                    this._refreshing = this.call('/auth/v1/token?grant_type=refresh_token', { refresh_token: s.refresh_token }, { auth: false })
+                        .then(j => this.keep(j).access_token)
+                        .catch(e => {
+                            // the sign-in ran out or was revoked: keep the profile (so the phone stays on this backend) and ask to sign in again
+                            if (e.status === 400 || e.status === 401 || e.status === 403) { this.store(this.SESSION, { ...s, access_token: '', refresh_token: '' }); e.signedOut = true; e.refused = true; }
+                            throw e;
+                        })
+                        .finally(() => { this._refreshing = null; });
+                }
+                return this._refreshing;
+            },
+            sendCode(email) { return this.call('/auth/v1/otp', { email: String(email || '').trim(), create_user: true }, { auth: false }); },
+            // resolves to the profile ({ id, name, handle }) or null when this account has none yet
+            async verify(email, code) {
+                const j = await this.call('/auth/v1/verify', { type: 'email', email: String(email || '').trim(), token: String(code || '').replace(/\s+/g, '') }, { auth: false });
+                const prev = this.session() || {};
+                const same = prev.user && j.user && prev.user.id === j.user.id;
+                this.store(this.SESSION, null);
+                this.keep(j, { profile: same ? prev.profile || null : null });
+                const p = await this.rpc('my_profile');
+                this.store(this.SESSION, { ...this.session(), profile: p || null });
+                return p || null;
+            },
+            async claim(code) { const p = await this.rpc('claim_name', { code }); this.store(this.SESSION, { ...this.session(), profile: p }); return p; },
+            async createProfile(name, color) { const p = await this.rpc('create_profile', { name, color: color || null }); this.store(this.SESSION, { ...this.session(), profile: p }); return p; },
+            signOut() {
+                const s = this.session();
+                this.store(this.SESSION, null);
+                if (s && s.access_token) { try { fetch(this.base() + '/auth/v1/logout', { method: 'POST', headers: { apikey: this.cfg().anonKey, Authorization: 'Bearer ' + s.access_token } }).catch(() => {}); } catch (e) {} }
+            },
+
+            // ---- photos: uploaded to your own folder; read through links that expire (asked for in one batch per pull)
+            links: new Map(),   // stored path -> { url, until }
+            fingerprint(text) { let h = 5381; for (let i = 0; i < text.length; i += 1) h = ((h << 5) + h + text.charCodeAt(i)) | 0; return (h >>> 0).toString(36) + text.length.toString(36); },
+            async uploadPhoto(dataUrl, sessionId, { signal } = {}) {
+                const s = this.session();
+                const m = /^data:(image\/[a-z0-9.+-]+);base64,(.*)$/i.exec(String(dataUrl || ''));
+                if (!m || !s || !s.user) throw Object.assign(new Error('That photo can\'t be uploaded.'), { refused: true });
+                const bin = atob(m[2]); const bytes = new Uint8Array(bin.length);
+                for (let i = 0; i < bin.length; i += 1) bytes[i] = bin.charCodeAt(i);
+                const ext = (m[1].split('/')[1] || 'jpg').replace('jpeg', 'jpg').replace(/[^a-z0-9]/gi, '');
+                // the same photo always gets the same name, so a retry overwrites instead of leaving copies
+                const name = `${s.user.id}/${String(sessionId).replace(/[^a-zA-Z0-9_-]/g, '')}-${this.fingerprint(m[2])}.${ext}`;
+                await this.call('/storage/v1/object/photos/' + name, new Blob([bytes], { type: m[1] }), { signal, headers: { 'Content-Type': m[1], 'x-upsert': 'true' } });
+                return 'sb:' + name;
+            },
+            async linkPhotos(events, { signal } = {}) {
+                const now = Date.now();
+                const want = [...new Set(events.filter(e => e && e.type === 'brew' && e.photo && /^sb:/.test(String(e.photo.path || ''))).map(e => e.photo.path))]
+                    .filter(p => !(this.links.get(p) && this.links.get(p).until > now));
+                for (let i = 0; i < want.length; i += 100) {
+                    const batch = want.slice(i, i + 100);
+                    const out = await this.call('/storage/v1/object/sign/photos', { expiresIn: 7200, paths: batch.map(p => p.slice(3)) }, { signal });
+                    // a link is reused for an hour, so it always has at least an hour left (and the reply text stays the same between syncs)
+                    (Array.isArray(out) ? out : []).forEach((r, k) => {
+                        const p = 'sb:' + (r && r.path ? r.path : batch[k].slice(3));
+                        const url = r && r.signedURL ? this.base() + '/storage/v1' + (r.signedURL[0] === '/' ? '' : '/') + r.signedURL : this.base() + '/storage/v1/object/missing';
+                        this.links.set(p, { url, until: now + 3600000 });
+                    });
+                }
+                events.forEach(e => { if (e && e.type === 'brew' && e.photo && this.links.get(e.photo.path)) e.photo = { ...e.photo, url: this.links.get(e.photo.path).url }; });
+                return events;
+            }
+        };
+
+        const SupaCloud = {
+            get id() { const s = Supa.session(); return 'supabase:' + Supa.base() + '#' + ((s && s.user && s.user.id) || 'signed-out'); },
+            confirms: true,   // a save that returns without an error is in: nothing to watch for afterwards
+            async pull(position, { signal } = {}) {
+                const events = await Supa.rpc('pull_events', {}, { signal });
+                if (!Array.isArray(events)) throw new Error('Unexpected sync response.');
+                await Supa.linkPhotos(events, { signal });
+                return JSON.stringify(events);   // everything you may see, every time (the app's "full reply" path)
+            },
+            async send(ev, { signal } = {}) {
+                let out = ev;
+                if (ev && ev.type === 'brew' && ev.photo && /^data:image\//i.test(String(ev.photo.url || ''))) {
+                    out = { ...ev, photo: { path: await Supa.uploadPhoto(ev.photo.url, ev.id, { signal }), source: ev.photo.source || 'library', addedAt: ev.photo.addedAt || new Date().toISOString() } };
+                }
+                await Supa.rpc('push_event', { ev: out }, { signal });
+                return { landed: true, ev: out };
+            }
+        };
+
+        const Cloud = {
+            backend() { return Supa.on() ? SupaCloud : SheetCloud; },
+            get id() { return this.backend().id; },
+            get confirms() { return Boolean(this.backend().confirms); },
+            pull(position, opts) { return this.backend().pull(position, opts); },
+            send(ev, opts) { return this.backend().send(ev, opts); },
+            // the signed-in person's name on Supabase (null on the Sheet, where you pick who you are)
+            who() { const s = Supa.on() && Supa.session(); return s && s.profile && s.profile.name ? String(s.profile.name) : null; }
+        };
         const safeParse = (raw, fallback) => {
             try {
                 const parsed = JSON.parse(raw || '');
@@ -4316,7 +4486,6 @@
                 return fallback;
             }
         };
-
         // Roasters (v13.0): everything about roasters, computed from the logged coffees and sessions each time it's asked for.
         // Plain functions, no DOM: the app calls RoasterEngine.build(app); node tests call it with a small stand-in.
         // ctx needs: beans (Map id -> bean), brews (Map id -> brew), gearByUser (Map user -> gear record),
@@ -4614,8 +4783,9 @@
         function safeGet(k) { try { const v = localStorage.getItem(k); return v === null && memStore.has(k) ? memStore.get(k) : v; } catch (e) { return memStore.has(k) ? memStore.get(k) : null; } }
         function safeSet(k, v) { memStore.set(k, String(v)); try { localStorage.setItem(k, v); } catch (e) {} }
         const app = {
-            user: safeGet('dialed_user'),
-            users: safeParse(safeGet('dialed_users'), ['Maceo', 'Aidan', 'Julian']),
+            // v14.2: on the new backend you are who you signed in as (never a name picked on this phone before), and the server sends the list
+            user: Supa.on() ? Cloud.who() : safeGet('dialed_user'),
+            users: Supa.on() ? (Cloud.who() ? [Cloud.who()] : []) : safeParse(safeGet('dialed_users'), ['Maceo', 'Aidan', 'Julian']),
             userColors: safeParse(safeGet('dialed_user_colors'), {}),
             equipment: safeParse(safeGet('dialed_equipment'), []),
             lastEquipment: safeParse(safeGet('dialed_last_equipment'), {}),
@@ -5248,7 +5418,8 @@
                     url,
                     fileId: String(row.fileId || this.extractDriveFileId(url) || ''),
                     source: String(row.source || 'library'),
-                    addedAt: row.addedAt || new Date().toISOString()
+                    addedAt: row.addedAt || new Date().toISOString(),
+                    ...(row.path ? { path: String(row.path) } : {})   // v14.2: where the new backend stores it (the link expires; this doesn't)
                 };
             },
 
@@ -6070,6 +6241,7 @@
                     const ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
                     const hang = ctl ? setTimeout(() => ctl.abort(), 20000) : null;
                     let text;
+                    const pullStarted = Date.now();
                     try { text = await Cloud.pull(this.syncPosition(), ctl ? { signal: ctl.signal } : {}); } finally { if (hang) clearTimeout(hang); }
                     const json = JSON.parse(text);
                     this.lastCloudAt = Date.now();
@@ -6084,6 +6256,7 @@
                     }
                     this.lastFullReply = Array.isArray(json) ? text : '';
                     const changed = this.mergeCloudResponse(json);
+                    this.pullStartedFor = pullStarted;   // v14.2: saves the new backend confirmed before this pull began are in it
                     this.syncedOnce = true;
                     const colorsBefore = JSON.stringify(this.userColors);
                     this.process(this.cloud.events);
@@ -6100,6 +6273,7 @@
                 } catch (e) {
                     this.syncFailed = true;
                     this.updateBadge('error');
+                    if (e && e.signedOut && this.needSignIn) this.needSignIn();   // v14.2: the new backend's sign-in ran out
                     console.error('Sync error:', e);
                 } finally {
                     this.lastSyncAt = Date.now();
@@ -6556,7 +6730,7 @@
                 }).catch(() => {});
             },
 
-            saveOutbox() { this.idbPut(this.outboxKey(), (this.outbox || []).map(x => ({ k: x.k, ev: x.ev, base: x.base || null, tries: x.tries || 0, lastTry: x.lastTry || 0, at: x.at || 0, landedAt: x.landedAt || 0 }))).catch(() => {}); },
+            saveOutbox() { this.idbPut(this.outboxKey(), (this.outbox || []).map(x => ({ k: x.k, ev: x.ev, base: x.base || null, tries: x.tries || 0, lastTry: x.lastTry || 0, at: x.at || 0, landedAt: x.landedAt || 0, ...(x.confirmed ? { confirmed: true } : {}) }))).catch(() => {}); },
 
             // the record a save replaces (null for something new, a flavor, or a delete of something missing)
             recordOf(p) {
@@ -6614,6 +6788,11 @@
                 };
                 ob.forEach(x => {
                     const ev = x.ev;
+                    // v14.2: the new backend confirmed it; it stays on top until a pull that began after that, which has it
+                    if (x.confirmed) {
+                        if ((this.pullStartedFor || 0) > (x.landedAt || 0)) { changed = true; return; }
+                        keep.push(x); out.push(ev); return;
+                    }
                     const isRec = ev.type === 'brew' || ev.type === 'bean' || ev.type === 'gear';
                     const theirs = isRec ? cloudRec(ev) : null;
                     if (x.landedAt || landed.has(`${ev.type}:${ev.id}:${ev.eventAt}`)) {
@@ -6697,7 +6876,7 @@
                         for (const x of (this.outbox || []).filter(y => this.outboxDue(y))) {
                             if ((x.tries || 0) >= 15) {   // the sheet keeps refusing it: stop, and say so
                                 this.outbox = (this.outbox || []).filter(y => y !== x); this.saveOutbox();
-                                this.showToast('One change couldn\'t be saved (the sheet kept refusing it).');
+                                this.showToast(Cloud.confirms ? 'One change couldn\'t be saved (it was refused).' : 'One change couldn\'t be saved (the sheet kept refusing it).');
                                 continue;
                             }
                             if ((x.tries || 0) >= 3 && x.ev.type === 'brew' && x.ev.photo && /^data:/i.test(String(x.ev.photo.url || ''))) {
@@ -6707,7 +6886,16 @@
                             }
                             x.tries = (x.tries || 0) + 1; x.lastTry = Date.now();
                             this.saveOutbox();
-                            try { await this.postEvent(x.ev); x.netFail = false; sent++; } catch (e) { x.netFail = true; x.tries = Math.max(0, x.tries - 1); console.error('Push error:', e); }   // no connection doesn't count toward giving up
+                            try {
+                                const r = await this.postEvent(x.ev); x.netFail = false; sent++;
+                                // v14.2: the new backend answers, so a save it accepted is done (unless a newer edit replaced it meanwhile)
+                                if (r && r.landed && Cloud.confirms && (this.outbox || []).includes(x)) { x.landedAt = Date.now(); x.confirmed = true; this.saveOutbox(); }
+                            } catch (e) {
+                                if (e && e.refused && Cloud.confirms && !e.signedOut) { x.netFail = false; }   // the server said no: counts toward giving up
+                                else if (e && e.signedOut) { x.netFail = false; x.tries = Math.max(0, x.tries - 1); x.lastTry = 0; this.saveOutbox(); if (this.needSignIn) this.needSignIn(); }   // signed out: it goes as soon as they sign in again (even after a reload)
+                                else { x.netFail = true; x.tries = Math.max(0, x.tries - 1); }   // no connection doesn't count toward giving up
+                                console.error('Push error:', e);
+                            }
                         }
                     } while (this._flushAgain);
                 } finally {
@@ -7658,6 +7846,14 @@
 
             // v13.1: anyone who has logged anything shows up on every device (the list used to live only on each phone)
             syncKnownUsers() {
+                // v14.2: on the new backend the list is you and your private groups, exactly as the server sends it
+                if (this.acctOn && this.acctOn()) {
+                    const next = this.knownPeople();
+                    const changed = next.join('|') !== (this.users || []).join('|');
+                    this.users = next;
+                    this.peopleState().active.forEach(p => { if (p.color && !this.normalizeHexColor(this.userColors[p.name])) this.setUserColor(p.name, p.color, true); });
+                    return changed;
+                }
                 // v14.0: the shared people list, plus anyone who has logged anything
                 // v14.1: a removal wins, whatever records the person has (only this device's own user is kept)
                 const { active, removed } = this.peopleState();
@@ -9221,6 +9417,14 @@
                     });
                 };
 
+                // a comment counts toward its writer's "comments written" the first time it's seen
+                const countComment = (comment, fallbackActor, ts, kind, id) => {
+                    const commentActor = String(comment.user || fallbackActor || 'Unknown');
+                    const commenterStats = this.getAchievementStatsForUser(statsByUser, commentActor);
+                    commenterStats.commentsWritten += 1;
+                    appendUnlocks(this.evaluateAchievementUnlocks(commentActor, commenterStats, levelsByUser, comment.timestamp || ts, kind, id), kind, id);
+                };
+
                 events.forEach(event => {
                     const ts = event.date || event.eventAt || new Date().toISOString();
                     if ((event.type === 'brew' && !this.brews.has(String(event.id))) || (event.type === 'bean' && !this.beans.has(String(event.id)))) return;   // v13.4: deleted since
@@ -9274,15 +9478,17 @@
                             const seenCommentIds = new Set((prevBean.comments || []).map(comment => String(comment.id || '')));
                             comments.forEach(comment => {
                                 if (seenCommentIds.has(String(comment.id || ''))) return;
-                                const commentActor = String(comment.user || actor || 'Unknown');
-                                const commenterStats = this.getAchievementStatsForUser(statsByUser, commentActor);
-                                commenterStats.commentsWritten += 1;
-                                appendUnlocks(
-                                    this.evaluateAchievementUnlocks(commentActor, commenterStats, levelsByUser, comment.timestamp || ts, 'bean', beanId),
-                                    'bean',
-                                    beanId
-                                );
+                                countComment(comment, actor, ts, 'bean', beanId);
                             });
+                        } else {
+                            // v14.2: a coffee that arrives with likes or comments already on it counts them now. The new
+                            // backend sends each record once, as it is today; from the Sheet a coffee's first save has none.
+                            if (likes.length) {
+                                const ownerStats = this.getAchievementStatsForUser(statsByUser, owner);
+                                ownerStats.likesReceived += likes.length;
+                                appendUnlocks(this.evaluateAchievementUnlocks(owner, ownerStats, levelsByUser, ts, 'bean', beanId), 'bean', beanId);
+                            }
+                            comments.forEach(comment => countComment(comment, actor, ts, 'bean', beanId));
                         }
 
                         beanStates.set(beanId, {
@@ -9325,6 +9531,7 @@
                     ownerStats.likesReceived = Math.max(0, ownerStats.likesReceived + likeDelta);
 
                     if (!prev) {
+                        nextComments.forEach(comment => { if (String(comment.id || '')) countComment(comment, actor, ts, 'brew', brewId); });   // v14.2: as for coffees
                         const bean = this.beans.get(event.beanId);
                         const beanName = bean ? `${bean.roaster || ''} ${bean.name || ''}`.trim() : 'Coffee';
                         items.push({
@@ -9345,14 +9552,7 @@
                         nextComments.forEach(comment => {
                             const id = String(comment.id || '');
                             if (!id || seen.has(id)) return;
-                            const commentActor = String(comment.user || actor || 'Unknown');
-                            const commenterStats = this.getAchievementStatsForUser(statsByUser, commentActor);
-                            commenterStats.commentsWritten += 1;
-                            appendUnlocks(
-                                this.evaluateAchievementUnlocks(commentActor, commenterStats, levelsByUser, comment.timestamp || ts, 'brew', brewId),
-                                'brew',
-                                brewId
-                            );
+                            countComment(comment, actor, ts, 'brew', brewId);
                         });
                     }
 
@@ -10639,10 +10839,10 @@
                         <div class="wl-hero"><div class="wl-glow"></div><div class="wl-shape" id="wl-shape"></div></div>
                         <h1 class="wl-h1">Dial in every cup.</h1>
                         <p class="wl-lead">Log your brews, see what your friends are pulling, and get a coach that tells you exactly what to change next.</p>
-                        ${G.rows.length ? `<div class="wl-proof">${this.wlFaces(G.rows)}<span>${esc(this.wlNames(G.rows))} · ${esc(G.sessions.toLocaleString())} sessions logged</span></div>` : ''}
+                        ${G.rows.length && !(this.acctOn() && !G.sessions) ? `<div class="wl-proof">${this.wlFaces(G.rows)}<span>${esc(this.wlNames(G.rows))} · ${esc(G.sessions.toLocaleString())} sessions logged</span></div>` : ''}
                         <div class="wl-actions">
-                            <button type="button" class="btn-primary wl-main" onclick="app.wlGo('name')">I'm new to Dialed In</button>
-                            <button type="button" class="btn-outline wl-second" onclick="app.wlGo('returning')">I've been here before</button>
+                            <button type="button" class="btn-primary wl-main" onclick="${this.acctOn() ? "app.wlStart('new')" : "app.wlGo('name')"}">I'm new to Dialed In</button>
+                            <button type="button" class="btn-outline wl-second" onclick="${this.acctOn() ? "app.wlStart('back')" : "app.wlGo('returning')"}">I've been here before</button>
                         </div>
                     </div>`;
                 } else if (s.step === 'returning') {
@@ -10723,6 +10923,7 @@
                         </div>
                     </div>`;
                 }
+                if (s.step === 'email' || s.step === 'code' || s.step === 'claim') html = this.acctStepHtml(s);   // v14.2: signing in (new backend only)
                 if (this.wlHeroView && this.wlHeroView.stop) this.wlHeroView.stop();
                 wrap.innerHTML = html;
                 const view = document.getElementById('welcome-view'); if (view) view.scrollTop = 0;
@@ -10752,8 +10953,9 @@
                 if (step === 'gear' && s.step === 'name') {
                     const n = String(s.name || '').trim().replace(/\s+/g, ' ');
                     if (!this.validPersonName(n)) { this.wlShake('wl-name'); return; }
-                    if (this.wlTaken(n)) { this.wlName(n); this.wlShake('wl-name'); return; }
+                    if (this.wlTaken(n) && !this.acctOn()) { this.wlName(n); this.wlShake('wl-name'); return; }
                     s.name = n;
+                    if (this.acctOn() && !(Supa.session() || {}).profile) { this.acctCreate(); return; }   // v14.2: the name becomes your profile (the server checks it's free)
                 }
                 s.step = step;
                 this.renderWelcome();
@@ -10774,9 +10976,9 @@
                 const n = s.name.trim(), taken = this.wlTaken(n), box = document.getElementById('wl-taken'), next = document.getElementById('wl-next');
                 if (box) {
                     box.hidden = !taken;
-                    box.innerHTML = taken ? `<span>There's already a <b>${this.esc(taken)}</b> here.</span><button type="button" class="wl-pill on" data-person="${this.esc(taken)}" onclick="app.wlPick(this.getAttribute('data-person'))">That's me</button>` : '';
+                    box.innerHTML = taken ? (this.acctOn() ? `<span>There's already a <b>${this.esc(taken)}</b> here. Try another name.</span>` : `<span>There's already a <b>${this.esc(taken)}</b> here.</span><button type="button" class="wl-pill on" data-person="${this.esc(taken)}" onclick="app.wlPick(this.getAttribute('data-person'))">That's me</button>`) : '';
                 }
-                if (next) next.disabled = !this.validPersonName(n) || Boolean(taken);
+                if (next) next.disabled = !this.validPersonName(n) || Boolean(taken) || (this.acctOn() && n.length < 2);
                 const prev = document.getElementById('wl-preview');
                 if (prev) {
                     const name = n || 'You', c = s.color;
@@ -10874,15 +11076,19 @@
 
             wlFinish(skipCoffee = false) {
                 const s = this.wl; if (!s) return;
-                const name = String(s.name || '').trim(); if (!this.validPersonName(name) || this.wlTaken(name)) { s.step = 'name'; this.renderWelcome(); return; }
+                const acct = this.acctOn() && (Supa.session() || {}).profile;   // v14.2: on the new backend you already are your profile
+                const name = acct ? String(acct.name) : String(s.name || '').trim(); if (!acct && (!this.validPersonName(name) || this.wlTaken(name))) { s.step = 'name'; this.renderWelcome(); return; }
                 const b = s.bean;
                 if (!skipCoffee && !s.pick && (b.roaster.trim() || b.name.trim()) && !(b.roaster.trim() && b.name.trim())) { this.wlShake(b.roaster.trim() ? 'wl-b-name' : 'wl-b-roaster'); this.showToast('Add both the roaster and the coffee name, or skip for now.'); return; }
                 const now = new Date().toISOString(), color = s.color || this.wlFreeColor();
                 // you
-                this.users.push(name); safeSet('dialed_users', JSON.stringify(this.users));
-                this.setUserColor(name, color, true);
-                this.user = name; safeSet('dialed_user', name);
-                this.registerPerson(name, { joinedAt: now, color });
+                if (acct) { this.user = name; this.setUserColor(name, color, true); }
+                else {
+                    this.users.push(name); safeSet('dialed_users', JSON.stringify(this.users));
+                    this.setUserColor(name, color, true);
+                    this.user = name; safeSet('dialed_user', name);
+                    this.registerPerson(name, { joinedAt: now, color });
+                }
                 // your gear
                 this.equipment = s.gear.map((g, i) => ({ id: `${Date.now() + i}`, name: g.name, type: g.type }));
                 this.lastEquipment = {};
@@ -11255,6 +11461,13 @@
             },
 
             knownPeople() {
+                // v14.2: on the new backend your people are you and your private groups, as the server lists them (coffees and
+                // sessions others can see don't make their owners part of your group)
+                if (this.acctOn && this.acctOn()) {
+                    const names = [this.user, ...[...this.peopleState().active.values()].map(p => p.name)].filter(n => n && n !== 'Unknown');
+                    const list = [...new Set(names)].sort((a, b) => a.localeCompare(b));
+                    return this.user && list.includes(this.user) ? [this.user, ...list.filter(n => n !== this.user)] : list;
+                }
                 const gone = this.removedPeople();   // v14.1: removed people leave every list (their sessions stay)
                 const set = new Set((this.users || []).filter(Boolean));
                 const addLogged = n => { n = String(n || ''); if (n && (n === this.user || !gone.has(n.toLowerCase()))) set.add(n); };
@@ -14744,6 +14957,11 @@
                 this.renderThemeControl();
                 const list = document.getElementById('user-list');
                 list.innerHTML = '';
+                // v14.2: on the new backend you are who you signed in as: your account and Sign out, then the goal switches
+                const acct = this.acctOn();
+                const label = document.getElementById('user-list-label'); if (label) label.textContent = acct ? 'You' : 'Active User';
+                const addRow = document.getElementById('add-user-row'); if (addRow) addRow.style.display = acct ? 'none' : 'flex';
+                if (acct) { const me = document.createElement('div'); me.innerHTML = this.acctSettingsHtml(); list.appendChild(me.firstElementChild); }
                 const head = document.createElement('div');
                 head.className = 'user-head';
                 head.innerHTML = '<span>Counts in group goal</span>';
@@ -14763,7 +14981,9 @@
                         selectBtn.style.background = color;
                         selectBtn.style.color = 'white';
                     }
+                    if (acct) { selectBtn.disabled = true; selectBtn.classList.add('acct-name'); }
                     selectBtn.onclick = () => {
+                        if (acct) return;
                         this.user = userName;
                         safeSet('dialed_user', userName);
                         this.applyGearFromCloud();
@@ -14776,7 +14996,7 @@
                     removeBtn.type = 'button';
                     removeBtn.innerText = 'Remove';
                     // people who have logged sessions stay on the list, so Remove only shows when it would work
-                    const removable = this.users.length > 1 && userName !== this.user && !this.hasLoggedData(userName);
+                    const removable = !acct && this.users.length > 1 && userName !== this.user && !this.hasLoggedData(userName);
                     removeBtn.onclick = () => this.deleteUser(userName);
 
                     // v13.2: a real switch for "counts in the group goal" (shared with everyone)
@@ -15310,7 +15530,166 @@
                     chip.classList.toggle('selected', selected.includes(chip.innerText));
                 });
                 if (document.getElementById('note-wheel')) this.renderNotePicker();
-            }
+            },
+            // ===================== v14.2: signing in (only on the new backend; the Sheet never shows any of this) =====================
+            // The welcome gains three steps: your email, the code we email you, and (for people from the Sheet era) the claim
+            // code that brings your name and history over. New people go on to the usual name, gear and coffee steps.
+            acctOn() { return typeof Supa !== 'undefined' && Supa.on(); },
+
+            // from the welcome's first screen: new people and returning people both sign in first
+            wlStart(path) {
+                const s = this.wl; if (!s) return;
+                s.path = path;
+                const sess = Supa.session();
+                if (sess && sess.refresh_token && !sess.profile) { s.step = path === 'back' ? 'claim' : 'name'; this.renderWelcome(); return; }
+                s.email = s.email || (sess && sess.user && sess.user.email) || '';
+                s.step = 'email';
+                this.renderWelcome();
+            },
+
+            acctStepHtml(s) {
+                const esc = v => this.esc(v);
+                const top = back => `<div class="wl-top"><button type="button" class="wl-back" data-go="${back}" onclick="app.wlGo(this.getAttribute('data-go'))"><svg class="icon"><use href="#i-arrow-left"/></svg>Back</button></div>`;
+                const msg = '<div class="wl-taken" id="wl-msg" role="alert" hidden></div>';
+                if (s.step === 'email') {
+                    setTimeout(() => { const i = document.getElementById('wl-email'); if (i && !i.value) i.focus(); }, 60);
+                    return `<div class="wl-step">
+                        ${s.again ? '' : top('intro')}
+                        <h2 class="wl-h2">${s.again ? 'Sign in again.' : (s.path === 'back' ? 'Welcome back.' : 'First, your email.')}</h2>
+                        <p class="wl-sub">${s.again ? 'It\'s been a while, so Dialed In needs to check it\'s you. Your saves are waiting on this phone.' : 'We\'ll email you a 6-digit code to sign in. There\'s no password to remember.'}</p>
+                        <input class="wl-input" id="wl-email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="you@example.com" value="${esc(s.email || '')}" oninput="app.wl.email = this.value" onkeydown="if(event.key==='Enter'){event.preventDefault();app.wlSendCode()}">
+                        ${msg}
+                        <div class="wl-actions"><button type="button" class="btn-primary wl-main" id="wl-busy" onclick="app.wlSendCode()">Send code</button></div>
+                    </div>`;
+                }
+                if (s.step === 'code') {
+                    setTimeout(() => { const i = document.getElementById('wl-code'); if (i) i.focus(); }, 60);
+                    return `<div class="wl-step">
+                        ${top('email')}
+                        <h2 class="wl-h2">Check your email.</h2>
+                        <p class="wl-sub">Enter the 6-digit code we sent to <b>${esc(s.email || '')}</b>.</p>
+                        <input class="wl-input wl-code" id="wl-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" spellcheck="false" oninput="this.value = this.value.replace(/\\D/g, '').slice(0, 6); if (this.value.length === 6) app.wlVerify()" onkeydown="if(event.key==='Enter'){event.preventDefault();app.wlVerify()}">
+                        ${msg}
+                        <div class="wl-actions">
+                            <button type="button" class="btn-primary wl-main" id="wl-busy" onclick="app.wlVerify()">Sign in</button>
+                            <button type="button" class="wl-link" onclick="app.wlSendCode(true)">Send a new code</button>
+                        </div>
+                    </div>`;
+                }
+                if (s.step === 'claim') {
+                    setTimeout(() => { const i = document.getElementById('wl-claim'); if (i) i.focus(); }, 60);
+                    return `<div class="wl-step">
+                        <h2 class="wl-h2">Bring your sessions over.</h2>
+                        <p class="wl-sub">Enter your claim code. It links this sign-in to your name and everything you've logged.</p>
+                        <input class="wl-input wl-code" id="wl-claim" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="40" placeholder="Claim code" onkeydown="if(event.key==='Enter'){event.preventDefault();app.wlClaim()}">
+                        ${msg}
+                        <div class="wl-actions">
+                            <button type="button" class="btn-primary wl-main" id="wl-busy" onclick="app.wlClaim()">Continue</button>
+                            <button type="button" class="wl-link" onclick="app.wlGo('name')">No code? Set up a new profile</button>
+                        </div>
+                    </div>`;
+                }
+                return '';
+            },
+
+            // a message under the field (in place of the "already taken" line), or none
+            wlSay(text) { const box = document.getElementById('wl-msg') || document.getElementById('wl-taken'); if (!box) { if (text) this.showToast(text); return; } box.hidden = !text; box.innerHTML = text ? `<span>${this.esc(text)}</span>` : ''; },
+            async wlBusy(fn) {
+                const b = document.getElementById('wl-busy') || document.getElementById('wl-next');
+                if (b && b.disabled) return;
+                if (b) { b.disabled = true; b.classList.add('is-busy'); }
+                try { await fn(); } catch (e) {
+                    const m = String((e && e.message) || '');
+                    this.wlSay(/fetch|network|load failed/i.test(m) ? 'No connection. Try again in a moment.' : (/expired|invalid/i.test(m) ? 'That code didn\'t work. Check it, or send a new one.' : m || 'Something went wrong. Try again.'));
+                } finally { if (b && document.body.contains(b)) { b.disabled = false; b.classList.remove('is-busy'); } }
+            },
+
+            wlSendCode(again = false) {
+                const s = this.wl; if (!s) return;
+                const email = String(s.email || '').trim();
+                if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { if (s.step === 'email') { this.wlShake('wl-email'); this.wlSay('Enter your email address.'); } return; }
+                return this.wlBusy(async () => {
+                    await Supa.sendCode(email);
+                    s.email = email;
+                    if (s.step !== 'code') { s.step = 'code'; this.renderWelcome(); }
+                    if (again) this.showToast('A new code is on its way.');
+                });
+            },
+
+            wlVerify() {
+                const s = this.wl; const el = document.getElementById('wl-code'); if (!s || !el) return;
+                const code = el.value.replace(/\D/g, '');
+                if (code.length !== 6) { this.wlShake('wl-code'); return; }
+                return this.wlBusy(async () => {
+                    const was = (Supa.session() || {}).profile;
+                    const p = await Supa.verify(s.email, code);
+                    if (p) { this.acctReady(p, was); return; }
+                    s.step = s.path === 'back' ? 'claim' : 'name';
+                    this.renderWelcome();
+                });
+            },
+
+            wlClaim() {
+                const el = document.getElementById('wl-claim'); if (!el) return;
+                const code = el.value.trim();
+                if (!code) { this.wlShake('wl-claim'); return; }
+                return this.wlBusy(async () => { const p = await Supa.claim(code); this.acctReady(p, null); });
+            },
+
+            // the name step on the new backend: the name is checked by the server (it's unique) and becomes your profile
+            acctCreate() {
+                const s = this.wl; if (!s) return;
+                const n = String(s.name || '').trim().replace(/\s+/g, ' ');
+                if (!this.validPersonName(n) || n.length < 2) { this.wlShake('wl-name'); return; }
+                return this.wlBusy(async () => {
+                    const p = await Supa.createProfile(n, s.color || this.wlFreeColor());
+                    s.name = p.name;
+                    this.user = p.name;
+                    this.setUserColor(p.name, s.color || this.wlFreeColor(), true);
+                    s.step = 'gear';
+                    this.renderWelcome();
+                });
+            },
+
+            // signed in with a profile: start over as that person (the on-phone copy and outbox are per account)
+            acctReady(profile, was) {
+                const same = was && profile && was.id === profile.id;
+                if (same && this.welcomeOpen && this.wl && this.wl.again) {   // signed in again as the same person: carry on
+                    this.closeWelcome(); this.user = profile.name; this.sync({ silent: true }); this.showToast('Signed in.'); return;
+                }
+                this.showToast(`Welcome, ${profile.name}.`);
+                setTimeout(() => location.reload(), 350);
+            },
+
+            // the sign-in ran out (or was revoked somewhere else): ask for the email code again, once
+            needSignIn() {
+                if (!this.acctOn() || this.welcomeOpen) return;
+                const sess = Supa.session() || {};
+                // whatever was open (a coffee page, a form) would sit on top of the welcome: close it first
+                try { this.closeModals(); this.navStack = []; const d = document.getElementById('detail-view'); if (d) d.classList.remove('active'); if (this.hideRoasterView) this.hideRoasterView(); } catch (e) {}
+                this.openWelcome('email');
+                this.wl.again = true; this.wl.path = 'back';
+                this.wl.email = (sess.user && sess.user.email) || '';
+                this.renderWelcome();
+            },
+
+            signOut() {
+                const waiting = this.pendingOutbox().length;
+                if (!confirm(waiting ? `${waiting} change${waiting === 1 ? '' : 's'} on this phone haven't been saved yet and will be lost. Sign out anyway?` : 'Sign out of Dialed In on this phone?')) return;
+                const keys = [this.cacheKey(), this.outboxKey()];
+                Promise.all(keys.map(k => this.idbPut(k, null).catch(() => {}))).finally(() => {
+                    Supa.signOut();
+                    location.reload();
+                });
+            },
+
+            // Settings on the new backend: who you're signed in as, and sign out (instead of picking a person)
+            acctSettingsHtml() {
+                const sess = Supa.session() || {};
+                const email = sess.user && sess.user.email ? sess.user.email : '';
+                const color = this.getUserColor(this.user);
+                return `<div class="acct-row"><i class="acct-dot" style="background:${this.esc(color)}">${this.esc(this.feedInitial(this.user || '?'))}</i><span class="acct-who"><b>${this.esc(this.user || '')}</b>${email ? `<small>${this.esc(email)}</small>` : ''}</span><button type="button" class="btn-outline acct-out" onclick="app.signOut()">Sign out</button></div>`;
+            },
         };
 
         window.onload = () => app.init();

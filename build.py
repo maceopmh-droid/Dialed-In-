@@ -42,7 +42,8 @@ def checks(s):
     elif f'Dialed In · v{v}' not in s: bad.append(f'Settings line "Dialed In · v{v}" missing')
     if '<link rel="apple-touch-icon" href="icon.png">' not in s: bad.append('apple-touch-icon link missing')
     # every app method is defined once (a second definition silently replaces the first)
-    names = [n for n in re.findall(r'^            (?:async\s+)?([A-Za-z_$][\w$]*)\s*\([^)]*\)\s*\{', s, re.M)
+    body = s[s.find('        const app = {'):] if '        const app = {' in s else s   # the app object (the data layer above it has its own pull/send)
+    names = [n for n in re.findall(r'^            (?:async\s+)?([A-Za-z_$][\w$]*)\s*\([^)]*\)\s*\{', body, re.M)
              if n not in {'if', 'for', 'while', 'switch', 'catch', 'function', 'return'}]
     seen, dup = set(), set()
     for n in names: (dup if n in seen else seen).add(n)
