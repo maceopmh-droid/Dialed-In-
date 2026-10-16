@@ -16294,11 +16294,13 @@
 
             setFeedMode(mode) {
                 if (mode === 'community') mode = 'discover';   // (v14.4's name for it)
+                const was = this.feedMode();
                 this._feedMode = mode === 'groups' || mode === 'discover' ? mode : 'following';
                 safeSet('dialed_feed_mode', this._feedMode);
                 this._feedHtml = null; this._groupMenu = false;
-                if (this._feedMode === 'discover') { const st = this.commState(); if (!st.at || Date.now() - st.at > 60000) this.loadCommunity(false); }   // ranked afresh when you come back to it
-                if (this._feedMode === 'groups') { const id = this.feedGroupId(); if (id) { const st = this.streamState('g:' + id); if (!st.at || Date.now() - st.at > 60000) this.loadGroupFeed(id, false); } }
+                const fresh = st => !st.loading && (was !== this._feedMode || !st.at || Date.now() - st.at > 1500);   // tapping a tab (even the one you're on): what's new since
+                if (this._feedMode === 'discover') { const st = this.commState(); if (fresh(st)) this.loadCommunity(false); }
+                if (this._feedMode === 'groups') { const id = this.feedGroupId(); if (id) { const st = this.streamState('g:' + id); if (fresh(st)) this.loadGroupFeed(id, false); } }
                 this.render();
                 const g = document.getElementById('grid'); if (g && g.scrollIntoView && window.scrollY > 200) window.scrollTo({ top: 0 });
             },
