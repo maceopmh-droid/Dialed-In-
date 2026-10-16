@@ -29,6 +29,20 @@
                         <div class="wl-actions"><button type="button" class="btn-primary wl-main" id="wl-busy" onclick="app.wlSendCode()">Send code</button></div>
                     </div>`;
                 }
+                // v14.6: a password instead of an emailed code, only for the App Review account (its address is typed above;
+                // nobody else ever sees this step)
+                if (s.step === 'password') {
+                    setTimeout(() => { const i = document.getElementById(s.email ? 'wl-pass' : 'wl-email'); if (i) i.focus(); }, 60);
+                    return `<div class="wl-step">
+                        ${top('email')}
+                        <h2 class="wl-h2">Enter your password.</h2>
+                        <p class="wl-sub">This account signs in with a password instead of an emailed code.</p>
+                        <input class="wl-input" id="wl-email" type="email" inputmode="email" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="you@example.com" value="${esc(s.email || '')}" oninput="app.wl.email = this.value">
+                        <input class="wl-input" id="wl-pass" type="password" autocomplete="current-password" maxlength="200" placeholder="Password" onkeydown="if(event.key==='Enter'){event.preventDefault();app.wlPassword()}">
+                        ${msg}
+                        <div class="wl-actions"><button type="button" class="btn-primary wl-main" id="wl-busy" onclick="app.wlPassword()">Sign in</button></div>
+                    </div>`;
+                }
                 if (s.step === 'code') {
                     setTimeout(() => { const i = document.getElementById('wl-code'); if (i) i.focus(); }, 60);
                     return `<div class="wl-step">
@@ -75,6 +89,7 @@
                 const s = this.wl; if (!s) return;
                 const email = String(s.email || '').trim();
                 if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { if (s.step === 'email') { this.wlShake('wl-email'); this.wlSay('Enter your email address.'); } return; }
+                if (REVIEW_EMAILS.includes(email.toLowerCase())) { s.email = email; s.step = 'password'; this.renderWelcome(); return; }   // v14.6: App Review
                 return this.wlBusy(async () => {
                     await Supa.sendCode(email);
                     s.email = email;
@@ -92,6 +107,22 @@
                     const p = await Supa.verify(s.email, code);
                     if (p) { this.acctReady(p, was); return; }
                     s.step = s.path === 'back' ? 'claim' : 'name';
+                    this.renderWelcome();
+                });
+            },
+
+            wlPassword() {
+                const s = this.wl; const el = document.getElementById('wl-pass'); if (!s || !el) return;
+                const email = String(s.email || '').trim();
+                if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { this.wlShake('wl-email'); this.wlSay('Enter your email address.'); return; }
+                if (!el.value) { this.wlShake('wl-pass'); return; }
+                return this.wlBusy(async () => {
+                    const was = (Supa.session() || {}).profile;
+                    let p;
+                    try { p = await Supa.signInWithPassword(email, el.value); }
+                    catch (e) { throw new Error(/invalid|credentials|grant/i.test(String(e && e.message)) ? 'That email and password don\'t match.' : String(e && e.message || '')); }
+                    if (p) { this.acctReady(p, was); return; }
+                    s.step = 'name';
                     this.renderWelcome();
                 });
             },

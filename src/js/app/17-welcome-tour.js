@@ -105,6 +105,7 @@
                         <div class="wl-label">How you'll show up</div>
                         <div class="wl-preview" id="wl-preview"></div>
                         <div class="wl-actions"><button type="button" class="btn-primary wl-main" id="wl-next" onclick="app.wlGo('gear')">Continue</button></div>
+                        ${this.acctOn() && this.legalLinksHtml ? `<p class="wl-terms">By continuing you agree to the ${this.legalLinksHtml()}.</p>` : ''}
                     </div>`;
                 } else if (s.step === 'gear') {
                     const kinds = this.wlGearKinds(), open = kinds.find(k => k.key === s.gearOpen);
@@ -156,7 +157,7 @@
                         </div>
                     </div>`;
                 }
-                if (s.step === 'email' || s.step === 'code' || s.step === 'claim') html = this.acctStepHtml(s);   // v14.2: signing in (new backend only)
+                if (s.step === 'email' || s.step === 'code' || s.step === 'claim' || s.step === 'password') html = this.acctStepHtml(s);   // v14.2: signing in (new backend only)
                 if (this.wlHeroView && this.wlHeroView.stop) this.wlHeroView.stop();
                 wrap.innerHTML = html;
                 const view = document.getElementById('welcome-view'); if (view) view.scrollTop = 0;

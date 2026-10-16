@@ -1,0 +1,53 @@
+# The App Review account (App Store guideline 2.1: Apple's reviewer needs a way in, and can't receive our emailed
+# codes). Makes (or resets) one account, appreview@dialed-in.app, that signs in with the password in the REVIEW_PASSWORD
+# secret, with a profile called "App Review". The app shows the password step only for that address.
+# Runs when pushed to the `supabase-review` branch; safe to run again (it only resets the password).
+name: supabase review account
+on:
+  push:
+    branches: [supabase-review]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      REVIEW_PASSWORD: ${{ secrets.REVIEW_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Is there a password yet?
+        id: cfg
+        run: |
+          if [ -z "$REVIEW_PASSWORD" ]; then echo "skip=1" >> "$GITHUB_OUTPUT"; echo "No REVIEW_PASSWORD secret yet: nothing made." > "$RUNNER_TEMP/c.txt"; bash supabase/report.sh "Review account" "$RUNNER_TEMP/c.txt"; fi
+      - name: Find the database
+        if: steps.cfg.outputs.skip != '1'
+        run: |
+          set +e
+          bash supabase/find_db.sh 2> "$RUNNER_TEMP/find.txt"; rc=$?
+          cat "$RUNNER_TEMP/find.txt"; [ $rc -eq 0 ] || bash supabase/report.sh "Find the database" "$RUNNER_TEMP/find.txt"; exit $rc
+      - name: Make or reset the review account
+        if: steps.cfg.outputs.skip != '1'
+        run: |
+          set +e
+          echo "::add-mask::$REVIEW_PASSWORD"
+          psql "$DB_URL" -1 -v ON_ERROR_STOP=1 -Atq -v pw="$REVIEW_PASSWORD" > "$RUNNER_TEMP/r.txt" 2>&1 <<'SQL'
+          create temp table v as select 'appreview@dialed-in.app'::text as email, :'pw'::text as pw;
+          -- the sign-in (Supabase's own tables; the empty strings are what its sign-in service expects)
+          insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+                                  created_at, updated_at, confirmation_token, recovery_token, email_change_token_new, email_change)
+          select '00000000-0000-0000-0000-000000000000', gen_random_uuid(), 'authenticated', 'authenticated', v.email, extensions.crypt(v.pw, extensions.gen_salt('bf')), now(),
+                 '{"provider": "email", "providers": ["email"]}'::jsonb, '{}'::jsonb, now(), now(), '', '', '', ''
+          from v where not exists (select 1 from auth.users u where u.email = v.email);
+          update auth.users u set encrypted_password = extensions.crypt(v.pw, extensions.gen_salt('bf')), email_confirmed_at = coalesce(u.email_confirmed_at, now()), updated_at = now()
+          from v where u.email = v.email;
+          insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+          select gen_random_uuid(), u.id, u.id::text, jsonb_build_object('sub', u.id::text, 'email', u.email, 'email_verified', true), 'email', now(), now(), now()
+          from auth.users u join v on v.email = u.email where not exists (select 1 from auth.identities i where i.user_id = u.id and i.provider = 'email');
+          -- its profile
+          insert into profiles (auth_id, handle, display_name, color, joined_at)
+          select u.id, 'appreview', 'App Review', '#5B8DEF', now() from auth.users u join v on v.email = u.email
+          where not exists (select 1 from profiles p where p.auth_id = u.id) and not exists (select 1 from profiles p where p.handle = 'appreview');
+          select 'review account: ' || u.email || ', profile: ' || coalesce((select display_name from profiles p where p.auth_id = u.id), 'none')
+          from auth.users u join v on v.email = u.email;
+          SQL
+          rc=$?; cat "$RUNNER_TEMP/r.txt"; bash supabase/report.sh "Review account" "$RUNNER_TEMP/r.txt"; exit $rc

@@ -65,7 +65,7 @@ function setup() {
 }
 
 // ---------------------------------------------------------------- sign-in (unsigned tokens: development only)
-const codes = new Map(), refresh = new Map(), links = new Map();
+const codes = new Map(), refresh = new Map(), links = new Map(), passwords = new Map();
 const b64 = o => Buffer.from(JSON.stringify(o)).toString('base64url');
 const TOKEN_LIFE = Number(arg('token-life', 3600));
 function tokensFor(user) {
@@ -124,6 +124,15 @@ async function handle(req, res) {
     if (!id) id = psql(`insert into auth.users (id, email) values (gen_random_uuid(), ${lit(email)}) returning id;`);
     return send(res, 200, tokensFor({ id, email }));
   }
+  // v14.6: password sign-in (accounts given a password through /__dev/password)
+  if (url.pathname === '/__dev/password' && req.method === 'POST') { const b = json(); passwords.set(String(b.email || '').toLowerCase(), String(b.password || '')); return send(res, 200, {}); }
+  if (url.pathname === '/auth/v1/token' && url.searchParams.get('grant_type') === 'password') {
+    const b = json(), email = String(b.email || '').trim().toLowerCase();
+    if (!passwords.has(email) || passwords.get(email) !== String(b.password || '')) return send(res, 400, { code: 400, error_code: 'invalid_credentials', msg: 'Invalid login credentials' });
+    let id = psql(`select id from auth.users where email = ${lit(email)};`);
+    if (!id) id = psql(`insert into auth.users (id, email) values (gen_random_uuid(), ${lit(email)}) returning id;`);
+    return send(res, 200, tokensFor({ id, email }));
+  }
   if (url.pathname === '/auth/v1/token' && url.searchParams.get('grant_type') === 'refresh_token') {
     const rt = String(json().refresh_token || '');
     const user = refresh.get(rt);
@@ -171,6 +180,21 @@ async function handle(req, res) {
       return { error: null, path: p, signedURL: `/object/sign/photos/${p.split('/').map(encodeURIComponent).join('/')}?token=${t}` };
     });
     return send(res, 200, out);
+  }
+  // v14.6: listing your folder and deleting files (deleting an account)
+  if (url.pathname === '/storage/v1/object/list/photos' && req.method === 'POST') {
+    const b = json(), prefix = String(b.prefix || '').replace(/\/$/, '');
+    let out = '';
+    try { out = asWho(who.sub, `select coalesce(string_agg(name, E'\\n' order by name), '') from (select name from storage.objects where bucket_id = 'photos' and name like ${lit(prefix + '/%')} order by name limit ${Math.max(1, Math.min(1000, Number(b.limit) || 100))}) t;`); } catch (e) {}
+    return send(res, 200, (out ? out.split('\n') : []).map(n => ({ name: n.slice(prefix.length + 1), id: crypto.randomUUID() })));
+  }
+  if (url.pathname === '/storage/v1/object/photos' && req.method === 'DELETE') {
+    const b = json(), gone = [];
+    (Array.isArray(b.prefixes) ? b.prefixes : []).forEach(p => {
+      let n = ''; try { n = asWho(who.sub, `with d as (delete from storage.objects where bucket_id = 'photos' and name = ${lit(p)} returning name) select count(*) from d;`); } catch (e) {}
+      if (n === '1') { gone.push({ name: p }); try { fs.unlinkSync(path.join(FILES, p)); } catch (e) {} }
+    });
+    return send(res, 200, gone);
   }
   const get = /^\/storage\/v1\/object\/sign\/photos\/(.+)$/.exec(url.pathname);
   if (get && req.method === 'GET') {

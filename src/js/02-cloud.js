@@ -4,7 +4,9 @@
         // it early when 'dialed_supabase' in local storage holds { url, anonKey }. The key is the project's publishable
         // key, which is meant to be public (the database's privacy rules do the protecting): it goes on the apikey
         // header only, never as the Authorization token.
-        const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb_publishable_nunu5PQVtCf8OuAhyt_hXw_xK3A4-8i', live: true };
+        // v14.6: the App Review account signs in with a password (Apple's reviewer can't receive our emailed codes)
+const REVIEW_EMAILS = ['appreview@dialed-in.app'];
+const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb_publishable_nunu5PQVtCf8OuAhyt_hXw_xK3A4-8i', live: true };
         // to try it on one phone before everyone moves: open the app once with ?backend=supabase (and ?backend=sheet to go back)
         try {
             const pick = new URLSearchParams(location.search).get('backend');
@@ -105,6 +107,15 @@
                 this.store(this.SESSION, { ...this.session(), profile: p || null });
                 return p || null;
             },
+            // v14.6: a password instead of an emailed code (only accounts that have one: Apple's reviewer)
+            async signInWithPassword(email, password) {
+                const j = await this.call('/auth/v1/token?grant_type=password', { email: String(email || '').trim(), password: String(password || '') }, { auth: false });
+                this.store(this.SESSION, null);
+                this.keep(j, { profile: null });
+                const p = await this.rpc('my_profile');
+                this.store(this.SESSION, { ...this.session(), profile: p || null });
+                return p || null;
+            },
             async claim(code) { const p = await this.rpc('claim_name', { code }); this.store(this.SESSION, { ...this.session(), profile: p }); return p; },
             async createProfile(name, color) { const p = await this.rpc('create_profile', { name, color: color || null }); this.store(this.SESSION, { ...this.session(), profile: p }); return p; },
             signOut() {
@@ -127,6 +138,19 @@
                 const name = `${s.user.id}/${String(sessionId).replace(/[^a-zA-Z0-9_-]/g, '')}-${this.fingerprint(m[2])}.${ext}`;
                 await this.call('/storage/v1/object/photos/' + name, new Blob([bytes], { type: m[1] }), { signal, headers: { 'Content-Type': m[1], 'x-upsert': 'true' } });
                 return 'sb:' + name;
+            },
+            // v14.6: deleting your account: your photos go first (files in storage can't be removed from the database)
+            async removeMyPhotos() {
+                const s = this.session(); if (!s || !s.user) return 0;
+                let gone = 0;
+                for (let round = 0; round < 100; round++) {
+                    const list = await this.call('/storage/v1/object/list/photos', { prefix: s.user.id, limit: 100, offset: 0 });
+                    const names = (Array.isArray(list) ? list : []).map(o => o && o.id !== null && o.name).filter(Boolean).map(n => `${s.user.id}/${n}`);
+                    if (!names.length) break;
+                    await this.call('/storage/v1/object/photos', { prefixes: names }, { method: 'DELETE' });
+                    gone += names.length;
+                }
+                return gone;
             },
             async linkPhotos(events, { signal } = {}) {
                 const now = Date.now();

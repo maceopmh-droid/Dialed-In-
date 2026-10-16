@@ -23,8 +23,15 @@
                 } catch (e) { this.showToast(e && e.message ? e.message : 'That didn\'t work. Try again.'); }
             },
 
+            // v14.6: the terms and privacy policy (pages beside the app; from the iPhone app, the website's copies)
+            legalUrl(page) {
+                const local = typeof location !== 'undefined' && /^https?:$/.test(location.protocol) && !/^capacitor:/.test(String(location.href));
+                return (local ? '' : 'https://maceopmh-droid.github.io/Dialed-In-/') + page + '.html';
+            },
+            legalLinksHtml() { return `<a href="${this.legalUrl('terms')}" target="_blank" rel="noopener">Terms</a> and <a href="${this.legalUrl('privacy')}" target="_blank" rel="noopener">Privacy Policy</a>`; },
+
             acctToolsHtml() {
-                return `<div class="acct-tools">${this.isReviewer && this.isReviewer() ? '<button type="button" class="btn-outline pp-act" onclick="app.openReview()">Review reports</button>' : ''}<button type="button" class="btn-outline pp-act" onclick="app.openGuidelines()">Community guidelines</button><button type="button" class="btn-outline pp-act" onclick="app.downloadMyData()">Download my data</button><button type="button" class="btn-outline pp-act acct-delete" onclick="app.deleteMyAccount()">Delete account</button></div>`;
+                return `<div class="acct-tools">${this.isReviewer && this.isReviewer() ? '<button type="button" class="btn-outline pp-act" onclick="app.openReview()">Review reports</button>' : ''}<button type="button" class="btn-outline pp-act" onclick="app.openGuidelines()">Community guidelines</button><button type="button" class="btn-outline pp-act" onclick="app.downloadMyData()">Download my data</button><button type="button" class="btn-outline pp-act acct-delete" onclick="app.deleteMyAccount()">Delete account</button></div><p class="acct-legal">${this.legalLinksHtml()}</p>`;
             },
 
             async downloadMyData() {
@@ -44,6 +51,10 @@
                 const typed = prompt(`To confirm, type your name: ${this.user}`, '');
                 if (typed === null) return;
                 try {
+                    if (String(typed).trim().toLowerCase() !== String(this.user || '').toLowerCase()) throw new Error('Type your name exactly to confirm.');
+                    // v14.6: your photos first (storage), then everything else (the database); a photo that won't go is
+                    // tried once more, then left unreadable (nothing points at it once the account is gone)
+                    await Supa.removeMyPhotos().catch(() => Supa.removeMyPhotos().catch(() => 0));
                     await Supa.rpc('delete_account', { confirm_name: typed });
                     this.closeModals();
                     this.showToast('Your account is deleted.');

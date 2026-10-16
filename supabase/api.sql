@@ -73,6 +73,41 @@ language sql stable security definer set search_path = public as $$
          (select count(*) filter (where status = 'hidden') || ':' || count(*) filter (where status = 'dismissed') || ':' || count(*) filter (where status = 'removed') from reports);
 $$;
 
+-- v14.6: the content filter (App Store guideline 1.2). A list of offensive words, loaded into the database by the setup
+-- workflow from an open list (never kept in this repo), is one pattern in backend_state 'word_pattern'. Names with one
+-- are refused; in comments and notes shared with Everyone they show as •••. Accounts in their first three days can't
+-- post links (they show as [link removed]). Until the list is loaded, only the link rule applies.
+create table if not exists blocked_words (word text primary key);
+alter table blocked_words enable row level security;   -- no rules: nobody reads it from the app
+revoke all on blocked_words from authenticated, anon;
+create or replace function internal.word_pattern() returns text
+language sql stable security definer set search_path = public as $$ select nullif(value, '') from backend_state where key = 'word_pattern'; $$;
+-- (re)build the pattern from the table: longest first, special characters escaped, spaces as any whitespace
+create or replace function internal.load_word_pattern() returns int
+language plpgsql security definer set search_path = public as $$
+declare pat text; n int;
+begin
+  select string_agg(regexp_replace(regexp_replace(lower(btrim(word)), '([.^$*+?()\[\]{}|\\])', '\\\1', 'g'), '\s+', '\\s+', 'g'), '|' order by char_length(word) desc), count(*)
+    into pat, n from blocked_words where char_length(btrim(word)) >= 2;
+  insert into backend_state (key, value) values ('word_pattern', coalesce(pat, '')) on conflict (key) do update set value = excluded.value, updated_at = now();
+  return coalesce(n, 0);
+end $$;
+create or replace function internal.is_new_account(pid uuid) returns boolean
+language sql stable security definer set search_path = public as $$ select coalesce((select joined_at > now() - interval '3 days' from profiles where id = pid), false); $$;
+create or replace function internal.clean_text(t text, strip_links boolean default false) returns text
+language plpgsql stable security definer set search_path = public as $$
+declare pat text := internal.word_pattern(); out text := t;
+begin
+  if out is null then return null; end if;
+  if strip_links then out := regexp_replace(out, '(https?://|www\.)\S+', '[link removed]', 'gi'); end if;
+  if pat is not null then out := regexp_replace(out, '\m(' || pat || ')\M', '•••', 'gi'); end if;
+  return out;
+end $$;
+create or replace function internal.name_ok(t text) returns boolean
+language plpgsql stable security definer set search_path = public as $$
+declare pat text := internal.word_pattern();
+begin return pat is null or coalesce(t, '') !~* ('\m(' || pat || ')\M'); end $$;
+
 -- group owners and admins can flip members' "counts in group goal"; members can flip their own
 drop policy if exists members_edit on group_members;
 create policy members_edit on group_members for update to authenticated
@@ -106,6 +141,7 @@ begin
   if char_length(n) < 2 or char_length(n) > 24 or n ~ '[[:cntrl:]<>]' or n like '\_\_%' or n ~* '^(unknown|undefined|null|everyone|system)$' then
     raise exception 'Use 2 to 24 characters for your name.' using errcode = '22023';
   end if;
+  if not internal.name_ok(n) then raise exception 'Pick another name.' using errcode = '22023'; end if;   -- v14.6: the content filter
   if exists (select 1 from profiles where lower(display_name) = lower(n) or lower(legacy_name) = lower(n)) then raise exception 'That name is taken.' using errcode = '23505'; end if;
   h := left(lower(regexp_replace(n, '[^a-zA-Z0-9_]', '', 'g')), 20);
   if char_length(h) < 2 then h := 'brewer'; end if;
@@ -479,7 +515,8 @@ begin
       insert into comments (legacy_ref, session_id, coffee_id, author_id, parent_id, body, audience, created_at)
       values (ref, case when kind = 'session' then target end, case when kind = 'coffee' then target end, me_id,
               (select id from comments where legacy_ref = rec || '#' || nullif(c->>'parentId', '')),
-              coalesce(nullif(left(c->>'text', 2000), ''), '…'), coalesce(internal.item_aud(c->>'audience'), 'friends'), coalesce(internal.try_ts(c->>'timestamp'), now()))
+              internal.clean_text(coalesce(nullif(left(c->>'text', 2000), ''), '…'), internal.is_new_account(me_id)),   -- v14.6: the content filter
+              coalesce(internal.item_aud(c->>'audience'), 'friends'), coalesce(internal.try_ts(c->>'timestamp'), now()))
       on conflict (legacy_ref) do update set body = excluded.body, parent_id = coalesce(comments.parent_id, excluded.parent_id),
         audience = coalesce(internal.item_aud(c->>'audience'), comments.audience),
         edited_at = case when comments.body is distinct from excluded.body then now() else comments.edited_at end
@@ -586,6 +623,9 @@ begin
     if f->>'notes' <> '' then insert into session_notes (session_id, body, audience) values (s.id, f->>'notes', coalesce(internal.item_aud(ev->>'noteAudience'), 'friends'))
       on conflict (session_id) do update set body = excluded.body, audience = coalesce(internal.item_aud(ev->>'noteAudience'), session_notes.audience), updated_at = now();
     else delete from session_notes where session_id = s.id; end if;
+    -- v14.6: notes shared with Everyone pass the content filter
+    update session_notes set body = internal.clean_text(body, internal.is_new_account(me_id))
+     where session_id = s.id and audience = 'everyone' and body is distinct from internal.clean_text(body, internal.is_new_account(me_id));
     if f->>'photo' is not null then insert into session_photos (session_id, path, audience) values (s.id, f->>'photo', coalesce(internal.item_aud(ev->>'photoAudience'), 'friends'))
       on conflict (session_id) do update set path = excluded.path, audience = coalesce(internal.item_aud(ev->>'photoAudience'), session_photos.audience);
     elsif f->>'keep' is null and (jsonb_typeof(ev->'photo') is null or jsonb_typeof(ev->'photo') = 'null') then delete from session_photos where session_id = s.id; end if;
@@ -782,7 +822,8 @@ language plpgsql security definer set search_path = public as $$
 declare me_id uuid := me(); n text := regexp_replace(btrim(coalesce(create_group.name, '')), '\s+', ' ', 'g'); g groups;
 begin
   if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
-  if char_length(n) < 2 or char_length(n) > 60 then raise exception 'Give the group a name (2 to 60 characters).' using errcode = '22023'; end if;
+  if char_length(n) < 2 or char_length(n) > 60 then raise exception 'Give the community a name (2 to 60 characters).' using errcode = '22023'; end if;
+  if not internal.name_ok(n) then raise exception 'Pick another name.' using errcode = '22023'; end if;   -- v14.6: the content filter
   insert into groups (name, is_open, owner_id, invite_code, goal_on, awards_on)
   values (n, coalesce(open, false), me_id, case when coalesce(open, false) then null else internal.new_code() end, true, not coalesce(open, false)) returning * into g;
   insert into group_members (group_id, user_id, role) values (g.id, me_id, 'owner');
@@ -1097,7 +1138,7 @@ end $$;
 -- fields), and its author hears about it
 alter table notifications drop constraint if exists notifications_kind_check;
 alter table notifications add constraint notifications_kind_check
-  check (kind in ('like', 'comment', 'reply', 'comment_like', 'follow', 'follow_request', 'follow_accepted', 'joined_group', 'helpful'));
+  check (kind in ('like', 'comment', 'reply', 'comment_like', 'follow', 'follow_request', 'follow_accepted', 'joined_group', 'helpful', 'report'));
 create or replace function internal.on_helpful() returns trigger language plpgsql security definer set search_path = public as $$
 declare cid text := nullif(btrim(coalesce(new.extras->>'helpfulAnswer', '')), ''); c comments;
 begin
@@ -1111,10 +1152,15 @@ create trigger notify_helpful after update of extras on sessions for each row ex
 
 -- ---------------------------------------------------------------- v14.5: reviewing reports (admins only)
 create or replace function internal.on_report() returns trigger language plpgsql security definer set search_path = public as $$
+declare adm uuid;
 begin
   if (select count(distinct reporter_id) from reports where target_type = new.target_type and target_id = new.target_id and status in ('open', 'hidden')) >= 3 then
     update reports set status = 'hidden' where target_type = new.target_type and target_id = new.target_id and status = 'open';
   end if;
+  -- v14.6: reviewers hear about every report (the bell, and their phone when notifications are on), so a day is enough
+  for adm in select x::uuid from backend_state, unnest(string_to_array(value, ',')) x where key = 'admins' and x ~ '^[0-9a-f-]{36}$' loop
+    perform internal.notify(adm, new.reporter_id, 'report');
+  end loop;
   return null;
 end $$;
 drop trigger if exists hide_reported on reports;
@@ -1204,6 +1250,7 @@ end $$;
 create or replace function internal.push_text(n notifications) returns jsonb
 language sql stable security definer set search_path = public as $$
   select jsonb_build_object('title', 'Dialed In', 'tag', 'n' || n.id, 'body',
+    case when n.kind = 'report' then 'Something was reported. Review it in Settings.' else   -- (who reported it stays off the lock screen)
     coalesce(internal.name_of(n.actor_id), 'Someone') || ' ' || case n.kind
       when 'like' then case when n.coffee_id is not null and n.session_id is null then 'liked your coffee' else 'liked your session' end
       when 'comment' then 'commented' || coalesce(': ' || (select left(body, 120) from comments where id = n.comment_id and deleted_at is null), '')
@@ -1214,7 +1261,7 @@ language sql stable security definer set search_path = public as $$
       when 'follow_accepted' then 'approved your follow request'
       when 'joined_group' then 'joined ' || coalesce((select name from groups where id = n.group_id), 'your group')
       when 'helpful' then 'marked your answer most helpful'
-      else 'did something' end);
+      else 'did something' end end);
 $$;
 
 -- for the sender only (it connects as the database owner): one notification's text and the phones to send it to

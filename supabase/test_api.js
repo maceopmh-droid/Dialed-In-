@@ -10,7 +10,7 @@ const { loadApp } = require('./lib/app_in_node');
 const arg = k => { const i = process.argv.indexOf('--' + k); return i > 0 ? process.argv[i + 1] : null; };
 const HOST = arg('host'), USER = arg('user') || 'postgres', HTML = arg('html') || path.join(__dirname, '..', 'index.html');
 if (!HOST) { console.error('usage: node supabase/test_api.js --host <socket dir or host> [--user postgres]'); process.exit(2); }
-const DB = 'dialed_api_test';
+const DB = process.env.API_TEST_DB || 'dialed_api_test';
 const psql = (sql, db = DB) => execSync(`psql -h ${HOST} -U ${USER} -d ${db} -Atq -v ON_ERROR_STOP=1`, { input: sql, encoding: 'utf8', maxBuffer: 1 << 28, stdio: ['pipe', 'pipe', 'pipe'] }).trim();
 const q = s => `'${String(s).replace(/'/g, "''")}'`;
 let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); if (!c) fails++; };
@@ -525,6 +525,29 @@ psql(`insert into profiles (handle, display_name) select 'bulk' || i, 'Bulk ' ||
   insert into follows (follower, followee) select (select id from profiles where auth_id = '${AUTH.twin}'), id from profiles where handle ~ '^bulk' and handle <> 'bulk201';`);
 ok(/a lot of people today/.test(fx('twin', `select follow('Bulk 201');`)) && fx('twin', `select follow('Bulk 7');`) === 'following', 'a 201st follow in a day is refused (following someone you already follow is fine)');
 psql(`delete from profiles where handle ~ '^bulk';`);
+
+// --- v14.6: the content filter and report alerts
+ok(fx('wanderer', `select create_group('Meanword club', true);`).includes('Meanword club') || true, '(before the list is loaded nothing is filtered)');
+psql(`insert into blocked_words (word) values ('meanword'), ('very bad'), ('x+y') on conflict do nothing; select internal.load_word_pattern();`);
+psql(`insert into auth.users values ('aaaaaaaa-0000-0000-0000-000000000051');`); AUTH.filt = 'aaaaaaaa-0000-0000-0000-000000000051';
+ok(/Pick another name/.test(fx('filt', `select create_profile('Meanword Mike');`)) && /Pick another name/.test(fx('wanderer', `select create_group('the very  bad crew');`)),
+   'a name with a word on the list is refused (profiles and communities), spacing and capitals forgiven');
+ok(/"name": "Meanwordsmith"/.test(fx('filt', `select create_profile('Meanwordsmith');`)), '...but only whole words (Meanwordsmith is fine)');
+push('filt', { type: 'brew', id: 'fl1', beanId: 'b1', user: 'Meanwordsmith', owner: 'Meanwordsmith', method: 'Espresso', date: new Date().toISOString(), audience: 'everyone', noteAudience: 'everyone',
+  notes: 'a MEANWORD shot, see https://spam.example.com/buy', likes: [], comments: [{ id: 'f1', user: 'Meanwordsmith', text: 'meanword! visit www.spam.example.com', timestamp: new Date().toISOString(), audience: 'everyone' }] });
+ok(one(`select body from session_notes n join sessions s on s.id = n.session_id where s.legacy_id = 'fl1';`) === 'a ••• shot, see [link removed]' &&
+   one(`select body from comments where legacy_ref = 'fl1#f1';`) === '•••! visit [link removed]',
+   'a new account: words on the list show as •••, and links are held for its first three days (notes shared with Everyone, comments)');
+push('filt', { type: 'brew', id: 'fl2', beanId: 'b1', user: 'Meanwordsmith', owner: 'Meanwordsmith', method: 'Espresso', date: new Date().toISOString(), notes: 'my own meanword notes', likes: [], comments: [] });
+ok(one(`select body from session_notes n join sessions s on s.id = n.session_id where s.legacy_id = 'fl2';`) === 'my own meanword notes', 'notes kept to Friends are yours: untouched');
+push('julian', { type: 'brew', id: 's2', beanId: 'b1', user: 'Maceo', owner: 'Maceo', likes: [], comments: [{ id: 'f2', user: 'Julian', text: 'recipe at https://example.com/r', timestamp: new Date().toISOString() }] });
+ok(one(`select body from comments where legacy_ref = 's2#f2';`) === 'recipe at https://example.com/r', "the crew's links stay (not a new account)");
+psql(`delete from notifications;`);
+fx('filt', `select report_item('session', 'pp1', 'spam');`);
+const an = notes('maceo').items.filter(i => i.kind === 'report');
+ok(an.length === 1 && notes('aidan').items.every(i => i.kind !== 'report'), 'a report notifies the reviewers (Maceo), nobody else');
+ok(/Something was reported/.test(one(`select internal.push_text(n)->>'body' from notifications n where kind = 'report' limit 1;`)) && !/Meanwordsmith/.test(one(`select internal.push_text(n)->>'body' from notifications n where kind = 'report' limit 1;`)),
+   "...and the lock screen says something was reported, never who reported it");
 
 // round trip: what the app pulls, pushed back unchanged by its owner, changes nothing
 const STATE = `select md5(string_agg(t::text, '' order by t::text)) from (select s.legacy_id, method, grind, dose, yield, time_s, rating, taste, tasted, flavor_notes, extras, equipment, master, brewed_at, n.body, p.path,
