@@ -1,4 +1,4 @@
-# Supabase (phase 1 draft)
+# Supabase (phases 1 and 2, draft)
 
 First draft of the database for the public version of Dialed In. **Not applied anywhere yet**: there's no
 Supabase project until Maceo creates one.
@@ -41,6 +41,42 @@ walking the history of edits, which the tables don't keep (they hold each record
 count those from what exists (comments you wrote, likes you have). `--known-history` reports them without failing.
 
 The real Sheet export never goes in this repository (it's public and the rows hold everyone's notes).
+
+## The app's calls (phase 2): `api.sql`
+
+Load after `schema.sql`. The app keeps reading and writing the same Sheet-style events it uses today; these three
+functions translate, and the privacy rules above decide every read and write (they run as the signed-in person).
+
+- `pull_events()`: everything you may see, as the events the app already understands. Your gear comes back in
+  full; other people's gear is only their equipment (what their profile shows), never recipes or settings.
+- `push_event(ev)`: one save from the app, applied **as the signed-in person, whatever the event says**. A save
+  only changes your own part of a record: the fields of your own coffee or session, and your like, comments,
+  comment likes and want-to-try flag on anyone's. Replies' parents and comment likes that the app sends on the side
+  (`commentMeta`) are folded back in. Only the owner edits a coffee or session, as in the app today. Deleted stays
+  deleted, even if an old phone sends the record again. Each coffee keeps the roaster spelling written on it
+  (`roaster_text`), while the roasters table groups spellings for roaster pages.
+- `claim_name(code)`: links a new sign-in to a Sheet-era name with its one-time code.
+
+Signed-out calls are refused outright (Postgres lets anyone run a new function unless told otherwise, so
+`api.sql` revokes that).
+
+```
+node supabase/test_api.js --host <postgres socket dir or host> [--user postgres]
+```
+
+`test_api.js` checks each rule with pretend people, then feeds each person's `pull_events()` to the real app
+(from `index.html`) to confirm the app reads it correctly. A private check (not in this repo, it needs the real
+Sheet) imports the history up to Oct 9, has everyone claim their name, compares each person's pull with what the
+app shows from the Sheet, then replays the 250 later real saves through `push_event` and compares again: all
+four people match. Two things it found about today's data:
+
+- The Sheet's `actor` isn't always who made a save: a like or comment on someone else's session is logged with
+  the session's previous actor, because the app copies the field along. The new backend never trusts that field
+  (it uses the sign-in), so this only matters for reading old history.
+- On Oct 9, eleven spelling fixes on other people's coffees and sessions (roasters, origins, tasting notes) were
+  saved under Maceo's name within the same second. The app's edit screen only lets owners edit, so this was a
+  one-off cleanup outside the normal screens. In the new backend that kind of fix is maintenance done directly in
+  the database, not an app save; the private check applies those saves as the owner.
 
 ## The privacy test
 

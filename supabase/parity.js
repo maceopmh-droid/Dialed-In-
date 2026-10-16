@@ -15,10 +15,11 @@ const { loadApp } = require('./lib/app_in_node');
 const eventsFromRows = rows => rows.map(r => Array.isArray(r) ? r[6] : null).filter(x => typeof x === 'string' && x[0] === '{')
   .map(x => { try { return JSON.parse(x); } catch (e) { return null; } }).filter(Boolean);
 
-// returns { compared, diffs, known }; `events` is what the app gets from the Sheet today
-function runParity({ html, events, psql, knownHistory = false }) {
+// returns { compared, diffs, known }; `events` is what the app gets from the Sheet today. The other side is the
+// database's tables turned back into events, or `eventsB` when given (e.g. what pull_events returned to someone).
+function runParity({ html, events, psql, knownHistory = false, eventsB = null, viewer = null }) {
 const HTML = html;
-const sql = s => { const t = execSync(`${psql} -Atq -v ON_ERROR_STOP=1`, { input: s, encoding: 'utf8', maxBuffer: 1 << 28 }).trim(); return t ? JSON.parse(t) : []; };
+const sql = s => { if (eventsB) return []; const t = execSync(`${psql} -Atq -v ON_ERROR_STOP=1`, { input: s, encoding: 'utf8', maxBuffer: 1 << 28 }).trim(); return t ? JSON.parse(t) : []; };
 
 // ---- 1. today
 const A = loadApp(HTML); A.user = ''; A.process(events);
@@ -32,13 +33,13 @@ const comments = sql(`select coalesce(json_agg(c order by c.created_at, c.legacy
 const cmtsFor = (col, id) => comments.filter(c => c[col] === id).map(c => ({ id: c.legacy_ref.split('#').slice(1).join('#'), user: name(c.author_id), text: c.body,
   timestamp: c.created_at, parentId: c.parent_ref ? c.parent_ref.split('#').slice(1).join('#') : '', likes: c.likes.map(name) }));
 const ev = [];
-sql(`select coalesce(json_agg(k), '[]') from (select k.*, r.name as roaster_name,
+sql(`select coalesce(json_agg(k), '[]') from (select k.*, coalesce(k.roaster_text, r.name) as roaster_name,
   coalesce((select json_agg(user_id) from coffee_likes l where l.coffee_id = k.id), '[]') as likes from coffees k left join roasters r on r.id = k.roaster_id) k;`).forEach(k => {
   ev.push({ type: 'bean', id: k.legacy_id, user: name(k.owner_id), owner: name(k.owner_id), roaster: k.roaster_name || '', name: k.name, origin: k.origin || '', process: k.process || '',
     variety: k.variety || '', roast: k.roast || '', roastDate: k.roast_date || '', date: k.created_at, eventAt: k.updated_at, likes: k.likes.map(name), comments: cmtsFor('coffee_id', k.id) });
 });
-const want = sql(`select coalesce(json_agg(w), '[]') from want_to_try w;`);
-ev.filter(e => e.type === 'bean').forEach(b => { const key = `${b.name || ''}${b.roaster || ''}`.toLowerCase().trim(); b.wantToTry = want.filter(w => w.coffee_key === key).map(w => name(w.owner_id)); });
+const want = sql(`select coalesce(json_agg(json_build_object('owner_id', w.owner_id, 'legacy', k.legacy_id)), '[]') from want_to_try w join coffees k on k.id = w.coffee_id;`);
+ev.filter(e => e.type === 'bean').forEach(b => { b.wantToTry = want.filter(w => w.legacy === b.id).map(w => name(w.owner_id)); });
 const coffeeLegacy = new Map(sql(`select coalesce(json_agg(json_build_object('id', id, 'legacy', legacy_id)), '[]') from coffees;`).map(x => [x.id, x.legacy]));
 sql(`select coalesce(json_agg(s), '[]') from (select s.*, n.body as notes, p.path as photo_path,
   coalesce((select json_agg(user_id) from likes l where l.session_id = s.id), '[]') as likes
@@ -49,7 +50,7 @@ sql(`select coalesce(json_agg(s), '[]') from (select s.*, n.body as notes, p.pat
     notes: s.notes || '', photo, likes: s.likes.map(name), comments: cmtsFor('session_id', s.id), equipment: (s.equipment || {}).ids || [], equipmentSnapshot: (s.equipment || {}).snapshot || [],
     isMaster: Boolean(s.master && s.master.isMaster), masterProfile: (s.master && s.master.profile) || null, date: s.brewed_at, eventAt: s.updated_at });
 });
-const equip = sql(`select coalesce(json_agg(e order by e.created_at, e.legacy_id), '[]') from equipment e;`);
+const equip = sql(`select coalesce(json_agg(e order by e.sort_order, e.created_at), '[]') from equipment e;`);
 sql(`select coalesce(json_agg(g), '[]') from profile_gear g;`).forEach(g => {
   const who = name(g.profile_id);
   ev.push({ type: 'gear', id: `gear-${who}`, user: who, owner: who, items: equip.filter(e => e.owner_id === g.profile_id).map(e => ({ id: e.legacy_id, name: e.name, type: e.type })),
@@ -58,7 +59,7 @@ sql(`select coalesce(json_agg(g), '[]') from profile_gear g;`).forEach(g => {
 const excl = sql(`select coalesce(json_agg(user_id), '[]') from group_members where not counts_in_goal;`).map(name);
 ev.push({ type: 'gear', id: 'gear-__group__', user: '__group__', owner: '__group__', items: [], lastByMethod: {}, goalExclude: excl, date: '2026-01-01T00:00:00Z', eventAt: '2026-01-01T00:00:00Z' });
 sql(`select coalesce(json_agg(f), '[]') from flavors f;`).forEach(f => ev.push({ type: 'flavor', id: f.id, name: f.name, user: name(f.created_by), date: f.created_at, eventAt: f.created_at }));
-const B = loadApp(HTML); B.user = ''; B.process(ev);
+const B = loadApp(HTML); B.user = ''; B.process(eventsB || ev);
 
 // ---- 3. compare
 const diffs = [];
@@ -68,7 +69,8 @@ const J = v => JSON.stringify(canon(v));
 const n = v => { if (v === '' || v === null || v === undefined) return null; const x = Number(String(v).replace(',', '.')); return Number.isFinite(x) ? x : String(v); };
 const t = (app, v) => app.toTime(v) || null;
 const set = a => JSON.stringify([...new Set((a || []).map(String))].sort());
-const same = (what, id, field, a, b) => { if (J(a) !== J(b)) diffs.push(`${what} ${id}: ${field}`); };
+const details = [];   // the two values behind each difference, for debugging
+const same = (what, id, field, a, b) => { if (J(a) !== J(b)) { diffs.push(`${what} ${id}: ${field}`); details.push({ what, id, field, sheet: canon(a), db: canon(b) }); } };
 const cm = (app, list) => JSON.stringify((list || []).map(c => [String(c.id), c.user, String(c.text || '').slice(0, 2000) || '…', t(app, c.timestamp), String(c.parentId || ''), set(c.likes)]).sort());
 
 same('people', '-', 'list', [...A.knownPeople()].sort(), [...B.knownPeople()].sort());
@@ -81,6 +83,7 @@ A.beans.forEach((a, id) => {
   same('coffee', id, 'date', t(A, a.date), t(B, b.date));
   same('coffee', id, 'likes', set(a.likes), set(b.likes));
   same('coffee', id, 'comments', cm(A, a.comments), cm(B, b.comments));
+  same('coffee', id, 'wantToTry', set(a.wantToTry), set(b.wantToTry));
 });
 // want-to-try works per coffee (all bags of the same roaster + name), so it's compared per coffee group
 const wantByGroup = app => { const m = {}; app.beans.forEach(b => { const k = app.beanGroupKey(b); m[k] = [...new Set([...(m[k] || []), ...(b.wantToTry || [])])].sort(); }); return m; };
@@ -105,7 +108,8 @@ A.brews.forEach((a, id) => {
   ['verdict', 'brewer', 'recipeName', 'flavors'].forEach(f => same('session', id, f, a[f] ?? null, b[f] ?? null));
 });
 const gearOf = (app, who) => { const g = app.gearByUser.get(who) || {}; return [(g.items || []).map(i => [String(i.id), i.name, i.type]), g.recipes || [], g.lastByMethod || {}, g.fabFour || [], g.roasters || {}]; };
-A.knownPeople().forEach(p => same('gear', p, 'record', gearOf(A, p), gearOf(B, p)));
+// seen as `viewer`, other people's gear is only their equipment (recipes and settings are private)
+A.knownPeople().forEach(p => viewer && p !== viewer ? same('gear', p, 'equipment', gearOf(A, p)[0], gearOf(B, p)[0]) : same('gear', p, 'record', gearOf(A, p), gearOf(B, p)));
 A.knownPeople().forEach(p => same('goal switch', p, 'counts', A.goalExcluded(p), B.goalExcluded(p)));
 same('custom notes', '-', 'names', [...A.customFlavors.values()].map(f => f.name).sort(), [...B.customFlavors.values()].map(f => f.name).sort());
 same('achievements', '-', 'levels', A.achievementLevelsByUser || {}, B.achievementLevelsByUser || {});
@@ -116,7 +120,7 @@ if (process.env.PARITY_DEBUG) { const a = A.achievementLevelsByUser || {}, b = B
 // counts them from what exists instead. --known-history reports them without failing.
 const KNOWN = knownHistory ? diffs.filter(d => d.startsWith('achievements')) : [];
 KNOWN.forEach(d => diffs.splice(diffs.indexOf(d), 1));
-return { compared: `${A.beans.size} coffees, ${A.brews.size} sessions, ${A.knownPeople().length} people`, diffs, known: KNOWN };
+return { compared: `${A.beans.size} coffees, ${A.brews.size} sessions, ${A.knownPeople().length} people`, diffs, details, known: KNOWN };
 }
 
 function report({ compared, diffs, known }) {

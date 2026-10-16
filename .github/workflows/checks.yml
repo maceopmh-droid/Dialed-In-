@@ -35,3 +35,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Who sees what, as pretend people
         run: python3 supabase/test_rls.py --host localhost --user postgres
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: The app's two calls (pull_events, push_event) and claiming names
+        run: node supabase/test_api.js --host localhost --user postgres

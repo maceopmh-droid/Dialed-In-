@@ -155,7 +155,7 @@ def main():
     ok(pg.as_('stranger', f"insert into coffee_likes values ('40000000-0000-0000-0000-000000000001', '{U['stranger']}');").returncode == 0, 'anyone can like a coffee')
     ok(pg.as_('stranger', f"insert into coffee_likes values ('40000000-0000-0000-0000-000000000001', '{U['aidan']}');").returncode != 0, "can't like as someone else")
     pg.run(f"insert into equipment (owner_id, type, name) values ('{U['maceo']}', 'Grinder', 'Niche Zero'); insert into equipment (owner_id, type, name, hidden) values ('{U['maceo']}', 'Scale', 'Secret scale', true);")
-    pg.run(f"insert into want_to_try (owner_id, coffee_key) values ('{U['maceo']}', 'onyx|monarch'); insert into profile_gear (profile_id, recipes) values ('{U['maceo']}', '[1]');")
+    pg.run(f"insert into want_to_try (owner_id, coffee_id) values ('{U['maceo']}', '40000000-0000-0000-0000-000000000001'); insert into profile_gear (profile_id, recipes) values ('{U['maceo']}', '[1]');")
     ok(count('stranger', 'select count(*) from equipment;') == '1', "a stranger sees Maceo's equipment, minus the hidden item")
     ok(count('maceo', 'select count(*) from equipment;') == '2', 'you see all of your own equipment')
     ok(count('aidan', 'select count(*) from want_to_try;') == '1' and count('stranger', 'select count(*) from want_to_try;') == '0', 'want-to-try: friends yes, strangers no')

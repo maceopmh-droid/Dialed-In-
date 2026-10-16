@@ -103,11 +103,11 @@ const commentRows = (list, target, recordId) => {
 beans.forEach(b => {
   const owner = pid(b.owner || b.user); if (!owner) { skipped.push(`coffee ${b.id} (no owner)`); return; }
   const id = coffeeId(b.id);
-  add(`insert into coffees (id, legacy_id, owner_id, roaster_id, name, origin, process, variety, roast, roast_date, created_at, updated_at) values (${q(id)}, ${q(b.id)}, ${owner}, ${clean(b.roaster) ? q(roasterIds.get(clean(b.roaster).toLowerCase())) : 'null'}, ${q(clean(b.name) || 'Coffee')}, ${q(clean(b.origin) || null)}, ${q(clean(b.process) || null)}, ${q(clean(b.variety) || null)}, ${q(clean(b.roast) || null)}, ${dateOnly(b.roastDate)}, coalesce(${ts(b.date)}, now()), coalesce(${ts(b.eventAt || b.date)}, now()));`);
+  add(`insert into coffees (id, legacy_id, owner_id, roaster_id, roaster_text, name, origin, process, variety, roast, roast_date, created_at, updated_at) values (${q(id)}, ${q(b.id)}, ${owner}, ${clean(b.roaster) ? q(roasterIds.get(clean(b.roaster).toLowerCase())) : 'null'}, ${q(clean(b.roaster) || null)}, ${q(clean(b.name) || 'Coffee')}, ${q(clean(b.origin) || null)}, ${q(clean(b.process) || null)}, ${q(clean(b.variety) || null)}, ${q(clean(b.roast) || null)}, ${dateOnly(b.roastDate)}, coalesce(${ts(b.date)}, now()), coalesce(${ts(b.eventAt || b.date)}, now()));`);
   tally('coffees');
   [...new Set(b.likes || [])].forEach(n => { const who = pid(n); if (who) { add(`insert into coffee_likes (coffee_id, user_id) values (${q(id)}, ${who});`); tally('coffee_likes'); } });
   commentRows(b.comments, { col: 'coffee_id', id }, b.id);
-  [...new Set(b.wantToTry || [])].forEach(n => { const who = pid(n); if (who) { add(`insert into want_to_try (owner_id, coffee_key) values (${who}, ${q(app.beanGroupKey(b))}) on conflict do nothing;`); tally('want_to_try'); } });
+  [...new Set(b.wantToTry || [])].forEach(n => { const who = pid(n); if (who) { add(`insert into want_to_try (owner_id, coffee_id) values (${who}, ${q(id)}) on conflict do nothing;`); tally('want_to_try'); } });
 });
 
 // ---- sessions, their notes, photos, likes and comments
@@ -135,7 +135,8 @@ brews.forEach(b => {
 // ---- gear: equipment on the profile, the rest private
 app.gearByUser.forEach((g, owner) => {
   const who = pid(owner); if (!who || skipped.some(s => s.startsWith(owner + ' '))) return;
-  (g.items || []).forEach(it => { if (!it || !clean(it.name)) return; add(`insert into equipment (id, legacy_id, owner_id, type, name) values (${q(uid('equipment', owner, String(it.id || it.name)))}, ${q(it.id || null)}, ${who}, ${q(clean(it.type) || 'Other')}, ${q(clean(it.name))});`); tally('equipment'); });
+  let order = 0;
+  (g.items || []).forEach(it => { if (!it || !clean(it.name)) return; order++; add(`insert into equipment (id, legacy_id, owner_id, type, name, sort_order) values (${q(uid('equipment', owner, String(it.id || it.name)))}, ${q(it.id || null)}, ${who}, ${q(clean(it.type) || 'Other')}, ${q(clean(it.name))}, ${order});`); tally('equipment'); });
   add(`insert into profile_gear (profile_id, recipes, last_by_method, roaster_prefs, favorites) values (${who}, ${qj(g.recipes || [])}, ${qj(g.lastByMethod || {})}, ${qj(g.roasters || {})}, ${qj({ fabFour: g.fabFour || [] })});`);
   tally('profile_gear');
 });

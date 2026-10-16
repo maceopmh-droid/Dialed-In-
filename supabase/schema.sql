@@ -90,6 +90,7 @@ create table coffees (
   legacy_id     text unique,
   owner_id      uuid not null references profiles (id) on delete cascade,
   roaster_id    uuid references roasters (id),
+  roaster_text  text,                                  -- the roaster as written on this coffee (spelling kept)
   name          text not null,
   origin        text,
   process       text,
@@ -185,14 +186,15 @@ create table equipment (                               -- shown on your profile 
   type          text not null,
   name          text not null,
   hidden        boolean not null default false,
+  sort_order    integer not null default 0,
   created_at    timestamptz not null default now()
 );
 
 create table want_to_try (                             -- visible to friends
   owner_id      uuid not null references profiles (id) on delete cascade,
-  coffee_key    text not null,                         -- today's group key (roaster + name)
+  coffee_id     uuid not null references coffees (id) on delete cascade,   -- like today: the flag sits on one coffee record
   added_at      timestamptz not null default now(),
-  primary key (owner_id, coffee_key)
+  primary key (owner_id, coffee_id)
 );
 
 create table profile_gear (                            -- the rest of today's gear record: yours only
