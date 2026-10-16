@@ -1,0 +1,37 @@
+# Runs on every push: the parts of the test battery that don't need anyone's real data.
+# (The full battery, with a copy of the real data, stays private and still runs before every release.)
+name: checks
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: index.html matches src/
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Build from src/ (version in three places, icon link, scripts parse, no duplicate methods)
+        run: python3 build.py --out "$RUNNER_TEMP/built.html"
+      - name: The committed index.html is exactly what src/ builds
+        run: cmp "$RUNNER_TEMP/built.html" index.html
+
+  privacy:
+    name: database privacy rules
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Who sees what, as pretend people
+        run: python3 supabase/test_rls.py --host localhost --user postgres
