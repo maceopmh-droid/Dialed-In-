@@ -145,6 +145,22 @@ def main():
     ok(count('anon', 'select count(*) from profiles;') == '0', 'not signed in: no profiles')
     ok(count('stranger', 'select count(*) from claim_codes;') == '0', 'claim codes are never readable from the app')
 
+    # coffees, their comments and likes; gear and lists
+    k = f"insert into coffees (id, owner_id, name) values ('40000000-0000-0000-0000-000000000001', '{U['maceo']}', 'Monarch');"
+    pg.run(k)
+    pg.run(f"insert into comments (session_id, coffee_id, author_id, body, audience) values (null, '40000000-0000-0000-0000-000000000001', '{U['aidan']}', 'coffee note for friends', 'friends'), (null, '40000000-0000-0000-0000-000000000001', '{U['stranger']}', 'coffee note for all', 'everyone');")
+    for who, want in [('maceo', 'coffee note for all|coffee note for friends'), ('stranger', 'coffee note for all'), ('opener', 'coffee note for all')]:
+        got = count(who, "select coalesce(string_agg(body, '|' order by body), '') from comments where coffee_id is not null;")
+        ok(got == want, f'coffee comments {who} sees: "{want}" (got "{got}")')
+    ok(pg.as_('stranger', f"insert into coffee_likes values ('40000000-0000-0000-0000-000000000001', '{U['stranger']}');").returncode == 0, 'anyone can like a coffee')
+    ok(pg.as_('stranger', f"insert into coffee_likes values ('40000000-0000-0000-0000-000000000001', '{U['aidan']}');").returncode != 0, "can't like as someone else")
+    pg.run(f"insert into equipment (owner_id, type, name) values ('{U['maceo']}', 'Grinder', 'Niche Zero'); insert into equipment (owner_id, type, name, hidden) values ('{U['maceo']}', 'Scale', 'Secret scale', true);")
+    pg.run(f"insert into want_to_try (owner_id, coffee_key) values ('{U['maceo']}', 'onyx|monarch'); insert into profile_gear (profile_id, recipes) values ('{U['maceo']}', '[1]');")
+    ok(count('stranger', 'select count(*) from equipment;') == '1', "a stranger sees Maceo's equipment, minus the hidden item")
+    ok(count('maceo', 'select count(*) from equipment;') == '2', 'you see all of your own equipment')
+    ok(count('aidan', 'select count(*) from want_to_try;') == '1' and count('stranger', 'select count(*) from want_to_try;') == '0', 'want-to-try: friends yes, strangers no')
+    ok(count('aidan', 'select count(*) from profile_gear;') == '0' and count('maceo', 'select count(*) from profile_gear;') == '1', 'the rest of your gear is yours only')
+
     print(f'{fails} FAILED' if fails else 'all privacy checks passed')
     sys.exit(1 if fails else 0)
 

@@ -150,7 +150,8 @@ create table likes (
 create table comments (
   id            uuid primary key default gen_random_uuid(),
   legacy_ref    text unique,                       -- "<record id>#<position>" from the Sheet
-  session_id    uuid not null references sessions (id) on delete cascade,
+  session_id    uuid references sessions (id) on delete cascade,
+  coffee_id     uuid references coffees (id) on delete cascade,
   author_id     uuid not null references profiles (id) on delete cascade,
   parent_id     uuid references comments (id) on delete cascade,
   body          text not null check (char_length(body) between 1 and 2000),
@@ -158,7 +159,51 @@ create table comments (
   most_helpful  boolean not null default false,
   created_at    timestamptz not null default now(),
   edited_at     timestamptz,
-  deleted_at    timestamptz
+  deleted_at    timestamptz,
+  check ((session_id is null) <> (coffee_id is null))      -- on exactly one thing
+);
+
+create table coffee_likes (
+  coffee_id     uuid not null references coffees (id) on delete cascade,
+  user_id       uuid not null references profiles (id) on delete cascade,
+  created_at    timestamptz not null default now(),
+  primary key (coffee_id, user_id)
+);
+
+-- ---------------------------------------------------------------- your gear, lists and notes
+create table equipment (                               -- shown on your profile unless you hide it
+  id            uuid primary key default gen_random_uuid(),
+  legacy_id     text,
+  owner_id      uuid not null references profiles (id) on delete cascade,
+  type          text not null,
+  name          text not null,
+  hidden        boolean not null default false,
+  created_at    timestamptz not null default now()
+);
+
+create table want_to_try (                             -- visible to friends
+  owner_id      uuid not null references profiles (id) on delete cascade,
+  coffee_key    text not null,                         -- today's group key (roaster + name)
+  added_at      timestamptz not null default now(),
+  primary key (owner_id, coffee_key)
+);
+
+create table profile_gear (                            -- the rest of today's gear record: yours only
+  profile_id    uuid primary key references profiles (id) on delete cascade,
+  recipes       jsonb not null default '[]',
+  last_by_method jsonb not null default '{}',
+  roaster_prefs jsonb not null default '{}',
+  favorites     jsonb not null default '{}',
+  master        jsonb,
+  updated_at    timestamptz not null default now()
+);
+
+create table flavors (                                 -- custom tasting notes people added to the wheel
+  id            uuid primary key default gen_random_uuid(),
+  name          text not null unique,
+  family        text,
+  created_by    uuid references profiles (id) on delete set null,
+  created_at    timestamptz not null default now()
 );
 
 create table reports (
@@ -230,9 +275,11 @@ $$;
 -- a comment: the session must be visible; a friends-only comment is for the session's owner and the author's friends
 create function can_see_comment(viewer uuid, c comments) returns boolean
 language sql stable security definer set search_path = public as $$
-  select exists (select 1 from sessions s where s.id = c.session_id and can_see_session(viewer, s)
-                 and not blocked_either(viewer, c.author_id)
-                 and (c.audience = 'everyone' or viewer in (c.author_id, s.owner_id) or close_to(viewer, c.author_id)));
+  select viewer is not null and not blocked_either(viewer, c.author_id) and (
+       exists (select 1 from sessions s where s.id = c.session_id and can_see_session(viewer, s)
+               and (c.audience = 'everyone' or viewer in (c.author_id, s.owner_id) or close_to(viewer, c.author_id)))
+    or exists (select 1 from coffees k where k.id = c.coffee_id and k.deleted_at is null
+               and (c.audience = 'everyone' or viewer in (c.author_id, k.owner_id) or close_to(viewer, c.author_id))));
 $$;
 
 -- ---------------------------------------------------------------- row-level security
@@ -250,6 +297,11 @@ alter table session_photos enable row level security;
 alter table likes          enable row level security;
 alter table comments       enable row level security;
 alter table reports        enable row level security;
+alter table coffee_likes   enable row level security;
+alter table equipment      enable row level security;
+alter table want_to_try    enable row level security;
+alter table profile_gear   enable row level security;
+alter table flavors        enable row level security;
 
 -- profiles: everyone signed in sees the card (unless blocked); you edit only your own
 create policy profiles_read  on profiles for select to authenticated using (not blocked_either(me(), id));
@@ -311,9 +363,31 @@ create policy likes_del  on likes for delete to authenticated using (user_id = m
 -- comments
 create policy comments_read on comments for select to authenticated using (can_see_comment(me(), comments));
 create policy comments_add  on comments for insert to authenticated
-  with check (author_id = me() and exists (select 1 from sessions s where s.id = session_id and can_see_session(me(), s)));
+  with check (author_id = me() and (exists (select 1 from sessions s where s.id = session_id and can_see_session(me(), s))
+                                    or exists (select 1 from coffees k where k.id = coffee_id and k.deleted_at is null)));
 create policy comments_edit on comments for update to authenticated using (author_id = me());
 create policy comments_del  on comments for delete to authenticated using (author_id = me());
+
+-- coffee likes: shared like the coffee; you like as yourself
+create policy coffee_likes_read on coffee_likes for select to authenticated using (not blocked_either(me(), user_id));
+create policy coffee_likes_add  on coffee_likes for insert to authenticated with check (user_id = me());
+create policy coffee_likes_del  on coffee_likes for delete to authenticated using (user_id = me());
+
+-- equipment: on your profile for everyone signed in, unless hidden; yours to change
+create policy equipment_read  on equipment for select to authenticated
+  using (owner_id = me() or (not hidden and not blocked_either(me(), owner_id)));
+create policy equipment_write on equipment for all to authenticated using (owner_id = me()) with check (owner_id = me());
+
+-- want to try: you and your friends (and private groups)
+create policy want_read  on want_to_try for select to authenticated using (owner_id = me() or (close_to(me(), owner_id) and not blocked_either(me(), owner_id)));
+create policy want_write on want_to_try for all to authenticated using (owner_id = me()) with check (owner_id = me());
+
+-- the rest of your gear: yours only
+create policy gear_mine on profile_gear for all to authenticated using (profile_id = me()) with check (profile_id = me());
+
+-- custom tasting notes: everyone signed in reads; you add your own
+create policy flavors_read on flavors for select to authenticated using (true);
+create policy flavors_add  on flavors for insert to authenticated with check (created_by = me());
 
 -- reports: you file them; reviewing goes through the admin page (server side)
 create policy reports_add on reports for insert to authenticated with check (reporter_id = me());
