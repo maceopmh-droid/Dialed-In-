@@ -262,9 +262,9 @@
                     const delFn = kind === 'bean' ? 'removeBeanComment' : 'removeComment';
                     return `
                         <div class="cmt${isReply ? ' reply' : ''}" id="cmt-${this.esc(c.id)}">
-                            <div class="cmt-avatar" style="background:${this.esc(color)}">${this.esc(this.feedInitial(c.user))}</div>
+                            <div class="cmt-avatar" style="background:${this.esc(color)}" data-profile="${this.esc(c.user)}">${this.esc(this.feedInitial(c.user))}</div>
                             <div class="cmt-main">
-                                <div class="cmt-head"><b data-name="${this.esc(c.user)}" onclick="app.openAnyProfile(this.getAttribute('data-name'), event)">${this.esc(c.user)}</b><span>${this.esc(this.formatRelativeDate(c.timestamp))}</span>${kind === 'brew' && target.helpfulAnswer && String(target.helpfulAnswer) === String(c.id) ? '<span class="cmt-helpful">Most helpful</span>' : ''}</div>
+                                <div class="cmt-head"><b data-profile="${this.esc(c.user)}">${this.esc(c.user)}</b><span>${this.esc(this.formatRelativeDate(c.timestamp))}</span>${kind === 'brew' && target.helpfulAnswer && String(target.helpfulAnswer) === String(c.id) ? '<span class="cmt-helpful">Most helpful</span>' : ''}</div>
                                 <div class="cmt-text">${this.esc(c.text)}</div>
                                 <div class="cmt-actions">
                                     <button type="button" class="cmt-like${liked ? ' liked' : ''}" onclick="app.toggleCommentLike('${app.escJs(kind)}','${app.escJs(id)}','${app.escJs(c.id)}',event)" aria-pressed="${liked}" aria-label="Like comment">
@@ -439,9 +439,9 @@
                     <article class="feed-card feed-session-card sc-card" data-card-brew="${this.esc(brew.id)}" onclick="app.openFeedTarget('${app.escJs(brew.beanId || '')}','${app.escJs(brew.id)}',true)">
                         <div class="feed-card-body">
                             <div class="feed-head">
-                                <div class="feed-avatar" style="background:${this.esc(color)};" data-name="${this.esc(owner)}" onclick="app.openAnyProfile(this.getAttribute('data-name'), event)">${this.esc(this.feedInitial(owner))}</div>
+                                <div class="feed-avatar" style="background:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(this.feedInitial(owner))}</div>
                                 <div class="feed-meta">
-                                    <div class="feed-actor" style="color:${this.esc(color)};" data-name="${this.esc(owner)}" onclick="app.openAnyProfile(this.getAttribute('data-name'), event)">${this.esc(owner)}</div>
+                                    <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}</div>
                                     ${(tag => tag ? `<div class="feed-sub"><span class="feed-time" data-time="${this.esc(String(entry.date || brew.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || brew.date))}</span>${tag}</div>`
                                         : `<div class="feed-time" data-time="${this.esc(String(entry.date || brew.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || brew.date))}</div>`)(this.helpTagHtml ? this.helpTagHtml(brew) : '')}
                                 </div>
@@ -505,9 +505,9 @@
                     <article class="feed-card">
                         <div class="feed-card-body">
                             <div class="feed-head">
-                                <div class="feed-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(owner))}</div>
+                                <div class="feed-avatar" style="background:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(this.feedInitial(owner))}</div>
                                 <div class="feed-meta">
-                                    <div class="feed-actor" style="color:${this.esc(color)};">${this.esc(owner)}</div>
+                                    <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}</div>
                                     <div class="feed-time" data-time="${this.esc(String(entry.date || bean.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || bean.date))}</div>
                                 </div>
                                 <div class="feed-type">${this.esc(entry.kindLabel || 'Bean')}</div>

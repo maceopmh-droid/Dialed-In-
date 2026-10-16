@@ -162,9 +162,9 @@
                     <article class="feed-card join-card" style="--jc:${this.esc(color)}">
                         <div class="feed-card-body">
                             <div class="join-row">
-                                <div class="feed-avatar join-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(name))}</div>
+                                <div class="feed-avatar join-avatar" style="background:${this.esc(color)};" data-profile="${this.esc(name)}">${this.esc(this.feedInitial(name))}</div>
                                 <div class="join-text">
-                                    <div class="join-title"><b style="color:${this.esc(color)}">${this.esc(name)}</b> joined Dialed In</div>
+                                    <div class="join-title"><b style="color:${this.esc(color)}" data-profile="${this.esc(name)}">${this.esc(name)}</b> joined Dialed In</div>
                                     <div class="feed-time" data-time="${this.esc(String(e.date || ''))}">${this.esc(this.formatRelativeDate(e.date))}</div>
                                 </div>
                                 <div class="feed-type">New here</div>

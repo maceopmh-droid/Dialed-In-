@@ -59,9 +59,9 @@
                 return `
                         <div class="feed-card-body">
                             <div class="feed-head">
-                                <div class="feed-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(owner))}</div>
+                                <div class="feed-avatar" style="background:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(this.feedInitial(owner))}</div>
                                 <div class="feed-meta">
-                                    <div class="feed-actor" style="color:${this.esc(color)};">${this.esc(owner)}</div>
+                                    <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}</div>
                                     <div class="feed-time">${this.esc(this.formatRelativeDate(log.date))}</div>
                                 </div>
                                 <div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(log.method)}"/></svg>${this.esc(log.method || 'Espresso')}</div>
@@ -177,7 +177,7 @@
                 }).join('');
                 const flavors = this.getTopFlavors(list, 3);
                 const avgRating = this.calculateAverageRating(list);
-                return `<div class="side-card"><div class="side-name" style="color:${this.esc(color)};">${this.esc(owner)}</div><div class="side-stat">${list.length} session${list.length === 1 ? '' : 's'} · ${this.esc(methods.join(', ') || '-')}${avgRating > 0 ? ` · avg ${this.esc(this.formatRating(avgRating))}★` : ''}</div><div class="side-label">${pickLabel}${pick && pick.method ? ` · ${this.esc(pick.method)}` : ''}</div><div class="side-recipe">${this.esc(this.recipeLine(pick, false) || '-')}</div><div class="taste-bars">${bars}</div>${flavors.length ? `<div class="side-flavors">${flavors.map(f => this.famChip(f)).join('')}</div>` : ''}</div>`;
+                return `<div class="side-card"><div class="side-name" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}</div><div class="side-stat">${list.length} session${list.length === 1 ? '' : 's'} · ${this.esc(methods.join(', ') || '-')}${avgRating > 0 ? ` · avg ${this.esc(this.formatRating(avgRating))}★` : ''}</div><div class="side-label">${pickLabel}${pick && pick.method ? ` · ${this.esc(pick.method)}` : ''}</div><div class="side-recipe">${this.esc(this.recipeLine(pick, false) || '-')}</div><div class="taste-bars">${bars}</div>${flavors.length ? `<div class="side-flavors">${flavors.map(f => this.famChip(f)).join('')}</div>` : ''}</div>`;
             },
 
             dialinSeries() {

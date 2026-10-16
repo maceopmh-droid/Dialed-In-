@@ -476,7 +476,7 @@
                     ? q.people.filter(p => (q.counts[p] || 0) >= q.per).map(p => ({ p, w: 1 / q.target }))
                     : q.by.map(([p, n]) => ({ p, w: Math.min(n, q.target) / q.target }));
                 const bar = this.crewBarHtml(q, segs);
-                const faces = q.by.map(([p, n]) => `<span class="cq-face"><b style="background:${this.esc(this.getUserColor(p))}">${this.esc(this.feedInitial(p))}</b>${n}</span>`).join('');
+                const faces = q.by.map(([p, n]) => `<span class="cq-face" data-profile="${this.esc(p)}"><b style="background:${this.esc(this.getUserColor(p))}">${this.esc(this.feedInitial(p))}</b>${n}</span>`).join('');
                 const left = q.done ? 'Done together' : (q.daysLeft <= 1 ? 'Last day' : `${q.daysLeft} days left`);
                 return `
                     <section class="feed-card crew-quest${q.done ? ' done' : ''}" aria-label="Group goal">

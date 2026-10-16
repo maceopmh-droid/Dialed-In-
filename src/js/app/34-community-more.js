@@ -16,6 +16,21 @@
                 return this.brewsOf(name).some(b => !this.isCommunity('brew', b.id));
             },
 
+            // anyone's name or circle (data-profile="Name") opens their profile: one listener for the whole app, ahead of
+            // the card it sits on (a tap on the name doesn't also open the card)
+            bindProfileLinks() {
+                if (this._profileLinks || typeof document === 'undefined') return;
+                this._profileLinks = true;
+                document.addEventListener('click', e => {
+                    const el = e.target && e.target.closest ? e.target.closest('[data-profile]') : null;
+                    if (!el) return;
+                    const name = el.getAttribute('data-profile');
+                    if (!name) return;
+                    e.stopPropagation(); e.preventDefault();
+                    this.openAnyProfile(name);
+                }, true);
+            },
+
             openAnyProfile(name, event) {
                 if (event && event.stopPropagation) event.stopPropagation();
                 name = String(name || '').trim();
@@ -27,7 +42,8 @@
                     if (st.name !== name) { this._prof = { name, events: [], card: null, at: 0, loading: false, error: '' }; this.process(this.cloud.events); }
                     if (!this.profState().at || Date.now() - this.profState().at > 10 * 60000) this.loadProfilePage(name);
                 }
-                this.profileSection = 'overview';
+                if (this.tab !== 'profile' || this.profileUser !== name) this.profileSection = 'sessions';   // their sessions first, like a social profile
+                this._profShow = null;
                 this.setTab('profile');
                 this.setProfileUser(name);
                 if (typeof window !== 'undefined' && window.scrollTo) window.scrollTo({ top: 0 });
@@ -66,6 +82,45 @@
                     : !this.brewsOf(who).length ? `${who} hasn't shared any sessions with Everyone yet.`
                     : `What ${who} shares with Everyone.`;
                 return `<p class="pp-profile-note">${this.esc(text)}</p>`;
+            },
+
+            // ---- a profile's Sessions tab: their sessions as feed cards, newest first (likes and comments work as in the
+            // Feed), fifteen at a time; and the coffees they've brewed (Overview)
+            profileSessionsHtml(who) {
+                const list = this.brewsOf(who).slice().sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
+                if (!list.length) {
+                    const st = this.profState && this.profState();
+                    if (st && st.name === who && st.loading) return '<div class="panel-empty">Loading…</div>';
+                    return `<div class="panel-empty">${who === this.user ? 'Your sessions show here once you log one.' : `No sessions of ${this.esc(who)}'s to show yet.`}</div>`;
+                }
+                const shown = this._profShow && this._profShow.who === who ? this._profShow.n : 15;
+                const n = Math.min(list.length, shown);
+                const cards = list.slice(0, n).map(b => this.renderFeedSessionCard({ kind: 'session', brewId: b.id, date: b.date, actorColor: b.actorColor || '' })).join('');
+                const more = list.length > n ? `<button type="button" class="btn-outline comm-more" onclick="app.profileMore()">Show older sessions</button>` : '';
+                return `<div class="profile-feed">${cards}${more}</div>`;
+            },
+
+            profileMore() {
+                const who = this.profileUser;
+                const shown = this._profShow && this._profShow.who === who ? this._profShow.n : 15;
+                this._profShow = { who, n: shown + 15 };
+                const y = typeof window !== 'undefined' ? window.scrollY : 0;
+                this.render();
+                if (typeof window !== 'undefined' && window.scrollTo) window.scrollTo({ top: y });
+            },
+
+            profileCoffeesHtml(who) {
+                const seen = new Map();
+                this.brewsOf(who).slice().sort((a, b) => this.toTime(b.date) - this.toTime(a.date)).forEach(b => {
+                    const bean = this.beans.get(String(b.beanId || ''));
+                    if (!bean) return;
+                    const key = this.beanGroupKey(bean);
+                    if (!seen.has(key)) seen.set(key, bean.id);
+                });
+                this.beans.forEach(bean => { if (bean.user === who && !seen.has(this.beanGroupKey(bean))) seen.set(this.beanGroupKey(bean), bean.id); });
+                if (!seen.size) return '';
+                const ids = [...seen.values()];
+                return `<div class="profile-card prof-coffees"><div class="label">Coffees <span class="prof-count">${ids.length}</span></div><div class="fab-row small prof-coffee-grid">${ids.map(id => this.fabTileHtml(id, { user: who, small: true })).join('')}</div></div>`;
             },
 
             // ---- suggested people (People tab): who brews the same coffees, roasters, grinder or methods as you

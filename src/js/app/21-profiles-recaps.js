@@ -37,14 +37,15 @@
                     this._peopleLoading = true;
                     this.loadPeople().then(() => { this._peopleLoading = false; if (this.tab === 'profile') this.render(); }).catch(() => { this._peopleLoading = false; this.ppState().at = Date.now(); });
                 }
-                const section = ['overview', 'taste', 'activity'].includes(this.profileSection) ? this.profileSection : 'overview';
+                const section = ['sessions', 'overview', 'taste', 'activity'].includes(this.profileSection) ? this.profileSection : 'sessions';   // v14.5: Sessions first
                 const freshRecap = who === this.user ? this.freshRecap() : null;
-                const tabs = `<div class="seg-control profile-tabs" role="tablist" aria-label="Profile sections">${[['overview', 'Overview'], ['taste', 'Taste'], ['activity', 'Activity']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === section}" aria-pressed="${k === section}" onclick="app.setProfileSection('${app.escJs(k)}')">${l}${k === 'activity' && freshRecap && section !== 'activity' ? '<span class="nav-dot"></span>' : ''}</button>`).join('')}</div>`;
-                const cards = section === 'taste'
+                const tabs = `<div class="seg-control profile-tabs" role="tablist" aria-label="Profile sections">${[['sessions', 'Sessions'], ['overview', 'Overview'], ['taste', 'Taste'], ['activity', 'Activity']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === section}" aria-pressed="${k === section}" onclick="app.setProfileSection('${app.escJs(k)}')">${l}${k === 'activity' && freshRecap && section !== 'activity' ? '<span class="nav-dot"></span>' : ''}</button>`).join('')}</div>`;
+                const cards = section === 'sessions' ? [this.profileSessionsHtml(who)]
+                    : section === 'taste'
                     ? [this.renderPalateCard(who), who === this.user ? this.renderFriendPalates() : '', this.renderMatchesCard(who), this.renderWantCard(who)]
                     : section === 'activity'
                         ? [this.renderCrewAwardsCard(), this.renderCalendarCard(who), this.renderRecapCard(who)]
-                        : [this.renderFabFour(who), this.renderAchievementsCard(who), who !== this.user ? this.renderGearCard(who) : ''];
+                        : [this.renderFabFour(who), this.profileCoffeesHtml(who), this.renderAchievementsCard(who), who !== this.user ? this.renderGearCard(who) : ''];
                 const body = cards.filter(Boolean).join('') || '<div class="panel-empty">Nothing here yet. Log a few sessions and this fills in.</div>';
                 grid.innerHTML = [
                     `<div class="people-switch${this.acctOn() ? ' one-row' : ''}">${chips}${peopleChip}</div>`,
@@ -202,7 +203,7 @@
                 if (!others.length) return '';
                 const rows = others.map(name => {
                     const color = this.getUserColor(name);
-                    return `<button type="button" class="friend-palate" data-name="${this.esc(name)}" onclick="app.setProfileUser(this.getAttribute('data-name'))"><span class="person-dot" style="background:${this.esc(color)};">${this.esc(this.feedInitial(name))}</span><span class="friend-palate-text"><b>${this.esc(name)}</b>${this.esc(this.palateSentence(this.palateFor(name)))}</span></button>`;
+                    return `<button type="button" class="friend-palate" data-profile="${this.esc(name)}"><span class="person-dot" style="background:${this.esc(color)};">${this.esc(this.feedInitial(name))}</span><span class="friend-palate-text"><b>${this.esc(name)}</b>${this.esc(this.palateSentence(this.palateFor(name)))}</span></button>`;
                 }).join('');
                 return `<section class="profile-card"><h4 class="section-label">Friends' palates</h4><div class="friend-palates">${rows}</div></section>`;
             },
