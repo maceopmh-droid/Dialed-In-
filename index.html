@@ -16171,6 +16171,9 @@
                 const st = this.commState();
                 if (st.loading || !this.acctOn() || !Supa.ready()) return;
                 if (more && !st.next) return;
+                // photo links last two hours: after ninety minutes start over from the first page, so none go stale
+                if (!more && st.born && Date.now() - st.born > 90 * 60000) { st.events = []; st.next = null; st.at = 0; st.born = 0; }
+                if (!st.born) st.born = Date.now();
                 st.loading = true; st.error = '';
                 if (this.tab === 'feed' && this.feedMode() === 'community') this.render();
                 try {
