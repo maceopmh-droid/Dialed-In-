@@ -220,5 +220,3 @@
                 const color = this.getUserColor(this.user);
                 return `<div class="acct-row"><i class="acct-dot" style="background:${this.esc(color)}">${this.esc(this.feedInitial(this.user || '?'))}</i><span class="acct-who"><b>${this.esc(this.user || '')}</b>${email ? `<small>${this.esc(email)}</small>` : ''}</span><button type="button" class="btn-outline acct-out" onclick="app.signOut()">Sign out</button></div>`;
             },
-        };
-

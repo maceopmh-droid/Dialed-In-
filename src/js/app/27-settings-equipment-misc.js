@@ -6,7 +6,13 @@
                 const acct = this.acctOn();
                 const label = document.getElementById('user-list-label'); if (label) label.textContent = acct ? 'You' : 'Active User';
                 const addRow = document.getElementById('add-user-row'); if (addRow) addRow.style.display = acct ? 'none' : 'flex';
-                if (acct) { const me = document.createElement('div'); me.innerHTML = this.acctSettingsHtml(); list.appendChild(me.firstElementChild); }
+                if (acct) {
+                    const me = document.createElement('div'); me.innerHTML = this.acctSettingsHtml(); list.appendChild(me.firstElementChild);
+                    // v14.4: a private profile approves its followers
+                    const priv = this.peoplePrivacyHtml();
+                    if (priv) { const pr = document.createElement('div'); pr.innerHTML = priv; list.appendChild(pr.firstElementChild); }
+                    else if (!this._privLoading) { this._privLoading = true; this.loadPeople(true).then(() => { this._privLoading = false; if (document.getElementById('settings-modal').classList.contains('active')) this.openSettings(); }).catch(() => { this._privLoading = false; }); }
+                }
                 const head = document.createElement('div');
                 head.className = 'user-head';
                 head.innerHTML = '<span>Counts in group goal</span>';

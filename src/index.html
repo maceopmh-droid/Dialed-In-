@@ -29,6 +29,7 @@
 @@include css/09-roasters-v13.css
 @@include css/10-v14.css
 @@include css/11-account.css
+@@include css/12-people.css
     </style>
 </head>
 <body>
@@ -317,6 +318,15 @@
                 <button class="btn-primary" id="equipment-save-btn" onclick="app.saveEquipment()">Add Equipment</button>
                 <button class="btn-outline" id="equipment-cancel-btn" onclick="app.cancelEquipmentEdit()" style="display:none;">Cancel Edit</button>
             </div></div></div>
+    <!-- People (v14.4, new backend only) -->
+    <div id="people-modal" class="modal" onclick="if(event.target===this) app.closePeople()">
+        <div class="modal-card people-card">
+            <h2>People</h2>
+            <input id="people-q" class="pp-search" type="search" placeholder="Find people by name" autocomplete="off" autocapitalize="words" spellcheck="false" oninput="app.peopleSearch(this.value)">
+            <div id="people-body"></div>
+        </div>
+    </div>
+
     <div id="settings-modal" class="modal" onclick="if(event.target===this) app.closeModals()">
         <div class="modal-card">
             <h2>Settings</h2>
@@ -678,6 +688,7 @@
 @@include js/app/26-likes-comments-forms.js
 @@include js/app/27-settings-equipment-misc.js
 @@include js/app/28-account.js
+@@include js/app/29-people.js
 @@include js/99-boot.js
     </script>
 </body>

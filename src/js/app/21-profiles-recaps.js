@@ -28,6 +28,13 @@
                     const color = this.getUserColor(name);
                     return `<button type="button" class="person-chip${name === who ? ' active' : ''}" data-name="${this.esc(name)}" onclick="app.setProfileUser(this.getAttribute('data-name'))"><span class="person-dot" style="background:${this.esc(color)};">${this.esc(this.feedInitial(name))}</span>${this.esc(name)}${name === this.user ? ' <span class="you-tag">You</span>' : ''}</button>`;
                 }).join('');
+                // v14.4: People (new backend): find, follow, requests. Follow requests waiting are counted inside the button
+                const asks = this.acctOn() ? this.peopleRequests().length : 0;
+                const peopleChip = this.acctOn() ? `<button type="button" class="person-chip pp-chip" onclick="app.openPeople()"><svg class="icon"><use href="#i-users"/></svg>People${asks ? `<span class="pp-count">${asks}</span>` : ''}</button>` : '';
+                if (this.acctOn() && !this._peopleLoading && Date.now() - this.ppState().at > 60000) {
+                    this._peopleLoading = true;
+                    this.loadPeople().then(() => { this._peopleLoading = false; if (this.tab === 'profile') this.render(); }).catch(() => { this._peopleLoading = false; this.ppState().at = Date.now(); });
+                }
                 const section = ['overview', 'taste', 'activity'].includes(this.profileSection) ? this.profileSection : 'overview';
                 const freshRecap = who === this.user ? this.freshRecap() : null;
                 const tabs = `<div class="seg-control profile-tabs" role="tablist" aria-label="Profile sections">${[['overview', 'Overview'], ['taste', 'Taste'], ['activity', 'Activity']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === section}" aria-pressed="${k === section}" onclick="app.setProfileSection('${app.escJs(k)}')">${l}${k === 'activity' && freshRecap && section !== 'activity' ? '<span class="nav-dot"></span>' : ''}</button>`).join('')}</div>`;
@@ -38,7 +45,7 @@
                         : [this.renderFabFour(who), this.renderAchievementsCard(who), who !== this.user ? this.renderGearCard(who) : ''];
                 const body = cards.filter(Boolean).join('') || '<div class="panel-empty">Nothing here yet. Log a few sessions and this fills in.</div>';
                 grid.innerHTML = [
-                    `<div class="people-switch">${chips}</div>`,
+                    `<div class="people-switch">${chips}${peopleChip}</div>`,
                     this.renderProfileHero(who),
                     tabs,
                     `<div class="profile-section" data-section="${section}">${body}</div>`
@@ -119,7 +126,7 @@
                 const dots = r.weeks.map((on, i) => `<span class="week-dot${on ? ' on' : ''}" title="${i === 7 ? 'This week' : `${7 - i} week${7 - i === 1 ? '' : 's'} ago`}"></span>`).join('');
                 const streak = this.streakChipHtml(r.streak);
                 const last = r.lastT ? `Last brewed ${this.formatRelativeDate(r.lastT)}` : 'No sessions yet';
-                return `<section class="profile-card profile-hero" style="--pc-rgb:${this.hexRgb(color)}"><div class="hero-row"><div class="hero-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(user))}</div><div><div class="hero-name">${this.esc(user)}${user === this.user ? '<span class="you-tag">You</span>' : ''}</div><div class="hero-sub">${this.esc(last)}</div></div></div><div class="rhythm"><div class="week-dots">${dots}</div><div class="rhythm-text">Brewed in ${r.active} of the last 8 weeks</div>${streak}</div><div class="stat-row"><div class="stat-box"><div class="stat-num">${brews.length}</div><div class="stat-cap">${brews.length === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${beans}</div><div class="stat-cap">${beans === 1 ? 'Bean' : 'Beans'}</div></div><div class="stat-box"><div class="stat-num">${methods}</div><div class="stat-cap">${methods === 1 ? 'Method' : 'Methods'}</div></div></div></section>`;
+                return `<section class="profile-card profile-hero" style="--pc-rgb:${this.hexRgb(color)}"><div class="hero-row"><div class="hero-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(user))}</div><div><div class="hero-name">${this.esc(user)}${user === this.user ? '<span class="you-tag">You</span>' : ''}</div><div class="hero-sub">${this.esc(last)}</div>${this.acctOn() ? this.profileFollowHtml(user) : ''}</div></div><div class="rhythm"><div class="week-dots">${dots}</div><div class="rhythm-text">Brewed in ${r.active} of the last 8 weeks</div>${streak}</div><div class="stat-row"><div class="stat-box"><div class="stat-num">${brews.length}</div><div class="stat-cap">${brews.length === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${beans}</div><div class="stat-cap">${beans === 1 ? 'Bean' : 'Beans'}</div></div><div class="stat-box"><div class="stat-num">${methods}</div><div class="stat-cap">${methods === 1 ? 'Method' : 'Methods'}</div></div></div></section>`;
             },
 
             palateFor(user) {

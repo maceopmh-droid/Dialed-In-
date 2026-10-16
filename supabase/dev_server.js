@@ -142,7 +142,8 @@ async function handle(req, res) {
     stats.rpc++; if (rpc[1] === 'push_event') stats.pushes++; if (rpc[1] === 'pull_events') stats.pulls++;
     const args = json();
     if (process.env.DEV_LOG && rpc[1] === 'push_event') console.log('push as', who.sub, JSON.stringify({ type: args.ev && args.ev.type, id: args.ev && args.ev.id, likes: args.ev && args.ev.likes }));
-    const call = `select ${rpc[1]}(${Object.keys(args).map(k => `${k.replace(/[^a-z_]/g, '')} => ${lit(args[k])}`).join(', ')});`;
+    // to_jsonb: answers come back as JSON whatever the function returns, as PostgREST sends them ("following", 42, {...})
+    const call = `select to_jsonb(${rpc[1]}(${Object.keys(args).map(k => `${k.replace(/[^a-z_]/g, '')} => ${lit(args[k])}`).join(', ')}));`;
     try { const out = asWho(who.sub, call); return send(res, 200, out === '' ? 'null' : out); } catch (e) { const err = pgError(e, who.sub); return send(res, err.status, err.body); }
   }
 

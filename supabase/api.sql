@@ -99,8 +99,20 @@ end $$;
 -- the signed-in person's profile, or null when they haven't claimed a name or made one yet
 create or replace function my_profile() returns jsonb
 language sql stable security definer set search_path = public as $$
-  select jsonb_build_object('id', p.id, 'name', coalesce(p.legacy_name, p.display_name), 'handle', p.handle) from profiles p where p.auth_id = auth.uid();
+  select jsonb_build_object('id', p.id, 'name', coalesce(p.legacy_name, p.display_name), 'handle', p.handle, 'private', p.is_private) from profiles p where p.auth_id = auth.uid();
 $$;
+
+-- v14.4: a private profile approves its followers (and only they, plus friends and your groups, see what you share
+-- with Everyone). Going public again lets in everyone who asked.
+create or replace function set_private(make_private boolean) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare me_id uuid := me();
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  update profiles set is_private = coalesce(make_private, false) where id = me_id;
+  if not coalesce(make_private, false) then update follows set status = 'accepted' where followee = me_id and status = 'pending'; end if;
+  return my_profile();
+end $$;
 
 -- the parts of other people's gear their profile shows: favorite coffees and roaster choices (their merges and "not the
 -- same" apply to everyone's roaster pages; favorite roasters and roaster details show there too). Recipes and last
@@ -522,9 +534,9 @@ end $$;
 create or replace function my_people() returns jsonb
 language sql stable security definer set search_path = public as $$
   select jsonb_build_object(
-    'following', coalesce((select jsonb_agg(jsonb_build_object('name', internal.name_of(f.followee), 'status', f.status, 'friend', private.is_friend(me(), f.followee)) order by internal.name_of(f.followee))
+    'following', coalesce((select jsonb_agg(jsonb_build_object('name', internal.name_of(f.followee), 'color', internal.color_of(f.followee), 'status', f.status, 'friend', private.is_friend(me(), f.followee)) order by internal.name_of(f.followee))
                            from follows f where f.follower = me()), '[]'::jsonb),
-    'followers', coalesce((select jsonb_agg(jsonb_build_object('name', internal.name_of(f.follower), 'status', f.status) order by f.status desc, internal.name_of(f.follower))
+    'followers', coalesce((select jsonb_agg(jsonb_build_object('name', internal.name_of(f.follower), 'color', internal.color_of(f.follower), 'status', f.status) order by f.status desc, internal.name_of(f.follower))
                            from follows f where f.followee = me()), '[]'::jsonb),
     'blocked', coalesce((select jsonb_agg(internal.name_of(b.blocked) order by internal.name_of(b.blocked)) from blocks b where b.blocker = me()), '[]'::jsonb));
 $$;
@@ -814,11 +826,11 @@ end $$;
 grant usage on schema internal to authenticated;
 grant execute on all functions in schema internal to authenticated;
 -- only signed-in people can call these (Postgres lets everyone run a new function unless told otherwise)
-revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(),
+revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version() from public, anon;
-grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(),
+grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version() to authenticated;
