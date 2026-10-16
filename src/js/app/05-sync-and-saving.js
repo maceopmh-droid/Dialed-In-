@@ -194,7 +194,7 @@
                     const ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
                     const hang = ctl ? setTimeout(() => ctl.abort(), 20000) : null;
                     let text;
-                    try { const res = await fetch(this.buildSyncUrl(), ctl ? { signal: ctl.signal } : undefined); text = await res.text(); } finally { if (hang) clearTimeout(hang); }
+                    try { text = await Cloud.pull(this.syncPosition(), ctl ? { signal: ctl.signal } : {}); } finally { if (hang) clearTimeout(hang); }
                     const json = JSON.parse(text);
                     this.lastCloudAt = Date.now();
                     if (this.syncFailed) this.pendingOutbox().forEach(x => { x.lastTry = 0; });   // back online: send what's waiting now
@@ -231,15 +231,9 @@
                 }
             },
 
-            buildSyncUrl() {
-                const params = new URLSearchParams({
-                    v: '2',
-                    since: String(this.cloud.next || 0),
-                    ver: this.cloud.version || '',
-                    anchor: this.cloud.anchor || '',
-                    t: String(Date.now())
-                });
-                return CLOUD_URL + '?' + params.toString();
+            // where this device is in the shared log, for Cloud.pull
+            syncPosition() {
+                return { since: this.cloud.next || 0, version: this.cloud.version || '', anchor: this.cloud.anchor || '' };
             },
 
             // Folds a server reply into this.cloud. Returns true when the event list changed.
@@ -347,7 +341,7 @@
             // ---- On-device copy of the shared log (IndexedDB) ----
 
             cacheKey() {
-                return 'cloud:' + CLOUD_URL;
+                return 'cloud:' + Cloud.id;
             },
 
             openCacheDb() {
@@ -428,7 +422,7 @@
             persistCloudCache() {
                 this.writeCloudCache({
                     schema: 1,
-                    url: CLOUD_URL,
+                    url: Cloud.id,
                     savedAt: Date.now(),
                     version: this.cloud.version,
                     next: this.cloud.next,
@@ -440,7 +434,7 @@
             isUsableSnapshot(snapshot) {
                 return Boolean(snapshot) &&
                     snapshot.schema === 1 &&
-                    snapshot.url === CLOUD_URL &&
+                    snapshot.url === Cloud.id &&
                     Array.isArray(snapshot.events) &&
                     Number.isInteger(snapshot.next) && snapshot.next >= 0 &&
                     typeof snapshot.version === 'string' &&
@@ -658,7 +652,7 @@
             },
 
             // ===================== v13.4: saves on their way to the sheet (outbox) =====================
-            outboxKey() { return 'outbox:' + CLOUD_URL; },
+            outboxKey() { return 'outbox:' + Cloud.id; },
 
             idbGet(key) {
                 return this.openCacheDb().then(db => new Promise(resolve => {
@@ -808,7 +802,7 @@
             postEvent(ev) {
                 const ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
                 const timer = ctl ? setTimeout(() => ctl.abort(), 20000) : null;
-                return fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(ev), ...(ctl ? { signal: ctl.signal } : {}) })
+                return Cloud.send(ev, ctl ? { signal: ctl.signal } : {})
                     .finally(() => { if (timer) clearTimeout(timer); });
             },
 

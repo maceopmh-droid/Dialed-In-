@@ -29,13 +29,25 @@ twice, and every inline script parses.
 | `src/css/01-layout.css` … `10-v14.css` | Styles, oldest first; later files deliberately override earlier ones |
 | `src/js/00-constants.js` | Tasting-note wheel, taste sliders, method profiles, built-in recipes |
 | `src/js/01-flavor-shape.js` | The 3D flavor shape |
-| `src/js/02-cloud.js` | The backend address |
+| `src/js/02-cloud.js` | The backend address and `Cloud`, the one door every load and save goes through |
 | `src/js/03-roaster-engine.js` | Roaster matching and descriptions (no screen code) |
 | `src/js/04-storage.js` | Safe localStorage helpers |
 | `src/js/app/00-state.js` … `27-settings-equipment-misc.js` | The `app` object, cut into files by feature. These are pieces of one object, so a file on its own isn't valid JavaScript; keep each method whole within one file |
 | `src/js/99-boot.js` | Starts the app |
 
 Saving, syncing, the outbox and merging all live in `src/js/app/05-sync-and-saving.js`.
+
+## The data layer (`Cloud`)
+
+Since v14.2 the app reaches the backend in exactly one place, `Cloud` in `src/js/02-cloud.js`:
+
+- `Cloud.pull({ since, version, anchor }, { signal })` downloads everything newer than `since` and resolves to the reply's text.
+- `Cloud.send(event, { signal })` sends one event. The Sheet's reply can't be read, so the next pull confirms it landed.
+- `Cloud.id` names the backend in the on-device copy of the log and in the outbox. It's still the Sheet's address,
+  so phones keep their saved copy and anything waiting in their outbox.
+
+Nothing else in the app calls `fetch` for data (the only other `fetch` is the self-update check, which reads
+`index.html`). Moving to a new backend means giving `Cloud` a new implementation; the screens don't change.
 
 ## History
 
