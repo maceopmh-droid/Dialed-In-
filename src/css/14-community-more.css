@@ -122,3 +122,41 @@
         .pg-step b { min-width: 52px; text-align: center; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
         .pg-say { margin: 2px 0 14px; font-size: 0.82rem; color: var(--text-muted); }
         .pg-actions { display: flex; justify-content: flex-end; gap: 8px; }
+        /* v14.6: vs. last time, as Recipe and Taste */
+        .vs-head { text-transform: none; letter-spacing: 0; font-size: 0.78rem; font-weight: 600; color: var(--text-muted); margin: 12px 0 8px; }
+        .vs-cols { display: grid; gap: 12px; }
+        .vs-sec { background: rgba(var(--matcha-rgb), 0.05); border-radius: 14px; padding: 8px 12px 6px; }
+        :root[data-theme="dark"] .vs-sec { background: rgba(255, 255, 255, 0.035); }
+        .vs-cap { display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; font-weight: 700; color: var(--text-muted); margin: 2px 0 2px; }
+        .vs-key { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
+        .vs-key i { width: 9px; height: 9px; border-radius: 50%; box-sizing: border-box; margin-left: 6px; }
+        .vs-key i.was { border: 2px solid var(--text-faint); }
+        .vs-key i.now { background: var(--matcha); }
+        .vs-row { display: grid; grid-template-columns: 84px minmax(0, 1fr) 54px; align-items: center; gap: 10px; padding: 6px 0; border-top: 1px solid rgba(var(--hair-rgb), 0.07); }
+        .vs-cap + .vs-row { border-top: 0; }
+        .vs-row .vs-label { font-size: 0.82rem; color: var(--ink-2); font-weight: 700; }
+        .vs-row .vs-values { font-size: 0.86rem; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        .vs-row .vs-values s { text-decoration: none; color: var(--text-muted); }
+        .vs-row .vs-values b { font-weight: 750; color: var(--ink); }
+        .vs-row .vs-delta { min-width: 0; font-size: 0.78rem; }
+        .vs-same { font-size: 0.78rem; color: var(--text-muted); padding: 6px 0 2px; border-top: 1px solid rgba(var(--hair-rgb), 0.07); }
+        .vs-cap + .vs-same { border-top: 0; }
+        .vs-track { position: relative; height: 16px; margin: 0 6px; }
+        .vs-track::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 2px; transform: translateY(-50%); border-radius: 2px; background: rgba(var(--hair-rgb), 0.12); }
+        .vs-track em { position: absolute; top: 50%; height: 4px; transform: translateY(-50%); border-radius: 4px; background: rgba(var(--matcha-rgb), 0.35); }
+        .vs-track i { position: absolute; top: 50%; width: 11px; height: 11px; border-radius: 50%; transform: translate(-50%, -50%); box-sizing: border-box; }
+        .vs-track i.was { border: 2px solid var(--text-faint); background: var(--surface); }
+        .vs-track i.now { background: var(--matcha); box-shadow: 0 0 0 2px var(--surface); }
+        .vs-flavors { margin-top: 12px; }
+        .vs-flavor { font-size: 0.74rem; padding: 4px 10px; }
+        @media (min-width: 769px) { .vs-cols { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); align-items: start; } }
+        /* v14.6: on a computer, sessions read in one column everywhere (Feed, a profile's Sessions, a coffee's history), as
+           wide as a phone's card looks good stretched, with the photo across the card like on a phone */
+        @media (min-width: 769px) {
+            :root { --read-w: 640px; }
+            #grid.feed-list { max-width: var(--read-w); }
+            .profile-section[data-section="sessions"] { display: block; }
+            .profile-feed { max-width: var(--read-w); margin: 0 auto; }
+            #d-timeline-pane, #d-everyone-pane { max-width: var(--read-w); margin-left: auto; margin-right: auto; }
+            .sc-card .session-photo-wrap.feed-photo, .feed-list .session-photo-wrap.feed-photo, .profile-feed .session-photo-wrap.feed-photo { width: 100%; }
+        }

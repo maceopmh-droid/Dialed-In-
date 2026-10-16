@@ -517,7 +517,7 @@ ok(/permission denied/.test(fx('anon', 'select discover_feed();')), 'not signed 
 // v14.6: everyone on a coffee (the coffee page's Everyone tab): same roaster and name however it's written, never your own,
 // nothing kept to Friends or reported; a summary with each method's usual ratio and time and the notes people pick, never grind
 push('maceo', { type: 'bean', id: 'mb9', user: 'Maceo', owner: 'Maceo', roaster: 'SEY ', name: 'Kenya  Kiambu!', origin: 'Kenya', likes: [], comments: [] });
-push('maceo', { type: 'brew', id: 'ms9', beanId: 'mb9', user: 'Maceo', owner: 'Maceo', method: 'Pour Over', grind: '24', dose: 18, yield: 300, time: 180, rating: 4, tasted: ['Blackcurrant', 'grapefruit'], date: ago(3), audience: 'everyone', likes: [], comments: [] });
+push('maceo', { type: 'brew', id: 'ms9', beanId: 'mb9', user: 'Maceo', owner: 'Maceo', method: 'Pour Over', grind: '24', dose: 18, yield: 300, time: 180, rating: 4, flavors: 'Blackcurrant, grapefruit', flavorNotes: { Blackcurrant: 2, Grapefruit: 1, Jasmine: 1 }, date: ago(3), audience: 'everyone', likes: [], comments: [] });
 const cc = (who, extra = '') => JSON.parse(fx(who, `select coffee_community('sey', 'Kenya Kiambu'${extra});`));
 const cs = cc('stranger'), cids = cs.events.filter(e => e.type === 'brew').map(e => e.id);
 ok(cs.summary && cs.summary.people === 3 && cs.summary.sessions === 5 && ['ms9', 'dold', 'dancient', 'deffort', 'dbare'].every(id => cids.includes(id)) && !cids.includes('dfresh') && !cids.includes('dfriends'),
@@ -525,7 +525,7 @@ ok(cs.summary && cs.summary.people === 3 && cs.summary.sessions === 5 && ['ms9',
 const po = (cs.summary.methods || []).find(m => m.method === 'Pour Over'), es = (cs.summary.methods || []).find(m => m.method === 'Espresso');
 ok(po && po.n === 3 && po.ratio === 16.7 && po.time === 180 && po.dose === 18 && es && es.n === 2 && cs.summary.methods[0].method === 'Pour Over' && cs.summary.rating === 4.3,
    `each method's usual numbers, most-brewed first (${JSON.stringify(cs.summary.methods)}), average rating ${cs.summary.rating}`);
-ok(JSON.stringify(cs.summary.notes) === JSON.stringify(['acidity', 'blackcurrant', 'grapefruit']) && !/grind/.test(JSON.stringify(cs.summary)), `the notes people pick (${cs.summary.notes}); no grind settings in the summary`);
+ok(JSON.stringify(cs.summary.notes) === JSON.stringify(['blackcurrant', 'grapefruit', 'jasmine']) && !/grind/.test(JSON.stringify(cs.summary)), `the flavor notes people pick, once per session (${cs.summary.notes}); not the taste sliders; no grind settings in the summary`);
 const cm = cc('maceo');
 ok(cm.summary.people === 2 && !cm.events.some(e => e.type === 'brew' && e.id === 'ms9') && cm.events.some(e => e.id === 'dfresh'), 'never your own sessions (Maceo sees the other two people, and dfresh, which he didn\'t report)');
 const cp0 = cc('stranger', ', max_items => 2'), cp1 = cc('stranger', `, before => '${cp0.next}', max_items => 2`);

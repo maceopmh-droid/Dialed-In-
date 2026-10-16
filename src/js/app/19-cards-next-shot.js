@@ -177,31 +177,47 @@
                 if (!prev) {
                     return `<div class="card-pane pane-block log-wide${active}" data-pane="vs"><div class="vs-empty">This is ${whose} first ${method} session of this bean, so there's nothing to compare yet.</div></div>`;
                 }
-                const rows = [];
-                const add = (label, a, b, fmtValue, fmtDelta, goodWhenUp) => {
+                // v14.6: two short sections, Recipe and Taste. Each row reads "before → now" (the unit once, before muted,
+                // now bold) and the change; recipe numbers that didn't move fold into one "Same" line; the taste sliders
+                // are small tracks with where it was and where it is now.
+                const recipe = [], same = [], taste = [];
+                const r1 = v => Math.round(v * 10) / 10;   // what's shown is what's compared, so the change matches the numbers
+                const row = (label, a, b, unit, cls, deltaText) => `<div class="vs-row"><span class="vs-label">${label}</span><span class="vs-values">${a !== '' ? `<s>${a}</s> → ` : ''}<b>${b}</b>${unit ? `\u00A0${unit}` : ''}</span><span class="vs-delta ${cls}">${deltaText}</span></div>`;
+                const num = (label, a, b, unit, goodWhenUp, opts = {}) => {
                     if (!(a > 0) && !(b > 0)) return;
-                    const delta = b - a;
-                    const same = Math.abs(delta) < 1e-9;
-                    let cls = 'same';
-                    if (!same) cls = goodWhenUp === null ? 'neutral' : ((delta > 0) === goodWhenUp ? 'up' : 'down');
-                    const deltaText = same ? 'same' : `${delta > 0 ? '+' : '−'}${fmtDelta(Math.abs(delta))}`;
-                    rows.push(`<div class="vs-label">${label}</div><div class="vs-values">${a > 0 ? fmtValue(a) : '–'} → ${b > 0 ? fmtValue(b) : '–'}</div><div class="vs-delta ${cls}">${deltaText}</div>`);
+                    const fa = opts.round ? opts.round(a) : r1(a), fb = opts.round ? opts.round(b) : r1(b), show = opts.show || (v => this.fmtNum(v, 1)), val = v => (opts.prefix || '') + show(v);
+                    const d = Math.round((fb - fa) * 100) / 100;
+                    if (a > 0 && b > 0 && Math.abs(d) < 1e-9) { same.push(`${label.toLowerCase()} ${val(fb)}${unit ? `\u00A0${unit}` : ''}`); return; }
+                    const cls = !(a > 0 && b > 0) ? 'neutral' : goodWhenUp === null || goodWhenUp === undefined ? 'neutral' : ((d > 0) === goodWhenUp ? 'up' : 'down');
+                    const dt = !(a > 0 && b > 0) ? 'new' : `${d > 0 ? '+' : '−'}${show(Math.abs(d))}${opts.deltaUnit ? `\u00A0${opts.deltaUnit}` : ''}`;
+                    recipe.push(row(label, a > 0 ? val(fa) : '–', b > 0 ? val(fb) : '–', unit, cls, dt));
                 };
-                const n1 = v => this.fmtNum(v, 1);
-                const grams = v => `${n1(v)}\u00A0g`;
-                if (this.grindNum(prev.grind) !== null && this.grindNum(brew.grind) !== null) add('Grind', this.grindNum(prev.grind), this.grindNum(brew.grind), n1, n1, null);
-                else if ((this.grindText(prev.grind) || this.grindText(brew.grind)) && !this.sameGrind(prev.grind, brew.grind)) rows.push(`<div class="vs-label">Grind</div><div class="vs-values">${this.esc(this.grindText(prev.grind) || '–')} → ${this.esc(this.grindText(brew.grind) || '–')}</div><div class="vs-delta neutral">changed</div>`);
-                else if (this.grindText(brew.grind)) rows.push(`<div class="vs-label">Grind</div><div class="vs-values">${this.esc(this.grindText(brew.grind))}</div><div class="vs-delta same">same</div>`);
-                add('Dose', this.num(prev.dose), this.num(brew.dose), grams, grams, null);
-                add(!brew.method || brew.method === 'Espresso' ? 'Pull' : 'Pour', this.num(prev.yield), this.num(brew.yield), grams, grams, null);
-                add('Ratio', this.ratioOf(prev), this.ratioOf(brew), v => `1:${this.fmtNum(v, 2)}`, v => this.fmtNum(v, 2), null);
-                add('Time', this.num(prev.time), this.num(brew.time), v => `${n1(v)}\u00A0s`, v => `${n1(v)}\u00A0s`, null);
+                const esp = !brew.method || brew.method === 'Espresso';
+                if (this.grindNum(prev.grind) !== null && this.grindNum(brew.grind) !== null) num('Grind', this.grindNum(prev.grind), this.grindNum(brew.grind), '', null);
+                else if ((this.grindText(prev.grind) || this.grindText(brew.grind)) && !this.sameGrind(prev.grind, brew.grind)) recipe.push(row('Grind', this.esc(this.grindText(prev.grind) || '–'), this.esc(this.grindText(brew.grind) || '–'), '', 'neutral', 'changed'));
+                else if (this.grindText(brew.grind)) same.push(`grind ${this.esc(this.grindText(brew.grind))}`);
+                num('Dose', this.num(prev.dose), this.num(brew.dose), 'g', null, { deltaUnit: 'g' });
+                num(esp ? 'Pull' : 'Pour', this.num(prev.yield), this.num(brew.yield), 'g', null, { deltaUnit: 'g' });
+                num('Ratio', this.ratioOf(prev), this.ratioOf(brew), '', null, { prefix: '1:' });
+                const hours = brew.timeUnit === 'h' || brew.method === 'Cold Brew';
+                num(hours ? 'Steep' : 'Time', this.num(prev.time), this.num(brew.time), hours ? 'h' : 's', null, { deltaUnit: hours ? 'h' : 's', round: hours ? r1 : Math.round, show: hours ? (v => this.fmtNum(v, 1)) : (v => String(Math.round(v))) });
                 // v13.1: grams out per second (espresso)
-                const flow = b => { const y = this.num(b.yield), t = this.num(b.time); return y > 0 && t > 0 ? Math.round((y / t) * 100) / 100 : 0; };   // rounded so the change matches the numbers shown
-                if ((!brew.method || brew.method === 'Espresso') && (!prev.method || prev.method === 'Espresso') && flow(prev) > 0 && flow(brew) > 0) add('Flow', flow(prev), flow(brew), v => `${this.fmtNum(v, 2)}\u00A0g/s`, v => this.fmtNum(v, 2), null);
-                add('Rating', this.normalizeRating(prev.rating), this.normalizeRating(brew.rating), v => `${n1(v)}★`, n1, true);
+                const flow = b => { const y = this.num(b.yield), t = this.num(b.time); return y > 0 && t > 0 ? y / t : 0; };
+                if (esp && (!prev.method || prev.method === 'Espresso') && flow(prev) > 0 && flow(brew) > 0) num('Flow', flow(prev), flow(brew), 'g/s', null);
+                // taste: the rating, then the sliders as tracks
+                const ra = this.normalizeRating(prev.rating), rb = this.normalizeRating(brew.rating);
+                if (ra > 0 || rb > 0) {
+                    const d = rb - ra, both = ra > 0 && rb > 0;
+                    taste.push(row('Rating', ra > 0 ? this.fmtNum(ra, 1) : '–', rb > 0 ? this.fmtNum(rb, 1) : '–', '★', !both ? 'neutral' : Math.abs(d) < 1e-9 ? 'same' : d > 0 ? 'up' : 'down', !both ? 'new' : Math.abs(d) < 1e-9 ? 'same' : `${d > 0 ? '+' : '−'}${this.fmtNum(Math.abs(d), 1)}`));
+                }
+                const pos = v => `${(((Math.max(1, Math.min(10, v)) - 1) / 9) * 100).toFixed(1)}%`;
                 [['Acidity', 'acidity'], ['Sweetness', 'sweetness'], ['Body', 'body'], ['Finish', 'finish'], ['Bitterness', 'bitterness'], ['Complexity', 'balance']].forEach(([label, key]) => {
-                    add(label, this.tasteValue(prev, key) || 0, this.tasteValue(brew, key) || 0, n1, n1, null);
+                    const a = this.tasteValue(prev, key) || 0, b = this.tasteValue(brew, key) || 0;
+                    if (!(a > 0) && !(b > 0)) return;
+                    const d = Math.round((b - a) * 10) / 10, both = a > 0 && b > 0;
+                    const lo = Math.min(a || b, b || a), span = both ? Math.abs(b - a) : 0;
+                    const track = `<span class="vs-track" role="img" aria-label="${label}: ${a > 0 ? this.fmtNum(a, 1) : 'not set'} before, ${b > 0 ? this.fmtNum(b, 1) : 'not set'} now">${span ? `<em style="left:${pos(lo)};width:${((span / 9) * 100).toFixed(1)}%"></em>` : ''}${a > 0 && (!both || span) ? `<i class="was" style="left:${pos(a)}"></i>` : ''}${b > 0 ? `<i class="now" style="left:${pos(b)}"></i>` : ''}</span>`;
+                    taste.push(`<div class="vs-row vs-tr"><span class="vs-label">${label}</span>${track}<span class="vs-delta ${!both ? 'neutral' : Math.abs(d) < 1e-9 ? 'same' : 'neutral'}">${!both ? (b > 0 ? 'new' : '–') : Math.abs(d) < 1e-9 ? 'same' : `${d > 0 ? '+' : '−'}${this.fmtNum(Math.abs(d), 1)}`}</span></div>`);
                 });
                 const before = new Set(this.extractFlavors(prev));
                 const after = new Set(this.extractFlavors(brew));
@@ -212,7 +228,10 @@
                     : '';
                 const days = this.dayNum(this.toTime(brew.date)) - this.dayNum(this.toTime(prev.date));   // v13.1: calendar days
                 const head = `vs. ${whose} previous ${method} · ${this.esc(this.shortDate(prev.date))}${days > 0 ? ` · ${days} day${days === 1 ? '' : 's'} earlier` : ''}`;
-                return `<div class="card-pane pane-block log-wide${active}" data-pane="vs"><div class="vs-head">${head}</div><div class="vs-grid">${rows.join('')}</div>${flavors}</div>`;
+                const sec = (cap, rows, foot) => rows.length || foot ? `<section class="vs-sec"><div class="vs-cap">${cap}</div>${rows.join('')}${foot || ''}</section>` : '';
+                const key = taste.some(r => /vs-tr/.test(r)) ? '<span class="vs-key"><i class="was"></i>before<i class="now"></i>now</span>' : '';
+                const sameLine = same.length ? `<div class="vs-same">Same: ${same.join(' · ')}</div>` : '';
+                return `<div class="card-pane pane-block log-wide${active}" data-pane="vs"><div class="vs-head">${head}</div><div class="vs-cols">${sec('Recipe', recipe, sameLine)}${sec(`Taste${key}`, taste, '')}</div>${flavors}</div>`;
             },
 
             // ---- next-shot coaching (standard dial-in rules + the person's own history) ----

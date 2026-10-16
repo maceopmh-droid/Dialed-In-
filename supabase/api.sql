@@ -467,7 +467,7 @@ end $$;
 -- you don't follow and anyone blocked; anything you reported or that's hidden stays out), newest first, a page at a
 -- time. The first page also carries a summary: how many people and sessions, the average rating, how each method is
 -- usually brewed (the middle ratio, time and dose; never grind settings, they don't carry across grinders) and the
--- tasting notes people pick most.
+-- flavor notes people pick most (the wheel notes on each session).
 create or replace function internal.coffee_key(t text) returns text
 language sql immutable as $$ select regexp_replace(lower(coalesce(t, '')), '[^a-z0-9]+', '', 'g') $$;
 create index if not exists coffees_match on coffees (internal.coffee_key(name), internal.coffee_key(roaster_text)) where deleted_at is null;
@@ -481,7 +481,7 @@ begin
   if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
   if nk = '' then return jsonb_build_object('events', '[]'::jsonb, 'next', null, 'summary', null); end if;
   with pool as (
-    select s.id, s.owner_id, s.method, s.rating, s.dose, s.yield, s.time_s, s.tasted, s.brewed_at
+    select s.id, s.owner_id, s.method, s.rating, s.dose, s.yield, s.time_s, s.extras->>'flavors' as flv, s.flavor_notes as fnotes, s.brewed_at
     from coffees k join sessions s on s.coffee_id = k.id
     where k.deleted_at is null and internal.coffee_key(k.name) = nk and internal.coffee_key(k.roaster_text) = rk
       and s.deleted_at is null and s.audience = 'everyone' and s.owner_id <> me_id
@@ -502,8 +502,10 @@ begin
                                         percentile_cont(0.5) within group (order by dose) filter (where dose > 0) as dose
                                  from pool where coalesce(btrim(method), '') <> '' group by method) m), '[]'::jsonb),
       'notes', coalesce((select jsonb_agg(x.note order by x.c desc, x.note) from (
-                           select lower(btrim(n)) as note, count(distinct p.id) as c from pool p, unnest(coalesce(p.tasted, '{}'::text[])) n
-                           where btrim(n) <> '' group by 1 order by 2 desc, 1 limit 5) x), '[]'::jsonb)) end
+                           select lower(btrim(f.n)) as note, count(distinct p.id) as c from pool p,
+                                  lateral (select unnest(string_to_array(coalesce(p.flv, ''), ',')) union
+                                           select jsonb_object_keys(case when jsonb_typeof(p.fnotes) = 'object' then p.fnotes else '{}'::jsonb end)) f(n)
+                           where btrim(f.n) <> '' group by 1 order by 2 desc, 1 limit 5) x), '[]'::jsonb)) end
     into ids, oldest, summary;
   return jsonb_build_object(
     'events', case when ids is null then '[]'::jsonb else
