@@ -125,6 +125,15 @@ Help requests (v14.5): a session's `help_wanted` ("Ask for help dialing this in"
 fields), and its author gets a `helpful` notification. Sessions of people who joined in the last two weeks come
 back with `newHere` (worked out, never stored). Profile links are `<app address>?u=<name>`.
 
+Phone notifications (v14.5): `push_key()` (the public VAPID key; empty until the sender is set up, and then the app
+shows Settings, "Notifications on this phone"), `save_push(subscription)` and `remove_push(endpoint)`. Phones' push
+addresses live in `push_subscriptions`, which nobody can read from the app. When a notification is written, a
+trigger asks the `send-push` function (`supabase/functions/send-push`) to deliver it, through `pg_net`, with a
+shared secret; the function connects to the database itself to read the text, the phones and the VAPID key
+(`internal.push_payload`), and forgets phones that have turned notifications off. The `supabase push` workflow
+(push to the `supabase-push` branch; needs the `SUPABASE_ACCESS_TOKEN` secret) deploys the function, turns on
+`pg_net` and stores the function's address, the secret and the key pair in `backend_state` (made once, never printed).
+
 **What the app may change directly.** Supabase lets signed-in people use every table through its web API, limited
 by the row rules. Row rules can't limit columns, so the end of `schema.sql` does: profiles are only made by
 `create_profile` / `claim_name`, names can't be changed directly (the app knows people by name; a rename will need

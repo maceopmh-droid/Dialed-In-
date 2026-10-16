@@ -73,8 +73,16 @@ paged community feed kept beside your circle's records in `communityIds`), `31-n
 top of the Feed), `32-groups.js` (People, Groups: create, join by code or `?join=` link, leave) and `33-safety.js`
 (Report, Download my data, Delete account). All of it shows only on the new backend.
 
+v14.5 added `34-community-more.js` (anyone's profile, opened by tapping any name or circle: a `data-profile`
+attribute and one click listener; the Sessions tab and the coffees on a profile; suggested people; help requests
+and the most helpful answer; the community feed's filters and goal; open groups' feeds; profile links `?u=`;
+community guidelines; reviewing reports) and `35-push.js` (the Settings switch for notifications on this phone).
+Phone notifications also use `sw.js` at the top of the repo (a service worker that only shows notifications; it
+caches nothing), the `send-push` function in `supabase/functions/`, and the `supabase push` workflow that sets it
+up (it needs the `SUPABASE_ACCESS_TOKEN` secret). Until that workflow has run, the switch doesn't show.
+
 Nothing else in the app calls `fetch` for data (the only other `fetch` is the self-update check, which reads
-`index.html`). The screens don't know which backend they're on.
+`index.html`; the service worker is registered only when someone turns notifications on). The screens don't know which backend they're on.
 
 To try the app against Supabase without a project, run the stand-in (`supabase/dev_server.js`, below).
 

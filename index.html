@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v14.4 -->
+<!-- Dialed In v14.5 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="14.4">
+    <meta name="dialed-in-version" content="14.5">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -3349,6 +3349,55 @@
         .nt-text { display: grid; gap: 2px; min-width: 0; font-size: 0.92rem; line-height: 1.35; }
         .nt-text q { color: var(--text-muted); quotes: "\201C" "\201D"; }
         .nt-text small { font-size: 0.76rem; color: var(--text-muted); }
+        /* v14.5: anyone's profile, help requests, community filters and goal, suggestions, reviewing reports (new backend only) */
+        .feed-avatar[data-name], .feed-actor[data-name], .cmt-head b[data-name] { cursor: pointer; }
+        .feed-sub { display: flex; align-items: baseline; gap: 6px; min-width: 0; white-space: nowrap; overflow: hidden; }
+        .feed-tag { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; }
+        .feed-tag::before { content: "·"; margin-right: 6px; font-weight: 400; }
+        .feed-tag.is-help { color: var(--matcha-ink, var(--matcha)); }
+        .cmt-helpful { font-size: 0.66rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: var(--matcha-ink, var(--matcha)); background: rgba(var(--matcha-rgb), 0.12); border-radius: 999px; padding: 2px 8px; }
+        .cmt-act.on { color: var(--matcha-ink, var(--matcha)); }
+        /* the community feed: filters in one row that scrolls sideways */
+        .comm-filters { display: flex; gap: 6px; overflow-x: auto; margin: 0 0 14px; padding: 0 0 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        .comm-filters::-webkit-scrollbar { display: none; }
+        .comm-chip { flex: none; width: auto !important; min-height: 34px !important; margin: 0 !important; padding: 6px 14px !important; border-radius: 999px !important; border: 1px solid var(--line) !important; background: var(--surface) !important; color: var(--ink) !important; font: inherit; font-size: 0.82rem !important; font-weight: 700 !important; white-space: nowrap; cursor: pointer; box-shadow: none !important; }
+        .comm-chip.on { background: var(--matcha) !important; border-color: var(--matcha) !important; color: var(--on-matcha, #fff) !important; }
+        .comm-goal .cg-you { font-size: 0.8rem; color: var(--text-muted); font-weight: 650; }
+        /* someone's profile, outside your circle */
+        .pp-profile-note { margin: -2px 0 12px; font-size: 0.84rem; color: var(--text-muted); line-height: 1.4; }
+        .pp-share { display: flex; justify-content: center; margin: 1.2rem 0 0.4rem; }
+        /* the log form: ask for help */
+        .share-help { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 14px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+        .share-help > span { display: grid; gap: 2px; }
+        .share-help b { font-size: 0.92rem; color: var(--ink); }
+        .share-help small { font-size: 0.78rem; color: var(--text-muted); line-height: 1.35; }
+        .share-help .goal-sw { -webkit-appearance: none; appearance: none; flex: none; position: relative; width: 50px !important; height: 30px !important; min-width: 0 !important; min-height: 0 !important; padding: 0 !important; margin: 0 !important; border: 0 !important; border-radius: 999px !important; background: rgba(var(--hair-rgb), 0.2) !important; box-shadow: inset 0 0 0 1px rgba(var(--hair-rgb), 0.08) !important; cursor: pointer; transition: background 0.22s; }
+        .share-help .goal-sw::before { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); transition: transform 0.22s cubic-bezier(0.3, 0.7, 0.4, 1); }
+        .share-help .goal-sw[aria-checked="true"] { background: var(--matcha) !important; box-shadow: none !important; }
+        .share-help .goal-sw[aria-checked="true"]::before { transform: translateX(20px); }
+        /* reviewing reports */
+        .rv-row { display: grid; gap: 8px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+        .pp-list .rv-row:last-child { border-bottom: 0; }
+        .rv-what { display: grid; gap: 3px; min-width: 0; }
+        .rv-what b { font-size: 0.95rem; color: var(--ink); }
+        .rv-what small { font-size: 0.78rem; color: var(--text-muted); }
+        .rv-what q { font-size: 0.88rem; color: var(--ink-2, var(--ink)); quotes: "\201C" "\201D"; line-height: 1.4; }
+        /* community guidelines */
+        .cg-rules { margin: 0.4rem 0 0.6rem; padding-left: 1.1rem; display: grid; gap: 10px; font-size: 0.93rem; line-height: 1.45; color: var(--ink); }
+        .cg-rules b { font-weight: 800; }
+        /* open groups */
+        .gr-kind { margin: 6px 0 8px; grid-template-columns: repeat(2, 1fr); }
+        .people-card .gr-find { margin: 6px 0 4px; }
+        .pp-row .gr-icon { width: 38px; height: 38px; flex: none; }
+        /* profiles: Sessions first (four tabs), the sessions as feed cards, the coffees they've brewed */
+        [data-profile] { cursor: pointer; }
+        .profile-tabs { grid-template-columns: repeat(4, 1fr); }
+        .profile-tabs button { padding-left: 2px; padding-right: 2px; white-space: nowrap; }
+        .profile-feed { display: grid; gap: 13px; }
+        .prof-count { margin-left: 4px; color: var(--text-muted); font-weight: 700; }
+        .prof-coffee-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 12px; }
+        /* Settings: notifications on this phone */
+        .pp-private .goal-sw[disabled] { opacity: 0.45; cursor: default; }
     </style>
 </head>
 <body>
@@ -3647,6 +3696,14 @@
         </div>
     </div>
 
+    <!-- Reviewing reports (v14.5, reviewers only) -->
+    <div id="review-modal" class="modal" onclick="if(event.target===this) app.closeReview()">
+        <div class="modal-card people-card">
+            <h2>Reports</h2>
+            <div id="review-body"></div>
+        </div>
+    </div>
+
     <!-- People (v14.4, new backend only) -->
     <div id="people-modal" class="modal" onclick="if(event.target===this) app.closePeople()">
         <div class="modal-card people-card">
@@ -3694,7 +3751,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v14.4</div>
+            <div class="app-version">Dialed In · v14.5</div>
         </div>
     </div>
 
@@ -5079,6 +5136,9 @@
 
             init() {
                 if (this.noteInviteLink) this.noteInviteLink();   // v14.4: ?join=CODE, offered once you're signed in
+                if (this.noteProfileLink) this.noteProfileLink();   // v14.5: ?u=Name opens their profile once you're signed in
+                if (this.bindProfileLinks) this.bindProfileLinks();   // v14.5: every name and circle opens that person's profile
+                if (this.notePushOpen) this.notePushOpen();   // v14.5: a tapped phone notification opens the bell
                 this.initFlavors();
                 this.bindGlobalHandlers();
                 this.applyInitialRoute();
@@ -6404,6 +6464,8 @@
                     if (this.adoptSheetOutbox && Cloud.confirms) this.adoptSheetOutbox();   // v14.2: saves made on the Sheet that never left this phone
                     if (this.checkNotifications) this.checkNotifications();   // v14.4: the bell's unread count
                     if (this.checkPendingJoin) this.checkPendingJoin();   // v14.4: an invite link opened before signing in
+                    if (this.checkPendingProfile) this.checkPendingProfile();   // v14.5: a profile link
+                    if (this.checkPushOpen) this.checkPushOpen();   // v14.5: opened from a phone notification
                     if (this.pendingOutbox().some(x => this.outboxDue(x))) setTimeout(() => this.flushOutbox(), 0);
                 } catch (e) {
                     this.syncFailed = true;
@@ -8424,7 +8486,7 @@
                     ? q.people.filter(p => (q.counts[p] || 0) >= q.per).map(p => ({ p, w: 1 / q.target }))
                     : q.by.map(([p, n]) => ({ p, w: Math.min(n, q.target) / q.target }));
                 const bar = this.crewBarHtml(q, segs);
-                const faces = q.by.map(([p, n]) => `<span class="cq-face"><b style="background:${this.esc(this.getUserColor(p))}">${this.esc(this.feedInitial(p))}</b>${n}</span>`).join('');
+                const faces = q.by.map(([p, n]) => `<span class="cq-face" data-profile="${this.esc(p)}"><b style="background:${this.esc(this.getUserColor(p))}">${this.esc(this.feedInitial(p))}</b>${n}</span>`).join('');
                 const left = q.done ? 'Done together' : (q.daysLeft <= 1 ? 'Last day' : `${q.daysLeft} days left`);
                 return `
                     <section class="feed-card crew-quest${q.done ? ' done' : ''}" aria-label="Group goal">
@@ -9982,9 +10044,9 @@
                     const delFn = kind === 'bean' ? 'removeBeanComment' : 'removeComment';
                     return `
                         <div class="cmt${isReply ? ' reply' : ''}" id="cmt-${this.esc(c.id)}">
-                            <div class="cmt-avatar" style="background:${this.esc(color)}">${this.esc(this.feedInitial(c.user))}</div>
+                            <div class="cmt-avatar" style="background:${this.esc(color)}" data-profile="${this.esc(c.user)}">${this.esc(this.feedInitial(c.user))}</div>
                             <div class="cmt-main">
-                                <div class="cmt-head"><b>${this.esc(c.user)}</b><span>${this.esc(this.formatRelativeDate(c.timestamp))}</span></div>
+                                <div class="cmt-head"><b data-profile="${this.esc(c.user)}">${this.esc(c.user)}</b><span>${this.esc(this.formatRelativeDate(c.timestamp))}</span>${kind === 'brew' && target.helpfulAnswer && String(target.helpfulAnswer) === String(c.id) ? '<span class="cmt-helpful">Most helpful</span>' : ''}</div>
                                 <div class="cmt-text">${this.esc(c.text)}</div>
                                 <div class="cmt-actions">
                                     <button type="button" class="cmt-like${liked ? ' liked' : ''}" onclick="app.toggleCommentLike('${app.escJs(kind)}','${app.escJs(id)}','${app.escJs(c.id)}',event)" aria-pressed="${liked}" aria-label="Like comment">
@@ -9993,6 +10055,7 @@
                                     <button type="button" class="cmt-act" onclick="app.startReply('${app.escJs(kind)}','${app.escJs(id)}','${app.escJs(c.id)}',event)">Reply</button>
                                     ${canEdit ? `<button type="button" class="cmt-act" onclick="app.${editFn}('${app.escJs(id)}', ${i}, event)">Edit</button>` : ''}
                                     ${canDelete ? `<button type="button" class="cmt-act danger" onclick="app.${delFn}('${app.escJs(id)}', ${i}, event)">Delete</button>` : ''}
+                                    ${this.canMarkHelpful && this.canMarkHelpful(kind, target, c) ? `<button type="button" class="cmt-act${String(target.helpfulAnswer || '') === String(c.id) ? ' on' : ''}" onclick="app.markHelpful('${app.escJs(id)}','${app.escJs(c.id)}', event)">${String(target.helpfulAnswer || '') === String(c.id) ? 'Unmark' : 'Most helpful'}</button>` : ''}
                                     ${this.acctOn() && c.user !== this.user ? `<button type="button" class="cmt-act" onclick="app.reportItem('comment','${app.escJs(id)}#${app.escJs(c.id)}', event)">Report</button>` : ''}
                                 </div>
                                 ${c.likes.length ? `<div class="cmt-likers">Liked by ${this.esc(c.likes.slice(0, 3).join(', '))}${c.likes.length > 3 ? ` +${c.likes.length - 3}` : ''}</div>` : ''}
@@ -10158,10 +10221,11 @@
                     <article class="feed-card feed-session-card sc-card" data-card-brew="${this.esc(brew.id)}" onclick="app.openFeedTarget('${app.escJs(brew.beanId || '')}','${app.escJs(brew.id)}',true)">
                         <div class="feed-card-body">
                             <div class="feed-head">
-                                <div class="feed-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(owner))}</div>
+                                <div class="feed-avatar" style="background:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(this.feedInitial(owner))}</div>
                                 <div class="feed-meta">
-                                    <div class="feed-actor" style="color:${this.esc(color)};">${this.esc(owner)}</div>
-                                    <div class="feed-time" data-time="${this.esc(String(entry.date || brew.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || brew.date))}</div>
+                                    <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}</div>
+                                    ${(tag => tag ? `<div class="feed-sub"><span class="feed-time" data-time="${this.esc(String(entry.date || brew.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || brew.date))}</span>${tag}</div>`
+                                        : `<div class="feed-time" data-time="${this.esc(String(entry.date || brew.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || brew.date))}</div>`)(this.helpTagHtml ? this.helpTagHtml(brew) : '')}
                                 </div>
                                 ${entry.community ? this.communityFollowHtml(owner) : ''}<div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(brew.method)}"/></svg>${this.esc(brew.method || 'Espresso')}</div>
                             </div>
@@ -10223,9 +10287,9 @@
                     <article class="feed-card">
                         <div class="feed-card-body">
                             <div class="feed-head">
-                                <div class="feed-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(owner))}</div>
+                                <div class="feed-avatar" style="background:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(this.feedInitial(owner))}</div>
                                 <div class="feed-meta">
-                                    <div class="feed-actor" style="color:${this.esc(color)};">${this.esc(owner)}</div>
+                                    <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}</div>
                                     <div class="feed-time" data-time="${this.esc(String(entry.date || bean.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || bean.date))}</div>
                                 </div>
                                 <div class="feed-type">${this.esc(entry.kindLabel || 'Bean')}</div>
@@ -10261,7 +10325,9 @@
                     this._feedHtml = null;
                     return;
                 }
-                const tops = [['top:mode', this.feedModeHtml()], ['top:welcome', this.renderWelcomeBack()], ['top:quest', this.renderCrewQuest()], ['top:teaser', this.renderAwardsTeaser()]];
+                // v14.5: no private group yet: the community goal instead of a group goal for one
+                const quest = this.acctOn() && this.knownPeople().length <= 1 && this.communityGoalHtml ? this.communityGoalHtml() : this.renderCrewQuest();
+                const tops = [['top:mode', this.feedModeHtml()], ['top:welcome', this.renderWelcomeBack()], ['top:quest', quest], ['top:teaser', this.renderAwardsTeaser()]];
                 if (!this.canPatchDom(grid)) {
                     grid.innerHTML = tops.map(t => t[1]).join('') + entries.map(e => this.feedCardHtml(e)).join('');
                     return;
@@ -10613,7 +10679,7 @@
                 const best = r.best, bc = r.bestCoffee;
                 const bestCard = best && bc ? `<button type="button" class="profile-card ro-sec" data-bean="${esc(best.beanId)}" onclick="app.openCoffeeFromRoaster(this.getAttribute('data-bean'))"><div class="label">Best shot</div><div class="ro-best"><div class="ro-best-main"><div class="ro-best-name">${esc(bc.name)}</div><div class="ro-best-line"><span>${esc(this.getBrewOwner(best))} · ${esc(this.shortDate(best.date))}</span><span class="star-meter" style="--fill:${this.starFill(best.rating)}%;--whole:${this.starWhole(best.rating)};--frac:${this.starFrac(best.rating)}"></span><span>${esc(this.formatRating(best.rating))}</span></div>${this.recipeLine(best, false) ? `<div class="ro-best-recipe">${esc(best.method || '')}${best.method ? ' · ' : ''}${esc(this.recipeLine(best, false))}</div>` : ''}</div><svg class="icon ro-go"><use href="#i-chevron-down"/></svg></div></button>` : '';
                 const coffees = `<section class="profile-card ro-sec"><div class="label">Their coffees</div>${r.coffees.map(c => `<button type="button" class="ro-cof" data-bean="${esc(c.beanId)}" onclick="app.openCoffeeFromRoaster(this.getAttribute('data-bean'))"><span class="ro-cof-main"><span class="ro-cof-name">${esc(c.name)}</span><span class="ro-cof-sub">${c.sessions} session${c.sessions === 1 ? '' : 's'}</span></span>${c.rated ? `<span class="ro-meter"><i style="width:${(c.avg / 5) * 100}%"></i></span><span class="ro-cof-n">${RoasterEngine.f1(c.avg)}★</span>` : ''}<svg class="icon ro-go"><use href="#i-chevron-down"/></svg></button>`).join('')}</section>`;
-                const who = r.people.length ? `<section class="profile-card ro-sec"><div class="label">Who drinks it</div>${r.people.map(p => `<div class="ro-who"><span class="person-dot" style="background:${esc(this.getUserColor(p.name))}">${esc(this.feedInitial(p.name))}</span><span class="ro-who-t">${esc(p.name)}<small>${p.sessions} session${p.sessions === 1 ? '' : 's'}${p.rated ? ` · ${RoasterEngine.f1(p.avg)}★ average` : ''}</small></span>${p.top ? `<span class="ro-badge">${esc(p.name)}'s top roaster</span>` : ''}</div>`).join('')}</section>` : '';
+                const who = r.people.length ? `<section class="profile-card ro-sec"><div class="label">Who drinks it</div>${r.people.map(p => `<div class="ro-who" data-profile="${esc(p.name)}"><span class="person-dot" style="background:${esc(this.getUserColor(p.name))}">${esc(this.feedInitial(p.name))}</span><span class="ro-who-t">${esc(p.name)}<small>${p.sessions} session${p.sessions === 1 ? '' : 's'}${p.rated ? ` · ${RoasterEngine.f1(p.avg)}★ average` : ''}</small></span>${p.top ? `<span class="ro-badge">${esc(p.name)}'s top roaster</span>` : ''}</div>`).join('')}</section>` : '';
                 const e = r.espresso;
                 const range = (a, f) => a ? (Math.abs(a[1] - a[0]) < 1e-9 ? f(a[0]) : `${f(a[0])}–${f(a[1])}`) : '';
                 const ratio = e && e.ratio ? range(e.ratio, x => `1:${x.toFixed(1)}`) : '', secs = e && e.time ? range(e.time, x => `${this.fmtNum(x, 0)}`) + ' s' : '';
@@ -10849,9 +10915,9 @@
                     <article class="feed-card join-card" style="--jc:${this.esc(color)}">
                         <div class="feed-card-body">
                             <div class="join-row">
-                                <div class="feed-avatar join-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(name))}</div>
+                                <div class="feed-avatar join-avatar" style="background:${this.esc(color)};" data-profile="${this.esc(name)}">${this.esc(this.feedInitial(name))}</div>
                                 <div class="join-text">
-                                    <div class="join-title"><b style="color:${this.esc(color)}">${this.esc(name)}</b> joined Dialed In</div>
+                                    <div class="join-title"><b style="color:${this.esc(color)}" data-profile="${this.esc(name)}">${this.esc(name)}</b> joined Dialed In</div>
                                     <div class="feed-time" data-time="${this.esc(String(e.date || ''))}">${this.esc(this.formatRelativeDate(e.date))}</div>
                                 </div>
                                 <div class="feed-type">New here</div>
@@ -11945,9 +12011,9 @@
                 return `
                         <div class="feed-card-body">
                             <div class="feed-head">
-                                <div class="feed-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(owner))}</div>
+                                <div class="feed-avatar" style="background:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(this.feedInitial(owner))}</div>
                                 <div class="feed-meta">
-                                    <div class="feed-actor" style="color:${this.esc(color)};">${this.esc(owner)}</div>
+                                    <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}</div>
                                     <div class="feed-time">${this.esc(this.formatRelativeDate(log.date))}</div>
                                 </div>
                                 <div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(log.method)}"/></svg>${this.esc(log.method || 'Espresso')}</div>
@@ -12063,7 +12129,7 @@
                 }).join('');
                 const flavors = this.getTopFlavors(list, 3);
                 const avgRating = this.calculateAverageRating(list);
-                return `<div class="side-card"><div class="side-name" style="color:${this.esc(color)};">${this.esc(owner)}</div><div class="side-stat">${list.length} session${list.length === 1 ? '' : 's'} · ${this.esc(methods.join(', ') || '-')}${avgRating > 0 ? ` · avg ${this.esc(this.formatRating(avgRating))}★` : ''}</div><div class="side-label">${pickLabel}${pick && pick.method ? ` · ${this.esc(pick.method)}` : ''}</div><div class="side-recipe">${this.esc(this.recipeLine(pick, false) || '-')}</div><div class="taste-bars">${bars}</div>${flavors.length ? `<div class="side-flavors">${flavors.map(f => this.famChip(f)).join('')}</div>` : ''}</div>`;
+                return `<div class="side-card"><div class="side-name" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}</div><div class="side-stat">${list.length} session${list.length === 1 ? '' : 's'} · ${this.esc(methods.join(', ') || '-')}${avgRating > 0 ? ` · avg ${this.esc(this.formatRating(avgRating))}★` : ''}</div><div class="side-label">${pickLabel}${pick && pick.method ? ` · ${this.esc(pick.method)}` : ''}</div><div class="side-recipe">${this.esc(this.recipeLine(pick, false) || '-')}</div><div class="taste-bars">${bars}</div>${flavors.length ? `<div class="side-flavors">${flavors.map(f => this.famChip(f)).join('')}</div>` : ''}</div>`;
             },
 
             dialinSeries() {
@@ -12158,7 +12224,8 @@
             renderProfile(grid) {
                 grid.className = 'profile-view';
                 const people = this.profileRowPeople();   // v14.4: you and the people you follow (each person's own row)
-                if (!this.profileUser || !(people.includes(this.profileUser) || this.hasLoggedData(this.profileUser))) this.profileUser = this.user || people[0] || '';
+                const opened = this.acctOn() && this.profState && this.profState().name === this.profileUser;   // v14.5: someone outside your circle, opened by tapping their name
+                if (!this.profileUser || !(people.includes(this.profileUser) || this.hasLoggedData(this.profileUser) || opened)) this.profileUser = this.user || people[0] || '';
                 const who = this.profileUser;
                 if (!who) {
                     grid.innerHTML = '<div class="panel-empty">Pick a user in Settings to see profiles.</div>';
@@ -12176,18 +12243,20 @@
                     this._peopleLoading = true;
                     this.loadPeople().then(() => { this._peopleLoading = false; if (this.tab === 'profile') this.render(); }).catch(() => { this._peopleLoading = false; this.ppState().at = Date.now(); });
                 }
-                const section = ['overview', 'taste', 'activity'].includes(this.profileSection) ? this.profileSection : 'overview';
+                const section = ['sessions', 'overview', 'taste', 'activity'].includes(this.profileSection) ? this.profileSection : 'sessions';   // v14.5: Sessions first
                 const freshRecap = who === this.user ? this.freshRecap() : null;
-                const tabs = `<div class="seg-control profile-tabs" role="tablist" aria-label="Profile sections">${[['overview', 'Overview'], ['taste', 'Taste'], ['activity', 'Activity']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === section}" aria-pressed="${k === section}" onclick="app.setProfileSection('${app.escJs(k)}')">${l}${k === 'activity' && freshRecap && section !== 'activity' ? '<span class="nav-dot"></span>' : ''}</button>`).join('')}</div>`;
-                const cards = section === 'taste'
+                const tabs = `<div class="seg-control profile-tabs" role="tablist" aria-label="Profile sections">${[['sessions', 'Sessions'], ['overview', 'Overview'], ['taste', 'Taste'], ['activity', 'Activity']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === section}" aria-pressed="${k === section}" onclick="app.setProfileSection('${app.escJs(k)}')">${l}${k === 'activity' && freshRecap && section !== 'activity' ? '<span class="nav-dot"></span>' : ''}</button>`).join('')}</div>`;
+                const cards = section === 'sessions' ? [this.profileSessionsHtml(who)]
+                    : section === 'taste'
                     ? [this.renderPalateCard(who), who === this.user ? this.renderFriendPalates() : '', this.renderMatchesCard(who), this.renderWantCard(who)]
                     : section === 'activity'
                         ? [this.renderCrewAwardsCard(), this.renderCalendarCard(who), this.renderRecapCard(who)]
-                        : [this.renderFabFour(who), this.renderAchievementsCard(who), who !== this.user ? this.renderGearCard(who) : ''];
+                        : [this.renderFabFour(who), this.profileCoffeesHtml(who), this.renderAchievementsCard(who), who !== this.user ? this.renderGearCard(who) : ''];
                 const body = cards.filter(Boolean).join('') || '<div class="panel-empty">Nothing here yet. Log a few sessions and this fills in.</div>';
                 grid.innerHTML = [
                     `<div class="people-switch${this.acctOn() ? ' one-row' : ''}">${chips}${peopleChip}</div>`,
                     this.renderProfileHero(who),
+                    this.profileNoteHtml ? this.profileNoteHtml(who) : '',
                     tabs,
                     `<div class="profile-section" data-section="${section}">${body}</div>`
                 ].join('');
@@ -12340,7 +12409,7 @@
                 if (!others.length) return '';
                 const rows = others.map(name => {
                     const color = this.getUserColor(name);
-                    return `<button type="button" class="friend-palate" data-name="${this.esc(name)}" onclick="app.setProfileUser(this.getAttribute('data-name'))"><span class="person-dot" style="background:${this.esc(color)};">${this.esc(this.feedInitial(name))}</span><span class="friend-palate-text"><b>${this.esc(name)}</b>${this.esc(this.palateSentence(this.palateFor(name)))}</span></button>`;
+                    return `<button type="button" class="friend-palate" data-profile="${this.esc(name)}"><span class="person-dot" style="background:${this.esc(color)};">${this.esc(this.feedInitial(name))}</span><span class="friend-palate-text"><b>${this.esc(name)}</b>${this.esc(this.palateSentence(this.palateFor(name)))}</span></button>`;
                 }).join('');
                 return `<section class="profile-card"><h4 class="section-label">Friends' palates</h4><div class="friend-palates">${rows}</div></section>`;
             },
@@ -14809,7 +14878,7 @@
                     flavors,
                     rating: this.normalizeRating(form.rating.value),
                     photo: this.normalizePhoto(this.draftPhoto),
-                    ...(this.acctOn() && this.share ? { audience: this.share.audience, noteAudience: this.share.noteAudience, photoAudience: this.share.photoAudience } : {}),   // v14.2: who sees it (new backend)
+                    ...(this.acctOn() && this.share ? { audience: this.share.audience, noteAudience: this.share.noteAudience, photoAudience: this.share.photoAudience, helpWanted: Boolean(this.share.helpWanted) } : {}),   // v14.2: who sees it (new backend); v14.5: asking for help
                     equipment: keepGear ? (Array.isArray(existing.equipment) ? existing.equipment : []) : selectedEquipment,
                     equipmentSnapshot,
                     likes: existing ? (existing.likes || []) : [],
@@ -15134,8 +15203,10 @@
                     // v14.4: a private profile approves its followers
                     const priv = this.peoplePrivacyHtml();
                     if (priv) { const pr = document.createElement('div'); pr.innerHTML = priv; list.appendChild(pr.firstElementChild); }
-                    if (this.acctToolsHtml) { const at = document.createElement('div'); at.innerHTML = this.acctToolsHtml(); list.appendChild(at.firstElementChild); }
                     else if (!this._privLoading) { this._privLoading = true; this.loadPeople(true).then(() => { this._privLoading = false; if (document.getElementById('settings-modal').classList.contains('active')) this.openSettings(); }).catch(() => { this._privLoading = false; }); }
+                    const pushRow = this.pushRowHtml ? this.pushRowHtml() : '';   // v14.5: notifications on this phone
+                    if (pushRow) { const pu = document.createElement('div'); pu.innerHTML = pushRow; list.appendChild(pu.firstElementChild); }
+                    if (this.acctToolsHtml) { const at = document.createElement('div'); at.innerHTML = this.acctToolsHtml(); list.appendChild(at.firstElementChild); }
                 }
                 const head = document.createElement('div');
                 head.className = 'user-head';
@@ -15881,7 +15952,11 @@
                 let last = {}; try { last = JSON.parse(safeGet('dialed_share_last') || '{}') || {}; } catch (e) { last = {}; }
                 const A = v => ['everyone', 'friends', 'only_me'].includes(v) ? v : '', I = v => ['everyone', 'friends'].includes(v) ? v : '';
                 const from = brew || last;   // a new session starts where your last one was set
-                this.share = { audience: A(from.audience) || 'friends', noteAudience: I(from.noteAudience) || 'friends', photoAudience: I(from.photoAudience) || 'friends' };
+                // v14.5: someone who joined through the welcome starts out sharing sessions with Everyone (the original crew,
+                // and anyone who has picked before, start where they left off); notes and photos start as Friends either way
+                const me = this.ppState().me || (Supa.session() || {}).profile, fresh = !brew && !A(last.audience) && Boolean(me && me.joined);
+                this.share = { audience: A(from.audience) || (fresh ? 'everyone' : 'friends'), noteAudience: I(from.noteAudience) || 'friends', photoAudience: I(from.photoAudience) || 'friends',
+                               helpWanted: Boolean(brew && brew.helpWanted) };   // asking for help is per session, never carried over
                 row.hidden = false;
                 this.renderShareRow();
             },
@@ -15893,13 +15968,16 @@
                 row.innerHTML = `<label>Who sees this session</label>${seg('audience', [['everyone', 'Everyone'], ['friends', 'Friends'], ['only_me', 'Only me']])}
                     ${s.audience === 'everyone' ? `<div class="share-items"><div class="share-item"><span>Your notes</span>${seg('noteAudience', [['friends', 'Friends'], ['everyone', 'Everyone']])}</div>
                     <div class="share-item"><span>Photo</span>${seg('photoAudience', [['friends', 'Friends'], ['everyone', 'Everyone']])}</div></div>` : ''}
-                    <p class="share-note">${say}</p>`;
+                    <p class="share-note">${say}</p>
+                    <div class="share-help"><span><b>Ask for help dialing this in</b><small>${s.helpWanted ? (s.audience === 'everyone' ? 'It shows under Help in Community. Anyone can answer in the comments.' : 'Your friends and groups can answer in the comments.') : 'People who see this session can answer in the comments.'}</small></span><button type="button" class="goal-sw" role="switch" aria-checked="${Boolean(s.helpWanted)}" aria-label="Ask for help dialing this in" onclick="app.setShare('helpWanted', ${!s.helpWanted})"></button></div>`;
             },
 
             setShare(key, value) {
                 if (!this.share || !(key in this.share)) return;
                 this.share[key] = value;
-                try { safeSet('dialed_share_last', JSON.stringify(this.share)); } catch (e) {}
+                if (key === 'helpWanted' && value && this.share.audience === 'only_me') this.share.audience = 'everyone';   // nobody could see the request
+                const { helpWanted, ...keep } = this.share;
+                try { safeSet('dialed_share_last', JSON.stringify(keep)); } catch (e) {}
                 this.renderShareRow();
             },
 
@@ -15969,6 +16047,7 @@
                 document.getElementById('people-modal').classList.add('active');
                 this.renderPeople();
                 this.loadPeople(true).then(() => this.renderPeople()).catch(e => this.peopleFailed(e));
+                if (this.loadSuggestions) this.loadSuggestions();   // v14.5
             },
 
             closePeople() { const m = document.getElementById('people-modal'); if (m) m.classList.remove('active'); },
@@ -16037,16 +16116,19 @@
                 const ask = name => { const n = this.esc(name); return `<button type="button" class="btn-primary pp-act" data-name="${n}" onclick="app.peopleAct('approve', this.getAttribute('data-name'))">Approve</button><button type="button" class="btn-outline pp-act" data-name="${n}" onclick="app.peopleAct('decline', this.getAttribute('data-name'))">Remove</button>`; };
                 const html = [
                     section('Requests', requests.map(f => this.peopleRowHtml(f.name, this.relationTo(f.name), { color: f.color, actions: ask(f.name) }))),
+                    this.suggestionsHtml ? this.suggestionsHtml() : '',   // v14.5: people you might like to follow
                     section('Friends', friends.map(f => this.peopleRowHtml(f.name, this.relationTo(f.name), { color: f.color }))),
                     section('Following', just.map(f => this.peopleRowHtml(f.name, this.relationTo(f.name), { color: f.color }))),
                     section('Followers', fans.map(f => this.peopleRowHtml(f.name, this.relationTo(f.name), { color: f.color }))),
                     section('Blocked', (d.blocked || []).map(n => this.peopleRowHtml(n, { blocked: true }, { sub: 'They can\'t see or find you' }))),
                 ].join('');
-                body.innerHTML = html || `<p class="pp-empty">You're not following anyone yet. Find people by name above. When you follow each other, you're friends.</p>`;
+                const share = this.shareProfile ? `<div class="pp-share"><button type="button" class="btn-outline pp-act" onclick="app.shareProfile()">Share my profile</button></div>` : '';   // v14.5: your link, for friends
+                body.innerHTML = (html || `<p class="pp-empty">You're not following anyone yet. Find people by name above. When you follow each other, you're friends.</p>`) + share;
             },
 
             // tap a name: their profile, when there's something of theirs you're allowed to see
             openPersonFromPeople(name) {
+                if (this.openAnyProfile) { this.openAnyProfile(name); return; }   // v14.5: anyone's profile, outside your circle too
                 if (!(this.knownPeople().includes(name) || this.hasLoggedData(name))) { this.showToast(`Nothing of ${name}'s to see yet.`); return; }
                 this.closePeople();
                 this.profileSection = 'overview';
@@ -16175,12 +16257,16 @@
                 // photo links last two hours: after ninety minutes start over from the first page, so none go stale
                 if (!more && st.born && Date.now() - st.born > 90 * 60000) { st.events = []; st.next = null; st.at = 0; st.born = 0; }
                 if (!st.born) st.born = Date.now();
+                const seq = st.seq = (st.seq || 0) + 1;   // v14.5: a filter change starts over; an answer for the old one is dropped
                 st.loading = true; st.error = '';
                 if (this.tab === 'feed' && this.feedMode() === 'community') this.render();
                 try {
-                    const page = await Supa.rpc('community_feed', more ? { before: st.next, max_items: 30 } : { max_items: 30 });
+                    const args = { max_items: 30, ...(this.commFilterArgs ? this.commFilterArgs() : {}) };
+                    const page = await Supa.rpc('community_feed', more ? { ...args, before: st.next } : args);
+                    if (st.seq !== seq) return;
                     const raw = page && Array.isArray(page.events) ? page.events : [];
                     await Supa.linkPhotos(raw);   // photos in storage: short-lived links, as in a sync
+                    if (st.seq !== seq) return;
                     const evs = raw.map(e => this.normalizeEvent(e)).filter(Boolean);
                     if (more) {
                         const have = new Set(st.events.map(e => e.type + ':' + e.id));
@@ -16194,8 +16280,9 @@
                     if (more) st.next = page ? page.next || null : null;
                     st.at = Date.now();
                 } catch (e) {
-                    st.error = e && e.signedOut ? '' : 'Couldn\'t load the community feed. Check your connection.';
-                } finally { st.loading = false; }
+                    if (st.seq === seq) st.error = e && e.signedOut ? '' : 'Couldn\'t load the community feed. Check your connection.';
+                } finally { if (st.seq === seq) st.loading = false; }
+                if (st.seq !== seq) return;
                 this.process(this.cloud.events);
                 if (this.tab === 'feed') { this._feedHtml = null; this.render(); }
             },
@@ -16205,7 +16292,9 @@
                 this.communityIds = new Set();
                 if (!this.acctOn()) return;
                 const st = this.commState();
-                st.events.forEach(ev => {
+                // v14.5: and the profile of someone outside your circle you've opened (their sessions, coffees and gear)
+                [...st.events, ...(this.profState ? this.profState().events : [])].forEach(ev => {
+                    if (ev.type === 'gear') { const o = String(ev.owner || ''); if (o && o !== this.user && !o.startsWith('__') && !this.gearByUser.has(o)) this.gearByUser.set(o, ev); return; }
                     if (ev.type !== 'bean' && ev.type !== 'brew') return;
                     const id = String(ev.id), key = ev.type + ':' + id;
                     if (ev.type === 'bean' ? this.beans.has(id) : this.brews.has(id)) return;
@@ -16233,7 +16322,7 @@
 
             communityEntries() {
                 const st = this.commState(), seen = new Set();
-                return st.events.filter(e => e.type === 'brew').map(e => this.brews.get(String(e.id))).filter(b => b && !seen.has(b.id) && seen.add(b.id) && b.audience !== 'only_me')
+                return st.events.filter(e => e.type === 'brew' && !(this._reportedIds && this._reportedIds.has('brew:' + e.id))).map(e => this.brews.get(String(e.id))).filter(b => b && !seen.has(b.id) && seen.add(b.id) && b.audience !== 'only_me')
                     .sort((a, b) => this.toTime(b.date) - this.toTime(a.date))
                     .map(b => ({ kind: 'session', brewId: b.id, date: b.date, actorColor: b.actorColor || '', community: true }));
             },
@@ -16244,9 +16333,15 @@
                 this._feedHtml = null;
                 const st = this.commState();
                 const entries = this.communityEntries();
-                const head = this.feedModeHtml();
+                const head = this.feedModeHtml() + (this.communityGoalHtml ? this.communityGoalHtml() + this.commFilterHtml() : '');   // v14.5: the community goal and filters
                 if (!entries.length) {
-                    const msg = st.loading || !st.at ? 'Loading the community…' : st.error || 'Nothing shared with Everyone yet. Sessions people share with Everyone show up here.';
+                    const f = st.filter || '';
+                    const none = f === 'help' ? 'No help requests right now. When someone asks for help dialing in, it shows here.'
+                        : f === 'new' ? 'Nobody new in the last two weeks.'
+                        : f.startsWith('g:') ? 'Nothing from this group yet. Members\' sessions shared with Everyone show here.'
+                        : f ? `No ${f.slice(2)} sessions shared with Everyone yet.`
+                        : 'Nothing shared with Everyone yet. Sessions people share with Everyone show up here.';
+                    const msg = st.loading || !st.at ? 'Loading the community…' : st.error || none;
                     grid.innerHTML = head + `<div class="comm-empty">${this.esc(msg)}</div>`;
                     return;
                 }
@@ -16327,6 +16422,7 @@
                     case 'follow_request': return `${who} wants to follow you`;
                     case 'follow_accepted': return `${who} approved your follow request`;
                     case 'joined_group': return `${who} joined ${this.esc(n.group || 'your group')}`;
+                    case 'helpful': return `${who} marked your answer most helpful${said}`;   // v14.5
                     default: return who;
                 }
             },
@@ -16344,10 +16440,13 @@
             openNotification(id) {
                 const n = (this.notifState().items || []).find(x => String(x.id) === String(id));
                 if (!n) return;
-                if (n.kind === 'follow' || n.kind === 'follow_request' || n.kind === 'follow_accepted') { this.closeNotifications(); this.openPeople(); return; }
+                if (n.kind === 'follow_request') { this.closeNotifications(); this.openPeople(); return; }
+                if ((n.kind === 'follow' || n.kind === 'follow_accepted') && this.openAnyProfile) { this.closeNotifications(); this.openAnyProfile(n.who); return; }   // v14.5: their profile
+                if (n.kind === 'follow' || n.kind === 'follow_accepted') { this.closeNotifications(); this.openPeople(); return; }
                 if (n.kind === 'joined_group') { this.closeNotifications(); this.openPeople(); return; }
                 const brew = n.session ? this.brews.get(String(n.session)) : null;
                 const beanId = brew ? brew.beanId : (n.sessionCoffee || n.coffee || '');
+                if (n.session && !brew && n.who && this.openAnyProfile) { this.closeNotifications(); this.openAnyProfile(n.who); return; }   // v14.5: someone else's session outside your circle (a help answer): their profile
                 if (!beanId || (n.session && !brew && !this.beans.has(String(beanId)))) { this.showToast('That isn\'t on this phone anymore.'); return; }
                 this.closeNotifications();
                 if (n.comment && n.session) this.openThreads.add(this.threadKey('brew', n.session));
@@ -16374,18 +16473,62 @@
                 const groupRow = g => {
                     const n = (g.members || []).length, isOpen = st.open === String(g.id), id = this.esc(String(g.id));
                     const role = g.role === 'owner' ? 'You run it' : g.role === 'admin' ? 'Admin' : '';
-                    const members = isOpen ? `<div class="gr-members">${(g.members || []).map(m => `<div class="gr-member">${this.personDotHtml(m.name)}<span>${this.esc(m.name)}${m.role === 'owner' ? ' <small>owner</small>' : m.role === 'admin' ? ' <small>admin</small>' : ''}</span>${(g.role === 'owner' || g.role === 'admin') && m.name !== this.user && m.role !== 'owner' ? `<button type="button" class="btn-outline pp-act is-quiet" data-g="${id}" data-name="${this.esc(m.name)}" onclick="app.groupAct('remove', this.getAttribute('data-g'), this.getAttribute('data-name'))">Remove</button>` : ''}</div>`).join('')}</div>` : '';
+                    const members = isOpen ? `<div class="gr-members">${(g.members || []).map(m => `<div class="gr-member"><span class="gr-who" data-profile="${this.esc(m.name)}">${this.personDotHtml(m.name)}</span><span data-profile="${this.esc(m.name)}">${this.esc(m.name)}${m.role === 'owner' ? ' <small>owner</small>' : m.role === 'admin' ? ' <small>admin</small>' : ''}</span>${(g.role === 'owner' || g.role === 'admin') && m.name !== this.user && m.role !== 'owner' ? `<button type="button" class="btn-outline pp-act is-quiet" data-g="${id}" data-name="${this.esc(m.name)}" onclick="app.groupAct('remove', this.getAttribute('data-g'), this.getAttribute('data-name'))">Remove</button>` : ''}</div>`).join('')}</div>` : '';
                     const invite = isOpen && g.invite ? `<div class="gr-invite"><span>Invite code <b>${this.esc(g.invite.toUpperCase())}</b></span><button type="button" class="btn-primary pp-act" data-code="${this.esc(g.invite)}" data-name="${this.esc(g.name)}" onclick="app.shareInvite(this.getAttribute('data-code'), this.getAttribute('data-name'))">Share invite</button></div>` : '';
-                    const leave = isOpen ? `<button type="button" class="gr-leave" data-g="${id}" data-name="${this.esc(g.name)}" onclick="app.groupAct('leave', this.getAttribute('data-g'), this.getAttribute('data-name'))">Leave group</button>` : '';
-                    return `<div class="gr-card${isOpen ? ' is-open' : ''}"><button type="button" class="gr-head" data-g="${id}" onclick="app.toggleGroup(this.getAttribute('data-g'))"><span class="gr-icon"><svg class="icon"><use href="#i-users"/></svg></span><span class="gr-name"><b>${this.esc(g.name)}</b><small>${n} ${n === 1 ? 'person' : 'people'}${g.open ? ' · open' : ''}${role ? ' · ' + role : ''}</small></span><svg class="icon gr-chev"><use href="#i-chevron-down"/></svg></button>${invite}${members}${leave}</div>`;
+                    const leave = isOpen ? `<button type="button" class="gr-leave" data-g="${id}" data-name="${this.esc(g.name)}" data-open="${g.open ? '1' : ''}" onclick="app.groupAct('leave', this.getAttribute('data-g'), this.getAttribute('data-name'), this.getAttribute('data-open'))">Leave group</button>` : '';
+                    // v14.5: an open group's sessions show under its name in Community
+                    const see = isOpen && g.open ? `<div class="gr-invite"><span>Members' sessions shared with Everyone</span><button type="button" class="btn-primary pp-act" data-g="${id}" onclick="app.seeGroupFeed(this.getAttribute('data-g'))">See them</button></div>` : '';
+                    return `<div class="gr-card${isOpen ? ' is-open' : ''}"><button type="button" class="gr-head" data-g="${id}" onclick="app.toggleGroup(this.getAttribute('data-g'))"><span class="gr-icon"><svg class="icon"><use href="#i-users"/></svg></span><span class="gr-name"><b>${this.esc(g.name)}</b><small>${n} ${n === 1 ? 'person' : 'people'}${g.open ? ' · open' : ''}${role ? ' · ' + role : ''}</small></span><svg class="icon gr-chev"><use href="#i-chevron-down"/></svg></button>${invite}${see}${members}${leave}</div>`;
                 };
+                const kind = st.makeOpen ? 'open' : 'private';
+                const kindSeg = `<div class="seg-control gr-kind" role="group" aria-label="Kind of group">${[['private', 'Private'], ['open', 'Open']].map(([k, l]) => `<button type="button" aria-pressed="${k === kind}" onclick="app.setGroupKind('${app.escJs(k)}')">${l}</button>`).join('')}</div>`;
                 const form = st.form === 'create'
-                    ? `<form class="gr-form" onsubmit="event.preventDefault(); app.groupAct('create', this.elements.n.value)"><input name="n" class="pp-search" maxlength="60" placeholder="Group name" autocomplete="off" autocapitalize="words"><button type="submit" class="btn-primary pp-act">Create</button></form><p class="gr-note">A private group: up to 30 people, who join with its invite. You share a weekly goal and monthly awards.</p>`
+                    ? `${kindSeg}<form class="gr-form" onsubmit="event.preventDefault(); app.groupAct('create', this.elements.n.value)"><input name="n" class="pp-search" maxlength="60" placeholder="${kind === 'open' ? 'Like Moka pot club or Chicago coffee' : 'Group name'}" autocomplete="off" autocapitalize="words"><button type="submit" class="btn-primary pp-act">Create</button></form><p class="gr-note">${kind === 'open' ? 'An open group: anyone can find it and join with one tap. Its members\' sessions shared with Everyone show under its name in Community.' : 'A private group: up to 30 people, who join with its invite. You share a weekly goal and monthly awards.'}</p>`
                     : st.form === 'join'
                         ? `<form class="gr-form" onsubmit="event.preventDefault(); app.groupAct('join', this.elements.c.value)"><input name="c" class="pp-search" maxlength="40" placeholder="Invite code" autocomplete="off" autocapitalize="characters" spellcheck="false"><button type="submit" class="btn-primary pp-act">Join</button></form>`
-                        : `<div class="gr-actions"><button type="button" class="btn-outline pp-act" onclick="app.groupForm('create')">Create a group</button><button type="button" class="btn-outline pp-act" onclick="app.groupForm('join')">Join with a code</button></div>`;
+                        : st.form === 'find' ? this.openGroupsHtml()
+                        : `<div class="gr-actions"><button type="button" class="btn-outline pp-act" onclick="app.groupForm('find')">Find open groups</button><button type="button" class="btn-outline pp-act" onclick="app.groupForm('create')">Create a group</button><button type="button" class="btn-outline pp-act" onclick="app.groupForm('join')">Join with a code</button></div>`;
                 body.innerHTML = (st.list.length ? `<div class="gr-list">${st.list.map(groupRow).join('')}</div>` : `<p class="pp-empty">You're not in a group yet. Groups share a weekly goal and monthly awards. Make one and invite friends, or join with a code someone sent you.</p>`) + form;
-                const f = body.querySelector('.gr-form input'); if (f && f.focus) f.focus();
+                const f = st.form === 'find' ? null : body.querySelector('.gr-form input'); if (f && f.focus) f.focus();
+            },
+
+            // v14.5: open groups. Browse the biggest, or search by name; join with one tap
+            setGroupKind(kind) { this.grState().makeOpen = kind === 'open'; this.renderPeople(); },
+
+            openGroupsHtml() {
+                const st = this.grState(), found = st.found;
+                if (!found && !st.finding) { st.finding = true; this.findOpenGroups(''); }
+                const rows = (found || []).map(g => `<div class="pp-row"><span class="pp-who"><span class="gr-icon"><svg class="icon"><use href="#i-users"/></svg></span><span><b>${this.esc(g.name)}</b><small>${g.members} ${g.members === 1 ? 'person' : 'people'}</small></span></span><span class="pp-acts">${g.joined
+                    ? `<button type="button" class="btn-outline pp-act is-quiet" data-g="${this.esc(String(g.id))}" onclick="app.seeGroupFeed(this.getAttribute('data-g'))">Joined</button>`
+                    : `<button type="button" class="btn-primary pp-act" data-g="${this.esc(String(g.id))}" onclick="app.groupAct('join', this.getAttribute('data-g'))">Join</button>`}</span></div>`).join('');
+                return `<input class="pp-search gr-find" type="search" placeholder="Find open groups by name" autocomplete="off" autocapitalize="words" spellcheck="false" value="${this.esc(st.findQ || '')}" oninput="app.findOpenGroups(this.value)">
+                    ${!found ? '<p class="pp-empty">Looking…</p>' : rows ? `<div class="pp-list">${rows}</div>` : `<p class="pp-empty">${st.findQ ? 'No open group by that name yet. Create one.' : 'No open groups yet. Create the first one.'}</p>`}
+                    <div class="gr-actions"><button type="button" class="btn-outline pp-act" onclick="app.groupForm('create')">Create a group</button><button type="button" class="btn-outline pp-act is-quiet" onclick="app.groupForm('')">Done</button></div>`;
+            },
+
+            findOpenGroups(q) {
+                const st = this.grState(); st.findQ = String(q || '');
+                clearTimeout(this._grFindTimer);
+                const seq = st.findSeq = (st.findSeq || 0) + 1, text = st.findQ.trim();
+                if (text.length === 1) return;
+                this._grFindTimer = setTimeout(async () => {
+                    try { const r = await Supa.rpc('find_groups', { q: text }); if (seq !== st.findSeq) return; st.found = Array.isArray(r) ? r : []; }
+                    catch (e) { if (seq === st.findSeq) st.found = []; }
+                    st.finding = false;
+                    // redraw the results without the search box (it keeps its focus and what's typed)
+                    const body = document.getElementById('people-body'), box = body && body.querySelector('.gr-find');
+                    if (!body || st.form !== 'find') return;
+                    const html = this.openGroupsHtml(), tmp = document.createElement('div'); tmp.innerHTML = html;
+                    if (box) { [...body.children].forEach(c => { if (c !== box) c.remove(); }); [...tmp.children].slice(1).forEach(c => body.appendChild(c)); }
+                    else this.renderPeople();
+                }, text ? 220 : 0);
+            },
+
+            seeGroupFeed(id) {
+                this.closePeople();
+                this.setTab('feed');
+                this.setFeedMode('community');
+                if (this.setCommFilter) this.setCommFilter('g:' + id);
             },
 
             toggleGroup(id) { const st = this.grState(); st.open = st.open === String(id) ? '' : String(id); this.renderPeople(); },
@@ -16400,12 +16543,12 @@
                 } catch (e) { if (e && e.name === 'AbortError') return; this.showToast(`Invite code: ${String(code).toUpperCase()}`); }
             },
 
-            async groupAct(action, a, b) {
+            async groupAct(action, a, b, c) {
                 const st = this.grState();
                 try {
-                    if (action === 'create') { const g = await Supa.rpc('create_group', { name: String(a || '').trim() }); st.form = ''; st.open = g && g.id ? String(g.id) : ''; this.showToast(`Made ${g && g.name ? g.name : 'your group'}. Share the invite with friends.`); }
-                    else if (action === 'join') { const g = await Supa.rpc('join_group', { code: String(a || '').trim() }); st.form = ''; st.open = g && g.id ? String(g.id) : ''; this.showToast(`You joined ${g && g.name ? g.name : 'the group'}.`); }
-                    else if (action === 'leave') { if (!confirm(`Leave ${b}? You'll stop sharing its goal and awards.`)) return; await Supa.rpc('leave_group', { group_id: a }); st.open = ''; this.showToast(`You left ${b}.`); }
+                    if (action === 'create') { const open = Boolean(st.makeOpen); const g = await Supa.rpc('create_group', { name: String(a || '').trim(), open }); st.form = ''; st.makeOpen = false; st.found = null; st.open = g && g.id ? String(g.id) : ''; this.showToast(open ? `Made ${g && g.name ? g.name : 'your group'}. Anyone can find it and join.` : `Made ${g && g.name ? g.name : 'your group'}. Share the invite with friends.`); }
+                    else if (action === 'join') { const g = await Supa.rpc('join_group', { code: String(a || '').trim() }); st.form = ''; st.found = null; st.open = g && g.id ? String(g.id) : ''; this.showToast(`You joined ${g && g.name ? g.name : 'the group'}.`); }
+                    else if (action === 'leave') { if (!confirm(c ? `Leave ${b}?` : `Leave ${b}? You'll stop sharing its goal and awards.`)) return; await Supa.rpc('leave_group', { group_id: a }); st.open = ''; st.found = null; this.showToast(`You left ${b}.`); }
                     else if (action === 'remove') { if (!confirm(`Remove ${b} from the group?`)) return; await Supa.rpc('remove_member', { group_id: a, name: b }); }
                     else return;
                     if (this.haptic) this.haptic('tick');
@@ -16439,17 +16582,27 @@
                 if (event) event.stopPropagation();
                 if (!this.acctOn() || !ref) return;
                 const what = kind === 'profile' ? ref : kind === 'session' ? 'this session' : 'this comment';
-                const reason = prompt(`Report ${what}? Say what's wrong (optional). Nobody is told who reported it.`, '');
+                const reason = prompt(`Report ${what}? Say what's wrong (optional). Nobody is told who reported it. (Community guidelines are in Settings.)`, '');
                 if (reason === null) return;
                 try {
                     await Supa.rpc('report_item', { kind, ref, reason });
                     const st = this.ppState(); if (st.menu) { st.menu = ''; this.render(); }
+                    // v14.5: it's gone for you right away (the database leaves it out of everything you're sent from now on)
+                    if (kind === 'session') {
+                        (this._reportedIds = this._reportedIds || new Set()).add('brew:' + ref);
+                        const drop = list => list.filter(e => !(e.type === 'brew' && String(e.id) === String(ref)));
+                        this.commState().events = drop(this.commState().events);
+                        if (this.profState) this.profState().events = drop(this.profState().events);
+                        this.process(this.cloud.events); this._feedHtml = null;
+                        this.render();
+                    }
+                    if (kind !== 'profile' && this.runSync) this.runSync();
                     this.showToast('Reported. Thanks for telling us.');
                 } catch (e) { this.showToast(e && e.message ? e.message : 'That didn\'t work. Try again.'); }
             },
 
             acctToolsHtml() {
-                return `<div class="acct-tools"><button type="button" class="btn-outline pp-act" onclick="app.downloadMyData()">Download my data</button><button type="button" class="btn-outline pp-act acct-delete" onclick="app.deleteMyAccount()">Delete account</button></div>`;
+                return `<div class="acct-tools">${this.isReviewer && this.isReviewer() ? '<button type="button" class="btn-outline pp-act" onclick="app.openReview()">Review reports</button>' : ''}<button type="button" class="btn-outline pp-act" onclick="app.openGuidelines()">Community guidelines</button><button type="button" class="btn-outline pp-act" onclick="app.downloadMyData()">Download my data</button><button type="button" class="btn-outline pp-act acct-delete" onclick="app.deleteMyAccount()">Delete account</button></div>`;
             },
 
             async downloadMyData() {
@@ -16474,6 +16627,433 @@
                     this.showToast('Your account is deleted.');
                     this.signOut();
                 } catch (e) { this.showToast(e && e.message ? e.message : 'That didn\'t work. Try again.'); }
+            },
+            // ---- v14.5 (phase 3, part two): anyone's profile, suggested people, help requests, community filters and goal,
+            // profile links, reviewing reports. New backend only; on the Sheet none of it shows.
+
+            // ---- anyone's profile. People in your circle come with your sync; anyone else's profile loads from the
+            // database (what they share with Everyone, or everything you may see), and lives beside your circle's records
+            // like the community feed does (applyCommunity), so it never counts toward your goals, awards or library.
+            profState() { return this._prof || (this._prof = { name: '', events: [], card: null, at: 0, loading: false, error: '' }); },
+
+            // someone whose sessions come with your sync: you, your private groups, the people you follow
+            inCircle(name) {
+                name = String(name || '');
+                if (!name) return false;
+                if (name === this.user || this.knownPeople().includes(name)) return true;
+                const d = this.ppState().data;
+                if (d && (d.following || []).some(f => f.name === name && f.status === 'accepted')) return true;
+                return this.brewsOf(name).some(b => !this.isCommunity('brew', b.id));
+            },
+
+            // anyone's name or circle (data-profile="Name") opens their profile: one listener for the whole app, ahead of
+            // the card it sits on (a tap on the name doesn't also open the card)
+            bindProfileLinks() {
+                if (this._profileLinks || typeof document === 'undefined') return;
+                this._profileLinks = true;
+                document.addEventListener('click', e => {
+                    const el = e.target && e.target.closest ? e.target.closest('[data-profile]') : null;
+                    if (!el) return;
+                    const name = el.getAttribute('data-profile');
+                    if (!name) return;
+                    e.stopPropagation(); e.preventDefault();
+                    this.openAnyProfile(name);
+                }, true);
+            },
+
+            openAnyProfile(name, event) {
+                if (event && event.stopPropagation) event.stopPropagation();
+                name = String(name || '').trim();
+                if (!name || name === 'Unknown') return;
+                if (!this.acctOn() && !(this.knownPeople().includes(name) || this.hasLoggedData(name))) return;
+                ['people-modal', 'notif-modal', 'review-modal'].forEach(id => { const m = document.getElementById(id); if (m) m.classList.remove('active'); });
+                if (this.acctOn() && name !== this.user && !this.inCircle(name)) {
+                    const st = this.profState();
+                    if (st.name !== name) { this._prof = { name, events: [], card: null, at: 0, loading: false, error: '' }; this.process(this.cloud.events); }
+                    if (!this.profState().at || Date.now() - this.profState().at > 10 * 60000) this.loadProfilePage(name);
+                }
+                if (this.tab !== 'profile' || this.profileUser !== name) this.profileSection = 'sessions';   // their sessions first, like a social profile
+                this._profShow = null;
+                this.setTab('profile');
+                this.setProfileUser(name);
+                if (typeof window !== 'undefined' && window.scrollTo) window.scrollTo({ top: 0 });
+            },
+
+            async loadProfilePage(name) {
+                const st = this.profState();
+                if (st.loading || !this.acctOn() || !Supa.ready()) return;
+                st.loading = true; st.error = '';
+                try {
+                    const page = await Supa.rpc('profile_page', { name, max_items: 100 });
+                    if (this.profState() !== st) return;   // someone else's opened meanwhile
+                    const raw = page && Array.isArray(page.events) ? page.events : [];
+                    await Supa.linkPhotos(raw);
+                    st.events = raw.map(e => this.normalizeEvent(e)).filter(Boolean);
+                    st.card = page && page.profile ? page.profile : null;
+                    st.at = Date.now();
+                } catch (e) {
+                    st.error = e && e.signedOut ? '' : /nobody/i.test(String(e && e.message || '')) ? 'There\'s nobody by that name.' : 'Couldn\'t load this profile. Check your connection.';
+                    st.at = Date.now();
+                } finally { st.loading = false; }
+                if (this.profState() !== st) return;
+                this.process(this.cloud.events);
+                if (this.tab === 'profile') this.render();
+            },
+
+            // under someone's name on their profile, when they're outside your circle: what you're looking at
+            profileNoteHtml(who) {
+                if (!this.acctOn() || who === this.user || this.inCircle(who)) return '';
+                const st = this.profState();
+                if (st.name !== who) return '';
+                const card = st.card || {};
+                const text = st.loading && !st.at ? 'Loading…'
+                    : st.error ? st.error
+                    : card.locked ? `${who}'s profile is private. Follow to ask to see their sessions.`
+                    : !this.brewsOf(who).length ? `${who} hasn't shared any sessions with Everyone yet.`
+                    : `What ${who} shares with Everyone.`;
+                return `<p class="pp-profile-note">${this.esc(text)}</p>`;
+            },
+
+            // ---- a profile's Sessions tab: their sessions as feed cards, newest first (likes and comments work as in the
+            // Feed), fifteen at a time; and the coffees they've brewed (Overview)
+            profileSessionsHtml(who) {
+                const list = this.brewsOf(who).slice().sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
+                if (!list.length) {
+                    const st = this.profState && this.profState();
+                    if (st && st.name === who && st.loading) return '<div class="panel-empty">Loading…</div>';
+                    return `<div class="panel-empty">${who === this.user ? 'Your sessions show here once you log one.' : `No sessions of ${this.esc(who)}'s to show yet.`}</div>`;
+                }
+                const shown = this._profShow && this._profShow.who === who ? this._profShow.n : 15;
+                const n = Math.min(list.length, shown);
+                const cards = list.slice(0, n).map(b => this.renderFeedSessionCard({ kind: 'session', brewId: b.id, date: b.date, actorColor: b.actorColor || '' })).join('');
+                const more = list.length > n ? `<button type="button" class="btn-outline comm-more" onclick="app.profileMore()">Show older sessions</button>` : '';
+                return `<div class="profile-feed">${cards}${more}</div>`;
+            },
+
+            profileMore() {
+                const who = this.profileUser;
+                const shown = this._profShow && this._profShow.who === who ? this._profShow.n : 15;
+                this._profShow = { who, n: shown + 15 };
+                const y = typeof window !== 'undefined' ? window.scrollY : 0;
+                this.render();
+                if (typeof window !== 'undefined' && window.scrollTo) window.scrollTo({ top: y });
+            },
+
+            profileCoffeesHtml(who) {
+                const seen = new Map();
+                this.brewsOf(who).slice().sort((a, b) => this.toTime(b.date) - this.toTime(a.date)).forEach(b => {
+                    const bean = this.beans.get(String(b.beanId || ''));
+                    if (!bean) return;
+                    const key = this.beanGroupKey(bean);
+                    if (!seen.has(key)) seen.set(key, bean.id);
+                });
+                this.beans.forEach(bean => { if (bean.user === who && !seen.has(this.beanGroupKey(bean))) seen.set(this.beanGroupKey(bean), bean.id); });
+                if (!seen.size) return '';
+                const ids = [...seen.values()];
+                return `<div class="profile-card prof-coffees"><div class="label">Coffees <span class="prof-count">${ids.length}</span></div><div class="fab-row small prof-coffee-grid">${ids.map(id => this.fabTileHtml(id, { user: who, small: true })).join('')}</div></div>`;
+            },
+
+            // ---- suggested people (People tab): who brews the same coffees, roasters, grinder or methods as you
+            sugState() { return this._sug || (this._sug = { list: null, at: 0, loading: false }); },
+
+            async loadSuggestions(force) {
+                const st = this.sugState();
+                if (st.loading || !this.acctOn() || !Supa.ready()) return;
+                if (!force && st.list && Date.now() - st.at < 10 * 60000) return;
+                st.loading = true;
+                try { const list = await Supa.rpc('suggest_people', { max_count: 8 }); st.list = Array.isArray(list) ? list : []; st.at = Date.now(); }
+                catch (e) { if (!st.list) st.list = []; }
+                finally { st.loading = false; }
+                const m = document.getElementById('people-modal');
+                if (m && m.classList.contains('active')) this.renderPeople();
+            },
+
+            suggestionsHtml() {
+                const st = this.sugState();
+                const rows = (st.list || []).filter(p => { const r = this.relationTo(p.name); return !r.you && !r.blocked && p.name !== this.user; }).slice(0, 6);
+                if (!rows.length) return '';
+                return `<h3 class="pp-h">Suggested</h3><div class="pp-list">${rows.map(p => this.peopleRowHtml(p.name, this.relationTo(p.name), { color: p.color, sub: p.reason || '' })).join('')}</div>`;
+            },
+
+            // ---- your profile's link: opens your profile (with Follow) for anyone signed in
+            profileLink(name) {
+                const base = (typeof location !== 'undefined' && /^https?:/.test(location.protocol)) ? location.origin + location.pathname : 'https://maceopmh-droid.github.io/Dialed-In-/';
+                return `${base}?u=${encodeURIComponent(name || this.user || '')}`;
+            },
+
+            async shareProfile() {
+                const url = this.profileLink(this.user), text = `Follow me on Dialed In: ${this.user}`;
+                try {
+                    if (navigator.share) { await navigator.share({ title: 'Dialed In', text, url }); return; }
+                } catch (e) { if (e && e.name === 'AbortError') return; }
+                try { await navigator.clipboard.writeText(url); this.showToast('Link copied. Send it to a friend.'); }
+                catch (e) { prompt('Copy your profile link:', url); }
+            },
+
+            noteProfileLink() {
+                try {
+                    const name = new URLSearchParams(location.search).get('u');
+                    if (!name) return;
+                    safeSet('dialed_pending_profile', name);
+                    const u = new URL(location.href); u.searchParams.delete('u'); history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
+                } catch (e) {}
+            },
+
+            checkPendingProfile() {
+                if (!this.acctOn() || !Supa.ready() || !this.user) return;
+                const name = safeGet('dialed_pending_profile');
+                if (!name) return;
+                safeSet('dialed_pending_profile', '');
+                if (name.toLowerCase() === String(this.user).toLowerCase()) return;
+                this.openAnyProfile(name);
+            },
+
+            // ---- help requests. A session can ask for help dialing in (the log form's switch); the asker marks the most
+            // helpful answer in the comments, and its author hears about it.
+            helpTagHtml(brew) {
+                if (!this.acctOn() || !brew) return '';
+                if (brew.helpWanted) return `<span class="feed-tag is-help">${brew.helpfulAnswer ? 'Answered' : 'Asking for help'}</span>`;
+                if (brew.newHere && this.getBrewOwner(brew) !== this.user) return '<span class="feed-tag">New here</span>';
+                return '';
+            },
+
+            canMarkHelpful(kind, target, c) {
+                return this.acctOn() && kind === 'brew' && target && target.helpWanted && this.getBrewOwner(target) === this.user && c && c.user !== this.user;
+            },
+
+            markHelpful(brewId, commentId, event) {
+                if (event) event.stopPropagation();
+                const brew = this.brews.get(String(brewId));
+                if (!brew || this.getBrewOwner(brew) !== this.user) return;
+                const same = String(brew.helpfulAnswer || '') === String(commentId);
+                this.push({ ...brew, helpfulAnswer: same ? '' : String(commentId) });
+                this.showToast(same ? 'Unmarked.' : 'Marked as the most helpful answer.');
+            },
+
+            // ---- the community feed's filters: Help, New here, one method
+            commFilterHtml() {
+                const st = this.commState(), f = st.filter || '';
+                const gr = this.grState ? this.grState() : null;
+                if (gr && !gr.list && !gr.busy) { gr.busy = true; this.loadGroups(true).then(() => { gr.busy = false; if (this.tab === 'feed' && this.feedMode() === 'community') this.render(); }).catch(() => { gr.busy = false; }); }
+                const groups = (gr && gr.list || []).filter(g => g.open).map(g => ['g:' + g.id, g.name]);   // your open groups
+                if (f.startsWith('g:') && !groups.some(([k]) => k === f)) groups.push([f, st.groupName || 'Group']);
+                const opts = [['', 'All'], ['help', 'Help'], ['new', 'New here'], ...groups, ...['Espresso', 'Pour Over', 'French Press', 'AeroPress', 'Moka Pot', 'Cold Brew'].map(m => ['m:' + m, m])];
+                return `<div class="comm-filters" role="tablist" aria-label="Show">${opts.map(([k, l]) => `<button type="button" class="comm-chip${k === f ? ' on' : ''}" role="tab" aria-selected="${k === f}" data-f="${this.esc(k)}" onclick="app.setCommFilter(this.getAttribute('data-f'))">${this.esc(l)}</button>`).join('')}</div>`;
+            },
+
+            setCommFilter(f) {
+                const st = this.commState();
+                f = String(f || '');
+                if ((st.filter || '') === f) return;
+                st.filter = f; st.events = []; st.next = null; st.at = 0; st.born = 0; st.error = ''; st.loading = false; st.seq = (st.seq || 0) + 1;
+                this._feedHtml = null;
+                this.process(this.cloud.events);
+                this.loadCommunity(false);
+                this.render();
+            },
+
+            commFilterArgs() {
+                const f = this.commState().filter || '';
+                return f === 'help' || f === 'new' ? { feed_filter: f } : f.startsWith('m:') ? { feed_method: f.slice(2) } : f.startsWith('g:') ? { feed_group: f.slice(2) } : {};
+            },
+
+            // ---- the community goal: one weekly goal everyone on Dialed In fills together
+            goalState() { return this._cgoal || (this._cgoal = { goal: null, at: 0, loading: false }); },
+
+            async loadCommunityGoal(force) {
+                const st = this.goalState();
+                if (st.loading || !this.acctOn() || !Supa.ready()) return;
+                if (!force && st.goal && Date.now() - st.at < 10 * 60000) return;
+                st.loading = true;
+                let tz = 'America/Chicago'; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || tz; } catch (e) {}
+                try { const g = await Supa.rpc('community_goal', { tz }); if (g && g.title) { st.goal = g; st.at = Date.now(); } }
+                catch (e) { st.at = Date.now(); }
+                finally { st.loading = false; }
+                if (this.tab === 'feed') { this._feedHtml = null; this.render(); }
+            },
+
+            communityGoalHtml() {
+                if (!this.acctOn()) return '';
+                const st = this.goalState(), g = st.goal;
+                if (!st.loading && (!st.at || Date.now() - st.at > 10 * 60000)) setTimeout(() => this.loadCommunityGoal(), 0);
+                if (!g) return '';
+                const target = Math.max(1, Number(g.target) || 1), progress = Math.min(target, Number(g.progress) || 0), done = Boolean(g.done);
+                const end = Date.parse(g.end), days = end ? Math.max(0, Math.ceil((end - Date.now()) / 864e5)) : 0;
+                const left = done ? 'Done together' : days <= 1 ? 'Last day' : `${days} days left`;
+                const pct = (progress / target * 100).toFixed(2);
+                const style = `--cq-g:linear-gradient(90deg, var(--matcha) 0%, var(--matcha) ${pct}%, transparent ${pct}%);--cq-r1:${(100 - Number(pct)).toFixed(2)}%`;
+                const mine = Number(g.yourSessions) || 0, people = Number(g.people) || 0;
+                const you = mine ? `You: ${mine} session${mine === 1 ? '' : 's'}` : 'Your next session counts';
+                return `
+                    <section class="feed-card crew-quest comm-goal${done ? ' done' : ''}" aria-label="Community goal">
+                        <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-target"/></svg>Community goal · this week</span><span class="cq-left">${this.esc(left)}</span></div>
+                        <div class="cq-title">${this.esc(g.title)}</div>
+                        <div class="cq-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${target}" aria-valuenow="${progress}" style="${this.esc(style)}"><div class="cq-layer cq-glow"><i class="cq-g"></i></div><div class="cq-layer cq-paint"><i class="cq-g"></i></div></div>
+                        <div class="cq-meta"><span><b>${progress}</b> of ${target} ${this.esc(g.unit || '')}</span></div>
+                        <div class="cq-foot"><span class="cg-you">${this.esc(you)}${people ? ` · ${people} ${people === 1 ? 'person' : 'people'} brewed this week` : ''}</span></div>
+                    </section>`;
+            },
+
+            // ---- community guidelines (Settings; the Report box points here)
+            openGuidelines() {
+                const m = document.getElementById('review-modal'); if (!m) return;
+                m.querySelector('h2').textContent = 'Community guidelines';
+                document.getElementById('review-body').innerHTML = `<ul class="cg-rules">
+                    <li><b>Be kind,</b> especially to people who are new.</li>
+                    <li><b>Help, don't mock.</b> Say which way to go (finer, coarser, a longer ratio). Grind numbers only make sense on the same grinder.</li>
+                    <li><b>Keep it about coffee.</b> No spam, no selling.</li>
+                    <li><b>Share only what's yours</b> to share: your own photos and words.</li>
+                    <li><b>Report what breaks these.</b> Nobody is told who reported it, and you stop seeing it right away.</li></ul>`;
+                m.classList.add('active');
+            },
+
+            // ---- reviewing reports (reviewers only: Settings, under your account)
+            isReviewer() { const me = this.ppState().me; return Boolean(this.acctOn() && me && me.admin); },
+
+            async openReview() {
+                const m = document.getElementById('review-modal'); if (!m) return;
+                m.querySelector('h2').textContent = 'Reports';
+                this._review = { list: null, error: '' };
+                m.classList.add('active');
+                this.renderReview();
+                try { const list = await Supa.rpc('review_reports', {}); this._review.list = Array.isArray(list) ? list : []; }
+                catch (e) { this._review.error = e && e.message ? e.message : 'Couldn\'t load reports.'; }
+                this.renderReview();
+            },
+
+            closeReview() { const m = document.getElementById('review-modal'); if (m) m.classList.remove('active'); },
+
+            renderReview() {
+                const body = document.getElementById('review-body'), r = this._review || {};
+                if (!body) return;
+                if (r.error) { body.innerHTML = `<p class="pp-empty">${this.esc(r.error)}</p>`; return; }
+                if (!r.list) { body.innerHTML = '<p class="pp-empty">Loading…</p>'; return; }
+                if (!r.list.length) { body.innerHTML = '<p class="pp-empty">Nothing to review. Reports show up here.</p>'; return; }
+                const what = x => x.kind === 'session' ? `${x.who || 'Someone'}'s session${x.coffee ? ` on ${x.coffee}` : ''}` : x.kind === 'comment' ? `${x.who || 'Someone'}'s comment` : x.kind === 'profile' ? `${x.who || 'Someone'}'s profile` : x.kind;
+                body.innerHTML = `<div class="pp-list">${r.list.map(x => {
+                    const t = this.esc(String(x.target || '')), k = this.esc(String(x.kind || ''));
+                    const reasons = (x.reasons || []).filter(Boolean).map(s => `“${this.esc(s)}”`).join(' ');
+                    return `<div class="rv-row"><div class="rv-what"><b>${this.esc(what(x))}</b><small>${x.count} report${x.count === 1 ? '' : 's'}${x.status === 'hidden' ? ' · hidden until you decide' : ''} · ${this.esc(this.formatRelativeDate(x.last))}</small>${x.text ? `<q>${this.esc(x.text)}</q>` : ''}${reasons ? `<small>${reasons}</small>` : ''}</div>
+                        <div class="pp-acts"><button type="button" class="btn-outline pp-act" data-k="${k}" data-t="${t}" onclick="app.resolveReport(this.getAttribute('data-k'), this.getAttribute('data-t'), 'dismiss')">It's fine</button>${x.kind === 'session' || x.kind === 'comment' ? `<button type="button" class="btn-outline pp-act acct-delete" data-k="${k}" data-t="${t}" onclick="app.resolveReport(this.getAttribute('data-k'), this.getAttribute('data-t'), 'remove')">Remove</button>` : ''}</div></div>`;
+                }).join('')}</div>`;
+            },
+
+            async resolveReport(kind, target, action) {
+                if (action === 'remove' && !confirm(`Remove this ${kind}? It's deleted for everyone.`)) return;
+                try {
+                    await Supa.rpc('resolve_report', { kind, target, action });
+                    if (this._review && this._review.list) this._review.list = this._review.list.filter(x => !(x.kind === kind && String(x.target) === String(target)));
+                    this.renderReview();
+                    this.showToast(action === 'remove' ? 'Removed.' : 'Shown again.');
+                    this.runSync && this.runSync();
+                } catch (e) { this.showToast(e && e.message ? e.message : 'That didn\'t work. Try again.'); }
+            },
+            // ---- v14.5: notifications on this phone (Web Push). Settings shows the switch only once the sender is set up
+            // (push_key() isn't empty) and only where the phone can do it: on an iPhone, the Home Screen app (iOS 16.4
+            // or later). Turning it on asks the phone first (it has to come from the tap), then saves the phone's
+            // subscription; the database sends each new notification to it. sw.js only shows them (no offline caching).
+            pushState() { return this._push || (this._push = { key: null, at: 0, on: false, loading: false, busy: false }); },
+
+            pushSupported() {
+                return typeof navigator !== 'undefined' && 'serviceWorker' in navigator && typeof window !== 'undefined' && 'PushManager' in window && 'Notification' in window;
+            },
+
+            // an iPhone or iPad in Safari (not the Home Screen app): notifications need the app on the Home Screen
+            pushNeedsHomeScreen() {
+                if (typeof navigator === 'undefined') return false;
+                const ios = /iPhone|iPad|iPod/.test(navigator.userAgent || '') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+                const standalone = navigator.standalone === true || (typeof matchMedia === 'function' && matchMedia('(display-mode: standalone)').matches);
+                return ios && !standalone;
+            },
+
+            async loadPushState(force) {
+                const st = this.pushState();
+                if (st.loading || !this.acctOn() || !Supa.ready()) return;
+                if (!force && st.at && Date.now() - st.at < 10 * 60000) return;
+                st.loading = true;
+                try {
+                    const key = await Supa.rpc('push_key', {});
+                    st.key = typeof key === 'string' && key ? key : null;
+                    if (st.key && this.pushSupported()) {
+                        const reg = await navigator.serviceWorker.getRegistration();
+                        const sub = reg && reg.pushManager ? await reg.pushManager.getSubscription() : null;
+                        st.on = Boolean(sub) && Notification.permission === 'granted';
+                    }
+                    st.at = Date.now();
+                } catch (e) { st.at = Date.now(); }
+                finally { st.loading = false; }
+                const m = document.getElementById('settings-modal');
+                if (m && m.classList.contains('active')) this.openSettings();
+            },
+
+            pushRowHtml() {
+                if (!this.acctOn()) return '';
+                const st = this.pushState();
+                if (!st.loading && (!st.at || Date.now() - st.at > 10 * 60000)) setTimeout(() => this.loadPushState(), 0);
+                if (!st.key) return '';
+                if (!this.pushSupported()) {
+                    return this.pushNeedsHomeScreen()
+                        ? '<div class="pp-private"><span><b>Notifications on this phone</b><small>Add Dialed In to your Home Screen (Share, then Add to Home Screen) and open it from there to turn them on.</small></span></div>'
+                        : '';
+                }
+                const denied = Notification.permission === 'denied';
+                return `<div class="pp-private push-row"><span><b>Notifications on this phone</b><small>${denied ? 'They\'re turned off for Dialed In in your phone\'s settings.' : 'Likes, comments, follows and answers, on your lock screen.'}</small></span><button type="button" class="goal-sw" role="switch" aria-checked="${st.on ? 'true' : 'false'}" aria-label="Notifications on this phone"${denied || st.busy ? ' disabled' : ''} onclick="app.setPush(this.getAttribute('aria-checked') !== 'true')"></button></div>`;
+            },
+
+            async setPush(on) {
+                const st = this.pushState();
+                if (st.busy || !st.key || !this.pushSupported()) return;
+                st.busy = true;
+                try {
+                    if (on) {
+                        const perm = await Notification.requestPermission();   // first, while it's still the tap (iPhone needs that)
+                        if (perm !== 'granted') { this.showToast('Notifications stay off. You can allow them in your phone\'s settings.'); return; }
+                        const reg = await navigator.serviceWorker.register('sw.js');
+                        await navigator.serviceWorker.ready;
+                        let sub = await reg.pushManager.getSubscription();
+                        if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: this.pushKeyBytes(st.key) });
+                        await Supa.rpc('save_push', { sub: sub.toJSON() });
+                        st.on = true;
+                        this.showToast('Notifications are on for this phone.');
+                    } else {
+                        const reg = await navigator.serviceWorker.getRegistration();
+                        const sub = reg ? await reg.pushManager.getSubscription() : null;
+                        if (sub) { await Supa.rpc('remove_push', { endpoint: sub.endpoint }).catch(() => {}); await sub.unsubscribe().catch(() => {}); }
+                        st.on = false;
+                        this.showToast('Notifications are off for this phone.');
+                    }
+                } catch (e) {
+                    this.showToast(on ? 'Couldn\'t turn notifications on. Try again.' : 'Couldn\'t turn notifications off. Try again.');
+                } finally {
+                    st.busy = false;
+                    const m = document.getElementById('settings-modal');
+                    if (m && m.classList.contains('active')) this.openSettings();
+                }
+            },
+
+            pushKeyBytes(b64) {
+                const pad = '='.repeat((4 - (b64.length % 4)) % 4), raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
+                const out = new Uint8Array(raw.length);
+                for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+                return out;
+            },
+
+            // tapping a notification opens the app on the bell (sw.js adds ?notifications=1, or tells an open app)
+            notePushOpen() {
+                try {
+                    if (new URLSearchParams(location.search).get('notifications') === '1') {
+                        this._openBellAfterSync = true;
+                        const u = new URL(location.href); u.searchParams.delete('notifications'); history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
+                    }
+                    if (this.pushSupported()) navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.type === 'open-notifications' && this.acctOn()) { this.setTab('feed'); this.openNotifications(); } });
+                } catch (e) {}
+            },
+
+            checkPushOpen() {
+                if (!this._openBellAfterSync || !this.acctOn() || !this.user) return;
+                this._openBellAfterSync = false;
+                this.setTab('feed');
+                this.openNotifications();
             },
         };
         window.onload = () => app.init();
