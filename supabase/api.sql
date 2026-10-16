@@ -248,6 +248,14 @@ end $$;
 -- out private profiles you don't follow, and anyone blocked either way), newest first, a page at a time:
 -- community_feed(before => the "next" of the last page). Each page carries the sessions and their coffees in the
 -- app's event format, likes and comments included.
+create index if not exists sessions_owner on sessions (owner_id);
+create index if not exists sessions_coffee on sessions (coffee_id);
+create index if not exists coffees_owner on coffees (owner_id);
+create index if not exists comments_session on comments (session_id);
+create index if not exists comments_coffee on comments (coffee_id);
+create index if not exists follows_followee on follows (followee);
+create index if not exists group_members_user on group_members (user_id);
+create index if not exists equipment_owner on equipment (owner_id);
 create index if not exists sessions_public_recent on sessions (brewed_at desc) where deleted_at is null and audience = 'everyone';
 create or replace function community_feed(before timestamptz default null, max_items int default 30) returns jsonb
 language plpgsql stable set search_path = public as $$
@@ -267,23 +275,43 @@ begin
 end $$;
 
 -- ---------------------------------------------------------------- has anything changed? data_version()
--- A number that goes up whenever anything the app shows is written. The app asks for it (a few bytes) every sync and
--- only pulls everything again when it moved, instead of downloading every coffee and session every 30 seconds.
-insert into backend_state (key, value) values ('data_version', '1') on conflict (key) do nothing;
-create or replace function internal.bump_version() returns trigger language plpgsql security definer set search_path = public as $$
-begin
-  update backend_state set value = (value::bigint + 1)::text, updated_at = now() where key = 'data_version';
-  return null;
-end $$;
+-- v14.4: a fingerprint of your circle (you, your friends, your groups, the people you follow): what the sync would
+-- send you. The app asks for it (a few bytes) every sync and only pulls everything again when it changed. It's your
+-- own, so somebody brewing on the other side of the world doesn't make everyone's phone download again (the
+-- earlier version was one counter for everyone, bumped by every save, which also made every save wait on one row).
 do $$ declare t text; begin
   foreach t in array array['profiles', 'follows', 'blocks', 'groups', 'group_members', 'roasters', 'coffees', 'sessions', 'session_notes', 'session_photos',
                            'likes', 'comments', 'comment_likes', 'coffee_likes', 'equipment', 'want_to_try', 'profile_gear', 'flavors'] loop
     execute format('drop trigger if exists bump_version on %I', t);
-    execute format('create trigger bump_version after insert or update or delete or truncate on %I for each statement execute function internal.bump_version()', t);
   end loop;
 end $$;
-create or replace function data_version() returns bigint
-language sql stable security definer set search_path = public as $$ select value::bigint from backend_state where key = 'data_version'; $$;
+drop function if exists internal.bump_version();
+drop function if exists data_version();
+create or replace function data_version() returns text
+language plpgsql stable set search_path = public as $$
+declare me_id uuid := me(); circle uuid[];
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  circle := array[me_id] || (select private.my_close_ids()) || (select private.my_following_ids());
+  return md5(concat_ws('|',
+    (select string_agg(x::text, ',' order by x) from unnest(circle) x),
+    (select count(*) || ':' || coalesce(max(updated_at)::text, '') || ':' || coalesce(max(deleted_at)::text, '') from sessions where owner_id = any(circle)),
+    (select count(*) || ':' || coalesce(max(updated_at)::text, '') || ':' || coalesce(max(deleted_at)::text, '') from coffees where owner_id = any(circle)),
+    (select count(*) || ':' || coalesce(max(n.updated_at)::text, '') || ':' || coalesce(md5(string_agg(n.audience::text, ',' order by n.session_id)), '') from session_notes n join sessions s on s.id = n.session_id where s.owner_id = any(circle)),
+    (select count(*) || ':' || coalesce(md5(string_agg(p.path || p.audience::text, ',' order by p.session_id)), '') from session_photos p join sessions s on s.id = p.session_id where s.owner_id = any(circle)),
+    (select count(*) || ':' || coalesce(max(l.created_at)::text, '') from likes l join sessions s on s.id = l.session_id where s.owner_id = any(circle)),
+    (select count(*) || ':' || coalesce(max(greatest(c.created_at, c.edited_at, c.deleted_at))::text, '') || ':' || coalesce(md5(string_agg(c.audience::text || coalesce(c.parent_id::text, ''), ',' order by c.id)), '')
+       from comments c left join sessions s on s.id = c.session_id left join coffees k on k.id = c.coffee_id where s.owner_id = any(circle) or k.owner_id = any(circle)),
+    (select count(*) || ':' || coalesce(max(cl.created_at)::text, '') from comment_likes cl join comments c on c.id = cl.comment_id left join sessions s on s.id = c.session_id left join coffees k on k.id = c.coffee_id where s.owner_id = any(circle) or k.owner_id = any(circle)),
+    (select count(*) || ':' || coalesce(max(l.created_at)::text, '') from coffee_likes l join coffees k on k.id = l.coffee_id where k.owner_id = any(circle)),
+    (select count(*) || ':' || coalesce(max(w.added_at)::text, '') from want_to_try w join coffees k on k.id = w.coffee_id where k.owner_id = any(circle)),
+    (select count(*) || ':' || coalesce(md5(string_agg(e.id::text || e.name || coalesce(e.type, '') || e.hidden::text || coalesce(e.sort_order::text, ''), ',' order by e.id)), '') from equipment e where e.owner_id = any(circle)),
+    (select count(*) || ':' || coalesce(max(updated_at)::text, '') from profile_gear where profile_id = any(circle)),
+    (select md5(string_agg(p.id::text || coalesce(p.color, '') || p.is_private::text || coalesce(p.display_name, '') || coalesce(p.city, ''), ',' order by p.id)) from profiles p where p.id = any(circle)),
+    (select md5(string_agg(m.group_id::text || m.user_id::text || m.role || m.counts_in_goal::text, ',' order by m.group_id, m.user_id))
+       from group_members m where m.group_id in (select group_id from group_members where user_id = me_id)),
+    (select count(*) || ':' || coalesce(max(created_at)::text, '') from flavors)));
+end $$;
 
 -- ---------------------------------------------------------------- writing: push_event(ev)
 -- your like on a coffee or session

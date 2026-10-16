@@ -291,16 +291,22 @@ ok(fx('newbie', `select leave_group('${made.id}');`) === 'left' && JSON.parse(fx
 ok(fx('twin', `select leave_group('${made.id}');`) === 'left; the group closed' && one(`select count(*) from groups where id = '${made.id}';`) === '0', 'the last one out closes it');
 ok(/permission denied/.test(fx('maceo', `update group_members set role = 'owner' where user_id = me();`)) && /permission denied/.test(fx('maceo', `insert into groups (name, owner_id) values ('x', me());`)), "nobody makes themselves owner or makes a group around the checks");
 
-// --- has anything changed? (the app checks this tiny number before pulling everything)
-const v0 = Number(fx('aidan', 'select data_version();'));
-const v1 = Number(fx('aidan', 'select data_version();'));
+// --- has anything changed? (the app checks this tiny fingerprint of its circle before pulling everything)
+const dv = who => fx(who, 'select data_version();');
+const v0 = dv('aidan'), v1 = dv('aidan');
 pull('aidan');
-const v2 = Number(fx('aidan', 'select data_version();'));
+const v2 = dv('aidan');
 push('julian', { type: 'brew', id: 's2', beanId: 'b1', user: 'Maceo', owner: 'Maceo', likes: ['Julian'], comments: [] });
-const v3 = Number(fx('aidan', 'select data_version();'));
-ok(v0 > 0 && v0 === v1 && v1 === v2 && v3 > v2, `data_version stays put while nothing changes (reading doesn't move it) and goes up with any save (${v0} -> ${v3})`);
-ok(/permission denied/.test(fx('anon', 'select data_version();')), '...and only for signed-in people');
+const v3 = dv('aidan');
+ok(/^[0-9a-f]{32}$/.test(v0) && v0 === v1 && v1 === v2 && v3 !== v2, `data_version stays put while nothing changes (reading doesn't move it) and changes with a save in your circle`);
+const w0 = dv('wanderer');
 push('julian', { type: 'brew', id: 's2', beanId: 'b1', user: 'Maceo', owner: 'Maceo', likes: [], comments: [] });   // (undo that like)
+ok(dv('wanderer') === w0 && dv('aidan') !== v3, "...but a save outside your circle doesn't change yours (someone who follows none of them)");
+as('julian', `update profiles set city = 'Evanston' where auth_id = auth.uid();`);
+const v4 = dv('aidan');
+as('julian', `update profiles set city = null where auth_id = auth.uid();`);
+ok(v4 !== dv('aidan'), '...and a profile change in your circle (a city, a color, going private) changes it too');
+ok(/permission denied/.test(fx('anon', 'select data_version();')), '...and only for signed-in people');
 
 // --- notifications, reporting, your data, deleting your account (the database side of phase 3)
 const notes = who => JSON.parse(fx(who, 'select my_notifications();'));
