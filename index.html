@@ -3263,6 +3263,89 @@
         .share-note { margin: 0.2rem 0 0; font-size: 0.82rem; color: var(--text-muted); }
         .cmt-aud { flex: none; align-self: center; height: auto; line-height: 1.2; border: 1px solid var(--line); background: transparent; color: var(--text-muted); border-radius: 999px; padding: 6px 10px; font-size: 0.76rem; font-weight: 650; cursor: pointer; margin: 0 2px; width: auto; min-height: 0; }
         .cmt-aud.on { color: var(--ink); border-color: rgba(var(--matcha-rgb), 0.5); background: rgba(var(--matcha-rgb), 0.1); }
+        /* v14.4: People (new backend only) */
+        .people-switch.one-row { flex-wrap: nowrap; overflow: hidden; }
+        .people-switch.one-row .person-chip { flex: none; white-space: nowrap; }
+        .people-switch .person-chip[hidden] { display: none; }
+        .pp-chip { padding: 5px 14px 5px 10px; color: var(--matcha-ink, var(--ink)); }
+        .pp-chip .icon { width: 16px; height: 16px; flex: none; }
+        .pp-count { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--matcha); color: var(--on-matcha, #fff); font-size: 0.68rem; font-weight: 800; display: inline-grid; place-items: center; line-height: 1; }
+        .people-card .pp-search { width: 100%; padding: 12px 14px; border: 1px solid var(--linen); border-radius: 12px; font-size: 16px; font-family: var(--font-main); background: var(--surface); color: var(--ink); margin: 0 0 6px; -webkit-appearance: none; appearance: none; }
+        .people-card .pp-search:focus { outline: none; border-color: var(--matcha); background: var(--matcha-dim); }
+        .pp-h { display: flex; align-items: baseline; gap: 8px; margin: 1.3rem 0 0.35rem; font-size: 1rem; font-weight: 800; color: var(--ink); }
+        .pp-h span { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); }
+        .pp-list { display: grid; }
+        .pp-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); }
+        .pp-list .pp-row:last-child { border-bottom: 0; }
+        .pp-who { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 0; margin: 0; border: 0; background: none; text-align: left; cursor: pointer; color: inherit; font: inherit; width: auto; min-height: 0; }
+        .pp-who > span { display: grid; min-width: 0; }
+        .pp-who b { font-size: 0.98rem; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .pp-who small { font-size: 0.8rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .pp-dot { width: 38px; height: 38px; flex: none; }
+        .pp-acts { display: flex; gap: 6px; }
+        .pp-act { width: auto !important; min-height: 34px !important; padding: 7px 14px !important; margin: 0 !important; font-size: 0.72rem !important; border-radius: 999px !important; white-space: nowrap; }
+        .btn-outline.pp-act.is-quiet { color: var(--text-muted); }
+        .pp-empty { margin: 1.2rem 0 0.4rem; font-size: 0.9rem; color: var(--text-muted); line-height: 1.45; }
+        /* on someone's profile */
+        .hero-follow { position: relative; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .hero-follow .pp-act { min-height: 32px !important; padding: 6px 16px !important; }
+        .pp-note { font-size: 0.76rem; color: var(--text-muted); font-weight: 600; }
+        .pp-more { width: 32px; height: 32px; padding: 0 !important; display: inline-flex; align-items: center; justify-content: center; gap: 3px; border-radius: 999px; }
+        .pp-more span { width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: 0.7; }
+        .pp-menu { position: absolute; top: calc(100% + 6px); left: 0; z-index: 20; min-width: 190px; display: grid; padding: 6px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 12px 32px rgba(var(--hair-rgb), 0.18); }
+        .pp-menu button { width: 100%; min-height: 40px; padding: 8px 12px; margin: 0; border: 0; border-radius: 10px; background: none; text-align: left; font: inherit; font-size: 0.9rem; font-weight: 650; color: var(--ink); cursor: pointer; }
+        .pp-menu button:hover { background: rgba(var(--hair-rgb), 0.06); }
+        .pp-menu .pp-danger { color: #C0392B; }
+        /* Settings: private profile */
+        .pp-private { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 2px 0 12px; margin-bottom: 4px; border-bottom: 1px solid var(--line); }
+        .pp-private > span { display: grid; gap: 2px; }
+        .pp-private b { font-size: 0.95rem; color: var(--ink); }
+        .pp-private small { font-size: 0.8rem; color: var(--text-muted); line-height: 1.35; }
+        .pp-private .goal-sw { -webkit-appearance: none; appearance: none; flex: none; position: relative; width: 50px !important; height: 30px !important; min-width: 0 !important; min-height: 0 !important; padding: 0 !important; margin: 0 !important; border: 0 !important; border-radius: 999px !important; background: rgba(var(--hair-rgb), 0.2) !important; box-shadow: inset 0 0 0 1px rgba(var(--hair-rgb), 0.08) !important; cursor: pointer; transition: background 0.22s; }
+        .pp-private .goal-sw::before { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); transition: transform 0.22s cubic-bezier(0.3, 0.7, 0.4, 1); }
+        .pp-private .goal-sw[aria-checked="true"] { background: var(--matcha) !important; box-shadow: none !important; }
+        .pp-private .goal-sw[aria-checked="true"]::before { transform: translateX(20px); }
+        /* People / Groups tabs and groups */
+        .pp-tabs { margin: 0 0 12px; }
+        .gr-list { display: grid; gap: 10px; margin: 4px 0 14px; }
+        .gr-card { border: 1px solid var(--line); border-radius: 16px; background: var(--surface); overflow: hidden; }
+        .gr-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; margin: 0; border: 0; background: none; text-align: left; font: inherit; color: var(--ink); cursor: pointer; min-height: 0; }
+        .gr-icon { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: rgba(var(--matcha-rgb), 0.12); color: var(--matcha); }
+        .gr-icon .icon { width: 19px; height: 19px; }
+        .gr-name { display: grid; min-width: 0; }
+        .gr-name b { font-size: 0.98rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .gr-name small { font-size: 0.8rem; color: var(--text-muted); }
+        .gr-chev { width: 16px; height: 16px; color: var(--text-muted); transition: transform 0.2s; }
+        .gr-card.is-open .gr-chev { transform: rotate(180deg); }
+        .gr-invite { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 4px 14px 12px; font-size: 0.88rem; color: var(--text-muted); }
+        .gr-invite b { color: var(--ink); letter-spacing: 0.08em; }
+        .gr-members { display: grid; padding: 0 14px 6px; border-top: 1px solid var(--line); }
+        .gr-member { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 8px 0; font-size: 0.92rem; font-weight: 650; }
+        .gr-member .pp-dot { width: 30px; height: 30px; font-size: 0.8rem; }
+        .gr-member small { font-weight: 600; color: var(--text-muted); font-size: 0.76rem; }
+        .gr-leave { display: block; width: 100%; margin: 0; padding: 12px 14px; border: 0; border-top: 1px solid var(--line); background: none; text-align: left; font: inherit; font-size: 0.88rem; font-weight: 650; color: #C0392B; cursor: pointer; min-height: 0; }
+        .gr-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+        .gr-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; margin-top: 6px; }
+        .gr-form .pp-search { margin: 0; }
+        .gr-note { margin: 8px 0 0; font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; }
+        /* Settings: your account's tools */
+        .acct-tools { display: flex; gap: 8px; flex-wrap: wrap; padding: 2px 0 12px; margin-bottom: 4px; border-bottom: 1px solid var(--line); }
+        .acct-tools .acct-delete { color: #C0392B; }
+        /* v14.4: the community feed (new backend only) */
+        .feed-mode { margin: 0 0 14px; }
+        .comm-empty { text-align: center; color: var(--text-muted); padding: 2.4rem 1.2rem; font-size: 0.92rem; line-height: 1.45; }
+        .comm-more { width: auto !important; margin: 6px auto 18px !important; display: block; padding: 11px 22px !important; }
+        .comm-follow { margin-left: auto !important; margin-right: 6px !important; min-height: 30px !important; padding: 5px 13px !important; font-size: 0.68rem !important; }
+        .feed-head .comm-follow + .feed-type { margin-left: 0; }
+        /* notifications */
+        .notif-btn .icon { flex: none; }
+        .notif-btn:not(.has-unread) { padding-left: 0 !important; padding-right: 0 !important; width: 44px; justify-content: center; }
+        .nt-row { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; width: 100%; padding: 10px 6px; margin: 0; border: 0; border-bottom: 1px solid var(--line); background: none; text-align: left; font: inherit; color: var(--ink); cursor: pointer; border-radius: 10px; min-height: 0; }
+        .pp-list .nt-row:last-child { border-bottom: 0; }
+        .nt-row.is-new { background: rgba(var(--matcha-rgb), 0.08); }
+        .nt-text { display: grid; gap: 2px; min-width: 0; font-size: 0.92rem; line-height: 1.35; }
+        .nt-text q { color: var(--text-muted); quotes: "\201C" "\201D"; }
+        .nt-text small { font-size: 0.76rem; color: var(--text-muted); }
     </style>
 </head>
 <body>
@@ -3273,6 +3356,8 @@
         <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.7"/><path d="M5 20.2a7 7 0 0 1 14 0"/></symbol>
         <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5.5v13M5.5 12h13"/></symbol>
         <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7.5h8.5M16.5 7.5H20M4 16.5h3M11 16.5h9"/><circle cx="14.5" cy="7.5" r="2"/><circle cx="9" cy="16.5" r="2"/></symbol>
+        <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4.5c4-2 6.5 2 11 0v8c-4.5 2-7-2-11 0"/></symbol>
+        <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.6 1.9H4.4Z"/><path d="M10 20.4a2.2 2.2 0 0 0 4 0"/></symbol>
         <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="9" r="5.6"/><path d="M8.8 13.7 7.6 21l4.4-2.5 4.4 2.5-1.2-7.3"/><path d="M12 6.6l.8 1.6 1.7.2-1.3 1.2.3 1.7-1.5-.8-1.5.8.3-1.7-1.3-1.2 1.7-.2Z"/></symbol>
         <symbol id="i-share-2" viewBox="0 0 24 24"><circle cx="17.5" cy="5.5" r="2.4"/><circle cx="6.5" cy="12" r="2.4"/><circle cx="17.5" cy="18.5" r="2.4"/><path d="m8.6 10.8 6.8-4M8.6 13.2l6.8 4"/></symbol>
         <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12.5h3.6l2.4-6.3 4.2 12.6 2.6-6.3H21"/></symbol>
@@ -3352,6 +3437,10 @@
                 </div>
 
                 <div class="header-controls">
+                    <button class="locker-btn notif-btn" id="notif-btn" onclick="app.openNotifications()" title="Notifications" aria-label="Notifications" hidden>
+                        <svg class="icon" style="width:17px;height:17px;"><use href="#i-bell"/></svg>
+                        <span id="notif-count" class="locker-count" hidden></span>
+                    </button>
                     <button class="locker-btn" onclick="app.openAchievementLocker()" title="Achievement Locker">
                         <svg class="icon" style="width:16px;height:16px;"><use href="#i-award"/></svg>
                         <span id="achievement-count" class="locker-count">0</span>
@@ -3551,6 +3640,24 @@
                 <button class="btn-primary" id="equipment-save-btn" onclick="app.saveEquipment()">Add Equipment</button>
                 <button class="btn-outline" id="equipment-cancel-btn" onclick="app.cancelEquipmentEdit()" style="display:none;">Cancel Edit</button>
             </div></div></div>
+    <!-- Notifications (v14.4, new backend only) -->
+    <div id="notif-modal" class="modal" onclick="if(event.target===this) app.closeNotifications()">
+        <div class="modal-card people-card">
+            <h2>Notifications</h2>
+            <div id="notif-body"></div>
+        </div>
+    </div>
+
+    <!-- People (v14.4, new backend only) -->
+    <div id="people-modal" class="modal" onclick="if(event.target===this) app.closePeople()">
+        <div class="modal-card people-card">
+            <h2>People</h2>
+            <div id="people-tabs"></div>
+            <input id="people-q" class="pp-search" type="search" placeholder="Find people by name" autocomplete="off" autocapitalize="words" spellcheck="false" oninput="app.peopleSearch(this.value)">
+            <div id="people-body"></div>
+        </div>
+    </div>
+
     <div id="settings-modal" class="modal" onclick="if(event.target===this) app.closeModals()">
         <div class="modal-card">
             <h2>Settings</h2>
@@ -4972,6 +5079,7 @@
             },
 
             init() {
+                if (this.noteInviteLink) this.noteInviteLink();   // v14.4: ?join=CODE, offered once you're signed in
                 this.initFlavors();
                 this.bindGlobalHandlers();
                 this.applyInitialRoute();
@@ -6295,6 +6403,8 @@
                     }
                     if (changed) this.persistCloudCache();
                     if (this.adoptSheetOutbox && Cloud.confirms) this.adoptSheetOutbox();   // v14.2: saves made on the Sheet that never left this phone
+                    if (this.checkNotifications) this.checkNotifications();   // v14.4: the bell's unread count
+                    if (this.checkPendingJoin) this.checkPendingJoin();   // v14.4: an invite link opened before signing in
                     if (this.pendingOutbox().some(x => this.outboxDue(x))) setTimeout(() => this.flushOutbox(), 0);
                 } catch (e) {
                     this.syncFailed = true;
@@ -6676,6 +6786,7 @@
                 this.tombs = new Map();
                 events.forEach(event => this.applyEvent(event));
                 // v13.4: saves still on their way to the sheet go on top of it
+                if (this.applyCommunity) this.applyCommunity();   // v14.4: community records beside your circle's (before the outbox, so a like on one isn't taken for a delete)
                 const pending = this.settleOutbox(items);
                 pending.forEach(event => this.applyEvent(event));
                 this.applyGearFromCloud();
@@ -6708,6 +6819,7 @@
                 };
                 const event = this.normalizeEvent(draft);
                 if (!event) return;
+                if (this.noteCommunityPush) this.noteCommunityPush(event);
 
                 this.queueOutbox(event, prev);
                 this.applyEvent(event);
@@ -9454,6 +9566,7 @@
                 events.forEach(event => {
                     const ts = event.date || event.eventAt || new Date().toISOString();
                     if ((event.type === 'brew' && !this.brews.has(String(event.id))) || (event.type === 'bean' && !this.beans.has(String(event.id)))) return;   // v13.4: deleted since
+                    if ((event.type === 'brew' || event.type === 'bean') && this.communityIds && this.communityIds.has(`${event.type}:${event.id}`)) return;   // v14.4: someone outside your circle (Community)
                     if (event.type === 'bean') {
                         const beanId = String(event.id || '');
                         if (!beanId) return;
@@ -9881,6 +9994,7 @@
                                     <button type="button" class="cmt-act" onclick="app.startReply('${app.escJs(kind)}','${app.escJs(id)}','${app.escJs(c.id)}',event)">Reply</button>
                                     ${canEdit ? `<button type="button" class="cmt-act" onclick="app.${editFn}('${app.escJs(id)}', ${i}, event)">Edit</button>` : ''}
                                     ${canDelete ? `<button type="button" class="cmt-act danger" onclick="app.${delFn}('${app.escJs(id)}', ${i}, event)">Delete</button>` : ''}
+                                    ${this.acctOn() && c.user !== this.user ? `<button type="button" class="cmt-act" onclick="app.reportItem('comment','${app.escJs(id)}#${app.escJs(c.id)}', event)">Report</button>` : ''}
                                 </div>
                                 ${c.likes.length ? `<div class="cmt-likers">Liked by ${this.esc(c.likes.slice(0, 3).join(', '))}${c.likes.length > 3 ? ` +${c.likes.length - 3}` : ''}</div>` : ''}
                             </div>
@@ -10050,7 +10164,7 @@
                                     <div class="feed-actor" style="color:${this.esc(color)};">${this.esc(owner)}</div>
                                     <div class="feed-time" data-time="${this.esc(String(entry.date || brew.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || brew.date))}</div>
                                 </div>
-                                <div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(brew.method)}"/></svg>${this.esc(brew.method || 'Espresso')}</div>
+                                ${entry.community ? this.communityFollowHtml(owner) : ''}<div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(brew.method)}"/></svg>${this.esc(brew.method || 'Espresso')}</div>
                             </div>
                             <div class="sc-title">
                                 <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(roasterName)}" onclick="app.openRoasterFrom(this, event)">${this.esc(roasterName)}</span></div>` : ''}</div>
@@ -10131,15 +10245,20 @@
             },
 
             renderFeed(grid) {
+                // v14.4: on the new backend the feed has two views: Following (your circle) and Community (everyone)
+                if (this.acctOn() && this.feedMode() === 'community') { this.renderCommunityFeed(grid); return; }
                 grid.className = 'feed-list';
+                if (grid.getAttribute && grid.getAttribute('data-view') === 'community') { grid.removeAttribute('data-view'); this._feedHtml = null; }
                 const entries = this.feedEntries.slice(0, 220);
                 if (!entries.length) {
-                    grid.innerHTML = '<div style="text-align:center; color:#999; padding:3rem;">No feed activity yet.</div>';
+                    grid.innerHTML = this.acctOn()
+                        ? this.feedModeHtml() + '<div class="comm-empty">Nothing here yet. Follow people (Profiles, then People) or see what everyone is brewing in Community.</div>'
+                        : '<div style="text-align:center; color:#999; padding:3rem;">No feed activity yet.</div>';
                     if (grid.removeAttribute) grid.removeAttribute('data-view');
                     this._feedHtml = null;
                     return;
                 }
-                const tops = [['top:welcome', this.renderWelcomeBack()], ['top:quest', this.renderCrewQuest()], ['top:teaser', this.renderAwardsTeaser()]];
+                const tops = [['top:mode', this.feedModeHtml()], ['top:welcome', this.renderWelcomeBack()], ['top:quest', this.renderCrewQuest()], ['top:teaser', this.renderAwardsTeaser()]];
                 if (!this.canPatchDom(grid)) {
                     grid.innerHTML = tops.map(t => t[1]).join('') + entries.map(e => this.feedCardHtml(e)).join('');
                     return;
@@ -11310,6 +11429,11 @@
                 if (this.tab === 'shared' && this.libraryMode === 'roasters') { this.renderRoasterList(grid, searchQuery); return; }
 
                 let list = this.buildBeanGroups();
+                // v14.4: the library is your circle's; community sessions and coffees (Feed, Community) stay out of it
+                if (this.communityIds && this.communityIds.size) {
+                    list = list.filter(item => item.group.ids.some(id => !this.communityIds.has('bean:' + id)))
+                        .map(item => ({ group: item.group, brews: item.brews.filter(b => !this.communityIds.has('brew:' + b.id)) }));
+                }
 
                 if (this.tab === 'my') {
                     list = list.filter(item => item.group.users.has(this.user));
@@ -11814,7 +11938,7 @@
                 const coffeeName = (bean ? String(bean.name || '').trim() : '') || 'Coffee';
                 const roasterName = bean ? String(bean.roaster || '').trim() : '';
                 const id = this.esc(log.id);
-                const lead = `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('brew', log.id)}"${this.likePopStyle('brew', log.id)} onclick="app.toggleLike('${app.escJs(id)}', event)" title="Like session"><svg class="heart-icon"><use href="#i-heart"/></svg></button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}${owner === this.user ? `<span class="social-owner-actions"><button class="btn-clean" onclick="app.editBrew('${app.escJs(id)}')" title="Edit session"><svg class="icon" style="width:14px;height:14px;"><use href="#i-edit-2"/></svg></button><button class="btn-clean danger" onclick="app.delete('brew','${app.escJs(id)}')" title="Delete session"><svg class="icon" style="width:14px;height:14px;"><use href="#i-trash-2"/></svg></button></span>` : ''}`;
+                const lead = `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('brew', log.id)}"${this.likePopStyle('brew', log.id)} onclick="app.toggleLike('${app.escJs(id)}', event)" title="Like session"><svg class="heart-icon"><use href="#i-heart"/></svg></button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}${owner === this.user ? `<span class="social-owner-actions"><button class="btn-clean" onclick="app.editBrew('${app.escJs(id)}')" title="Edit session"><svg class="icon" style="width:14px;height:14px;"><use href="#i-edit-2"/></svg></button><button class="btn-clean danger" onclick="app.delete('brew','${app.escJs(id)}')" title="Delete session"><svg class="icon" style="width:14px;height:14px;"><use href="#i-trash-2"/></svg></button></span>` : this.acctOn() ? `<span class="social-owner-actions"><button class="btn-clean" onclick="app.reportItem('session','${app.escJs(id)}', event)" title="Report session" aria-label="Report session"><svg class="icon" style="width:14px;height:14px;"><use href="#i-flag"/></svg></button></span>` : ''}`;
                 return `
                         <div class="feed-card-body">
                             <div class="feed-head">
@@ -12030,17 +12154,25 @@
 
             renderProfile(grid) {
                 grid.className = 'profile-view';
-                const people = this.knownPeople();
+                const people = this.profileRowPeople();   // v14.4: you and the people you follow (each person's own row)
                 if (!this.profileUser || !(people.includes(this.profileUser) || this.hasLoggedData(this.profileUser))) this.profileUser = this.user || people[0] || '';
                 const who = this.profileUser;
                 if (!who) {
                     grid.innerHTML = '<div class="panel-empty">Pick a user in Settings to see profiles.</div>';
                     return;
                 }
+                if (this.acctOn() && !people.includes(who)) people.splice(1, 0, who);   // someone opened from People or a card: their chip shows while you look
                 const chips = people.map(name => {
                     const color = this.getUserColor(name);
                     return `<button type="button" class="person-chip${name === who ? ' active' : ''}" data-name="${this.esc(name)}" onclick="app.setProfileUser(this.getAttribute('data-name'))"><span class="person-dot" style="background:${this.esc(color)};">${this.esc(this.feedInitial(name))}</span>${this.esc(name)}${name === this.user ? ' <span class="you-tag">You</span>' : ''}</button>`;
                 }).join('');
+                // v14.4: People (new backend): find, follow, requests. Follow requests waiting are counted inside the button
+                const asks = this.acctOn() ? this.peopleRequests().length : 0;
+                const peopleChip = this.acctOn() ? `<button type="button" class="person-chip pp-chip" onclick="app.openPeople()"><svg class="icon"><use href="#i-users"/></svg>People${asks ? `<span class="pp-count">${asks}</span>` : ''}</button>` : '';
+                if (this.acctOn() && !this._peopleLoading && Date.now() - this.ppState().at > 60000) {
+                    this._peopleLoading = true;
+                    this.loadPeople().then(() => { this._peopleLoading = false; if (this.tab === 'profile') this.render(); }).catch(() => { this._peopleLoading = false; this.ppState().at = Date.now(); });
+                }
                 const section = ['overview', 'taste', 'activity'].includes(this.profileSection) ? this.profileSection : 'overview';
                 const freshRecap = who === this.user ? this.freshRecap() : null;
                 const tabs = `<div class="seg-control profile-tabs" role="tablist" aria-label="Profile sections">${[['overview', 'Overview'], ['taste', 'Taste'], ['activity', 'Activity']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === section}" aria-pressed="${k === section}" onclick="app.setProfileSection('${app.escJs(k)}')">${l}${k === 'activity' && freshRecap && section !== 'activity' ? '<span class="nav-dot"></span>' : ''}</button>`).join('')}</div>`;
@@ -12051,7 +12183,7 @@
                         : [this.renderFabFour(who), this.renderAchievementsCard(who), who !== this.user ? this.renderGearCard(who) : ''];
                 const body = cards.filter(Boolean).join('') || '<div class="panel-empty">Nothing here yet. Log a few sessions and this fills in.</div>';
                 grid.innerHTML = [
-                    `<div class="people-switch">${chips}</div>`,
+                    `<div class="people-switch${this.acctOn() ? ' one-row' : ''}">${chips}${peopleChip}</div>`,
                     this.renderProfileHero(who),
                     tabs,
                     `<div class="profile-section" data-section="${section}">${body}</div>`
@@ -12059,6 +12191,7 @@
                 // v13.1: the equipment locker lives on your own profile (Overview), not in Settings
                 this.placeGearLocker(who === this.user && section === 'overview' ? grid.querySelector('.profile-section') : null);
                 this.fitRoasterTileNames(grid);
+                this.fitPeopleRow(grid);
             },
 
             setProfileSection(section) {
@@ -12132,7 +12265,7 @@
                 const dots = r.weeks.map((on, i) => `<span class="week-dot${on ? ' on' : ''}" title="${i === 7 ? 'This week' : `${7 - i} week${7 - i === 1 ? '' : 's'} ago`}"></span>`).join('');
                 const streak = this.streakChipHtml(r.streak);
                 const last = r.lastT ? `Last brewed ${this.formatRelativeDate(r.lastT)}` : 'No sessions yet';
-                return `<section class="profile-card profile-hero" style="--pc-rgb:${this.hexRgb(color)}"><div class="hero-row"><div class="hero-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(user))}</div><div><div class="hero-name">${this.esc(user)}${user === this.user ? '<span class="you-tag">You</span>' : ''}</div><div class="hero-sub">${this.esc(last)}</div></div></div><div class="rhythm"><div class="week-dots">${dots}</div><div class="rhythm-text">Brewed in ${r.active} of the last 8 weeks</div>${streak}</div><div class="stat-row"><div class="stat-box"><div class="stat-num">${brews.length}</div><div class="stat-cap">${brews.length === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${beans}</div><div class="stat-cap">${beans === 1 ? 'Bean' : 'Beans'}</div></div><div class="stat-box"><div class="stat-num">${methods}</div><div class="stat-cap">${methods === 1 ? 'Method' : 'Methods'}</div></div></div></section>`;
+                return `<section class="profile-card profile-hero" style="--pc-rgb:${this.hexRgb(color)}"><div class="hero-row"><div class="hero-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(user))}</div><div><div class="hero-name">${this.esc(user)}${user === this.user ? '<span class="you-tag">You</span>' : ''}</div><div class="hero-sub">${this.esc(last)}</div>${this.acctOn() ? this.profileFollowHtml(user) : ''}</div></div><div class="rhythm"><div class="week-dots">${dots}</div><div class="rhythm-text">Brewed in ${r.active} of the last 8 weeks</div>${streak}</div><div class="stat-row"><div class="stat-box"><div class="stat-num">${brews.length}</div><div class="stat-cap">${brews.length === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${beans}</div><div class="stat-cap">${beans === 1 ? 'Bean' : 'Beans'}</div></div><div class="stat-box"><div class="stat-num">${methods}</div><div class="stat-cap">${methods === 1 ? 'Method' : 'Methods'}</div></div></div></section>`;
             },
 
             palateFor(user) {
@@ -14993,7 +15126,14 @@
                 const acct = this.acctOn();
                 const label = document.getElementById('user-list-label'); if (label) label.textContent = acct ? 'You' : 'Active User';
                 const addRow = document.getElementById('add-user-row'); if (addRow) addRow.style.display = acct ? 'none' : 'flex';
-                if (acct) { const me = document.createElement('div'); me.innerHTML = this.acctSettingsHtml(); list.appendChild(me.firstElementChild); }
+                if (acct) {
+                    const me = document.createElement('div'); me.innerHTML = this.acctSettingsHtml(); list.appendChild(me.firstElementChild);
+                    // v14.4: a private profile approves its followers
+                    const priv = this.peoplePrivacyHtml();
+                    if (priv) { const pr = document.createElement('div'); pr.innerHTML = priv; list.appendChild(pr.firstElementChild); }
+                    if (this.acctToolsHtml) { const at = document.createElement('div'); at.innerHTML = this.acctToolsHtml(); list.appendChild(at.firstElementChild); }
+                    else if (!this._privLoading) { this._privLoading = true; this.loadPeople(true).then(() => { this._privLoading = false; if (document.getElementById('settings-modal').classList.contains('active')) this.openSettings(); }).catch(() => { this._privLoading = false; }); }
+                }
                 const head = document.createElement('div');
                 head.className = 'user-head';
                 head.innerHTML = '<span>Counts in group goal</span>';
@@ -15785,8 +15925,545 @@
                 const color = this.getUserColor(this.user);
                 return `<div class="acct-row"><i class="acct-dot" style="background:${this.esc(color)}">${this.esc(this.feedInitial(this.user || '?'))}</i><span class="acct-who"><b>${this.esc(this.user || '')}</b>${email ? `<small>${this.esc(email)}</small>` : ''}</span><button type="button" class="btn-outline acct-out" onclick="app.signOut()">Sign out</button></div>`;
             },
-        };
+            // ---- v14.4 (phase 3): People. Find people by name, follow them (friends = you follow each other), answer
+            // follow requests when your profile is private, and block. New backend only: on the Sheet none of it shows.
+            ppState() {
+                if (!this._people) {
+                    this._people = { data: null, me: null, at: 0, q: '', results: null, seq: 0, menu: '' };
+                    // the last list this phone saw, so the Profiles row draws right away (refreshed on the first load)
+                    try { const c = JSON.parse(safeGet('dialed_people_cache') || 'null'); if (c && c.who === this.user && c.data && Array.isArray(c.data.following)) this._people.data = c.data; } catch (e) {}
+                }
+                return this._people;
+            },
 
+            // who you follow, who follows you and who you've blocked, plus your own profile's privacy (cached a minute)
+            async loadPeople(force) {
+                if (!this.acctOn() || !Supa.ready()) return null;
+                const st = this.ppState();
+                if (!force && st.data && Date.now() - st.at < 60000) return st.data;
+                const [data, me] = await Promise.all([Supa.rpc('my_people', {}), Supa.rpc('my_profile', {})]);
+                st.data = data && typeof data === 'object' ? data : { following: [], followers: [], blocked: [] };
+                st.me = me || null; st.at = Date.now();
+                try { safeSet('dialed_people_cache', JSON.stringify({ who: this.user, data: st.data })); } catch (e) {}
+                return st.data;
+            },
+
+            // the People button's count: follow requests waiting for you (inside the button, never a badge)
+            peopleRequests() { const d = this.ppState().data; return d ? (d.followers || []).filter(f => f.status === 'pending') : []; },
+
+            relationTo(name) {
+                const d = this.ppState().data || {}, k = String(name || '').toLowerCase();
+                const out = (d.following || []).find(f => String(f.name).toLowerCase() === k);
+                const inn = (d.followers || []).find(f => String(f.name).toLowerCase() === k);
+                return { you: out ? out.status : null, friend: Boolean(out && out.friend), followsYou: Boolean(inn && inn.status === 'accepted'), asks: Boolean(inn && inn.status === 'pending'),
+                         blocked: (d.blocked || []).some(b => String(b).toLowerCase() === k) };
+            },
+
+            openPeople(tab) {
+                if (!this.acctOn()) return;
+                const st = this.ppState(); st.q = ''; st.results = null; st.menu = ''; st.tab = tab === 'groups' ? 'groups' : 'people';
+                const q = document.getElementById('people-q'); if (q) q.value = '';
+                document.getElementById('people-modal').classList.add('active');
+                this.renderPeople();
+                this.loadPeople(true).then(() => this.renderPeople()).catch(e => this.peopleFailed(e));
+            },
+
+            closePeople() { const m = document.getElementById('people-modal'); if (m) m.classList.remove('active'); },
+
+            peopleFailed(e) {
+                if (e && e.signedOut) return;
+                const body = document.getElementById('people-body');
+                if (body && !this.ppState().data) body.innerHTML = `<p class="pp-empty">Couldn't load your people. Check your connection and try again.</p>`;
+                else this.showToast(e && e.message ? e.message : 'That didn\'t work. Try again.');
+            },
+
+            // typing in the search box: people whose name starts with it (two letters or more)
+            peopleSearch(value) {
+                const st = this.ppState(); st.q = String(value || '');
+                clearTimeout(this._peopleTimer);
+                const q = st.q.trim();
+                if (q.length < 2) { st.results = null; this.renderPeople(); return; }
+                const seq = ++st.seq;
+                this._peopleTimer = setTimeout(() => {
+                    Supa.rpc('find_people', { q }).then(r => { if (seq !== st.seq) return; st.results = Array.isArray(r) ? r : []; this.renderPeople(); })
+                        .catch(e => { if (seq === st.seq) this.peopleFailed(e); });
+                }, 220);
+            },
+
+            personDotHtml(name, color) {
+                return `<i class="acct-dot pp-dot" style="background:${this.esc(color || this.getUserColor(name))}">${this.esc(this.feedInitial(name))}</i>`;
+            },
+
+            // the one button that fits where you stand with someone
+            followBtnHtml(name, rel, cls = '', stop = false) {
+                const n = this.esc(name), a = action => `onclick="${stop ? 'event.stopPropagation(); ' : ''}app.peopleAct('${action}', this.getAttribute('data-name'))" data-name="${n}"`;
+                if (rel.blocked) return `<button type="button" class="btn-outline pp-act ${cls}" ${a('unblock')}>Unblock</button>`;
+                if (rel.you === 'accepted') return `<button type="button" class="btn-outline pp-act ${cls}" ${a('unfollow')}>Following</button>`;
+                if (rel.you === 'pending') return `<button type="button" class="btn-outline pp-act is-quiet ${cls}" ${a('unfollow')}>Requested</button>`;
+                return `<button type="button" class="btn-primary pp-act ${cls}" ${a('follow')}>${rel.followsYou ? 'Follow back' : 'Follow'}</button>`;
+            },
+
+            peopleRowHtml(name, rel, { color = '', sub = '', actions = '' } = {}) {
+                const label = sub || (rel.friend ? 'Friends' : rel.asks ? 'Wants to follow you' : rel.followsYou && !rel.you ? 'Follows you' : rel.you === 'pending' ? 'Waiting for them to approve' : '');
+                return `<div class="pp-row"><button type="button" class="pp-who" data-name="${this.esc(name)}" onclick="app.openPersonFromPeople(this.getAttribute('data-name'))">${this.personDotHtml(name, color)}<span><b>${this.esc(name)}</b>${label ? `<small>${this.esc(label)}</small>` : ''}</span></button><span class="pp-acts">${actions || this.followBtnHtml(name, rel)}</span></div>`;
+            },
+
+            renderPeople() {
+                const body = document.getElementById('people-body');
+                if (!body) return;
+                const st = this.ppState(), d = st.data;
+                // v14.4: two tabs, People and Groups
+                const tabs = document.getElementById('people-tabs'), q = document.getElementById('people-q');
+                if (tabs) tabs.innerHTML = `<div class="seg-control pp-tabs" role="tablist" aria-label="People or groups">${[['people', 'People'], ['groups', 'Groups']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${(st.tab || 'people') === k}" aria-pressed="${(st.tab || 'people') === k}" onclick="app.setPeopleTab('${k}')">${l}</button>`).join('')}</div>`;
+                if (q) q.hidden = st.tab === 'groups';
+                if (st.tab === 'groups') { this.renderGroups(body); return; }
+                if (st.q.trim().length >= 2) {
+                    if (!st.results) { body.innerHTML = '<p class="pp-empty">Looking…</p>'; return; }
+                    body.innerHTML = st.results.length
+                        ? `<div class="pp-list">${st.results.map(p => this.peopleRowHtml(p.name, { ...this.relationTo(p.name), you: p.you || null, followsYou: Boolean(p.followsYou) }, { color: p.color, sub: p.private && !p.you ? 'Private profile' : '' })).join('')}</div>`
+                        : `<p class="pp-empty">Nobody by that name yet.</p>`;
+                    return;
+                }
+                if (!d) { body.innerHTML = '<p class="pp-empty">Loading…</p>'; return; }
+                const following = d.following || [], followers = d.followers || [];
+                const requests = followers.filter(f => f.status === 'pending');
+                const friends = following.filter(f => f.friend && f.status === 'accepted');
+                const just = following.filter(f => !f.friend);
+                const fans = followers.filter(f => f.status === 'accepted' && !following.some(g => String(g.name).toLowerCase() === String(f.name).toLowerCase()));
+                const section = (title, rows) => rows.length ? `<h3 class="pp-h">${title}<span>${rows.length}</span></h3><div class="pp-list">${rows.join('')}</div>` : '';
+                const ask = name => { const n = this.esc(name); return `<button type="button" class="btn-primary pp-act" data-name="${n}" onclick="app.peopleAct('approve', this.getAttribute('data-name'))">Approve</button><button type="button" class="btn-outline pp-act" data-name="${n}" onclick="app.peopleAct('decline', this.getAttribute('data-name'))">Remove</button>`; };
+                const html = [
+                    section('Requests', requests.map(f => this.peopleRowHtml(f.name, this.relationTo(f.name), { color: f.color, actions: ask(f.name) }))),
+                    section('Friends', friends.map(f => this.peopleRowHtml(f.name, this.relationTo(f.name), { color: f.color }))),
+                    section('Following', just.map(f => this.peopleRowHtml(f.name, this.relationTo(f.name), { color: f.color }))),
+                    section('Followers', fans.map(f => this.peopleRowHtml(f.name, this.relationTo(f.name), { color: f.color }))),
+                    section('Blocked', (d.blocked || []).map(n => this.peopleRowHtml(n, { blocked: true }, { sub: 'They can\'t see or find you' }))),
+                ].join('');
+                body.innerHTML = html || `<p class="pp-empty">You're not following anyone yet. Find people by name above. When you follow each other, you're friends.</p>`;
+            },
+
+            // tap a name: their profile, when there's something of theirs you're allowed to see
+            openPersonFromPeople(name) {
+                if (!(this.knownPeople().includes(name) || this.hasLoggedData(name))) { this.showToast(`Nothing of ${name}'s to see yet.`); return; }
+                this.closePeople();
+                this.profileSection = 'overview';
+                this.setTab('profile');
+                this.setProfileUser(name);
+            },
+
+            async peopleAct(action, name) {
+                if (!name) return;
+                if (action === 'unfollow' && !confirm(`Stop following ${name}?`)) return;
+                if (action === 'block' && !confirm(`Block ${name}? You won't see each other, they can't find you, comment or follow you, and they aren't told.`)) return;
+                if (action === 'decline' && !confirm(`Remove ${name}'s request?`)) return;
+                if (action === 'remove' && !confirm(`Remove ${name} as a follower? They aren't told.`)) return;
+                const call = { follow: ['follow', { name }], unfollow: ['unfollow', { name }], approve: ['answer_follow', { name, accept: true }], decline: ['answer_follow', { name, accept: false }],
+                               remove: ['answer_follow', { name, accept: false }], block: ['block', { name }], unblock: ['unblock', { name }] }[action];
+                if (!call) return;
+                const st = this.ppState(); st.menu = '';
+                try {
+                    const res = await Supa.rpc(call[0], call[1]);
+                    if (action === 'follow') this.showToast(res === 'requested' ? `Asked to follow ${name}.` : `Following ${name}.`);
+                    else if (action === 'block') this.showToast(`Blocked ${name}.`);
+                    if (this.haptic) this.haptic('tick');
+                    await this.loadPeople(true);
+                    if (st.results) st.results = st.results.map(p => String(p.name).toLowerCase() === String(name).toLowerCase() ? { ...p, you: this.relationTo(name).you } : p).filter(p => action !== 'block' || p.name !== name);
+                } catch (e) { this.peopleFailed(e); return; }
+                this.renderPeople();
+                if (this.tab === 'profile') this.render();
+                this.sync({ silent: true });   // what you can see changed (their sessions, or none)
+            },
+
+            // the follow button (and a small menu with Block) on someone else's profile
+            profileFollowHtml(name) {
+                if (!this.acctOn() || !name || name === this.user || !this.ppState().data) return '';
+                const rel = this.relationTo(name), st = this.ppState(), n = this.esc(name);
+                const tag = rel.friend ? '<span class="you-tag pp-friend">Friends</span>' : rel.followsYou ? '<span class="pp-note">Follows you</span>' : '';
+                const menu = st.menu === name ? `<div class="pp-menu">${rel.followsYou ? `<button type="button" data-name="${n}" onclick="app.peopleAct('remove', this.getAttribute('data-name'))">Remove follower</button>` : ''}<button type="button" data-name="${n}" onclick="app.reportItem('profile', this.getAttribute('data-name'))">Report ${n}</button>${rel.blocked ? '' : `<button type="button" class="pp-danger" data-name="${n}" onclick="app.peopleAct('block', this.getAttribute('data-name'))">Block ${n}</button>`}</div>` : '';
+                return `<div class="hero-follow">${this.followBtnHtml(name, rel, 'hero-act')}${tag}<button type="button" class="btn-clean pp-more" aria-label="More" data-name="${n}" onclick="app.togglePersonMenu(this.getAttribute('data-name'))"><span></span><span></span><span></span></button>${menu}</div>`;
+            },
+
+            togglePersonMenu(name) { const st = this.ppState(); st.menu = st.menu === name ? '' : name; this.render(); },
+
+            // Settings: a private profile approves its followers
+            peoplePrivacyHtml() {
+                const me = this.ppState().me;
+                if (!me) return '';
+                return `<div class="pp-private"><span><b>Private profile</b><small>Only people you approve can follow you or see what you share with Everyone.</small></span><button type="button" class="goal-sw" role="switch" aria-checked="${me.private ? 'true' : 'false'}" aria-label="Private profile" onclick="const on = this.getAttribute('aria-checked') !== 'true'; this.setAttribute('aria-checked', on ? 'true' : 'false'); app.setPrivateProfile(on)"></button></div>`;
+            },
+
+            async setPrivateProfile(on) {
+                try {
+                    const me = await Supa.rpc('set_private', { make_private: Boolean(on) });
+                    this.ppState().me = me || this.ppState().me;
+                    await this.loadPeople(true);
+                    this.showToast(on ? 'Your profile is private. You approve new followers.' : 'Your profile is open. Anyone can follow you.');
+                } catch (e) { this.showToast(e && e.message ? e.message : 'That didn\'t work. Try again.'); }
+                if (document.getElementById('settings-modal').classList.contains('active')) this.openSettings();
+                this.sync({ silent: true });
+            },
+
+            // the Profiles row: you, then the people you follow (friends first, most recently brewing first). Each person's
+            // own list, never the same names for everyone. One row, as many as fit; People has the rest.
+            profileRowPeople() {
+                if (!this.acctOn()) return this.knownPeople();
+                const d = this.ppState().data, me = this.user;
+                const last = name => this.brewsOf(name).reduce((m, b) => Math.max(m, this.toTime(b.date) || 0), 0);
+                const byRecent = list => list.map(f => f.name).sort((a, b) => last(b) - last(a) || a.localeCompare(b));
+                const following = d ? (d.following || []).filter(f => f.status === 'accepted') : [];
+                return [...new Set([me, ...byRecent(following.filter(f => f.friend)), ...byRecent(following.filter(f => !f.friend))].filter(Boolean))];
+            },
+
+            // keep the row to one line: hide the chips that don't fit (never you, the person showing, or People)
+            fitPeopleRow(grid) {
+                const row = grid && grid.querySelector && grid.querySelector('.people-switch.one-row');
+                if (!row) return;
+                const chips = [...row.querySelectorAll('.person-chip:not(.pp-chip)')], more = row.querySelector('.pp-chip');
+                chips.forEach(c => { c.hidden = false; });
+                const gap = 8, avail = row.clientWidth - (more ? more.offsetWidth + gap : 0);
+                if (!(avail > 0)) return;
+                const active = row.querySelector('.person-chip.active:not(.pp-chip)');
+                const must = new Set([chips[0], active].filter(Boolean));
+                let used = [...must].reduce((t, c) => t + c.offsetWidth + gap, 0);
+                chips.forEach(c => { if (must.has(c)) return; const w = c.offsetWidth + gap; if (used + w <= avail) used += w; else c.hidden = true; });
+                if (!this._rowFitBound && typeof window !== 'undefined' && window.addEventListener) {
+                    this._rowFitBound = true;
+                    window.addEventListener('resize', () => { if (this.tab === 'profile') this.fitPeopleRow(document.getElementById('grid')); });
+                }
+            },
+
+            setPeopleTab(tab) {
+                const st = this.ppState(); st.tab = tab === 'groups' ? 'groups' : 'people';
+                this.renderPeople();
+                if (st.tab === 'groups') this.loadGroups(true).then(() => this.renderPeople()).catch(e => this.peopleFailed(e));
+            },
+            // ---- v14.4 (phase 3): the community feed. Your sync carries only your circle (you, friends, your groups, the
+            // people you follow); everyone else's sessions shared with Everyone come a page at a time from the database
+            // and live beside your circle's records (this.communityIds), so they never count toward your group goal,
+            // awards, library or the Following feed. New backend only.
+            commState() { return this._comm || (this._comm = { events: [], next: null, at: 0, loading: false, error: '' }); },
+
+            feedMode() {
+                if (!this.acctOn()) return 'following';
+                if (!this._feedMode) this._feedMode = safeGet('dialed_feed_mode') === 'community' ? 'community' : 'following';
+                return this._feedMode;
+            },
+
+            setFeedMode(mode) {
+                this._feedMode = mode === 'community' ? 'community' : 'following';
+                safeSet('dialed_feed_mode', this._feedMode);
+                this._feedHtml = null;
+                const st = this.commState();
+                if (this._feedMode === 'community' && (!st.at || Date.now() - st.at > 60000)) this.loadCommunity(false);
+                this.render();
+                const g = document.getElementById('grid'); if (g && g.scrollIntoView && window.scrollY > 200) window.scrollTo({ top: 0 });
+            },
+
+            // the first page again (fresh), or with more = true the next older page
+            async loadCommunity(more) {
+                const st = this.commState();
+                if (st.loading || !this.acctOn() || !Supa.ready()) return;
+                if (more && !st.next) return;
+                st.loading = true; st.error = '';
+                if (this.tab === 'feed' && this.feedMode() === 'community') this.render();
+                try {
+                    const page = await Supa.rpc('community_feed', more ? { before: st.next, max_items: 30 } : { max_items: 30 });
+                    const raw = page && Array.isArray(page.events) ? page.events : [];
+                    await Supa.linkPhotos(raw);   // photos in storage: short-lived links, as in a sync
+                    const evs = raw.map(e => this.normalizeEvent(e)).filter(Boolean);
+                    if (more) {
+                        const have = new Set(st.events.map(e => e.type + ':' + e.id));
+                        st.events = [...st.events, ...evs.filter(e => !have.has(e.type + ':' + e.id))];
+                    } else {
+                        // a fresh first page replaces what it covers and keeps older pages already loaded
+                        const fresh = new Set(evs.map(e => e.type + ':' + e.id));
+                        st.events = [...evs, ...st.events.filter(e => !fresh.has(e.type + ':' + e.id))];
+                        if (!st.at) st.next = page ? page.next || null : null;
+                    }
+                    if (more) st.next = page ? page.next || null : null;
+                    st.at = Date.now();
+                } catch (e) {
+                    st.error = e && e.signedOut ? '' : 'Couldn\'t load the community feed. Check your connection.';
+                } finally { st.loading = false; }
+                this.process(this.cloud.events);
+                if (this.tab === 'feed') { this._feedHtml = null; this.render(); }
+            },
+
+            // in process(): community records that aren't already part of your circle's sync
+            applyCommunity() {
+                this.communityIds = new Set();
+                if (!this.acctOn()) return;
+                const st = this.commState();
+                st.events.forEach(ev => {
+                    if (ev.type !== 'bean' && ev.type !== 'brew') return;
+                    const id = String(ev.id), key = ev.type + ':' + id;
+                    if (ev.type === 'bean' ? this.beans.has(id) : this.brews.has(id)) return;
+                    if (ev.actor && ev.actorColor && !this.userColors[ev.actor]) this.userColors[ev.actor] = this.normalizeHexColor(ev.actorColor) || this.userColors[ev.actor];
+                    this.applyEvent(ev);
+                    this.communityIds.add(key);
+                });
+            },
+
+            isCommunity(type, id) { return Boolean(this.communityIds && this.communityIds.has(`${type}:${id}`)); },
+
+            // your own like or comment on a community session: keep the community copy up to date (your circle's sync
+            // won't bring it back)
+            noteCommunityPush(event) {
+                if (!event || !this.isCommunity(event.type, event.id)) return;
+                const st = this.commState();
+                st.events = st.events.map(e => (e.type === event.type && String(e.id) === String(event.id) ? event : e));
+            },
+
+            feedModeHtml() {
+                if (!this.acctOn()) return '';
+                const m = this.feedMode();
+                return `<div class="seg-control feed-mode" role="tablist" aria-label="Feed">${[['following', 'Following'], ['community', 'Community']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === m}" aria-pressed="${k === m}" onclick="app.setFeedMode('${k}')">${l}</button>`).join('')}</div>`;
+            },
+
+            communityEntries() {
+                const st = this.commState(), seen = new Set();
+                return st.events.filter(e => e.type === 'brew').map(e => this.brews.get(String(e.id))).filter(b => b && !seen.has(b.id) && seen.add(b.id) && b.audience !== 'only_me')
+                    .sort((a, b) => this.toTime(b.date) - this.toTime(a.date))
+                    .map(b => ({ kind: 'session', brewId: b.id, date: b.date, actorColor: b.actorColor || '', community: true }));
+            },
+
+            renderCommunityFeed(grid) {
+                grid.className = 'feed-list';
+                if (grid.setAttribute) grid.setAttribute('data-view', 'community');
+                this._feedHtml = null;
+                const st = this.commState();
+                const entries = this.communityEntries();
+                const head = this.feedModeHtml();
+                if (!entries.length) {
+                    const msg = st.loading || !st.at ? 'Loading the community…' : st.error || 'Nothing shared with Everyone yet. Sessions people share with Everyone show up here.';
+                    grid.innerHTML = head + `<div class="comm-empty">${this.esc(msg)}</div>`;
+                    return;
+                }
+                if (!st.loading && Date.now() - st.at > 120000) setTimeout(() => this.loadCommunity(false), 0);   // a fresh first page now and then
+                if (!this.ppState().data && !this._peopleLoading) { this._peopleLoading = true; this.loadPeople().then(() => { this._peopleLoading = false; if (this.tab === 'feed') this.render(); }).catch(() => { this._peopleLoading = false; }); }
+                const foot = st.error ? `<div class="comm-empty">${this.esc(st.error)}</div>`
+                    : st.next ? `<button type="button" class="btn-outline comm-more" onclick="app.loadCommunity(true)"${st.loading ? ' disabled' : ''}>${st.loading ? 'Loading…' : 'Show older sessions'}</button>`
+                    : `<div class="comm-empty">You're all caught up.</div>`;
+                grid.innerHTML = head + entries.map(e => this.renderFeedSessionCard(e)).join('') + foot;
+            },
+
+            // on a community card: follow the person right there (their name and a Follow button)
+            communityFollowHtml(owner) {
+                if (!this.acctOn() || !owner || owner === this.user || !this.ppState().data) return '';
+                const rel = this.relationTo(owner);
+                if (rel.you || rel.blocked || this.knownPeople().includes(owner)) return '';
+                return this.followBtnHtml(owner, rel, 'comm-follow', true);
+            },
+            // ---- v14.4 (phase 3): notifications. A bell in the header (the unread count inside it, never a badge), a
+            // sheet of what happened, newest first; tap one to go to it. New backend only.
+            notifState() { return this._notif || (this._notif = { items: null, unread: 0, at: 0, loading: false }); },
+
+            async loadNotifications(max = 50) {
+                if (!this.acctOn() || !Supa.ready()) return null;
+                const st = this.notifState();
+                if (st.loading) return st;
+                st.loading = true;
+                try {
+                    const r = await Supa.rpc('my_notifications', { max_count: max });
+                    st.unread = Number(r && r.unread) || 0;
+                    if (max > 1 || !st.items) st.items = r && Array.isArray(r.items) ? r.items : [];
+                    st.at = Date.now();
+                } finally { st.loading = false; }
+                this.paintNotifButton();
+                return st;
+            },
+
+            // after a sync: the unread count, at most once a minute
+            checkNotifications() {
+                if (!this.acctOn() || !Supa.ready()) return;
+                const st = this.notifState();
+                if (Date.now() - st.at < 60000) { this.paintNotifButton(); return; }
+                this.loadNotifications(1).catch(() => {});
+            },
+
+            paintNotifButton() {
+                const btn = document.getElementById('notif-btn'), n = document.getElementById('notif-count');
+                if (!btn) return;
+                btn.hidden = !this.acctOn();
+                const unread = this.notifState().unread;
+                if (n) { n.hidden = !unread; n.textContent = unread > 99 ? '99+' : String(unread || ''); }
+                btn.classList.toggle('has-unread', unread > 0);
+                btn.setAttribute('aria-label', unread ? `Notifications, ${unread} new` : 'Notifications');
+            },
+
+            openNotifications() {
+                if (!this.acctOn()) return;
+                document.getElementById('notif-modal').classList.add('active');
+                this.renderNotifications();
+                this.loadNotifications(50).then(st => {
+                    this.renderNotifications();
+                    const top = st && st.items && st.items[0];
+                    if (st && st.unread && top) Supa.rpc('mark_notifications_read', { up_to: top.id }).then(() => { st.unread = 0; this.paintNotifButton(); }).catch(() => {});
+                }).catch(() => { const b = document.getElementById('notif-body'); if (b && !this.notifState().items) b.innerHTML = '<p class="pp-empty">Couldn\'t load notifications. Check your connection.</p>'; });
+            },
+
+            closeNotifications() { const m = document.getElementById('notif-modal'); if (m) m.classList.remove('active'); },
+
+            notifText(n) {
+                const who = `<b>${this.esc(n.who || 'Someone')}</b>`, said = n.comment ? ` <q>${this.esc(n.comment)}</q>` : '';
+                switch (n.kind) {
+                    case 'like': return n.coffee && !n.session ? `${who} liked your coffee` : `${who} liked your session`;
+                    case 'comment': return `${who} commented${said}`;
+                    case 'reply': return `${who} replied${said}`;
+                    case 'comment_like': return `${who} liked your comment${said}`;
+                    case 'follow': return `${who} started following you`;
+                    case 'follow_request': return `${who} wants to follow you`;
+                    case 'follow_accepted': return `${who} approved your follow request`;
+                    case 'joined_group': return `${who} joined ${this.esc(n.group || 'your group')}`;
+                    default: return who;
+                }
+            },
+
+            renderNotifications() {
+                const body = document.getElementById('notif-body');
+                if (!body) return;
+                const st = this.notifState();
+                if (!st.items) { body.innerHTML = '<p class="pp-empty">Loading…</p>'; return; }
+                if (!st.items.length) { body.innerHTML = '<p class="pp-empty">Nothing yet. When people like, comment on or follow your brewing, it shows up here.</p>'; return; }
+                body.innerHTML = `<div class="pp-list">${st.items.map(n => `<button type="button" class="nt-row${n.read ? '' : ' is-new'}" data-id="${this.esc(String(n.id))}" onclick="app.openNotification(this.getAttribute('data-id'))">${this.personDotHtml(n.who || '?', n.color)}<span class="nt-text"><span>${this.notifText(n)}</span><small>${this.esc(this.formatRelativeDate(n.at))}</small></span></button>`).join('')}</div>`;
+            },
+
+            // tap a notification: the session or coffee it's about, or People for follows
+            openNotification(id) {
+                const n = (this.notifState().items || []).find(x => String(x.id) === String(id));
+                if (!n) return;
+                if (n.kind === 'follow' || n.kind === 'follow_request' || n.kind === 'follow_accepted') { this.closeNotifications(); this.openPeople(); return; }
+                if (n.kind === 'joined_group') { this.closeNotifications(); this.openPeople(); return; }
+                const brew = n.session ? this.brews.get(String(n.session)) : null;
+                const beanId = brew ? brew.beanId : (n.sessionCoffee || n.coffee || '');
+                if (!beanId || (n.session && !brew && !this.beans.has(String(beanId)))) { this.showToast('That isn\'t on this phone anymore.'); return; }
+                this.closeNotifications();
+                if (n.comment && n.session) this.openThreads.add(this.threadKey('brew', n.session));
+                this.openFeedTarget(beanId, n.session || '', true);
+            },
+            // ---- v14.4 (phase 3): groups. Private groups (up to 30, joined with an invite code or link) are the people
+            // who share your group goal and monthly awards; open groups anyone can find. They live in People, Groups.
+            grState() { return this._groups || (this._groups = { list: null, at: 0, open: '', form: '', busy: false }); },
+
+            async loadGroups(force) {
+                if (!this.acctOn() || !Supa.ready()) return null;
+                const st = this.grState();
+                if (!force && st.list && Date.now() - st.at < 60000) return st.list;
+                const r = await Supa.rpc('my_groups', {});
+                st.list = Array.isArray(r) ? r : []; st.at = Date.now();
+                return st.list;
+            },
+
+            inviteLink(code) { return `${location.origin}${location.pathname}?join=${encodeURIComponent(code)}`; },
+
+            renderGroups(body) {
+                const st = this.grState();
+                if (!st.list) { body.innerHTML = '<p class="pp-empty">Loading…</p>'; if (!st.busy) { st.busy = true; this.loadGroups(true).then(() => { st.busy = false; this.renderPeople(); }).catch(e => { st.busy = false; this.peopleFailed(e); }); } return; }
+                const groupRow = g => {
+                    const n = (g.members || []).length, isOpen = st.open === String(g.id), id = this.esc(String(g.id));
+                    const role = g.role === 'owner' ? 'You run it' : g.role === 'admin' ? 'Admin' : '';
+                    const members = isOpen ? `<div class="gr-members">${(g.members || []).map(m => `<div class="gr-member">${this.personDotHtml(m.name)}<span>${this.esc(m.name)}${m.role === 'owner' ? ' <small>owner</small>' : m.role === 'admin' ? ' <small>admin</small>' : ''}</span>${(g.role === 'owner' || g.role === 'admin') && m.name !== this.user && m.role !== 'owner' ? `<button type="button" class="btn-outline pp-act is-quiet" data-g="${id}" data-name="${this.esc(m.name)}" onclick="app.groupAct('remove', this.getAttribute('data-g'), this.getAttribute('data-name'))">Remove</button>` : ''}</div>`).join('')}</div>` : '';
+                    const invite = isOpen && g.invite ? `<div class="gr-invite"><span>Invite code <b>${this.esc(g.invite.toUpperCase())}</b></span><button type="button" class="btn-primary pp-act" data-code="${this.esc(g.invite)}" data-name="${this.esc(g.name)}" onclick="app.shareInvite(this.getAttribute('data-code'), this.getAttribute('data-name'))">Share invite</button></div>` : '';
+                    const leave = isOpen ? `<button type="button" class="gr-leave" data-g="${id}" data-name="${this.esc(g.name)}" onclick="app.groupAct('leave', this.getAttribute('data-g'), this.getAttribute('data-name'))">Leave group</button>` : '';
+                    return `<div class="gr-card${isOpen ? ' is-open' : ''}"><button type="button" class="gr-head" data-g="${id}" onclick="app.toggleGroup(this.getAttribute('data-g'))"><span class="gr-icon"><svg class="icon"><use href="#i-users"/></svg></span><span class="gr-name"><b>${this.esc(g.name)}</b><small>${n} ${n === 1 ? 'person' : 'people'}${g.open ? ' · open' : ''}${role ? ' · ' + role : ''}</small></span><svg class="icon gr-chev"><use href="#i-chevron-down"/></svg></button>${invite}${members}${leave}</div>`;
+                };
+                const form = st.form === 'create'
+                    ? `<form class="gr-form" onsubmit="event.preventDefault(); app.groupAct('create', this.elements.n.value)"><input name="n" class="pp-search" maxlength="60" placeholder="Group name" autocomplete="off" autocapitalize="words"><button type="submit" class="btn-primary pp-act">Create</button></form><p class="gr-note">A private group: up to 30 people, who join with its invite. You share a weekly goal and monthly awards.</p>`
+                    : st.form === 'join'
+                        ? `<form class="gr-form" onsubmit="event.preventDefault(); app.groupAct('join', this.elements.c.value)"><input name="c" class="pp-search" maxlength="40" placeholder="Invite code" autocomplete="off" autocapitalize="characters" spellcheck="false"><button type="submit" class="btn-primary pp-act">Join</button></form>`
+                        : `<div class="gr-actions"><button type="button" class="btn-outline pp-act" onclick="app.groupForm('create')">Create a group</button><button type="button" class="btn-outline pp-act" onclick="app.groupForm('join')">Join with a code</button></div>`;
+                body.innerHTML = (st.list.length ? `<div class="gr-list">${st.list.map(groupRow).join('')}</div>` : `<p class="pp-empty">You're not in a group yet. Groups share a weekly goal and monthly awards. Make one and invite friends, or join with a code someone sent you.</p>`) + form;
+                const f = body.querySelector('.gr-form input'); if (f && f.focus) f.focus();
+            },
+
+            toggleGroup(id) { const st = this.grState(); st.open = st.open === String(id) ? '' : String(id); this.renderPeople(); },
+            groupForm(kind) { this.grState().form = kind; this.renderPeople(); },
+
+            async shareInvite(code, name) {
+                const url = this.inviteLink(code), text = `Join ${name} on Dialed In: ${url} (or use the invite code ${String(code).toUpperCase()})`;
+                try {
+                    if (navigator.share) { await navigator.share({ title: `Join ${name} on Dialed In`, text, url }); return; }
+                    await navigator.clipboard.writeText(text);
+                    this.showToast('Invite link copied.');
+                } catch (e) { if (e && e.name === 'AbortError') return; this.showToast(`Invite code: ${String(code).toUpperCase()}`); }
+            },
+
+            async groupAct(action, a, b) {
+                const st = this.grState();
+                try {
+                    if (action === 'create') { const g = await Supa.rpc('create_group', { name: String(a || '').trim() }); st.form = ''; st.open = g && g.id ? String(g.id) : ''; this.showToast(`Made ${g && g.name ? g.name : 'your group'}. Share the invite with friends.`); }
+                    else if (action === 'join') { const g = await Supa.rpc('join_group', { code: String(a || '').trim() }); st.form = ''; st.open = g && g.id ? String(g.id) : ''; this.showToast(`You joined ${g && g.name ? g.name : 'the group'}.`); }
+                    else if (action === 'leave') { if (!confirm(`Leave ${b}? You'll stop sharing its goal and awards.`)) return; await Supa.rpc('leave_group', { group_id: a }); st.open = ''; this.showToast(`You left ${b}.`); }
+                    else if (action === 'remove') { if (!confirm(`Remove ${b} from the group?`)) return; await Supa.rpc('remove_member', { group_id: a, name: b }); }
+                    else return;
+                    if (this.haptic) this.haptic('tick');
+                } catch (e) { this.showToast(e && e.message ? e.message : 'That didn\'t work. Try again.'); return; }
+                await this.loadGroups(true).catch(() => {});
+                this.renderPeople();
+                this.sync({ silent: true });   // your people list (and who shares your goal) changed
+            },
+
+            // an invite link (?join=CODE): remembered until you're signed in, then offered once
+            noteInviteLink() {
+                try {
+                    const code = new URLSearchParams(location.search).get('join');
+                    if (!code) return;
+                    safeSet('dialed_pending_join', code);
+                    const u = new URL(location.href); u.searchParams.delete('join'); history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
+                } catch (e) {}
+            },
+
+            checkPendingJoin() {
+                if (!this.acctOn() || !Supa.ready() || this._joinAsked) return;
+                const code = safeGet('dialed_pending_join');
+                if (!code) return;
+                this._joinAsked = true;
+                safeSet('dialed_pending_join', '');
+                setTimeout(() => { if (confirm('You were invited to a group on Dialed In. Join it?')) this.groupAct('join', code); }, 400);
+            },
+            // ---- v14.4 (phase 3): safety and your account. Report a profile, session or comment; download everything
+            // that's yours; delete your account. New backend only.
+            async reportItem(kind, ref, event) {
+                if (event) event.stopPropagation();
+                if (!this.acctOn() || !ref) return;
+                const what = kind === 'profile' ? ref : kind === 'session' ? 'this session' : 'this comment';
+                const reason = prompt(`Report ${what}? Say what's wrong (optional). Nobody is told who reported it.`, '');
+                if (reason === null) return;
+                try {
+                    await Supa.rpc('report_item', { kind, ref, reason });
+                    const st = this.ppState(); if (st.menu) { st.menu = ''; this.render(); }
+                    this.showToast('Reported. Thanks for telling us.');
+                } catch (e) { this.showToast(e && e.message ? e.message : 'That didn\'t work. Try again.'); }
+            },
+
+            acctToolsHtml() {
+                return `<div class="acct-tools"><button type="button" class="btn-outline pp-act" onclick="app.downloadMyData()">Download my data</button><button type="button" class="btn-outline pp-act acct-delete" onclick="app.deleteMyAccount()">Delete account</button></div>`;
+            },
+
+            async downloadMyData() {
+                try {
+                    const data = await Supa.rpc('export_my_data', {});
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob); a.download = `dialed-in-${String(this.user || 'me').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${new Date().toISOString().slice(0, 10)}.json`;
+                    document.body.appendChild(a); a.click(); a.remove();
+                    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+                    this.showToast('Your data is downloading.');
+                } catch (e) { this.showToast(e && e.message ? e.message : 'That didn\'t work. Try again.'); }
+            },
+
+            async deleteMyAccount() {
+                if (!confirm('Delete your account? Your sessions, notes, photos, comments and likes are deleted for good. Coffees others brewed stay with them.')) return;
+                const typed = prompt(`To confirm, type your name: ${this.user}`, '');
+                if (typed === null) return;
+                try {
+                    await Supa.rpc('delete_account', { confirm_name: typed });
+                    this.closeModals();
+                    this.showToast('Your account is deleted.');
+                    this.signOut();
+                } catch (e) { this.showToast(e && e.message ? e.message : 'That didn\'t work. Try again.'); }
+            },
+        };
         window.onload = () => app.init();
     </script>
 </body>
