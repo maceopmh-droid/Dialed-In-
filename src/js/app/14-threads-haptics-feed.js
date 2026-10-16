@@ -299,6 +299,7 @@
                                 <div class="reply-chip"${reply ? '' : ' hidden'}>Replying to <b>${reply ? this.esc(reply.user) : ''}</b><button type="button" onclick="app.cancelReply(event)" aria-label="Cancel reply">×</button></div>
                                 <div class="cmt-input-row">
                                     <input type="text" class="comment-input" id="${this.esc(opts.inputId)}" placeholder="${kind === 'bean' ? 'Comment on this bean…' : 'Add a comment…'}" onkeydown="${keyHandler}" maxlength="280">
+                                    ${this.cmtShareHtml ? this.cmtShareHtml(kind, target, key) : ''}
                                     <button type="button" class="comment-submit" onclick="${submit}">Post</button>
                                 </div>
                             </div>

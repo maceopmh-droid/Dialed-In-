@@ -150,6 +150,69 @@
                 });
             },
 
+            // After the move: saves this phone made on the Sheet that never got out (it was offline when it updated) go to the
+            // new backend instead, once, as whoever is signed in. push_event only ever applies that person's own part.
+            async adoptSheetOutbox() {
+                if (this._adoptedSheet || !this.acctOn() || !Supa.ready()) return;
+                this._adoptedSheet = true;
+                const key = 'outbox:' + CLOUD_URL;
+                let saved = null; try { saved = await this.idbGet(key); } catch (e) { return; }
+                const waiting = (Array.isArray(saved) ? saved : []).filter(x => x && x.ev && x.ev.type && x.ev.id && !x.landedAt);
+                if (!waiting.length) return;
+                waiting.forEach(x => this.queueOutbox(x.ev, x.base || null));
+                try { await this.idbPut(key, []); } catch (e) {}
+                this.flushOutbox();
+            },
+
+            // ---- who sees what (new backend only). A session is for Everyone, Friends & groups, or Only me; when it's for
+            // everyone, its notes and photo each choose Everyone or Friends (Friends to start). A comment chooses too, where
+            // people outside your friends can see the thing it's on. The Sheet has no audiences, so none of this shows there.
+            shareOpen(brew) {
+                const row = document.getElementById('share-row'); if (!row) return;
+                if (!this.acctOn()) { row.hidden = true; row.innerHTML = ''; this.share = null; return; }
+                let last = {}; try { last = JSON.parse(safeGet('dialed_share_last') || '{}') || {}; } catch (e) { last = {}; }
+                const A = v => ['everyone', 'friends', 'only_me'].includes(v) ? v : '', I = v => ['everyone', 'friends'].includes(v) ? v : '';
+                const from = brew || last;   // a new session starts where your last one was set
+                this.share = { audience: A(from.audience) || 'friends', noteAudience: I(from.noteAudience) || 'friends', photoAudience: I(from.photoAudience) || 'friends' };
+                row.hidden = false;
+                this.renderShareRow();
+            },
+
+            renderShareRow() {
+                const row = document.getElementById('share-row'), s = this.share; if (!row || !s) return;
+                const seg = (key, opts) => `<div class="seg-control share-seg n${opts.length}" role="group">${opts.map(([v, label]) => `<button type="button" aria-pressed="${s[key] === v}" data-k="${key}" data-v="${v}" onclick="app.setShare(this.getAttribute('data-k'), this.getAttribute('data-v'))">${label}</button>`).join('')}</div>`;
+                const say = { everyone: 'Anyone on Dialed In can see this session.', friends: 'Your friends (people you follow who follow you back) and your private groups.', only_me: 'Just you. It still counts for your stats and the coach.' }[s.audience];
+                row.innerHTML = `<label>Who sees this session</label>${seg('audience', [['everyone', 'Everyone'], ['friends', 'Friends'], ['only_me', 'Only me']])}
+                    ${s.audience === 'everyone' ? `<div class="share-items"><div class="share-item"><span>Your notes</span>${seg('noteAudience', [['friends', 'Friends'], ['everyone', 'Everyone']])}</div>
+                    <div class="share-item"><span>Photo</span>${seg('photoAudience', [['friends', 'Friends'], ['everyone', 'Everyone']])}</div></div>` : ''}
+                    <p class="share-note">${say}</p>`;
+            },
+
+            setShare(key, value) {
+                if (!this.share || !(key in this.share)) return;
+                this.share[key] = value;
+                try { safeSet('dialed_share_last', JSON.stringify(this.share)); } catch (e) {}
+                this.renderShareRow();
+            },
+
+            // the comment box: who sees your comment, where people beyond your friends can see the thing it's on
+            cmtShareOpenTo(kind, target) { return this.acctOn() && (kind === 'bean' || (target && target.audience === 'everyone')); },
+            cmtShareHtml(kind, target, key) {
+                if (!this.cmtShareOpenTo(kind, target)) return '';
+                const a = (this.cmtAud || {})[key] || 'friends';
+                return `<button type="button" class="cmt-aud${a === 'everyone' ? ' on' : ''}" data-key="${this.esc(key)}" onclick="app.toggleCmtAudience(this.getAttribute('data-key'), event)" aria-label="Who sees your comment: ${a === 'everyone' ? 'everyone' : 'friends'}" title="Who sees your comment">${a === 'everyone' ? 'Everyone' : 'Friends'}</button>`;
+            },
+            toggleCmtAudience(key, event) {
+                if (event) event.stopPropagation();
+                this.cmtAud = this.cmtAud || {};
+                this.cmtAud[key] = (this.cmtAud[key] || 'friends') === 'friends' ? 'everyone' : 'friends';
+                document.querySelectorAll('.cmt-aud').forEach(b => { if (b.getAttribute('data-key') !== key) return; const on = this.cmtAud[key] === 'everyone'; b.classList.toggle('on', on); b.textContent = on ? 'Everyone' : 'Friends'; b.setAttribute('aria-label', `Who sees your comment: ${on ? 'everyone' : 'friends'}`); });
+            },
+            cmtAudienceFor(kind, target) {
+                if (!this.cmtShareOpenTo(kind, target)) return {};
+                return { audience: (this.cmtAud || {})[this.threadKey(kind, String(target.id))] || 'friends' };
+            },
+
             // Settings on the new backend: who you're signed in as, and sign out (instead of picking a person)
             acctSettingsHtml() {
                 const sess = Supa.session() || {};

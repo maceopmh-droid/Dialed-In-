@@ -222,6 +222,7 @@
                         if (this.markFreshData) this.markFreshData();
                     }
                     if (changed) this.persistCloudCache();
+                    if (this.adoptSheetOutbox && Cloud.confirms) this.adoptSheetOutbox();   // v14.2: saves made on the Sheet that never left this phone
                     if (this.pendingOutbox().some(x => this.outboxDue(x))) setTimeout(() => this.flushOutbox(), 0);
                 } catch (e) {
                     this.syncFailed = true;

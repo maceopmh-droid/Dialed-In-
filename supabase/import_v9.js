@@ -153,14 +153,23 @@ app.gearByUser.forEach((g, owner) => {
 if (mode === 'full') rows.forEach((r, i) => { if (!Array.isArray(r) || typeof r[6] !== 'string' || r[6][0] !== '{') return; try { JSON.parse(r[6]); } catch (e) { return; }
   add(`insert into sheet_archive (event_key, row_no, logged_at, payload) values (${q(eventKey(r[6]))}, ${i + 1}, ${q(String(r[0] || ''))}, ${q(r[6])}::jsonb) on conflict (event_key) do nothing;`); tally('sheet_archive'); });
 
+// ---- which saves these tables were built from (by content, field order ignored), for carrying later ones over
+add('truncate backend_imported;');
+const keys = [...new Set(events.map(contentKey))];
+for (let i = 0; i < keys.length; i += 500) add(`insert into backend_imported (event_key) values ${keys.slice(i, i + 500).map(k => `(${q(k)})`).join(', ')} on conflict do nothing;`);
+
 add('commit;');
 return { sql: out.join('\n') + '\n', summary: { events: events.length, counts: count, skipped, people: [...names.values()] } };
 }
 
+// a save's fingerprint by content, whatever order its fields come in (the live Sheet's JSON and column G differ in order)
+const canonical = v => Array.isArray(v) ? v.map(canonical) : (v && typeof v === 'object') ? Object.fromEntries(Object.keys(v).sort().map(k => [k, canonical(v[k])])) : v;
+function contentKey(ev) { return crypto.createHash('md5').update(JSON.stringify(canonical(ev)), 'utf8').digest('hex'); }
+
 // the archive's key for a Sheet row: md5 of column G exactly as stored (Apps Script computes the same)
 function eventKey(json) { return crypto.createHash('md5').update(String(json), 'utf8').digest('hex'); }
 
-module.exports = { buildImport, eventKey, CONTENT_TABLES };
+module.exports = { buildImport, eventKey, contentKey, CONTENT_TABLES };
 
 if (require.main === module) {
   const arg = k => { const i = process.argv.indexOf('--' + k); return i > 0 ? process.argv[i + 1] : null; };

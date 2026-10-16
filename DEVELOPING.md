@@ -59,7 +59,10 @@ Two backends sit behind it:
   email, then claim their Sheet-era name with a one-time code (or make a new profile). A pull calls the database
   function `pull_events()` and gets everything that person may see, in the same event format the app already
   reads. A save calls `push_event(ev)`. Photos upload to the person's own storage folder and come back through
-  links that expire. See `supabase/README.md`.
+  links that expire. On Supabase the session form also asks who sees the session (Everyone, Friends, Only me) and,
+  when it's for everyone, its notes and photo; a comment box asks too where people beyond your friends can see the
+  thing it's on. Saves this phone made on the Sheet but never sent are sent once after signing in. None of this
+  shows on the Sheet. See `supabase/README.md`.
 
 Nothing else in the app calls `fetch` for data (the only other `fetch` is the self-update check, which reads
 `index.html`). The screens don't know which backend they're on.

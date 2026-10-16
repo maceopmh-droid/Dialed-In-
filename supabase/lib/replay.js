@@ -37,14 +37,14 @@ function whoChanged(prev, e) {
 const eventTime = e => Date.parse(e.eventAt || e.date) || 0;
 const inOrder = events => events.slice().sort((a, b) => eventTime(a) - eventTime(b));
 
-// plan the replay of everything after `since`: [{ event, people: [...] }], given the whole history for context
-function planReplay(events, since) {
-  const cut = Date.parse(since) || 0;
+// plan the replay of the saves `wanted` picks: [{ event, people: [...] }], with the whole history for who-changed-what
+function planReplay(events, wanted) {
+  const pick = typeof wanted === 'function' ? wanted : (cut => e => eventTime(e) > cut)(Date.parse(wanted) || 0);
   const prevOf = new Map();
   const plan = [];
   inOrder(events).forEach(e => {
     const key = e.type + ':' + e.id;
-    if (eventTime(e) > cut) plan.push({ event: e, people: whoChanged(prevOf.get(key), e) });
+    if (pick(e)) plan.push({ event: e, people: whoChanged(prevOf.get(key), e) });
     if (e.type === 'bean' || e.type === 'brew') prevOf.set(key, e);
   });
   return plan;

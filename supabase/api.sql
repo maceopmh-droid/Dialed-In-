@@ -19,7 +19,7 @@ $$;
 create or replace function internal.color_of(pid uuid) returns text
 language sql stable security definer set search_path = public as $$ select color from profiles where id = pid; $$;
 
-create or replace function internal.try_ts(t text) returns timestamptz language plpgsql immutable as $$
+create or replace function internal.try_ts(t text) returns timestamptz language plpgsql stable as $$
 begin if t is null or btrim(t) = '' then return null; end if; return t::timestamptz; exception when others then return null; end $$;
 create or replace function internal.try_date(t text) returns date language plpgsql immutable as $$
 begin if t is null or t !~ '^\d{4}-\d{2}-\d{2}' then return null; end if; return left(t, 10)::date; exception when others then return null; end $$;
@@ -115,11 +115,11 @@ $$;
 create or replace function internal.comments_json(cof uuid, ses uuid) returns jsonb
 language sql stable set search_path = public as $$
   select coalesce(jsonb_agg(jsonb_build_object(
-      'id', substr(c.legacy_ref, strpos(c.legacy_ref, '#') + 1),
+      'id', coalesce(substr(c.legacy_ref, strpos(c.legacy_ref, '#') + 1), c.id::text),
       'user', internal.name_of(c.author_id),
       'text', c.body,
       'timestamp', c.created_at,
-      'parentId', coalesce((select substr(p.legacy_ref, strpos(p.legacy_ref, '#') + 1) from comments p where p.id = c.parent_id), ''),
+      'parentId', coalesce((select coalesce(substr(p.legacy_ref, strpos(p.legacy_ref, '#') + 1), p.id::text) from comments p where p.id = c.parent_id), ''),
       'likes', coalesce((select jsonb_agg(internal.name_of(l.user_id) order by l.created_at) from comment_likes l where l.comment_id = c.id), '[]'::jsonb),
       'audience', c.audience
     ) order by c.created_at, c.legacy_ref), '[]'::jsonb)
@@ -205,18 +205,32 @@ begin
   out := out || coalesce((select jsonb_agg(jsonb_build_object('type', 'flavor', 'id', f.id::text, 'name', f.name, 'user', internal.name_of(f.created_by),
       'date', f.created_at, 'eventAt', f.created_at)) from flavors f), '[]'::jsonb);
 
-  -- the shared records the app keeps: who doesn't count toward the group goal, and who's in your circle
+  -- the shared record the app keeps for the group goal: who doesn't count toward it
   out := out || jsonb_build_array(jsonb_build_object('type', 'gear', 'id', 'gear-__group__', 'user', '__group__', 'owner', '__group__',
       'items', '[]'::jsonb, 'lastByMethod', '{}'::jsonb, 'date', '2026-01-01T00:00:00Z', 'eventAt', '2026-01-01T00:00:00Z',
       'goalExclude', coalesce((select jsonb_agg(distinct internal.name_of(m.user_id)) from group_members m join groups g on g.id = m.group_id
                                where not m.counts_in_goal and not g.is_open), '[]'::jsonb)));
-  out := out || jsonb_build_array(jsonb_build_object('type', 'gear', 'id', 'gear-__people__', 'user', '__people__', 'owner', '__people__',
-      'items', '[]'::jsonb, 'lastByMethod', '{}'::jsonb, 'date', '2026-01-01T00:00:00Z', 'eventAt', '2026-01-01T00:00:00Z', 'removed', '[]'::jsonb,
-      'people', coalesce((select jsonb_agg(jsonb_build_object('name', internal.name_of(x.id), 'addedAt', x.at, 'color', internal.color_of(x.id)))
-                          from (select m.user_id as id, min(m.joined_at) as at from group_members m join groups g on g.id = m.group_id where not g.is_open group by m.user_id
-                                union select me_id, now()) x), '[]'::jsonb)));
   return out;
 end $$;
+
+-- ---------------------------------------------------------------- has anything changed? data_version()
+-- A number that goes up whenever anything the app shows is written. The app asks for it (a few bytes) every sync and
+-- only pulls everything again when it moved, instead of downloading every coffee and session every 30 seconds.
+insert into backend_state (key, value) values ('data_version', '1') on conflict (key) do nothing;
+create or replace function internal.bump_version() returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  update backend_state set value = (value::bigint + 1)::text, updated_at = now() where key = 'data_version';
+  return null;
+end $$;
+do $$ declare t text; begin
+  foreach t in array array['profiles', 'follows', 'blocks', 'groups', 'group_members', 'roasters', 'coffees', 'sessions', 'session_notes', 'session_photos',
+                           'likes', 'comments', 'comment_likes', 'coffee_likes', 'equipment', 'want_to_try', 'profile_gear', 'flavors'] loop
+    execute format('drop trigger if exists bump_version on %I', t);
+    execute format('create trigger bump_version after insert or update or delete or truncate on %I for each statement execute function internal.bump_version()', t);
+  end loop;
+end $$;
+create or replace function data_version() returns bigint
+language sql stable security definer set search_path = public as $$ select value::bigint from backend_state where key = 'data_version'; $$;
 
 -- ---------------------------------------------------------------- writing: push_event(ev)
 -- your like on a coffee or session
@@ -800,9 +814,9 @@ grant execute on all functions in schema internal to authenticated;
 revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
-  my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text) from public, anon;
+  my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version() from public, anon;
 grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
-  my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text) to authenticated;
+  my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version() to authenticated;
 revoke execute on all functions in schema internal from public, anon;

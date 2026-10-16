@@ -90,31 +90,45 @@ Pick a quiet evening and tell the crew first.
 3. Set `live: true` in `src/js/02-cloud.js`, bump the version, run the battery, ship.
 4. Everyone's app updates itself within about 20 minutes (or force-close it). It opens on the welcome screen:
    "I've been here before" → email → code → claim code. Each person's history is already there.
-5. A phone that hadn't updated yet may still save to the Sheet for a few minutes. Carry those saves over (it's
-   safe to run as often as you like; a save is never applied twice, and saves by someone who hasn't claimed their
-   name yet wait for the next run):
+5. A phone that was offline when it updated keeps its unsent saves and sends them to Supabase once its owner signs
+   in (only that person's part of each record, merged onto anything newer). Anything that still reached the Sheet
+   (a phone that hadn't updated yet, or a save made between step 1 and step 2) is carried over by this. It goes by
+   exactly which saves the tables were built from, not by time, so nothing falls in a gap. It's safe to run as often
+   as you like: a save is never applied twice, and saves by someone who hasn't claimed their name yet wait for the
+   next run.
    ```
    node supabase/replay_late.js --psql "psql $SUPABASE_DB_URL" --live <the Apps Script URL>
    ```
+   Run it again over the first few days, until it reports nobody waiting.
 
 The Sheet keeps every row it ever had, and Apps Script keeps copying anything new into `sheet_archive`.
 
 ## If something goes wrong
 
 - Before step 7: nothing to undo. The crew is still on the Sheet.
-- After step 7, within the first days: set `live: false` and ship. Phones go back to the Sheet, which has
-  everything up to the move. Saves made on Supabase after the move would need copying back by hand, so decide
-  quickly. (Ask Claude to write that copy-back before the move if you want it ready.)
+- After step 7: set `live: false` and ship, so phones go back to the Sheet, which has everything up to the move.
+  Then copy back what happened on Supabase since: first see what it would send, then send it.
+  ```
+  node supabase/copy_back.js --psql "psql $SUPABASE_DB_URL" --html index.html --live <the Apps Script URL>
+  SUPABASE_URL=<Project URL> SUPABASE_SERVICE_KEY=<service_role key> node supabase/copy_back.js --psql "psql $SUPABASE_DB_URL" --html index.html --live <the Apps Script URL> --post
+  ```
+  It compares every record through the app's own replay (the same comparison as the parity check) and sends the
+  Sheet a normal save for each one that differs (new sessions, edits, likes, comments with their replies and likes,
+  gear, tasting notes, group goal switches), a delete for each one deleted on Supabase, and new photos as image
+  data (Apps Script puts them in Drive). For someone who never signed in, only the likes and comments others left
+  on their records are sent; the rest stays the Sheet's own copy. Run it again afterwards: it should find nothing
+  left to send. Who-sees-what settings, follows and groups have no place in the Sheet and stay in Supabase.
 - Photos already in Google Drive stay there and keep working; new photos go to Supabase storage.
 
 ## What's in place, and what isn't yet
 
-Ready and tested: the tables and privacy rules, the app's calls, photo storage, the import from the Sheet,
-the nightly check, sign-in by email code, claiming a name, new profiles, the sign-in screens (behind the switch),
-carrying late saves over, and a stand-in for Supabase (`supabase/dev_server.js`) that the private browser tests
-run the real app against.
+Ready and tested: the tables and privacy rules, the app's calls, photo storage, the import from the Sheet, the
+nightly check, sign-in by email code, claiming a name, new profiles, the sign-in screens and the who-sees-what
+controls (both behind the switch, waiting for Maceo's OK on the screenshots), carrying late saves over, the copy
+back to the Sheet, and a stand-in for Supabase (`supabase/dev_server.js`) that the private browser tests run the
+real app against. The database side of following, groups, notifications, reporting, Download my data and Delete
+account is built and tested, without screens yet.
 
 Not yet: Sign in with Apple and Google (email codes work everywhere; those two need more setup and testing on
-iPhone), the controls for who each session, photo, note and comment is for (the database already supports them;
-until the controls exist, everything new is Friends & groups), following, open groups, and the community feed.
-Those are phase 3.
+iPhone), the screens for following, groups, notifications and account deletion, and the community feed. Those are
+phase 3.

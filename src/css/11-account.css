@@ -11,3 +11,15 @@
         .acct-who small { font-size: 0.82rem; color: var(--muted, rgba(var(--hair-rgb), 0.6)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .acct-out { width: auto !important; padding: 9px 16px !important; margin: 0 !important; }
         .user-switch.acct-name:disabled { opacity: 1; cursor: default; }
+        /* who sees what (new backend only) */
+        .share-row { margin-top: 1.6rem; }
+        .share-row .seg-control { margin-bottom: 0.6rem; }
+        .share-seg.n2 { grid-template-columns: repeat(2, 1fr); }
+        .share-items { display: grid; gap: 0.5rem; margin: 0.4rem 0 0.2rem; }
+        .share-item { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); align-items: center; gap: 10px; }
+        .share-item span { font-size: 0.9rem; font-weight: 600; color: var(--ink); }
+        .share-item .seg-control { margin-bottom: 0; }
+        .share-item .seg-control button { padding: 7px 6px; font-size: 0.86rem; }
+        .share-note { margin: 0.2rem 0 0; font-size: 0.82rem; color: var(--text-muted); }
+        .cmt-aud { flex: none; align-self: center; height: auto; line-height: 1.2; border: 1px solid var(--line); background: transparent; color: var(--text-muted); border-radius: 999px; padding: 6px 10px; font-size: 0.76rem; font-weight: 650; cursor: pointer; margin: 0 2px; width: auto; min-height: 0; }
+        .cmt-aud.on { color: var(--ink); border-color: rgba(var(--matcha-rgb), 0.5); background: rgba(var(--matcha-rgb), 0.1); }

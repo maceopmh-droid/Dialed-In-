@@ -74,7 +74,8 @@
                     text,
                     timestamp: new Date().toISOString(),
                     parentId: this.takeReplyParent('brew', brewId),
-                    likes: []
+                    likes: [],
+                    ...(this.cmtAudienceFor ? this.cmtAudienceFor('brew', brew) : {})   // v14.2: who sees it (new backend)
                 });
                 this.openThreads.add(this.threadKey('brew', brewId));
 
@@ -198,7 +199,8 @@
                     text,
                     timestamp: new Date().toISOString(),
                     parentId: this.takeReplyParent('bean', beanId),
-                    likes: []
+                    likes: [],
+                    ...(this.cmtAudienceFor ? this.cmtAudienceFor('bean', bean) : {})   // v14.2: who sees it (new backend)
                 });
                 this.openThreads.add(this.threadKey('bean', beanId));
                 input.value = '';
@@ -374,6 +376,7 @@
                     flavors,
                     rating: this.normalizeRating(form.rating.value),
                     photo: this.normalizePhoto(this.draftPhoto),
+                    ...(this.acctOn() && this.share ? { audience: this.share.audience, noteAudience: this.share.noteAudience, photoAudience: this.share.photoAudience } : {}),   // v14.2: who sees it (new backend)
                     equipment: keepGear ? (Array.isArray(existing.equipment) ? existing.equipment : []) : selectedEquipment,
                     equipmentSnapshot,
                     likes: existing ? (existing.likes || []) : [],
@@ -565,6 +568,7 @@
                 form.rating.value = this.normalizeRating(brew.rating);
                 this.updateRatingDisplay(form.rating.value);
                 this.draftPhoto = this.normalizePhoto(brew.photo);
+                this.shareOpen(brew);   // v14.2
                 this.renderDraftPhoto();
                 this.loadEquipmentForMethod(brew.method, brew.equipment || []);
                 this._eqAtOpen = Array.from(document.querySelectorAll('#equipment-selector .equipment-checkbox:checked')).map(cb => cb.value).sort().join('|');
@@ -632,6 +636,7 @@
                 form.rating.value = 0;
                 this.updateRatingDisplay(0);
                 this.draftPhoto = null;
+                this.shareOpen(null);   // v14.2
                 this.renderDraftPhoto();
                 document.getElementById('brew-modal-title').innerText = 'Brewing Log';
                 const verdictReset = document.getElementById('verdict-input');

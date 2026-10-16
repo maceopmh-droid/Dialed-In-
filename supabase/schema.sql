@@ -21,7 +21,9 @@ create table profiles (
                                                    -- profile (Sheet-era names exist before they're claimed);
                                                    -- deleting the account deletes the profile and everything in it
   handle        text not null unique check (handle ~ '^[a-z0-9_]{2,24}$'),
-  display_name  text not null check (char_length(display_name) between 1 and 40 and display_name !~ '^__'),
+  display_name  text not null check (char_length(display_name) between 1 and 40 and display_name !~ '^__'
+                                    and display_name = btrim(regexp_replace(display_name, '\s+', ' ', 'g'))     -- no look-alike "Maceo " names
+                                    and display_name !~* '^(unknown|undefined|null|everyone|system)$'),
   color         text check (color ~ '^#[0-9a-fA-F]{6}$'),
   avatar_path   text,
   is_private    boolean not null default false,
@@ -244,6 +246,13 @@ create table backend_state (
 );
 alter table backend_state enable row level security;
 
+-- exactly which Sheet saves the tables were last built from (a fingerprint of each), so the move can carry over every
+-- save made after that, by content rather than by anyone's clock (replay_late.js)
+create table backend_imported (
+  event_key     text primary key
+);
+alter table backend_imported enable row level security;
+
 create table sheet_archive (                          -- every row of the V9 Sheet, exactly as it was (read-only)
   event_key     text primary key,                      -- md5 of column G as stored, so resending a row is harmless
   row_no        integer,                               -- where it sat in the Sheet when it was copied
@@ -328,6 +337,29 @@ language sql stable security definer set search_path = public as $$
                and (c.audience = 'everyone' or viewer in (c.author_id, k.owner_id) or close_to(viewer, c.author_id))));
 $$;
 
+-- The functions above say the rules plainly; the row rules below are the same rules written so Postgres works out
+-- "who's close to me", "who's blocked" and "who I follow" once per query instead of once per row (a policy that calls
+-- (select f()) runs f once). test_rls.py checks that both say exactly the same thing for everyone.
+create function my_close_ids() returns uuid[]       -- friends (mutual follows) and people in your private groups
+language sql stable security definer set search_path = public as $$
+  select coalesce(array_agg(distinct x), '{}') from (
+    select f1.followee as x from follows f1 join follows f2 on f2.follower = f1.followee and f2.followee = f1.follower
+     where f1.follower = me() and f1.status = 'accepted' and f2.status = 'accepted'
+    union
+    select m2.user_id from group_members m1 join group_members m2 on m2.group_id = m1.group_id join groups g on g.id = m1.group_id
+     where m1.user_id = me() and m2.user_id <> m1.user_id and not g.is_open) t;
+$$;
+create function my_blocked_ids() returns uuid[]     -- blocked either way
+language sql stable security definer set search_path = public as $$
+  select coalesce(array_agg(case when blocker = me() then blocked else blocker end), '{}') from blocks where blocker = me() or blocked = me();
+$$;
+create function my_following_ids() returns uuid[]   -- people whose follow request you're through (open or approved)
+language sql stable security definer set search_path = public as $$
+  select coalesce(array_agg(followee), '{}') from follows where follower = me() and status = 'accepted';
+$$;
+create function is_private_profile(pid uuid) returns boolean
+language sql stable security definer set search_path = public as $$ select coalesce((select is_private from profiles where id = pid), true); $$;
+
 -- ---------------------------------------------------------------- row-level security
 alter table profiles       enable row level security;
 alter table claim_codes    enable row level security;
@@ -352,7 +384,7 @@ alter table flavors        enable row level security;
 alter table sheet_archive  enable row level security;   -- no rules: never readable from the app
 
 -- profiles: everyone signed in sees the card (unless blocked); you edit only your own
-create policy profiles_read  on profiles for select to authenticated using (not blocked_either(me(), id));
+create policy profiles_read  on profiles for select to authenticated using (not (id = any((select my_blocked_ids())::uuid[])));
 create policy profiles_write on profiles for insert to authenticated with check (auth_id = auth.uid());
 create policy profiles_edit  on profiles for update to authenticated using (auth_id = auth.uid());
 
@@ -360,101 +392,115 @@ create policy profiles_edit  on profiles for update to authenticated using (auth
 -- (no policies = no access for app users)
 
 -- follows: you see your own follows both ways; you create your own (pending if their profile is private)
-create policy follows_read   on follows for select to authenticated using (me() in (follower, followee));
-create policy follows_add    on follows for insert to authenticated with check (follower = me() and not blocked_either(follower, followee)
+create policy follows_read   on follows for select to authenticated using ((select me()) in (follower, followee));
+create policy follows_add    on follows for insert to authenticated with check (follower = (select me()) and not blocked_either(follower, followee)
   and (status = 'pending' or not coalesce((select p.is_private from profiles p where p.id = followee), false)));   -- a private profile approves you first
-create policy follows_accept on follows for update to authenticated using (followee = me());
-create policy follows_remove on follows for delete to authenticated using (me() in (follower, followee));
+create policy follows_accept on follows for update to authenticated using (followee = (select me()));
+create policy follows_remove on follows for delete to authenticated using ((select me()) in (follower, followee));
 
 -- blocks: yours only
-create policy blocks_mine on blocks for all to authenticated using (blocker = me()) with check (blocker = me());
+create policy blocks_mine on blocks for all to authenticated using (blocker = (select me())) with check (blocker = (select me()));
 
 -- groups: open groups and your groups are visible; members of private groups see each other
-create policy groups_read  on groups for select to authenticated using (is_open or is_group_member(id, me()));
-create policy groups_add   on groups for insert to authenticated with check (owner_id = me());
-create policy groups_edit  on groups for update to authenticated using (owner_id = me());
+create policy groups_read  on groups for select to authenticated using (is_open or is_group_member(id, (select me())));
+create policy groups_add   on groups for insert to authenticated with check (owner_id = (select me()));
+create policy groups_edit  on groups for update to authenticated using (owner_id = (select me()));
 create policy members_read on group_members for select to authenticated
-  using (is_group_member(group_id, me()) or exists (select 1 from groups g where g.id = group_id and g.is_open));
+  using (is_group_member(group_id, (select me())) or exists (select 1 from groups g where g.id = group_id and g.is_open));
 create policy members_join on group_members for insert to authenticated
-  with check (user_id = me() and role = 'member' and exists (select 1 from groups g where g.id = group_id and g.is_open));
-create policy members_leave on group_members for delete to authenticated using (user_id = me());
+  with check (user_id = (select me()) and role = 'member' and exists (select 1 from groups g where g.id = group_id and g.is_open));
+create policy members_leave on group_members for delete to authenticated using (user_id = (select me()));
 
 -- roasters and coffees are shared facts: everyone signed in reads; you add and edit your own
 create policy roasters_read on roasters for select to authenticated using (true);
-create policy roasters_add  on roasters for insert to authenticated with check (created_by = me());
-create policy coffees_read  on coffees for select to authenticated using (deleted_at is null or owner_id = me());
-create policy coffees_add   on coffees for insert to authenticated with check (owner_id = me());
-create policy coffees_edit  on coffees for update to authenticated using (owner_id = me());
+create policy roasters_add  on roasters for insert to authenticated with check (created_by = (select me()));
+create policy coffees_read  on coffees for select to authenticated using (deleted_at is null or owner_id = (select me()));
+create policy coffees_add   on coffees for insert to authenticated with check (owner_id = (select me()));
+create policy coffees_edit  on coffees for update to authenticated using (owner_id = (select me()));
 
 -- sessions
-create policy sessions_read on sessions for select to authenticated using (can_see_session(me(), sessions));
-create policy sessions_add  on sessions for insert to authenticated with check (owner_id = me());
-create policy sessions_edit on sessions for update to authenticated using (owner_id = me()) with check (owner_id = me());
-create policy sessions_del  on sessions for delete to authenticated using (owner_id = me());
+create policy sessions_read on sessions for select to authenticated using (
+  sessions.owner_id = (select me())
+  or (sessions.deleted_at is null and (select me()) is not null and not (sessions.owner_id = any((select my_blocked_ids())::uuid[])) and (
+        (sessions.audience = 'friends' and sessions.owner_id = any((select my_close_ids())::uuid[]))
+     or (sessions.audience = 'everyone' and (sessions.owner_id = any((select my_close_ids())::uuid[]) or sessions.owner_id = any((select my_following_ids())::uuid[])
+                                             or not is_private_profile(sessions.owner_id))))));
+create policy sessions_add  on sessions for insert to authenticated with check (owner_id = (select me()));
+create policy sessions_edit on sessions for update to authenticated using (owner_id = (select me())) with check (owner_id = (select me()));
+create policy sessions_del  on sessions for delete to authenticated using (owner_id = (select me()));
 
 -- notes and photos: their own toggle, on top of the session's audience
-create policy notes_read  on session_notes for select to authenticated using (can_see_item(me(), session_id, audience));
+create policy notes_read  on session_notes for select to authenticated using (   -- (the sessions lookup only finds sessions you may see)
+  exists (select 1 from sessions s where s.id = session_notes.session_id
+          and (session_notes.audience = 'everyone' or s.owner_id = (select me()) or s.owner_id = any((select my_close_ids())::uuid[]))));
 create policy notes_write on session_notes for all to authenticated
-  using (exists (select 1 from sessions s where s.id = session_id and s.owner_id = me()))
-  with check (exists (select 1 from sessions s where s.id = session_id and s.owner_id = me()));
-create policy photos_read  on session_photos for select to authenticated using (can_see_item(me(), session_id, audience));
+  using (exists (select 1 from sessions s where s.id = session_id and s.owner_id = (select me())))
+  with check (exists (select 1 from sessions s where s.id = session_id and s.owner_id = (select me())));
+create policy photos_read  on session_photos for select to authenticated using (
+  exists (select 1 from sessions s where s.id = session_photos.session_id
+          and (session_photos.audience = 'everyone' or s.owner_id = (select me()) or s.owner_id = any((select my_close_ids())::uuid[]))));
 create policy photos_write on session_photos for all to authenticated
-  using (exists (select 1 from sessions s where s.id = session_id and s.owner_id = me()))
-  with check (exists (select 1 from sessions s where s.id = session_id and s.owner_id = me()));
+  using (exists (select 1 from sessions s where s.id = session_id and s.owner_id = (select me())))
+  with check (exists (select 1 from sessions s where s.id = session_id and s.owner_id = (select me())));
 
 -- likes: visible with the session; you like as yourself, on sessions you can see
 create policy likes_read on likes for select to authenticated
-  using (exists (select 1 from sessions s where s.id = session_id and can_see_session(me(), s)));
+  using (exists (select 1 from sessions s where s.id = likes.session_id));
 create policy likes_add  on likes for insert to authenticated
-  with check (user_id = me() and exists (select 1 from sessions s where s.id = session_id and can_see_session(me(), s)));
-create policy likes_del  on likes for delete to authenticated using (user_id = me());
+  with check (user_id = (select me()) and exists (select 1 from sessions s where s.id = likes.session_id));
+create policy likes_del  on likes for delete to authenticated using (user_id = (select me()));
 
 -- comments
-create policy comments_read on comments for select to authenticated using (can_see_comment(me(), comments));
+create policy comments_read on comments for select to authenticated using (
+  (select me()) is not null and not (comments.author_id = any((select my_blocked_ids())::uuid[])) and (
+     exists (select 1 from sessions s where s.id = comments.session_id
+             and (comments.audience = 'everyone' or (select me()) in (comments.author_id, s.owner_id) or comments.author_id = any((select my_close_ids())::uuid[])))
+  or exists (select 1 from coffees k where k.id = comments.coffee_id and k.deleted_at is null
+             and (comments.audience = 'everyone' or (select me()) in (comments.author_id, k.owner_id) or comments.author_id = any((select my_close_ids())::uuid[])))));
 create policy comments_add  on comments for insert to authenticated
-  with check (author_id = me() and (exists (select 1 from sessions s where s.id = session_id and can_see_session(me(), s))
-                                    or exists (select 1 from coffees k where k.id = coffee_id and k.deleted_at is null)));
-create policy comments_edit on comments for update to authenticated using (author_id = me());
-create policy comments_del  on comments for delete to authenticated using (author_id = me());
+  with check (author_id = (select me()) and (exists (select 1 from sessions s where s.id = comments.session_id)
+                                    or exists (select 1 from coffees k where k.id = comments.coffee_id and k.deleted_at is null)));
+create policy comments_edit on comments for update to authenticated using (author_id = (select me()));
+create policy comments_del  on comments for delete to authenticated using (author_id = (select me()));
 
 -- comment likes: visible with the comment (the comments rule filters the lookup); you like as yourself
 create policy comment_likes_read on comment_likes for select to authenticated
   using (exists (select 1 from comments c where c.id = comment_id));
 create policy comment_likes_add  on comment_likes for insert to authenticated
-  with check (user_id = me() and exists (select 1 from comments c where c.id = comment_id));
-create policy comment_likes_del  on comment_likes for delete to authenticated using (user_id = me());
+  with check (user_id = (select me()) and exists (select 1 from comments c where c.id = comment_id));
+create policy comment_likes_del  on comment_likes for delete to authenticated using (user_id = (select me()));
 
 -- coffee likes: shared like the coffee; you like as yourself
-create policy coffee_likes_read on coffee_likes for select to authenticated using (not blocked_either(me(), user_id));
-create policy coffee_likes_add  on coffee_likes for insert to authenticated with check (user_id = me());
-create policy coffee_likes_del  on coffee_likes for delete to authenticated using (user_id = me());
+create policy coffee_likes_read on coffee_likes for select to authenticated using (not (user_id = any((select my_blocked_ids())::uuid[])));
+create policy coffee_likes_add  on coffee_likes for insert to authenticated with check (user_id = (select me()));
+create policy coffee_likes_del  on coffee_likes for delete to authenticated using (user_id = (select me()));
 
 -- equipment: on your profile for everyone signed in, unless hidden; yours to change
 create policy equipment_read  on equipment for select to authenticated
-  using (owner_id = me() or (not hidden and not blocked_either(me(), owner_id)));
-create policy equipment_write on equipment for all to authenticated using (owner_id = me()) with check (owner_id = me());
+  using (owner_id = (select me()) or (not hidden and not (owner_id = any((select my_blocked_ids())::uuid[]))));
+create policy equipment_write on equipment for all to authenticated using (owner_id = (select me())) with check (owner_id = (select me()));
 
 -- want to try: you and your friends (and private groups)
-create policy want_read  on want_to_try for select to authenticated using (owner_id = me() or (close_to(me(), owner_id) and not blocked_either(me(), owner_id)));
-create policy want_write on want_to_try for all to authenticated using (owner_id = me()) with check (owner_id = me());
+create policy want_read  on want_to_try for select to authenticated using (owner_id = (select me()) or (owner_id = any((select my_close_ids())::uuid[]) and not (owner_id = any((select my_blocked_ids())::uuid[]))));
+create policy want_write on want_to_try for all to authenticated using (owner_id = (select me())) with check (owner_id = (select me()));
 
 -- the rest of your gear: yours only
-create policy gear_mine on profile_gear for all to authenticated using (profile_id = me()) with check (profile_id = me());
+create policy gear_mine on profile_gear for all to authenticated using (profile_id = (select me())) with check (profile_id = (select me()));
 
 -- custom tasting notes: everyone signed in reads; you add your own
 create policy flavors_read on flavors for select to authenticated using (true);
-create policy flavors_add  on flavors for insert to authenticated with check (created_by = me());
+create policy flavors_add  on flavors for insert to authenticated with check (created_by = (select me()));
 
 -- reports: you file them; reviewing goes through the admin page (server side)
-create policy reports_add on reports for insert to authenticated with check (reporter_id = me());
-create policy notifications_mine on notifications for select to authenticated using (user_id = me());
+create policy reports_add on reports for insert to authenticated with check (reporter_id = (select me()));
+create policy notifications_mine on notifications for select to authenticated using (user_id = (select me()));
 
 -- ---------------------------------------------------------------- what the app may change directly
 -- Supabase lets signed-in people read and write every table through its web API, limited by the row rules above. Row
 -- rules can't say which columns may change, so these do: nobody can make a profile without the checks in
 -- create_profile / claim_name, promote themselves in a group, rewrite someone's follow, or move a comment.
 revoke insert, update on profiles from authenticated, anon;
-grant update (display_name, color, avatar_path, is_private, city) on profiles to authenticated;
+grant update (color, avatar_path, is_private, city) on profiles to authenticated;   -- not the name: the app knows people by it
 revoke update on follows from authenticated, anon;
 grant update (status) on follows to authenticated;
 revoke update on group_members from authenticated, anon;
@@ -463,5 +509,5 @@ revoke update on comments from authenticated, anon;
 grant update (body, audience, parent_id, edited_at, deleted_at) on comments to authenticated;
 revoke insert, update on groups from authenticated, anon;   -- made and handed over by create_group / leave_group
 grant update (name, is_open, goal_on, awards_on) on groups to authenticated;
-revoke all on claim_codes, sheet_archive, backend_state from authenticated, anon;
+revoke all on claim_codes, sheet_archive, backend_state, backend_imported from authenticated, anon;
 revoke insert, update, delete on notifications from authenticated, anon;   -- written by triggers, marked read by mark_notifications_read()

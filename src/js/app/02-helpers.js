@@ -302,7 +302,8 @@
                         text,
                         timestamp: row.timestamp || fallbackTime || new Date().toISOString(),
                         parentId: row.parentId ? String(row.parentId) : '',
-                        likes
+                        likes,
+                        ...(row.audience === 'everyone' || row.audience === 'friends' ? { audience: row.audience } : {})   // v14.2: who sees it (new backend only)
                     });
                 });
                 return out;

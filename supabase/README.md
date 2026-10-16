@@ -6,7 +6,7 @@ Supabase project until Maceo creates one.
 - `schema.sql`: the tables (profiles, follows, blocks, groups, coffees, sessions, notes, photos, likes, comments,
   reports) and the privacy rules, written as Postgres row-level security. Every read is checked against the
   "Who sees what" rules in the plan before anything leaves the database.
-- `test_rls.py` (51 checks): runs `schema.sql` on a real Postgres and checks, as seven pretend people (you, a friend, a
+- `test_rls.py` (52 checks): runs `schema.sql` on a real Postgres and checks, as seven pretend people (you, a friend, a
   stranger who follows you, a private profile, a private-group buddy, an open-group member, someone who blocked
   you, plus someone signed in with no profile yet and an old name nobody has claimed), exactly which sessions, notes, photos, comments, groups and profiles each can see or change.
 
@@ -90,7 +90,8 @@ your own count), never whose session counted.
 
 **What the app may change directly.** Supabase lets signed-in people use every table through its web API, limited
 by the row rules. Row rules can't limit columns, so the end of `schema.sql` does: profiles are only made by
-`create_profile` / `claim_name`, a Sheet-era name can't be changed, a group member can only flip their own "counts
+`create_profile` / `claim_name`, names can't be changed directly (the app knows people by name; a rename will need
+its own checked function), names can't have stray spaces or be a reserved word, a Sheet-era name can't be changed, a group member can only flip their own "counts
 in group goal" (never their role), groups are made and handed over only by their functions, a follow can only be approved (not rewritten), a private profile can't be
 followed without a request, and claim codes, the Sheet archive and the backend switches are off limits.
 
@@ -106,7 +107,7 @@ Signed-out calls are refused outright (Postgres lets anyone run a new function u
 node supabase/test_api.js --host <postgres socket dir or host> [--user postgres]
 ```
 
-`test_api.js` (98 checks) checks each rule with pretend people, then feeds each person's `pull_events()` to the real app
+`test_api.js` (99 checks) checks each rule with pretend people, then feeds each person's `pull_events()` to the real app
 (from `index.html`) to confirm the app reads it correctly. A private check (not in this repo, it needs the real
 Sheet) imports the history up to Oct 9, has everyone claim their name, compares each person's pull with what the
 app shows from the Sheet, then replays the 250 later real saves through `push_event` and compares again: all
@@ -126,11 +127,24 @@ four people match. Two things it found about today's data:
 
 - `backend_state.cutover_at` records the move. After it, the Sheet import refuses to run and the nightly check
   stops rebuilding the tables, since the app writes to them directly from then on.
-- `replay_late.js` carries over saves that still reach the Sheet after the move (a phone that hadn't updated). Each
-  one goes through `push_event` as each person whose part of the record it changed (`lib/replay.js`), so the same
-  rules apply as for a save from the app. A save is never applied twice; saves by someone who hasn't claimed their
-  name yet wait for the next run. The private real-data check moves the history over at Oct 9, replays the 250
-  later real saves with this script, and confirms all four people's views match the Sheet.
+- Every import records exactly which Sheet saves it built the tables from (`backend_imported`, a fingerprint of
+  each save's content). `replay_late.js` carries over every Sheet save that isn't among them: a phone that hadn't
+  updated, or a save made between the last nightly rebuild and the move. It goes by content, not anyone's clock,
+  so nothing falls in a gap. Each one goes through `push_event` as each person whose part of the record it changed
+  (`lib/replay.js`), so the same rules apply as for a save from the app. A save is never applied twice; saves by
+  someone who hasn't claimed their name yet wait for the next run. The private real-data check moves the history
+  over at Oct 9, records the move only afterwards, replays the 250 later real saves with this script, and confirms
+  all four people's views match the Sheet.
+- `copy_back.js` is the way back. If the crew returns to the Sheet, it compares every record on both sides with
+  `parity.js` (through the app's own replay) and sends the Sheet a normal save for each one that differs (with
+  replies and comment likes beside the comments, the way the app saves them), a delete for each one deleted on
+  Supabase, the group goal switches if they changed, and new photos as image data (Apps Script files them in
+  Drive). For someone who never signed in, only what others changed (likes, comments, want-to-try) is sent, on top
+  of the Sheet's own copy. Without `--post` it only lists what it would send; `COPY_BACK_DEBUG=1` also lists each
+  difference (ids and field names only). The private check does this on the real data after a round of changes on
+  Supabase (a new session with a reply and a comment like, an edit, a delete, gear, a tasting note, a goal switch,
+  a comment and an unlike on the session of someone who never signed in) and confirms a second run finds nothing
+  left to send.
 
 ## Trying the app without a Supabase project: `dev_server.js`
 
@@ -148,8 +162,11 @@ localStorage.dialed_supabase = JSON.stringify({ url: 'http://localhost:54321', a
 browser test drives the real app against it with the real Sheet imported: three people sign in (two claim their
 names, one makes a new profile); each phone's view matches the Sheet's exactly; a session with a photo is logged
 through the form, liked, commented on, edited and deleted; a stranger can't see Friends sessions or get a link to
-their photos; an expired sign-in renews itself; a revoked one keeps saves waiting until the person signs in again;
-saves made offline go when the connection is back; and nothing is ever sent to the Google Sheet.
+their photos, until the session and photo are shared with everyone (and still never the notes kept for friends, or
+a friends-only comment); a second phone signs in without a claim code; a save stranded in the Sheet-era outbox goes
+through once; an expired sign-in renews itself; a revoked one keeps saves waiting until the person signs in again;
+saves made offline go when the connection is back; signing out wipes the phone's copy; and nothing is ever sent
+to the Google Sheet (36 checks).
 
 ## The privacy test
 

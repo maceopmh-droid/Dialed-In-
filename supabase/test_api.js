@@ -181,6 +181,12 @@ push('maceo', { ...B1, actor: 'Maceo', actorColor: '#AA3355' });
 ok(one(`select string_agg(legacy_name || '=' || color, ',' order by legacy_name) from profiles where legacy_name in ('Aidan', 'Maceo');`) === 'Aidan=#336699,Maceo=#aa3355',
    "Maceo's new color is saved from his own save; a like carrying someone else's color changes nothing");
 
+// --- a comment written straight into the table (not through push_event) still reaches the app with an id
+as('aidan', `insert into comments (session_id, author_id, body, audience) select id, me(), 'typed straight in', 'friends' from sessions where legacy_id = 's2';`);
+const direct = (pull('maceo').find(e => e.id === 's2').comments || []).find(c => c.text === 'typed straight in');
+ok(direct && /^[0-9a-f-]{36}$/.test(direct.id) && direct.user === 'Aidan', 'a comment made outside the app\'s calls still comes back with an id and its author');
+psql(`delete from comments where body = 'typed straight in';`);
+
 // --- who each part is for: the session, its note, its photo, each comment (all start as Friends & groups)
 const OPEN = { type: 'brew', id: 's3', beanId: 'b1', user: 'Maceo', owner: 'Maceo', method: 'Espresso', dose: 18, yield: 38, time: 27, rating: 4, date: '2026-10-07T08:00:00.000Z',
   notes: 'tasted like jam', photo: { fileId: 'drivefile456' }, likes: [], comments: [] };
@@ -251,6 +257,17 @@ ok(fx('newbie', `select leave_group('${made.id}');`) === 'left' && JSON.parse(fx
 ok(fx('twin', `select leave_group('${made.id}');`) === 'left; the group closed' && one(`select count(*) from groups where id = '${made.id}';`) === '0', 'the last one out closes it');
 ok(/permission denied/.test(fx('maceo', `update group_members set role = 'owner' where user_id = me();`)) && /permission denied/.test(fx('maceo', `insert into groups (name, owner_id) values ('x', me());`)), "nobody makes themselves owner or makes a group around the checks");
 
+// --- has anything changed? (the app checks this tiny number before pulling everything)
+const v0 = Number(fx('aidan', 'select data_version();'));
+const v1 = Number(fx('aidan', 'select data_version();'));
+pull('aidan');
+const v2 = Number(fx('aidan', 'select data_version();'));
+push('julian', { type: 'brew', id: 's2', beanId: 'b1', user: 'Maceo', owner: 'Maceo', likes: ['Julian'], comments: [] });
+const v3 = Number(fx('aidan', 'select data_version();'));
+ok(v0 > 0 && v0 === v1 && v1 === v2 && v3 > v2, `data_version stays put while nothing changes (reading doesn't move it) and goes up with any save (${v0} -> ${v3})`);
+ok(/permission denied/.test(fx('anon', 'select data_version();')), '...and only for signed-in people');
+push('julian', { type: 'brew', id: 's2', beanId: 'b1', user: 'Maceo', owner: 'Maceo', likes: [], comments: [] });   // (undo that like)
+
 // --- notifications, reporting, your data, deleting your account (the database side of phase 3)
 const notes = who => JSON.parse(fx(who, 'select my_notifications();'));
 psql(`delete from notifications;`);
@@ -314,6 +331,7 @@ const fakeRows = [
   ['2026-10-01', 'bean', 'Maceo', 'rb1', '', 'Onyx', JSON.stringify({ type: 'bean', id: 'rb1', user: 'Maceo', owner: 'Maceo', roaster: 'Onyx', name: 'Monarch', date: '2026-10-01T10:00:00Z', eventAt: '2026-10-01T10:00:00Z', likes: [], comments: [] })],
   ['2026-10-02', 'brew', 'Aidan', 'rs1', 'rb1', 'Onyx', JSON.stringify({ type: 'brew', id: 'rs1', beanId: 'rb1', user: 'Aidan', owner: 'Aidan', method: 'Espresso', dose: 18, yield: 36, time: 28, date: '2026-10-02T10:00:00Z', eventAt: '2026-10-02T10:00:00Z', likes: ['Maceo'], comments: [] })]];
 rb(buildImport({ html: HTML, rows: fakeRows, mode: 'full' }).sql);
+ok(rb(`select count(*) from backend_imported;`) === '2', 'an import records exactly which Sheet saves it was built from (by content), so later ones can be carried over');
 rb(`insert into notifications (user_id, actor_id, kind, session_id) select s.owner_id, l.user_id, 'like', s.id from likes l join sessions s on s.id = l.session_id;`);   // as if a like had come in from the app
 const codesBefore = rb(`select string_agg(code, ',' order by code) from claim_codes;`);
 let rebuilt = ''; try { rb(buildImport({ html: HTML, rows: fakeRows, mode: 'rebuild' }).sql); } catch (e) { rebuilt = String(e.stderr || e.message); }

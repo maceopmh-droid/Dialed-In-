@@ -159,6 +159,7 @@ def main():
     ok(fails_('stranger', "insert into group_members (group_id, user_id, role) select id, me(), 'owner' from groups where is_open;"), "joining an open group makes you a member, never its owner")
     ok(fails_('newbie', "insert into profiles (auth_id, handle, display_name, legacy_name) values (auth.uid(), 'sneaky', 'Sneaky', 'John');"), "a profile can't be made directly (so nobody skips the name checks or takes a Sheet-era name)")
     ok(fails_('maceo', "update profiles set legacy_name = 'John' where auth_id = auth.uid();") and not fails_('maceo', "update profiles set city = 'Chicago' where auth_id = auth.uid();"), "you can edit your profile, but not the Sheet-era name it claimed")
+    ok(fails_('stranger', "update profiles set display_name = 'Maceo ' where auth_id = auth.uid();"), "nobody renames themselves directly (the app knows people by name; no look-alike 'Maceo ')")
 
     # coffees, their comments and likes; gear and lists
     k = f"insert into coffees (id, owner_id, name) values ('40000000-0000-0000-0000-000000000001', '{U['maceo']}', 'Monarch');"
@@ -175,6 +176,39 @@ def main():
     ok(count('maceo', 'select count(*) from equipment;') == '2', 'you see all of your own equipment')
     ok(count('aidan', 'select count(*) from want_to_try;') == '1' and count('stranger', 'select count(*) from want_to_try;') == '0', 'want-to-try: friends yes, strangers no')
     ok(count('aidan', 'select count(*) from profile_gear;') == '0' and count('maceo', 'select count(*) from profile_gear;') == '1', 'the rest of your gear is yours only')
+
+    # the fast row rules must say exactly what the plain rule functions say, for everyone, on everything in this test
+    # (the extra rows made above included: coffees, comments on them, equipment, want-to-try)
+    pg.run(f"insert into follows values ('{U['opener']}', '{U['maceo']}', 'accepted') on conflict do nothing;")
+    def ids(r): return (r.stdout or '').strip() if not r.returncode else 'ERROR ' + r.stderr.strip()[:120]
+    same_all = []
+    for who in PEOPLE + ['john']:
+        v = U[who]
+        pairs = [
+            ('sessions', "select coalesce(string_agg(id::text, ',' order by id), '') from sessions",
+             f"select coalesce(string_agg(id::text, ',' order by id), '') from sessions s where can_see_session('{v}', s)"),
+            ('notes', "select coalesce(string_agg(session_id::text, ',' order by session_id), '') from session_notes",
+             f"select coalesce(string_agg(session_id::text, ',' order by session_id), '') from session_notes n where can_see_item('{v}', n.session_id, n.audience)"),
+            ('photos', "select coalesce(string_agg(session_id::text, ',' order by session_id), '') from session_photos",
+             f"select coalesce(string_agg(session_id::text, ',' order by session_id), '') from session_photos n where can_see_item('{v}', n.session_id, n.audience)"),
+            ('comments', "select coalesce(string_agg(id::text, ',' order by id), '') from comments",
+             f"select coalesce(string_agg(id::text, ',' order by id), '') from comments c where can_see_comment('{v}', c)"),
+            ('likes', "select coalesce(string_agg(session_id::text || user_id::text, ',' order by session_id, user_id), '') from likes",
+             f"select coalesce(string_agg(l.session_id::text || l.user_id::text, ',' order by l.session_id, l.user_id), '') from likes l join sessions s on s.id = l.session_id where can_see_session('{v}', s)"),
+            ('profiles', "select coalesce(string_agg(id::text, ',' order by id), '') from profiles",
+             f"select coalesce(string_agg(id::text, ',' order by id), '') from profiles p where not blocked_either('{v}', p.id)"),
+            ('equipment', "select coalesce(string_agg(id::text, ',' order by id), '') from equipment",
+             f"select coalesce(string_agg(id::text, ',' order by id), '') from equipment e where e.owner_id = '{v}' or (not e.hidden and not blocked_either('{v}', e.owner_id))"),
+            ('want_to_try', "select coalesce(string_agg(owner_id::text || coffee_id::text, ',' order by owner_id, coffee_id), '') from want_to_try",
+             f"select coalesce(string_agg(owner_id::text || coffee_id::text, ',' order by owner_id, coffee_id), '') from want_to_try w where w.owner_id = '{v}' or (close_to('{v}', w.owner_id) and not blocked_either('{v}', w.owner_id))"),
+        ]
+        if who == 'john':
+            continue   # never signs in (an unclaimed Sheet-era name): nothing to compare from his side
+        for name, fast, plain in pairs:
+            a_, b_ = ids(pg.as_(who, fast + ';')), ids(pg.run(plain + ';'))
+            if a_ != b_: same_all.append(f'{who}/{name}')
+    ok(not same_all, 'the fast row rules agree with the plain rules for every person on sessions, notes, photos, comments, likes, profiles, equipment and want-to-try'
+       + (f" (differ: {', '.join(same_all)})" if same_all else ''))
 
     print(f'{fails} FAILED' if fails else 'all privacy checks passed')
     sys.exit(1 if fails else 0)
