@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<!-- Dialed In v14.1 -->
+<html lang="en">
+<head>
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta name="dialed-in-version" content="14.1">
+    <meta charset="UTF-8">
+    <meta name="theme-color" content="#F7F6F2">
+    <script id="theme-boot">
+@@include js/theme-boot.js
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Dialed In</title>
+    <link rel="preconnect" href="https://script.google.com" crossorigin>
+    <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
+    <link rel="preconnect" href="https://lh3.googleusercontent.com">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+@@include css/01-layout.css
+@@include css/02-detail.css
+@@include css/03-forms.css
+@@include css/04-responsive.css
+@@include css/05-v9-features.css
+@@include css/06-v10-refresh.css
+@@include css/07-v11.css
+@@include css/08-v12.css
+@@include css/09-roasters-v13.css
+@@include css/10-v14.css
+    </style>
+</head>
+<body>
+    <!-- SVG Icon Definitions -->
+    <svg><defs>
+        <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4.6"/><circle cx="12" cy="12" r="1.2"/></symbol><symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 4.5h8v4.2a4 4 0 0 1-8 0Z"/><path d="M8 6H5.2a2.6 2.6 0 0 0 2.9 3.6M16 6h2.8a2.6 2.6 0 0 1-2.9 3.6"/><path d="M12 12.7v3.6M8.8 20h6.4M9.8 16.3h4.4l.6 3.7H9.2Z"/></symbol><symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.8"/><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M5.6 18.4l1.6-1.6M16.8 7.2l1.6-1.6"/></symbol><symbol id="i-moon" viewBox="0 0 24 24"><path d="M19.5 14.6A7.6 7.6 0 0 1 9.4 4.5a7.6 7.6 0 1 0 10.1 10.1Z"/></symbol><symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="m15.3 8.7-1.9 4.7-4.7 1.9 1.9-4.7Z"/></symbol><symbol id="i-star" viewBox="0 0 24 24"><path d="m12 4.2 2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 16.6l-4.8 2.5.9-5.4-3.9-3.8 5.4-.8Z"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8.6A1.6 1.6 0 0 1 5.6 7h2.2l1.4-2h5.6l1.4 2h2.2A1.6 1.6 0 0 1 20 8.6v8.8a1.6 1.6 0 0 1-1.6 1.6H5.6A1.6 1.6 0 0 1 4 17.4Z"/><circle cx="12" cy="12.6" r="3.4"/></symbol><symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 3.5 20 6.5l-3 3"/><path d="M4 11.5v-1a4 4 0 0 1 4-4h12"/><path d="m7 20.5-3-3 3-3"/><path d="M20 12.5v1a4 4 0 0 1-4 4H4"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m15.5 15.5 4.6 4.6"/></symbol><symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21Z"/><circle cx="12" cy="10" r="2.4"/></symbol><symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 21c-3.6 0-6.2-2.5-6.2-5.9 0-2.7 1.7-4.6 3.3-6.3.2 1.6 1 2.7 2.1 3.2-.3-3 1-6 3.6-8 0 2.9 1.4 4.6 2.6 6.3 1 1.4 1.8 2.9 1.8 4.8 0 3.4-3.6 5.9-7.2 5.9Z"/></symbol><symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M3.6 12h16.8M12 3.6c2.3 2.4 3.4 5.2 3.4 8.4s-1.1 6-3.4 8.4c-2.3-2.4-3.4-5.2-3.4-8.4S9.7 6 12 3.6Z"/></symbol><symbol id="i-trend" viewBox="0 0 24 24"><path d="m4 17 5.5-5.5 3.5 3.5L20 8"/><path d="M14.5 8H20v5.5"/></symbol><symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2-5 4 10 2-5h6"/></symbol><symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3 5.5 13.2H12L11 21l7.5-10.2H12Z"/></symbol><symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="2.4"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></symbol><symbol id="i-crown" viewBox="0 0 24 24"><path d="m4 8.5 3.8 3.4L12 5.5l4.2 6.4L20 8.5 18.4 18H5.6Z"/><path d="M5.8 20.5h12.4"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.4"/><path d="M8.2 10.5V8a3.8 3.8 0 0 1 7.6 0v2.5"/></symbol><symbol id="i-medal" viewBox="0 0 24 24"><circle cx="12" cy="14.5" r="5"/><path d="M8.6 10.8 6 3.5h4l2 4.2 2-4.2h4l-2.6 7.3"/></symbol><symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5Z"/></symbol><symbol id="i-coffee" viewBox="0 0 24 24"><path d="M5 9h11v4.5A5.5 5.5 0 0 1 10.5 19h0A5.5 5.5 0 0 1 5 13.5Z"/><path d="M16 10.5h1.25a2.75 2.75 0 0 1 0 5.5H15.4"/><path d="M8.5 3.5c-.6.9.6 1.6 0 2.6M12 3.5c-.6.9.6 1.6 0 2.6"/><path d="M4 21.5h14"/></symbol>
+        <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.2" r="3.3"/><path d="M3.4 19.5a5.6 5.6 0 0 1 11.2 0"/><path d="M15.8 5.1a3.2 3.2 0 0 1 0 6.2M17.4 14.3a5.3 5.3 0 0 1 3.2 5.2"/></symbol>
+        <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.7"/><path d="M5 20.2a7 7 0 0 1 14 0"/></symbol>
+        <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5.5v13M5.5 12h13"/></symbol>
+        <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7.5h8.5M16.5 7.5H20M4 16.5h3M11 16.5h9"/><circle cx="14.5" cy="7.5" r="2"/><circle cx="9" cy="16.5" r="2"/></symbol>
+        <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="9" r="5.6"/><path d="M8.8 13.7 7.6 21l4.4-2.5 4.4 2.5-1.2-7.3"/><path d="M12 6.6l.8 1.6 1.7.2-1.3 1.2.3 1.7-1.5-.8-1.5.8.3-1.7-1.3-1.2 1.7-.2Z"/></symbol>
+        <symbol id="i-share-2" viewBox="0 0 24 24"><circle cx="17.5" cy="5.5" r="2.4"/><circle cx="6.5" cy="12" r="2.4"/><circle cx="17.5" cy="18.5" r="2.4"/><path d="m8.6 10.8 6.8-4M8.6 13.2l6.8 4"/></symbol>
+        <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12.5h3.6l2.4-6.3 4.2 12.6 2.6-6.3H21"/></symbol>
+        <symbol id="i-x" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></symbol>
+        <symbol id="i-edit-2" viewBox="0 0 24 24"><path d="M4.5 19.5l.9-4L15.6 5.3a2 2 0 0 1 2.9 0l.2.2a2 2 0 0 1 0 2.9L8.5 18.6Z"/><path d="M13.8 7.1l3.1 3.1"/></symbol>
+        <symbol id="i-trash-2" viewBox="0 0 24 24"><path d="M4.5 7h15"/><path d="M9.5 7V4.6h5V7"/><path d="M6.5 7l.8 12a2 2 0 0 0 2 1.9h5.4a2 2 0 0 0 2-1.9l.8-12"/><path d="M10.2 11v6M13.8 11v6"/></symbol>
+        <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6.5 9.5 5.5 5.5 5.5-5.5"/></symbol>
+        <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M7.2 4h9.6a1.2 1.2 0 0 1 1.2 1.2V20l-6-3.9L6 20V5.2A1.2 1.2 0 0 1 7.2 4Z"/></symbol><symbol id="i-recipe" viewBox="0 0 24 24"><path d="M6.5 4.5h9A2.5 2.5 0 0 1 18 7v13H9a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6.5 17.5A2.5 2.5 0 0 1 9 15h9"/><path d="M10 8.5h4.5M10 11.5h3"/></symbol><symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 19.6s-7.3-4.4-7.3-9.6A4.1 4.1 0 0 1 12 7.6a4.1 4.1 0 0 1 7.3 2.4c0 5.2-7.3 9.6-7.3 9.6Z"/></symbol>
+        <symbol id="i-message-square" viewBox="0 0 24 24"><path d="M20 11.6a7.6 7.6 0 0 1-11.1 6.7L4.2 19.6l1.3-4.3A7.6 7.6 0 1 1 20 11.6Z"/></symbol>
+        <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5.5M11 6.5 5.5 12l5.5 5.5"/></symbol>
+        <symbol id="i-bean-line" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="6.1" ry="8.7" transform="rotate(35 12 12)"/><path d="M9.3 5.9c2.3 2.4.3 4.4 2.5 6.2s.7 4.3 2.9 6"/></symbol>
+        <symbol id="i-leaf-line" viewBox="0 0 24 24"><path d="M5 19.2C5 11.4 10.6 6.2 19.4 5c-.6 8.6-6.2 14.2-14.4 14.2Z"/><path d="M5 19.2l7.8-7.6"/></symbol>
+        <symbol id="i-method-espresso" viewBox="0 0 24 24"><path d="M6 8.5h10v4A4.5 4.5 0 0 1 11.5 17h-1A4.5 4.5 0 0 1 6 12.5Z"/><path d="M16 9.8h1.1a2.1 2.1 0 0 1 0 4.2H15.6"/><path d="M4 20h15"/><path d="M9.5 3.5v2M12.5 3.5v2"/></symbol>
+        <symbol id="i-method-pour-over" viewBox="0 0 24 24"><path d="M5 5h14l-4.6 7.2H9.6Z"/><path d="M12 12.2v2.1"/><path d="M8 15.3h8V18a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2Z"/></symbol>
+        <symbol id="i-method-french-press" viewBox="0 0 24 24"><rect x="6" y="7" width="10" height="13" rx="2"/><path d="M11 3v9.2M7.6 12.2h6.8M7 7l.4-1.6h7.2L15 7"/><path d="M16 9.6h1.4A1.6 1.6 0 0 1 19 11.2v3.6a1.6 1.6 0 0 1-1.6 1.6H16"/></symbol>
+        <symbol id="i-method-moka-pot" viewBox="0 0 24 24"><path d="M8.2 3.5h7.6l1 5.5H7.2Z"/><path d="M7.2 9 5.5 20.5h13L16.8 9"/><path d="M6.4 14.2h11.2"/><path d="M16.8 5.2h1.7a1 1 0 0 1 1 1.1l-.6 3.4"/></symbol>
+        <symbol id="i-method-aeropress" viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="5" rx="1.2"/><path d="M6.5 8h11M9 8v9.5h6V8"/><path d="M6.5 17.5h11M12 17.5v3.5"/></symbol>
+        <symbol id="i-method-cold-brew" viewBox="0 0 24 24"><path d="M6 4h12l-1.4 15.1a2 2 0 0 1-2 1.9H9.4a2 2 0 0 1-2-1.9Z"/><rect x="8.6" y="9" width="3" height="3" rx=".7"/><rect x="12.4" y="12.4" width="3" height="3" rx=".7"/><path d="M15.4 2.2l-1.4 5"/></symbol>
+
+        <symbol id="i-wl-grinder" viewBox="0 0 24 24"><path d="M8 3h8l-1 4H9Z"/><path d="M7 7h10v3a5 5 0 0 1-10 0Z"/><path d="M9 15h6l1 6H8Z"/><path d="M17 8.5h2.5"/></symbol>
+        <symbol id="i-wl-kettle" viewBox="0 0 24 24"><path d="M6 10h11l-1.2 9a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8Z"/><path d="M17 12.5c2.2 0 3.5-1.2 3.5-3.4"/><path d="M9 10V8.4a2.5 2.5 0 0 1 5 0V10"/><path d="M6 10 3.5 7.5"/></symbol>
+        <symbol id="i-wl-scale" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="8" rx="2.5"/><path d="M6.5 11V9.5a1.5 1.5 0 0 1 1.5-1.5h8a1.5 1.5 0 0 1 1.5 1.5V11"/><path d="M10 15h4"/></symbol>
+    </defs></svg>
+
+    <!-- Desktop Sidebar -->
+    <div id="sidebar">
+        <h1>Dialed In</h1>
+        <button class="nav-btn active" data-tab="my" onclick="app.setTab('my')">
+            <svg class="icon"><use href="#i-coffee"/></svg>
+            My Collection
+        </button>
+        <button class="nav-btn" data-tab="shared" onclick="app.setTab('shared')">
+            <svg class="icon"><use href="#i-users"/></svg>
+            Shared Library
+        </button>
+        <button class="nav-btn" data-tab="feed" onclick="app.setTab('feed')">
+            <svg class="icon"><use href="#i-activity"/></svg>
+            Feed
+        </button>
+        <button class="nav-btn" data-tab="profile" onclick="app.setTab('profile')">
+            <svg class="icon"><use href="#i-user"/></svg>
+            Profiles
+        </button>
+        <button class="nav-btn" onclick="app.openBeanModal()">
+            <svg class="icon"><use href="#i-plus"/></svg>
+            New Entry
+        </button>
+        <div style="flex:1"></div>
+        <button class="nav-btn settings-nav-btn" onclick="app.openSettings()">
+            <svg class="icon settings-gear"><use href="#i-settings"/></svg>
+            Settings
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content">
+        <div class="header-sticky">
+            <div class="header-top">
+                <div style="flex: 1;">
+                    <h2 id="view-title">My Collection</h2>
+                    
+                    <!-- Search Bar -->
+                    <div class="search-bar">
+                        <input type="text" id="search-input" placeholder="Search beans..." oninput="app.syncSearch(this.value, 'desktop')">
+                    </div>
+                    
+                    <!-- Method Filters -->
+                    <div class="filter-row" id="filter-row">
+                        <button class="filter-chip active" data-method="all" onclick="app.setMethodFilter('all')">All</button>
+                        <button class="filter-chip" data-method="Espresso" onclick="app.setMethodFilter('Espresso')">Espresso</button>
+                        <button class="filter-chip" data-method="Pour Over" onclick="app.setMethodFilter('Pour Over')">Pour Over</button>
+                        <button class="filter-chip" data-method="French Press" onclick="app.setMethodFilter('French Press')">French Press</button>
+                        <button class="filter-chip" data-method="Moka Pot" onclick="app.setMethodFilter('Moka Pot')">Moka Pot</button>
+                        <button class="filter-chip" data-method="Aeropress" onclick="app.setMethodFilter('Aeropress')">Aeropress</button>
+                        <button class="filter-chip" data-method="Cold Brew" onclick="app.setMethodFilter('Cold Brew')">Cold Brew</button>
+                    </div>
+                </div>
+
+                <div class="header-controls">
+                    <button class="locker-btn" onclick="app.openAchievementLocker()" title="Achievement Locker">
+                        <svg class="icon" style="width:16px;height:16px;"><use href="#i-award"/></svg>
+                        <span id="achievement-count" class="locker-count">0</span>
+                    </button>
+                    <button class="mobile-control-btn" id="mobile-controls-btn" onclick="app.toggleMobileControls(event)" aria-label="Toggle filters">
+                        <span class="line"></span><span class="line"></span><span class="line"></span>
+                    </button>
+                    <div class="sort-dropdown">
+                        <button class="sort-btn" onclick="app.toggleSort()">
+                            <span id="sort-label">Recent</span>
+                            <svg class="icon" style="width:12px;height:12px;"><use href="#i-chevron-down"/></svg>
+                        </button>
+                        <div class="sort-menu" id="sort-menu">
+                            <div class="sort-option selected" data-sort="recent" onclick="app.setSort('recent')">Most Recently Used</div>
+                            <div class="sort-option" data-sort="rated" onclick="app.setSort('rated')">Top Rated</div>
+                            <div class="sort-option" data-sort="added" onclick="app.setSort('added')">Date Added (Oldest)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="status-badge">
+                        <div class="dot" id="sync-dot"></div>
+                        <span id="sync-text">Connecting...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="mobile-controls-panel" class="mobile-controls-panel">
+                <div>
+                    <label>Search</label>
+                    <input type="text" id="search-input-mobile" placeholder="Search beans..." oninput="app.syncSearch(this.value, 'mobile')">
+                </div>
+                <div>
+                    <label>Sort</label>
+                    <select id="mobile-sort-select" onchange="app.setSort(this.value)">
+                        <option value="recent">Most Recently Used</option>
+                        <option value="rated">Top Rated</option>
+                        <option value="added">Date Added (Oldest)</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Brew Type</label>
+                    <select id="mobile-method-select" onchange="app.setMethodFilter(this.value)">
+                        <option value="all">All</option>
+                        <option value="Espresso">Espresso</option>
+                        <option value="Pour Over">Pour Over</option>
+                        <option value="French Press">French Press</option>
+                        <option value="Moka Pot">Moka Pot</option>
+                        <option value="Aeropress">Aeropress</option>
+                        <option value="Cold Brew">Cold Brew</option>
+                    </select>
+                </div>
+                <button class="btn-outline mobile-settings-trigger" type="button" onclick="app.openSettings(); app.closeMobileControls();">Settings</button>
+            </div>
+        </div>
+
+        <div class="view-content">
+            <div class="grid" id="grid"></div>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <div id="mobile-nav">
+        <div class="mob-item active" data-tab="my" onclick="app.setTab('my')">
+            <svg class="icon" style="width:20px;height:20px;"><use href="#i-coffee"/></svg>
+            Mine
+        </div>
+        <div class="mob-item" data-tab="shared" onclick="app.setTab('shared')">
+            <svg class="icon" style="width:20px;height:20px;"><use href="#i-users"/></svg>
+            Shared
+        </div>
+        <div class="mob-fab" onclick="app.openBeanModal()">
+            <svg class="icon" style="width:24px;height:24px;"><use href="#i-plus"/></svg>
+        </div>
+        <div class="mob-item" data-tab="feed" onclick="app.setTab('feed')">
+            <svg class="icon" style="width:20px;height:20px;"><use href="#i-activity"/></svg>
+            Feed
+        </div>
+        <div class="mob-item" data-tab="profile" onclick="app.setTab('profile')">
+            <svg class="icon" style="width:20px;height:20px;"><use href="#i-user"/></svg>
+            Profiles
+        </div>
+    </div>
+
+    <!-- Roaster page (v13.0) -->
+    <div id="roaster-view" aria-hidden="true"><div class="ro-page" id="ro-page"></div></div>
+
+    <!-- Roaster details (v13.0) -->
+    <div id="roaster-modal" class="modal" onclick="if(event.target===this) app.closeModals()">
+        <div class="modal-card">
+            <h2 id="roaster-modal-title">Roaster</h2>
+            <form onsubmit="app.saveRoasterEdit(event)">
+                <input type="hidden" name="key">
+                <label>Location</label>
+                <input type="text" name="location" placeholder="e.g., Cincinnati, OH" autocomplete="off">
+                <label>Website</label>
+                <input type="text" name="website" placeholder="e.g., deeperrootscoffee.com" autocomplete="off" autocapitalize="off" inputmode="url">
+                <label>Note</label>
+                <textarea name="note" placeholder="Anything worth remembering about them"></textarea>
+                <button type="submit" class="btn-primary" style="margin-top: 2rem;">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Welcome (v14.0): first visit on a device -->
+    <div id="welcome-view" aria-hidden="true"><div class="wl-wrap" id="wl-wrap"></div></div>
+    <div id="wl-tour" aria-hidden="true"></div>
+
+    <!-- Detail View -->
+    <div id="detail-view">
+        <div class="detail-hero">
+            <div class="dh-top">
+                <button type="button" class="dh-pill dh-back" onclick="app.closeDetail()"><svg class="icon"><use href="#i-arrow-left"/></svg>Library</button>
+                <div class="dh-actions">
+                    <button type="button" id="d-want-btn" class="dh-pill dh-want" onclick="app.toggleWantToTry()" style="display:none;" aria-pressed="false"><svg class="icon"><use href="#i-bookmark"/></svg><span>Want to try</span></button>
+                    <div class="hero-actions">
+                        <button class="btn-clean" onclick="app.editBean()" aria-label="Edit coffee"><svg class="icon"><use href="#i-edit-2"/></svg></button>
+                        <button class="btn-clean danger" onclick="app.deleteBean()" aria-label="Delete coffee"><svg class="icon"><use href="#i-trash-2"/></svg></button>
+                    </div>
+                </div>
+            </div>
+            <div class="dh-name-row">
+                <h2 id="d-name">Name</h2>
+                <div id="d-rating-summary" class="rating-summary liquid-glass dh-stars"></div>
+            </div>
+            <div id="d-roaster" class="dh-roaster">Roaster</div>
+            <div id="d-roast-date" class="roast-date-line" style="display:none;"></div>
+            <div class="dh-tags">
+                <span class="tag" id="d-variety">-</span>
+                <span class="tag" id="d-origin">-</span>
+                <span class="tag" id="d-process">-</span>
+                <span class="tag" id="d-roast">-</span>
+            </div>
+            <div id="d-top-flavors" class="dh-flavors"></div>
+
+            <div style="display:grid; grid-template-columns:1fr auto; gap:8px;">
+                <button class="btn-primary" onclick="app.openBrewModal()">
+                    <svg class="icon" style="width:16px; height:16px; stroke:white;"><use href="#i-plus"/></svg>
+                    Log New Session
+                </button>
+                <button class="btn-outline" onclick="app.cloneLatestSession()" style="width:auto; padding:12px 16px;">Clone</button>
+            </div>
+        </div>
+
+        <div style="padding: 2rem 3rem 150px;">
+            <section id="d-flavor" class="bean-flavor"></section>
+
+            <div class="insight-tabs">
+                <button class="insight-tab active" data-detail-tab="timeline" onclick="app.setDetailTab('timeline')">Timeline</button>
+                <button class="insight-tab" data-detail-tab="compare" onclick="app.setDetailTab('compare')">Compare</button>
+                <button class="insight-tab" data-detail-tab="side" onclick="app.setDetailTab('side')">Side by Side</button>
+                <button class="insight-tab" data-detail-tab="dialin" onclick="app.setDetailTab('dialin')">Dial-In</button>
+                <button class="insight-tab" data-detail-tab="sweet" onclick="app.setDetailTab('sweet')">Sweet spot</button>
+            </div>
+
+            <div id="d-timeline-pane">
+                <label style="font-size:0.7rem; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); font-weight:800; display:block; margin-bottom:1rem;">Master Profiles</label>
+                <div id="d-masters" style="margin-bottom: 3rem;"></div>
+                
+                <label style="font-size:0.7rem; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); font-weight:800; display:block; margin-bottom:1rem;">Session History</label>
+                <div id="d-logs"></div>
+            </div>
+
+            <div id="d-side-pane" class="detail-extra-pane"></div>
+            <div id="d-sweet-pane" class="detail-extra-pane"></div>
+            <div id="d-dialin-pane" class="detail-extra-pane"></div>
+            <div id="d-compare-pane" class="compare-panel">
+                <div class="sweet-card cmp-wrap">
+                    <div class="sw-head"><h3>Compare</h3><p>Any two sessions side by side. Starts with the latest against the best-rated.</p></div>
+                    <div class="cmp-pickers">
+                        <label class="cmp-pick a"><span>A</span><select id="compare-a-select" onchange="app.renderComparePanel()"></select></label>
+                        <label class="cmp-pick b"><span>B</span><select id="compare-b-select" onchange="app.renderComparePanel()"></select></label>
+                    </div>
+                    <div id="compare-results"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="gear-park" hidden><div id="equipment-locker" class="profile-card gear-locker"><div class="label">Equipment</div><p class="gear-note">Your machines, grinders and brewers. They show up as choices when you log a session.</p>
+            <div class="equipment-list" id="equipment-list"></div>
+            
+            <div style="display:grid; grid-template-columns:2fr 1fr; gap:8px; margin-bottom: 1rem;">
+                <input type="hidden" id="equipment-edit-id">
+                <input type="text" id="new-equipment-name" placeholder="Equipment name" style="margin: 0;">
+                <select id="new-equipment-type" style="margin: 0;">
+                    <option value="Machine">Machine</option>
+                    <option value="Grinder">Grinder</option>
+                    <option value="Brewer">Brewer</option>
+                    <option value="Filter">Filter</option>
+                    <option value="Kettle">Kettle</option>
+                    <option value="Scale">Scale</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <button class="btn-primary" id="equipment-save-btn" onclick="app.saveEquipment()">Add Equipment</button>
+                <button class="btn-outline" id="equipment-cancel-btn" onclick="app.cancelEquipmentEdit()" style="display:none;">Cancel Edit</button>
+            </div></div></div>
+    <div id="settings-modal" class="modal" onclick="if(event.target===this) app.closeModals()">
+        <div class="modal-card">
+            <h2>Settings</h2>
+
+            <label>Appearance</label>
+            <div class="seg-control" role="group" aria-label="Appearance">
+                <button type="button" data-theme-opt="system" onclick="app.setThemePref('system')">System</button>
+                <button type="button" data-theme-opt="light" onclick="app.setThemePref('light')">Light</button>
+                <button type="button" data-theme-opt="dark" onclick="app.setThemePref('dark')">Dark</button>
+            </div>
+            
+            <label>Active User</label>
+            <div id="user-list" style="display:grid; gap:0.6rem; margin-bottom: 0.6rem;"></div>
+            <p class="settings-note">Switch off anyone who only brews now and then. They won't count toward the weekly group goal or show up in it.</p>
+
+            <label>Feed Name Color</label>
+            <div class="user-color-row">
+                <input type="color" id="user-color-input" class="user-color-input" onchange="app.saveUserColor(this.value)">
+                <div class="user-color-meta">
+                    <div id="user-color-name" class="user-color-name">Current User</div>
+                    <div id="user-color-value" class="user-color-value">#586A58</div>
+                </div>
+            </div>
+            
+            <div style="display:flex; gap:12px;">
+                <input type="text" id="new-user-input" placeholder="Name" style="margin:0;">
+                <button class="btn-outline" style="width:auto; padding: 12px 24px;" onclick="app.addUser()">+ Add</button>
+            </div>
+
+            <!-- Export Data -->
+            <label style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid var(--linen);">Export Data</label>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <button class="btn-outline" onclick="app.exportData('json')">JSON</button>
+                <button class="btn-outline" onclick="app.exportData('csv')">CSV</button>
+            </div>
+
+            <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
+            <div class="app-version">Dialed In · v14.1</div>
+        </div>
+    </div>
+
+    <!-- Bean Modal -->
+    <div id="bean-modal" class="modal" onclick="if(event.target===this) app.closeModals()">
+        <div class="modal-card">
+            <h2 id="bean-modal-title">New Coffee</h2>
+            <form onsubmit="app.handleBeanSubmit(event)">
+                <input type="hidden" name="id" id="bean-edit-id">
+                
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem;">
+                    <div><label>Roaster</label><input type="text" name="roaster" list="roaster-names" autocomplete="off" required><datalist id="roaster-names"></datalist></div>
+                    <div><label>Name</label><input type="text" name="name" required></div>
+                </div>
+                
+                <label>Variety</label>
+                <input type="text" name="variety" placeholder="e.g., Gesha, SL28, Bourbon...">
+                
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem;">
+                    <div><label>Origin</label><input type="text" name="origin"></div>
+                    <div><label>Process</label><input type="text" name="process"></div>
+                </div>
+                
+                <label>Roast Profile</label>
+                <select name="roast">
+                    <option value="Light">Light</option>
+                    <option value="Medium-Light">Medium-Light</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Medium-Dark">Medium-Dark</option>
+                    <option value="Dark">Dark</option>
+                </select>
+                
+                <label>Roast Date (Optional)</label>
+                <input type="date" name="roastDate">
+                
+                <button type="submit" class="btn-primary" style="margin-top: 2rem;">Save Coffee</button>
+                <button type="button" class="btn-outline" style="margin-top:10px; border:none; background:none; color:#AAA;" onclick="app.closeModals()">Dismiss</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Brew Modal -->
+    <div id="brew-modal" class="modal" onclick="if(event.target===this) app.closeBrewModal()">
+        <div class="modal-card">
+            <h2 id="brew-modal-title">Brewing Log</h2>
+            
+            <!-- Timer -->
+            <div class="timer-hero">
+                <div id="timer-display">00:00<small>.0</small></div>
+                <div style="display:flex; gap:12px; justify-content:center;">
+                    <button class="btn-primary" style="width:auto; margin:0; padding:10px 35px;" onclick="app.toggleTimer()" id="timer-btn">Start</button>
+                    <button class="btn-outline" style="width:auto; padding:10px 35px;" onclick="app.resetTimer()">Reset</button>
+                </div>
+            </div>
+
+            <form onsubmit="app.handleBrewSubmit(event)" oninput="app.onBrewFormInput(event)" onkeydown="app.brewFormKey(event)">
+                <input type="hidden" name="id" id="brew-edit-id">
+                <div class="bf-col bf-main">
+
+                <div class="brew-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem;">
+                    <div>
+                        <label>Method</label>
+                        <select name="method" id="method-select" onchange="app.onMethodChange(this.value)" required>
+                            <option value="">Select Method</option>
+                            <option value="Espresso">Espresso</option>
+                            <option value="Pour Over">Pour Over</option>
+                            <option value="French Press">French Press</option>
+                            <option value="Moka Pot">Moka Pot</option>
+                            <option value="Aeropress">Aeropress</option>
+                            <option value="Cold Brew">Cold Brew</option>
+                        </select>
+                    </div>
+                    <div><label>Grind</label><input type="text" name="grind" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="24" placeholder="10.4 or 3B" required></div>
+                </div>
+
+                <div id="next-shot-hint" class="next-shot-hint" style="display:none;"></div>
+
+                <!-- Equipment Selector -->
+                <div id="equipment-container" style="display: none;">
+                    <label>Equipment Used</label>
+                    <div class="equipment-summary" id="equipment-summary">Using last saved setup for this method.</div>
+                    <button type="button" class="btn-outline equipment-toggle" id="equipment-toggle-btn" onclick="app.toggleEquipmentPicker()">Change Equipment</button>
+                    <div class="equipment-selector-wrap collapsed" id="equipment-selector-wrap">
+                        <div class="equipment-selector" id="equipment-selector"></div>
+                    </div>
+                </div>
+
+                <div id="recipe-card" class="recipe-card" hidden></div>
+                <div class="brew-grid-3" id="recipe-fields" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.2rem;">
+                    <div id="fld-dose"><label id="lbl-dose">Dose (g)</label><input type="number" step="any" min="0" name="dose" required oninput="app.onRecipeInput('dose')"></div>
+                    <div id="fld-yield"><label id="lbl-yield">Pull (g)</label><input type="number" step="any" min="0" name="yield" required oninput="app.onRecipeInput('yield')"></div>
+                    <div id="fld-time"><label id="lbl-time">Time (s)</label><input type="number" name="time" id="time-input" step="any" min="0" inputmode="decimal" required></div>
+                </div>
+                <div id="method-extras" class="method-extras" hidden></div>
+
+                </div>
+                <div class="bf-col bf-taste">
+                <!-- Taste (v10): sliders drawn as the flavor shape, read against your best shot -->
+                <section class="taste-card">
+                    <div class="taste-head"><h3>How did it taste?</h3><p>Move only what felt different. The dashed outline and ticks are your best shot of this coffee.</p></div>
+                    <div id="taste-target" class="taste-target" hidden></div>
+                    <div id="taste-shape" class="taste-shape"></div>
+                    <div class="ns" data-k="acidity" style="--c:#EDB92E">
+                        <div class="ns-head"><span class="ns-name"><i class="ns-dot"></i>Acidity</span><span class="ns-read"><b class="ns-val">–</b><span class="ns-sep"> · </span><span class="ns-word">not set</span></span></div>
+                        <div class="ns-track"><input type="range" name="acidity" min="1" max="10" step="1" value="5" aria-label="Acidity" oninput="app.onTasteInput('acidity', this.value)"><span class="ns-ghost" hidden></span></div>
+                        <div class="ns-ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+                    </div>
+                    <div class="ns" data-k="sweetness" style="--c:#EE7A62">
+                        <div class="ns-head"><span class="ns-name"><i class="ns-dot"></i>Sweetness</span><span class="ns-read"><b class="ns-val">–</b><span class="ns-sep"> · </span><span class="ns-word">not set</span></span></div>
+                        <div class="ns-track"><input type="range" name="sweetness" min="1" max="10" step="1" value="5" aria-label="Sweetness" oninput="app.onTasteInput('sweetness', this.value)"><span class="ns-ghost" hidden></span></div>
+                        <div class="ns-ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+                    </div>
+                    <div class="ns" data-k="body" style="--c:#A0663F">
+                        <div class="ns-head"><span class="ns-name"><i class="ns-dot"></i>Body</span><span class="ns-read"><b class="ns-val">–</b><span class="ns-sep"> · </span><span class="ns-word">not set</span></span></div>
+                        <div class="ns-track"><input type="range" name="body" min="1" max="10" step="1" value="5" aria-label="Body" oninput="app.onTasteInput('body', this.value)"><span class="ns-ghost" hidden></span></div>
+                        <div class="ns-ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+                    </div>
+                    <div class="ns" data-k="finish" style="--c:#5F8FDB">
+                        <div class="ns-head"><span class="ns-name"><i class="ns-dot"></i>Finish</span><span class="ns-read"><b class="ns-val">–</b><span class="ns-sep"> · </span><span class="ns-word">not set</span></span></div>
+                        <div class="ns-track"><input type="range" name="finish" min="1" max="10" step="1" value="5" aria-label="Finish" oninput="app.onTasteInput('finish', this.value)"><span class="ns-ghost" hidden></span></div>
+                        <div class="ns-ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+                    </div>
+                    <div class="ns" data-k="bitterness" style="--c:#8A63C4">
+                        <div class="ns-head"><span class="ns-name"><i class="ns-dot"></i>Bitterness</span><span class="ns-read"><b class="ns-val">–</b><span class="ns-sep"> · </span><span class="ns-word">not set</span></span></div>
+                        <div class="ns-track"><input type="range" name="bitterness" min="1" max="10" step="1" value="5" aria-label="Bitterness" oninput="app.onTasteInput('bitterness', this.value)"><span class="ns-ghost" hidden></span></div>
+                        <div class="ns-ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+                    </div>
+                    <div class="ns" data-k="balance" style="--c:#36B38C">
+                        <div class="ns-head"><span class="ns-name"><i class="ns-dot"></i>Complexity</span><span class="ns-read"><b class="ns-val">–</b><span class="ns-sep"> · </span><span class="ns-word">not set</span></span></div>
+                        <div class="ns-track"><input type="range" name="balance" min="1" max="10" step="1" value="5" aria-label="Complexity" oninput="app.onTasteInput('balance', this.value)"><span class="ns-ghost" hidden></span></div>
+                        <div class="ns-ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+                    </div>
+                    <div id="taste-tip"></div>
+                </section>
+                <section class="taste-card">
+                    <div class="taste-head"><h3>Tasting notes</h3><p>Family, then group, then the exact note. Tap the dots for how strong it was.</p></div>
+                    <div id="note-hints"></div>
+                    <div id="note-wheel" class="note-wheel"></div>
+                    <div id="note-tray"></div>
+                    <div id="note-picked"></div>
+                    <div class="custom-flavor-row">
+                        <input type="text" id="custom-flavor-input" placeholder="Add your own note…" onkeydown="app.handleCustomFlavorKey(event)">
+                        <button type="button" class="btn-outline custom-flavor-btn" onclick="app.addCustomFlavor()">Add</button>
+                    </div>
+                    <div id="note-words" class="cup-words" hidden></div>
+                    <div class="flavor-grid" id="flavor-selector" hidden></div>
+                </section>
+
+                </div>
+                <div class="bf-col bf-end">
+                <label>Observations</label>
+                <textarea name="notes" rows="2" oninput="app.renderTasteTip()"></textarea>
+
+                <label>Session Photo (Optional)</label>
+                <div class="photo-upload-card">
+                    <div class="photo-preview empty" id="session-photo-preview">No photo added yet.</div>
+                    <div class="photo-action-row">
+                        <button type="button" class="btn-outline photo-picker-btn" onclick="app.openPhotoSourcePicker()">Add Photo</button>
+                        <button type="button" class="btn-outline photo-remove-btn" id="session-photo-remove" onclick="app.removeDraftPhoto()" style="display:none;">Remove Photo</button>
+                    </div>
+                    <div class="custom-flavor-note">Adds a compact photo thumbnail to this session.</div>
+                </div>
+                <input type="file" id="photo-camera-input" class="file-picker-input" accept="image/*" capture="environment" onchange="app.handlePhotoInput(event, 'camera')">
+                <input type="file" id="photo-library-input" class="file-picker-input" accept="image/*" onchange="app.handlePhotoInput(event, 'library')">
+
+                <!-- Rating Slider -->
+                <label>Session Rating (Optional)</label>
+                <div class="rating-slider-group">
+                    <div class="rating-display unrated" id="rating-display">Skip Rating</div>
+                    <div class="rt-track"><input type="range" name="rating" id="rating-slider" min="0" max="5" value="0" step="0.5" aria-label="Session rating" oninput="app.updateRatingDisplay(this.value)"></div>
+                    <div class="rating-skip">
+                        <button type="button" onclick="app.skipRating()">Skip Rating</button>
+                    </div>
+                </div>
+
+                <!-- Master Brew Toggle -->
+                <div class="toggle-row">
+                    <span style="font-weight:700; font-size:0.9rem; color:var(--matcha);">Pin as Master Brew?</span>
+                    <label class="switch"><input type="checkbox" id="isMasterInput"><span class="slider"></span></label>
+                </div>
+
+                <button type="submit" class="btn-primary" style="margin-top: 2rem;">Record Session</button>
+                <button type="button" class="btn-outline" style="margin-top:10px; border:none; background:none; color:#AAA;" onclick="app.closeBrewModal()">Dismiss</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Flavor shape viewer (v10) -->
+    <div id="shape-modal" class="modal" onclick="if(event.target===this) app.closeModals()">
+        <div class="modal-card shape-sheet">
+            <div class="sheet-head"><div><h2 id="shape-title">Flavor shape</h2><p id="shape-sub"></p></div><button type="button" class="btn-clean" onclick="app.closeModals()" aria-label="Close"><svg class="icon"><use href="#i-x"/></svg></button></div>
+            <div id="shape-host"></div>
+            <div id="shape-detail"></div>
+        </div>
+    </div>
+    <!-- Fab Four picker (v11) -->
+    <div id="fab-modal" class="modal" onclick="if(event.target===this) app.closeModals()">
+        <div class="modal-card fab-sheet">
+            <div class="sheet-head"><div><h2 id="fab-title">Add a favorite</h2><p>Your coffees, best-rated first.</p></div><button type="button" class="btn-clean" onclick="app.closeModals()" aria-label="Close"><svg class="icon"><use href="#i-x"/></svg></button></div>
+            <div id="fab-list" class="fab-list"></div>
+            <button type="button" id="fab-clear" class="btn-outline fab-clear" onclick="app.setFabSlot(app.fabSlot, '')" hidden>Remove from favorites</button>
+        </div>
+    </div>
+    <!-- Brew along (v11): one clock, one instruction -->
+    <div id="guide-modal" class="modal guide-modal" role="dialog" aria-label="Brew along">
+        <div class="guide-sheet">
+            <div class="guide-top"><div><b id="guide-title">Recipe</b><span id="guide-sub"></span></div><button type="button" class="btn-clean" onclick="app.closeGuide()" aria-label="Close"><svg class="icon"><use href="#i-x"/></svg></button></div>
+            <div id="guide-clock" class="guide-clock">0:00</div>
+            <div class="guide-card">
+                <div id="guide-kind" class="guide-kind">POUR</div>
+                <div id="guide-main" class="guide-main">Pour to 50 g</div>
+                <div id="guide-until" class="guide-until"></div>
+                <div id="guide-detail" class="guide-detail"></div>
+                <div class="guide-step-bar"><i id="guide-fill"></i></div>
+            </div>
+            <div id="guide-next" class="guide-next"></div>
+            <div class="guide-track"><div id="guide-bar" class="guide-bar"></div><i id="guide-cursor" class="guide-cursor"></i></div>
+            <div class="guide-actions">
+                <button type="button" id="guide-start" class="btn-primary guide-go" onclick="app.guideStartPause()">Start</button>
+                <button type="button" class="btn-outline" onclick="app.guideNext()">Next step</button>
+            </div>
+            <div class="guide-foot"><button type="button" class="chip-btn" aria-pressed="false" onclick="app.toggleGuideSound(this)">Sound</button><button type="button" class="link-btn" onclick="app.finishGuide()">Finish &amp; log it</button></div>
+        </div>
+    </div>
+    <!-- Master Profile Modal -->
+    <div id="master-modal" class="modal" onclick="if(event.target===this) app.closeModals()">
+        <div class="modal-card">
+            <h2>Master Profile</h2>
+            <form onsubmit="app.handleMasterSubmit(event)">
+                <input type="hidden" name="id" id="master-edit-id">
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem;">
+                    <div>
+                        <label>Method</label>
+                        <select name="method" required onchange="app.masterLabels(this.value)">
+                            <option value="Espresso">Espresso</option>
+                            <option value="Pour Over">Pour Over</option>
+                            <option value="French Press">French Press</option>
+                            <option value="Moka Pot">Moka Pot</option>
+                            <option value="Aeropress">Aeropress</option>
+                            <option value="Cold Brew">Cold Brew</option>
+                        </select>
+                    </div>
+                    <div><label>Grind</label><input type="text" name="grind" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="24" placeholder="10.4 or 3B" required></div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.2rem;">
+                    <div><label id="master-lbl-dose">Dose (g)</label><input type="number" step="0.1" name="dose" required></div>
+                    <div><label id="master-lbl-yield">Pull (g)</label><input type="number" step="0.1" name="yield" required></div>
+                    <div><label id="master-lbl-time">Time (s)</label><input type="number" name="time" required></div>
+                </div>
+
+                <label>Equipment Used</label>
+                <div id="master-equipment-empty" style="display:none; font-size:0.8rem; color:#7a7a7a; margin-bottom:8px;">No equipment yet. Add gear on your profile.</div>
+                <div class="equipment-selector" id="master-equipment-selector"></div>
+
+                <label>Tasting Notes</label>
+                <textarea name="notes" rows="3" placeholder="Flavor texture, balance, finish..."></textarea>
+
+                <button type="submit" class="btn-primary" style="margin-top: 2rem;">Save Master Profile</button>
+                <button type="button" class="btn-outline" style="margin-top:10px; border:none; background:none; color:#AAA;" onclick="app.closeModals()">Dismiss</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Achievement Locker Modal -->
+    <div id="achievement-modal" class="modal" onclick="if(event.target===this) app.closeModals()">
+        <div class="modal-card">
+            <h2 id="achievement-title">Achievement Locker</h2>
+            <div id="achievement-locker-grid" class="achievement-locker-grid"></div>
+            <button class="btn-primary" style="margin-top:1.6rem;" onclick="app.closeModals()">Done</button>
+        </div>
+    </div>
+
+    <div id="photo-source-sheet" class="photo-sheet" onclick="if(event.target===this) app.closePhotoSourcePicker()">
+        <div class="photo-sheet-card">
+            <div class="photo-sheet-title">Add Session Photo</div>
+            <button type="button" class="photo-sheet-btn primary" onclick="app.triggerCameraCapture()">Take Photo</button>
+            <button type="button" class="photo-sheet-btn" onclick="app.triggerLibraryPicker()">Add from Library</button>
+            <button type="button" class="photo-sheet-btn" onclick="app.closePhotoSourcePicker()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+@@include js/00-constants.js
+@@include js/01-flavor-shape.js
+@@include js/02-cloud.js
+@@include js/03-roaster-engine.js
+@@include js/04-storage.js
+@@include js/app/00-state.js
+@@include js/app/01-boot.js
+@@include js/app/02-helpers.js
+@@include js/app/03-photos.js
+@@include js/app/04-achievements-compare.js
+@@include js/app/05-sync-and-saving.js
+@@include js/app/06-grind-sliders.js
+@@include js/app/07-coach.js
+@@include js/app/08-selftest.js
+@@include js/app/09-goal-and-feed-engine.js
+@@include js/app/10-awards.js
+@@include js/app/11-sweetspot-fabfour.js
+@@include js/app/12-methods-recipes-guide.js
+@@include js/app/13-theme-tabs-feed-entries.js
+@@include js/app/14-threads-haptics-feed.js
+@@include js/app/15-roasters.js
+@@include js/app/16-audit-people-update.js
+@@include js/app/17-welcome-tour.js
+@@include js/app/18-render.js
+@@include js/app/19-cards-next-shot.js
+@@include js/app/20-bean-page.js
+@@include js/app/21-profiles-recaps.js
+@@include js/app/22-year-in-coffee.js
+@@include js/app/23-gear-exploration.js
+@@include js/app/24-taste.js
+@@include js/app/25-flavor-detail.js
+@@include js/app/26-likes-comments-forms.js
+@@include js/app/27-settings-equipment-misc.js
+@@include js/99-boot.js
+    </script>
+</body>
+</html>

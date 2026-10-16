@@ -1,0 +1,248 @@
+        /* Responsive */
+        @media (max-width: 768px) {
+            #sidebar { display: none; }
+            #mobile-nav { display: flex; }
+            #mobile-nav { bottom: calc(8px + var(--safe-bottom)); }
+            
+            .header-sticky {
+                padding: calc(2.75rem + var(--safe-top)) 1rem 0.8rem;
+            }
+
+            .header-top {
+                flex-direction: row; align-items: center; gap: 10px; margin-bottom: 0.4rem;
+            }
+
+            .header-controls {
+                margin-left: auto; align-items: center; gap: 10px;
+            }
+
+            .mobile-control-btn { display: inline-flex; }
+            .search-bar, .filter-row, .sort-dropdown { display: none; }
+            .mobile-controls-panel {
+                display: none; margin-top: 8px; padding: 12px;
+                border-radius: 14px; background: rgba(var(--glass-rgb), 0.75);
+                border: 1px solid rgba(var(--matcha-rgb), 0.15);
+                box-shadow: 0 12px 26px rgba(var(--matcha-rgb), 0.12);
+                backdrop-filter: blur(12px);
+            }
+            body.mobile-controls-open .mobile-controls-panel {
+                display: grid; gap: 10px;
+            }
+            .status-badge { font-size: 0.64rem; }
+            .status-badge span { display: none; }
+            h2 { margin-bottom: 0; }
+            .locker-btn {
+                min-height: 34px;
+                padding: 0 10px;
+            }
+            .locker-btn .locker-count {
+                min-width: 20px;
+                height: 20px;
+            }
+
+            .view-content { padding: 1rem 1rem 120px; }
+            h2 { font-size: 1.8rem; }
+            .grid { grid-template-columns: 1fr; }
+
+            .card-rating {
+                position: static; margin-bottom: 12px;
+                justify-content: flex-start;
+            }
+            .fresh-dot { top: 0.75rem; left: 0.75rem; }
+            .line-illustration { width: 40px; height: 40px; }
+            .card {
+                padding: 1.25rem;
+            }
+            .card .tag:nth-of-type(n+3) {
+                display: none;
+            }
+            .top-flavors, .card-illustration {
+                display: none;
+            }
+            .card-usernames {
+                font-size: 0.74rem;
+            }
+
+            .detail-hero {
+                padding: calc(2.1rem + var(--safe-top)) 1.05rem 1.25rem;
+            }
+
+            .hero-actions {
+                top: calc(1rem + var(--safe-top)); right: 1rem;
+            }
+
+            #detail-view > div:last-child {
+                padding: 1rem 1rem calc(140px + var(--safe-bottom)) !important;
+            }
+
+            .detail-section { padding: 1.05rem; }
+
+            .modal {
+                align-items: flex-end;
+                padding: 0;
+            }
+            .modal-card {
+                width: 100%;
+                max-width: none;
+                margin: 0;
+                max-height: 94vh;
+                border-radius: 26px 26px 0 0;
+                padding: 1rem 0.82rem calc(6rem + var(--safe-bottom));
+            }
+            .modal-card h2 {
+                font-size: 1.25rem;
+                margin-bottom: 1.2rem;
+            }
+            .modal-card label {
+                margin-top: 0.95rem;
+            }
+            .modal-card form > div[style*="grid-template-columns:1fr 1fr"],
+            .modal-card form > div[style*="grid-template-columns:1fr 1fr 1fr"],
+            .modal-card form > div[style*="grid-template-columns:2fr 1fr"] {
+                grid-template-columns: 1fr !important;
+                gap: 0.72rem !important;
+            }
+            .modal-card form label,
+            .modal-card form input,
+            .modal-card form select,
+            .modal-card form textarea {
+                font-size: 0.98rem;
+            }
+            .timer-hero { padding: 1rem; margin-bottom: 1.05rem; }
+            #timer-display { font-size: 2.15rem; letter-spacing: 2px; }
+            .rating-slider-group, .toggle-row, .slider-grid { padding: 0.92rem; margin: 1rem 0; }
+            .compare-row, .compare-grid { grid-template-columns: 1fr; }
+
+            .slider-grid { grid-template-columns: 1fr; }
+            .equipment-selector-wrap {
+                max-height: 190px; overflow-y: auto;
+            }
+            .equipment-select-item {
+                padding: 12px 10px;
+            }
+
+            .log-row {
+                padding: 1.05rem;
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+                max-width: none;
+                margin: 0 0 1rem;
+            }
+            .log-main {
+                width: 100%;
+                grid-template-columns: 1fr;
+                row-gap: 8px;
+            }
+            .log-left-col {
+                width: 100%;
+            }
+            .log-right-col {
+                width: 100%;
+                align-items: flex-start;
+                text-align: left;
+            }
+            .log-date {
+                font-size: 0.67rem;
+            }
+            .log-metrics {
+                font-size: 1.08rem;
+                margin: 0;
+            }
+            .log-right-col .rating-inline {
+                margin-top: 0;
+                justify-content: flex-start;
+            }
+            .log-right-flavors {
+                justify-content: flex-start;
+            }
+            .log-note-wide {
+                font-size: 0.82rem;
+            }
+            .social-bar {
+                gap: 10px;
+                flex-wrap: wrap;
+                justify-content: space-between;
+            }
+            .session-social {
+                flex-wrap: nowrap;
+                justify-content: space-between;
+                gap: 8px;
+            }
+            .session-social .social-main-actions,
+            .session-social .social-owner-actions {
+                gap: 8px;
+            }
+            .comment-input-box {
+                flex-direction: column;
+            }
+            .comment-submit {
+                width: 100%;
+            }
+            .custom-flavor-row {
+                grid-template-columns: 1fr;
+            }
+            .custom-flavor-btn {
+                width: 100%;
+            }
+            #brew-modal .modal-card {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            #brew-modal .brew-grid-2 {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 0.7rem !important;
+            }
+            #brew-modal .brew-grid-3 {
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                gap: 0.6rem !important;
+            }
+            #brew-modal .brew-grid-2 > div,
+            #brew-modal .brew-grid-3 > div {
+                min-width: 0;
+            }
+            .photo-preview {
+                min-height: 124px;
+            }
+            .photo-preview img {
+                height: 150px;
+            }
+            .photo-action-row {
+                grid-template-columns: 1fr;
+            }
+            .photo-sheet {
+                padding: 0 10px calc(10px + var(--safe-bottom));
+            }
+            .session-photo-wrap {
+                width: min(100%, 100%);
+            }
+            .session-photo-wrap.detail-photo {
+                width: min(100%, 100%);
+                max-width: 100%;
+            }
+            .session-photo-wrap.feed-photo {
+                width: min(100%, 100%);
+            }
+            .feed-list {
+                gap: 10px;
+            }
+            .feed-item {
+                padding: 12px;
+            }
+            .feed-card-body {
+                padding: 12px 12px;
+            }
+            .feed-card-title {
+                font-size: 0.95rem;
+            }
+            .feed-card-metrics {
+                font-size: 0.98rem;
+            }
+            .feed-text {
+                font-size: 0.86rem;
+            }
+            .user-color-row {
+                margin-bottom: 1rem;
+            }
+        }
+

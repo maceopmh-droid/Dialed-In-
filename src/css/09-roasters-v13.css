@@ -1,0 +1,131 @@
+        /* ===== v13.0: Roasters ===== */
+        .lib-switch { grid-column: 1 / -1; grid-template-columns: 1fr 1fr; margin-bottom: 0; }
+        .grid > .lib-switch + .lib-filter { grid-column: 1 / -1; }
+        .lib-filter { display: flex; align-items: center; gap: 8px; margin-top: -1rem; }
+        .lib-filter .chip-btn { display: inline-flex; align-items: center; gap: 6px; }
+        .lib-filter .chip-btn .icon { width: 12px; height: 12px; }
+        .roaster-list { display: flex; flex-direction: column; gap: 14px; max-width: 760px; }
+        .roaster-list .lib-switch { margin-bottom: 4px; }
+        .ro-sorts { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 6px 12px 12px; margin: -6px -12px -10px; }
+        .ro-sorts::-webkit-scrollbar { display: none; }
+        .ro-sorts .chip-btn { flex-shrink: 0; white-space: nowrap; }
+        .ro-tile { position: relative; display: grid; place-items: center; flex-shrink: 0; width: 54px; height: 54px; border-radius: 16px; color: rgba(255, 255, 255, 0.96); font-family: var(--font-bean); font-weight: 700; font-size: 1.05rem; letter-spacing: 0.03em; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 8px 18px rgba(var(--hair-rgb), 0.16); overflow: hidden; }
+        .ro-tile::after { content: ''; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(255, 255, 255, 0.22), transparent 45%); pointer-events: none; }
+        .ro-tile.big { width: 66px; height: 66px; border-radius: 19px; font-size: 1.3rem; }
+        .ro-card { padding: 16px 16px 15px; gap: 0; cursor: pointer; border-radius: 20px; }
+        .ro-head { display: flex; align-items: center; gap: 13px; min-width: 0; }
+        .ro-main { flex: 1; min-width: 0; }
+        .ro-name { display: block; font-family: var(--font-bean); font-weight: 600; font-size: 1.28rem; letter-spacing: -0.01em; line-height: 1.15; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ro-rate { display: flex; align-items: center; gap: 6px; margin-top: 3px; font-size: 0.82rem; font-weight: 750; color: var(--gold); }
+        .ro-rate .star-meter { font-size: 0.8rem; --ls: 1px; --s: 12px; }
+        .ro-meta { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+        .ro-meta .dh-faces { margin-left: auto; }
+        .ro-meta .ro-heart { width: 14px; height: 14px; color: #D45D8A; fill: currentColor; flex-shrink: 0; }
+        .ro-beans { display: flex; flex-wrap: nowrap; align-items: center; gap: 6px; margin-top: 10px; overflow: hidden; }
+        .ro-bean { flex-shrink: 0; white-space: nowrap; border: 1px solid rgba(var(--hair-rgb), 0.08); background: rgba(var(--hair-rgb), 0.045); color: var(--ink-2); border-radius: 999px; padding: 5px 11px; font: inherit; font-family: var(--font-bean); font-size: 0.84rem; font-weight: 600; cursor: pointer; }
+        .ro-bean:active { transform: scale(0.97); }
+        .ro-more { flex-shrink: 0; white-space: nowrap; font-size: 0.78rem; font-weight: 650; color: var(--text-muted); padding: 0 2px; }
+        .ro-bean[hidden], .ro-more[hidden] { display: none; }
+        .ro-merge { border-color: rgba(var(--matcha-rgb), 0.32); }
+        .ro-merge p { margin: 0 0 12px; font-size: 0.9rem; line-height: 1.45; color: var(--ink-2); }
+        .ro-merge p b { color: var(--ink); }
+        .ro-merge-actions { display: flex; gap: 8px; }
+        .ro-merge-actions button { width: auto; flex: 0 0 auto; margin: 0; padding: 10px 18px; font-size: 0.82rem; }
+        .ro-empty { text-align: center; color: var(--text-muted); padding: 2.5rem 1rem; }
+        /* the roaster's name as a link */
+        .ro-link { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .ro-link:active { opacity: 0.6; }
+        button.ro-link { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; display: inline-flex; align-items: center; gap: 4px; text-align: left; }
+        .ro-chev { width: 15px; height: 15px; transform: rotate(-90deg); opacity: 0.55; flex-shrink: 0; }
+        /* the roaster page */
+        #roaster-view { display: none; position: fixed; inset: 0; background: var(--paper); z-index: 5000; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        #roaster-view.active { display: block; }
+        .ro-page { max-width: 760px; margin: 0 auto; padding: calc(1.6rem + var(--safe-top)) 3rem calc(140px + var(--safe-bottom)); display: flex; flex-direction: column; gap: 14px; }
+        .ro-top { margin-bottom: 0; }
+        .ro-top .dh-back { min-width: 0; max-width: 62%; }
+        .ro-top .dh-back span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .ro-top .btn-clean { width: 36px; height: 36px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 6px 16px rgba(var(--hair-rgb), 0.08); }
+        .ro-top .btn-clean .icon { width: 15px; height: 15px; }
+        .ro-top .ro-fav[aria-pressed="true"] { color: #D45D8A; }
+        .ro-top .ro-fav[aria-pressed="true"] .icon { fill: currentColor; }
+        .ro-hero { display: grid; gap: 14px; padding: 18px; }
+        .ro-hero-row { display: flex; align-items: center; gap: 14px; min-width: 0; }
+        .ro-hero h2 { margin: 0; font-family: var(--font-bean); font-weight: 600; font-size: 1.75rem; line-height: 1.1; letter-spacing: -0.012em; overflow-wrap: anywhere; }
+        .ro-where { margin-top: 4px; font-size: 0.82rem; color: var(--text-muted); line-height: 1.4; overflow-wrap: anywhere; }
+        .ro-where a { color: var(--matcha); text-decoration: none; font-weight: 650; }
+        .ro-add { margin-top: 5px; padding: 0; border: 0; background: none; font: inherit; font-size: 0.8rem; font-weight: 700; color: var(--matcha); cursor: pointer; }
+        .ro-note { margin: -4px 0 0; font-size: 0.86rem; color: var(--text-muted); line-height: 1.45; }
+        .ro-style { margin: 0; font-size: 0.95rem; line-height: 1.5; color: var(--ink-2); }
+        .ro-hero .stat-row { grid-template-columns: repeat(4, 1fr); gap: 7px; }
+        .ro-hero .stat-box { padding: 10px 4px; min-width: 0; }
+        .ro-hero .stat-num { font-size: 1.15rem; white-space: nowrap; }
+        .ro-hero .stat-num.word { font-size: 0.9rem; line-height: 1.45rem; letter-spacing: -0.01em; }
+        .ro-hero .stat-num small { color: var(--gold); font-size: 0.78em; margin-left: 1px; }
+        .ro-hero .stat-cap { white-space: nowrap; letter-spacing: 0.2px; font-size: 0.55rem; }
+        .ro-bar-h { font-size: 0.8rem; font-weight: 750; color: var(--ink); margin-bottom: 7px; }
+        .ro-bar { display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: rgba(var(--hair-rgb), 0.08); gap: 2px; }
+        .ro-bar i { display: block; height: 100%; min-width: 3px; }
+        .ro-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 8px; font-size: 0.76rem; color: var(--text-muted); font-weight: 600; }
+        .ro-legend b { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+        .ro-sec > .label:first-child { font-size: 1.02rem; font-weight: 750; letter-spacing: -0.01em; text-transform: none; color: var(--ink); margin-bottom: 2px; }
+        .ro-sub { font-size: 0.8rem; color: var(--text-muted); margin: 0 0 10px; line-height: 1.4; }
+        button.ro-sec { display: block; width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+        button.ro-sec:active { transform: scale(0.99); }
+        .ro-best { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+        .ro-best-main { flex: 1; min-width: 0; }
+        .ro-best-name { font-family: var(--font-bean); font-weight: 600; font-size: 1.15rem; color: var(--ink); }
+        .ro-best-line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 3px; font-size: 0.8rem; color: var(--text-muted); }
+        .ro-best-line .star-meter { font-size: 0.78rem; --ls: 1px; --s: 12px; }
+        .ro-best-recipe { margin-top: 3px; font-size: 0.82rem; font-weight: 650; color: var(--ink-2); }
+        .ro-go { width: 16px; height: 16px; transform: rotate(-90deg); color: var(--text-faint); flex-shrink: 0; }
+        .ro-cof { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 0; border: 0; border-top: 1px solid rgba(var(--hair-rgb), 0.07); background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+        .ro-cof:first-of-type { border-top: 0; }
+        .ro-cof-main { flex: 1; min-width: 0; }
+        .ro-cof-name { display: block; font-family: var(--font-bean); font-weight: 600; font-size: 1.02rem; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ro-cof-sub { display: block; margin-top: 1px; font-size: 0.74rem; color: var(--text-muted); font-weight: 600; }
+        .ro-meter { width: 46px; height: 6px; border-radius: 999px; background: rgba(var(--hair-rgb), 0.09); overflow: hidden; flex-shrink: 0; }
+        .ro-meter i { display: block; height: 100%; border-radius: 999px; background: var(--gold); }
+        .ro-cof-n { width: 34px; text-align: right; font-size: 0.8rem; color: var(--gold); font-weight: 750; flex-shrink: 0; white-space: nowrap; }
+        .ro-who { display: flex; align-items: center; gap: 10px; padding: 7px 0; }
+        .ro-who .person-dot { width: 30px; height: 30px; font-size: 0.72rem; }
+        .ro-who-t { flex: 1; min-width: 0; font-size: 0.9rem; font-weight: 750; color: var(--ink); }
+        .ro-who-t small { display: block; font-size: 0.76rem; font-weight: 500; color: var(--text-muted); margin-top: 1px; }
+        .ro-badge { flex-shrink: 0; font-size: 0.7rem; font-weight: 750; color: var(--matcha); background: rgba(var(--matcha-rgb), 0.12); padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
+        .ro-esp { font-size: 0.92rem; line-height: 1.5; color: var(--ink-2); margin-top: 6px; }
+        .ro-esp b { color: var(--ink); white-space: nowrap; }
+        .ro-acts { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 2px; }
+        .ro-acts .btn-outline { width: auto; padding: 12px 16px; }
+        #roaster-modal textarea { min-height: 76px; resize: vertical; }
+        .ro-fab-empty { margin: 0; }
+        .ro-fab .fab-art b { font-family: var(--font-bean); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18); }
+        
+        :root[data-theme="dark"] .ro-merge { border-color: rgba(var(--matcha-rgb), 0.36); }
+        @media (max-width: 768px) {
+            .ro-page { padding: calc(1.6rem + var(--safe-top)) 1.05rem calc(140px + var(--safe-bottom)); }
+            .roaster-list { max-width: none; }
+        }
+
+        /* ===== v13.1 ===== */
+        .cq-bar .cq-glow { display: none !important; }
+        .achievement-inline { -webkit-backdrop-filter: none; backdrop-filter: none; }
+        #grid[data-view="feed"] > .feed-card { content-visibility: auto; contain-intrinsic-size: auto 520px; }
+        .gear-locker .gear-note { margin: 2px 0 12px; font-size: 0.82rem; color: var(--text-muted); line-height: 1.4; }
+        .gear-locker .equipment-list { margin-bottom: 12px; }
+        .settings-note { margin: 0 0 2rem; font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
+        .user-row { display: grid !important; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+        .user-row.can-remove { grid-template-columns: minmax(0, 1fr) auto auto; }
+        .user-head { display: flex; justify-content: flex-end; font-size: 0.72rem; font-weight: 650; color: var(--text-muted); letter-spacing: 0; text-transform: none; margin: 0 0 -4px; }
+        .user-row .goal-sw { -webkit-appearance: none; appearance: none; flex: none; position: relative; width: 50px !important; height: 30px !important; min-width: 0 !important; min-height: 0 !important; padding: 0 !important; margin: 0 !important; border: 0 !important; border-radius: 999px !important; background: rgba(var(--hair-rgb), 0.2) !important; box-shadow: inset 0 0 0 1px rgba(var(--hair-rgb), 0.08) !important; cursor: pointer; transition: background 0.22s; }
+        .user-row .goal-sw::before { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); transition: transform 0.22s cubic-bezier(0.3, 0.7, 0.4, 1); }
+        .user-row .goal-sw[aria-checked="true"] { background: var(--matcha) !important; box-shadow: none !important; }
+        .user-row .goal-sw[aria-checked="true"]::before { transform: translateX(20px); }
+        .user-row .goal-sw:focus-visible { outline: 2px solid var(--matcha); outline-offset: 2px; }
+        .gear-view .equipment-item { cursor: default; }
+        /* recipe strips: the Pour/Pull column gets room for its ratio */
+        .sc-strip.feed-card-metrics { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 0.85fr); }
+        .sc-strip.feed-card-metrics .sc-cell { padding-left: 8px; padding-right: 8px; }
+        /* v13.4: the coffee page's Back pill stays one line */
+        #detail-view .dh-back { min-width: 0; max-width: 58%; white-space: nowrap; }
+        #detail-view .dh-back .dh-back-t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .dh-pill { white-space: nowrap; }
+
