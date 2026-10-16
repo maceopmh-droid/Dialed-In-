@@ -11,15 +11,16 @@ const fs = require('fs');
 const { execSync } = require('child_process');
 const { loadApp } = require('./lib/app_in_node');
 
-const arg = k => { const i = process.argv.indexOf('--' + k); return i > 0 ? process.argv[i + 1] : null; };
-const HTML = arg('html'), ROWS = arg('rows'), PSQL = arg('psql');
-if (!HTML || !ROWS || !PSQL) { console.error('usage: node supabase/parity.js --html index.html --rows rows.json --psql "psql -h HOST -U USER -d DB"'); process.exit(2); }
-const sql = s => { const t = execSync(`${PSQL} -Atq -v ON_ERROR_STOP=1`, { input: s, encoding: 'utf8', maxBuffer: 1 << 28 }).trim(); return t ? JSON.parse(t) : []; };
+// events from Sheet rows (column G, index 6)
+const eventsFromRows = rows => rows.map(r => Array.isArray(r) ? r[6] : null).filter(x => typeof x === 'string' && x[0] === '{')
+  .map(x => { try { return JSON.parse(x); } catch (e) { return null; } }).filter(Boolean);
+
+// returns { compared, diffs, known }; `events` is what the app gets from the Sheet today
+function runParity({ html, events, psql, knownHistory = false }) {
+const HTML = html;
+const sql = s => { const t = execSync(`${psql} -Atq -v ON_ERROR_STOP=1`, { input: s, encoding: 'utf8', maxBuffer: 1 << 28 }).trim(); return t ? JSON.parse(t) : []; };
 
 // ---- 1. today
-const rows = JSON.parse(fs.readFileSync(ROWS, 'utf8'));
-const events = rows.map(r => Array.isArray(r) ? r[6] : null).filter(x => typeof x === 'string' && x[0] === '{')
-  .map(x => { try { return JSON.parse(x); } catch (e) { return null; } }).filter(Boolean);
 const A = loadApp(HTML); A.user = ''; A.process(events);
 
 // ---- 2. from the database back to events
@@ -113,10 +114,26 @@ if (process.env.PARITY_DEBUG) { const a = A.achievementLevelsByUser || {}, b = B
 // Achievement levels are counted by walking the history of edits (a comment counts when it appears in a later
 // version of a record). The tables keep each record's latest state, so those levels can't round-trip; phase 2
 // counts them from what exists instead. --known-history reports them without failing.
-const KNOWN = process.argv.includes('--known-history') ? diffs.filter(d => d.startsWith('achievements')) : [];
+const KNOWN = knownHistory ? diffs.filter(d => d.startsWith('achievements')) : [];
 KNOWN.forEach(d => diffs.splice(diffs.indexOf(d), 1));
-if (KNOWN.length) console.log('known, history-derived (not a data difference):', KNOWN.join(' | '));
-const by = {}; diffs.forEach(d => { const k = d.replace(/ [^ ]+: /, ': '); by[k] = (by[k] || 0) + 1; });
-console.log(`compared ${A.beans.size} coffees, ${A.brews.size} sessions, ${A.knownPeople().length} people`);
-if (diffs.length) { console.log(`${diffs.length} DIFFERENCES`); Object.entries(by).forEach(([k, c]) => console.log(`  ${c} x ${k}`)); console.log('  e.g.', diffs.slice(0, 5).join(' | ')); process.exit(1); }
-console.log('parity: the database holds exactly what the app has today');
+return { compared: `${A.beans.size} coffees, ${A.brews.size} sessions, ${A.knownPeople().length} people`, diffs, known: KNOWN };
+}
+
+function report({ compared, diffs, known }) {
+  if (known.length) console.log('known, history-derived (not a data difference):', known.join(' | '));
+  console.log(`compared ${compared}`);
+  if (!diffs.length) { console.log('parity: the database holds exactly what the app has today'); return true; }
+  const by = {}; diffs.forEach(d => { const k = d.replace(/ [^ ]+: /, ': '); by[k] = (by[k] || 0) + 1; });
+  console.log(`${diffs.length} DIFFERENCES`); Object.entries(by).forEach(([k, c]) => console.log(`  ${c} x ${k}`)); console.log('  e.g.', diffs.slice(0, 5).join(' | '));
+  return false;
+}
+
+module.exports = { runParity, report, eventsFromRows };
+
+if (require.main === module) {
+  const arg = k => { const i = process.argv.indexOf('--' + k); return i > 0 ? process.argv[i + 1] : null; };
+  const HTML = arg('html'), ROWS = arg('rows'), PSQL = arg('psql');
+  if (!HTML || !ROWS || !PSQL) { console.error('usage: node supabase/parity.js --html index.html --rows rows.json --psql "psql -h HOST -U USER -d DB" [--known-history]'); process.exit(2); }
+  const ok = report(runParity({ html: HTML, events: eventsFromRows(JSON.parse(fs.readFileSync(ROWS, 'utf8'))), psql: PSQL, knownHistory: process.argv.includes('--known-history') }));
+  process.exit(ok ? 0 : 1);
+}

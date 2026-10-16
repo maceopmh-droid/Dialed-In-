@@ -1,0 +1,30 @@
+# Phase 1: every night, check the shadow backend against the live Sheet.
+# Does nothing until a SUPABASE_DB_URL secret exists (Settings > Secrets and variables > Actions), so it's safe to
+# have in the repository before Supabase is set up. Scheduled runs only happen once this file is on main.
+name: nightly shadow check
+on:
+  schedule:
+    - cron: '30 8 * * *'       # 3:30 am Central (08:30 UTC)
+  workflow_dispatch:
+
+jobs:
+  shadow:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      # the Sheet's public read, the same address index.html already uses
+      SHEET_URL: https://script.google.com/macros/s/AKfycbxwOpOjQr2Um3y_YIddTIsn8yLAEqyQo5BnF001N9E58O4cT9x-7tMM6XGviIGTkNJp-Q/exec
+    steps:
+      - name: Is Supabase set up yet?
+        id: cfg
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ]; then echo "skip=1" >> "$GITHUB_OUTPUT"; echo "No SUPABASE_DB_URL secret yet: nothing to check."; fi
+      - uses: actions/checkout@v4
+        if: steps.cfg.outputs.skip != '1'
+      - uses: actions/setup-node@v4
+        if: steps.cfg.outputs.skip != '1'
+        with:
+          node-version: '20'
+      - name: Archive complete, tables rebuilt from the live Sheet, parity with the app
+        if: steps.cfg.outputs.skip != '1'
+        run: node supabase/shadow_check.js --psql "psql '$SUPABASE_DB_URL'" --html index.html --live "$SHEET_URL"

@@ -214,9 +214,11 @@ create table flavors (                                 -- custom tasting notes p
 );
 
 create table sheet_archive (                          -- every row of the V9 Sheet, exactly as it was (read-only)
-  row_no        integer primary key,
-  logged_at     text,
-  payload       jsonb not null
+  event_key     text primary key,                      -- md5 of column G as stored, so resending a row is harmless
+  row_no        integer,                               -- where it sat in the Sheet when it was copied
+  logged_at     text,                                  -- column A as the Sheet showed it
+  payload       jsonb not null,
+  received_at   timestamptz not null default now()
 );
 
 create table reports (
