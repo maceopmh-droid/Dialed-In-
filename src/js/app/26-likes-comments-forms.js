@@ -376,7 +376,7 @@
                     flavors,
                     rating: this.normalizeRating(form.rating.value),
                     photo: this.normalizePhoto(this.draftPhoto),
-                    ...(this.acctOn() && this.share ? { audience: this.share.audience, noteAudience: this.share.noteAudience, photoAudience: this.share.photoAudience } : {}),   // v14.2: who sees it (new backend)
+                    ...(this.acctOn() && this.share ? { audience: this.share.audience, noteAudience: this.share.noteAudience, photoAudience: this.share.photoAudience, helpWanted: Boolean(this.share.helpWanted) } : {}),   // v14.2: who sees it (new backend); v14.5: asking for help
                     equipment: keepGear ? (Array.isArray(existing.equipment) ? existing.equipment : []) : selectedEquipment,
                     equipmentSnapshot,
                     likes: existing ? (existing.likes || []) : [],

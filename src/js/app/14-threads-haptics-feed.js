@@ -264,7 +264,7 @@
                         <div class="cmt${isReply ? ' reply' : ''}" id="cmt-${this.esc(c.id)}">
                             <div class="cmt-avatar" style="background:${this.esc(color)}">${this.esc(this.feedInitial(c.user))}</div>
                             <div class="cmt-main">
-                                <div class="cmt-head"><b>${this.esc(c.user)}</b><span>${this.esc(this.formatRelativeDate(c.timestamp))}</span></div>
+                                <div class="cmt-head"><b data-name="${this.esc(c.user)}" onclick="app.openAnyProfile(this.getAttribute('data-name'), event)">${this.esc(c.user)}</b><span>${this.esc(this.formatRelativeDate(c.timestamp))}</span>${kind === 'brew' && target.helpfulAnswer && String(target.helpfulAnswer) === String(c.id) ? '<span class="cmt-helpful">Most helpful</span>' : ''}</div>
                                 <div class="cmt-text">${this.esc(c.text)}</div>
                                 <div class="cmt-actions">
                                     <button type="button" class="cmt-like${liked ? ' liked' : ''}" onclick="app.toggleCommentLike('${app.escJs(kind)}','${app.escJs(id)}','${app.escJs(c.id)}',event)" aria-pressed="${liked}" aria-label="Like comment">
@@ -273,6 +273,7 @@
                                     <button type="button" class="cmt-act" onclick="app.startReply('${app.escJs(kind)}','${app.escJs(id)}','${app.escJs(c.id)}',event)">Reply</button>
                                     ${canEdit ? `<button type="button" class="cmt-act" onclick="app.${editFn}('${app.escJs(id)}', ${i}, event)">Edit</button>` : ''}
                                     ${canDelete ? `<button type="button" class="cmt-act danger" onclick="app.${delFn}('${app.escJs(id)}', ${i}, event)">Delete</button>` : ''}
+                                    ${this.canMarkHelpful && this.canMarkHelpful(kind, target, c) ? `<button type="button" class="cmt-act${String(target.helpfulAnswer || '') === String(c.id) ? ' on' : ''}" onclick="app.markHelpful('${app.escJs(id)}','${app.escJs(c.id)}', event)">${String(target.helpfulAnswer || '') === String(c.id) ? 'Unmark' : 'Most helpful'}</button>` : ''}
                                     ${this.acctOn() && c.user !== this.user ? `<button type="button" class="cmt-act" onclick="app.reportItem('comment','${app.escJs(id)}#${app.escJs(c.id)}', event)">Report</button>` : ''}
                                 </div>
                                 ${c.likes.length ? `<div class="cmt-likers">Liked by ${this.esc(c.likes.slice(0, 3).join(', '))}${c.likes.length > 3 ? ` +${c.likes.length - 3}` : ''}</div>` : ''}
@@ -438,10 +439,11 @@
                     <article class="feed-card feed-session-card sc-card" data-card-brew="${this.esc(brew.id)}" onclick="app.openFeedTarget('${app.escJs(brew.beanId || '')}','${app.escJs(brew.id)}',true)">
                         <div class="feed-card-body">
                             <div class="feed-head">
-                                <div class="feed-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(owner))}</div>
+                                <div class="feed-avatar" style="background:${this.esc(color)};" data-name="${this.esc(owner)}" onclick="app.openAnyProfile(this.getAttribute('data-name'), event)">${this.esc(this.feedInitial(owner))}</div>
                                 <div class="feed-meta">
-                                    <div class="feed-actor" style="color:${this.esc(color)};">${this.esc(owner)}</div>
-                                    <div class="feed-time" data-time="${this.esc(String(entry.date || brew.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || brew.date))}</div>
+                                    <div class="feed-actor" style="color:${this.esc(color)};" data-name="${this.esc(owner)}" onclick="app.openAnyProfile(this.getAttribute('data-name'), event)">${this.esc(owner)}</div>
+                                    ${(tag => tag ? `<div class="feed-sub"><span class="feed-time" data-time="${this.esc(String(entry.date || brew.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || brew.date))}</span>${tag}</div>`
+                                        : `<div class="feed-time" data-time="${this.esc(String(entry.date || brew.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || brew.date))}</div>`)(this.helpTagHtml ? this.helpTagHtml(brew) : '')}
                                 </div>
                                 ${entry.community ? this.communityFollowHtml(owner) : ''}<div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(brew.method)}"/></svg>${this.esc(brew.method || 'Espresso')}</div>
                             </div>
@@ -541,7 +543,9 @@
                     this._feedHtml = null;
                     return;
                 }
-                const tops = [['top:mode', this.feedModeHtml()], ['top:welcome', this.renderWelcomeBack()], ['top:quest', this.renderCrewQuest()], ['top:teaser', this.renderAwardsTeaser()]];
+                // v14.5: no private group yet: the community goal instead of a group goal for one
+                const quest = this.acctOn() && this.knownPeople().length <= 1 && this.communityGoalHtml ? this.communityGoalHtml() : this.renderCrewQuest();
+                const tops = [['top:mode', this.feedModeHtml()], ['top:welcome', this.renderWelcomeBack()], ['top:quest', quest], ['top:teaser', this.renderAwardsTeaser()]];
                 if (!this.canPatchDom(grid)) {
                     grid.innerHTML = tops.map(t => t[1]).join('') + entries.map(e => this.feedCardHtml(e)).join('');
                     return;

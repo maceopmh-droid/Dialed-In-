@@ -356,6 +356,111 @@ const before2 = JSON.parse(fx('julian', 'select community_goal();')).yourSession
 push('julian', { type: 'brew', id: 'jg1', beanId: 'b1', user: 'Julian', owner: 'Julian', method: 'Espresso', rating: 4, flavors: 'Cherry', date: new Date().toISOString(), likes: [], comments: [] });
 ok(JSON.parse(fx('julian', 'select community_goal();')).yourSessions === before2 + 1, "a session Julian logs now counts toward this week's goal");
 
+// --- v14.5: anyone's profile page, suggested people, help requests, what a report hides, reviewing reports
+const NOW = () => new Date().toISOString();
+const pp = (who, name, extra = '') => { const r = as(who, `select profile_page(${q(name)}${extra});`); return r.err ? { err: r.err } : JSON.parse(r.out); };
+const brewsIn = page => (page.events || []).filter(e => e.type === 'brew').map(e => e.id);
+push('maceo', { type: 'brew', id: 'pp1', beanId: 'b1', user: 'Maceo', owner: 'Maceo', method: 'Pour Over', dose: 15, yield: 250, date: NOW(), audience: 'everyone', likes: [], comments: [] });
+push('maceo', { type: 'brew', id: 'pp2', beanId: 'b1', user: 'Maceo', owner: 'Maceo', method: 'Espresso', date: NOW(), likes: [], comments: [] });
+let wp = pp('wanderer', 'maceo');
+ok(wp.profile && wp.profile.name === 'Maceo' && brewsIn(wp).includes('pp1') && !brewsIn(wp).some(id => ['pp2', 's2', 's3'].includes(id)) && wp.events.some(e => e.type === 'bean' && e.id === 'b1'),
+   "profile_page: someone outside Maceo's circle sees his sessions shared with Everyone (and their coffee), not his Friends or Only-me ones");
+ok(brewsIn(pp('aidan', 'Maceo')).includes('pp2') && !brewsIn(pp('aidan', 'Maceo')).includes('s3'), '...a friend also sees his Friends sessions (never Only me)');
+const wg = wp.events.find(e => e.type === 'gear');
+ok(wg && wg.id === 'gear-Maceo' && wg.items.length === 2 && JSON.stringify(wg.recipes) === '[]' && JSON.stringify(wg.lastByMethod) === '{}', '...and the gear his profile shows (equipment), never his recipes or last setups');
+ok(!wp.profile.you && !wp.profile.locked && pp('wanderer', 'Brew Buddy').events.some(e => e.id === 'bb1' && e.newHere === true) && !pp('wanderer', 'Maceo').events.some(e => e.newHere),
+   "...the card says how you're connected (not following yet), and sessions of someone who joined in the last two weeks say New here (the crew's don't)");
+const pg1 = pp('wanderer', 'Maceo', ', max_items => 1');
+ok(brewsIn(pg1).length === 1 && pg1.next && !brewsIn(pp('wanderer', 'Maceo', `, before => '${pg1.next}'`)).includes(brewsIn(pg1)[0]), 'it comes a page at a time');
+as('maceo', `select set_private(true);`);
+wp = pp('wanderer', 'Maceo');
+ok(wp.profile.locked === true && brewsIn(wp).length === 0 && brewsIn(pp('aidan', 'Maceo')).includes('pp1'), 'a private profile: locked for people he hasn\'t approved (no sessions), friends still see them');
+as('maceo', `select set_private(false);`);
+as('maceo', `select block('Wanderer');`);
+ok(/nobody by that name/.test(pp('wanderer', 'Maceo').err || '') && /nobody by that name/.test(pp('maceo', 'Wanderer').err || ''), 'blocked either way: no profile page');
+as('maceo', `select unblock('Wanderer');`);
+ok(/permission denied/.test(pp('anon', 'Maceo').err || ''), 'not signed in: refused');
+
+// suggestions: from what people share with Everyone; never someone you already follow, private, or blocked
+const sug = who => JSON.parse(fx(who, 'select suggest_people();'));
+let ws = sug('wanderer');
+ok(ws.some(x => x.name === 'Maceo' && x.reason === 'Brewing this week') && !ws.some(x => x.name === 'Wanderer'), `someone with nothing logged yet gets people brewing this week (${ws.map(x => x.name + ': ' + x.reason).join('; ')})`);
+push('wanderer', { type: 'brew', id: 'wd1', beanId: 'b1', user: 'Wanderer', owner: 'Wanderer', method: 'Pour Over', date: NOW(), audience: 'everyone', likes: [], comments: [] });
+ws = sug('wanderer');
+ok(/^Brews .+ too$/.test((ws.find(x => x.name === 'Maceo') || {}).reason || ''), `after logging a session on the same coffee: "${(ws.find(x => x.name === 'Maceo') || {}).reason}"`);
+fx('wanderer', `select follow('Maceo');`);
+as('newbie', `update profiles set is_private = true where auth_id = auth.uid();`);
+ws = sug('wanderer');
+ok(!ws.some(x => x.name === 'Maceo') && !ws.some(x => x.name === 'Brew Buddy'), "people you follow and private profiles aren't suggested");
+as('newbie', `update profiles set is_private = false where auth_id = auth.uid();`);
+fx('wanderer', `select unfollow('Maceo');`);
+as('wanderer', `select block('Maceo');`);
+ok(!sug('wanderer').some(x => x.name === 'Maceo'), '...nor anyone blocked');
+as('wanderer', `select unblock('Maceo');`);
+ok(/permission denied/.test(fx('anon', 'select suggest_people();')), '...and only for signed-in people');
+
+// help requests
+push('maceo', { type: 'brew', id: 'pp1', beanId: 'b1', user: 'Maceo', owner: 'Maceo', method: 'Pour Over', dose: 15, yield: 250, date: NOW(), audience: 'everyone', helpWanted: true, likes: [], comments: [] });
+ok(one(`select help_wanted from sessions where legacy_id = 'pp1';`) === 't' && pull('maceo').find(e => e.id === 'pp1').helpWanted === true && !pull('maceo').find(e => e.id === 'pp2').helpWanted,
+   'Maceo asks for help on a session: saved, and it comes back with the session (and only that one)');
+push('maceo', { type: 'brew', id: 'pp1', beanId: 'b1', user: 'Maceo', owner: 'Maceo', method: 'Pour Over', dose: 15.5, yield: 250, date: NOW(), audience: 'everyone', likes: [], comments: [] });
+ok(one(`select help_wanted || '|' || dose from sessions where legacy_id = 'pp1';`) === 'true|15.5', "an edit from a phone that doesn't know about help requests keeps it");
+const hf = JSON.parse(fx('wanderer', `select community_feed(feed_filter => 'help');`));
+ok(brewsIn(hf).join() === 'pp1', 'the community feed\'s Help filter shows help requests only');
+ok(brewsIn(JSON.parse(fx('wanderer', `select community_feed(feed_method => 'pour over');`))).every(id => ['pp1', 'wd1'].includes(id)) &&
+   brewsIn(JSON.parse(fx('wanderer', `select community_feed(feed_filter => 'new');`))).every(id => ['bb1', 'wd1'].includes(id)) && brewsIn(JSON.parse(fx('wanderer', `select community_feed(feed_filter => 'new');`))).includes('bb1'),
+   '...a method filter shows that method only, and New here shows people who joined in the last two weeks');
+psql(`delete from notifications;`);
+push('wanderer', { type: 'brew', id: 'pp1', beanId: 'b1', user: 'Maceo', owner: 'Maceo', likes: [], comments: [{ id: 'h1', user: 'Wanderer', text: 'try a finer grind and a longer bloom', timestamp: NOW(), audience: 'everyone' }] });
+push('maceo', { ...pull('maceo').find(e => e.id === 'pp1'), helpfulAnswer: 'h1' });
+let hp = pull('maceo').find(e => e.id === 'pp1');
+ok(hp.helpfulAnswer === 'h1' && hp.helpWanted === true && notes('wanderer').items.some(i => i.kind === 'helpful' && i.who === 'Maceo' && i.session === 'pp1' && /finer/.test(i.comment)),
+   'Maceo marks the most helpful answer: it stays with the session and Wanderer hears about it');
+push('maceo', hp);
+ok(notes('wanderer').items.filter(i => i.kind === 'helpful').length === 1, '...once (saving the session again doesn\'t notify again)');
+ok(pull('maceo').find(e => e.id === 'pp1').newHere === undefined && one(`select extras ? 'newHere' from sessions where legacy_id = 'bb1';`) === 'f', "New here is worked out, never stored");
+
+// what a report hides
+const wdv = dv('wanderer');
+ok(fx('wanderer', `select report_item('session', 'pp1', 'testing');`) === 'reported' && dv('wanderer') !== wdv, 'Wanderer reports a session (their change check moves, so the app refreshes)');
+ok(!brewsIn(feed('wanderer')).includes('pp1') && !brewsIn(pp('wanderer', 'Maceo')).includes('pp1') && brewsIn(feed('aidan')).length >= 0 && pull('aidan').some(e => e.id === 'pp1') && pull('maceo').some(e => e.id === 'pp1'),
+   "...it's gone for them right away (community feed, profile), still there for everyone else and its owner");
+fx('newbie', `select report_item('session', 'bb1', 'x');`);   // the stranger reported it earlier: two people so far
+ok(pull('maceo').some(e => e.id === 'bb1'), 'two different people reporting a session: still shown to others');
+fx('twin', `select report_item('session', 'bb1', 'y');`);
+ok(!pull('maceo').some(e => e.id === 'bb1') && !brewsIn(feed('aidan')).includes('bb1') && pull('newbie').some(e => e.id === 'bb1'),
+   'a third person: hidden from everyone (sync and community feed) but its owner, until reviewed');
+push('aidan', { type: 'brew', id: 's2', beanId: 'b1', user: 'Maceo', owner: 'Maceo', likes: [], comments: [{ id: 'r1', user: 'Aidan', text: 'rude words', timestamp: NOW(), audience: 'friends' }] });
+fx('maceo', `select report_item('comment', 's2#r1', 'rude');`);
+ok(!(pull('maceo').find(e => e.id === 's2').comments || []).some(c => c.id === 'r1') && (pull('julian').find(e => e.id === 's2').comments || []).some(c => c.id === 'r1') && (pull('aidan').find(e => e.id === 's2').comments || []).some(c => c.id === 'r1'),
+   "a reported comment: gone for the reporter; others and its author still see it (so the author's next save doesn't delete it)");
+
+// reviewing (admins only)
+ok(/Only reviewers/.test(fx('maceo', 'select review_reports();')) && JSON.parse(fx('maceo', 'select my_profile();')).admin === false, 'reviewing reports is for reviewers only');
+psql(`insert into backend_state (key, value) values ('admins', '${P.Maceo}') on conflict (key) do update set value = excluded.value;`);
+const rv = JSON.parse(fx('maceo', 'select review_reports();'));
+const bbRow = rv.find(r => r.kind === 'session' && r.ref === 'bb1');
+ok(JSON.parse(fx('maceo', 'select my_profile();')).admin === true && bbRow && bbRow.count === 3 && bbRow.status === 'hidden' && bbRow.who === 'Brew Buddy' && rv.some(r => r.kind === 'comment' && r.text === 'rude words'),
+   `a reviewer sees what's waiting: ${rv.length} reported things, the hidden session with its 3 reports`);
+ok(fx('maceo', `select resolve_report('session', '${bbRow.target}', 'dismiss');`) === 'dismissed' && pull('maceo').some(e => e.id === 'bb1') && brewsIn(feed('twin')).includes('bb1'),
+   'dismissed: shown again to everyone, the people who reported it too');
+const r1 = rv.find(r => r.kind === 'comment');
+ok(fx('maceo', `select resolve_report('comment', '${r1.target}', 'remove');`) === 'removed' && !(pull('julian').find(e => e.id === 's2').comments || []).some(c => c.id === 'r1'), 'removed: the comment is gone for everyone');
+ok(!JSON.parse(fx('maceo', 'select review_reports();')).some(r => r.ref === 'bb1' || r.kind === 'comment'), '...and both leave the review list');
+ok(/Only reviewers/.test(fx('aidan', `select resolve_report('session', '${bbRow.target}', 'remove');`)), 'nobody else can resolve a report');
+
+// the community goal counts Everyone and Friends sessions, not Only me; and says how many people brewed this week
+const g0 = JSON.parse(fx('julian', 'select community_goal();'));
+push('julian', { type: 'brew', id: 'jg2', beanId: 'b1', user: 'Julian', owner: 'Julian', method: 'Espresso', date: NOW(), audience: 'only_me', likes: [], comments: [] });
+const g1 = JSON.parse(fx('julian', 'select community_goal();'));
+ok(g1.yourSessions === g0.yourSessions && typeof g1.people === 'number' && g1.people >= 3, `an Only me session doesn't count; ${g1.people} people brewed this week`);
+
+// spam limit: following 200 people in a day is plenty
+psql(`insert into profiles (handle, display_name) select 'bulk' || i, 'Bulk ' || i from generate_series(1, 201) i;
+  insert into follows (follower, followee) select (select id from profiles where auth_id = '${AUTH.twin}'), id from profiles where handle ~ '^bulk' and handle <> 'bulk201';`);
+ok(/a lot of people today/.test(fx('twin', `select follow('Bulk 201');`)) && fx('twin', `select follow('Bulk 7');`) === 'following', 'a 201st follow in a day is refused (following someone you already follow is fine)');
+psql(`delete from profiles where handle ~ '^bulk';`);
+
 // round trip: what the app pulls, pushed back unchanged by its owner, changes nothing
 const STATE = `select md5(string_agg(t::text, '' order by t::text)) from (select s.legacy_id, method, grind, dose, yield, time_s, rating, taste, tasted, flavor_notes, extras, equipment, master, brewed_at, n.body, p.path,
   (select count(*) from likes l where l.session_id = s.id), (select count(*) from comments c where c.session_id = s.id) from sessions s

@@ -31,6 +31,7 @@
 @@include css/11-account.css
 @@include css/12-people.css
 @@include css/13-community.css
+@@include css/14-community-more.css
     </style>
 </head>
 <body>
@@ -326,6 +327,14 @@
         <div class="modal-card people-card">
             <h2>Notifications</h2>
             <div id="notif-body"></div>
+        </div>
+    </div>
+
+    <!-- Reviewing reports (v14.5, reviewers only) -->
+    <div id="review-modal" class="modal" onclick="if(event.target===this) app.closeReview()">
+        <div class="modal-card people-card">
+            <h2>Reports</h2>
+            <div id="review-body"></div>
         </div>
     </div>
 
@@ -705,6 +714,7 @@
 @@include js/app/31-notifications.js
 @@include js/app/32-groups.js
 @@include js/app/33-safety.js
+@@include js/app/34-community-more.js
 @@include js/app/99-end.js
 @@include js/99-boot.js
     </script>

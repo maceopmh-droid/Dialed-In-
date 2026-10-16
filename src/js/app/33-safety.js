@@ -9,12 +9,22 @@
                 try {
                     await Supa.rpc('report_item', { kind, ref, reason });
                     const st = this.ppState(); if (st.menu) { st.menu = ''; this.render(); }
+                    // v14.5: it's gone for you right away (the database leaves it out of everything you're sent from now on)
+                    if (kind === 'session') {
+                        (this._reportedIds = this._reportedIds || new Set()).add('brew:' + ref);
+                        const drop = list => list.filter(e => !(e.type === 'brew' && String(e.id) === String(ref)));
+                        this.commState().events = drop(this.commState().events);
+                        if (this.profState) this.profState().events = drop(this.profState().events);
+                        this.process(this.cloud.events); this._feedHtml = null;
+                        this.render();
+                    }
+                    if (kind !== 'profile' && this.runSync) this.runSync();
                     this.showToast('Reported. Thanks for telling us.');
                 } catch (e) { this.showToast(e && e.message ? e.message : 'That didn\'t work. Try again.'); }
             },
 
             acctToolsHtml() {
-                return `<div class="acct-tools"><button type="button" class="btn-outline pp-act" onclick="app.downloadMyData()">Download my data</button><button type="button" class="btn-outline pp-act acct-delete" onclick="app.deleteMyAccount()">Delete account</button></div>`;
+                return `<div class="acct-tools">${this.isReviewer && this.isReviewer() ? '<button type="button" class="btn-outline pp-act" onclick="app.openReview()">Review reports</button>' : ''}<button type="button" class="btn-outline pp-act" onclick="app.downloadMyData()">Download my data</button><button type="button" class="btn-outline pp-act acct-delete" onclick="app.deleteMyAccount()">Delete account</button></div>`;
             },
 
             async downloadMyData() {

@@ -225,6 +225,7 @@
                     if (this.adoptSheetOutbox && Cloud.confirms) this.adoptSheetOutbox();   // v14.2: saves made on the Sheet that never left this phone
                     if (this.checkNotifications) this.checkNotifications();   // v14.4: the bell's unread count
                     if (this.checkPendingJoin) this.checkPendingJoin();   // v14.4: an invite link opened before signing in
+                    if (this.checkPendingProfile) this.checkPendingProfile();   // v14.5: a profile link
                     if (this.pendingOutbox().some(x => this.outboxDue(x))) setTimeout(() => this.flushOutbox(), 0);
                 } catch (e) {
                     this.syncFailed = true;

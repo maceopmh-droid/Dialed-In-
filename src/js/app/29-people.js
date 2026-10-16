@@ -39,6 +39,7 @@
                 document.getElementById('people-modal').classList.add('active');
                 this.renderPeople();
                 this.loadPeople(true).then(() => this.renderPeople()).catch(e => this.peopleFailed(e));
+                if (this.loadSuggestions) this.loadSuggestions();   // v14.5
             },
 
             closePeople() { const m = document.getElementById('people-modal'); if (m) m.classList.remove('active'); },
@@ -69,7 +70,7 @@
 
             // the one button that fits where you stand with someone
             followBtnHtml(name, rel, cls = '', stop = false) {
-                const n = this.esc(name), a = action => `onclick="${stop ? 'event.stopPropagation(); ' : ''}app.peopleAct('${action}', this.getAttribute('data-name'))" data-name="${n}"`;
+                const n = this.esc(name), a = action => `onclick="${stop ? 'event.stopPropagation(); ' : ''}app.peopleAct('${app.escJs(action)}', this.getAttribute('data-name'))" data-name="${n}"`;
                 if (rel.blocked) return `<button type="button" class="btn-outline pp-act ${cls}" ${a('unblock')}>Unblock</button>`;
                 if (rel.you === 'accepted') return `<button type="button" class="btn-outline pp-act ${cls}" ${a('unfollow')}>Following</button>`;
                 if (rel.you === 'pending') return `<button type="button" class="btn-outline pp-act is-quiet ${cls}" ${a('unfollow')}>Requested</button>`;
@@ -87,7 +88,7 @@
                 const st = this.ppState(), d = st.data;
                 // v14.4: two tabs, People and Groups
                 const tabs = document.getElementById('people-tabs'), q = document.getElementById('people-q');
-                if (tabs) tabs.innerHTML = `<div class="seg-control pp-tabs" role="tablist" aria-label="People or groups">${[['people', 'People'], ['groups', 'Groups']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${(st.tab || 'people') === k}" aria-pressed="${(st.tab || 'people') === k}" onclick="app.setPeopleTab('${k}')">${l}</button>`).join('')}</div>`;
+                if (tabs) tabs.innerHTML = `<div class="seg-control pp-tabs" role="tablist" aria-label="People or groups">${[['people', 'People'], ['groups', 'Groups']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${(st.tab || 'people') === k}" aria-pressed="${(st.tab || 'people') === k}" onclick="app.setPeopleTab('${app.escJs(k)}')">${l}</button>`).join('')}</div>`;
                 if (q) q.hidden = st.tab === 'groups';
                 if (st.tab === 'groups') { this.renderGroups(body); return; }
                 if (st.q.trim().length >= 2) {
@@ -107,16 +108,19 @@
                 const ask = name => { const n = this.esc(name); return `<button type="button" class="btn-primary pp-act" data-name="${n}" onclick="app.peopleAct('approve', this.getAttribute('data-name'))">Approve</button><button type="button" class="btn-outline pp-act" data-name="${n}" onclick="app.peopleAct('decline', this.getAttribute('data-name'))">Remove</button>`; };
                 const html = [
                     section('Requests', requests.map(f => this.peopleRowHtml(f.name, this.relationTo(f.name), { color: f.color, actions: ask(f.name) }))),
+                    this.suggestionsHtml ? this.suggestionsHtml() : '',   // v14.5: people you might like to follow
                     section('Friends', friends.map(f => this.peopleRowHtml(f.name, this.relationTo(f.name), { color: f.color }))),
                     section('Following', just.map(f => this.peopleRowHtml(f.name, this.relationTo(f.name), { color: f.color }))),
                     section('Followers', fans.map(f => this.peopleRowHtml(f.name, this.relationTo(f.name), { color: f.color }))),
                     section('Blocked', (d.blocked || []).map(n => this.peopleRowHtml(n, { blocked: true }, { sub: 'They can\'t see or find you' }))),
                 ].join('');
-                body.innerHTML = html || `<p class="pp-empty">You're not following anyone yet. Find people by name above. When you follow each other, you're friends.</p>`;
+                const share = this.shareProfile ? `<div class="pp-share"><button type="button" class="btn-outline pp-act" onclick="app.shareProfile()">Share my profile</button></div>` : '';   // v14.5: your link, for friends
+                body.innerHTML = (html || `<p class="pp-empty">You're not following anyone yet. Find people by name above. When you follow each other, you're friends.</p>`) + share;
             },
 
             // tap a name: their profile, when there's something of theirs you're allowed to see
             openPersonFromPeople(name) {
+                if (this.openAnyProfile) { this.openAnyProfile(name); return; }   // v14.5: anyone's profile, outside your circle too
                 if (!(this.knownPeople().includes(name) || this.hasLoggedData(name))) { this.showToast(`Nothing of ${name}'s to see yet.`); return; }
                 this.closePeople();
                 this.profileSection = 'overview';

@@ -50,6 +50,29 @@ language sql stable security definer set search_path = public as $$
   select exists (select 1 from group_members m where m.group_id = g and m.user_id = u and m.role in ('owner', 'admin'));
 $$;
 
+-- v14.5: who reviews reports. backend_state 'admins' is a comma list of profile ids (Maceo's to start).
+create or replace function internal.is_admin(pid uuid) returns boolean
+language sql stable security definer set search_path = public as $$
+  select pid is not null and exists (select 1 from backend_state where key = 'admins' and pid::text = any(string_to_array(value, ',')));
+$$;
+insert into backend_state (key, value) select 'admins', p.id::text from profiles p where p.legacy_name = 'Maceo' on conflict (key) do nothing;
+
+-- v14.5: what a report hides. Whoever reported something stops seeing it right away; once three different people
+-- have reported it, it's hidden from everyone but its owner until it's reviewed (review_reports / resolve_report).
+create index if not exists reports_target on reports (target_id);
+create index if not exists reports_reporter on reports (reporter_id);
+create or replace function internal.unseen(kind text, target uuid) returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (select 1 from reports r where r.target_id = target and r.target_type = kind
+                 and ((r.reporter_id = me() and r.status <> 'dismissed') or r.status = 'hidden'));
+$$;
+-- for data_version: changes when you report something or something is hidden or brought back
+create or replace function internal.report_mark() returns text
+language sql stable security definer set search_path = public as $$
+  select (select count(*) from reports where reporter_id = me()) || ':' ||
+         (select count(*) filter (where status = 'hidden') || ':' || count(*) filter (where status = 'dismissed') || ':' || count(*) filter (where status = 'removed') from reports);
+$$;
+
 -- group owners and admins can flip members' "counts in group goal"; members can flip their own
 drop policy if exists members_edit on group_members;
 create policy members_edit on group_members for update to authenticated
@@ -93,13 +116,14 @@ begin
   exception when unique_violation then   -- someone took it a moment ago
     raise exception 'That name is taken.' using errcode = '23505';
   end;
-  return jsonb_build_object('id', p.id, 'name', p.display_name, 'handle', p.handle);
+  return jsonb_build_object('id', p.id, 'name', p.display_name, 'handle', p.handle, 'joined', p.joined_at);
 end $$;
 
 -- the signed-in person's profile, or null when they haven't claimed a name or made one yet
 create or replace function my_profile() returns jsonb
 language sql stable security definer set search_path = public as $$
-  select jsonb_build_object('id', p.id, 'name', coalesce(p.legacy_name, p.display_name), 'handle', p.handle, 'private', p.is_private) from profiles p where p.auth_id = auth.uid();
+  select jsonb_build_object('id', p.id, 'name', coalesce(p.legacy_name, p.display_name), 'handle', p.handle, 'private', p.is_private,
+           'joined', p.joined_at, 'admin', internal.is_admin(p.id)) from profiles p where p.auth_id = auth.uid();
 $$;
 
 -- v14.4: a private profile approves its followers (and only they, plus friends and your groups, see what you share
@@ -136,7 +160,8 @@ language sql stable set search_path = public as $$
       'audience', c.audience
     ) order by c.created_at, c.legacy_ref), '[]'::jsonb)
   from comments c
-  where c.deleted_at is null and ((cof is not null and c.coffee_id = cof) or (ses is not null and c.session_id = ses));
+  where c.deleted_at is null and ((cof is not null and c.coffee_id = cof) or (ses is not null and c.session_id = ses))
+    and (c.author_id = me() or not internal.unseen('comment', c.id));   -- v14.5: reported
 $$;
 
 -- one coffee / one session in the app's event format (pull_events and community_feed share them). They run as the
@@ -176,7 +201,9 @@ language sql stable set search_path = public as $$
       'comments', internal.comments_json(null, s.id),
       'equipment', coalesce(s.equipment->'ids', '[]'::jsonb), 'equipmentSnapshot', coalesce(s.equipment->'snapshot', '[]'::jsonb),
       'isMaster', coalesce((s.master->>'isMaster')::boolean, false), 'masterProfile', s.master->'profile',
-      'date', s.brewed_at, 'eventAt', s.updated_at, 'audience', s.audience, 'noteAudience', n.audience, 'photoAudience', p.audience
+      'date', s.brewed_at, 'eventAt', s.updated_at, 'audience', s.audience, 'noteAudience', n.audience, 'photoAudience', p.audience,
+      'helpWanted', case when s.help_wanted then true end,   -- v14.5: "Help me dial this in"
+      'newHere', case when (select o.joined_at from profiles o where o.id = s.owner_id) > now() - interval '14 days' then true end   -- joined in the last two weeks
     ))
   from (select 1) one left join coffees k on k.id = s.coffee_id
        left join session_notes n on n.session_id = s.id left join session_photos p on p.session_id = s.id;
@@ -200,7 +227,8 @@ begin
     and (k.owner_id = any(circle) or exists (select 1 from sessions s where s.coffee_id = k.id and s.deleted_at is null and s.owner_id = any(circle)));
 
   -- sessions (notes and photos only when their own toggle lets you see them; the row rules handle that)
-  out := out || coalesce((select jsonb_agg(internal.session_json(s)) from sessions s where s.deleted_at is null and s.owner_id = any(circle)), '[]'::jsonb);
+  out := out || coalesce((select jsonb_agg(internal.session_json(s)) from sessions s where s.deleted_at is null and s.owner_id = any(circle)
+                          and (s.owner_id = me_id or not internal.unseen('session', s.id))), '[]'::jsonb);
 
   -- your gear in full
   out := out || coalesce((select jsonb_agg(jsonb_build_object('type', 'gear', 'id', 'gear-' || internal.name_of(me_id),
@@ -257,7 +285,10 @@ create index if not exists follows_followee on follows (followee);
 create index if not exists group_members_user on group_members (user_id);
 create index if not exists equipment_owner on equipment (owner_id);
 create index if not exists sessions_public_recent on sessions (brewed_at desc) where deleted_at is null and audience = 'everyone';
-create or replace function community_feed(before timestamptz default null, max_items int default 30) returns jsonb
+create index if not exists sessions_help_recent on sessions (brewed_at desc) where deleted_at is null and audience = 'everyone' and help_wanted;
+-- v14.5: filters. feed_filter => 'help' (help requests) or 'new' (people who joined in the last two weeks); feed_method => one method.
+drop function if exists community_feed(timestamptz, int);
+create or replace function community_feed(before timestamptz default null, max_items int default 30, feed_filter text default null, feed_method text default null) returns jsonb
 language plpgsql stable set search_path = public as $$
 declare me_id uuid := me(); lim int := least(greatest(coalesce(max_items, 30), 1), 60); ids uuid[]; oldest timestamptz;
 begin
@@ -265,6 +296,10 @@ begin
   select array_agg(t.id order by t.brewed_at desc), min(t.brewed_at) into ids, oldest
   from (select s.id, s.brewed_at from sessions s
         where s.deleted_at is null and s.audience = 'everyone' and (community_feed.before is null or s.brewed_at < community_feed.before)
+          and (feed_filter is distinct from 'help' or s.help_wanted)
+          and (feed_filter is distinct from 'new' or (select o.joined_at from profiles o where o.id = s.owner_id) > now() - interval '14 days')
+          and (coalesce(btrim(feed_method), '') = '' or lower(s.method) = lower(btrim(feed_method)))
+          and (s.owner_id = me_id or not internal.unseen('session', s.id))
         order by s.brewed_at desc limit lim) t;
   if ids is null then return jsonb_build_object('events', '[]'::jsonb, 'next', null); end if;
   return jsonb_build_object(
@@ -310,7 +345,8 @@ begin
     (select md5(string_agg(p.id::text || coalesce(p.color, '') || p.is_private::text || coalesce(p.display_name, '') || coalesce(p.city, ''), ',' order by p.id)) from profiles p where p.id = any(circle)),
     (select md5(string_agg(m.group_id::text || m.user_id::text || m.role || m.counts_in_goal::text, ',' order by m.group_id, m.user_id))
        from group_members m where m.group_id in (select group_id from group_members where user_id = me_id)),
-    (select count(*) || ':' || coalesce(max(created_at)::text, '') from flavors)));
+    (select count(*) || ':' || coalesce(max(created_at)::text, '') from flavors),
+    internal.report_mark()));
 end $$;
 
 -- ---------------------------------------------------------------- writing: push_event(ev)
@@ -414,7 +450,7 @@ create or replace function internal.session_fields(ev jsonb) returns jsonb langu
        'complexity', case when coalesce(ev->>'complexity', '') <> '' then ev->'complexity' end)),
     'extras', ev - array['type', 'id', 'beanId', 'method', 'grind', 'dose', 'yield', 'time', 'acidity', 'sweetness', 'body', 'finish', 'balance', 'bitterness',
        'complexity', 'isMaster', 'masterProfile', 'notes', 'note', 'observations', 'observation', 'tastingNotes', 'user', 'owner', 'date', 'actor', 'actorColor',
-       'rating', 'likes', 'comments', 'photo', 'equipment', 'equipmentSnapshot', 'eventAt', 'commentMeta', 'tasted', 'flavorNotes', 'audience', 'noteAudience', 'photoAudience', 'helpWanted', 'baseAt'],
+       'rating', 'likes', 'comments', 'photo', 'equipment', 'equipmentSnapshot', 'eventAt', 'commentMeta', 'tasted', 'flavorNotes', 'audience', 'noteAudience', 'photoAudience', 'helpWanted', 'newHere', 'baseAt'],
     'equipment', jsonb_build_object('ids', coalesce(ev->'equipment', '[]'::jsonb), 'snapshot', coalesce(ev->'equipmentSnapshot', '[]'::jsonb)),
     'master', case when coalesce(ev->>'isMaster', 'false') = 'true' or jsonb_typeof(ev->'masterProfile') = 'object'
                    then jsonb_build_object('isMaster', coalesce(ev->>'isMaster', 'false') = 'true', 'profile', case when jsonb_typeof(ev->'masterProfile') = 'object' then ev->'masterProfile' end) end,
@@ -435,8 +471,8 @@ begin
   select * into s from sessions where legacy_id = ev->>'id';
   if not found then
     if lower(btrim(coalesce(ev->>'owner', ev->>'user', me_nm))) <> lower(me_nm) then return; end if;
-    insert into sessions (legacy_id, owner_id, coffee_id, audience, method, grind, dose, yield, time_s, rating, taste, tasted, flavor_notes, extras, equipment, master, brewed_at)
-    values (ev->>'id', me_id, cof, coalesce(internal.aud(ev->>'audience'), 'friends'), nullif(btrim(ev->>'method'), ''), nullif(btrim(ev->>'grind'), ''),
+    insert into sessions (legacy_id, owner_id, coffee_id, audience, help_wanted, method, grind, dose, yield, time_s, rating, taste, tasted, flavor_notes, extras, equipment, master, brewed_at)
+    values (ev->>'id', me_id, cof, coalesce(internal.aud(ev->>'audience'), 'friends'), lower(coalesce(ev->>'helpWanted', '')) = 'true', nullif(btrim(ev->>'method'), ''), nullif(btrim(ev->>'grind'), ''),
             internal.try_num(ev->>'dose'), internal.try_num(ev->>'yield'), internal.try_num(ev->>'time'), internal.rating(ev->>'rating'),
             f->'taste', array(select jsonb_array_elements_text(case when jsonb_typeof(ev->'tasted') = 'array' then ev->'tasted' else '[]'::jsonb end)),
             case when jsonb_typeof(ev->'flavorNotes') = 'object' then ev->'flavorNotes' end, ex, f->'equipment', f->'master',
@@ -445,6 +481,7 @@ begin
   elsif s.deleted_at is not null then return;
   elsif s.owner_id = me_id then
     update sessions set coffee_id = cof, audience = coalesce(internal.aud(ev->>'audience'), audience), method = nullif(btrim(ev->>'method'), ''), grind = nullif(btrim(ev->>'grind'), ''),
+      help_wanted = case when ev ? 'helpWanted' then lower(coalesce(ev->>'helpWanted', '')) = 'true' else help_wanted end,   -- an older app that doesn't know it keeps it
       dose = internal.try_num(ev->>'dose'), yield = internal.try_num(ev->>'yield'), time_s = internal.try_num(ev->>'time'), rating = internal.rating(ev->>'rating'),
       taste = f->'taste', tasted = array(select jsonb_array_elements_text(case when jsonb_typeof(ev->'tasted') = 'array' then ev->'tasted' else '[]'::jsonb end)),
       flavor_notes = case when jsonb_typeof(ev->'flavorNotes') = 'object' then ev->'flavorNotes' end, extras = ex, equipment = f->'equipment', master = f->'master',
@@ -549,6 +586,10 @@ begin
   if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
   them := internal.profile_by_name(follow.name, me_id);
   if them is null then raise exception 'There''s nobody by that name.' using errcode = 'P0002'; end if;   -- blocked looks the same
+  if not exists (select 1 from follows where follower = me_id and followee = them)
+     and (select count(*) from follows where follower = me_id and created_at > now() - interval '1 day') >= 200 then
+    raise exception 'You''ve followed a lot of people today. Try again tomorrow.' using errcode = 'P0001';   -- v14.5: spam limit
+  end if;
   insert into follows (follower, followee, status)
   values (me_id, them, case when (select is_private from profiles where id = them) then 'pending' else 'accepted' end)
   on conflict (follower, followee) do nothing;
@@ -821,40 +862,189 @@ declare
   we timestamptz := ws + interval '7 days';
   types text[] := array['sessions', 'origins', 'rated', 'notes', 'everyone', 'methods'];
   t text; base numeric; avg_origins numeric; methods_seen int; brewers numeric;
-  target int; progress int; title text; unit text; mine int;
+  target int; progress int; title text; unit text; mine int; brewing int;
 begin
   t := types[1 + ((round(extract(epoch from ws) * 1000 / 604800000)::bigint % 6 + 6) % 6)];
   with weeks as (select i, ws - i * interval '7 days' as a, ws - (i - 1) * interval '7 days' as b from generate_series(1, 6) i),
        per as (select w.i, count(s.id) n, count(distinct coalesce(nullif(split_part(k.origin, ',', 1), ''), null)) o, count(distinct s.owner_id) p
-               from weeks w left join sessions s on s.brewed_at >= w.a and s.brewed_at < w.b and s.deleted_at is null left join coffees k on k.id = s.coffee_id group by w.i)
+               from weeks w left join sessions s on s.brewed_at >= w.a and s.brewed_at < w.b and s.deleted_at is null and s.audience <> 'only_me' left join coffees k on k.id = s.coffee_id group by w.i)
   select coalesce((select percentile_disc(0.5) within group (order by n) from per where n > 0), 6),
          coalesce((select avg(o) from per where n > 0), 1),
          coalesce((select percentile_disc(0.5) within group (order by p) from per where n > 0), 2)
     into base, avg_origins, brewers from (select 1) x;
-  select count(distinct method) into methods_seen from sessions where brewed_at >= ws - interval '42 days' and brewed_at < ws and deleted_at is null and method is not null;
+  select count(distinct method) into methods_seen from sessions where brewed_at >= ws - interval '42 days' and brewed_at < ws and deleted_at is null and audience <> 'only_me' and method is not null;
   if t = 'sessions' then
     target := greatest(4, round(base * 1.15)); title := format('Brew %s sessions together', target); unit := 'sessions';
-    select count(*) into progress from sessions where brewed_at >= ws and brewed_at < we and deleted_at is null;
+    select count(*) into progress from sessions where brewed_at >= ws and brewed_at < we and deleted_at is null and audience <> 'only_me';
   elsif t = 'origins' then
     target := least(30, greatest(2, round(avg_origins + 1))); title := format('Taste %s different origins', target); unit := 'origins';
     select count(distinct lower(btrim(split_part(k.origin, ',', 1)))) into progress from sessions s join coffees k on k.id = s.coffee_id
-    where s.brewed_at >= ws and s.brewed_at < we and s.deleted_at is null and coalesce(btrim(split_part(k.origin, ',', 1)), '') <> '';
+    where s.brewed_at >= ws and s.brewed_at < we and s.deleted_at is null and s.audience <> 'only_me' and coalesce(btrim(split_part(k.origin, ',', 1)), '') <> '';
   elsif t = 'rated' then
     target := greatest(3, round(base * 0.7)); title := format('Rate %s sessions', target); unit := 'rated';
-    select count(*) into progress from sessions where brewed_at >= ws and brewed_at < we and deleted_at is null and coalesce(rating, 0) > 0;
+    select count(*) into progress from sessions where brewed_at >= ws and brewed_at < we and deleted_at is null and audience <> 'only_me' and coalesce(rating, 0) > 0;
   elsif t = 'notes' then
     target := greatest(3, round(base * 0.5)); title := format('Log tasting notes on %s sessions', target); unit := 'with notes';
-    select count(*) into progress from sessions where brewed_at >= ws and brewed_at < we and deleted_at is null and coalesce(btrim(extras->>'flavors'), '') <> '';
+    select count(*) into progress from sessions where brewed_at >= ws and brewed_at < we and deleted_at is null and audience <> 'only_me' and coalesce(btrim(extras->>'flavors'), '') <> '';
   elsif t = 'everyone' then
     target := greatest(2, round(brewers * 1.1)); title := format('%s people brew this week', target); unit := 'people';
-    select count(distinct owner_id) into progress from sessions where brewed_at >= ws and brewed_at < we and deleted_at is null;
+    select count(distinct owner_id) into progress from sessions where brewed_at >= ws and brewed_at < we and deleted_at is null and audience <> 'only_me';
   else
     target := case when methods_seen >= 3 then 3 else 2 end; title := format('Brew with %s different methods', target); unit := 'methods';
-    select count(distinct method) into progress from sessions where brewed_at >= ws and brewed_at < we and deleted_at is null and method is not null;
+    select count(distinct method) into progress from sessions where brewed_at >= ws and brewed_at < we and deleted_at is null and audience <> 'only_me' and method is not null;
   end if;
-  select count(*) into mine from sessions where owner_id = me() and brewed_at >= ws and brewed_at < we and deleted_at is null;
+  select count(*) into mine from sessions where owner_id = me() and brewed_at >= ws and brewed_at < we and deleted_at is null and audience <> 'only_me';
+  select count(distinct owner_id) into brewing from sessions where brewed_at >= ws and brewed_at < we and deleted_at is null and audience <> 'only_me';
   return jsonb_build_object('type', t, 'title', title, 'target', target, 'progress', least(progress, target), 'raw', progress, 'done', progress >= target,
-    'unit', unit, 'start', ws, 'end', we, 'yourSessions', mine);
+    'unit', unit, 'start', ws, 'end', we, 'yourSessions', mine, 'people', brewing);
+end $$;
+
+-- ---------------------------------------------------------------- v14.5: profiles, suggestions, help requests
+-- Someone's profile, for anyone you can find (outside your circle too): their card and the sessions of theirs you
+-- may see (the row rules decide: what they share with Everyone, unless their profile is private and you don't
+-- follow them), newest first, a page at a time, with those sessions' coffees and what their profile shows of their
+-- gear (equipment they haven't hidden, favorite coffees). Never their recipes or last setups.
+create or replace function profile_page(name text, before timestamptz default null, max_items int default 40) returns jsonb
+language plpgsql stable set search_path = public as $$
+declare me_id uuid := me(); them uuid; lim int := least(greatest(coalesce(max_items, 40), 1), 100); ids uuid[]; oldest timestamptz; nm text; card jsonb; gear jsonb;
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  them := internal.profile_by_name(profile_page.name, me_id);
+  if them is null then raise exception 'There''s nobody by that name.' using errcode = 'P0002'; end if;   -- blocked looks the same
+  nm := internal.name_of(them);
+  select array_agg(t.id order by t.brewed_at desc), min(t.brewed_at) into ids, oldest
+  from (select s.id, s.brewed_at from sessions s
+        where s.owner_id = them and s.deleted_at is null and (profile_page.before is null or s.brewed_at < profile_page.before)
+          and not internal.unseen('session', s.id)
+        order by s.brewed_at desc limit lim) t;
+  select jsonb_strip_nulls(jsonb_build_object('name', nm, 'color', p.color, 'private', p.is_private, 'joined', p.joined_at,
+           'you', (select f.status from follows f where f.follower = me_id and f.followee = p.id),
+           'followsYou', exists (select 1 from follows f where f.follower = p.id and f.followee = me_id and f.status = 'accepted'),
+           'friend', private.is_friend(me_id, p.id),
+           'locked', p.is_private and not (p.id = any(private.my_following_ids()) or p.id = any(private.my_close_ids()))))
+    into card from profiles p where p.id = them;
+  select jsonb_build_object('type', 'gear', 'id', 'gear-' || nm, 'user', nm, 'owner', nm, 'actor', nm,
+           'items', coalesce((select jsonb_agg(jsonb_build_object('id', coalesce(e.legacy_id, e.id::text), 'name', e.name, 'type', e.type) order by e.sort_order, e.created_at)
+                              from equipment e where e.owner_id = them), '[]'::jsonb),
+           'lastByMethod', '{}'::jsonb, 'recipes', '[]'::jsonb, 'fabFour', coalesce(pg.fab_four, '[]'::jsonb), 'roasters', '{}'::jsonb,
+           'date', coalesce(pg.updated_at, now()), 'eventAt', coalesce(pg.updated_at, now()))
+    into gear from (select 1) one left join internal.public_gear(me_id) pg on pg.profile_id = them;
+  return jsonb_build_object('profile', card,
+    'events', coalesce((select jsonb_agg(internal.coffee_json(k)) from coffees k
+                        where k.deleted_at is null and (k.id = any(coalesce((select array_agg(s.coffee_id) from sessions s where s.id = any(ids)), '{}'))
+                                                        or coalesce(k.legacy_id, k.id::text) in (select jsonb_array_elements_text(gear->'fabFour')))), '[]'::jsonb)
+           || coalesce((select jsonb_agg(internal.session_json(s) order by s.brewed_at desc) from sessions s where s.id = any(ids)), '[]'::jsonb)
+           || jsonb_build_array(gear),
+    'next', case when array_length(ids, 1) = lim then oldest end);
+end $$;
+
+-- People you might like to follow: who brews the same coffees or roasters as you, uses the same grinder, or the
+-- methods you use, judged only from what they share with Everyone (it runs as you, so the row rules decide), active
+-- in the last two months, not private, not already followed or asked, never anyone blocked either way. Someone who
+-- hasn't logged anything yet sees people who are new here too and people brewing this week.
+create or replace function suggest_people(max_count int default 8) returns jsonb
+language plpgsql stable set search_path = public as $$
+declare me_id uuid := me(); lim int := least(greatest(coalesce(max_count, 8), 1), 30); out jsonb;
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  with mine as (select s.coffee_id, s.method, k.name as coffee, coalesce(k.roaster_text, r.name) as roaster
+                from sessions s left join coffees k on k.id = s.coffee_id left join roasters r on r.id = k.roaster_id
+                where s.owner_id = me_id and s.deleted_at is null),
+       my_grinders as (select lower(btrim(e.name)) as g, e.name from equipment e where e.owner_id = me_id and lower(e.type) = 'grinder'),
+       theirs as (select s.owner_id, s.coffee_id, s.method, s.brewed_at, k.name as coffee, coalesce(k.roaster_text, r.name) as roaster
+                  from sessions s left join coffees k on k.id = s.coffee_id left join roasters r on r.id = k.roaster_id
+                  join profiles o on o.id = s.owner_id
+                  where s.audience = 'everyone' and s.deleted_at is null and s.owner_id <> me_id and not o.is_private
+                    and s.brewed_at > now() - interval '60 days'
+                    and not exists (select 1 from follows f where f.follower = me_id and f.followee = s.owner_id)),
+       why as (
+         select t.owner_id, 4 as pts, 'Brews ' || max(t.coffee) || ' too' as reason from theirs t
+           where t.coffee is not null and exists (select 1 from mine m where m.coffee_id = t.coffee_id or (lower(btrim(m.coffee)) = lower(btrim(t.coffee)) and lower(coalesce(m.roaster, '')) = lower(coalesce(t.roaster, ''))))
+           group by t.owner_id
+         union all
+         select t.owner_id, 2, 'Brews ' || max(t.roaster) || ' too' from theirs t
+           where coalesce(btrim(t.roaster), '') <> '' and exists (select 1 from mine m where lower(btrim(m.roaster)) = lower(btrim(t.roaster)))
+           group by t.owner_id
+         union all
+         select e.owner_id, 3, 'Uses a ' || max(e.name) || ' too' from equipment e join my_grinders g on g.g = lower(btrim(e.name))
+           where lower(e.type) = 'grinder' and e.owner_id in (select owner_id from theirs) group by e.owner_id
+         union all
+         select t.owner_id, 1, 'Also brews ' || max(t.method) from theirs t
+           where t.method is not null and t.method in (select m.method from mine m where m.method is not null)
+           group by t.owner_id
+         union all   -- someone with nothing logged yet: people new here too, and people brewing this week
+         select t.owner_id, 1, case when (select joined_at from profiles where id = t.owner_id) > now() - interval '14 days' then 'New here too' else 'Brewing this week' end
+           from theirs t where not exists (select 1 from mine) and t.brewed_at > now() - interval '7 days' group by t.owner_id),
+       ranked as (select w.owner_id, sum(w.pts) as score, (array_agg(w.reason order by w.pts desc, w.reason))[1] as reason,
+                         (select max(t.brewed_at) from theirs t where t.owner_id = w.owner_id) as last_at
+                  from why w group by w.owner_id)
+  select coalesce(jsonb_agg(jsonb_build_object('name', internal.name_of(x.owner_id), 'color', internal.color_of(x.owner_id), 'reason', x.reason) order by x.score desc, x.last_at desc), '[]'::jsonb)
+    into out from (select * from ranked order by score desc, last_at desc limit lim) x;
+  return out;
+end $$;
+
+-- "Help me dial this in": the asker marks the most helpful answer (the session's helpfulAnswer, kept with its other
+-- fields), and its author hears about it
+alter table notifications drop constraint if exists notifications_kind_check;
+alter table notifications add constraint notifications_kind_check
+  check (kind in ('like', 'comment', 'reply', 'comment_like', 'follow', 'follow_request', 'follow_accepted', 'joined_group', 'helpful'));
+create or replace function internal.on_helpful() returns trigger language plpgsql security definer set search_path = public as $$
+declare cid text := nullif(btrim(coalesce(new.extras->>'helpfulAnswer', '')), ''); c comments;
+begin
+  if cid is null or cid = coalesce(old.extras->>'helpfulAnswer', '') then return null; end if;
+  select * into c from comments where session_id = new.id and deleted_at is null and (legacy_ref = coalesce(new.legacy_id, new.id::text) || '#' || cid or id::text = cid) limit 1;
+  if found then perform internal.notify(c.author_id, new.owner_id, 'helpful', new.id, null, c.id); end if;
+  return null;
+end $$;
+drop trigger if exists notify_helpful on sessions;
+create trigger notify_helpful after update of extras on sessions for each row execute function internal.on_helpful();
+
+-- ---------------------------------------------------------------- v14.5: reviewing reports (admins only)
+create or replace function internal.on_report() returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if (select count(distinct reporter_id) from reports where target_type = new.target_type and target_id = new.target_id and status in ('open', 'hidden')) >= 3 then
+    update reports set status = 'hidden' where target_type = new.target_type and target_id = new.target_id and status = 'open';
+  end if;
+  return null;
+end $$;
+drop trigger if exists hide_reported on reports;
+create trigger hide_reported after insert on reports for each row execute function internal.on_report();
+
+-- what's waiting: one row per reported thing, with what it is, whose it is, how many people reported it and why
+create or replace function review_reports() returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if not internal.is_admin(me()) then raise exception 'Only reviewers can see reports.' using errcode = '42501'; end if;
+  return coalesce((select jsonb_agg(x order by x->>'last' desc) from (
+    select jsonb_strip_nulls(jsonb_build_object('kind', r.target_type, 'target', r.target_id,
+             'status', case when bool_or(r.status = 'hidden') then 'hidden' else 'open' end,
+             'count', count(distinct r.reporter_id), 'reasons', coalesce(jsonb_agg(distinct r.reason) filter (where r.reason is not null), '[]'::jsonb),
+             'last', max(r.created_at),
+             'who', case r.target_type when 'session' then (select internal.name_of(owner_id) from sessions where id = r.target_id)
+                                       when 'comment' then (select internal.name_of(author_id) from comments where id = r.target_id)
+                                       when 'profile' then internal.name_of(r.target_id) end,
+             'text', case r.target_type when 'comment' then (select left(body, 300) from comments where id = r.target_id)
+                                        when 'session' then (select left(coalesce(n.body, ''), 300) from session_notes n where n.session_id = r.target_id) end,
+             'coffee', case when r.target_type = 'session' then (select k.name from sessions s join coffees k on k.id = s.coffee_id where s.id = r.target_id) end,
+             'ref', case when r.target_type = 'session' then (select coalesce(legacy_id, id::text) from sessions where id = r.target_id) end)) as x
+    from reports r where r.status in ('open', 'hidden') group by r.target_type, r.target_id) t), '[]'::jsonb);
+end $$;
+
+-- dismiss (nothing wrong: shown again to everyone, reporters included), or remove (a session or comment is deleted)
+create or replace function resolve_report(kind text, target uuid, action text) returns text
+language plpgsql security definer set search_path = public as $$
+begin
+  if not internal.is_admin(me()) then raise exception 'Only reviewers can do that.' using errcode = '42501'; end if;
+  if action = 'dismiss' then
+    update reports set status = 'dismissed' where target_type = kind and target_id = target and status in ('open', 'hidden');   -- reporters see it again too
+    return 'dismissed';
+  elsif action = 'remove' then
+    if kind = 'session' then update sessions set deleted_at = now(), updated_at = now() where id = target;
+    elsif kind = 'comment' then update comments set deleted_at = now() where id = target; end if;
+    update reports set status = 'removed' where target_type = kind and target_id = target and status in ('open', 'hidden');
+    return 'removed';
+  end if;
+  raise exception 'Dismiss or remove.' using errcode = '22023';
 end $$;
 
 -- ---------------------------------------------------------------- reporting, your data, leaving
@@ -926,11 +1116,13 @@ end $$;
 grant usage on schema internal to authenticated;
 grant execute on all functions in schema internal to authenticated;
 -- only signed-in people can call these (Postgres lets everyone run a new function unless told otherwise)
-revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int), report_item(text, text, text),
+revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text), report_item(text, text, text),
+  profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version() from public, anon;
-grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int), report_item(text, text, text),
+grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text), report_item(text, text, text),
+  profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version() to authenticated;

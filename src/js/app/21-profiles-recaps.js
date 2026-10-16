@@ -18,7 +18,8 @@
             renderProfile(grid) {
                 grid.className = 'profile-view';
                 const people = this.profileRowPeople();   // v14.4: you and the people you follow (each person's own row)
-                if (!this.profileUser || !(people.includes(this.profileUser) || this.hasLoggedData(this.profileUser))) this.profileUser = this.user || people[0] || '';
+                const opened = this.acctOn() && this.profState && this.profState().name === this.profileUser;   // v14.5: someone outside your circle, opened by tapping their name
+                if (!this.profileUser || !(people.includes(this.profileUser) || this.hasLoggedData(this.profileUser) || opened)) this.profileUser = this.user || people[0] || '';
                 const who = this.profileUser;
                 if (!who) {
                     grid.innerHTML = '<div class="panel-empty">Pick a user in Settings to see profiles.</div>';
@@ -48,6 +49,7 @@
                 grid.innerHTML = [
                     `<div class="people-switch${this.acctOn() ? ' one-row' : ''}">${chips}${peopleChip}</div>`,
                     this.renderProfileHero(who),
+                    this.profileNoteHtml ? this.profileNoteHtml(who) : '',
                     tabs,
                     `<div class="profile-section" data-section="${section}">${body}</div>`
                 ].join('');

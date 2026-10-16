@@ -60,6 +60,7 @@
                     case 'follow_request': return `${who} wants to follow you`;
                     case 'follow_accepted': return `${who} approved your follow request`;
                     case 'joined_group': return `${who} joined ${this.esc(n.group || 'your group')}`;
+                    case 'helpful': return `${who} marked your answer most helpful${said}`;   // v14.5
                     default: return who;
                 }
             },
@@ -77,10 +78,13 @@
             openNotification(id) {
                 const n = (this.notifState().items || []).find(x => String(x.id) === String(id));
                 if (!n) return;
-                if (n.kind === 'follow' || n.kind === 'follow_request' || n.kind === 'follow_accepted') { this.closeNotifications(); this.openPeople(); return; }
+                if (n.kind === 'follow_request') { this.closeNotifications(); this.openPeople(); return; }
+                if ((n.kind === 'follow' || n.kind === 'follow_accepted') && this.openAnyProfile) { this.closeNotifications(); this.openAnyProfile(n.who); return; }   // v14.5: their profile
+                if (n.kind === 'follow' || n.kind === 'follow_accepted') { this.closeNotifications(); this.openPeople(); return; }
                 if (n.kind === 'joined_group') { this.closeNotifications(); this.openPeople(); return; }
                 const brew = n.session ? this.brews.get(String(n.session)) : null;
                 const beanId = brew ? brew.beanId : (n.sessionCoffee || n.coffee || '');
+                if (n.session && !brew && n.who && this.openAnyProfile) { this.closeNotifications(); this.openAnyProfile(n.who); return; }   // v14.5: someone else's session outside your circle (a help answer): their profile
                 if (!beanId || (n.session && !brew && !this.beans.has(String(beanId)))) { this.showToast('That isn\'t on this phone anymore.'); return; }
                 this.closeNotifications();
                 if (n.comment && n.session) this.openThreads.add(this.threadKey('brew', n.session));

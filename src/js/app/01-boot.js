@@ -70,6 +70,7 @@
 
             init() {
                 if (this.noteInviteLink) this.noteInviteLink();   // v14.4: ?join=CODE, offered once you're signed in
+                if (this.noteProfileLink) this.noteProfileLink();   // v14.5: ?u=Name opens their profile once you're signed in
                 this.initFlavors();
                 this.bindGlobalHandlers();
                 this.applyInitialRoute();

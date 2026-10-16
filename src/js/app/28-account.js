@@ -173,7 +173,11 @@
                 let last = {}; try { last = JSON.parse(safeGet('dialed_share_last') || '{}') || {}; } catch (e) { last = {}; }
                 const A = v => ['everyone', 'friends', 'only_me'].includes(v) ? v : '', I = v => ['everyone', 'friends'].includes(v) ? v : '';
                 const from = brew || last;   // a new session starts where your last one was set
-                this.share = { audience: A(from.audience) || 'friends', noteAudience: I(from.noteAudience) || 'friends', photoAudience: I(from.photoAudience) || 'friends' };
+                // v14.5: someone who joined through the welcome starts out sharing sessions with Everyone (the original crew,
+                // and anyone who has picked before, start where they left off); notes and photos start as Friends either way
+                const me = this.ppState().me || (Supa.session() || {}).profile, fresh = !brew && !A(last.audience) && Boolean(me && me.joined);
+                this.share = { audience: A(from.audience) || (fresh ? 'everyone' : 'friends'), noteAudience: I(from.noteAudience) || 'friends', photoAudience: I(from.photoAudience) || 'friends',
+                               helpWanted: Boolean(brew && brew.helpWanted) };   // asking for help is per session, never carried over
                 row.hidden = false;
                 this.renderShareRow();
             },
@@ -185,13 +189,16 @@
                 row.innerHTML = `<label>Who sees this session</label>${seg('audience', [['everyone', 'Everyone'], ['friends', 'Friends'], ['only_me', 'Only me']])}
                     ${s.audience === 'everyone' ? `<div class="share-items"><div class="share-item"><span>Your notes</span>${seg('noteAudience', [['friends', 'Friends'], ['everyone', 'Everyone']])}</div>
                     <div class="share-item"><span>Photo</span>${seg('photoAudience', [['friends', 'Friends'], ['everyone', 'Everyone']])}</div></div>` : ''}
-                    <p class="share-note">${say}</p>`;
+                    <p class="share-note">${say}</p>
+                    <div class="share-help"><span><b>Ask for help dialing this in</b><small>${s.helpWanted ? (s.audience === 'everyone' ? 'It shows under Help in Community. Anyone can answer in the comments.' : 'Your friends and groups can answer in the comments.') : 'People who see this session can answer in the comments.'}</small></span><button type="button" class="goal-sw" role="switch" aria-checked="${Boolean(s.helpWanted)}" aria-label="Ask for help dialing this in" onclick="app.setShare('helpWanted', ${!s.helpWanted})"></button></div>`;
             },
 
             setShare(key, value) {
                 if (!this.share || !(key in this.share)) return;
                 this.share[key] = value;
-                try { safeSet('dialed_share_last', JSON.stringify(this.share)); } catch (e) {}
+                if (key === 'helpWanted' && value && this.share.audience === 'only_me') this.share.audience = 'everyone';   // nobody could see the request
+                const { helpWanted, ...keep } = this.share;
+                try { safeSet('dialed_share_last', JSON.stringify(keep)); } catch (e) {}
                 this.renderShareRow();
             },
 
