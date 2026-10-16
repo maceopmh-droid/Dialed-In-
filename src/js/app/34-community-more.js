@@ -273,7 +273,8 @@
                     <li><b>Help, don't mock.</b> Say which way to go (finer, coarser, a longer ratio). Grind numbers only make sense on the same grinder.</li>
                     <li><b>Keep it about coffee.</b> No spam, no selling.</li>
                     <li><b>Share only what's yours</b> to share: your own photos and words.</li>
-                    <li><b>Report what breaks these.</b> Nobody is told who reported it, and you stop seeing it right away.</li></ul>`;
+                    <li><b>Report what breaks these.</b> Nobody is told who reported it, and you stop seeing it right away.</li></ul>
+                    <p class="cg-contact">Questions or a problem? <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a></p>`;
                 m.classList.add('active');
             },
 

@@ -38,11 +38,8 @@
                 try {
                     const data = await Supa.rpc('export_my_data', {});
                     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                    const a = document.createElement('a');
-                    a.href = URL.createObjectURL(blob); a.download = `dialed-in-${String(this.user || 'me').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${new Date().toISOString().slice(0, 10)}.json`;
-                    document.body.appendChild(a); a.click(); a.remove();
-                    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-                    this.showToast('Your data is downloading.');
+                    const how = await this.saveFile(blob, `dialed-in-${String(this.user || 'me').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${new Date().toISOString().slice(0, 10)}.json`, 'My Dialed In data');
+                    if (how === 'downloaded') this.showToast('Your data is downloading.');
                 } catch (e) { this.showToast(e && e.message ? e.message : 'That didn\'t work. Try again.'); }
             },
 
@@ -58,6 +55,6 @@
                     await Supa.rpc('delete_account', { confirm_name: typed });
                     this.closeModals();
                     this.showToast('Your account is deleted.');
-                    this.signOut();
+                    this.signOut(true);
                 } catch (e) { this.showToast(e && e.message ? e.message : 'That didn\'t work. Try again.'); }
             },

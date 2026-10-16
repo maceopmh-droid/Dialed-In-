@@ -174,6 +174,7 @@
             // ---- v12.8: iPhone haptics need a real tap on a switch's label (iOS 26.5+)
             installTapHaptics() {
                 if (this._hxOn || typeof document === 'undefined' || typeof MutationObserver === 'undefined') return;
+                if (this.isNative && this.isNative()) return;   // v14.6: the iPhone app has the phone's own haptics
                 const nav = typeof navigator !== 'undefined' ? navigator : {};
                 const ios = /iP(hone|od|ad)/.test(nav.userAgent || '') || (nav.platform === 'MacIntel' && nav.maxTouchPoints > 1);
                 if (!ios || typeof nav.vibrate === 'function') return;

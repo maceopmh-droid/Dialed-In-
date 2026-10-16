@@ -171,11 +171,12 @@
                 this.renderWelcome();
             },
 
-            signOut() {
+            signOut(force) {   // force: the account was just deleted (nothing to ask)
                 const waiting = this.pendingOutbox().length;
-                if (!confirm(waiting ? `${waiting} change${waiting === 1 ? '' : 's'} on this phone haven't been saved yet and will be lost. Sign out anyway?` : 'Sign out of Dialed In on this phone?')) return;
+                if (force !== true && !confirm(waiting ? `${waiting} change${waiting === 1 ? '' : 's'} on this phone haven't been saved yet and will be lost. Sign out anyway?` : 'Sign out of Dialed In on this phone?')) return;
                 const keys = [this.cacheKey(), this.outboxKey()];
-                Promise.all(keys.map(k => this.idbPut(k, null).catch(() => {}))).finally(() => {
+                const forget = this.pushForget ? Promise.race([this.pushForget(), new Promise(r => setTimeout(r, 3000))]) : Promise.resolve();
+                Promise.all(keys.map(k => this.idbPut(k, null).catch(() => {})).concat([forget])).finally(() => {
                     Supa.signOut();
                     location.reload();
                 });

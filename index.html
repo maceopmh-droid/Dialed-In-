@@ -3429,6 +3429,8 @@
         .wl-terms { margin: 12px 0 0; text-align: center; font-size: 0.8rem; color: var(--text-muted); line-height: 1.45; }
         .wl-terms a, .acct-legal a { color: var(--matcha-ink, var(--matcha)); font-weight: 650; }
         .acct-legal { margin: -2px 0 12px; font-size: 0.82rem; color: var(--text-muted); }
+        .cg-contact { margin: 12px 2px 0; font-size: 0.86rem; color: var(--text-muted); }
+        .cg-contact a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
     </style>
 </head>
 <body>
@@ -4518,6 +4520,7 @@
         // header only, never as the Authorization token.
         // v14.6: the App Review account signs in with a password (Apple's reviewer can't receive our emailed codes)
 const REVIEW_EMAILS = ['appreview@dialed-in.app'];
+const SUPPORT_EMAIL = 'dialedincoffeeapp@gmail.com';   // v14.6: in the guidelines, the terms and the privacy policy
 const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb_publishable_nunu5PQVtCf8OuAhyt_hXw_xK3A4-8i', live: true };
         // to try it on one phone before everyone moves: open the app once with ?backend=supabase (and ?backend=sheet to go back)
         try {
@@ -4659,8 +4662,9 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     const list = await this.call('/storage/v1/object/list/photos', { prefix: s.user.id, limit: 100, offset: 0 });
                     const names = (Array.isArray(list) ? list : []).map(o => o && o.id !== null && o.name).filter(Boolean).map(n => `${s.user.id}/${n}`);
                     if (!names.length) break;
-                    await this.call('/storage/v1/object/photos', { prefixes: names }, { method: 'DELETE' });
-                    gone += names.length;
+                    const out = await this.call('/storage/v1/object/photos', { prefixes: names }, { method: 'DELETE' });
+                    const n = Array.isArray(out) ? out.length : names.length;
+                    gone += n; if (!n) break;   // nothing went (not allowed): don't keep asking
                 }
                 return gone;
             },
@@ -10030,6 +10034,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             // ---- v12.8: iPhone haptics need a real tap on a switch's label (iOS 26.5+)
             installTapHaptics() {
                 if (this._hxOn || typeof document === 'undefined' || typeof MutationObserver === 'undefined') return;
+                if (this.isNative && this.isNative()) return;   // v14.6: the iPhone app has the phone's own haptics
                 const nav = typeof navigator !== 'undefined' ? navigator : {};
                 const ios = /iP(hone|od|ad)/.test(nav.userAgent || '') || (nav.platform === 'MacIntel' && nav.maxTouchPoints > 1);
                 if (!ios || typeof nav.vibrate === 'function') return;
@@ -15282,7 +15287,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     else if (!this._privLoading) { this._privLoading = true; this.loadPeople(true).then(() => { this._privLoading = false; if (document.getElementById('settings-modal').classList.contains('active')) this.openSettings(); }).catch(() => { this._privLoading = false; }); }
                     const pushRow = this.pushRowHtml ? this.pushRowHtml() : '';   // v14.5: notifications on this phone
                     if (pushRow) { const pu = document.createElement('div'); pu.innerHTML = pushRow; list.appendChild(pu.firstElementChild); }
-                    if (this.acctToolsHtml) { const at = document.createElement('div'); at.innerHTML = this.acctToolsHtml(); list.appendChild(at.firstElementChild); }
+                    if (this.acctToolsHtml) { const at = document.createElement('div'); at.innerHTML = this.acctToolsHtml(); while (at.firstElementChild) list.appendChild(at.firstElementChild); }   // (the tools, then the legal links)
                 }
                 const head = document.createElement('div');
                 head.className = 'user-head';
@@ -15637,13 +15642,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
                 if (format === 'json') {
                     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = `dialed-in-export-${Date.now()}.json`;
-                    link.click();
-                    URL.revokeObjectURL(url);
-                    this.showToast('JSON exported successfully.');
+                    this.saveFile(blob, `dialed-in-export-${Date.now()}.json`, 'Dialed In export').then(how => { if (how !== 'cancelled') this.showToast('JSON exported successfully.'); });
                     return;
                 }
 
@@ -15679,13 +15678,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     rows.push(row.map(value => this.csvEscape(value)).join(','));
                 });
                 const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `dialed-in-export-${Date.now()}.csv`;
-                link.click();
-                URL.revokeObjectURL(url);
-                this.showToast('CSV exported successfully.');
+                this.saveFile(blob, `dialed-in-export-${Date.now()}.csv`, 'Dialed In export').then(how => { if (how !== 'cancelled') this.showToast('CSV exported successfully.'); });
             },
 
             calcStats(brews) {
@@ -16026,11 +16019,12 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 this.renderWelcome();
             },
 
-            signOut() {
+            signOut(force) {   // force: the account was just deleted (nothing to ask)
                 const waiting = this.pendingOutbox().length;
-                if (!confirm(waiting ? `${waiting} change${waiting === 1 ? '' : 's'} on this phone haven't been saved yet and will be lost. Sign out anyway?` : 'Sign out of Dialed In on this phone?')) return;
+                if (force !== true && !confirm(waiting ? `${waiting} change${waiting === 1 ? '' : 's'} on this phone haven't been saved yet and will be lost. Sign out anyway?` : 'Sign out of Dialed In on this phone?')) return;
                 const keys = [this.cacheKey(), this.outboxKey()];
-                Promise.all(keys.map(k => this.idbPut(k, null).catch(() => {}))).finally(() => {
+                const forget = this.pushForget ? Promise.race([this.pushForget(), new Promise(r => setTimeout(r, 3000))]) : Promise.resolve();
+                Promise.all(keys.map(k => this.idbPut(k, null).catch(() => {})).concat([forget])).finally(() => {
                     Supa.signOut();
                     location.reload();
                 });
@@ -16825,11 +16819,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 try {
                     const data = await Supa.rpc('export_my_data', {});
                     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                    const a = document.createElement('a');
-                    a.href = URL.createObjectURL(blob); a.download = `dialed-in-${String(this.user || 'me').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${new Date().toISOString().slice(0, 10)}.json`;
-                    document.body.appendChild(a); a.click(); a.remove();
-                    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-                    this.showToast('Your data is downloading.');
+                    const how = await this.saveFile(blob, `dialed-in-${String(this.user || 'me').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${new Date().toISOString().slice(0, 10)}.json`, 'My Dialed In data');
+                    if (how === 'downloaded') this.showToast('Your data is downloading.');
                 } catch (e) { this.showToast(e && e.message ? e.message : 'That didn\'t work. Try again.'); }
             },
 
@@ -16845,7 +16836,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     await Supa.rpc('delete_account', { confirm_name: typed });
                     this.closeModals();
                     this.showToast('Your account is deleted.');
-                    this.signOut();
+                    this.signOut(true);
                 } catch (e) { this.showToast(e && e.message ? e.message : 'That didn\'t work. Try again.'); }
             },
             // ---- v14.5 (phase 3, part two): anyone's profile, suggested people, help requests, community filters and goal,
@@ -17123,7 +17114,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     <li><b>Help, don't mock.</b> Say which way to go (finer, coarser, a longer ratio). Grind numbers only make sense on the same grinder.</li>
                     <li><b>Keep it about coffee.</b> No spam, no selling.</li>
                     <li><b>Share only what's yours</b> to share: your own photos and words.</li>
-                    <li><b>Report what breaks these.</b> Nobody is told who reported it, and you stop seeing it right away.</li></ul>`;
+                    <li><b>Report what breaks these.</b> Nobody is told who reported it, and you stop seeing it right away.</li></ul>
+                    <p class="cg-contact">Questions or a problem? <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a></p>`;
                 m.classList.add('active');
             },
 
@@ -17263,6 +17255,17 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 }
             },
 
+            // v14.6: signing out: this phone stops getting that account's notifications (a shared phone, a friend's phone)
+            async pushForget() {
+                try {
+                    if (this.isNative && this.isNative()) { if (safeGet('dialed_apns_token')) await this.nativePushOff(); return; }
+                    if (!this.pushSupported() || !navigator.serviceWorker.getRegistration) return;
+                    const reg = await navigator.serviceWorker.getRegistration();
+                    const sub = reg && reg.pushManager ? await reg.pushManager.getSubscription() : null;
+                    if (sub) { await Supa.rpc('remove_push', { endpoint: sub.endpoint }).catch(() => {}); await sub.unsubscribe().catch(() => {}); }
+                } catch (e) { /* signing out goes on */ }
+            },
+
             pushKeyBytes(b64) {
                 const pad = '='.repeat((4 - (b64.length % 4)) % 4), raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
                 const out = new Uint8Array(raw.length);
@@ -17277,7 +17280,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         this._openBellAfterSync = true;
                         const u = new URL(location.href); u.searchParams.delete('notifications'); history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
                     }
-                    if (this.pushSupported()) navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.type === 'open-notifications' && this.acctOn()) { this.setTab('feed'); this.openNotifications(); } });
+                    if (this.pushSupported() && !(this.isNative && this.isNative())) navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.type === 'open-notifications' && this.acctOn()) { this.setTab('feed'); this.openNotifications(); } });
                 } catch (e) {}
             },
 
@@ -17295,6 +17298,21 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 try { return typeof window !== 'undefined' && !!window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform(); } catch (e) { return false; }
             },
             nativePlugin(name) { try { return this.isNative() && window.Capacitor.Plugins ? window.Capacitor.Plugins[name] || null : null; } catch (e) { return null; } },
+
+            // saving a file (your data, an export): the iPhone app can't download, so it opens the share sheet (Save to
+            // Files, AirDrop, Mail); the website downloads as before
+            async saveFile(blob, name, title) {
+                if (this.isNative()) {
+                    try {
+                        const file = new File([blob], name, { type: blob.type || 'application/octet-stream' });
+                        if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: title || name }); return 'shared'; }
+                    } catch (e) { if (e && e.name === 'AbortError') return 'cancelled'; }
+                }
+                const url = URL.createObjectURL(blob), a = document.createElement('a');
+                a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 4000);
+                return 'downloaded';
+            },
 
             // haptics: the phone's own engine (light taps, a success pattern) when it's there
             nativeHaptic(kind) {
@@ -17335,6 +17353,27 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (P && P.unregister) await P.unregister().catch(() => {});
             },
 
+            // Apple can change a phone's token (a restore, a reinstall): each launch, if notifications are on, check it's current
+            async nativePushRefresh() {
+                const P = this.nativePlugin('PushNotifications'), old = safeGet('dialed_apns_token');
+                if (!P || !old || !this.acctOn() || !Supa.ready()) return;
+                try {
+                    const perm = await P.checkPermissions();
+                    if (perm.receive !== 'granted') return;
+                    const token = await new Promise(resolve => {
+                        let h = null, done = false;
+                        const finish = v => { if (done) return; done = true; if (h && h.remove) h.remove(); resolve(v); };
+                        Promise.resolve(P.addListener('registration', t => finish(t && t.value))).then(x => { h = x; if (done && x && x.remove) x.remove(); });
+                        P.register();
+                        setTimeout(() => finish(null), 20000);
+                    });
+                    if (!token || String(token).toLowerCase() === String(old).toLowerCase()) return;
+                    await Supa.rpc('save_push', { sub: { kind: 'apns', token } });
+                    await Supa.rpc('remove_push', { endpoint: 'apns:' + String(old).toLowerCase() }).catch(() => {});
+                    safeSet('dialed_apns_token', token);
+                } catch (e) { /* next launch */ }
+            },
+
             async nativePushState() {
                 const P = this.nativePlugin('PushNotifications'); if (!P) return { on: false, denied: false };
                 const perm = await P.checkPermissions().catch(() => ({ receive: 'prompt' }));
@@ -17356,6 +17395,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 this.nativeStatusBar();
                 const P = this.nativePlugin('PushNotifications');
                 if (P && P.addListener) P.addListener('pushNotificationActionPerformed', () => { if (this.acctOn() && this.user) { this.setTab('feed'); this.openNotifications(); } else this._openBellAfterSync = true; });
+                setTimeout(() => this.nativePushRefresh(), 4000);
                 const A = this.nativePlugin('App');
                 if (A && A.addListener) A.addListener('appStateChange', s => { if (s && s.isActive && this.acctOn() && this.user) this.sync({ silent: true }); });
             },

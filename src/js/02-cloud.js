@@ -6,6 +6,7 @@
         // header only, never as the Authorization token.
         // v14.6: the App Review account signs in with a password (Apple's reviewer can't receive our emailed codes)
 const REVIEW_EMAILS = ['appreview@dialed-in.app'];
+const SUPPORT_EMAIL = 'dialedincoffeeapp@gmail.com';   // v14.6: in the guidelines, the terms and the privacy policy
 const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb_publishable_nunu5PQVtCf8OuAhyt_hXw_xK3A4-8i', live: true };
         // to try it on one phone before everyone moves: open the app once with ?backend=supabase (and ?backend=sheet to go back)
         try {
@@ -147,8 +148,9 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     const list = await this.call('/storage/v1/object/list/photos', { prefix: s.user.id, limit: 100, offset: 0 });
                     const names = (Array.isArray(list) ? list : []).map(o => o && o.id !== null && o.name).filter(Boolean).map(n => `${s.user.id}/${n}`);
                     if (!names.length) break;
-                    await this.call('/storage/v1/object/photos', { prefixes: names }, { method: 'DELETE' });
-                    gone += names.length;
+                    const out = await this.call('/storage/v1/object/photos', { prefixes: names }, { method: 'DELETE' });
+                    const n = Array.isArray(out) ? out.length : names.length;
+                    gone += n; if (!n) break;   // nothing went (not allowed): don't keep asking
                 }
                 return gone;
             },

@@ -93,6 +93,17 @@
                 }
             },
 
+            // v14.6: signing out: this phone stops getting that account's notifications (a shared phone, a friend's phone)
+            async pushForget() {
+                try {
+                    if (this.isNative && this.isNative()) { if (safeGet('dialed_apns_token')) await this.nativePushOff(); return; }
+                    if (!this.pushSupported() || !navigator.serviceWorker.getRegistration) return;
+                    const reg = await navigator.serviceWorker.getRegistration();
+                    const sub = reg && reg.pushManager ? await reg.pushManager.getSubscription() : null;
+                    if (sub) { await Supa.rpc('remove_push', { endpoint: sub.endpoint }).catch(() => {}); await sub.unsubscribe().catch(() => {}); }
+                } catch (e) { /* signing out goes on */ }
+            },
+
             pushKeyBytes(b64) {
                 const pad = '='.repeat((4 - (b64.length % 4)) % 4), raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
                 const out = new Uint8Array(raw.length);
@@ -107,7 +118,7 @@
                         this._openBellAfterSync = true;
                         const u = new URL(location.href); u.searchParams.delete('notifications'); history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
                     }
-                    if (this.pushSupported()) navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.type === 'open-notifications' && this.acctOn()) { this.setTab('feed'); this.openNotifications(); } });
+                    if (this.pushSupported() && !(this.isNative && this.isNative())) navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.type === 'open-notifications' && this.acctOn()) { this.setTab('feed'); this.openNotifications(); } });
                 } catch (e) {}
             },
 

@@ -14,7 +14,7 @@
                     else if (!this._privLoading) { this._privLoading = true; this.loadPeople(true).then(() => { this._privLoading = false; if (document.getElementById('settings-modal').classList.contains('active')) this.openSettings(); }).catch(() => { this._privLoading = false; }); }
                     const pushRow = this.pushRowHtml ? this.pushRowHtml() : '';   // v14.5: notifications on this phone
                     if (pushRow) { const pu = document.createElement('div'); pu.innerHTML = pushRow; list.appendChild(pu.firstElementChild); }
-                    if (this.acctToolsHtml) { const at = document.createElement('div'); at.innerHTML = this.acctToolsHtml(); list.appendChild(at.firstElementChild); }
+                    if (this.acctToolsHtml) { const at = document.createElement('div'); at.innerHTML = this.acctToolsHtml(); while (at.firstElementChild) list.appendChild(at.firstElementChild); }   // (the tools, then the legal links)
                 }
                 const head = document.createElement('div');
                 head.className = 'user-head';
@@ -369,13 +369,7 @@
 
                 if (format === 'json') {
                     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = `dialed-in-export-${Date.now()}.json`;
-                    link.click();
-                    URL.revokeObjectURL(url);
-                    this.showToast('JSON exported successfully.');
+                    this.saveFile(blob, `dialed-in-export-${Date.now()}.json`, 'Dialed In export').then(how => { if (how !== 'cancelled') this.showToast('JSON exported successfully.'); });
                     return;
                 }
 
@@ -411,13 +405,7 @@
                     rows.push(row.map(value => this.csvEscape(value)).join(','));
                 });
                 const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `dialed-in-export-${Date.now()}.csv`;
-                link.click();
-                URL.revokeObjectURL(url);
-                this.showToast('CSV exported successfully.');
+                this.saveFile(blob, `dialed-in-export-${Date.now()}.csv`, 'Dialed In export').then(how => { if (how !== 'cancelled') this.showToast('CSV exported successfully.'); });
             },
 
             calcStats(brews) {
