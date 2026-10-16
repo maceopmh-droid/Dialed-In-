@@ -121,6 +121,7 @@
                     else btn.innerText = on ? 'On Your List' : 'Want to Try';
                 }
                 if (line) line.innerText = '';
+                if (this.coffeeCommOnOpen) this.coffeeCommOnOpen(group);   // v14.6: the Everyone tab
             },
 
             toggleWantToTry() {

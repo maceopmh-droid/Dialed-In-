@@ -222,6 +222,9 @@
                 if (dialin) dialin.style.display = tab === 'dialin' ? 'block' : 'none';
                 const sweet = document.getElementById('d-sweet-pane');
                 if (sweet) sweet.style.display = tab === 'sweet' ? 'block' : 'none';
+                const everyone = document.getElementById('d-everyone-pane');   // v14.6: Everyone on this coffee
+                if (everyone) everyone.style.display = tab === 'everyone' ? 'block' : 'none';
+                if (tab === 'everyone' && this.showCoffeeCommunity) this.showCoffeeCommunity();
                 if (tab === 'sweet') this.renderSweetSpot();
                 if (tab === 'compare') this.renderComparePanel();
                 if (tab === 'side') this.renderSidePanel();

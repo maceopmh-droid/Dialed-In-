@@ -514,6 +514,27 @@ fx('stranger', `select report_item('session', 'dfresh', 'test');`);
 ok(!disc('stranger').order.includes('dfresh'), 'something you reported is gone from it');
 ok(/permission denied/.test(fx('anon', 'select discover_feed();')), 'not signed in: refused');
 
+// v14.6: everyone on a coffee (the coffee page's Everyone tab): same roaster and name however it's written, never your own,
+// nothing kept to Friends or reported; a summary with each method's usual ratio and time and the notes people pick, never grind
+push('maceo', { type: 'bean', id: 'mb9', user: 'Maceo', owner: 'Maceo', roaster: 'SEY ', name: 'Kenya  Kiambu!', origin: 'Kenya', likes: [], comments: [] });
+push('maceo', { type: 'brew', id: 'ms9', beanId: 'mb9', user: 'Maceo', owner: 'Maceo', method: 'Pour Over', grind: '24', dose: 18, yield: 300, time: 180, rating: 4, tasted: ['Blackcurrant', 'grapefruit'], date: ago(3), audience: 'everyone', likes: [], comments: [] });
+const cc = (who, extra = '') => JSON.parse(fx(who, `select coffee_community('sey', 'Kenya Kiambu'${extra});`));
+const cs = cc('stranger'), cids = cs.events.filter(e => e.type === 'brew').map(e => e.id);
+ok(cs.summary && cs.summary.people === 3 && cs.summary.sessions === 5 && ['ms9', 'dold', 'dancient', 'deffort', 'dbare'].every(id => cids.includes(id)) && !cids.includes('dfresh') && !cids.includes('dfriends'),
+   `Everyone on a coffee: 3 people, 5 sessions, across owners and spellings ("SEY ", "Kenya  Kiambu!"); not what's kept to Friends or what you reported (${cids.join(', ')})`);
+const po = (cs.summary.methods || []).find(m => m.method === 'Pour Over'), es = (cs.summary.methods || []).find(m => m.method === 'Espresso');
+ok(po && po.n === 3 && po.ratio === 16.7 && po.time === 180 && po.dose === 18 && es && es.n === 2 && cs.summary.methods[0].method === 'Pour Over' && cs.summary.rating === 4.3,
+   `each method's usual numbers, most-brewed first (${JSON.stringify(cs.summary.methods)}), average rating ${cs.summary.rating}`);
+ok(JSON.stringify(cs.summary.notes) === JSON.stringify(['acidity', 'blackcurrant', 'grapefruit']) && !/grind/.test(JSON.stringify(cs.summary)), `the notes people pick (${cs.summary.notes}); no grind settings in the summary`);
+const cm = cc('maceo');
+ok(cm.summary.people === 2 && !cm.events.some(e => e.type === 'brew' && e.id === 'ms9') && cm.events.some(e => e.id === 'dfresh'), 'never your own sessions (Maceo sees the other two people, and dfresh, which he didn\'t report)');
+const cp0 = cc('stranger', ', max_items => 2'), cp1 = cc('stranger', `, before => '${cp0.next}', max_items => 2`);
+const ids0 = cp0.events.filter(e => e.type === 'brew').map(e => e.id), ids1 = cp1.events.filter(e => e.type === 'brew').map(e => e.id);
+ok(ids0.length === 2 && cp0.next && ids1.length === 2 && ids1.every(id => !ids0.includes(id)) && cp1.summary === null, `a page at a time, newest first (${ids0} | ${ids1}); the summary comes with the first`);
+ok(cs.events.some(e => e.type === 'bean' && e.id === 'mb9') && cs.events.some(e => e.type === 'bean' && e.id === 'db1'), 'the coffees come along (for names and details)');
+ok(JSON.parse(fx('stranger', `select coffee_community('', '');`)).summary === null && cc('stranger', ", max_items => 40").next === null, 'no name: nothing; the last page says so');
+ok(/permission denied/.test(fx('anon', `select coffee_community('sey', 'kenya kiambu');`)), 'not signed in: refused');
+
 // the community goal counts Everyone and Friends sessions, not Only me; and says how many people brewed this week
 const g0 = JSON.parse(fx('julian', 'select community_goal();'));
 push('julian', { type: 'brew', id: 'jg2', beanId: 'b1', user: 'Julian', owner: 'Julian', method: 'Espresso', date: NOW(), audience: 'only_me', likes: [], comments: [] });

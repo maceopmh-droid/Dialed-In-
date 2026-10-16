@@ -3431,6 +3431,28 @@
         .acct-legal { margin: -2px 0 12px; font-size: 0.82rem; color: var(--text-muted); }
         .cg-contact { margin: 12px 2px 0; font-size: 0.86rem; color: var(--text-muted); }
         .cg-contact a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+        /* v14.6: Everyone on this coffee (the coffee page's Everyone tab) */
+        .cc-methods { background: rgba(var(--matcha-rgb), 0.07); border-radius: 14px; padding: 8px 12px 2px; margin: 2px 0 12px; }
+        .cc-cap { font-size: 0.74rem; color: var(--text-muted); margin-bottom: 2px; }
+        .cc-m { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 7px 0; border-top: 1px solid rgba(var(--hair-rgb), 0.07); }
+        .cc-cap + .cc-m { border-top: 0; }
+        .cc-m-name { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
+        .cc-m-name b { font-size: 0.86rem; font-weight: 750; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .cc-m-name small { font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; }
+        .cc-m-nums { font-size: 0.82rem; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .cc-notes { margin: 0 0 10px; font-size: 0.82rem; color: var(--ink); line-height: 1.45; }
+        .cc-notes span { color: var(--text-muted); margin-right: 6px; }
+        .cc-list { border-top: 1px solid rgba(var(--hair-rgb), 0.08); }
+        .cc-row { display: flex; gap: 10px; align-items: flex-start; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid rgba(var(--hair-rgb), 0.08); padding: 10px 2px; color: inherit; font: inherit; cursor: pointer; }
+        .cc-row:last-child { border-bottom: 0; }
+        .cc-row-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+        .cc-row-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+        .cc-row-top b { font-size: 0.88rem; font-weight: 750; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .cc-row-top small { color: var(--text-muted); font-size: 0.74rem; white-space: nowrap; }
+        .cc-row-nums { font-size: 0.8rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+        .cc-star { color: var(--text-muted); margin-left: 4px; white-space: nowrap; }
+        .cc-row-note { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .cc-more { width: 100%; margin-top: 12px; }
     </style>
 </head>
 <body>
@@ -3674,6 +3696,7 @@
                 <button class="insight-tab" data-detail-tab="side" onclick="app.setDetailTab('side')">Side by Side</button>
                 <button class="insight-tab" data-detail-tab="dialin" onclick="app.setDetailTab('dialin')">Dial-In</button>
                 <button class="insight-tab" data-detail-tab="sweet" onclick="app.setDetailTab('sweet')">Sweet spot</button>
+                <button class="insight-tab" data-detail-tab="everyone" onclick="app.setDetailTab('everyone')" hidden>Everyone</button>
             </div>
 
             <div id="d-timeline-pane">
@@ -3687,6 +3710,7 @@
             <div id="d-side-pane" class="detail-extra-pane"></div>
             <div id="d-sweet-pane" class="detail-extra-pane"></div>
             <div id="d-dialin-pane" class="detail-extra-pane"></div>
+            <div id="d-everyone-pane" class="detail-extra-pane"></div>
             <div id="d-compare-pane" class="compare-panel">
                 <div class="sweet-card cmp-wrap">
                     <div class="sw-head"><h3>Compare</h3><p>Any two sessions side by side. Starts with the latest against the best-rated.</p></div>
@@ -6145,6 +6169,9 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (dialin) dialin.style.display = tab === 'dialin' ? 'block' : 'none';
                 const sweet = document.getElementById('d-sweet-pane');
                 if (sweet) sweet.style.display = tab === 'sweet' ? 'block' : 'none';
+                const everyone = document.getElementById('d-everyone-pane');   // v14.6: Everyone on this coffee
+                if (everyone) everyone.style.display = tab === 'everyone' ? 'block' : 'none';
+                if (tab === 'everyone' && this.showCoffeeCommunity) this.showCoffeeCommunity();
                 if (tab === 'sweet') this.renderSweetSpot();
                 if (tab === 'compare') this.renderComparePanel();
                 if (tab === 'side') this.renderSidePanel();
@@ -12154,6 +12181,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     else btn.innerText = on ? 'On Your List' : 'Want to Try';
                 }
                 if (line) line.innerText = '';
+                if (this.coffeeCommOnOpen) this.coffeeCommOnOpen(group);   // v14.6: the Everyone tab
             },
 
             toggleWantToTry() {
@@ -17398,6 +17426,99 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 setTimeout(() => this.nativePushRefresh(), 4000);
                 const A = this.nativePlugin('App');
                 if (A && A.addListener) A.addListener('appStateChange', s => { if (s && s.isActive && this.acctOn() && this.user) this.sync({ silent: true }); });
+            },
+            // ---- v14.6: Everyone on this coffee (the coffee page's Everyone tab). Sessions other people shared with Everyone on
+            // the same coffee (same roaster and name, however it's written), newest first, with how each method is usually
+            // brewed (the middle ratio, time and dose) and the notes people taste most. Never grind settings: they only make
+            // sense on the same grinder. They're shown here only; they never join your library, goals or awards.
+            coffeeCommState() { return this._coffeeComm || (this._coffeeComm = { key: '', roaster: '', name: '', events: [], summary: null, next: null, loading: false, error: '', at: 0 }); },
+
+            coffeeCommKey(roaster, name) { return `${String(roaster || '').toLowerCase().replace(/[^a-z0-9]+/g, '')}|${String(name || '').toLowerCase().replace(/[^a-z0-9]+/g, '')}`; },
+
+            // the coffee page opened (or redrawn): the tab is there with an account; a different coffee starts fresh
+            coffeeCommOnOpen(group) {
+                const tab = document.querySelector('[data-detail-tab="everyone"]');
+                const on = this.acctOn() && Boolean(group && group.meta && String(group.meta.name || '').trim());
+                if (tab) tab.hidden = !on;
+                if (!on) { if (this.detailTab === 'everyone') this.detailTab = 'timeline'; return; }
+                const meta = group.meta, key = this.coffeeCommKey(meta.roaster, meta.name), st = this.coffeeCommState();
+                if (st.key !== key) Object.assign(st, { key, roaster: meta.roaster || '', name: meta.name || '', events: [], summary: null, next: null, error: '', at: 0, loading: false });
+            },
+
+            async loadCoffeeCommunity(more) {
+                const st = this.coffeeCommState();
+                if (st.loading || !st.key || !this.acctOn() || !Supa.ready()) return;
+                if (more && !st.next) return;
+                const key = st.key;
+                st.loading = true; st.error = '';
+                this.renderCoffeeCommunity();
+                try {
+                    const out = await Supa.rpc('coffee_community', { coffee_roaster: st.roaster, coffee_name: st.name, before: more ? st.next : null, max_items: 10 });
+                    if (st.key !== key) return;   // they moved on to another coffee
+                    const events = Array.isArray(out && out.events) ? out.events : [];
+                    st.events = more ? st.events.concat(events) : events;
+                    if (!more) st.summary = out && out.summary ? out.summary : null;
+                    st.next = out && out.next ? out.next : null;
+                    st.at = Date.now();
+                } catch (e) {
+                    if (st.key === key) st.error = /fetch|network|load failed/i.test(String(e && e.message)) ? 'Couldn\'t load. Check your connection.' : 'Couldn\'t load this. Try again in a moment.';
+                } finally {
+                    if (st.key === key) st.loading = false;
+                    this.renderCoffeeCommunity();
+                }
+            },
+
+            // the tab: loads the first time (and again after a few minutes)
+            showCoffeeCommunity() {
+                const st = this.coffeeCommState();
+                if (!st.loading && (!st.at || Date.now() - st.at > 5 * 60000)) this.loadCoffeeCommunity(false);
+                else this.renderCoffeeCommunity();
+            },
+
+            coffeeCommTime(method, t) {
+                const n = this.num(t);
+                if (!(n > 0)) return '';
+                if (method === 'Cold Brew') return `${this.fmtNum(n, 1)} h`;
+                return method === 'Espresso' || !method ? `${Math.round(n)} s` : this.clock(n);
+            },
+
+            // how it's usually brewed: one line per method (the middle ratio, time and dose of everyone's sessions)
+            coffeeCommMethodsHtml(methods) {
+                if (!methods.length) return '';
+                const nb = t => t.replace(/ (g|s|h)$/, '\u00a0$1');
+                return `<div class="cc-methods"><div class="cc-cap">How it's usually brewed</div>${methods.slice(0, 4).map(m => {
+                    const nums = [m.ratio ? `1:${this.fmtNum(m.ratio, 1)}` : '', nb(this.coffeeCommTime(m.method, m.time)), m.dose ? nb(`${this.fmtNum(m.dose, 1)} g`) : ''].filter(Boolean);
+                    return `<div class="cc-m"><span class="cc-m-name"><b>${this.esc(m.method)}</b><small>${m.n} session${m.n === 1 ? '' : 's'}</small></span><span class="cc-m-nums">${this.esc(nums.join(' · '))}</span></div>`;
+                }).join('')}</div>`;
+            },
+
+            coffeeCommRowHtml(b) {
+                const who = String(b.user || b.owner || ''), color = b.actorColor || this.getUserColor(who);
+                const dose = this.num(b.dose), yld = this.num(b.yield);
+                const nums = [b.method || '', dose > 0 && yld > 0 ? `${this.fmtNum(dose, 1)} → ${this.fmtNum(yld, 1)} g` : '', this.coffeeCommTime(b.method, b.time)].filter(Boolean).join(' · ');
+                const r = this.normalizeRating(b.rating);
+                const note = String(b.notes || '').replace(/\s+/g, ' ').trim();
+                return `<button type="button" class="cc-row" data-profile="${this.esc(who)}">${this.personDotHtml(who, color)}<span class="cc-row-main"><span class="cc-row-top"><b>${this.esc(who)}</b><small>${this.esc(this.formatRelativeDate(b.date))}</small></span><span class="cc-row-nums">${this.esc(nums)}${r > 0 ? ` <span class="cc-star">★ ${this.esc(this.fmtNum(r, 1))}</span>` : ''}</span>${note ? `<span class="cc-row-note">${this.esc(note.length > 140 ? note.slice(0, 137).replace(/\s+\S*$/, '') + '…' : note)}</span>` : ''}</span></button>`;
+            },
+
+            renderCoffeeCommunity() {
+                const pane = document.getElementById('d-everyone-pane');
+                if (!pane || this.detailTab !== 'everyone') return;
+                const st = this.coffeeCommState(), s = st.summary;
+                const brews = st.events.filter(e => e && e.type === 'brew' && !this.reported(e.id));
+                let body;
+                if (st.error && !brews.length) body = `<p class="pp-empty">${this.esc(st.error)}</p>`;
+                else if (!st.at && st.loading) body = '<p class="pp-empty">Loading…</p>';
+                else if (!brews.length) body = '<p class="pp-empty">Nobody else has shared a session on this coffee yet.</p>';
+                else {
+                    const notes = s && Array.isArray(s.notes) ? s.notes.map(n => String(n).replace(/^./, c => c.toUpperCase())) : [];
+                    body = `${s ? this.coffeeCommMethodsHtml(Array.isArray(s.methods) ? s.methods : []) : ''}
+                        ${notes.length ? `<p class="cc-notes"><span>Tasted most</span>${this.esc(notes.join(' · '))}</p>` : ''}
+                        <div class="cc-list">${brews.map(b => this.coffeeCommRowHtml(b)).join('')}</div>
+                        ${st.next ? `<button type="button" class="btn-outline cc-more" onclick="app.loadCoffeeCommunity(true)"${st.loading ? ' disabled' : ''}>${st.loading ? 'Loading…' : 'More'}</button>` : ''}`;
+                }
+                const line = s && s.sessions ? [`${s.people} ${s.people === 1 ? 'person' : 'people'}`, `${s.sessions} session${s.sessions === 1 ? '' : 's'}`, s.rating ? `★ ${this.fmtNum(s.rating, 1)} average` : ''].filter(Boolean).join(' · ') : 'Sessions other people shared with Everyone.';
+                pane.innerHTML = `<div class="sweet-card cc-wrap"><div class="sw-head"><h3>Everyone on this coffee</h3><p>${this.esc(line)}</p></div>${body}</div>`;
             },
         };
         window.onload = () => app.init();

@@ -437,6 +437,59 @@ begin
     'asOf', t0, 'total', total);
 end $$;
 
+-- ---------------------------------------------------------------- v14.6: everyone on a coffee
+-- The coffee page's Everyone tab: sessions shared with Everyone on the same coffee (same roaster and name, ignoring
+-- case, spaces and punctuation) by anyone but you, that you're allowed to see (the row rules leave out private profiles
+-- you don't follow and anyone blocked; anything you reported or that's hidden stays out), newest first, a page at a
+-- time. The first page also carries a summary: how many people and sessions, the average rating, how each method is
+-- usually brewed (the middle ratio, time and dose; never grind settings, they don't carry across grinders) and the
+-- tasting notes people pick most.
+create or replace function internal.coffee_key(t text) returns text
+language sql immutable as $$ select regexp_replace(lower(coalesce(t, '')), '[^a-z0-9]+', '', 'g') $$;
+create index if not exists coffees_match on coffees (internal.coffee_key(name), internal.coffee_key(roaster_text)) where deleted_at is null;
+
+create or replace function coffee_community(coffee_roaster text, coffee_name text, before timestamptz default null, max_items int default 10) returns jsonb
+language plpgsql stable set search_path = public as $$
+declare me_id uuid := me(); lim int := least(greatest(coalesce(max_items, 10), 1), 40);
+        rk text := internal.coffee_key(coffee_roaster); nk text := internal.coffee_key(coffee_name);
+        ids uuid[]; oldest timestamptz; summary jsonb;
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  if nk = '' then return jsonb_build_object('events', '[]'::jsonb, 'next', null, 'summary', null); end if;
+  with pool as (
+    select s.id, s.owner_id, s.method, s.rating, s.dose, s.yield, s.time_s, s.tasted, s.brewed_at
+    from coffees k join sessions s on s.coffee_id = k.id
+    where k.deleted_at is null and internal.coffee_key(k.name) = nk and internal.coffee_key(k.roaster_text) = rk
+      and s.deleted_at is null and s.audience = 'everyone' and s.owner_id <> me_id
+      and not internal.unseen('session', s.id)
+  ), page as (
+    select id, brewed_at from pool where coffee_community.before is null or brewed_at < coffee_community.before
+    order by brewed_at desc, id limit lim
+  )
+  select (select array_agg(id order by brewed_at desc, id) from page), (select min(brewed_at) from page),
+         case when coffee_community.before is null and exists (select 1 from pool) then jsonb_build_object(
+      'people', (select count(distinct owner_id) from pool),
+      'sessions', (select count(*) from pool),
+      'rating', (select round(avg(rating), 1) from pool where rating > 0),
+      'methods', coalesce((select jsonb_agg(jsonb_strip_nulls(jsonb_build_object('method', m.method, 'n', m.n, 'ratio', round(m.ratio::numeric, 1), 'time', round(m.t::numeric), 'dose', round(m.dose::numeric, 1))) order by m.n desc, m.method)
+                           from (select method, count(*) as n,
+                                        percentile_cont(0.5) within group (order by yield / dose) filter (where dose > 0 and yield > 0) as ratio,
+                                        percentile_cont(0.5) within group (order by time_s) filter (where time_s > 0) as t,
+                                        percentile_cont(0.5) within group (order by dose) filter (where dose > 0) as dose
+                                 from pool where coalesce(btrim(method), '') <> '' group by method) m), '[]'::jsonb),
+      'notes', coalesce((select jsonb_agg(x.note order by x.c desc, x.note) from (
+                           select lower(btrim(n)) as note, count(distinct p.id) as c from pool p, unnest(coalesce(p.tasted, '{}'::text[])) n
+                           where btrim(n) <> '' group by 1 order by 2 desc, 1 limit 5) x), '[]'::jsonb)) end
+    into ids, oldest, summary;
+  return jsonb_build_object(
+    'events', case when ids is null then '[]'::jsonb else
+                coalesce((select jsonb_agg(internal.coffee_json(k)) from coffees k
+                          where k.deleted_at is null and k.id in (select s.coffee_id from sessions s where s.id = any(ids))), '[]'::jsonb)
+             || coalesce((select jsonb_agg(internal.session_json(s) order by s.brewed_at desc, s.id) from sessions s where s.id = any(ids)), '[]'::jsonb) end,
+    'next', case when coalesce(array_length(ids, 1), 0) = lim then oldest end,
+    'summary', summary);
+end $$;
+
 -- ---------------------------------------------------------------- has anything changed? data_version()
 -- v14.4: a fingerprint of your circle (you, your friends, your groups, the people you follow): what the sync would
 -- send you. The app asks for it (a few bytes) every sync and only pulls everything again when it changed. It's your
@@ -1381,13 +1434,13 @@ end $$;
 grant usage on schema internal to authenticated;
 grant execute on all functions in schema internal to authenticated;
 -- only signed-in people can call these (Postgres lets everyone run a new function unless told otherwise)
-revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text), report_item(text, text, text),
+revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text), coffee_community(text, text, timestamptz, int), report_item(text, text, text),
   profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
   push_key(), push_ready(), save_push(jsonb), remove_push(text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version() from public, anon;
-grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text), report_item(text, text, text),
+grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text), coffee_community(text, text, timestamptz, int), report_item(text, text, text),
   profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
   push_key(), push_ready(), save_push(jsonb), remove_push(text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
