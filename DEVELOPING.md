@@ -53,12 +53,14 @@ Two backends sit behind it:
 
 - **The Google Sheet** (`SheetCloud`), what everyone uses today. `Cloud.id` is still the Sheet's address, so phones
   keep their saved copy and anything waiting in their outbox.
-- **Supabase** (`SupaCloud`, with sign-in and photos in `Supa`), off until there's a project. It turns on for
-  everyone when `SUPABASE` gets the project's address and public key and `live: true`, or for one phone when
-  `localStorage.dialed_supabase` holds `{ "url": ..., "anonKey": ... }`. People sign in with a code sent to their
+- **Supabase** (`SupaCloud`, with sign-in and photos in `Supa`). `SUPABASE` holds the project's address and its
+  publishable key (meant to be public; sent on the `apikey` header only), with `live: false` until everyone moves.
+  It turns on for everyone with `live: true`, or for one phone opened once with `?backend=supabase` (which stores
+  `{ "url": ..., "anonKey": ... }` in `localStorage.dialed_supabase`; `?backend=sheet` goes back). People sign in with a code sent to their
   email, then claim their Sheet-era name with a one-time code (or make a new profile). A pull calls the database
   function `pull_events()` and gets everything that person may see, in the same event format the app already
-  reads. A save calls `push_event(ev)`. Photos upload to the person's own storage folder and come back through
+  reads; it first asks `data_version()` (a counter that moves on every write) and skips the download when nothing
+  changed, so an idle phone costs a few bytes per sync. A save calls `push_event(ev)`. Photos upload to the person's own storage folder and come back through
   links that expire. On Supabase the session form also asks who sees the session (Everyone, Friends, Only me) and,
   when it's for everyone, its notes and photo; a comment box asks too where people beyond your friends can see the
   thing it's on. Saves this phone made on the Sheet but never sent are sent once after signing in. None of this

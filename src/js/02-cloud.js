@@ -1,8 +1,10 @@
         // *** CONFIGURATION ***
         const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbxwOpOjQr2Um3y_YIddTIsn8yLAEqyQo5BnF001N9E58O4cT9x-7tMM6XGviIGTkNJp-Q/exec';
-        // v14.2 (phase 2): the Supabase project. Empty until there is one, and `live` stays false until everyone moves
-        // over together. A phone can try it early when 'dialed_supabase' in local storage holds { url, anonKey }.
-        const SUPABASE = { url: '', anonKey: '', live: false };
+        // v14.2 (phase 2): the Supabase project. `live` stays false until everyone moves over together; a phone can try
+        // it early when 'dialed_supabase' in local storage holds { url, anonKey }. The key is the project's publishable
+        // key, which is meant to be public (the database's privacy rules do the protecting): it goes on the apikey
+        // header only, never as the Authorization token.
+        const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb_publishable_nunu5PQVtCf8OuAhyt_hXw_xK3A4-8i', live: false };
         // to try it on one phone before everyone moves: open the app once with ?backend=supabase (and ?backend=sheet to go back)
         try {
             const pick = new URLSearchParams(location.search).get('backend');
@@ -148,11 +150,19 @@
         const SupaCloud = {
             get id() { const s = Supa.session(); return 'supabase:' + Supa.base() + '#' + ((s && s.user && s.user.id) || 'signed-out'); },
             confirms: true,   // a save that returns without an error is in: nothing to watch for afterwards
+            // Everything you may see, in the app's "full reply" format. A tiny version number is checked first, and
+            // everything is downloaded again only when it moved (or the photo links are getting old), so an idle phone
+            // costs a few bytes a sync instead of every coffee and session every 30 seconds.
             async pull(position, { signal } = {}) {
+                const v = await Supa.rpc('data_version', {}, { signal });
+                const last = this._last;
+                if (last && last.v === v && last.who === this.id && Date.now() - last.at < 45 * 60000) return last.text;
                 const events = await Supa.rpc('pull_events', {}, { signal });
                 if (!Array.isArray(events)) throw new Error('Unexpected sync response.');
                 await Supa.linkPhotos(events, { signal });
-                return JSON.stringify(events);   // everything you may see, every time (the app's "full reply" path)
+                const text = JSON.stringify(events);
+                this._last = { v, text, at: Date.now(), who: this.id };   // (a save between the two calls just means one extra download next time)
+                return text;
             },
             async send(ev, { signal } = {}) {
                 let out = ev;
@@ -160,6 +170,7 @@
                     out = { ...ev, photo: { path: await Supa.uploadPhoto(ev.photo.url, ev.id, { signal }), source: ev.photo.source || 'library', addedAt: ev.photo.addedAt || new Date().toISOString() } };
                 }
                 await Supa.rpc('push_event', { ev: out }, { signal });
+                this._last = null;   // your own save: the next sync downloads fresh
                 return { landed: true, ev: out };
             }
         };
