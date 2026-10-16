@@ -13,8 +13,11 @@ class El {
 
 function loadApp(htmlFile) {
   const html = fs.readFileSync(htmlFile, 'utf8');
-  const script = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1])[0];
+  let script = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1])[0];
   if (!script) throw new Error('no app script found in ' + htmlFile);
+  // The tools want the app's replay of the log, never a backend: once the build has Supabase switched on for everyone
+  // (live: true), it's switched off here, so the app behaves the same as on the Sheet (the people you picked, etc.).
+  script = script.replace(/(const SUPABASE = \{[^}]*\blive:\s*)true\b/, '$1false');
   const registry = new Map(), local = new Map();
   const document = {
     hidden: false, activeElement: null, body: new El('body'), documentElement: new El('html'),
@@ -33,6 +36,7 @@ function loadApp(htmlFile) {
   sandbox.window = sandbox;
   vm.createContext(sandbox);
   vm.runInContext(script + '\n;globalThis.__app = app;', sandbox, { filename: htmlFile });
+  if (vm.runInContext('typeof Supa !== "undefined" && Supa.on()', sandbox)) throw new Error('the app in Node is on a backend: the tools need it on none');
   return sandbox.__app;
 }
 
