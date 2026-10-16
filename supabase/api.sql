@@ -986,9 +986,13 @@ begin
   return role;
 end $$;
 
+-- v14.6: each private community's goal history and awards start when it was made; the crew's own (made by the move to
+-- accounts) keeps everything from before
+insert into backend_state (key, value) select 'history_group', id::text from groups where name = 'Original crew' order by created_at limit 1 on conflict (key) do nothing;
 create or replace function my_groups() returns jsonb
 language sql stable security definer set search_path = public as $$
   select coalesce(jsonb_agg(jsonb_build_object('id', g.id, 'name', g.name, 'open', g.is_open, 'role', m.role, 'goal', g.goal_on, 'awards', g.awards_on,
+           'since', case when g.id::text = (select value from backend_state where key = 'history_group') then null else g.created_at end,
            'invite', case when m.role in ('owner', 'admin') then g.invite_code end,
            'members', (select jsonb_agg(jsonb_build_object('name', internal.name_of(x.user_id), 'role', x.role, 'countsInGoal', x.counts_in_goal) order by x.joined_at)
                        from group_members x where x.group_id = g.id)) order by g.created_at), '[]'::jsonb)

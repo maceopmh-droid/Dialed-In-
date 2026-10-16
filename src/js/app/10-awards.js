@@ -109,7 +109,8 @@
             awardMonths() {
                 // v12.0: this month is always listed (locked until the 1st); finished months with sessions follow
                 const now = new Date(), out = [this.awardMonthKey(now)];
-                for (let i = 1; i < 13; i++) { const d = new Date(now.getFullYear(), now.getMonth() - i, 1); const [a, b] = this.monthRange(d.getFullYear(), d.getMonth()); if (this.crewSessionsBetween(a, b).length) out.push(this.awardMonthKey(d)); }
+                const since = this._crewScope ? this._crewScope.since : 0;   // v14.6: a community's awards start the month it was made
+                for (let i = 1; i < 13; i++) { const d = new Date(now.getFullYear(), now.getMonth() - i, 1); const [a, b] = this.monthRange(d.getFullYear(), d.getMonth()); if (since && b <= since) break; if (this.crewSessionsBetween(a, b).length) out.push(this.awardMonthKey(d)); }
                 return out;
             },
 
@@ -149,7 +150,12 @@
             awardsNeedReveal(key, awards) {
                 const now = new Date();
                 const prev = this.awardMonthKey(new Date(now.getFullYear(), now.getMonth() - 1, 1));
-                return key === prev && awards.length > 0 && !this.hasSeen('dialed_awards_revealed', key);
+                return key === prev && awards.length > 0 && !this.hasSeen('dialed_awards_revealed', this.awardSeenKey(key));
+            },
+            // v14.6: revealed once per community
+            awardSeenKey(key, gid) {
+                const id = gid || (this._crewScope && this._crewScope.id) || '';
+                return id ? `${key}@${id}` : key;
             },
 
             awardStandings(awards) {
@@ -208,7 +214,7 @@
             awardsCutoff(y, m) { return Math.max(this.monthRange(y, m)[1], Date.parse('2026-10-09T00:46:16Z')); },
 
             crewAwardsMemo(y, m) {
-                const k = `${y}-${m}`;
+                const k = `${this._crewScope ? this._crewScope.id : ''}|${y}-${m}`;   // v14.6: per community
                 const cut = this.awardsCutoff(y, m);
                 if (Date.now() >= cut) {
                     // v12.7: a finished month: frozen at its close, so later edits can't change the winners
@@ -249,9 +255,15 @@
             },
 
             renderCrewAwardsCard() {
-                // v14.6: awards are for a private community; on your own there's no one to win against (Discover has the
-                // monthly highlights for everyone)
-                if (this.acctOn && this.acctOn() && this.knownPeople().length < 2) return '';
+                // v14.6: awards belong to a private community (the one picked in Community); on your own there's no one
+                // to win against (Discover has the monthly highlights for everyone)
+                if (this.acctOn && this.acctOn() && !this._crewScope) {
+                    const gr = this.grState ? this.grState() : null;
+                    if (gr && !gr.list && !this._grLoading) { this._grLoading = true; this.loadGroups().catch(() => null).finally(() => { this._grLoading = false; if (this.tab === 'profile') this.render(); }); }
+                    const g = this.activeCrewGroup();
+                    if (!g || g.members.length < 2) return '';
+                    return this.withCrewScope(g, () => this.renderCrewAwardsCard());
+                }
                 const months = this.awardMonths();
                 if (!this.brews.size) return '';
                 if (!months.includes(this.awardsMonth)) {
@@ -262,7 +274,8 @@
                 const [y, m] = key.split('-').map(Number);
                 const name = this.monthName(key, false);
                 const picker = `<select class="recap-select" aria-label="Award month" onchange="app.setAwardsMonth(this.value)">${months.map(k => `<option value="${k}"${k === key ? ' selected' : ''}>${this.esc(this.monthName(k))}${this.monthLocked(k) ? ' (locked)' : ''}</option>`).join('')}</select>`;
-                const head = sub => `<div class="aw-head"><div><div class="label">Monthly awards</div><div class="aw-sub">${sub}</div></div>${picker}</div>`;
+                const named = this._crewScope && this.crewGroups().length > 1 ? this._crewScope.name : '';   // v14.6: which community, when you're in more than one
+                const head = sub => `<div class="aw-head"><div><div class="label">Monthly awards${named ? ` · ${this.esc(named)}` : ''}</div><div class="aw-sub">${sub}</div></div>${picker}</div>`;
                 if (this.monthLocked(key)) {
                     const unlock = new Date(y, m, 1);
                     const days = this.daysUntil(unlock);
@@ -321,8 +334,9 @@
 
             setAwardsMonth(key) { this.awardsMonth = key; this.render(); },
 
-            revealAwards(key) {
-                this.markSeen('dialed_awards_revealed', key);
+            revealAwards(key, gid) {
+                const g = gid ? null : this.activeCrewGroup && this.activeCrewGroup();
+                this.markSeen('dialed_awards_revealed', this.awardSeenKey(key, gid || (g ? String(g.id) : '')));
                 this.awardsMonth = key;
                 this._awReveal = { key, at: Date.now() };
                 this.render();
@@ -332,31 +346,33 @@
                 const now = new Date();
                 if (now.getDate() > 4) return '';
                 const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                if (this._crewScope && this._crewScope.since && this.monthRange(prev.getFullYear(), prev.getMonth())[1] <= this._crewScope.since) return '';   // (the community didn't exist yet)
                 const awards = this.crewAwardsMemo(prev.getFullYear(), prev.getMonth());
                 if (awards.length < 2) return '';
                 const key = this.awardMonthKey(prev);
                 const name = this.monthName(key, false);
                 if (this.awardsNeedReveal(key, awards)) {
                     return `
-                    <section class="feed-card aw-teaser sealed" onclick="app.openAwards('${app.escJs(key)}', true)" role="button" tabindex="0">
+                    <section class="feed-card aw-teaser sealed" onclick="app.openAwards('${app.escJs(key)}', true, '${app.escJs(this._crewScope ? this._crewScope.id : '')}')" role="button" tabindex="0">
                         <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-trophy"/></svg>${this.esc(name)}'s awards are in</span><span class="cq-left">Tap to reveal ›</span></div>
                         <div class="aw-teaser-icons">${awards.slice(0, 9).map(a => `<span class="aw-icon" style="--ac:${this.esc(a.color)}"><svg class="icon"><use href="#${this.esc(a.icon)}"/></svg></span>`).join('')}<span class="aw-teaser-count">${awards.length} awards waiting</span></div>
                     </section>`;
                 }
                 return `
-                    <section class="feed-card aw-teaser" onclick="app.openAwards('${app.escJs(key)}')" role="button" tabindex="0">
+                    <section class="feed-card aw-teaser" onclick="app.openAwards('${app.escJs(key)}', false, '${app.escJs(this._crewScope ? this._crewScope.id : '')}')" role="button" tabindex="0">
                         <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-trophy"/></svg>${this.esc(name)}'s awards are in</span><span class="cq-left">See all ›</span></div>
                         <div class="aw-grid compact">${this.awardTilesHtml(awards.slice(0, 4), true)}</div>
                     </section>`;
             },
 
-            openAwards(key, reveal = false) {
+            openAwards(key, reveal = false, gid = '') {
+                if (gid) { this._feedGroup = String(gid); safeSet('dialed_feed_group', this._feedGroup); }   // v14.6: that community's awards
                 this.awardsMonth = key;
                 this.profileSection = 'activity';
                 this._noRecapJump = true;
                 this.setTab('profile');
                 this._noRecapJump = false;
-                if (reveal) this.revealAwards(key);
+                if (reveal) this.revealAwards(key, gid);
                 setTimeout(() => { const el = document.getElementById('crew-awards'); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60);
             },
 

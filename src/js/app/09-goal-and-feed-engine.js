@@ -28,8 +28,32 @@
 
             // v14.6: the group goal and monthly awards count you and your private communities only: never people you
             // just follow, or strangers' sessions loaded for Discover, Everyone or a profile you opened
+            // v14.6: each private community has its own goal and awards. Inside withCrewScope(community, ...) everything
+            // here counts that community's members only (and its own "counts in group goal" switches)
+            crewGroups() {
+                if (!(this.acctOn && this.acctOn()) || !this.grState) return [];
+                return (this.grState().list || []).filter(g => g && !g.open && Array.isArray(g.members));
+            },
+            crewScopeOf(g) {
+                if (!g) return null;
+                return { id: String(g.id), name: String(g.name || ''), since: Date.parse(g.since || '') || 0, names: new Set(g.members.map(x => x.name)), exclude: new Set(g.members.filter(x => x.countsInGoal === false).map(x => String(x.name).toLowerCase())) };
+            },
+            withCrewScope(g, fn) {
+                const was = this._crewScope;
+                this._crewScope = this.crewScopeOf(g);
+                try { return fn(); } finally { this._crewScope = was; }
+            },
+            // the private community your profile's awards show: the one picked in Community, or your first
+            activeCrewGroup() {
+                const list = this.crewGroups();
+                if (!list.length) return null;
+                const id = this.feedGroupId ? this.feedGroupId() : '';
+                return list.find(g => String(g.id) === String(id)) || list[0];
+            },
+
             crewFilter() {
                 if (!(this.acctOn && this.acctOn())) return () => true;
+                if (this._crewScope) { const sc = this._crewScope; return b => sc.names.has(this.getBrewOwner(b)) && !(this.isCommunity && this.isCommunity('brew', b.id)); }
                 const crew = new Set(this.knownPeople());
                 return b => crew.has(this.getBrewOwner(b)) && !(this.isCommunity && this.isCommunity('brew', b.id));
             },
@@ -86,6 +110,7 @@
 
             // v13.1: people switched off here don't count toward group goals (shared with everyone)
             goalExcluded(name) {
+                if (this._crewScope) return this._crewScope.exclude.has(String(name || '').toLowerCase());   // v14.6: that community's own switches
                 const ex = this.groupSettings && Array.isArray(this.groupSettings.goalExclude) ? this.groupSettings.goalExclude : [];
                 const k = String(name || '').toLowerCase();
                 return ex.some(x => String(x).toLowerCase() === k);
@@ -180,8 +205,10 @@
                 const W = 7 * 864e5;
                 let won = 0;
                 const start = this.weekStartOf(now);
+                const since = this._crewScope && this._crewScope.since ? this.weekStartOf(this._crewScope.since) : 0;   // v14.6: a community's goals count from when it was made
                 for (let i = 1; i <= 26; i++) {
                     const t = this.weekStartOf(start - i * W + 3 * 3600e3) + 3 * 864e5;
+                    if (since && t < since) break;
                     const q = this.crewQuest(t);
                     if (q.done) won++;
                 }
