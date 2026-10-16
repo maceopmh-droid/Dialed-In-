@@ -13,7 +13,7 @@
                     if (kind === 'session') {
                         (this._reportedIds = this._reportedIds || new Set()).add('brew:' + ref);
                         const drop = list => list.filter(e => !(e.type === 'brew' && String(e.id) === String(ref)));
-                        this.commState().events = drop(this.commState().events);
+                        Object.values(this._streams || {}).forEach(st => { st.events = drop(st.events); });   // Discover and communities
                         if (this.profState) this.profState().events = drop(this.profState().events);
                         this.process(this.cloud.events); this._feedHtml = null;
                         this.render();

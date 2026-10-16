@@ -88,7 +88,7 @@
                 const st = this.ppState(), d = st.data;
                 // v14.4: two tabs, People and Groups
                 const tabs = document.getElementById('people-tabs'), q = document.getElementById('people-q');
-                if (tabs) tabs.innerHTML = `<div class="seg-control pp-tabs" role="tablist" aria-label="People or groups">${[['people', 'People'], ['groups', 'Groups']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${(st.tab || 'people') === k}" aria-pressed="${(st.tab || 'people') === k}" onclick="app.setPeopleTab('${app.escJs(k)}')">${l}</button>`).join('')}</div>`;
+                if (tabs) tabs.innerHTML = `<div class="seg-control pp-tabs" role="tablist" aria-label="People or communities">${[['people', 'People'], ['groups', 'Communities']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${(st.tab || 'people') === k}" aria-pressed="${(st.tab || 'people') === k}" onclick="app.setPeopleTab('${app.escJs(k)}')">${l}</button>`).join('')}</div>`;
                 if (q) q.hidden = st.tab === 'groups';
                 if (st.tab === 'groups') { this.renderGroups(body); return; }
                 if (st.q.trim().length >= 2) {

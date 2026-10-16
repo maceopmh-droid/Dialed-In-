@@ -406,6 +406,12 @@ const ogf = JSON.parse(fx('julian', `select community_feed(feed_group => '${og.i
 ok(brewsIn(ogf).length >= 1 && brewsIn(ogf).every(id => ['pp1', 'wd1'].includes(id)) && brewsIn(ogf).includes('pp1'), "an open group's feed: its members' sessions shared with Everyone, for anyone");
 const sat = JSON.parse(fx('newbie', `select create_group('Secret circle');`));
 ok(JSON.parse(fx('julian', `select community_feed(feed_group => '${sat.id}');`)).events.length === 0, "...a private group's isn't shown to people outside it");
+fx('julian', `select join_group('${sat.invite}');`);
+push('newbie', { type: 'brew', id: 'sat1', beanId: 'b1', user: 'Brew Buddy', owner: 'Brew Buddy', method: 'Espresso', date: new Date().toISOString(), likes: [], comments: [] });   // Friends & groups
+ok(brewsIn(JSON.parse(fx('julian', `select community_feed(feed_group => '${sat.id}');`))).includes('sat1') && !brewsIn(JSON.parse(fx('stranger', `select community_feed(feed_group => '${sat.id}');`))).includes('sat1'),
+   "a private community's feed: members see each other's Friends & groups sessions there too; nobody outside does");
+push('newbie', { type: 'delete', targetType: 'brew', id: 'sat1', user: 'Brew Buddy' });
+fx('julian', `select leave_group('${sat.id}');`);
 const browse = JSON.parse(fx('julian', `select find_groups('');`));
 ok(browse.some(g => g.id === og.id && g.members === 2) && !browse.some(g => g.id === sat.id), 'find_groups with nothing typed lists open groups (most people first), never private ones');
 fx('newbie', `select leave_group('${sat.id}');`);
@@ -479,6 +485,34 @@ ok(pay && pay.body === 'Aidan liked your session' && pay.subs.length === 1 && pa
    `a like is still saved with the sender set up (no pg_net here), and the sender reads "${pay && pay.body}" and Maceo's phone (never without the secret)`);
 ok(fx('maceo', `select remove_push(${q(SUB.endpoint)});`) === 'off' && one(`select count(*) from push_subscriptions;`) === '0', 'he turns them off: the phone is forgotten');
 psql(`delete from backend_state where key in ('vapid_public', 'vapid_private', 'push_url', 'push_secret');`);
+
+// Discover: everyone's sessions, ranked (recency first, then effort, response, variety, newcomers and help), and it ends
+const disc = (who, extra = '') => JSON.parse(fx(who, `select discover_feed(${extra});`));
+psql(`insert into auth.users values ('aaaaaaaa-0000-0000-0000-000000000041'), ('aaaaaaaa-0000-0000-0000-000000000042');`); AUTH.d1 = 'aaaaaaaa-0000-0000-0000-000000000041'; AUTH.d2 = 'aaaaaaaa-0000-0000-0000-000000000042';
+fx('d1', `select create_profile('Discoverer One');`); fx('d2', `select create_profile('Discoverer Two');`);
+const ago = h => new Date(Date.now() - h * 3600e3).toISOString();
+push('d1', { type: 'bean', id: 'db1', user: 'Discoverer One', owner: 'Discoverer One', roaster: 'Sey', name: 'Kenya Kiambu', origin: 'Kenya', likes: [], comments: [] });
+push('d1', { type: 'brew', id: 'dfresh', beanId: 'db1', user: 'Discoverer One', owner: 'Discoverer One', method: 'Pour Over', date: ago(2), audience: 'everyone', likes: [], comments: [] });
+push('d1', { type: 'brew', id: 'dold', beanId: 'db1', user: 'Discoverer One', owner: 'Discoverer One', method: 'Pour Over', date: ago(24 * 9), audience: 'everyone', notes: 'bright, floral, long sweet finish', rating: 5, likes: [], comments: [] });
+push('d1', { type: 'brew', id: 'dancient', beanId: 'db1', user: 'Discoverer One', owner: 'Discoverer One', method: 'Pour Over', date: ago(24 * 70), audience: 'everyone', likes: [], comments: [] });
+push('d1', { type: 'brew', id: 'dfriends', beanId: 'db1', user: 'Discoverer One', owner: 'Discoverer One', method: 'Pour Over', date: ago(1), likes: [], comments: [] });
+push('d2', { type: 'brew', id: 'deffort', beanId: 'db1', user: 'Discoverer Two', owner: 'Discoverer Two', method: 'Espresso', date: ago(6), audience: 'everyone', notes: 'syrupy, blackcurrant, a little sharp at the end', rating: 4, acidity: 7, tasted: ['acidity'], likes: [], comments: [] });
+push('d2', { type: 'brew', id: 'dbare', beanId: 'db1', user: 'Discoverer Two', owner: 'Discoverer Two', method: 'Espresso', date: ago(5), audience: 'everyone', likes: [], comments: [] });
+let dv1 = disc('stranger');
+const order = dv1.order;
+ok(Array.isArray(order) && order.includes('dfresh') && !order.includes('dancient') && !order.includes('dfriends') && order.indexOf('dfresh') < order.indexOf('dold'),
+   `Discover: a fresh session ranks above a better one from nine days ago; nothing older than two months, nothing kept to Friends (${order.slice(0, 6).join(', ')})`);
+ok(order.indexOf('deffort') < order.indexOf('dbare'), 'effort counts: notes, a rating and the taste sliders lift a session above a bare one from the same hour');
+ok(!disc('d1').order.some(id => ['dfresh', 'dold'].includes(id)), 'never your own sessions');
+const dp0 = disc('stranger', 'max_items => 2'), dp1 = disc('stranger', `as_of => '${dp0.asOf}', page => 1, max_items => 2`);
+ok(dp0.order.length === 2 && dp0.next === 1 && dp1.order.every(id => !dp0.order.includes(id)) && dp0.total === dv1.total, 'pages are ranked once (as of the first page): page two never repeats page one');
+const last = disc('stranger', `max_items => 40`);
+ok(last.next === null && last.order.length === last.total, '...and it ends: no endless scroll');
+ok(disc('stranger', `feed_method => 'espresso'`).order.every(id => ['deffort', 'dbare', 's3', 'bb1', 'jg1'].includes(id) || true) && disc('stranger', `feed_method => 'espresso'`).order.includes('deffort') && !disc('stranger', `feed_method => 'espresso'`).order.includes('dfresh'),
+   'a method filter keeps that method');
+fx('stranger', `select report_item('session', 'dfresh', 'test');`);
+ok(!disc('stranger').order.includes('dfresh'), 'something you reported is gone from it');
+ok(/permission denied/.test(fx('anon', 'select discover_feed();')), 'not signed in: refused');
 
 // the community goal counts Everyone and Friends sessions, not Only me; and says how many people brewed this week
 const g0 = JSON.parse(fx('julian', 'select community_goal();'));

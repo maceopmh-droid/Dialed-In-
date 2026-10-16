@@ -204,14 +204,10 @@
                 this.showToast(same ? 'Unmarked.' : 'Marked as the most helpful answer.');
             },
 
-            // ---- the community feed's filters: Help, New here, one method
+            // ---- Discover's filters: Help, New here, one method
             commFilterHtml() {
                 const st = this.commState(), f = st.filter || '';
-                const gr = this.grState ? this.grState() : null;
-                if (gr && !gr.list && !gr.busy) { gr.busy = true; this.loadGroups(true).then(() => { gr.busy = false; if (this.tab === 'feed' && this.feedMode() === 'community') this.render(); }).catch(() => { gr.busy = false; }); }
-                const groups = (gr && gr.list || []).filter(g => g.open).map(g => ['g:' + g.id, g.name]);   // your open groups
-                if (f.startsWith('g:') && !groups.some(([k]) => k === f)) groups.push([f, st.groupName || 'Group']);
-                const opts = [['', 'All'], ['help', 'Help'], ['new', 'New here'], ...groups, ...['Espresso', 'Pour Over', 'French Press', 'AeroPress', 'Moka Pot', 'Cold Brew'].map(m => ['m:' + m, m])];
+                const opts = [['', 'All'], ['help', 'Help'], ['new', 'New here'], ...['Espresso', 'Pour Over', 'French Press', 'AeroPress', 'Moka Pot', 'Cold Brew'].map(m => ['m:' + m, m])];
                 return `<div class="comm-filters" role="tablist" aria-label="Show">${opts.map(([k, l]) => `<button type="button" class="comm-chip${k === f ? ' on' : ''}" role="tab" aria-selected="${k === f}" data-f="${this.esc(k)}" onclick="app.setCommFilter(this.getAttribute('data-f'))">${this.esc(l)}</button>`).join('')}</div>`;
             },
 
@@ -219,7 +215,7 @@
                 const st = this.commState();
                 f = String(f || '');
                 if ((st.filter || '') === f) return;
-                st.filter = f; st.events = []; st.next = null; st.at = 0; st.born = 0; st.error = ''; st.loading = false; st.seq = (st.seq || 0) + 1;
+                st.filter = f; st.events = []; st.order = []; st.next = null; st.asOf = null; st.at = 0; st.born = 0; st.error = ''; st.loading = false; st.seq = (st.seq || 0) + 1;
                 this._feedHtml = null;
                 this.process(this.cloud.events);
                 this.loadCommunity(false);
@@ -228,7 +224,7 @@
 
             commFilterArgs() {
                 const f = this.commState().filter || '';
-                return f === 'help' || f === 'new' ? { feed_filter: f } : f.startsWith('m:') ? { feed_method: f.slice(2) } : f.startsWith('g:') ? { feed_group: f.slice(2) } : {};
+                return f === 'help' || f === 'new' ? { feed_filter: f } : f.startsWith('m:') ? { feed_method: f.slice(2) } : {};
             },
 
             // ---- the community goal: one weekly goal everyone on Dialed In fills together
@@ -259,8 +255,8 @@
                 const mine = Number(g.yourSessions) || 0, people = Number(g.people) || 0;
                 const you = mine ? `You: ${mine} session${mine === 1 ? '' : 's'}` : 'Your next session counts';
                 return `
-                    <section class="feed-card crew-quest comm-goal${done ? ' done' : ''}" aria-label="Community goal">
-                        <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-target"/></svg>Community goal · this week</span><span class="cq-left">${this.esc(left)}</span></div>
+                    <section class="feed-card crew-quest comm-goal${done ? ' done' : ''}" aria-label="Everyone's goal this week">
+                        <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-target"/></svg>Everyone · this week</span><span class="cq-left">${this.esc(left)}</span></div>
                         <div class="cq-title">${this.esc(g.title)}</div>
                         <div class="cq-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${target}" aria-valuenow="${progress}" style="${this.esc(style)}"><div class="cq-layer cq-glow"><i class="cq-g"></i></div><div class="cq-layer cq-paint"><i class="cq-g"></i></div></div>
                         <div class="cq-meta"><span><b>${progress}</b> of ${target} ${this.esc(g.unit || '')}</span></div>

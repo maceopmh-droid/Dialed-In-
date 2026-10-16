@@ -3333,7 +3333,8 @@
         .acct-tools .acct-delete { color: #C0392B; }
         /* v14.4: the community feed (new backend only) */
         .feed-top { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; }
-        .feed-top .feed-mode { flex: 1; margin: 0; grid-template-columns: repeat(2, 1fr); }   /* two choices: each takes half (the control is made for three) */
+        .feed-top .feed-mode { flex: 1; margin: 0; grid-template-columns: repeat(3, 1fr); }   /* v14.5: Following, Community, Discover */
+        .feed-top .feed-mode button { padding-left: 2px; padding-right: 2px; white-space: nowrap; }
         .feed-top .notif-btn { flex: none; height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
         .feed-top .notif-btn .icon { width: 18px; height: 18px; }
         .comm-empty { text-align: center; color: var(--text-muted); padding: 2.4rem 1.2rem; font-size: 0.92rem; line-height: 1.45; }
@@ -3397,6 +3398,21 @@
         .prof-coffee-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 12px; }
         /* Settings: notifications on this phone */
         .pp-private .goal-sw[disabled] { opacity: 0.45; cursor: default; }
+        /* the Community tab: which community (a picker), its goal and awards, its feed */
+        .grp-pick { position: relative; display: flex; align-items: center; gap: 10px; margin: -2px 0 14px; min-width: 0; }
+        .grp-pick-btn { display: inline-flex; align-items: center; gap: 6px; min-width: 0; max-width: 70%; width: auto; min-height: 0; margin: 0; padding: 4px 2px; border: 0; background: none; font: inherit; font-size: 1.12rem; font-weight: 800; color: var(--ink); cursor: pointer; box-shadow: none; }
+        .grp-pick-btn .grp-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .grp-pick-btn .icon { width: 16px; height: 16px; flex: none; color: var(--text-muted); transition: transform 0.2s; }
+        .grp-pick-btn[aria-expanded="true"] .icon { transform: rotate(180deg); }
+        .grp-meta { font-size: 0.8rem; font-weight: 650; color: var(--text-muted); white-space: nowrap; }
+        .grp-menu { top: calc(100% + 4px); min-width: 240px; max-width: calc(100vw - 32px); }
+        .grp-menu button { display: grid; gap: 1px; }
+        .grp-menu button small { font-size: 0.76rem; font-weight: 600; color: var(--text-muted); }
+        .grp-menu button.on { background: rgba(var(--matcha-rgb), 0.1); }
+        .grp-sep { display: block; height: 1px; margin: 4px 6px; background: var(--line); }
+        .grp-empty { margin: 1.4rem 0; padding: 18px 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); }
+        .grp-empty b { font-size: 1.05rem; color: var(--ink); }
+        .grp-empty p { margin: 6px 0 12px; font-size: 0.9rem; line-height: 1.45; color: var(--text-muted); }
     </style>
 </head>
 <body>
@@ -10311,7 +10327,7 @@
                     this._peopleLoading = true;
                     this.loadPeople().then(() => { this._peopleLoading = false; if (this.tab === 'feed') this.render(); }).catch(() => { this._peopleLoading = false; });
                 }
-                if (this.acctOn() && this.feedMode() === 'community') { this.renderCommunityFeed(grid); return; }
+                if (this.acctOn() && this.feedMode() !== 'following') { this.renderCommunityFeed(grid); return; }   // v14.5: Community and Discover
                 grid.className = 'feed-list';
                 if (grid.getAttribute && grid.getAttribute('data-view') === 'community') { grid.removeAttribute('data-view'); this._feedHtml = null; }
                 const entries = this.feedEntries.slice(0, 220);
@@ -10323,9 +10339,9 @@
                     this._feedHtml = null;
                     return;
                 }
-                // v14.5: no private group yet: the community goal instead of a group goal for one
-                const quest = this.acctOn() && this.knownPeople().length <= 1 && this.communityGoalHtml ? this.communityGoalHtml() : this.renderCrewQuest();
-                const tops = [['top:mode', this.feedModeHtml()], ['top:welcome', this.renderWelcomeBack()], ['top:quest', quest], ['top:teaser', this.renderAwardsTeaser()]];
+                // v14.5: on accounts, the group goal and monthly awards belong to a private community (Feed, Community)
+                const acct = this.acctOn();
+                const tops = [['top:mode', this.feedModeHtml()], ['top:welcome', this.renderWelcomeBack()], ['top:quest', acct ? '' : this.renderCrewQuest()], ['top:teaser', acct ? '' : this.renderAwardsTeaser()]];
                 if (!this.canPatchDom(grid)) {
                     grid.innerHTML = tops.map(t => t[1]).join('') + entries.map(e => this.feedCardHtml(e)).join('');
                     return;
@@ -16094,7 +16110,7 @@
                 const st = this.ppState(), d = st.data;
                 // v14.4: two tabs, People and Groups
                 const tabs = document.getElementById('people-tabs'), q = document.getElementById('people-q');
-                if (tabs) tabs.innerHTML = `<div class="seg-control pp-tabs" role="tablist" aria-label="People or groups">${[['people', 'People'], ['groups', 'Groups']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${(st.tab || 'people') === k}" aria-pressed="${(st.tab || 'people') === k}" onclick="app.setPeopleTab('${app.escJs(k)}')">${l}</button>`).join('')}</div>`;
+                if (tabs) tabs.innerHTML = `<div class="seg-control pp-tabs" role="tablist" aria-label="People or communities">${[['people', 'People'], ['groups', 'Communities']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${(st.tab || 'people') === k}" aria-pressed="${(st.tab || 'people') === k}" onclick="app.setPeopleTab('${app.escJs(k)}')">${l}</button>`).join('')}</div>`;
                 if (q) q.hidden = st.tab === 'groups';
                 if (st.tab === 'groups') { this.renderGroups(body); return; }
                 if (st.q.trim().length >= 2) {
@@ -16222,76 +16238,121 @@
                 this.renderPeople();
                 if (st.tab === 'groups') this.loadGroups(true).then(() => this.renderPeople()).catch(e => this.peopleFailed(e));
             },
-            // ---- v14.4 (phase 3): the community feed. Your sync carries only your circle (you, friends, your groups, the
-            // people you follow); everyone else's sessions shared with Everyone come a page at a time from the database
-            // and live beside your circle's records (this.communityIds), so they never count toward your group goal,
-            // awards, library or the Following feed. New backend only.
-            commState() { return this._comm || (this._comm = { events: [], next: null, at: 0, loading: false, error: '' }); },
+            // ---- v14.4 (phase 3): the Feed beyond your circle. Your sync carries only your circle (you, friends, your private
+            // communities, the people you follow). v14.5: the Feed has three tabs: Following (your circle, as before),
+            // Community (one of your communities at a time: its members' sessions, its goal and awards) and Discover
+            // (everyone's sessions shared with Everyone, ranked by discover_feed). What these bring in lives beside your
+            // circle's records (this.communityIds), so it never counts toward your goals, awards, library or Following.
+            // New backend only.
+            streamState(key) {
+                this._streams = this._streams || {};
+                return this._streams[key] || (this._streams[key] = { events: [], order: [], next: null, asOf: null, at: 0, born: 0, loading: false, error: '', seq: 0, filter: '' });
+            },
+            commState() { return this.streamState('discover'); },   // Discover (and its filters)
 
             feedMode() {
                 if (!this.acctOn()) return 'following';
-                if (!this._feedMode) { const saved = safeGet('dialed_feed_mode'); if (saved === 'community' || saved === 'following') this._feedMode = saved; }
+                if (!this._feedMode) {
+                    const saved = safeGet('dialed_feed_mode');
+                    if (saved === 'following' || saved === 'groups' || saved === 'discover') this._feedMode = saved;
+                    else if (saved === 'community') this._feedMode = 'discover';   // v14.4's Community is v14.5's Discover
+                }
                 if (this._feedMode) return this._feedMode;
-                // until you pick: Community for someone who follows nobody and has no group yet (their Following is empty)
+                // until you pick: Discover for someone who follows nobody and has no community yet (their Following is empty)
                 const d = this.ppState().data;
-                return d && !(d.following || []).length && !this.knownPeople().some(n => n !== this.user) ? 'community' : 'following';
+                return d && !(d.following || []).length && !this.knownPeople().some(n => n !== this.user) ? 'discover' : 'following';
             },
 
             setFeedMode(mode) {
-                this._feedMode = mode === 'community' ? 'community' : 'following';
+                if (mode === 'community') mode = 'discover';   // (v14.4's name for it)
+                this._feedMode = mode === 'groups' || mode === 'discover' ? mode : 'following';
                 safeSet('dialed_feed_mode', this._feedMode);
-                this._feedHtml = null;
-                const st = this.commState();
-                if (this._feedMode === 'community' && (!st.at || Date.now() - st.at > 60000)) this.loadCommunity(false);
+                this._feedHtml = null; this._groupMenu = false;
+                if (this._feedMode === 'discover') { const st = this.commState(); if (!st.at || Date.now() - st.at > 10 * 60000) this.loadCommunity(false); }
+                if (this._feedMode === 'groups') { const id = this.feedGroupId(); if (id) { const st = this.streamState('g:' + id); if (!st.at || Date.now() - st.at > 60000) this.loadGroupFeed(id, false); } }
                 this.render();
                 const g = document.getElementById('grid'); if (g && g.scrollIntoView && window.scrollY > 200) window.scrollTo({ top: 0 });
             },
 
-            // the first page again (fresh), or with more = true the next older page
+            feedModeHtml() {
+                if (!this.acctOn()) return '';
+                const m = this.feedMode();
+                return `<div class="feed-top"><div class="seg-control feed-mode" role="tablist" aria-label="Feed">${[['following', 'Following'], ['groups', 'Community'], ['discover', 'Discover']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === m}" aria-pressed="${k === m}" onclick="app.setFeedMode('${app.escJs(k)}')">${l}</button>`).join('')}</div>${this.notifButtonHtml ? this.notifButtonHtml() : ''}</div>`;
+            },
+
+            // Discover, the first page again (fresh: ranked as of now), or with more = true the next page of the same ranking
             async loadCommunity(more) {
                 const st = this.commState();
                 if (st.loading || !this.acctOn() || !Supa.ready()) return;
-                if (more && !st.next) return;
+                if (more && st.next === null) return;
                 // photo links last two hours: after ninety minutes start over from the first page, so none go stale
-                if (!more && st.born && Date.now() - st.born > 90 * 60000) { st.events = []; st.next = null; st.at = 0; st.born = 0; }
-                if (!st.born) st.born = Date.now();
-                const seq = st.seq = (st.seq || 0) + 1;   // v14.5: a filter change starts over; an answer for the old one is dropped
+                if (!more && st.born && Date.now() - st.born > 90 * 60000) { st.events = []; st.order = []; st.next = null; st.at = 0; st.born = 0; }
+                const seq = st.seq = (st.seq || 0) + 1;   // a filter change starts over; an answer for the old one is dropped
                 st.loading = true; st.error = '';
-                if (this.tab === 'feed' && this.feedMode() === 'community') this.render();
+                if (this.tab === 'feed' && this.feedMode() === 'discover') this.render();
                 try {
-                    const args = { max_items: 30, ...(this.commFilterArgs ? this.commFilterArgs() : {}) };
-                    const page = await Supa.rpc('community_feed', more ? { ...args, before: st.next } : args);
+                    const args = { max_items: 20, ...(this.commFilterArgs ? this.commFilterArgs() : {}) };
+                    const page = await Supa.rpc('discover_feed', more ? { ...args, as_of: st.asOf, page: st.next } : args);
                     if (st.seq !== seq) return;
                     const raw = page && Array.isArray(page.events) ? page.events : [];
                     await Supa.linkPhotos(raw);   // photos in storage: short-lived links, as in a sync
                     if (st.seq !== seq) return;
-                    const evs = raw.map(e => this.normalizeEvent(e)).filter(Boolean);
+                    const evs = raw.map(e => this.normalizeEvent(e)).filter(Boolean), order = (page && Array.isArray(page.order) ? page.order : []).map(String);
                     if (more) {
                         const have = new Set(st.events.map(e => e.type + ':' + e.id));
                         st.events = [...st.events, ...evs.filter(e => !have.has(e.type + ':' + e.id))];
-                    } else {
-                        // a fresh first page replaces what it covers and keeps older pages already loaded
-                        const fresh = new Set(evs.map(e => e.type + ':' + e.id));
-                        st.events = [...evs, ...st.events.filter(e => !fresh.has(e.type + ':' + e.id))];
-                        if (!st.at) st.next = page ? page.next || null : null;
-                    }
-                    if (more) st.next = page ? page.next || null : null;
+                        st.order = [...st.order, ...order.filter(id => !st.order.includes(id))];
+                    } else { st.events = evs; st.order = order; st.asOf = page ? page.asOf : null; st.born = Date.now(); }
+                    st.next = page && page.next !== null && page.next !== undefined ? page.next : null;
                     st.at = Date.now();
                 } catch (e) {
-                    if (st.seq === seq) st.error = e && e.signedOut ? '' : 'Couldn\'t load the community feed. Check your connection.';
+                    if (st.seq === seq) { st.error = e && e.signedOut ? '' : 'Couldn\'t load Discover. Check your connection.'; st.at = Date.now(); }
                 } finally { if (st.seq === seq) st.loading = false; }
                 if (st.seq !== seq) return;
                 this.process(this.cloud.events);
                 if (this.tab === 'feed') { this._feedHtml = null; this.render(); }
             },
 
-            // in process(): community records that aren't already part of your circle's sync
+            // one community's feed: its members' sessions you may see, newest first, a page at a time
+            async loadGroupFeed(id, more) {
+                const st = this.streamState('g:' + id);
+                if (st.loading || !this.acctOn() || !Supa.ready() || !id) return;
+                if (more && !st.next) return;
+                if (!more && st.born && Date.now() - st.born > 90 * 60000) { st.events = []; st.next = null; st.at = 0; st.born = 0; }
+                if (!st.born) st.born = Date.now();
+                const seq = st.seq = (st.seq || 0) + 1;
+                st.loading = true; st.error = '';
+                try {
+                    const page = await Supa.rpc('community_feed', more ? { max_items: 30, feed_group: id, before: st.next } : { max_items: 30, feed_group: id });
+                    if (st.seq !== seq) return;
+                    const raw = page && Array.isArray(page.events) ? page.events : [];
+                    await Supa.linkPhotos(raw);
+                    if (st.seq !== seq) return;
+                    const evs = raw.map(e => this.normalizeEvent(e)).filter(Boolean);
+                    if (more) {
+                        const have = new Set(st.events.map(e => e.type + ':' + e.id));
+                        st.events = [...st.events, ...evs.filter(e => !have.has(e.type + ':' + e.id))];
+                        st.next = page ? page.next || null : null;
+                    } else {
+                        const fresh = new Set(evs.map(e => e.type + ':' + e.id));
+                        st.events = [...evs, ...st.events.filter(e => !fresh.has(e.type + ':' + e.id))];
+                        if (!st.at) st.next = page ? page.next || null : null;
+                    }
+                    st.at = Date.now();
+                } catch (e) {
+                    if (st.seq === seq) { st.error = e && e.signedOut ? '' : 'Couldn\'t load this community. Check your connection.'; st.at = Date.now(); }
+                } finally { if (st.seq === seq) st.loading = false; }
+                if (st.seq !== seq) return;
+                this.process(this.cloud.events);
+                if (this.tab === 'feed') { this._feedHtml = null; this.render(); }
+            },
+
+            // in process(): records from Discover, communities and an opened profile that aren't already part of your circle's sync
             applyCommunity() {
                 this.communityIds = new Set();
                 if (!this.acctOn()) return;
-                const st = this.commState();
-                // v14.5: and the profile of someone outside your circle you've opened (their sessions, coffees and gear)
-                [...st.events, ...(this.profState ? this.profState().events : [])].forEach(ev => {
+                const all = [...Object.values(this._streams || {}).flatMap(st => st.events), ...(this.profState ? this.profState().events : [])];
+                all.forEach(ev => {
                     if (ev.type === 'gear') { const o = String(ev.owner || ''); if (o && o !== this.user && !o.startsWith('__') && !this.gearByUser.has(o)) this.gearByUser.set(o, ev); return; }
                     if (ev.type !== 'bean' && ev.type !== 'brew') return;
                     const id = String(ev.id), key = ev.type + ':' + id;
@@ -16304,54 +16365,104 @@
 
             isCommunity(type, id) { return Boolean(this.communityIds && this.communityIds.has(`${type}:${id}`)); },
 
-            // your own like or comment on a community session: keep the community copy up to date (your circle's sync
-            // won't bring it back)
+            // your own like or comment on one of these sessions: keep its copy up to date (your circle's sync won't bring it back)
             noteCommunityPush(event) {
                 if (!event || !this.isCommunity(event.type, event.id)) return;
-                const st = this.commState();
-                st.events = st.events.map(e => (e.type === event.type && String(e.id) === String(event.id) ? event : e));
+                Object.values(this._streams || {}).forEach(st => { st.events = st.events.map(e => (e.type === event.type && String(e.id) === String(event.id) ? event : e)); });
+                if (this.profState) { const p = this.profState(); p.events = p.events.map(e => (e.type === event.type && String(e.id) === String(event.id) ? event : e)); }
             },
 
-            feedModeHtml() {
-                if (!this.acctOn()) return '';
-                const m = this.feedMode();
-                return `<div class="feed-top"><div class="seg-control feed-mode" role="tablist" aria-label="Feed">${[['following', 'Following'], ['community', 'Community']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === m}" aria-pressed="${k === m}" onclick="app.setFeedMode('${app.escJs(k)}')">${l}</button>`).join('')}</div>${this.notifButtonHtml ? this.notifButtonHtml() : ''}</div>`;
-            },
+            streamCard(b, community) { return this.renderFeedSessionCard({ kind: 'session', brewId: b.id, date: b.date, actorColor: b.actorColor || '', community }); },
+            reported(id) { return Boolean(this._reportedIds && this._reportedIds.has('brew:' + id)); },
 
+            // Discover's sessions, in its ranking
             communityEntries() {
                 const st = this.commState(), seen = new Set();
-                return st.events.filter(e => e.type === 'brew' && !(this._reportedIds && this._reportedIds.has('brew:' + e.id))).map(e => this.brews.get(String(e.id))).filter(b => b && !seen.has(b.id) && seen.add(b.id) && b.audience !== 'only_me')
-                    .sort((a, b) => this.toTime(b.date) - this.toTime(a.date))
-                    .map(b => ({ kind: 'session', brewId: b.id, date: b.date, actorColor: b.actorColor || '', community: true }));
+                return st.order.map(id => this.brews.get(String(id))).filter(b => b && !seen.has(b.id) && seen.add(b.id) && b.audience !== 'only_me' && !this.reported(b.id));
             },
 
             renderCommunityFeed(grid) {
                 grid.className = 'feed-list';
                 if (grid.setAttribute) grid.setAttribute('data-view', 'community');
                 this._feedHtml = null;
+                if (!this.ppState().data && !this._peopleLoading) { this._peopleLoading = true; this.loadPeople().then(() => { this._peopleLoading = false; if (this.tab === 'feed') this.render(); }).catch(() => { this._peopleLoading = false; }); }
+                if (this.feedMode() === 'groups') { this.renderGroupFeed(grid); return; }
                 const st = this.commState();
-                const entries = this.communityEntries();
-                const head = this.feedModeHtml() + (this.communityGoalHtml ? this.communityGoalHtml() + this.commFilterHtml() : '');   // v14.5: the community goal and filters
-                if (!entries.length) {
+                const list = this.communityEntries();
+                const head = this.feedModeHtml() + (this.communityGoalHtml ? this.communityGoalHtml() : '') + (this.commFilterHtml ? this.commFilterHtml() : '');
+                if (!list.length) {
                     const f = st.filter || '';
                     const none = f === 'help' ? 'No help requests right now. When someone asks for help dialing in, it shows here.'
                         : f === 'new' ? 'Nobody new in the last two weeks.'
-                        : f.startsWith('g:') ? 'Nothing from this group yet. Members\' sessions shared with Everyone show here.'
-                        : f ? `No ${f.slice(2)} sessions shared with Everyone yet.`
-                        : 'Nothing shared with Everyone yet. Sessions people share with Everyone show up here.';
-                    const msg = st.loading || !st.at ? 'Loading the community…' : st.error || none;
-                    grid.innerHTML = head + `<div class="comm-empty">${this.esc(msg)}</div>`;
+                        : f ? `No ${f.slice(2)} sessions shared with Everyone lately.`
+                        : 'Nothing shared with Everyone lately. Sessions people share with Everyone show up here.';
+                    grid.innerHTML = head + `<div class="comm-empty">${this.esc(st.loading || !st.at ? 'Loading…' : st.error || none)}</div>`;
+                    if (!st.loading && !st.at) setTimeout(() => this.loadCommunity(false), 0);
                     return;
                 }
-                if (!st.loading && Date.now() - st.at > 120000) setTimeout(() => this.loadCommunity(false), 0);   // a fresh first page now and then
-                if (!this.ppState().data && !this._peopleLoading) { this._peopleLoading = true; this.loadPeople().then(() => { this._peopleLoading = false; if (this.tab === 'feed') this.render(); }).catch(() => { this._peopleLoading = false; }); }
+                if (!st.loading && Date.now() - st.at > 10 * 60000 && window.scrollY < 300) setTimeout(() => this.loadCommunity(false), 0);   // ranked afresh now and then (only from the top)
                 const foot = st.error ? `<div class="comm-empty">${this.esc(st.error)}</div>`
-                    : st.next ? `<button type="button" class="btn-outline comm-more" onclick="app.loadCommunity(true)"${st.loading ? ' disabled' : ''}>${st.loading ? 'Loading…' : 'Show older sessions'}</button>`
+                    : st.next !== null ? `<button type="button" class="btn-outline comm-more" onclick="app.loadCommunity(true)"${st.loading ? ' disabled' : ''}>${st.loading ? 'Loading…' : 'Show more'}</button>`
                     : `<div class="comm-empty">You're all caught up.</div>`;
-                grid.innerHTML = head + entries.map(e => this.renderFeedSessionCard(e)).join('') + foot;
+                grid.innerHTML = head + list.map(b => this.streamCard(b, true)).join('') + foot;
             },
 
-            // on a community card: follow the person right there (their name and a Follow button)
+            // ---- the Community tab: one of your communities at a time (a picker when you're in more than one)
+            feedGroupId() {
+                const gr = this.grState(), list = gr.list || [];
+                if (!list.length) return '';
+                const want = this._feedGroup || safeGet('dialed_feed_group') || '';
+                return (list.find(g => String(g.id) === String(want)) || list[0]).id;
+            },
+
+            pickFeedGroup(id) {
+                this._feedGroup = String(id || ''); safeSet('dialed_feed_group', this._feedGroup);
+                this._groupMenu = false; this._feedHtml = null;
+                const st = this.streamState('g:' + id);
+                if (!st.at || Date.now() - st.at > 60000) this.loadGroupFeed(id, false);
+                this.render();
+            },
+
+            toggleGroupMenu(event) {
+                if (event) event.stopPropagation();
+                this._groupMenu = !this._groupMenu; this._feedHtml = null; this.render();
+                if (this._groupMenu && typeof document !== 'undefined') {   // a tap anywhere else closes it
+                    const close = e => { if (e.target && e.target.closest && e.target.closest('.grp-pick')) return; document.removeEventListener('click', close, true); if (this._groupMenu) { this._groupMenu = false; this._feedHtml = null; this.render(); } };
+                    setTimeout(() => document.addEventListener('click', close, true), 0);
+                }
+            },
+
+            renderGroupFeed(grid) {
+                const gr = this.grState();
+                if (!gr.list) {
+                    grid.innerHTML = this.feedModeHtml() + '<div class="comm-empty">Loading…</div>';
+                    if (!gr.busy) { gr.busy = true; this.loadGroups(true).then(() => { gr.busy = false; if (this.tab === 'feed') this.render(); }).catch(() => { gr.busy = false; gr.list = gr.list || []; if (this.tab === 'feed') this.render(); }); }
+                    return;
+                }
+                if (!gr.list.length) {
+                    grid.innerHTML = this.feedModeHtml() + `<div class="grp-empty"><b>Find your community</b><p>Communities are groups around friends, a place or a way of brewing: your roommates, a cafe's regulars, Moka pot people. Each one has its own feed.</p><div class="gr-actions"><button type="button" class="btn-primary pp-act" onclick="app.openPeople('groups'); app.groupForm('find')">Find communities</button><button type="button" class="btn-outline pp-act" onclick="app.openPeople('groups'); app.groupForm('create')">Start one</button></div></div>`;
+                    return;
+                }
+                const id = this.feedGroupId(), g = gr.list.find(x => String(x.id) === String(id)) || gr.list[0];
+                const st = this.streamState('g:' + g.id);
+                if (!st.loading && (!st.at || Date.now() - st.at > 120000)) setTimeout(() => this.loadGroupFeed(g.id, false), 0);
+                const n = (g.members || []).length;
+                const menu = this._groupMenu ? `<div class="pp-menu grp-menu">${gr.list.map(x => `<button type="button" class="${String(x.id) === String(g.id) ? 'on' : ''}" data-g="${this.esc(String(x.id))}" onclick="app.pickFeedGroup(this.getAttribute('data-g'))"><b>${this.esc(x.name)}</b><small>${(x.members || []).length} ${(x.members || []).length === 1 ? 'person' : 'people'} · ${x.open ? 'open' : 'private'}</small></button>`).join('')}<i class="grp-sep"></i><button type="button" onclick="app.openPeople('groups'); app.groupForm('find')">Find communities</button><button type="button" onclick="app.openPeople('groups'); app.groupForm('create')">Start a community</button></div>` : '';
+                const pick = `<div class="grp-pick"><button type="button" class="grp-pick-btn" aria-expanded="${this._groupMenu ? 'true' : 'false'}" onclick="app.toggleGroupMenu(event)"><span class="grp-name">${this.esc(g.name)}</span><svg class="icon"><use href="#i-chevron-down"/></svg></button><span class="grp-meta">${n} ${n === 1 ? 'person' : 'people'} · ${g.open ? 'open' : 'private'}</span>${menu}</div>`;
+                // a private community is the people who share the group goal and monthly awards (the crew's)
+                const tops = g.open ? '' : [this.renderCrewQuest(), this.renderAwardsTeaser()].join('');
+                const seen = new Set();
+                const list = st.events.filter(e => e.type === 'brew').map(e => this.brews.get(String(e.id))).filter(b => b && !seen.has(b.id) && seen.add(b.id) && b.audience !== 'only_me' && !this.reported(b.id))
+                    .sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
+                const body = list.length ? list.map(b => this.streamCard(b, this.isCommunity('brew', b.id))).join('')
+                    : `<div class="comm-empty">${this.esc(st.loading || !st.at ? 'Loading…' : st.error || (g.open ? 'Nothing here yet. Members\' sessions shared with Everyone show here.' : 'Nothing here yet. Members\' sessions show here.'))}</div>`;
+                const foot = !list.length ? '' : st.error ? `<div class="comm-empty">${this.esc(st.error)}</div>`
+                    : st.next ? `<button type="button" class="btn-outline comm-more" data-g="${this.esc(String(g.id))}" onclick="app.loadGroupFeed(this.getAttribute('data-g'), true)"${st.loading ? ' disabled' : ''}>${st.loading ? 'Loading…' : 'Show older sessions'}</button>`
+                    : `<div class="comm-empty">You're all caught up.</div>`;
+                grid.innerHTML = this.feedModeHtml() + pick + tops + body + foot;
+            },
+
+            // on a Discover card: follow the person right there (their name and a Follow button)
             communityFollowHtml(owner) {
                 if (!this.acctOn() || !owner || owner === this.user || !this.ppState().data) return '';
                 const rel = this.relationTo(owner);
@@ -16473,20 +16584,20 @@
                     const role = g.role === 'owner' ? 'You run it' : g.role === 'admin' ? 'Admin' : '';
                     const members = isOpen ? `<div class="gr-members">${(g.members || []).map(m => `<div class="gr-member"><span class="gr-who" data-profile="${this.esc(m.name)}">${this.personDotHtml(m.name)}</span><span data-profile="${this.esc(m.name)}">${this.esc(m.name)}${m.role === 'owner' ? ' <small>owner</small>' : m.role === 'admin' ? ' <small>admin</small>' : ''}</span>${(g.role === 'owner' || g.role === 'admin') && m.name !== this.user && m.role !== 'owner' ? `<button type="button" class="btn-outline pp-act is-quiet" data-g="${id}" data-name="${this.esc(m.name)}" onclick="app.groupAct('remove', this.getAttribute('data-g'), this.getAttribute('data-name'))">Remove</button>` : ''}</div>`).join('')}</div>` : '';
                     const invite = isOpen && g.invite ? `<div class="gr-invite"><span>Invite code <b>${this.esc(g.invite.toUpperCase())}</b></span><button type="button" class="btn-primary pp-act" data-code="${this.esc(g.invite)}" data-name="${this.esc(g.name)}" onclick="app.shareInvite(this.getAttribute('data-code'), this.getAttribute('data-name'))">Share invite</button></div>` : '';
-                    const leave = isOpen ? `<button type="button" class="gr-leave" data-g="${id}" data-name="${this.esc(g.name)}" data-open="${g.open ? '1' : ''}" onclick="app.groupAct('leave', this.getAttribute('data-g'), this.getAttribute('data-name'), this.getAttribute('data-open'))">Leave group</button>` : '';
+                    const leave = isOpen ? `<button type="button" class="gr-leave" data-g="${id}" data-name="${this.esc(g.name)}" data-open="${g.open ? '1' : ''}" onclick="app.groupAct('leave', this.getAttribute('data-g'), this.getAttribute('data-name'), this.getAttribute('data-open'))">Leave community</button>` : '';
                     // v14.5: an open group's sessions show under its name in Community
-                    const see = isOpen && g.open ? `<div class="gr-invite"><span>Members' sessions shared with Everyone</span><button type="button" class="btn-primary pp-act" data-g="${id}" onclick="app.seeGroupFeed(this.getAttribute('data-g'))">See them</button></div>` : '';
+                    const see = isOpen ? `<div class="gr-invite"><span>${g.open ? 'Members\' sessions shared with Everyone' : 'Members\' sessions, its goal and awards'}</span><button type="button" class="btn-primary pp-act" data-g="${id}" onclick="app.seeGroupFeed(this.getAttribute('data-g'))">Open its feed</button></div>` : '';
                     return `<div class="gr-card${isOpen ? ' is-open' : ''}"><button type="button" class="gr-head" data-g="${id}" onclick="app.toggleGroup(this.getAttribute('data-g'))"><span class="gr-icon"><svg class="icon"><use href="#i-users"/></svg></span><span class="gr-name"><b>${this.esc(g.name)}</b><small>${n} ${n === 1 ? 'person' : 'people'}${g.open ? ' · open' : ''}${role ? ' · ' + role : ''}</small></span><svg class="icon gr-chev"><use href="#i-chevron-down"/></svg></button>${invite}${see}${members}${leave}</div>`;
                 };
                 const kind = st.makeOpen ? 'open' : 'private';
-                const kindSeg = `<div class="seg-control gr-kind" role="group" aria-label="Kind of group">${[['private', 'Private'], ['open', 'Open']].map(([k, l]) => `<button type="button" aria-pressed="${k === kind}" onclick="app.setGroupKind('${app.escJs(k)}')">${l}</button>`).join('')}</div>`;
+                const kindSeg = `<div class="seg-control gr-kind" role="group" aria-label="Kind of community">${[['private', 'Private'], ['open', 'Open']].map(([k, l]) => `<button type="button" aria-pressed="${k === kind}" onclick="app.setGroupKind('${app.escJs(k)}')">${l}</button>`).join('')}</div>`;
                 const form = st.form === 'create'
-                    ? `${kindSeg}<form class="gr-form" onsubmit="event.preventDefault(); app.groupAct('create', this.elements.n.value)"><input name="n" class="pp-search" maxlength="60" placeholder="${kind === 'open' ? 'Like Moka pot club or Chicago coffee' : 'Group name'}" autocomplete="off" autocapitalize="words"><button type="submit" class="btn-primary pp-act">Create</button></form><p class="gr-note">${kind === 'open' ? 'An open group: anyone can find it and join with one tap. Its members\' sessions shared with Everyone show under its name in Community.' : 'A private group: up to 30 people, who join with its invite. You share a weekly goal and monthly awards.'}</p>`
+                    ? `${kindSeg}<form class="gr-form" onsubmit="event.preventDefault(); app.groupAct('create', this.elements.n.value)"><input name="n" class="pp-search" maxlength="60" placeholder="${kind === 'open' ? 'Like Moka pot club or Chicago coffee' : 'Group name'}" autocomplete="off" autocapitalize="words"><button type="submit" class="btn-primary pp-act">Create</button></form><p class="gr-note">${kind === 'open' ? 'An open community: anyone can find it and join with one tap. Its members\' sessions shared with Everyone show in its feed.' : 'A private community: up to 30 people, who join with its invite. You see each other\'s sessions in its feed and share a weekly goal and monthly awards.'}</p>`
                     : st.form === 'join'
                         ? `<form class="gr-form" onsubmit="event.preventDefault(); app.groupAct('join', this.elements.c.value)"><input name="c" class="pp-search" maxlength="40" placeholder="Invite code" autocomplete="off" autocapitalize="characters" spellcheck="false"><button type="submit" class="btn-primary pp-act">Join</button></form>`
                         : st.form === 'find' ? this.openGroupsHtml()
-                        : `<div class="gr-actions"><button type="button" class="btn-outline pp-act" onclick="app.groupForm('find')">Find open groups</button><button type="button" class="btn-outline pp-act" onclick="app.groupForm('create')">Create a group</button><button type="button" class="btn-outline pp-act" onclick="app.groupForm('join')">Join with a code</button></div>`;
-                body.innerHTML = (st.list.length ? `<div class="gr-list">${st.list.map(groupRow).join('')}</div>` : `<p class="pp-empty">You're not in a group yet. Groups share a weekly goal and monthly awards. Make one and invite friends, or join with a code someone sent you.</p>`) + form;
+                        : `<div class="gr-actions"><button type="button" class="btn-outline pp-act" onclick="app.groupForm('find')">Find communities</button><button type="button" class="btn-outline pp-act" onclick="app.groupForm('create')">Start a community</button><button type="button" class="btn-outline pp-act" onclick="app.groupForm('join')">Join with a code</button></div>`;
+                body.innerHTML = (st.list.length ? `<div class="gr-list">${st.list.map(groupRow).join('')}</div>` : `<p class="pp-empty">You're not in a community yet. Communities are groups around friends, a place or a way of brewing, each with its own feed. Find one, start your own, or join with a code someone sent you.</p>`) + form;
                 const f = st.form === 'find' ? null : body.querySelector('.gr-form input'); if (f && f.focus) f.focus();
             },
 
@@ -16499,9 +16610,9 @@
                 const rows = (found || []).map(g => `<div class="pp-row"><span class="pp-who"><span class="gr-icon"><svg class="icon"><use href="#i-users"/></svg></span><span><b>${this.esc(g.name)}</b><small>${g.members} ${g.members === 1 ? 'person' : 'people'}</small></span></span><span class="pp-acts">${g.joined
                     ? `<button type="button" class="btn-outline pp-act is-quiet" data-g="${this.esc(String(g.id))}" onclick="app.seeGroupFeed(this.getAttribute('data-g'))">Joined</button>`
                     : `<button type="button" class="btn-primary pp-act" data-g="${this.esc(String(g.id))}" onclick="app.groupAct('join', this.getAttribute('data-g'))">Join</button>`}</span></div>`).join('');
-                return `<input class="pp-search gr-find" type="search" placeholder="Find open groups by name" autocomplete="off" autocapitalize="words" spellcheck="false" value="${this.esc(st.findQ || '')}" oninput="app.findOpenGroups(this.value)">
-                    ${!found ? '<p class="pp-empty">Looking…</p>' : rows ? `<div class="pp-list">${rows}</div>` : `<p class="pp-empty">${st.findQ ? 'No open group by that name yet. Create one.' : 'No open groups yet. Create the first one.'}</p>`}
-                    <div class="gr-actions"><button type="button" class="btn-outline pp-act" onclick="app.groupForm('create')">Create a group</button><button type="button" class="btn-outline pp-act is-quiet" onclick="app.groupForm('')">Done</button></div>`;
+                return `<input class="pp-search gr-find" type="search" placeholder="Find communities by name" autocomplete="off" autocapitalize="words" spellcheck="false" value="${this.esc(st.findQ || '')}" oninput="app.findOpenGroups(this.value)">
+                    ${!found ? '<p class="pp-empty">Looking…</p>' : rows ? `<div class="pp-list">${rows}</div>` : `<p class="pp-empty">${st.findQ ? 'No community by that name yet. Start one.' : 'No open communities yet. Start the first one.'}</p>`}
+                    <div class="gr-actions"><button type="button" class="btn-outline pp-act" onclick="app.groupForm('create')">Start a community</button><button type="button" class="btn-outline pp-act is-quiet" onclick="app.groupForm('')">Done</button></div>`;
             },
 
             findOpenGroups(q) {
@@ -16522,11 +16633,11 @@
                 }, text ? 220 : 0);
             },
 
-            seeGroupFeed(id) {
+            seeGroupFeed(id) {   // v14.5: Feed, Community, with this community picked
                 this.closePeople();
+                this._feedGroup = String(id || ''); safeSet('dialed_feed_group', this._feedGroup);
                 this.setTab('feed');
-                this.setFeedMode('community');
-                if (this.setCommFilter) this.setCommFilter('g:' + id);
+                this.setFeedMode('groups');
             },
 
             toggleGroup(id) { const st = this.grState(); st.open = st.open === String(id) ? '' : String(id); this.renderPeople(); },
@@ -16547,7 +16658,7 @@
                     if (action === 'create') { const open = Boolean(st.makeOpen); const g = await Supa.rpc('create_group', { name: String(a || '').trim(), open }); st.form = ''; st.makeOpen = false; st.found = null; st.open = g && g.id ? String(g.id) : ''; this.showToast(open ? `Made ${g && g.name ? g.name : 'your group'}. Anyone can find it and join.` : `Made ${g && g.name ? g.name : 'your group'}. Share the invite with friends.`); }
                     else if (action === 'join') { const g = await Supa.rpc('join_group', { code: String(a || '').trim() }); st.form = ''; st.found = null; st.open = g && g.id ? String(g.id) : ''; this.showToast(`You joined ${g && g.name ? g.name : 'the group'}.`); }
                     else if (action === 'leave') { if (!confirm(c ? `Leave ${b}?` : `Leave ${b}? You'll stop sharing its goal and awards.`)) return; await Supa.rpc('leave_group', { group_id: a }); st.open = ''; st.found = null; this.showToast(`You left ${b}.`); }
-                    else if (action === 'remove') { if (!confirm(`Remove ${b} from the group?`)) return; await Supa.rpc('remove_member', { group_id: a, name: b }); }
+                    else if (action === 'remove') { if (!confirm(`Remove ${b} from the community?`)) return; await Supa.rpc('remove_member', { group_id: a, name: b }); }
                     else return;
                     if (this.haptic) this.haptic('tick');
                 } catch (e) { this.showToast(e && e.message ? e.message : 'That didn\'t work. Try again.'); return; }
@@ -16572,7 +16683,7 @@
                 if (!code) return;
                 this._joinAsked = true;
                 safeSet('dialed_pending_join', '');
-                setTimeout(() => { if (confirm('You were invited to a group on Dialed In. Join it?')) this.groupAct('join', code); }, 400);
+                setTimeout(() => { if (confirm('You were invited to a community on Dialed In. Join it?')) this.groupAct('join', code); }, 400);
             },
             // ---- v14.4 (phase 3): safety and your account. Report a profile, session or comment; download everything
             // that's yours; delete your account. New backend only.
@@ -16589,7 +16700,7 @@
                     if (kind === 'session') {
                         (this._reportedIds = this._reportedIds || new Set()).add('brew:' + ref);
                         const drop = list => list.filter(e => !(e.type === 'brew' && String(e.id) === String(ref)));
-                        this.commState().events = drop(this.commState().events);
+                        Object.values(this._streams || {}).forEach(st => { st.events = drop(st.events); });   // Discover and communities
                         if (this.profState) this.profState().events = drop(this.profState().events);
                         this.process(this.cloud.events); this._feedHtml = null;
                         this.render();
@@ -16832,14 +16943,10 @@
                 this.showToast(same ? 'Unmarked.' : 'Marked as the most helpful answer.');
             },
 
-            // ---- the community feed's filters: Help, New here, one method
+            // ---- Discover's filters: Help, New here, one method
             commFilterHtml() {
                 const st = this.commState(), f = st.filter || '';
-                const gr = this.grState ? this.grState() : null;
-                if (gr && !gr.list && !gr.busy) { gr.busy = true; this.loadGroups(true).then(() => { gr.busy = false; if (this.tab === 'feed' && this.feedMode() === 'community') this.render(); }).catch(() => { gr.busy = false; }); }
-                const groups = (gr && gr.list || []).filter(g => g.open).map(g => ['g:' + g.id, g.name]);   // your open groups
-                if (f.startsWith('g:') && !groups.some(([k]) => k === f)) groups.push([f, st.groupName || 'Group']);
-                const opts = [['', 'All'], ['help', 'Help'], ['new', 'New here'], ...groups, ...['Espresso', 'Pour Over', 'French Press', 'AeroPress', 'Moka Pot', 'Cold Brew'].map(m => ['m:' + m, m])];
+                const opts = [['', 'All'], ['help', 'Help'], ['new', 'New here'], ...['Espresso', 'Pour Over', 'French Press', 'AeroPress', 'Moka Pot', 'Cold Brew'].map(m => ['m:' + m, m])];
                 return `<div class="comm-filters" role="tablist" aria-label="Show">${opts.map(([k, l]) => `<button type="button" class="comm-chip${k === f ? ' on' : ''}" role="tab" aria-selected="${k === f}" data-f="${this.esc(k)}" onclick="app.setCommFilter(this.getAttribute('data-f'))">${this.esc(l)}</button>`).join('')}</div>`;
             },
 
@@ -16847,7 +16954,7 @@
                 const st = this.commState();
                 f = String(f || '');
                 if ((st.filter || '') === f) return;
-                st.filter = f; st.events = []; st.next = null; st.at = 0; st.born = 0; st.error = ''; st.loading = false; st.seq = (st.seq || 0) + 1;
+                st.filter = f; st.events = []; st.order = []; st.next = null; st.asOf = null; st.at = 0; st.born = 0; st.error = ''; st.loading = false; st.seq = (st.seq || 0) + 1;
                 this._feedHtml = null;
                 this.process(this.cloud.events);
                 this.loadCommunity(false);
@@ -16856,7 +16963,7 @@
 
             commFilterArgs() {
                 const f = this.commState().filter || '';
-                return f === 'help' || f === 'new' ? { feed_filter: f } : f.startsWith('m:') ? { feed_method: f.slice(2) } : f.startsWith('g:') ? { feed_group: f.slice(2) } : {};
+                return f === 'help' || f === 'new' ? { feed_filter: f } : f.startsWith('m:') ? { feed_method: f.slice(2) } : {};
             },
 
             // ---- the community goal: one weekly goal everyone on Dialed In fills together
@@ -16887,8 +16994,8 @@
                 const mine = Number(g.yourSessions) || 0, people = Number(g.people) || 0;
                 const you = mine ? `You: ${mine} session${mine === 1 ? '' : 's'}` : 'Your next session counts';
                 return `
-                    <section class="feed-card crew-quest comm-goal${done ? ' done' : ''}" aria-label="Community goal">
-                        <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-target"/></svg>Community goal · this week</span><span class="cq-left">${this.esc(left)}</span></div>
+                    <section class="feed-card crew-quest comm-goal${done ? ' done' : ''}" aria-label="Everyone's goal this week">
+                        <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-target"/></svg>Everyone · this week</span><span class="cq-left">${this.esc(left)}</span></div>
                         <div class="cq-title">${this.esc(g.title)}</div>
                         <div class="cq-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${target}" aria-valuenow="${progress}" style="${this.esc(style)}"><div class="cq-layer cq-glow"><i class="cq-g"></i></div><div class="cq-layer cq-paint"><i class="cq-g"></i></div></div>
                         <div class="cq-meta"><span><b>${progress}</b> of ${target} ${this.esc(g.unit || '')}</span></div>

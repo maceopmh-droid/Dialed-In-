@@ -297,7 +297,10 @@ begin
   if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
   select array_agg(t.id order by t.brewed_at desc), min(t.brewed_at) into ids, oldest
   from (select s.id, s.brewed_at from sessions s
-        where s.deleted_at is null and s.audience = 'everyone' and (community_feed.before is null or s.brewed_at < community_feed.before)
+        where s.deleted_at is null and (community_feed.before is null or s.brewed_at < community_feed.before)
+          -- what members share with Everyone; in a private community, also what they keep to Friends & groups (members
+          -- see each other's; the row rules decide)
+          and (s.audience = 'everyone' or (feed_group is not null and s.audience = 'friends' and not coalesce((select g.is_open from groups g where g.id = feed_group), true)))
           and (feed_filter is distinct from 'help' or s.help_wanted)
           and (feed_filter is distinct from 'new' or (select o.joined_at from profiles o where o.id = s.owner_id) > now() - interval '14 days')
           and (coalesce(btrim(feed_method), '') = '' or lower(s.method) = lower(btrim(feed_method)))
@@ -311,6 +314,91 @@ begin
                         where k.deleted_at is null and k.id in (select s.coffee_id from sessions s where s.id = any(ids))), '[]'::jsonb)
            || coalesce((select jsonb_agg(internal.session_json(s) order by s.brewed_at desc) from sessions s where s.id = any(ids)), '[]'::jsonb),
     'next', case when array_length(ids, 1) = lim then oldest end);
+end $$;
+
+-- ---------------------------------------------------------------- v14.5: Discover
+-- Everyone's sessions shared with Everyone, ranked to show the most interesting brews of the moment, not to keep
+-- anyone scrolling. Written out in plain words in supabase/README.md ("How Discover ranks"); in short:
+--   recency    0.5 ^ (age in hours / 36): a session loses half its weight every day and a half
+--   effort     a photo, tasting notes, the taste sliders or flavor notes, a rating
+--   response   likes and comments from other people, on a log scale and capped (popularity can't run away)
+--   welcome    sessions asking for help that nobody has answered yet, and people in their first two weeks
+--   variety    origins and methods that are rarer this week get a lift
+--   you        a slight lean toward the methods and roasters you brew; people you already follow count a bit
+--              less here (you see them in Following)
+--   spread     each extra session from the same person, or on the same coffee, counts less, so no one fills it
+-- It looks back two months and then ends ("You're all caught up"). Pages are ranked once, as of the first page
+-- (as_of), so paging never repeats or skips. Never your own sessions, anything you reported, or anything hidden.
+create or replace function internal.engagement(sid uuid, owner uuid) returns int[]
+language sql stable security definer set search_path = public as $$
+  select array[(select count(*)::int from likes l where l.session_id = sid and l.user_id <> owner),
+               (select count(*)::int from comments c where c.session_id = sid and c.author_id <> owner and c.deleted_at is null)];
+$$;
+
+create or replace function discover_feed(as_of timestamptz default null, page int default 0, max_items int default 20, feed_filter text default null, feed_method text default null) returns jsonb
+language plpgsql stable set search_path = public as $$
+declare me_id uuid := me(); t0 timestamptz := coalesce(as_of, now()); lim int := least(greatest(coalesce(max_items, 20), 1), 40);
+        pg int := greatest(coalesce(page, 0), 0); ids uuid[]; total int; following uuid[]; my_methods text[]; my_roasters text[];
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  following := (select private.my_following_ids());
+  select coalesce(array_agg(distinct s.method), '{}'), coalesce(array_agg(distinct lower(btrim(k.roaster_text))) filter (where k.roaster_text is not null), '{}')
+    into my_methods, my_roasters
+    from sessions s left join coffees k on k.id = s.coffee_id where s.owner_id = me_id and s.deleted_at is null;
+  with cand as (
+    select s.id, s.owner_id, s.method, s.coffee_id, s.help_wanted, s.rating, s.extras, s.tasted, s.flavor_notes,
+           extract(epoch from (t0 - s.brewed_at)) / 3600.0 as age_h,
+           coalesce(nullif(lower(btrim(k.roaster_text)), ''), '?') || '|' || coalesce(nullif(lower(btrim(k.name)), ''), s.coffee_id::text, s.id::text) as ckey,
+           nullif(lower(btrim(split_part(coalesce(k.origin, ''), ',', 1))), '') as origin,
+           lower(btrim(k.roaster_text)) as roaster,
+           (select o.joined_at from profiles o where o.id = s.owner_id) > t0 - interval '14 days' as newcomer,
+           exists (select 1 from session_photos p where p.session_id = s.id) as photo,
+           exists (select 1 from session_notes n where n.session_id = s.id and char_length(btrim(n.body)) >= 12) as notes,
+           internal.engagement(s.id, s.owner_id) as eng
+    from sessions s left join coffees k on k.id = s.coffee_id
+    where s.deleted_at is null and s.audience = 'everyone' and s.owner_id <> me_id
+      and s.brewed_at <= t0 and s.brewed_at > t0 - interval '60 days'
+      and (feed_filter is distinct from 'help' or s.help_wanted)
+      and (feed_filter is distinct from 'new' or (select o.joined_at from profiles o where o.id = s.owner_id) > t0 - interval '14 days')
+      and (coalesce(btrim(feed_method), '') = '' or lower(s.method) = lower(btrim(feed_method)))
+      and not internal.unseen('session', s.id)
+  ), counted as (
+    select c.*, count(*) over (partition by c.origin) as origin_n, count(*) over (partition by lower(coalesce(c.method, ''))) as method_n
+    from cand c
+  ), scored as (
+    select c.*,
+      power(0.5, greatest(c.age_h, 0) / 36.0)
+      * (1.0
+         + case when c.photo then 0.35 else 0 end
+         + case when c.notes then 0.25 else 0 end
+         + case when coalesce(array_length(c.tasted, 1), 0) > 0 or (jsonb_typeof(c.flavor_notes) = 'object' and c.flavor_notes <> '{}'::jsonb)
+                     or coalesce(btrim(c.extras->>'flavors'), '') <> '' then 0.15 else 0 end
+         + case when coalesce(c.rating, 0) > 0 then 0.10 else 0 end
+         + 0.30 * ln(1 + least(c.eng[1], 20))
+         + 0.45 * ln(1 + least(c.eng[2], 12))
+         + case when c.help_wanted and coalesce(btrim(c.extras->>'helpfulAnswer'), '') = '' then 0.40 else 0 end
+         + case when c.newcomer then 0.35 else 0 end)
+      * (1.0 + case when c.origin is null then 0 else 0.35 / sqrt(c.origin_n) end + 0.20 / sqrt(greatest(c.method_n, 1)))
+      * (1.0 + case when c.method = any(my_methods) then 0.15 else 0 end + case when c.roaster = any(my_roasters) then 0.10 else 0 end)
+      * case when c.owner_id = any(following) then 0.7 else 1.0 end as raw
+    from counted c
+  ), spread as (
+    select s2.id, s2.raw
+      * power(0.55, (row_number() over (partition by s2.owner_id order by s2.raw desc, s2.id)) - 1)
+      * power(0.7, (row_number() over (partition by s2.ckey order by s2.raw desc, s2.id)) - 1) as score
+    from scored s2
+  )
+  select array_agg(x.id order by x.score desc, x.id), (select count(*) from spread)
+    into ids, total
+    from (select id, score from spread order by score desc, id offset pg * lim limit lim) x;
+  return jsonb_build_object(
+    'events', case when ids is null then '[]'::jsonb else
+                coalesce((select jsonb_agg(internal.coffee_json(k)) from coffees k
+                          where k.deleted_at is null and k.id in (select s.coffee_id from sessions s where s.id = any(ids))), '[]'::jsonb)
+             || coalesce((select jsonb_agg(internal.session_json(s)) from sessions s where s.id = any(ids)), '[]'::jsonb) end,
+    'order', coalesce((select jsonb_agg(coalesce(s.legacy_id, s.id::text) order by array_position(ids, s.id)) from sessions s where s.id = any(ids)), '[]'::jsonb),   -- the ranking
+    'next', case when (pg + 1) * lim < total then pg + 1 end,
+    'asOf', t0, 'total', total);
 end $$;
 
 -- ---------------------------------------------------------------- has anything changed? data_version()
@@ -1215,13 +1303,13 @@ end $$;
 grant usage on schema internal to authenticated;
 grant execute on all functions in schema internal to authenticated;
 -- only signed-in people can call these (Postgres lets everyone run a new function unless told otherwise)
-revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), report_item(text, text, text),
+revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text), report_item(text, text, text),
   profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
   push_key(), save_push(jsonb), remove_push(text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version() from public, anon;
-grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), report_item(text, text, text),
+grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text), report_item(text, text, text),
   profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
   push_key(), save_push(jsonb), remove_push(text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),

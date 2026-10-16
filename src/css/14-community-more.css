@@ -46,3 +46,18 @@
         .prof-coffee-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 12px; }
         /* Settings: notifications on this phone */
         .pp-private .goal-sw[disabled] { opacity: 0.45; cursor: default; }
+        /* the Community tab: which community (a picker), its goal and awards, its feed */
+        .grp-pick { position: relative; display: flex; align-items: center; gap: 10px; margin: -2px 0 14px; min-width: 0; }
+        .grp-pick-btn { display: inline-flex; align-items: center; gap: 6px; min-width: 0; max-width: 70%; width: auto; min-height: 0; margin: 0; padding: 4px 2px; border: 0; background: none; font: inherit; font-size: 1.12rem; font-weight: 800; color: var(--ink); cursor: pointer; box-shadow: none; }
+        .grp-pick-btn .grp-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .grp-pick-btn .icon { width: 16px; height: 16px; flex: none; color: var(--text-muted); transition: transform 0.2s; }
+        .grp-pick-btn[aria-expanded="true"] .icon { transform: rotate(180deg); }
+        .grp-meta { font-size: 0.8rem; font-weight: 650; color: var(--text-muted); white-space: nowrap; }
+        .grp-menu { top: calc(100% + 4px); min-width: 240px; max-width: calc(100vw - 32px); }
+        .grp-menu button { display: grid; gap: 1px; }
+        .grp-menu button small { font-size: 0.76rem; font-weight: 600; color: var(--text-muted); }
+        .grp-menu button.on { background: rgba(var(--matcha-rgb), 0.1); }
+        .grp-sep { display: block; height: 1px; margin: 4px 6px; background: var(--line); }
+        .grp-empty { margin: 1.4rem 0; padding: 18px 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); }
+        .grp-empty b { font-size: 1.05rem; color: var(--ink); }
+        .grp-empty p { margin: 6px 0 12px; font-size: 0.9rem; line-height: 1.45; color: var(--text-muted); }

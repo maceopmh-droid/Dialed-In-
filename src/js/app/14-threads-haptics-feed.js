@@ -530,7 +530,7 @@
                     this._peopleLoading = true;
                     this.loadPeople().then(() => { this._peopleLoading = false; if (this.tab === 'feed') this.render(); }).catch(() => { this._peopleLoading = false; });
                 }
-                if (this.acctOn() && this.feedMode() === 'community') { this.renderCommunityFeed(grid); return; }
+                if (this.acctOn() && this.feedMode() !== 'following') { this.renderCommunityFeed(grid); return; }   // v14.5: Community and Discover
                 grid.className = 'feed-list';
                 if (grid.getAttribute && grid.getAttribute('data-view') === 'community') { grid.removeAttribute('data-view'); this._feedHtml = null; }
                 const entries = this.feedEntries.slice(0, 220);
@@ -542,9 +542,9 @@
                     this._feedHtml = null;
                     return;
                 }
-                // v14.5: no private group yet: the community goal instead of a group goal for one
-                const quest = this.acctOn() && this.knownPeople().length <= 1 && this.communityGoalHtml ? this.communityGoalHtml() : this.renderCrewQuest();
-                const tops = [['top:mode', this.feedModeHtml()], ['top:welcome', this.renderWelcomeBack()], ['top:quest', quest], ['top:teaser', this.renderAwardsTeaser()]];
+                // v14.5: on accounts, the group goal and monthly awards belong to a private community (Feed, Community)
+                const acct = this.acctOn();
+                const tops = [['top:mode', this.feedModeHtml()], ['top:welcome', this.renderWelcomeBack()], ['top:quest', acct ? '' : this.renderCrewQuest()], ['top:teaser', acct ? '' : this.renderAwardsTeaser()]];
                 if (!this.canPatchDom(grid)) {
                     grid.innerHTML = tops.map(t => t[1]).join('') + entries.map(e => this.feedCardHtml(e)).join('');
                     return;

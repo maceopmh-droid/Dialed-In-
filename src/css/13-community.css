@@ -1,6 +1,7 @@
         /* v14.4: the community feed (new backend only) */
         .feed-top { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; }
-        .feed-top .feed-mode { flex: 1; margin: 0; grid-template-columns: repeat(2, 1fr); }   /* two choices: each takes half (the control is made for three) */
+        .feed-top .feed-mode { flex: 1; margin: 0; grid-template-columns: repeat(3, 1fr); }   /* v14.5: Following, Community, Discover */
+        .feed-top .feed-mode button { padding-left: 2px; padding-right: 2px; white-space: nowrap; }
         .feed-top .notif-btn { flex: none; height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
         .feed-top .notif-btn .icon { width: 18px; height: 18px; }
         .comm-empty { text-align: center; color: var(--text-muted); padding: 2.4rem 1.2rem; font-size: 0.92rem; line-height: 1.45; }
