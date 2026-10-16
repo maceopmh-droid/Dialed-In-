@@ -69,6 +69,13 @@ jobs:
           if [ -z "$APNS_KEY_P8" ] || [ -z "$APNS_KEY_ID" ] || [ -z "$APPLE_TEAM_ID" ]; then
             echo "No Apple push key yet: the iPhone app's notifications wait for it." | tee "$RUNNER_TEMP/a.txt"; bash supabase/report.sh "Apple push" "$RUNNER_TEMP/a.txt"; exit 0
           fi
+          # the .p8 text however it was pasted: rebuilt as a proper key, and checked before it's stored
+          body=$(printf '%s' "$APNS_KEY_P8" | tr -d '\r"' | sed -e 's/-----BEGIN [A-Z ]*-----//g' -e 's/-----END [A-Z ]*-----//g' | tr -d ' \n\t')
+          pem=$(printf -- '-----BEGIN PRIVATE KEY-----\n%s\n-----END PRIVATE KEY-----\n' "$(printf '%s\n' "$body" | fold -w 64)")
+          if ! printf '%s' "$pem" | openssl pkey -noout 2>/dev/null; then
+            echo "The APNS_KEY_P8 secret doesn't read as a .p8 key ($(printf '%s' "$body" | wc -c | tr -d ' ') characters after tidying; a key is about 200). Paste the whole text of the AuthKey_….p8 file again." | tee "$RUNNER_TEMP/a.txt"; bash supabase/report.sh "Apple push" "$RUNNER_TEMP/a.txt"; exit 1
+          fi
+          APNS_KEY_P8="$pem"
           psql "$DB_URL" -v ON_ERROR_STOP=1 -Atq -v k="$APNS_KEY_P8" -v kid="$APNS_KEY_ID" -v team="$APPLE_TEAM_ID" -v topic="$BUNDLE_ID" > "$RUNNER_TEMP/a.txt" 2>&1 <<'SQL'
           insert into backend_state (key, value) values ('apns_key', :'k'), ('apns_key_id', :'kid'), ('apns_team_id', :'team'), ('apns_topic', :'topic')
           on conflict (key) do update set value = excluded.value, updated_at = now();
