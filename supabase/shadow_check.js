@@ -3,15 +3,15 @@
 //
 //   node supabase/shadow_check.js --psql "psql <database url>" --html index.html [--live <Apps Script URL> | --live-file events.json] [--no-rebuild]
 //
-// 1. Reads the archive (sheet_archive: every Sheet row Apps Script has copied over).
-// 2. With --live, downloads the live Sheet (the public read: <url>?v=2&since=0) and checks that every live event
-//    is in the archive. Events are compared by their content, field order ignored.
+// 1. Reads the archive (sheet_archive: every Sheet save this check has ever seen, kept as it was).
+// 2. With --live, downloads the live Sheet (the public read: <url>?v=2&since=0) and adds every live event the archive
+//    doesn't have yet. Events are compared by their content, field order ignored.
 // 3. Rebuilds the content tables (profiles, claim codes, follows and the archive are left alone) from the live Sheet
 //    when it's given, since that reflects rows deleted by hand; otherwise from the archive.
 // 4. Runs the parity check: the app replaying the same events must end up with exactly what the tables hold.
 // Exits 1 if anything is missing or different, so a scheduled run shows up red.
 const { execSync } = require('child_process');
-const { buildImport } = require('./import_v9');
+const { buildImport, eventKey } = require('./import_v9');
 const { runParity, report } = require('./parity');
 
 const arg = k => { const i = process.argv.indexOf('--' + k); return i > 0 ? process.argv[i + 1] : null; };
@@ -39,8 +39,15 @@ const key = e => JSON.stringify(canon(e));
     const missing = liveEvents.filter(e => !have.has(key(e)));
     const liveKeys = new Set(liveEvents.map(key));
     const extra = archive.filter(([, json]) => !liveKeys.has(key(JSON.parse(json))));
-    console.log(`live Sheet: ${liveEvents.length} events; missing from the archive: ${missing.length}; in the archive but not the Sheet (rows deleted by hand): ${extra.length}`);
-    if (missing.length) { ok = false; console.log('  missing, e.g.', missing.slice(0, 5).map(e => `${e.type} ${e.id}`).join(' | ')); }
+    console.log(`live Sheet: ${liveEvents.length} events; new to the archive: ${missing.length}; in the archive but not the Sheet (rows deleted by hand): ${extra.length}`);
+    if (missing.length) {   // keep them, as the Sheet has them (position in the Sheet, and the time it was saved)
+      const pos = new Map(liveEvents.map((e, i) => [e, i + 1]));
+      const q = v => `'${String(v).replace(/'/g, "''")}'`;
+      const add = missing.map(e => { const json = JSON.stringify(e); return `(${q(eventKey(json))}, ${pos.get(e)}, ${q(e.eventAt || e.date || '')}, ${q(json)}::jsonb)`; });
+      for (let i = 0; i < add.length; i += 300) sql(`insert into sheet_archive (event_key, row_no, logged_at, payload) values ${add.slice(i, i + 300).join(', ')} on conflict (event_key) do nothing;`, false);
+      const now = sql(`select count(*) from sheet_archive;`, false);
+      console.log(`  added; the archive has ${now} rows now`);
+    }
   }
 
   // after the move to accounts the app writes to the tables directly: they must never be rebuilt from the Sheet again

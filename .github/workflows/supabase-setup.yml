@@ -1,0 +1,36 @@
+# Loads the database into the Supabase project and checks it, from GitHub (which can reach Supabase). Safe to run
+# again: it only loads into an empty project, then checks, then runs the shadow check (tables rebuilt from the live
+# Sheet, compared with the app). Runs when this is pushed to the `supabase-setup` branch, or by hand once on main.
+# Needs the secret SUPABASE_DB_PASSWORD or SUPABASE_DB_URL. The logs are public: nothing here prints anyone's data.
+name: supabase setup
+on:
+  push:
+    branches: [supabase-setup]
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_REF: glombusdjwlrgjihnylk
+      PROJECT_URL: https://glombusdjwlrgjihnylk.supabase.co
+      PUBLISHABLE_KEY: sb_publishable_nunu5PQVtCf8OuAhyt_hXw_xK3A4-8i
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      SHEET_URL: https://script.google.com/macros/s/AKfycbxwOpOjQr2Um3y_YIddTIsn8yLAEqyQo5BnF001N9E58O4cT9x-7tMM6XGviIGTkNJp-Q/exec
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Find the database
+        run: bash supabase/find_db.sh
+      - name: Load the database (only into an empty project; all three files in one go, all or nothing)
+        run: |
+          if [ "$(psql "$DB_URL" -Atqc "select to_regclass('public.profiles') is not null")" = "t" ]; then echo "Already loaded: nothing to do."; exit 0; fi
+          psql "$DB_URL" -1 -q -v ON_ERROR_STOP=1 -f supabase/schema.sql -f supabase/api.sql -f supabase/storage.sql
+          echo "Loaded schema.sql, api.sql and storage.sql."
+      - name: Check the project
+        run: node supabase/check_project.js
+      - name: Shadow check (archive the live Sheet, rebuild the tables from it, compare with the app)
+        run: node supabase/shadow_check.js --psql "psql '$DB_URL'" --html index.html --live "$SHEET_URL"

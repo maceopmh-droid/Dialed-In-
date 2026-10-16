@@ -1,12 +1,21 @@
-# Supabase (phases 1 and 2, draft)
+# Supabase (phases 1 and 2)
 
-First draft of the database for the public version of Dialed In. **Not applied anywhere yet**: there's no
-Supabase project until Maceo creates one.
+The database for the public version of Dialed In. The project exists (created Oct 16, 2026); it's loaded and
+checked from GitHub (`.github/workflows/supabase-setup.yml`), since GitHub can reach it. The app still runs on the
+Sheet for everyone until the move (`CUTOVER.md`).
+
+- `check_project.js`: checks the real project after loading: privacy rules on for every table, signed-out
+  visitors get nothing (from the database and from the outside), signed-in people can call exactly the app's calls,
+  the photo bucket is private. Prints only check names and counts (GitHub's logs are public).
+- `find_db.sh`: how the workflows reach the database (Supabase's session pooler; GitHub has no IPv6).
+- The privacy rules' helper functions (`blocked_either`, `my_close_ids`, …) live in a schema called `private`, and
+  the API's helpers in `internal`. The app's web address serves neither, so they can't be called directly (an
+  exposed `blocked_either(a, b)` would tell anyone who blocked whom).
 
 - `schema.sql`: the tables (profiles, follows, blocks, groups, coffees, sessions, notes, photos, likes, comments,
   reports) and the privacy rules, written as Postgres row-level security. Every read is checked against the
   "Who sees what" rules in the plan before anything leaves the database.
-- `test_rls.py` (52 checks): runs `schema.sql` on a real Postgres and checks, as seven pretend people (you, a friend, a
+- `test_rls.py` (53 checks): runs `schema.sql` on a real Postgres and checks, as seven pretend people (you, a friend, a
   stranger who follows you, a private profile, a private-group buddy, an open-group member, someone who blocked
   you, plus someone signed in with no profile yet and an old name nobody has claimed), exactly which sessions, notes, photos, comments, groups and profiles each can see or change.
 

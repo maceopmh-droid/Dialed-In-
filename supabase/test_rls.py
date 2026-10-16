@@ -111,7 +111,6 @@ def main():
         'opener':   ['b_every', 'j_every', 'm_every'],                            # an open group doesn't
         'blocker':  ['b_every', 'j_every'],                                       # blocked Maceo: neither sees the other
         'newbie':   [],                                                           # signed in, no profile yet: nothing
-        'anon':     [],                                                           # not signed in: nothing
     }
     for who, want in expect.items():
         got = sees(who); ok(got == sorted(want), f'{who} sees sessions {sorted(want)} (got {got})')
@@ -145,7 +144,9 @@ def main():
        'members see their private group (and open groups, like everyone)')
     ok(count('stranger', "select count(*) from group_members where group_id = '20000000-0000-0000-0000-000000000001';") == '0',
        "a private group's members are hidden from outsiders")
-    ok(count('anon', 'select count(*) from profiles;') == '0', 'not signed in: no profiles')
+    anon = [t for t in ('profiles', 'sessions', 'session_notes', 'session_photos', 'comments', 'likes', 'coffees', 'groups', 'group_members', 'follows', 'blocks', 'notifications')
+            if 'permission denied' not in count('anon', f'select count(*) from {t};')]
+    ok(not anon, 'not signed in: every table is off limits (not just empty)' + (f" (readable: {', '.join(anon)})" if anon else ''))
     ok(all('permission denied' in count('stranger', f'select count(*) from {t};') for t in ('claim_codes', 'sheet_archive', 'backend_state')),
        'claim codes, the Sheet archive and the backend switches are off limits to the app entirely')
 
@@ -186,21 +187,21 @@ def main():
         v = U[who]
         pairs = [
             ('sessions', "select coalesce(string_agg(id::text, ',' order by id), '') from sessions",
-             f"select coalesce(string_agg(id::text, ',' order by id), '') from sessions s where can_see_session('{v}', s)"),
+             f"select coalesce(string_agg(id::text, ',' order by id), '') from sessions s where private.can_see_session('{v}', s)"),
             ('notes', "select coalesce(string_agg(session_id::text, ',' order by session_id), '') from session_notes",
-             f"select coalesce(string_agg(session_id::text, ',' order by session_id), '') from session_notes n where can_see_item('{v}', n.session_id, n.audience)"),
+             f"select coalesce(string_agg(session_id::text, ',' order by session_id), '') from session_notes n where private.can_see_item('{v}', n.session_id, n.audience)"),
             ('photos', "select coalesce(string_agg(session_id::text, ',' order by session_id), '') from session_photos",
-             f"select coalesce(string_agg(session_id::text, ',' order by session_id), '') from session_photos n where can_see_item('{v}', n.session_id, n.audience)"),
+             f"select coalesce(string_agg(session_id::text, ',' order by session_id), '') from session_photos n where private.can_see_item('{v}', n.session_id, n.audience)"),
             ('comments', "select coalesce(string_agg(id::text, ',' order by id), '') from comments",
-             f"select coalesce(string_agg(id::text, ',' order by id), '') from comments c where can_see_comment('{v}', c)"),
+             f"select coalesce(string_agg(id::text, ',' order by id), '') from comments c where private.can_see_comment('{v}', c)"),
             ('likes', "select coalesce(string_agg(session_id::text || user_id::text, ',' order by session_id, user_id), '') from likes",
-             f"select coalesce(string_agg(l.session_id::text || l.user_id::text, ',' order by l.session_id, l.user_id), '') from likes l join sessions s on s.id = l.session_id where can_see_session('{v}', s)"),
+             f"select coalesce(string_agg(l.session_id::text || l.user_id::text, ',' order by l.session_id, l.user_id), '') from likes l join sessions s on s.id = l.session_id where private.can_see_session('{v}', s)"),
             ('profiles', "select coalesce(string_agg(id::text, ',' order by id), '') from profiles",
-             f"select coalesce(string_agg(id::text, ',' order by id), '') from profiles p where not blocked_either('{v}', p.id)"),
+             f"select coalesce(string_agg(id::text, ',' order by id), '') from profiles p where not private.blocked_either('{v}', p.id)"),
             ('equipment', "select coalesce(string_agg(id::text, ',' order by id), '') from equipment",
-             f"select coalesce(string_agg(id::text, ',' order by id), '') from equipment e where e.owner_id = '{v}' or (not e.hidden and not blocked_either('{v}', e.owner_id))"),
+             f"select coalesce(string_agg(id::text, ',' order by id), '') from equipment e where e.owner_id = '{v}' or (not e.hidden and not private.blocked_either('{v}', e.owner_id))"),
             ('want_to_try', "select coalesce(string_agg(owner_id::text || coffee_id::text, ',' order by owner_id, coffee_id), '') from want_to_try",
-             f"select coalesce(string_agg(owner_id::text || coffee_id::text, ',' order by owner_id, coffee_id), '') from want_to_try w where w.owner_id = '{v}' or (close_to('{v}', w.owner_id) and not blocked_either('{v}', w.owner_id))"),
+             f"select coalesce(string_agg(owner_id::text || coffee_id::text, ',' order by owner_id, coffee_id), '') from want_to_try w where w.owner_id = '{v}' or (private.close_to('{v}', w.owner_id) and not private.blocked_either('{v}', w.owner_id))"),
         ]
         if who == 'john':
             continue   # never signs in (an unclaimed Sheet-era name): nothing to compare from his side

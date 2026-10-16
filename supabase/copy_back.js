@@ -97,8 +97,9 @@ const canon = v => Array.isArray(v) ? v.map(canon) : (v && typeof v === 'object'
   mine.filter(e => e.type === 'flavor' && !known.has(String(e.name || '').toLowerCase())).forEach(f => { known.add(String(f.name).toLowerCase()); out.push({ ...f, id: 'flavor-' + String(f.name).toLowerCase().replace(/[^a-z0-9]+/g, '-') }); });
 
   // Photos in Supabase storage go to the Sheet the way the app sends a new photo (as image data, which Apps Script files
-  // in Drive). That needs SUPABASE_URL and SUPABASE_SERVICE_KEY in the environment; without them those photos are left
-  // off (and counted). Drive photos stay as they are.
+  // in Drive). That needs SUPABASE_URL and SUPABASE_SERVICE_KEY (a secret key, sb_secret_…, which goes on the apikey
+  // header only; or the older service_role key) in the environment; without them those photos are left off (and
+  // counted). Drive photos stay as they are.
   const SB = process.env.SUPABASE_URL, KEY = process.env.SUPABASE_SERVICE_KEY;
   let photosLeftOff = 0;
   const send = [];
@@ -106,7 +107,7 @@ const canon = v => Array.isArray(v) ? v.map(canon) : (v && typeof v === 'object'
     if (e.type === 'brew' && e.photo && e.photo.path && !e.photo.fileId) {
       let url = null;
       if (SB && KEY && POST) {
-        const r = await fetch(SB.replace(/\/+$/, '') + '/storage/v1/object/photos/' + e.photo.path.slice(3), { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } });
+        const r = await fetch(SB.replace(/\/+$/, '') + '/storage/v1/object/photos/' + e.photo.path.slice(3), { headers: KEY.startsWith('sb_') ? { apikey: KEY } : { apikey: KEY, Authorization: 'Bearer ' + KEY } });
         if (r.ok) url = `data:${r.headers.get('content-type') || 'image/jpeg'};base64,${Buffer.from(await r.arrayBuffer()).toString('base64')}`;
       }
       if (url) { send.push({ ...e, photo: { url, source: e.photo.source || 'library', addedAt: e.photo.addedAt || new Date().toISOString() } }); continue; }

@@ -49,6 +49,18 @@ const pull = who => { const r = as(who, 'select pull_events();'); return r.err ?
 const one = sql => psql(sql);
 
 // --- claiming names
+// what the app's web address can reach: the public schema's own functions. Signed out: none of them. Signed in:
+// exactly the calls api.sql grants (and me()); the rule helpers live in "private", which the web address doesn't serve.
+{
+  const own = r => psql(`select coalesce(string_agg(distinct p.proname, ',' order by p.proname), '') from pg_proc p where p.pronamespace = 'public'::regnamespace
+    and not exists (select 1 from pg_depend d where d.objid = p.oid and d.deptype = 'e') and has_function_privilege('${r}', p.oid, 'execute');`).trim();
+  const granted = /grant execute on function ([\s\S]*?) to authenticated;/.exec(require('fs').readFileSync(path.join(__dirname, 'api.sql'), 'utf8'))[1]
+    .split(/\)\s*,\s*/).map(x => x.trim().split('(')[0]).filter(Boolean);
+  const expected = [...new Set([...granted, 'me'])].sort().join(',');
+  ok(own('anon') === '', 'signed-out visitors can\'t call any of the app\'s functions' + (own('anon') ? ' (can: ' + own('anon') + ')' : ''));
+  ok(own('authenticated') === expected, 'signed-in people can call exactly the app\'s calls and nothing else' + (own('authenticated') === expected ? '' : ` (extra: ${own('authenticated').split(',').filter(x => !expected.split(',').includes(x)).join(', ') || '-'}; missing: ${expected.split(',').filter(x => !own('authenticated').split(',').includes(x)).join(', ') || '-'})`));
+  ok(psql(`select count(*) from pg_proc where pronamespace = 'public'::regnamespace and proname in ('blocked_either', 'is_friend', 'my_blocked_ids', 'is_group_member');`).trim() === '0', 'the rule helpers (who blocked whom, who\'s friends with whom) aren\'t in the public schema');
+}
 ok(/sign in and claim/i.test(as('aidan', 'select pull_events();').err || ''), 'before claiming a name, the app gets nothing (a clear "claim your name first")');
 ok(/doesn.t match/.test(as('maceo', `select claim_name('nope');`).err || ''), 'a wrong claim code is refused');
 const claimed = as('maceo', `select claim_name('CODE-MACEO ');`);

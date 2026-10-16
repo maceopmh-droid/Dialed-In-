@@ -149,7 +149,7 @@ app.gearByUser.forEach((g, owner) => {
 [...app.customFlavors.values()].forEach(f => { const n = clean(f && f.name); if (!n) return; add(`insert into flavors (id, name, created_by) values (${q(uid('flavor', n.toLowerCase()))}, ${q(n)}, ${pid(f.user)}) on conflict (name) do nothing;`); tally('flavors'); });
 
 // ---- the whole Sheet, kept as it was, so nothing from the old history is ever lost
-// (keyed by a fingerprint of the row's JSON, the same key the Apps Script forwarder uses, so resending is harmless)
+// (keyed by a fingerprint of the row's JSON, so sending a row twice is harmless; the nightly check adds new ones)
 if (mode === 'full') rows.forEach((r, i) => { if (!Array.isArray(r) || typeof r[6] !== 'string' || r[6][0] !== '{') return; try { JSON.parse(r[6]); } catch (e) { return; }
   add(`insert into sheet_archive (event_key, row_no, logged_at, payload) values (${q(eventKey(r[6]))}, ${i + 1}, ${q(String(r[0] || ''))}, ${q(r[6])}::jsonb) on conflict (event_key) do nothing;`); tally('sheet_archive'); });
 
@@ -166,7 +166,7 @@ return { sql: out.join('\n') + '\n', summary: { events: events.length, counts: c
 const canonical = v => Array.isArray(v) ? v.map(canonical) : (v && typeof v === 'object') ? Object.fromEntries(Object.keys(v).sort().map(k => [k, canonical(v[k])])) : v;
 function contentKey(ev) { return crypto.createHash('md5').update(JSON.stringify(canonical(ev)), 'utf8').digest('hex'); }
 
-// the archive's key for a Sheet row: md5 of column G exactly as stored (Apps Script computes the same)
+// the archive's key for a Sheet row: md5 of its JSON exactly as stored
 function eventKey(json) { return crypto.createHash('md5').update(String(json), 'utf8').digest('hex'); }
 
 module.exports = { buildImport, eventKey, contentKey, CONTENT_TABLES };

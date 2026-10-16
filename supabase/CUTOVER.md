@@ -4,68 +4,68 @@ The step-by-step for phase 2 of the public-launch plan: the original crew signs 
 Google Sheet to Supabase, without losing a save. Each step can be checked before the next one, and until step 7
 nothing the crew sees changes.
 
-## 1. Create the project (Maceo)
+## 1. Create the project (Maceo) — done Oct 16, 2026
 
-1. Sign up at supabase.com and create a project. Pick the region closest to Chicago ("East US (Ohio)" if offered).
-   The free plan is fine for setting up and testing; switch to Pro (about $25/month) before step 7, because free
-   projects pause after a week without use.
-2. Settings → API: copy the **Project URL** and the **anon / publishable key**. Those two go in the app. The
-   **service_role** key is a master key: it goes only into Apps Script's Script properties (step 3) and GitHub's
-   secrets (step 4), never into `index.html` or a chat.
+1. Sign up at supabase.com and create a project in the region closest to Chicago ("East US (Ohio)"). The free plan
+   is fine for setting up and testing; switch to Pro (about $25/month) before step 7, because free projects pause
+   after a week without use.
+2. The **Project URL** and the **publishable key** (`sb_publishable_…`) go in the app; both are meant to be public
+   (the privacy rules do the protecting). The **database password** and any **secret key** (`sb_secret_…`, or the
+   older `service_role`) are master keys: they go only into GitHub's secrets, never into `index.html` or a chat.
+3. GitHub → the repo → Settings → Secrets and variables → Actions → New repository secret:
+   `SUPABASE_DB_PASSWORD` = the database password.
 
-## 2. Load the database
+## 2. Load the database (from GitHub)
 
-In the project's SQL editor, run these three files, in this order, each in full:
+The `supabase setup` workflow (`.github/workflows/supabase-setup.yml`) does this, because GitHub can reach Supabase:
+push to the `supabase-setup` branch (or run it from the Actions tab once it's on main). It finds the database
+(`supabase/find_db.sh`: through Supabase's session pooler, since GitHub has no IPv6), loads `schema.sql`, `api.sql`
+and `storage.sql` in one go (all or nothing, and only into an empty project), runs `check_project.js` (privacy
+rules on everywhere, signed-out visitors get nothing, exactly the app's calls are callable, private photo bucket,
+from the database and from the outside), then the shadow check (step 3).
 
-1. `supabase/schema.sql` (tables and the privacy rules)
-2. `supabase/api.sql` (the app's calls)
-3. `supabase/storage.sql` (photo storage)
-
-Then Authentication → Providers → Email: on. Authentication → Email templates: in both "Magic link" and "Confirm
-signup" (the first email a new person gets), replace the body with a message that shows the code, for example:
+Then, in the Supabase dashboard (Maceo): Authentication → Providers → Email: on. Authentication → Email templates:
+in both "Magic link" and "Confirm signup" (the first email a new person gets), replace the body with a message that
+shows the code, for example:
 
 ```
 Your Dialed In code is {{ .Token }}
 It works for one hour. If you didn't ask for it, ignore this email.
 ```
 
-The app asks for the 6-digit code, never a link, because a link opens Safari instead of the home-screen app.
+The app asks for the 6-digit code, never a link, because a link opens Safari instead of the home-screen app. Some
+projects send 8-digit codes by default: in Authentication → Email (sign-in providers), set **Email OTP Length** to 6.
 
-Supabase's built-in email sender only allows a few emails an hour. That's enough for the crew; before inviting
-anyone else, connect a real sender (Authentication → SMTP, with Resend or Postmark).
+Supabase's built-in email sender only allows a couple of emails an hour for the whole project, which isn't enough
+for four people signing in on the same evening. Before step 7, connect a real sender (Authentication → SMTP, with
+Resend or Postmark; Resend's free plan is plenty).
 
-## 3. Start copying the Sheet across (the shadow backend)
+## 3. Copy the Sheet across and check it every night (the shadow backend)
 
-In the Apps Script project behind the Sheet:
-
-1. Add `apps_script/SupabaseForward.gs` as a new file. It doesn't touch saving: the Sheet stays in charge.
-2. Project Settings → Script properties: `SUPABASE_URL` = the Project URL, `SUPABASE_SERVICE_KEY` = the
-   service_role key.
-3. Run `setupSupabaseForward()` once and approve the prompt. From then on every new row is copied within 5
-   minutes, and everything is resent once a day.
-
-Nothing about Code.gs's deployment changes, so there's no new version to deploy for this.
-
-## 4. Fill the tables and check them every night
-
-Add a GitHub secret `SUPABASE_DB_URL` (Settings → Database → Connection string, with the password filled in). The
-nightly workflow (`.github/workflows/nightly-shadow.yml`, once it's on main) then rebuilds the tables from the live
-Sheet and checks that the app would show exactly the same thing from either side. To run it by hand:
+`supabase/shadow_check.js` reads the live Sheet (its public read), adds every save the archive (`sheet_archive`)
+doesn't have yet, rebuilds the tables from the live Sheet, and checks that the app would show exactly the same thing
+from either side. Nothing about the Sheet or Code.gs changes. The setup workflow runs it once; the nightly workflow
+(`.github/workflows/nightly-shadow.yml`, once it's on main) runs it at 3:30 am Central. By hand:
 
 ```
-node supabase/shadow_check.js --psql "psql $SUPABASE_DB_URL" --html index.html --live <the Apps Script URL>
+node supabase/shadow_check.js --psql "psql $DB_URL" --html index.html --live <the Apps Script URL>
 ```
 
 It ends with `shadow backend: OK` when everything matches. The first run also creates each person's profile and
-claim code. To see the codes:
+claim code. To see the codes (never printed in GitHub's logs, which are public), in the SQL editor:
 
 ```
-psql "$SUPABASE_DB_URL" -c "select legacy_name, code from claim_codes order by 1;"
+select legacy_name, code from claim_codes order by 1;
 ```
+
+## 4. (Nothing to do: the archive needs no Apps Script changes)
+
+An earlier draft had Apps Script copy each new row across with a secret key. The nightly check does it instead, so
+no secret key is needed anywhere but GitHub.
 
 ## 5. Put the project in the app (still off for everyone)
 
-In `src/js/02-cloud.js`, fill in `SUPABASE = { url: '<Project URL>', anonKey: '<anon key>', live: false }`, build,
+In `src/js/02-cloud.js`, fill in `SUPABASE = { url: '<Project URL>', anonKey: '<publishable key>', live: false }`, build,
 run the full test battery, and ship as usual. Nobody's app changes: `live: false` keeps everyone on the Sheet.
 
 ## 6. Try it on one phone
@@ -75,17 +75,18 @@ switches to Supabase: sign in with your email, enter the code, then your claim c
 likes and comments are all there, log a test session, then open the address with `?backend=sheet` to go back.
 (The test session stays in Supabase only, so delete it before going back.)
 
-Saves made on Supabase during this test don't go to the Sheet, and the nightly rebuild (step 4) replaces the
+Saves made on Supabase during this test don't go to the Sheet, and the nightly rebuild (step 3) replaces the
 tables with the Sheet's copy, so nothing from a test survives into the real move.
 
 ## 7. Move everyone
 
-Pick a quiet evening and tell the crew first.
+Pick a quiet evening and tell the crew first. (`$DB_URL` below is the database's connection string; GitHub's
+workflows build it from the password secret with `supabase/find_db.sh`.)
 
 1. Run the nightly check by hand one last time and confirm `shadow backend: OK`.
 2. Record the move, so nothing ever rebuilds the tables from the Sheet again:
    ```
-   psql "$SUPABASE_DB_URL" -c "insert into backend_state (key, value) values ('cutover_at', now()::text);"
+   insert into backend_state (key, value) values ('cutover_at', now()::text);   -- in the SQL editor
    ```
 3. Set `live: true` in `src/js/02-cloud.js`, bump the version, run the battery, ship.
 4. Everyone's app updates itself within about 20 minutes (or force-close it). It opens on the welcome screen:
@@ -97,11 +98,11 @@ Pick a quiet evening and tell the crew first.
    as you like: a save is never applied twice, and saves by someone who hasn't claimed their name yet wait for the
    next run.
    ```
-   node supabase/replay_late.js --psql "psql $SUPABASE_DB_URL" --live <the Apps Script URL>
+   node supabase/replay_late.js --psql "psql $DB_URL" --live <the Apps Script URL>
    ```
    Run it again over the first few days, until it reports nobody waiting.
 
-The Sheet keeps every row it ever had, and Apps Script keeps copying anything new into `sheet_archive`.
+The Sheet keeps every row it ever had, and the nightly check keeps copying anything new into `sheet_archive`.
 
 ## If something goes wrong
 
@@ -109,8 +110,8 @@ The Sheet keeps every row it ever had, and Apps Script keeps copying anything ne
 - After step 7: set `live: false` and ship, so phones go back to the Sheet, which has everything up to the move.
   Then copy back what happened on Supabase since: first see what it would send, then send it.
   ```
-  node supabase/copy_back.js --psql "psql $SUPABASE_DB_URL" --html index.html --live <the Apps Script URL>
-  SUPABASE_URL=<Project URL> SUPABASE_SERVICE_KEY=<service_role key> node supabase/copy_back.js --psql "psql $SUPABASE_DB_URL" --html index.html --live <the Apps Script URL> --post
+  node supabase/copy_back.js --psql "psql $DB_URL" --html index.html --live <the Apps Script URL>
+  SUPABASE_URL=<Project URL> SUPABASE_SERVICE_KEY=<secret key> node supabase/copy_back.js --psql "psql $DB_URL" --html index.html --live <the Apps Script URL> --post
   ```
   It compares every record through the app's own replay (the same comparison as the parity check) and sends the
   Sheet a normal save for each one that differs (new sessions, edits, likes, comments with their replies and likes,

@@ -108,7 +108,7 @@ $$;
 create or replace function internal.public_gear(viewer uuid) returns table (profile_id uuid, fab_four jsonb, roasters jsonb, updated_at timestamptz)
 language sql stable security definer set search_path = public as $$
   select g.profile_id, coalesce(g.favorites->'fabFour', '[]'::jsonb), coalesce(g.roaster_prefs, '{}'::jsonb), g.updated_at
-  from profile_gear g where g.profile_id <> viewer and not blocked_either(viewer, g.profile_id);
+  from profile_gear g where g.profile_id <> viewer and not private.blocked_either(viewer, g.profile_id);
 $$;
 
 -- ---------------------------------------------------------------- reading: pull_events()
@@ -457,7 +457,7 @@ end $$;
 create or replace function internal.profile_by_name(nm text, viewer uuid) returns uuid
 language sql stable security definer set search_path = public as $$
   select p.id from profiles p
-  where lower(coalesce(p.legacy_name, p.display_name)) = lower(btrim(coalesce(nm, ''))) and p.id <> viewer and not blocked_either(viewer, p.id)
+  where lower(coalesce(p.legacy_name, p.display_name)) = lower(btrim(coalesce(nm, ''))) and p.id <> viewer and not private.blocked_either(viewer, p.id)
   limit 1;
 $$;
 
@@ -522,7 +522,7 @@ end $$;
 create or replace function my_people() returns jsonb
 language sql stable security definer set search_path = public as $$
   select jsonb_build_object(
-    'following', coalesce((select jsonb_agg(jsonb_build_object('name', internal.name_of(f.followee), 'status', f.status, 'friend', is_friend(me(), f.followee)) order by internal.name_of(f.followee))
+    'following', coalesce((select jsonb_agg(jsonb_build_object('name', internal.name_of(f.followee), 'status', f.status, 'friend', private.is_friend(me(), f.followee)) order by internal.name_of(f.followee))
                            from follows f where f.follower = me()), '[]'::jsonb),
     'followers', coalesce((select jsonb_agg(jsonb_build_object('name', internal.name_of(f.follower), 'status', f.status) order by f.status desc, internal.name_of(f.follower))
                            from follows f where f.followee = me()), '[]'::jsonb),
@@ -570,7 +570,7 @@ begin
   select * into g from groups where invite_code = c;
   if not found and c ~ '^[0-9a-f-]{36}$' then select * into g from groups where id = c::uuid and is_open; end if;
   if g.id is null then raise exception 'That invite doesn''t match a group.' using errcode = 'P0002'; end if;
-  if exists (select 1 from group_members m join profiles p on p.id = m.user_id where m.group_id = g.id and blocked_either(me_id, m.user_id) and m.role = 'owner') then
+  if exists (select 1 from group_members m join profiles p on p.id = m.user_id where m.group_id = g.id and private.blocked_either(me_id, m.user_id) and m.role = 'owner') then
     raise exception 'That invite doesn''t match a group.' using errcode = 'P0002';
   end if;
   if not g.is_open and (select count(*) from group_members where group_id = g.id) >= 30 then raise exception 'That group is full (30 people).' using errcode = '54000'; end if;
@@ -585,7 +585,7 @@ declare me_id uuid := me(); g groups; heir uuid;
 begin
   if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
   select * into g from groups where id = leave_group.group_id;
-  if not found or not is_group_member(g.id, me_id) then return 'not a member'; end if;
+  if not found or not private.is_group_member(g.id, me_id) then return 'not a member'; end if;
   delete from group_members m where m.group_id = g.id and m.user_id = me_id;
   if g.owner_id = me_id then
     select m.user_id into heir from group_members m where m.group_id = g.id order by (m.role = 'admin') desc, m.joined_at limit 1;
@@ -641,7 +641,7 @@ $$;
 create or replace function find_groups(q text) returns jsonb
 language sql stable set search_path = public as $$
   select coalesce(jsonb_agg(jsonb_build_object('id', g.id, 'name', g.name, 'members', (select count(*) from group_members m where m.group_id = g.id),
-           'joined', is_group_member(g.id, me())) order by g.name), '[]'::jsonb)
+           'joined', private.is_group_member(g.id, me())) order by g.name), '[]'::jsonb)
   from groups g where g.is_open and char_length(btrim(coalesce(q, ''))) >= 2 and g.name ilike '%' || btrim(q) || '%';
 $$;
 
@@ -651,7 +651,7 @@ $$;
 create or replace function internal.notify(for_id uuid, by_id uuid, what text, ses uuid default null, cof uuid default null, cmt uuid default null, grp uuid default null) returns void
 language plpgsql security definer set search_path = public as $$
 begin
-  if for_id is null or by_id is null or for_id = by_id or coalesce(current_setting('dialed.importing', true), '') = 'on' or blocked_either(for_id, by_id) then return; end if;
+  if for_id is null or by_id is null or for_id = by_id or coalesce(current_setting('dialed.importing', true), '') = 'on' or private.blocked_either(for_id, by_id) then return; end if;
   insert into notifications (user_id, actor_id, kind, session_id, coffee_id, comment_id, group_id) values (for_id, by_id, what, ses, cof, cmt, grp);
 end $$;
 
@@ -808,6 +808,9 @@ begin
   return 'deleted';
 end $$;
 
+-- push_event and friends run as the signed-in person (so the row rules apply to every write) and use the helpers in
+-- "internal", so signed-in people need them; the app's web address doesn't serve that schema, so they can't be called
+-- directly.
 grant usage on schema internal to authenticated;
 grant execute on all functions in schema internal to authenticated;
 -- only signed-in people can call these (Postgres lets everyone run a new function unless told otherwise)

@@ -1,6 +1,8 @@
-# Phase 1: every night, check the shadow backend against the live Sheet.
-# Does nothing until a SUPABASE_DB_URL secret exists (Settings > Secrets and variables > Actions), so it's safe to
-# have in the repository before Supabase is set up. Scheduled runs only happen once this file is on main.
+# Phase 1: every night, check the shadow backend against the live Sheet: new Sheet saves go into the archive, the
+# tables are rebuilt from the live Sheet, and the app must show exactly the same thing from either side.
+# Does nothing until a SUPABASE_DB_PASSWORD (or SUPABASE_DB_URL) secret exists (Settings > Secrets and variables >
+# Actions), so it's safe to have in the repository before Supabase is set up. Scheduled runs only happen once this
+# file is on main. The logs are public: it prints only counts, record ids and field names.
 name: nightly shadow check
 on:
   schedule:
@@ -11,6 +13,7 @@ jobs:
   shadow:
     runs-on: ubuntu-latest
     env:
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
       SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
       # the Sheet's public read, the same address index.html already uses
       SHEET_URL: https://script.google.com/macros/s/AKfycbxwOpOjQr2Um3y_YIddTIsn8yLAEqyQo5BnF001N9E58O4cT9x-7tMM6XGviIGTkNJp-Q/exec
@@ -18,13 +21,16 @@ jobs:
       - name: Is Supabase set up yet?
         id: cfg
         run: |
-          if [ -z "$SUPABASE_DB_URL" ]; then echo "skip=1" >> "$GITHUB_OUTPUT"; echo "No SUPABASE_DB_URL secret yet: nothing to check."; fi
+          if [ -z "$SUPABASE_DB_PASSWORD$SUPABASE_DB_URL" ]; then echo "skip=1" >> "$GITHUB_OUTPUT"; echo "No database secret yet: nothing to check."; fi
       - uses: actions/checkout@v4
         if: steps.cfg.outputs.skip != '1'
       - uses: actions/setup-node@v4
         if: steps.cfg.outputs.skip != '1'
         with:
           node-version: '20'
-      - name: Archive complete, tables rebuilt from the live Sheet, parity with the app
+      - name: Find the database
         if: steps.cfg.outputs.skip != '1'
-        run: node supabase/shadow_check.js --psql "psql '$SUPABASE_DB_URL'" --html index.html --live "$SHEET_URL"
+        run: bash supabase/find_db.sh
+      - name: Archive the live Sheet, rebuild the tables from it, parity with the app
+        if: steps.cfg.outputs.skip != '1'
+        run: node supabase/shadow_check.js --psql "psql '$DB_URL'" --html index.html --live "$SHEET_URL"
