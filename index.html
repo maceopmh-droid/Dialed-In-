@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v14.0 -->
+<!-- Dialed In v14.1 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="14.0">
+    <meta name="dialed-in-version" content="14.1">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -3563,7 +3563,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v14.0</div>
+            <div class="app-version">Dialed In · v14.1</div>
         </div>
     </div>
 
@@ -7649,16 +7649,17 @@
             // v13.1: anyone who has logged anything shows up on every device (the list used to live only on each phone)
             syncKnownUsers() {
                 // v14.0: the shared people list, plus anyone who has logged anything
+                // v14.1: a removal wins, whatever records the person has (only this device's own user is kept)
                 const { active, removed } = this.peopleState();
+                const gone = this.removedPeople();
                 let added = false;
                 const before = this.users.length;
-                const inLog = this.loggedNames();
-                this.users = this.users.filter(u => { const k = String(u).toLowerCase(); return u === this.user || active.has(k) || !removed.has(k) || inLog.has(k); });
+                this.users = this.users.filter(u => u === this.user || !gone.has(String(u).toLowerCase()));
                 if (this.users.length !== before) added = true;
                 const seen = new Map(this.users.map(u => [String(u).toLowerCase(), u]));
                 const add = n => {
                     n = String(n || '').trim();
-                    if (!n || n.length > 40 || n.startsWith('__') || /^(unknown|undefined|null)$/i.test(n) || seen.has(n.toLowerCase())) return;
+                    if (!n || n.length > 40 || n.startsWith('__') || /^(unknown|undefined|null)$/i.test(n) || seen.has(n.toLowerCase()) || gone.has(n.toLowerCase())) return;
                     seen.set(n.toLowerCase(), n); this.users.push(n); added = true;
                 };
                 active.forEach(p => {
@@ -10371,6 +10372,20 @@
 
 
             // ===================== v14.0: people everyone can see =====================
+
+            // v14.1: names removed from the shared list (and not added again since), lower case.
+            // Someone who logs a new coffee or session after being removed is back (they're clearly still using it).
+            removedPeople() {
+                const { active, removed } = this.peopleState();
+                const out = new Set();
+                removed.forEach((at, k) => { if (!active.has(k)) out.add(k); });
+                if (!out.size) return out;
+                const back = (who, when) => { const k = String(who || '').toLowerCase(); if (out.has(k) && this.toTime(when) > removed.get(k)) out.delete(k); };
+                this.brews.forEach(b => back(this.getBrewOwner(b), b.date));
+                this.beans.forEach(b => back(b.owner || b.user, b.date));
+                return out;
+            },
+
             validPersonName(n) {
                 n = String(n || '').trim();
                 return Boolean(n) && n.length <= 24 && !n.startsWith('__') && !/^(unknown|undefined|null|everyone)$/i.test(n);
@@ -11230,9 +11245,11 @@
             },
 
             knownPeople() {
+                const gone = this.removedPeople();   // v14.1: removed people leave every list (their sessions stay)
                 const set = new Set((this.users || []).filter(Boolean));
-                this.brews.forEach(b => set.add(this.getBrewOwner(b)));
-                this.beans.forEach(b => { if (b.user) set.add(String(b.user)); });
+                const addLogged = n => { n = String(n || ''); if (n && (n === this.user || !gone.has(n.toLowerCase()))) set.add(n); };
+                this.brews.forEach(b => addLogged(this.getBrewOwner(b)));
+                this.beans.forEach(b => { if (b.user) addLogged(b.user); });
                 set.delete('Unknown');
                 const list = [...set].sort((a, b) => a.localeCompare(b));
                 if (this.user && list.includes(this.user)) return [this.user, ...list.filter(n => n !== this.user)];
@@ -11764,7 +11781,7 @@
             renderProfile(grid) {
                 grid.className = 'profile-view';
                 const people = this.knownPeople();
-                if (!this.profileUser || !people.includes(this.profileUser)) this.profileUser = this.user || people[0] || '';
+                if (!this.profileUser || !(people.includes(this.profileUser) || this.hasLoggedData(this.profileUser))) this.profileUser = this.user || people[0] || '';
                 const who = this.profileUser;
                 if (!who) {
                     grid.innerHTML = '<div class="panel-empty">Pick a user in Settings to see profiles.</div>';
