@@ -21,6 +21,8 @@ jobs:
       APNS_KEY_P8: ${{ secrets.APNS_KEY_P8 }}
       APNS_KEY_ID: ${{ secrets.APNS_KEY_ID }}
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}     # (only so a push key put in the App Store Connect key's secrets is still found)
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
       BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID || 'com.dialedincoffeeapp.ios' }}
     steps:
       - uses: actions/checkout@v4
@@ -69,6 +71,12 @@ jobs:
           if [ -z "$APNS_KEY_P8" ] || [ -z "$APNS_KEY_ID" ] || [ -z "$APPLE_TEAM_ID" ]; then
             echo "No Apple push key yet: the iPhone app's notifications wait for it." | tee "$RUNNER_TEMP/a.txt"; bash supabase/report.sh "Apple push" "$RUNNER_TEMP/a.txt"; exit 0
           fi
+          # which secrets hold the push key: the ones Apple's push service accepts (the two keys look alike)
+          node native/scripts/apple-check.js --push-only > "$RUNNER_TEMP/pk.txt" 2>&1; cat "$RUNNER_TEMP/pk.txt"
+          from=$(grep -o 'push_from=.*' "$GITHUB_OUTPUT" 2>/dev/null | tail -1 | cut -d= -f2)
+          if [ "$from" = "ASC" ]; then APNS_KEY_P8="$ASC_KEY_P8"; APNS_KEY_ID="$ASC_KEY_ID";
+          elif [ "$from" != "APNS" ]; then sed 's/^::[a-z]* title=[^:]*:://' "$RUNNER_TEMP/pk.txt" > "$RUNNER_TEMP/a.txt"; echo "Apple push key not stored." >> "$RUNNER_TEMP/a.txt"; bash supabase/report.sh "Apple push" "$RUNNER_TEMP/a.txt"; exit 1; fi
+          APNS_KEY_ID=$(printf '%s' "$APNS_KEY_ID" | tr -d "\"' \t\r\n"); APPLE_TEAM_ID=$(printf '%s' "$APPLE_TEAM_ID" | tr -d "\"' \t\r\n")
           # the .p8 text however it was pasted: rebuilt as a proper key, and checked before it's stored
           body=$(printf '%s' "$APNS_KEY_P8" | tr -d '\r"' | sed -e 's/-----BEGIN [A-Z ]*-----//g' -e 's/-----END [A-Z ]*-----//g' | tr -d ' \n\t')
           pem=$(printf -- '-----BEGIN PRIVATE KEY-----\n%s\n-----END PRIVATE KEY-----\n' "$(printf '%s\n' "$body" | fold -w 64)")
@@ -79,7 +87,7 @@ jobs:
           psql "$DB_URL" -v ON_ERROR_STOP=1 -Atq -v k="$APNS_KEY_P8" -v kid="$APNS_KEY_ID" -v team="$APPLE_TEAM_ID" -v topic="$BUNDLE_ID" > "$RUNNER_TEMP/a.txt" 2>&1 <<'SQL'
           insert into backend_state (key, value) values ('apns_key', :'k'), ('apns_key_id', :'kid'), ('apns_team_id', :'team'), ('apns_topic', :'topic')
           on conflict (key) do update set value = excluded.value, updated_at = now();
-          select 'Apple push key stored for ' || (select value from backend_state where key = 'apns_topic');
+          select 'Apple push key (accepted by Apple''s push service) stored for ' || (select value from backend_state where key = 'apns_topic');
           select 'iPhones signed up so far: ' || count(*) from push_subscriptions where endpoint like 'apns:%';
           SQL
           rc=$?
