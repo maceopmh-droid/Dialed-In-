@@ -28,7 +28,7 @@
                 this._feedMode = mode === 'groups' || mode === 'discover' ? mode : 'following';
                 safeSet('dialed_feed_mode', this._feedMode);
                 this._feedHtml = null; this._groupMenu = false;
-                if (this._feedMode === 'discover') { const st = this.commState(); if (!st.at || Date.now() - st.at > 10 * 60000) this.loadCommunity(false); }
+                if (this._feedMode === 'discover') { const st = this.commState(); if (!st.at || Date.now() - st.at > 60000) this.loadCommunity(false); }   // ranked afresh when you come back to it
                 if (this._feedMode === 'groups') { const id = this.feedGroupId(); if (id) { const st = this.streamState('g:' + id); if (!st.at || Date.now() - st.at > 60000) this.loadGroupFeed(id, false); } }
                 this.render();
                 const g = document.getElementById('grid'); if (g && g.scrollIntoView && window.scrollY > 200) window.scrollTo({ top: 0 });
@@ -157,7 +157,7 @@
                         : f ? `No ${f.slice(2)} sessions shared with Everyone lately.`
                         : 'Nothing shared with Everyone lately. Sessions people share with Everyone show up here.';
                     grid.innerHTML = head + `<div class="comm-empty">${this.esc(st.loading || !st.at ? 'Loading…' : st.error || none)}</div>`;
-                    if (!st.loading && !st.at) setTimeout(() => this.loadCommunity(false), 0);
+                    if (!st.loading && (!st.at || Date.now() - st.at > 60000)) setTimeout(() => this.loadCommunity(false), 0);
                     return;
                 }
                 if (!st.loading && Date.now() - st.at > 10 * 60000 && window.scrollY < 300) setTimeout(() => this.loadCommunity(false), 0);   // ranked afresh now and then (only from the top)
