@@ -146,6 +146,24 @@ put files in your own folder, and you can read a photo only if you may see the s
 reads `session_photos`, whose own row rules apply). `push_event` refuses a photo path outside your own folder, so
 nobody can point their session at someone else's private photo. The app asks for links that expire after two hours.
 
+**Speed limits (v14.6).** So one account can't flood strangers, a few things are counted when they're made, by
+the server's clock (`internal.rate_log`; an app can't backdate around it). Over a limit, the save is refused with
+"You're going a bit fast. Wait a few minutes and try again." The app's retries outlast the short windows.
+
+| What | Short window | A day |
+| --- | --- | --- |
+| New comments | 20 in 5 minutes | 300 |
+| New sessions | 100 in 10 minutes | 500 |
+| New coffees | 50 in 10 minutes | 300 |
+| Reports | 20 in an hour | 50 |
+| New communities | 5 in an hour | 20 |
+
+**Everyone on a coffee (v14.6).** `coffee_community(roaster, name)` serves the coffee page's Everyone tab. It returns
+the sessions shared with Everyone on the same coffee: same roaster and name, ignoring case, spaces and punctuation.
+It leaves out your own sessions and anything you reported or the row rules hide. The first page adds a summary: how
+many people and sessions, the average rating, each method's middle ratio, time and dose, and the most-picked notes.
+It never includes grind settings, because they don't carry across grinders.
+
 **Changing the calls on the live database.** `api.sql` only ever replaces functions, triggers, grants and
 indexes (`create or replace`, `if not exists`), so it can be run again at any time: the `supabase setup` workflow
 does that whenever it runs on a database that's already loaded. `schema.sql` and `storage.sql` are never rerun;
