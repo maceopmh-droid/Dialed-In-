@@ -749,8 +749,9 @@ begin
           coalesce(case when jsonb_typeof(ev->'lastByMethod') = 'object' then ev->'lastByMethod' end, '{}'::jsonb),
           coalesce(case when jsonb_typeof(ev->'roasters') = 'object' then ev->'roasters' end, '{}'::jsonb),
           jsonb_build_object('fabFour', coalesce(case when jsonb_typeof(ev->'fabFour') = 'array' then ev->'fabFour' end, '[]'::jsonb),
-                             'goals', coalesce((select jsonb_agg(x.g) from (select g from jsonb_array_elements(case when jsonb_typeof(ev->'goals') = 'array' then ev->'goals' else '[]'::jsonb end) g
-                                                                            where jsonb_typeof(g) = 'object' and char_length(g::text) < 500 limit 3) x), '[]'::jsonb)), now())   -- v14.6: your own goals (only you see them)
+                             'goals', case when ev ? 'goals' then coalesce((select jsonb_agg(x.g) from (select g from jsonb_array_elements(case when jsonb_typeof(ev->'goals') = 'array' then ev->'goals' else '[]'::jsonb end) g
+                                                                            where jsonb_typeof(g) = 'object' and char_length(g::text) < 500 limit 3) x), '[]'::jsonb)
+                                           else coalesce((select pg.favorites->'goals' from profile_gear pg where pg.profile_id = me_id), '[]'::jsonb) end), now())   -- v14.6: your own goals (only you see them); a phone on an older version, which doesn't send them, leaves them be
   on conflict (profile_id) do update set recipes = excluded.recipes, last_by_method = excluded.last_by_method,
     roaster_prefs = excluded.roaster_prefs, favorites = excluded.favorites, updated_at = now();
 end $$;

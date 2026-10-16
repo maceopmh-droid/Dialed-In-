@@ -541,6 +541,8 @@ const goalsIn = [{ type: 'week', target: 5 }, { type: 'beat', target: 4.5, key: 
 ok(!push('maceo', { ...myGear, goals: goalsIn }).err, 'saving goals with the gear record');
 const gBack = (pull('maceo').find(e => e.type === 'gear' && e.id === 'gear-Maceo') || {}).goals || [];
 ok(gBack.length === 3 && gBack[0].target === 5 && gBack[1].key === 'onyx|monarch', `your goals come back in your pull (at most three: ${JSON.stringify(gBack.map(g => g.type))})`);
+const { goals: _g, ...oldPhone } = { ...myGear, goals: undefined };
+ok(!push('maceo', { ...oldPhone, fabFour: [] }).err && ((pull('maceo').find(e => e.type === 'gear' && e.id === 'gear-Maceo') || {}).goals || []).length === 3, 'a save from a phone on an older version (no goals in it) leaves the goals be');
 ok(!pull('aidan').some(e => e.type === 'gear' && e.owner === 'Maceo' && 'goals' in e) && !pull('stranger').some(e => e.type === 'gear' && e.owner === 'Maceo' && 'goals' in e), 'nobody else gets your goals (a friend or a stranger)');
 
 // v14.6: speed limits: 20 new comments in 5 minutes (by the server's clock), then "going a bit fast"; reports too
