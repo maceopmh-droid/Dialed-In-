@@ -148,7 +148,11 @@
             // ---- the community feed's filters: Help, New here, one method
             commFilterHtml() {
                 const st = this.commState(), f = st.filter || '';
-                const opts = [['', 'All'], ['help', 'Help'], ['new', 'New here'], ...['Espresso', 'Pour Over', 'French Press', 'AeroPress', 'Moka Pot', 'Cold Brew'].map(m => ['m:' + m, m])];
+                const gr = this.grState ? this.grState() : null;
+                if (gr && !gr.list && !gr.busy) { gr.busy = true; this.loadGroups(true).then(() => { gr.busy = false; if (this.tab === 'feed' && this.feedMode() === 'community') this.render(); }).catch(() => { gr.busy = false; }); }
+                const groups = (gr && gr.list || []).filter(g => g.open).map(g => ['g:' + g.id, g.name]);   // your open groups
+                if (f.startsWith('g:') && !groups.some(([k]) => k === f)) groups.push([f, st.groupName || 'Group']);
+                const opts = [['', 'All'], ['help', 'Help'], ['new', 'New here'], ...groups, ...['Espresso', 'Pour Over', 'French Press', 'AeroPress', 'Moka Pot', 'Cold Brew'].map(m => ['m:' + m, m])];
                 return `<div class="comm-filters" role="tablist" aria-label="Show">${opts.map(([k, l]) => `<button type="button" class="comm-chip${k === f ? ' on' : ''}" role="tab" aria-selected="${k === f}" data-f="${this.esc(k)}" onclick="app.setCommFilter(this.getAttribute('data-f'))">${this.esc(l)}</button>`).join('')}</div>`;
             },
 
@@ -165,7 +169,7 @@
 
             commFilterArgs() {
                 const f = this.commState().filter || '';
-                return f === 'help' || f === 'new' ? { feed_filter: f } : f.startsWith('m:') ? { feed_method: f.slice(2) } : {};
+                return f === 'help' || f === 'new' ? { feed_filter: f } : f.startsWith('m:') ? { feed_method: f.slice(2) } : f.startsWith('g:') ? { feed_group: f.slice(2) } : {};
             },
 
             // ---- the community goal: one weekly goal everyone on Dialed In fills together
@@ -205,11 +209,25 @@
                     </section>`;
             },
 
+            // ---- community guidelines (Settings; the Report box points here)
+            openGuidelines() {
+                const m = document.getElementById('review-modal'); if (!m) return;
+                m.querySelector('h2').textContent = 'Community guidelines';
+                document.getElementById('review-body').innerHTML = `<ul class="cg-rules">
+                    <li><b>Be kind,</b> especially to people who are new.</li>
+                    <li><b>Help, don't mock.</b> Say which way to go (finer, coarser, a longer ratio). Grind numbers only make sense on the same grinder.</li>
+                    <li><b>Keep it about coffee.</b> No spam, no selling.</li>
+                    <li><b>Share only what's yours</b> to share: your own photos and words.</li>
+                    <li><b>Report what breaks these.</b> Nobody is told who reported it, and you stop seeing it right away.</li></ul>`;
+                m.classList.add('active');
+            },
+
             // ---- reviewing reports (reviewers only: Settings, under your account)
             isReviewer() { const me = this.ppState().me; return Boolean(this.acctOn() && me && me.admin); },
 
             async openReview() {
                 const m = document.getElementById('review-modal'); if (!m) return;
+                m.querySelector('h2').textContent = 'Reports';
                 this._review = { list: null, error: '' };
                 m.classList.add('active');
                 this.renderReview();

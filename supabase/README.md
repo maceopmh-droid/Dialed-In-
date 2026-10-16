@@ -62,9 +62,17 @@ functions translate, and the privacy rules above decide every read and write (th
   groups and the people you follow (their coffees and sessions, with every like and comment you may see). It stays
   small however many people use the app. Your gear comes back in full; your circle's is only what their profile
   shows (equipment, favorite coffees), never recipes or settings.
-- `community_feed(before, max_items)` (v14.4): everyone else's sessions shared with Everyone that you may see,
-  newest first, a page at a time (`before` = the `next` of the last page), with their coffees, in the same format.
-  The app keeps these beside your circle's records, so they never count toward your group goal, awards or library.
+- `community_feed(before, max_items, feed_filter, feed_method)` (v14.4; filters v14.5): everyone else's sessions
+  shared with Everyone that you may see, newest first, a page at a time (`before` = the `next` of the last page),
+  with their coffees, in the same format. `feed_filter` is `help` (help requests) or `new` (people who joined in the
+  last two weeks); `feed_method` keeps one method. The app keeps these beside your circle's records, so they never
+  count toward your group goal, awards or library.
+- `profile_page(name, before, max_items)` (v14.5): anyone's profile, outside your circle too: their card (how
+  you're connected, whether it's private and locked to you) and the sessions of theirs you may see, newest first,
+  with those sessions' coffees and what their profile shows of their gear. Never their recipes or last setups.
+- `suggest_people(max_count)` (v14.5): people you might like to follow, from what they share with Everyone (same
+  coffee or roaster, same grinder, same methods; for someone with nothing logged yet, people new here and people
+  brewing this week). Never anyone you follow or asked to, anyone private, or anyone blocked either way.
 - `push_event(ev)`: one save from the app, applied **as the signed-in person, whatever the event says**. A save
   only changes your own part of a record: the fields of your own coffee or session, and your like, comments,
   comment likes and want-to-try flag on anyone's. Replies' parents and comment likes that the app sends on the side
@@ -72,7 +80,7 @@ functions translate, and the privacy rules above decide every read and write (th
   deleted, even if an old phone sends the record again. Each coffee keeps the roaster spelling written on it
   (`roaster_text`), while the roasters table groups spellings for roaster pages.
 - `claim_name(code)`: links a new sign-in to a Sheet-era name with its one-time code.
-- `create_profile(handle, color)`: someone new makes a profile. The handle (2 to 24 lowercase letters, numbers or
+- `create_profile(name, color)`: someone new makes a profile. The handle (2 to 24 lowercase letters, numbers or
   `_`) is the name the app shows; Sheet-era names can't be taken.
 - `my_profile()`: the signed-in person's profile, or null before they claim a name or make one.
 
@@ -96,17 +104,26 @@ notification when someone likes, comments on or replies to your things, likes yo
 to), approves your request, or joins your group; never for the Sheet's imported history, never twice for the same
 save, never between people who've blocked each other. `my_notifications()` and `mark_notifications_read()` are
 for the bell. `report_item(kind, ref, reason)` files a report by the names the app knows things by (a profile's
-name, a session's id, `<record id>#<comment id>`), only for things you can see. To review reports, in the SQL
-editor: `select r.created_at, r.target_type, r.reason, r.status from reports r order by r.created_at desc;`
-(and set `status` to `hidden`, `dismissed` or `removed` as you deal with them). `export_my_data()` is "Download my data".
+name, a session's id, `<record id>#<comment id>`), only for things you can see. Since v14.5 a report hides the
+session or comment from the person who reported it right away, and three different people reporting it hide it
+from everyone but its owner until it's reviewed. Reviewers (the profile ids in `backend_state` key `admins`;
+Maceo's to start) get Settings, Review reports: `review_reports()` lists what's waiting and
+`resolve_report(kind, target, action)` either dismisses it (shown again to everyone, reporters included) or
+removes the session or comment. Following is capped at 200 new people a day (spam). `export_my_data()` is "Download my data".
 `delete_account(your name)` deletes the account and everything in it; groups you own pass on, and a coffee other
 people logged sessions on passes to the first of them so their sessions keep it. (Photos in storage have to be
 removed through Supabase's storage API first; the app will do that before calling it.)
 
-`community_goal(tz)` is a first draft of the community goal: the crew's weekly goal at community scale, with the
-same six types in the same weekly rotation as the app (weeks start Monday at midnight, Chicago time unless told),
-targets from the community's last six weeks, and "everyone brews" as a count of people. Only totals come back (and
-your own count), never whose session counted.
+`community_goal(tz)` is the community goal (v14.5: the card on top of Community, and of Following for anyone not
+in a private group yet): the crew's weekly goal at community scale, with the same six types in the same weekly
+rotation as the app (weeks start Monday at midnight in the phone's time zone), targets from the community's last
+six weeks, and "everyone brews" as a count of people. Sessions set to Only me don't count. Only totals come back
+(your own count, and how many people brewed this week), never whose session counted.
+
+Help requests (v14.5): a session's `help_wanted` ("Ask for help dialing this in" in the log form) comes back as
+`helpWanted`; the asker marks the most helpful answer (`helpfulAnswer`, a comment id kept with the session's other
+fields), and its author gets a `helpful` notification. Sessions of people who joined in the last two weeks come
+back with `newHere` (worked out, never stored). Profile links are `<app address>?u=<name>`.
 
 **What the app may change directly.** Supabase lets signed-in people use every table through its web API, limited
 by the row rules. Row rules can't limit columns, so the end of `schema.sql` does: profiles are only made by

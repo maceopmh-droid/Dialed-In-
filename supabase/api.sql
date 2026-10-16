@@ -286,9 +286,11 @@ create index if not exists group_members_user on group_members (user_id);
 create index if not exists equipment_owner on equipment (owner_id);
 create index if not exists sessions_public_recent on sessions (brewed_at desc) where deleted_at is null and audience = 'everyone';
 create index if not exists sessions_help_recent on sessions (brewed_at desc) where deleted_at is null and audience = 'everyone' and help_wanted;
--- v14.5: filters. feed_filter => 'help' (help requests) or 'new' (people who joined in the last two weeks); feed_method => one method.
+-- v14.5: filters. feed_filter => 'help' (help requests) or 'new' (people who joined in the last two weeks); feed_method => one
+-- method; feed_group => an open group's members (or a group you're in).
 drop function if exists community_feed(timestamptz, int);
-create or replace function community_feed(before timestamptz default null, max_items int default 30, feed_filter text default null, feed_method text default null) returns jsonb
+drop function if exists community_feed(timestamptz, int, text, text);
+create or replace function community_feed(before timestamptz default null, max_items int default 30, feed_filter text default null, feed_method text default null, feed_group uuid default null) returns jsonb
 language plpgsql stable set search_path = public as $$
 declare me_id uuid := me(); lim int := least(greatest(coalesce(max_items, 30), 1), 60); ids uuid[]; oldest timestamptz;
 begin
@@ -299,6 +301,8 @@ begin
           and (feed_filter is distinct from 'help' or s.help_wanted)
           and (feed_filter is distinct from 'new' or (select o.joined_at from profiles o where o.id = s.owner_id) > now() - interval '14 days')
           and (coalesce(btrim(feed_method), '') = '' or lower(s.method) = lower(btrim(feed_method)))
+          and (feed_group is null or (s.owner_id in (select m.user_id from group_members m where m.group_id = feed_group)
+                                      and exists (select 1 from groups g where g.id = feed_group and (g.is_open or private.is_group_member(g.id, me_id)))))
           and (s.owner_id = me_id or not internal.unseen('session', s.id))
         order by s.brewed_at desc limit lim) t;
   if ids is null then return jsonb_build_object('events', '[]'::jsonb, 'next', null); end if;
@@ -776,9 +780,14 @@ $$;
 
 create or replace function find_groups(q text) returns jsonb
 language sql stable set search_path = public as $$
-  select coalesce(jsonb_agg(jsonb_build_object('id', g.id, 'name', g.name, 'members', (select count(*) from group_members m where m.group_id = g.id),
-           'joined', private.is_group_member(g.id, me())) order by g.name), '[]'::jsonb)
-  from groups g where g.is_open and char_length(btrim(coalesce(q, ''))) >= 2 and g.name ilike '%' || btrim(q) || '%';
+  -- open groups whose name has what you typed; v14.5: with nothing typed, the open groups with the most people
+  select coalesce(jsonb_agg(x order by (x->>'members')::int desc, x->>'name'), '[]'::jsonb) from (
+    select jsonb_build_object('id', g.id, 'name', g.name, 'members', (select count(*) from group_members m where m.group_id = g.id),
+             'joined', private.is_group_member(g.id, me())) as x
+    from groups g
+    where g.is_open and (char_length(btrim(coalesce(q, ''))) = 0 or (char_length(btrim(q)) >= 2 and g.name ilike '%' || btrim(q) || '%'))
+    order by (select count(*) from group_members m where m.group_id = g.id) desc, g.name
+    limit 30) t;
 $$;
 
 -- ---------------------------------------------------------------- notifications (phase 3: the database side; no screens yet)
@@ -1116,12 +1125,12 @@ end $$;
 grant usage on schema internal to authenticated;
 grant execute on all functions in schema internal to authenticated;
 -- only signed-in people can call these (Postgres lets everyone run a new function unless told otherwise)
-revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text), report_item(text, text, text),
+revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), report_item(text, text, text),
   profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version() from public, anon;
-grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text), report_item(text, text, text),
+grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), report_item(text, text, text),
   profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),

@@ -21,16 +21,60 @@
                     const role = g.role === 'owner' ? 'You run it' : g.role === 'admin' ? 'Admin' : '';
                     const members = isOpen ? `<div class="gr-members">${(g.members || []).map(m => `<div class="gr-member">${this.personDotHtml(m.name)}<span>${this.esc(m.name)}${m.role === 'owner' ? ' <small>owner</small>' : m.role === 'admin' ? ' <small>admin</small>' : ''}</span>${(g.role === 'owner' || g.role === 'admin') && m.name !== this.user && m.role !== 'owner' ? `<button type="button" class="btn-outline pp-act is-quiet" data-g="${id}" data-name="${this.esc(m.name)}" onclick="app.groupAct('remove', this.getAttribute('data-g'), this.getAttribute('data-name'))">Remove</button>` : ''}</div>`).join('')}</div>` : '';
                     const invite = isOpen && g.invite ? `<div class="gr-invite"><span>Invite code <b>${this.esc(g.invite.toUpperCase())}</b></span><button type="button" class="btn-primary pp-act" data-code="${this.esc(g.invite)}" data-name="${this.esc(g.name)}" onclick="app.shareInvite(this.getAttribute('data-code'), this.getAttribute('data-name'))">Share invite</button></div>` : '';
-                    const leave = isOpen ? `<button type="button" class="gr-leave" data-g="${id}" data-name="${this.esc(g.name)}" onclick="app.groupAct('leave', this.getAttribute('data-g'), this.getAttribute('data-name'))">Leave group</button>` : '';
-                    return `<div class="gr-card${isOpen ? ' is-open' : ''}"><button type="button" class="gr-head" data-g="${id}" onclick="app.toggleGroup(this.getAttribute('data-g'))"><span class="gr-icon"><svg class="icon"><use href="#i-users"/></svg></span><span class="gr-name"><b>${this.esc(g.name)}</b><small>${n} ${n === 1 ? 'person' : 'people'}${g.open ? ' · open' : ''}${role ? ' · ' + role : ''}</small></span><svg class="icon gr-chev"><use href="#i-chevron-down"/></svg></button>${invite}${members}${leave}</div>`;
+                    const leave = isOpen ? `<button type="button" class="gr-leave" data-g="${id}" data-name="${this.esc(g.name)}" data-open="${g.open ? '1' : ''}" onclick="app.groupAct('leave', this.getAttribute('data-g'), this.getAttribute('data-name'), this.getAttribute('data-open'))">Leave group</button>` : '';
+                    // v14.5: an open group's sessions show under its name in Community
+                    const see = isOpen && g.open ? `<div class="gr-invite"><span>Members' sessions shared with Everyone</span><button type="button" class="btn-primary pp-act" data-g="${id}" onclick="app.seeGroupFeed(this.getAttribute('data-g'))">See them</button></div>` : '';
+                    return `<div class="gr-card${isOpen ? ' is-open' : ''}"><button type="button" class="gr-head" data-g="${id}" onclick="app.toggleGroup(this.getAttribute('data-g'))"><span class="gr-icon"><svg class="icon"><use href="#i-users"/></svg></span><span class="gr-name"><b>${this.esc(g.name)}</b><small>${n} ${n === 1 ? 'person' : 'people'}${g.open ? ' · open' : ''}${role ? ' · ' + role : ''}</small></span><svg class="icon gr-chev"><use href="#i-chevron-down"/></svg></button>${invite}${see}${members}${leave}</div>`;
                 };
+                const kind = st.makeOpen ? 'open' : 'private';
+                const kindSeg = `<div class="seg-control gr-kind" role="group" aria-label="Kind of group">${[['private', 'Private'], ['open', 'Open']].map(([k, l]) => `<button type="button" aria-pressed="${k === kind}" onclick="app.setGroupKind('${app.escJs(k)}')">${l}</button>`).join('')}</div>`;
                 const form = st.form === 'create'
-                    ? `<form class="gr-form" onsubmit="event.preventDefault(); app.groupAct('create', this.elements.n.value)"><input name="n" class="pp-search" maxlength="60" placeholder="Group name" autocomplete="off" autocapitalize="words"><button type="submit" class="btn-primary pp-act">Create</button></form><p class="gr-note">A private group: up to 30 people, who join with its invite. You share a weekly goal and monthly awards.</p>`
+                    ? `${kindSeg}<form class="gr-form" onsubmit="event.preventDefault(); app.groupAct('create', this.elements.n.value)"><input name="n" class="pp-search" maxlength="60" placeholder="${kind === 'open' ? 'Like Moka pot club or Chicago coffee' : 'Group name'}" autocomplete="off" autocapitalize="words"><button type="submit" class="btn-primary pp-act">Create</button></form><p class="gr-note">${kind === 'open' ? 'An open group: anyone can find it and join with one tap. Its members\' sessions shared with Everyone show under its name in Community.' : 'A private group: up to 30 people, who join with its invite. You share a weekly goal and monthly awards.'}</p>`
                     : st.form === 'join'
                         ? `<form class="gr-form" onsubmit="event.preventDefault(); app.groupAct('join', this.elements.c.value)"><input name="c" class="pp-search" maxlength="40" placeholder="Invite code" autocomplete="off" autocapitalize="characters" spellcheck="false"><button type="submit" class="btn-primary pp-act">Join</button></form>`
-                        : `<div class="gr-actions"><button type="button" class="btn-outline pp-act" onclick="app.groupForm('create')">Create a group</button><button type="button" class="btn-outline pp-act" onclick="app.groupForm('join')">Join with a code</button></div>`;
+                        : st.form === 'find' ? this.openGroupsHtml()
+                        : `<div class="gr-actions"><button type="button" class="btn-outline pp-act" onclick="app.groupForm('find')">Find open groups</button><button type="button" class="btn-outline pp-act" onclick="app.groupForm('create')">Create a group</button><button type="button" class="btn-outline pp-act" onclick="app.groupForm('join')">Join with a code</button></div>`;
                 body.innerHTML = (st.list.length ? `<div class="gr-list">${st.list.map(groupRow).join('')}</div>` : `<p class="pp-empty">You're not in a group yet. Groups share a weekly goal and monthly awards. Make one and invite friends, or join with a code someone sent you.</p>`) + form;
-                const f = body.querySelector('.gr-form input'); if (f && f.focus) f.focus();
+                const f = st.form === 'find' ? null : body.querySelector('.gr-form input'); if (f && f.focus) f.focus();
+            },
+
+            // v14.5: open groups. Browse the biggest, or search by name; join with one tap
+            setGroupKind(kind) { this.grState().makeOpen = kind === 'open'; this.renderPeople(); },
+
+            openGroupsHtml() {
+                const st = this.grState(), found = st.found;
+                if (!found && !st.finding) { st.finding = true; this.findOpenGroups(''); }
+                const rows = (found || []).map(g => `<div class="pp-row"><span class="pp-who"><span class="gr-icon"><svg class="icon"><use href="#i-users"/></svg></span><span><b>${this.esc(g.name)}</b><small>${g.members} ${g.members === 1 ? 'person' : 'people'}</small></span></span><span class="pp-acts">${g.joined
+                    ? `<button type="button" class="btn-outline pp-act is-quiet" data-g="${this.esc(String(g.id))}" onclick="app.seeGroupFeed(this.getAttribute('data-g'))">Joined</button>`
+                    : `<button type="button" class="btn-primary pp-act" data-g="${this.esc(String(g.id))}" onclick="app.groupAct('join', this.getAttribute('data-g'))">Join</button>`}</span></div>`).join('');
+                return `<input class="pp-search gr-find" type="search" placeholder="Find open groups by name" autocomplete="off" autocapitalize="words" spellcheck="false" value="${this.esc(st.findQ || '')}" oninput="app.findOpenGroups(this.value)">
+                    ${!found ? '<p class="pp-empty">Looking…</p>' : rows ? `<div class="pp-list">${rows}</div>` : `<p class="pp-empty">${st.findQ ? 'No open group by that name yet. Create one.' : 'No open groups yet. Create the first one.'}</p>`}
+                    <div class="gr-actions"><button type="button" class="btn-outline pp-act" onclick="app.groupForm('create')">Create a group</button><button type="button" class="btn-outline pp-act is-quiet" onclick="app.groupForm('')">Done</button></div>`;
+            },
+
+            findOpenGroups(q) {
+                const st = this.grState(); st.findQ = String(q || '');
+                clearTimeout(this._grFindTimer);
+                const seq = st.findSeq = (st.findSeq || 0) + 1, text = st.findQ.trim();
+                if (text.length === 1) return;
+                this._grFindTimer = setTimeout(async () => {
+                    try { const r = await Supa.rpc('find_groups', { q: text }); if (seq !== st.findSeq) return; st.found = Array.isArray(r) ? r : []; }
+                    catch (e) { if (seq === st.findSeq) st.found = []; }
+                    st.finding = false;
+                    // redraw the results without the search box (it keeps its focus and what's typed)
+                    const body = document.getElementById('people-body'), box = body && body.querySelector('.gr-find');
+                    if (!body || st.form !== 'find') return;
+                    const html = this.openGroupsHtml(), tmp = document.createElement('div'); tmp.innerHTML = html;
+                    if (box) { [...body.children].forEach(c => { if (c !== box) c.remove(); }); [...tmp.children].slice(1).forEach(c => body.appendChild(c)); }
+                    else this.renderPeople();
+                }, text ? 220 : 0);
+            },
+
+            seeGroupFeed(id) {
+                this.closePeople();
+                this.setTab('feed');
+                this.setFeedMode('community');
+                if (this.setCommFilter) this.setCommFilter('g:' + id);
             },
 
             toggleGroup(id) { const st = this.grState(); st.open = st.open === String(id) ? '' : String(id); this.renderPeople(); },
@@ -45,12 +89,12 @@
                 } catch (e) { if (e && e.name === 'AbortError') return; this.showToast(`Invite code: ${String(code).toUpperCase()}`); }
             },
 
-            async groupAct(action, a, b) {
+            async groupAct(action, a, b, c) {
                 const st = this.grState();
                 try {
-                    if (action === 'create') { const g = await Supa.rpc('create_group', { name: String(a || '').trim() }); st.form = ''; st.open = g && g.id ? String(g.id) : ''; this.showToast(`Made ${g && g.name ? g.name : 'your group'}. Share the invite with friends.`); }
-                    else if (action === 'join') { const g = await Supa.rpc('join_group', { code: String(a || '').trim() }); st.form = ''; st.open = g && g.id ? String(g.id) : ''; this.showToast(`You joined ${g && g.name ? g.name : 'the group'}.`); }
-                    else if (action === 'leave') { if (!confirm(`Leave ${b}? You'll stop sharing its goal and awards.`)) return; await Supa.rpc('leave_group', { group_id: a }); st.open = ''; this.showToast(`You left ${b}.`); }
+                    if (action === 'create') { const open = Boolean(st.makeOpen); const g = await Supa.rpc('create_group', { name: String(a || '').trim(), open }); st.form = ''; st.makeOpen = false; st.found = null; st.open = g && g.id ? String(g.id) : ''; this.showToast(open ? `Made ${g && g.name ? g.name : 'your group'}. Anyone can find it and join.` : `Made ${g && g.name ? g.name : 'your group'}. Share the invite with friends.`); }
+                    else if (action === 'join') { const g = await Supa.rpc('join_group', { code: String(a || '').trim() }); st.form = ''; st.found = null; st.open = g && g.id ? String(g.id) : ''; this.showToast(`You joined ${g && g.name ? g.name : 'the group'}.`); }
+                    else if (action === 'leave') { if (!confirm(c ? `Leave ${b}?` : `Leave ${b}? You'll stop sharing its goal and awards.`)) return; await Supa.rpc('leave_group', { group_id: a }); st.open = ''; st.found = null; this.showToast(`You left ${b}.`); }
                     else if (action === 'remove') { if (!confirm(`Remove ${b} from the group?`)) return; await Supa.rpc('remove_member', { group_id: a, name: b }); }
                     else return;
                     if (this.haptic) this.haptic('tick');

@@ -4,7 +4,7 @@
                 if (event) event.stopPropagation();
                 if (!this.acctOn() || !ref) return;
                 const what = kind === 'profile' ? ref : kind === 'session' ? 'this session' : 'this comment';
-                const reason = prompt(`Report ${what}? Say what's wrong (optional). Nobody is told who reported it.`, '');
+                const reason = prompt(`Report ${what}? Say what's wrong (optional). Nobody is told who reported it. (Community guidelines are in Settings.)`, '');
                 if (reason === null) return;
                 try {
                     await Supa.rpc('report_item', { kind, ref, reason });
@@ -24,7 +24,7 @@
             },
 
             acctToolsHtml() {
-                return `<div class="acct-tools">${this.isReviewer && this.isReviewer() ? '<button type="button" class="btn-outline pp-act" onclick="app.openReview()">Review reports</button>' : ''}<button type="button" class="btn-outline pp-act" onclick="app.downloadMyData()">Download my data</button><button type="button" class="btn-outline pp-act acct-delete" onclick="app.deleteMyAccount()">Delete account</button></div>`;
+                return `<div class="acct-tools">${this.isReviewer && this.isReviewer() ? '<button type="button" class="btn-outline pp-act" onclick="app.openReview()">Review reports</button>' : ''}<button type="button" class="btn-outline pp-act" onclick="app.openGuidelines()">Community guidelines</button><button type="button" class="btn-outline pp-act" onclick="app.downloadMyData()">Download my data</button><button type="button" class="btn-outline pp-act acct-delete" onclick="app.deleteMyAccount()">Delete account</button></div>`;
             },
 
             async downloadMyData() {

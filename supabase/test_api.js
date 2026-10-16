@@ -399,6 +399,17 @@ ok(!sug('wanderer').some(x => x.name === 'Maceo'), '...nor anyone blocked');
 as('wanderer', `select unblock('Maceo');`);
 ok(/permission denied/.test(fx('anon', 'select suggest_people();')), '...and only for signed-in people');
 
+// open groups: a feed of their members' public sessions, and a list to browse
+const og = JSON.parse(fx('wanderer', `select create_group('Pour-over people', true);`));
+fx('maceo', `select join_group('${og.id}');`);
+const ogf = JSON.parse(fx('julian', `select community_feed(feed_group => '${og.id}');`));
+ok(brewsIn(ogf).length >= 1 && brewsIn(ogf).every(id => ['pp1', 'wd1'].includes(id)) && brewsIn(ogf).includes('pp1'), "an open group's feed: its members' sessions shared with Everyone, for anyone");
+const sat = JSON.parse(fx('newbie', `select create_group('Secret circle');`));
+ok(JSON.parse(fx('julian', `select community_feed(feed_group => '${sat.id}');`)).events.length === 0, "...a private group's isn't shown to people outside it");
+const browse = JSON.parse(fx('julian', `select find_groups('');`));
+ok(browse.some(g => g.id === og.id && g.members === 2) && !browse.some(g => g.id === sat.id), 'find_groups with nothing typed lists open groups (most people first), never private ones');
+fx('newbie', `select leave_group('${sat.id}');`);
+
 // help requests
 push('maceo', { type: 'brew', id: 'pp1', beanId: 'b1', user: 'Maceo', owner: 'Maceo', method: 'Pour Over', dose: 15, yield: 250, date: NOW(), audience: 'everyone', helpWanted: true, likes: [], comments: [] });
 ok(one(`select help_wanted from sessions where legacy_id = 'pp1';`) === 't' && pull('maceo').find(e => e.id === 'pp1').helpWanted === true && !pull('maceo').find(e => e.id === 'pp2').helpWanted,

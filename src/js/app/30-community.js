@@ -112,6 +112,7 @@
                     const f = st.filter || '';
                     const none = f === 'help' ? 'No help requests right now. When someone asks for help dialing in, it shows here.'
                         : f === 'new' ? 'Nobody new in the last two weeks.'
+                        : f.startsWith('g:') ? 'Nothing from this group yet. Members\' sessions shared with Everyone show here.'
                         : f ? `No ${f.slice(2)} sessions shared with Everyone yet.`
                         : 'Nothing shared with Everyone yet. Sessions people share with Everyone show up here.';
                     const msg = st.loading || !st.at ? 'Loading the community…' : st.error || none;
