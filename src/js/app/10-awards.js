@@ -3,7 +3,7 @@
 
             crewAwards(y, m) {
                 const [a, b] = this.monthRange(y, m);
-                const list = this.sessionsBetween(a, b);
+                const list = this.crewSessionsBetween(a, b);
                 if (!list.length) return [];
                 const owner = x => this.getBrewOwner(x);
                 const tally = (fn) => { const t = new Map(); list.forEach(x => { const v = fn(x); if (v) t.set(owner(x), (t.get(owner(x)) || 0) + v); }); return t; };
@@ -76,7 +76,7 @@
                     add('shot', 'Shot of the Month', 'i-medal', '#C49A2C', { names: [owner(shot)], value: bestR, runner: null }, v => `${this.fmtNum(v)}★ · ${shotBean ? (String(shotBean.name || '').trim() || this.beanLabel(shotBean)) : 'a coffee'}, ${this.shortDate(shot.date)}`, { shotId: String(shot.id) });
                 }
                 const [pa, pb] = this.monthRange(y, m - 1);
-                const prevList = this.sessionsBetween(pa, pb);
+                const prevList = this.crewSessionsBetween(pa, pb);
                 const avgOf = rows => { const r = rows.map(x => this.normalizeRating(x.rating)).filter(v => v > 0); return r.length >= 3 ? r.reduce((s, v) => s + v, 0) / r.length : null; };
                 const gain = new Map();
                 byPerson.forEach((rows, p) => { const nowAvg = avgOf(rows), before = avgOf(prevList.filter(x => owner(x) === p)); if (nowAvg !== null && before !== null && nowAvg - before >= 0.3) gain.set(p, Math.round((nowAvg - before) * 10) / 10); });
@@ -109,7 +109,7 @@
             awardMonths() {
                 // v12.0: this month is always listed (locked until the 1st); finished months with sessions follow
                 const now = new Date(), out = [this.awardMonthKey(now)];
-                for (let i = 1; i < 13; i++) { const d = new Date(now.getFullYear(), now.getMonth() - i, 1); const [a, b] = this.monthRange(d.getFullYear(), d.getMonth()); if (this.sessionsBetween(a, b).length) out.push(this.awardMonthKey(d)); }
+                for (let i = 1; i < 13; i++) { const d = new Date(now.getFullYear(), now.getMonth() - i, 1); const [a, b] = this.monthRange(d.getFullYear(), d.getMonth()); if (this.crewSessionsBetween(a, b).length) out.push(this.awardMonthKey(d)); }
                 return out;
             },
 
@@ -249,6 +249,9 @@
             },
 
             renderCrewAwardsCard() {
+                // v14.6: awards are for a private community; on your own there's no one to win against (Discover has the
+                // monthly highlights for everyone)
+                if (this.acctOn && this.acctOn() && this.knownPeople().length < 2) return '';
                 const months = this.awardMonths();
                 if (!this.brews.size) return '';
                 if (!months.includes(this.awardsMonth)) {

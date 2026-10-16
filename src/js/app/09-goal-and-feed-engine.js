@@ -26,9 +26,19 @@
                 return Array.from(this.brews.values()).filter(x => { const t = this.localTime(x.date); return t >= a && t < b; });
             },
 
+            // v14.6: the group goal and monthly awards count you and your private communities only: never people you
+            // just follow, or strangers' sessions loaded for Discover, Everyone or a profile you opened
+            crewFilter() {
+                if (!(this.acctOn && this.acctOn())) return () => true;
+                const crew = new Set(this.knownPeople());
+                return b => crew.has(this.getBrewOwner(b)) && !(this.isCommunity && this.isCommunity('brew', b.id));
+            },
+            crewSessionsBetween(a, b) { return this.sessionsBetween(a, b).filter(this.crewFilter()); },
+
             crewPeople(now = Date.now()) {
                 const since = now - 56 * 864e5, set = new Set();
-                this.brews.forEach(b => { const t = this.localTime(b.date); if (t >= since && t <= now + 864e5) set.add(this.getBrewOwner(b)); });
+                const inCrew = this.crewFilter();
+                this.brews.forEach(b => { const t = this.localTime(b.date); if (t >= since && t <= now + 864e5 && inCrew(b)) set.add(this.getBrewOwner(b)); });
                 // v13.4: the same group for everyone who looks (the viewer isn't added just for looking)
                 return [...set].filter(Boolean).filter(n => !this.goalExcluded(n)).sort();
             },
@@ -110,7 +120,7 @@
                 const weights = [0.30, 0.22, 0.16, 0.13, 0.10, 0.09];
                 const past = [];
                 for (let i = 1; i <= 6; i++) {
-                    const ws = this.weekStartOf(start - i * W + 3 * 3600e3), all = this.sessionsBetween(ws, this.weekStartOf(ws + W + 3 * 3600e3)).filter(inGoal);
+                    const ws = this.weekStartOf(start - i * W + 3 * 3600e3), all = this.crewSessionsBetween(ws, this.weekStartOf(ws + W + 3 * 3600e3)).filter(inGoal);
                     past.push({ w: weights[i - 1], all, early: all.filter(b => this.localTime(b.date) < ws + PACE), active: new Set(all.map(b => this.getBrewOwner(b))).size });
                 }
                 const recent = new Set([...past[0].all, ...past[1].all].map(b => this.getBrewOwner(b))).size;
@@ -131,7 +141,7 @@
                 const weekNo = Math.round(start / W);
                 const type = types.includes(forceType) ? forceType : types[((weekNo % types.length) + types.length) % types.length];
                 const clampInt = (v, a, b) => Math.max(a, Math.min(b, Math.round(v)));
-                const cur = this.sessionsBetween(start, end).filter(inGoal).sort((a, b) => this.localTime(a.date) - this.localTime(b.date));
+                const cur = this.crewSessionsBetween(start, end).filter(inGoal).sort((a, b) => this.localTime(a.date) - this.localTime(b.date));
                 const by = new Map(people.map(p => [p, 0]));
                 const credit = name => by.set(name, (by.get(name) || 0) + 1);
                 let target = 1, progress = 0, title = '', detail = '', unit = '', per = 0;
