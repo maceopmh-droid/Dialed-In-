@@ -87,12 +87,13 @@
                 const body = document.getElementById('review-body'), e = this._goalEdit; if (!body || !e) return;
                 const have = new Set(this.myGoals().map(g => g.type));
                 const kinds = [['week', 'Sessions a week'], ['coffees', 'New coffees a month'], ['beat', 'A rating to beat']];
-                const seg = e.editing ? '' : `<div class="seg-control pg-kinds" role="tablist">${kinds.filter(([k]) => !have.has(k) || k === e.type).map(([k, l]) => `<button type="button" aria-pressed="${k === e.type}" onclick="app.setGoalKind('${k}')">${l}</button>`).join('')}</div>`;
+                const open = kinds.filter(([k]) => !have.has(k) || k === e.type);
+                const seg = e.editing || open.length < 2 ? `<p class="pg-kind">${(kinds.find(([k]) => k === e.type) || ['', ''])[1]}</p>` : `<div class="seg-control pg-kinds" role="tablist">${open.map(([k, l]) => `<button type="button" aria-pressed="${k === e.type}" onclick="app.setGoalKind('${k}')">${l}</button>`).join('')}</div>`;
                 const coffees = this.goalCoffees();
                 const step = e.type === 'beat' ? 0.5 : 1, min = e.type === 'beat' ? 0.5 : 1, max = e.type === 'beat' ? 5 : e.type === 'week' ? 21 : 10;
                 const num = `<div class="pg-step"><button type="button" aria-label="Less" onclick="app.stepGoal(${-step}, ${min}, ${max})"${e.target <= min ? ' disabled' : ''}>−</button><b>${this.esc(e.type === 'beat' ? `${this.fmtNum(e.target, 1)} ★` : String(e.target))}</b><button type="button" aria-label="More" onclick="app.stepGoal(${step}, ${min}, ${max})"${e.target >= max ? ' disabled' : ''}>+</button></div>`;
                 const sel = e.type === 'beat'
-                    ? (coffees.length ? `<label class="pg-field"><span>Coffee</span><select onchange="app.setGoalCoffee(this.value)">${coffees.map(c => `<option value="${this.esc(c.key)}"${c.key === e.key ? ' selected' : ''}>${this.esc(c.label)}${c.best ? ` (best ${this.fmtNum(c.best, 1)} ★)` : ''}</option>`).join('')}</select></label>` : '<p class="pp-empty">Log a session first, then pick its coffee here.</p>')
+                    ? (coffees.length ? `<label class="pg-field"><span>Coffee</span><select aria-label="Coffee"  onchange="app.setGoalCoffee(this.value)">${coffees.map(c => `<option value="${this.esc(c.key)}"${c.key === e.key ? ' selected' : ''}>${this.esc(c.label)}${c.best ? ` (best ${this.fmtNum(c.best, 1)} ★)` : ''}</option>`).join('')}</select></label>` : '<p class="pp-empty">Log a session first, then pick its coffee here.</p>')
                     : '';
                 const say = e.type === 'week' ? 'Sessions you log Monday to Sunday.' : e.type === 'coffees' ? 'Coffees you brew for the first time this month.' : 'Your best rating on this coffee from now on.';
                 const can = e.type !== 'beat' || (coffees.length && e.key);

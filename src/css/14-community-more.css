@@ -114,8 +114,10 @@
         .pg-kinds { margin: 4px 0 14px; }
         .pg-kinds button { font-size: 0.78rem; }
         .pg-field { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 10px 0; }
-        .pg-field > span { font-size: 0.9rem; font-weight: 700; }
-        .pg-field select { max-width: 64%; font: inherit; font-size: 0.86rem; padding: 8px 10px; border-radius: 12px; border: 1px solid rgba(var(--hair-rgb), 0.14); background: var(--surface); color: var(--ink); }
+        .pg-field > span { font-size: 0.9rem; font-weight: 700; text-transform: none; letter-spacing: 0; color: var(--ink); }
+        .pg-kind { margin: 2px 0 8px; font-size: 0.86rem; font-weight: 700; color: var(--text-muted); }
+        .pg-field { margin-bottom: 10px; }
+        .pg-field select { max-width: 70%; font: inherit; font-size: 0.86rem; padding: 8px 10px; border-radius: 12px; border: 1px solid rgba(var(--hair-rgb), 0.14); background: var(--surface); color: var(--ink); }
         .pg-step { display: flex; align-items: center; gap: 12px; }
         .pg-step button { width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(var(--hair-rgb), 0.14); background: var(--surface); color: var(--ink); font-size: 1.2rem; line-height: 1; cursor: pointer; }
         .pg-step button:disabled { opacity: 0.35; }
