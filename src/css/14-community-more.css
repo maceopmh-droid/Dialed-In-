@@ -1,9 +1,8 @@
         /* v14.5: anyone's profile, help requests, community filters and goal, suggestions, reviewing reports (new backend only) */
         .feed-avatar[data-name], .feed-actor[data-name], .cmt-head b[data-name] { cursor: pointer; }
-        .feed-sub { display: flex; align-items: baseline; gap: 6px; min-width: 0; white-space: nowrap; overflow: hidden; }
-        .feed-tag { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; }
-        .feed-tag::before { content: "·"; margin-right: 6px; font-weight: 400; }
-        .feed-tag.is-help { color: var(--matcha-ink, var(--matcha)); }
+        .sc-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
+        .feed-tag { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 999px; font-size: 0.66rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: var(--text-muted); background: rgba(var(--hair-rgb), 0.07); }
+        .feed-tag.is-help { color: var(--matcha-ink, var(--matcha)); background: rgba(var(--matcha-rgb), 0.12); }
         .cmt-helpful { font-size: 0.66rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: var(--matcha-ink, var(--matcha)); background: rgba(var(--matcha-rgb), 0.12); border-radius: 999px; padding: 2px 8px; }
         .cmt-act.on { color: var(--matcha-ink, var(--matcha)); }
         /* the community feed: filters in one row that scrolls sideways */

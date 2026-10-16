@@ -3351,10 +3351,9 @@
         .nt-text small { font-size: 0.76rem; color: var(--text-muted); }
         /* v14.5: anyone's profile, help requests, community filters and goal, suggestions, reviewing reports (new backend only) */
         .feed-avatar[data-name], .feed-actor[data-name], .cmt-head b[data-name] { cursor: pointer; }
-        .feed-sub { display: flex; align-items: baseline; gap: 6px; min-width: 0; white-space: nowrap; overflow: hidden; }
-        .feed-tag { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; }
-        .feed-tag::before { content: "·"; margin-right: 6px; font-weight: 400; }
-        .feed-tag.is-help { color: var(--matcha-ink, var(--matcha)); }
+        .sc-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
+        .feed-tag { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 999px; font-size: 0.66rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: var(--text-muted); background: rgba(var(--hair-rgb), 0.07); }
+        .feed-tag.is-help { color: var(--matcha-ink, var(--matcha)); background: rgba(var(--matcha-rgb), 0.12); }
         .cmt-helpful { font-size: 0.66rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: var(--matcha-ink, var(--matcha)); background: rgba(var(--matcha-rgb), 0.12); border-radius: 999px; padding: 2px 8px; }
         .cmt-act.on { color: var(--matcha-ink, var(--matcha)); }
         /* the community feed: filters in one row that scrolls sideways */
@@ -10224,13 +10223,12 @@
                                 <div class="feed-avatar" style="background:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(this.feedInitial(owner))}</div>
                                 <div class="feed-meta">
                                     <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}</div>
-                                    ${(tag => tag ? `<div class="feed-sub"><span class="feed-time" data-time="${this.esc(String(entry.date || brew.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || brew.date))}</span>${tag}</div>`
-                                        : `<div class="feed-time" data-time="${this.esc(String(entry.date || brew.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || brew.date))}</div>`)(this.helpTagHtml ? this.helpTagHtml(brew) : '')}
+                                    <div class="feed-time" data-time="${this.esc(String(entry.date || brew.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || brew.date))}</div>
                                 </div>
                                 ${entry.community ? this.communityFollowHtml(owner) : ''}<div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(brew.method)}"/></svg>${this.esc(brew.method || 'Espresso')}</div>
                             </div>
                             <div class="sc-title">
-                                <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(roasterName)}" onclick="app.openRoasterFrom(this, event)">${this.esc(roasterName)}</span></div>` : ''}</div>
+                                <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(roasterName)}" onclick="app.openRoasterFrom(this, event)">${this.esc(roasterName)}</span></div>` : ''}${(tag => tag ? `<div class="sc-tags">${tag}</div>` : '')(this.helpTagHtml ? this.helpTagHtml(brew) : '')}</div>
                                 ${rating > 0 ? `<div class="sc-rate"><span class="star-meter" style="--fill:${this.starFill(rating)}%;--whole:${this.starWhole(rating)};--frac:${this.starFrac(rating)}"></span><b>${this.esc(this.formatRating(rating).replace('/5', ''))}</b></div>` : ''}
                             </div>
                             ${this.recipeStripHtml(brew)}
@@ -16667,6 +16665,10 @@
                 if (!name || name === 'Unknown') return;
                 if (!this.acctOn() && !(this.knownPeople().includes(name) || this.hasLoggedData(name))) return;
                 ['people-modal', 'notif-modal', 'review-modal'].forEach(id => { const m = document.getElementById(id); if (m) m.classList.remove('active'); });
+                // a name on a coffee or roaster page: leave the page for the profile (it would otherwise stay on top)
+                const dv = document.getElementById('detail-view');
+                if (dv && dv.classList.contains('active')) { dv.classList.remove('active'); this.openCommentId = null; this.navStack = []; }
+                if (this.roasterViewActive && this.roasterViewActive()) { this.hideRoasterView(); this.navStack = []; }
                 if (this.acctOn() && name !== this.user && !this.inCircle(name)) {
                     const st = this.profState();
                     if (st.name !== name) { this._prof = { name, events: [], card: null, at: 0, loading: false, error: '' }; this.process(this.cloud.events); }
