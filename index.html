@@ -3264,10 +3264,10 @@
         .cmt-aud { flex: none; align-self: center; height: auto; line-height: 1.2; border: 1px solid var(--line); background: transparent; color: var(--text-muted); border-radius: 999px; padding: 6px 10px; font-size: 0.76rem; font-weight: 650; cursor: pointer; margin: 0 2px; width: auto; min-height: 0; }
         .cmt-aud.on { color: var(--ink); border-color: rgba(var(--matcha-rgb), 0.5); background: rgba(var(--matcha-rgb), 0.1); }
         /* v14.4: People (new backend only) */
-        .people-switch.one-row { flex-wrap: nowrap; overflow: hidden; }
-        .people-switch.one-row .person-chip { flex: none; white-space: nowrap; }
+        .people-switch.one-row { flex-wrap: nowrap; overflow: hidden; gap: 6px; }
+        .people-switch.one-row .person-chip { flex: none; white-space: nowrap; padding-right: 12px; }
         .people-switch .person-chip[hidden] { display: none; }
-        .pp-chip { padding: 5px 14px 5px 10px; color: var(--matcha-ink, var(--ink)); }
+        .pp-chip { padding: 5px 13px 5px 10px; color: var(--matcha-ink, var(--ink)); }
         .pp-chip .icon { width: 16px; height: 16px; flex: none; }
         .pp-count { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--matcha); color: var(--on-matcha, #fff); font-size: 0.68rem; font-weight: 800; display: inline-grid; place-items: center; line-height: 1; }
         .people-card .pp-search { width: 100%; padding: 12px 14px; border: 1px solid var(--linen); border-radius: 12px; font-size: 16px; font-family: var(--font-main); background: var(--surface); color: var(--ink); margin: 0 0 6px; -webkit-appearance: none; appearance: none; }
@@ -3306,7 +3306,7 @@
         .pp-private .goal-sw[aria-checked="true"] { background: var(--matcha) !important; box-shadow: none !important; }
         .pp-private .goal-sw[aria-checked="true"]::before { transform: translateX(20px); }
         /* People / Groups tabs and groups */
-        .pp-tabs { margin: 0 0 12px; }
+        .pp-tabs { margin: 0 0 12px; grid-template-columns: repeat(2, 1fr); }
         .gr-list { display: grid; gap: 10px; margin: 4px 0 14px; }
         .gr-card { border: 1px solid var(--line); border-radius: 16px; background: var(--surface); overflow: hidden; }
         .gr-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; margin: 0; border: 0; background: none; text-align: left; font: inherit; color: var(--ink); cursor: pointer; min-height: 0; }
@@ -3332,14 +3332,17 @@
         .acct-tools { display: flex; gap: 8px; flex-wrap: wrap; padding: 2px 0 12px; margin-bottom: 4px; border-bottom: 1px solid var(--line); }
         .acct-tools .acct-delete { color: #C0392B; }
         /* v14.4: the community feed (new backend only) */
-        .feed-mode { margin: 0 0 14px; }
+        .feed-top { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; }
+        .feed-top .feed-mode { flex: 1; margin: 0; grid-template-columns: repeat(2, 1fr); }   /* two choices: each takes half (the control is made for three) */
+        .feed-top .notif-btn { flex: none; height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+        .feed-top .notif-btn .icon { width: 18px; height: 18px; }
         .comm-empty { text-align: center; color: var(--text-muted); padding: 2.4rem 1.2rem; font-size: 0.92rem; line-height: 1.45; }
         .comm-more { width: auto !important; margin: 6px auto 18px !important; display: block; padding: 11px 22px !important; }
         .comm-follow { margin-left: auto !important; margin-right: 6px !important; min-height: 30px !important; padding: 5px 13px !important; font-size: 0.68rem !important; }
         .feed-head .comm-follow + .feed-type { margin-left: 0; }
         /* notifications */
         .notif-btn .icon { flex: none; }
-        .notif-btn:not(.has-unread) { padding-left: 0 !important; padding-right: 0 !important; width: 44px; justify-content: center; }
+        .notif-btn:not(.has-unread) { padding-left: 0 !important; padding-right: 0 !important; width: 44px; }
         .nt-row { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; width: 100%; padding: 10px 6px; margin: 0; border: 0; border-bottom: 1px solid var(--line); background: none; text-align: left; font: inherit; color: var(--ink); cursor: pointer; border-radius: 10px; min-height: 0; }
         .pp-list .nt-row:last-child { border-bottom: 0; }
         .nt-row.is-new { background: rgba(var(--matcha-rgb), 0.08); }
@@ -3437,10 +3440,6 @@
                 </div>
 
                 <div class="header-controls">
-                    <button class="locker-btn notif-btn" id="notif-btn" onclick="app.openNotifications()" title="Notifications" aria-label="Notifications" hidden>
-                        <svg class="icon" style="width:17px;height:17px;"><use href="#i-bell"/></svg>
-                        <span id="notif-count" class="locker-count" hidden></span>
-                    </button>
                     <button class="locker-btn" onclick="app.openAchievementLocker()" title="Achievement Locker">
                         <svg class="icon" style="width:16px;height:16px;"><use href="#i-award"/></svg>
                         <span id="achievement-count" class="locker-count">0</span>
@@ -9416,7 +9415,7 @@
                 this.tab = tab;
                 document.querySelectorAll('.nav-btn, .mob-item').forEach(el => el.classList.remove('active'));
                 document.querySelectorAll(`[data-tab="${tab}"]`).forEach(el => el.classList.add('active'));
-                const titles = { my: 'My Collection', shared: 'Shared Library', feed: 'Community Feed', profile: 'Profiles' };
+                const titles = { my: 'My Collection', shared: 'Shared Library', feed: this.acctOn() ? 'Feed' : 'Community Feed', profile: 'Profiles' };
                 document.getElementById('view-title').innerText = titles[tab] || 'My Collection';
                 document.body.classList.toggle('feed-mode', tab === 'feed' || tab === 'profile');
                 this.closeMobileControls();
@@ -12164,7 +12163,7 @@
                 if (this.acctOn() && !people.includes(who)) people.splice(1, 0, who);   // someone opened from People or a card: their chip shows while you look
                 const chips = people.map(name => {
                     const color = this.getUserColor(name);
-                    return `<button type="button" class="person-chip${name === who ? ' active' : ''}" data-name="${this.esc(name)}" onclick="app.setProfileUser(this.getAttribute('data-name'))"><span class="person-dot" style="background:${this.esc(color)};">${this.esc(this.feedInitial(name))}</span>${this.esc(name)}${name === this.user ? ' <span class="you-tag">You</span>' : ''}</button>`;
+                    return `<button type="button" class="person-chip${name === who ? ' active' : ''}" data-name="${this.esc(name)}" onclick="app.setProfileUser(this.getAttribute('data-name'))"><span class="person-dot" style="background:${this.esc(color)};">${this.esc(this.feedInitial(name))}</span>${this.acctOn() && name === this.user ? 'You' : `${this.esc(name)}${name === this.user ? ' <span class="you-tag">You</span>' : ''}`}</button>`;
                 }).join('');
                 // v14.4: People (new backend): find, follow, requests. Follow requests waiting are counted inside the button
                 const asks = this.acctOn() ? this.peopleRequests().length : 0;
@@ -16120,12 +16119,13 @@
                 if (!row) return;
                 const chips = [...row.querySelectorAll('.person-chip:not(.pp-chip)')], more = row.querySelector('.pp-chip');
                 chips.forEach(c => { c.hidden = false; });
-                const gap = 8, avail = row.clientWidth - (more ? more.offsetWidth + gap : 0);
+                const gap = parseFloat(getComputedStyle(row).columnGap) || 6, avail = row.clientWidth - (more ? more.offsetWidth + gap : 0);
                 if (!(avail > 0)) return;
                 const active = row.querySelector('.person-chip.active:not(.pp-chip)');
                 const must = new Set([chips[0], active].filter(Boolean));
                 let used = [...must].reduce((t, c) => t + c.offsetWidth + gap, 0);
-                chips.forEach(c => { if (must.has(c)) return; const w = c.offsetWidth + gap; if (used + w <= avail) used += w; else c.hidden = true; });
+                let full = false;   // in order: once someone doesn't fit, the rest wait in People
+                chips.forEach(c => { if (must.has(c)) return; const w = c.offsetWidth + gap; if (!full && used + w <= avail) used += w; else { full = true; c.hidden = true; } });
                 if (!this._rowFitBound && typeof window !== 'undefined' && window.addEventListener) {
                     this._rowFitBound = true;
                     window.addEventListener('resize', () => { if (this.tab === 'profile') this.fitPeopleRow(document.getElementById('grid')); });
@@ -16217,7 +16217,7 @@
             feedModeHtml() {
                 if (!this.acctOn()) return '';
                 const m = this.feedMode();
-                return `<div class="seg-control feed-mode" role="tablist" aria-label="Feed">${[['following', 'Following'], ['community', 'Community']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === m}" aria-pressed="${k === m}" onclick="app.setFeedMode('${k}')">${l}</button>`).join('')}</div>`;
+                return `<div class="feed-top"><div class="seg-control feed-mode" role="tablist" aria-label="Feed">${[['following', 'Following'], ['community', 'Community']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === m}" aria-pressed="${k === m}" onclick="app.setFeedMode('${k}')">${l}</button>`).join('')}</div>${this.notifButtonHtml ? this.notifButtonHtml() : ''}</div>`;
             },
 
             communityEntries() {
@@ -16281,14 +16281,15 @@
                 this.loadNotifications(1).catch(() => {});
             },
 
-            paintNotifButton() {
-                const btn = document.getElementById('notif-btn'), n = document.getElementById('notif-count');
-                if (!btn) return;
-                btn.hidden = !this.acctOn();
+            // the bell lives at the top of the Feed, beside Following | Community (the header keeps its height); the unread
+            // count is inside it
+            notifButtonHtml() {
                 const unread = this.notifState().unread;
-                if (n) { n.hidden = !unread; n.textContent = unread > 99 ? '99+' : String(unread || ''); }
-                btn.classList.toggle('has-unread', unread > 0);
-                btn.setAttribute('aria-label', unread ? `Notifications, ${unread} new` : 'Notifications');
+                return `<button type="button" class="locker-btn notif-btn${unread ? ' has-unread' : ''}" onclick="app.openNotifications()" aria-label="${unread ? `Notifications, ${unread} new` : 'Notifications'}"><svg class="icon"><use href="#i-bell"/></svg>${unread ? `<span class="locker-count">${unread > 99 ? '99+' : unread}</span>` : ''}</button>`;
+            },
+
+            paintNotifButton() {
+                document.querySelectorAll('.notif-btn').forEach(b => { const t = document.createElement('div'); t.innerHTML = this.notifButtonHtml(); b.replaceWith(t.firstElementChild); });
             },
 
             openNotifications() {

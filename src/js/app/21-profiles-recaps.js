@@ -27,7 +27,7 @@
                 if (this.acctOn() && !people.includes(who)) people.splice(1, 0, who);   // someone opened from People or a card: their chip shows while you look
                 const chips = people.map(name => {
                     const color = this.getUserColor(name);
-                    return `<button type="button" class="person-chip${name === who ? ' active' : ''}" data-name="${this.esc(name)}" onclick="app.setProfileUser(this.getAttribute('data-name'))"><span class="person-dot" style="background:${this.esc(color)};">${this.esc(this.feedInitial(name))}</span>${this.esc(name)}${name === this.user ? ' <span class="you-tag">You</span>' : ''}</button>`;
+                    return `<button type="button" class="person-chip${name === who ? ' active' : ''}" data-name="${this.esc(name)}" onclick="app.setProfileUser(this.getAttribute('data-name'))"><span class="person-dot" style="background:${this.esc(color)};">${this.esc(this.feedInitial(name))}</span>${this.acctOn() && name === this.user ? 'You' : `${this.esc(name)}${name === this.user ? ' <span class="you-tag">You</span>' : ''}`}</button>`;
                 }).join('');
                 // v14.4: People (new backend): find, follow, requests. Follow requests waiting are counted inside the button
                 const asks = this.acctOn() ? this.peopleRequests().length : 0;

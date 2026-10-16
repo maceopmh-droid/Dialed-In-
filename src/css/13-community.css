@@ -1,12 +1,15 @@
         /* v14.4: the community feed (new backend only) */
-        .feed-mode { margin: 0 0 14px; }
+        .feed-top { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; }
+        .feed-top .feed-mode { flex: 1; margin: 0; grid-template-columns: repeat(2, 1fr); }   /* two choices: each takes half (the control is made for three) */
+        .feed-top .notif-btn { flex: none; height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+        .feed-top .notif-btn .icon { width: 18px; height: 18px; }
         .comm-empty { text-align: center; color: var(--text-muted); padding: 2.4rem 1.2rem; font-size: 0.92rem; line-height: 1.45; }
         .comm-more { width: auto !important; margin: 6px auto 18px !important; display: block; padding: 11px 22px !important; }
         .comm-follow { margin-left: auto !important; margin-right: 6px !important; min-height: 30px !important; padding: 5px 13px !important; font-size: 0.68rem !important; }
         .feed-head .comm-follow + .feed-type { margin-left: 0; }
         /* notifications */
         .notif-btn .icon { flex: none; }
-        .notif-btn:not(.has-unread) { padding-left: 0 !important; padding-right: 0 !important; width: 44px; justify-content: center; }
+        .notif-btn:not(.has-unread) { padding-left: 0 !important; padding-right: 0 !important; width: 44px; }
         .nt-row { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; width: 100%; padding: 10px 6px; margin: 0; border: 0; border-bottom: 1px solid var(--line); background: none; text-align: left; font: inherit; color: var(--ink); cursor: pointer; border-radius: 10px; min-height: 0; }
         .pp-list .nt-row:last-child { border-bottom: 0; }
         .nt-row.is-new { background: rgba(var(--matcha-rgb), 0.08); }

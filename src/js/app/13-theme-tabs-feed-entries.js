@@ -26,7 +26,7 @@
                 this.tab = tab;
                 document.querySelectorAll('.nav-btn, .mob-item').forEach(el => el.classList.remove('active'));
                 document.querySelectorAll(`[data-tab="${tab}"]`).forEach(el => el.classList.add('active'));
-                const titles = { my: 'My Collection', shared: 'Shared Library', feed: 'Community Feed', profile: 'Profiles' };
+                const titles = { my: 'My Collection', shared: 'Shared Library', feed: this.acctOn() ? 'Feed' : 'Community Feed', profile: 'Profiles' };
                 document.getElementById('view-title').innerText = titles[tab] || 'My Collection';
                 document.body.classList.toggle('feed-mode', tab === 'feed' || tab === 'profile');
                 this.closeMobileControls();

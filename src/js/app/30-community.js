@@ -78,7 +78,7 @@
             feedModeHtml() {
                 if (!this.acctOn()) return '';
                 const m = this.feedMode();
-                return `<div class="seg-control feed-mode" role="tablist" aria-label="Feed">${[['following', 'Following'], ['community', 'Community']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === m}" aria-pressed="${k === m}" onclick="app.setFeedMode('${k}')">${l}</button>`).join('')}</div>`;
+                return `<div class="feed-top"><div class="seg-control feed-mode" role="tablist" aria-label="Feed">${[['following', 'Following'], ['community', 'Community']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === m}" aria-pressed="${k === m}" onclick="app.setFeedMode('${k}')">${l}</button>`).join('')}</div>${this.notifButtonHtml ? this.notifButtonHtml() : ''}</div>`;
             },
 
             communityEntries() {

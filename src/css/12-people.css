@@ -1,8 +1,8 @@
         /* v14.4: People (new backend only) */
-        .people-switch.one-row { flex-wrap: nowrap; overflow: hidden; }
-        .people-switch.one-row .person-chip { flex: none; white-space: nowrap; }
+        .people-switch.one-row { flex-wrap: nowrap; overflow: hidden; gap: 6px; }
+        .people-switch.one-row .person-chip { flex: none; white-space: nowrap; padding-right: 12px; }
         .people-switch .person-chip[hidden] { display: none; }
-        .pp-chip { padding: 5px 14px 5px 10px; color: var(--matcha-ink, var(--ink)); }
+        .pp-chip { padding: 5px 13px 5px 10px; color: var(--matcha-ink, var(--ink)); }
         .pp-chip .icon { width: 16px; height: 16px; flex: none; }
         .pp-count { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--matcha); color: var(--on-matcha, #fff); font-size: 0.68rem; font-weight: 800; display: inline-grid; place-items: center; line-height: 1; }
         .people-card .pp-search { width: 100%; padding: 12px 14px; border: 1px solid var(--linen); border-radius: 12px; font-size: 16px; font-family: var(--font-main); background: var(--surface); color: var(--ink); margin: 0 0 6px; -webkit-appearance: none; appearance: none; }
@@ -41,7 +41,7 @@
         .pp-private .goal-sw[aria-checked="true"] { background: var(--matcha) !important; box-shadow: none !important; }
         .pp-private .goal-sw[aria-checked="true"]::before { transform: translateX(20px); }
         /* People / Groups tabs and groups */
-        .pp-tabs { margin: 0 0 12px; }
+        .pp-tabs { margin: 0 0 12px; grid-template-columns: repeat(2, 1fr); }
         .gr-list { display: grid; gap: 10px; margin: 4px 0 14px; }
         .gr-card { border: 1px solid var(--line); border-radius: 16px; background: var(--surface); overflow: hidden; }
         .gr-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; margin: 0; border: 0; background: none; text-align: left; font: inherit; color: var(--ink); cursor: pointer; min-height: 0; }

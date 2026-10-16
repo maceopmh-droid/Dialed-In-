@@ -25,14 +25,15 @@
                 this.loadNotifications(1).catch(() => {});
             },
 
-            paintNotifButton() {
-                const btn = document.getElementById('notif-btn'), n = document.getElementById('notif-count');
-                if (!btn) return;
-                btn.hidden = !this.acctOn();
+            // the bell lives at the top of the Feed, beside Following | Community (the header keeps its height); the unread
+            // count is inside it
+            notifButtonHtml() {
                 const unread = this.notifState().unread;
-                if (n) { n.hidden = !unread; n.textContent = unread > 99 ? '99+' : String(unread || ''); }
-                btn.classList.toggle('has-unread', unread > 0);
-                btn.setAttribute('aria-label', unread ? `Notifications, ${unread} new` : 'Notifications');
+                return `<button type="button" class="locker-btn notif-btn${unread ? ' has-unread' : ''}" onclick="app.openNotifications()" aria-label="${unread ? `Notifications, ${unread} new` : 'Notifications'}"><svg class="icon"><use href="#i-bell"/></svg>${unread ? `<span class="locker-count">${unread > 99 ? '99+' : unread}</span>` : ''}</button>`;
+            },
+
+            paintNotifButton() {
+                document.querySelectorAll('.notif-btn').forEach(b => { const t = document.createElement('div'); t.innerHTML = this.notifButtonHtml(); b.replaceWith(t.firstElementChild); });
             },
 
             openNotifications() {

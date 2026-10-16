@@ -193,12 +193,13 @@
                 if (!row) return;
                 const chips = [...row.querySelectorAll('.person-chip:not(.pp-chip)')], more = row.querySelector('.pp-chip');
                 chips.forEach(c => { c.hidden = false; });
-                const gap = 8, avail = row.clientWidth - (more ? more.offsetWidth + gap : 0);
+                const gap = parseFloat(getComputedStyle(row).columnGap) || 6, avail = row.clientWidth - (more ? more.offsetWidth + gap : 0);
                 if (!(avail > 0)) return;
                 const active = row.querySelector('.person-chip.active:not(.pp-chip)');
                 const must = new Set([chips[0], active].filter(Boolean));
                 let used = [...must].reduce((t, c) => t + c.offsetWidth + gap, 0);
-                chips.forEach(c => { if (must.has(c)) return; const w = c.offsetWidth + gap; if (used + w <= avail) used += w; else c.hidden = true; });
+                let full = false;   // in order: once someone doesn't fit, the rest wait in People
+                chips.forEach(c => { if (must.has(c)) return; const w = c.offsetWidth + gap; if (!full && used + w <= avail) used += w; else { full = true; c.hidden = true; } });
                 if (!this._rowFitBound && typeof window !== 'undefined' && window.addEventListener) {
                     this._rowFitBound = true;
                     window.addEventListener('resize', () => { if (this.tab === 'profile') this.fitPeopleRow(document.getElementById('grid')); });
