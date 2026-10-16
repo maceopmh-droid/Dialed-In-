@@ -83,17 +83,18 @@ tables with the Sheet's copy, so nothing from a test survives into the real move
 Pick a quiet evening and tell the crew first. (`$DB_URL` below is the database's connection string; GitHub's
 workflows build it from the password secret with `supabase/find_db.sh`.)
 
-1. Run the nightly check by hand one last time and confirm `shadow backend: OK`.
-2. Record the move, so nothing ever rebuilds the tables from the Sheet again:
-   ```
-   insert into backend_state (key, value) values ('cutover_at', now()::text);   -- in the SQL editor
-   ```
+1. Push to the `supabase-move` branch. The `supabase move` workflow runs one last shadow check and, only if it ends
+   `shadow backend: OK`, records the move (`backend_state.cutover_at`), so nothing ever rebuilds the tables from the
+   Sheet again. (By hand, the same: the shadow check, then in the SQL editor
+   `insert into backend_state (key, value) values ('cutover_at', now()::text);`.)
+2. Read its "Move" annotation: it says MOVED and when.
 3. Set `live: true` in `src/js/02-cloud.js`, bump the version, run the battery, ship.
 4. Everyone's app updates itself within about 20 minutes (or force-close it). It opens on the welcome screen:
    "I've been here before" → email → code → claim code. Each person's history is already there.
 5. A phone that was offline when it updated keeps its unsent saves and sends them to Supabase once its owner signs
    in (only that person's part of each record, merged onto anything newer). Anything that still reached the Sheet
-   (a phone that hadn't updated yet, or a save made between step 1 and step 2) is carried over by this. It goes by
+   (a phone that hadn't updated yet, or a save made between step 1 and step 3) is carried over by this. The nightly
+   workflow runs it every night after the move, and the setup workflow runs it whenever it's pushed. It goes by
    exactly which saves the tables were built from, not by time, so nothing falls in a gap. It's safe to run as often
    as you like: a save is never applied twice, and saves by someone who hasn't claimed their name yet wait for the
    next run.

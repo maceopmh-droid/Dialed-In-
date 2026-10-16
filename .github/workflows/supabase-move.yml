@@ -1,0 +1,39 @@
+# Moving day: one last shadow check (archive the live Sheet, rebuild the tables from it, compare with the app), and
+# only if it's OK, record the move (backend_state.cutover_at) so nothing rebuilds the tables from the Sheet again.
+# Then ship the build with `live: true`. Runs when pushed to the `supabase-move` branch; does nothing if the move is
+# already recorded. Saves that reach the Sheet after this are carried over by replay_late.js (nightly, and in the
+# setup workflow). The logs are public: it prints only counts, record ids, field names and first names.
+name: supabase move
+on:
+  push:
+    branches: [supabase-move]
+
+jobs:
+  move:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_REF: glombusdjwlrgjihnylk
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      SHEET_URL: https://script.google.com/macros/s/AKfycbxwOpOjQr2Um3y_YIddTIsn8yLAEqyQo5BnF001N9E58O4cT9x-7tMM6XGviIGTkNJp-Q/exec
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Find the database
+        run: |
+          set +e
+          bash supabase/find_db.sh 2> "$RUNNER_TEMP/find.txt"; rc=$?
+          cat "$RUNNER_TEMP/find.txt"; [ $rc -eq 0 ] || bash supabase/report.sh "Find the database" "$RUNNER_TEMP/find.txt"; exit $rc
+      - name: Last shadow check, then record the move
+        run: |
+          set +e
+          was=$(psql "$DB_URL" -Atqc "select value from backend_state where key = 'cutover_at'")
+          if [ -n "$was" ]; then echo "Already moved on $was: nothing to do." | tee "$RUNNER_TEMP/move.txt"; bash supabase/report.sh "Move" "$RUNNER_TEMP/move.txt"; exit 0; fi
+          node supabase/shadow_check.js --psql "psql '$DB_URL'" --html index.html --live "$SHEET_URL" 2>&1 | tee "$RUNNER_TEMP/move.txt"; rc=${PIPESTATUS[0]}
+          if [ $rc -ne 0 ] || ! grep -q '^shadow backend: OK' "$RUNNER_TEMP/move.txt"; then echo "NOT MOVED: the last check wasn't OK." | tee -a "$RUNNER_TEMP/move.txt"; bash supabase/report.sh "Move" "$RUNNER_TEMP/move.txt"; exit 1; fi
+          at=$(psql "$DB_URL" -Atq -v ON_ERROR_STOP=1 -c "insert into backend_state (key, value) values ('cutover_at', now()::text) on conflict (key) do nothing returning value")
+          echo "MOVED: recorded the move at $at. The tables are the source of truth from now on." | tee -a "$RUNNER_TEMP/move.txt"
+          bash supabase/report.sh "Move" "$RUNNER_TEMP/move.txt"
+          [ -n "$at" ]

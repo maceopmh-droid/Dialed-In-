@@ -4,7 +4,7 @@
         // it early when 'dialed_supabase' in local storage holds { url, anonKey }. The key is the project's publishable
         // key, which is meant to be public (the database's privacy rules do the protecting): it goes on the apikey
         // header only, never as the Authorization token.
-        const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb_publishable_nunu5PQVtCf8OuAhyt_hXw_xK3A4-8i', live: false };
+        const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb_publishable_nunu5PQVtCf8OuAhyt_hXw_xK3A4-8i', live: true };
         // to try it on one phone before everyone moves: open the app once with ?backend=supabase (and ?backend=sheet to go back)
         try {
             const pick = new URLSearchParams(location.search).get('backend');

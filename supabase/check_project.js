@@ -33,7 +33,8 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   ok(!/\b(private|internal)\b/.test(exposed), "the web address doesn't serve the private or internal schemas");
   ok(one(`select coalesce((select public::text from storage.buckets where id = 'photos'), 'missing');`) === 'false', 'the photo bucket exists and is private');
   ok(Number(one(`select count(*) from pg_policies where schemaname = 'storage' and tablename = 'objects' and policyname like 'photos\\_%';`)) === 4, 'the four photo rules are in place');
-  ok(one(`select coalesce((select value from backend_state where key = 'cutover_at'), 'none');`) === 'none', 'not moved to accounts yet (the Sheet is still in charge)');
+  const moved = one(`select coalesce((select value from backend_state where key = 'cutover_at'), '');`);
+  console.log(moved ? `(moved to accounts on ${moved}: the app writes here directly)` : '(not moved to accounts yet: the Sheet is still in charge)');
 
   // from the outside, the way a phone talks to it, signed out
   const h = { apikey: PUBLISHABLE_KEY, 'Content-Type': 'application/json' };
