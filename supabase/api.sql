@@ -88,7 +88,8 @@ language plpgsql security definer set search_path = public as $$
 declare pat text; n int;
 begin
   select string_agg(regexp_replace(regexp_replace(lower(btrim(word)), '([.^$*+?()\[\]{}|\\])', '\\\1', 'g'), '\s+', '\\s+', 'g'), '|' order by char_length(word) desc), count(*)
-    into pat, n from blocked_words where char_length(btrim(word)) >= 2;
+    into pat, n from blocked_words where char_length(btrim(word)) >= 2
+      and lower(btrim(word)) <> all (array['suck', 'sucks']);   -- (fair words about a shot: "this one sucks")
   insert into backend_state (key, value) values ('word_pattern', coalesce(pat, '')) on conflict (key) do update set value = excluded.value, updated_at = now();
   return coalesce(n, 0);
 end $$;
