@@ -83,6 +83,11 @@ for the bell. `report(type, id, reason)` files a report. `export_my_data()` is "
 people logged sessions on passes to the first of them so their sessions keep it. (Photos in storage have to be
 removed through Supabase's storage API first; the app will do that before calling it.)
 
+`community_goal(tz)` is a first draft of the community goal: the crew's weekly goal at community scale, with the
+same six types in the same weekly rotation as the app (weeks start Monday at midnight, Chicago time unless told),
+targets from the community's last six weeks, and "everyone brews" as a count of people. Only totals come back (and
+your own count), never whose session counted.
+
 **What the app may change directly.** Supabase lets signed-in people use every table through its web API, limited
 by the row rules. Row rules can't limit columns, so the end of `schema.sql` does: profiles are only made by
 `create_profile` / `claim_name`, a Sheet-era name can't be changed, a group member can only flip their own "counts
@@ -101,7 +106,7 @@ Signed-out calls are refused outright (Postgres lets anyone run a new function u
 node supabase/test_api.js --host <postgres socket dir or host> [--user postgres]
 ```
 
-`test_api.js` (94 checks) checks each rule with pretend people, then feeds each person's `pull_events()` to the real app
+`test_api.js` (97 checks) checks each rule with pretend people, then feeds each person's `pull_events()` to the real app
 (from `index.html`) to confirm the app reads it correctly. A private check (not in this repo, it needs the real
 Sheet) imports the history up to Oct 9, has everyone claim their name, compares each person's pull with what the
 app shows from the Sheet, then replays the 250 later real saves through `push_event` and compares again: all

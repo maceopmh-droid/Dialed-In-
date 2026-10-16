@@ -700,6 +700,53 @@ begin
   return n;
 end $$;
 
+-- ---------------------------------------------------------------- the community goal (phase 3 draft; no screens yet)
+-- The crew's weekly goal at community scale: the same six types in the same weekly rotation as the app (weeks start
+-- Monday at midnight in `tz`, Chicago unless told), with targets from the community's last six weeks. "Everyone
+-- brews" becomes a people count. Only totals leave the database, never whose session counted (except your own).
+create or replace function community_goal(tz text default 'America/Chicago') returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare
+  ws timestamptz := (date_trunc('week', now() at time zone tz)) at time zone tz;
+  we timestamptz := ws + interval '7 days';
+  types text[] := array['sessions', 'origins', 'rated', 'notes', 'everyone', 'methods'];
+  t text; base numeric; avg_origins numeric; methods_seen int; brewers numeric;
+  target int; progress int; title text; unit text; mine int;
+begin
+  t := types[1 + ((round(extract(epoch from ws) * 1000 / 604800000)::bigint % 6 + 6) % 6)];
+  with weeks as (select i, ws - i * interval '7 days' as a, ws - (i - 1) * interval '7 days' as b from generate_series(1, 6) i),
+       per as (select w.i, count(s.id) n, count(distinct coalesce(nullif(split_part(k.origin, ',', 1), ''), null)) o, count(distinct s.owner_id) p
+               from weeks w left join sessions s on s.brewed_at >= w.a and s.brewed_at < w.b and s.deleted_at is null left join coffees k on k.id = s.coffee_id group by w.i)
+  select coalesce((select percentile_disc(0.5) within group (order by n) from per where n > 0), 6),
+         coalesce((select avg(o) from per where n > 0), 1),
+         coalesce((select percentile_disc(0.5) within group (order by p) from per where n > 0), 2)
+    into base, avg_origins, brewers from (select 1) x;
+  select count(distinct method) into methods_seen from sessions where brewed_at >= ws - interval '42 days' and brewed_at < ws and deleted_at is null and method is not null;
+  if t = 'sessions' then
+    target := greatest(4, round(base * 1.15)); title := format('Brew %s sessions together', target); unit := 'sessions';
+    select count(*) into progress from sessions where brewed_at >= ws and brewed_at < we and deleted_at is null;
+  elsif t = 'origins' then
+    target := least(30, greatest(2, round(avg_origins + 1))); title := format('Taste %s different origins', target); unit := 'origins';
+    select count(distinct lower(btrim(split_part(k.origin, ',', 1)))) into progress from sessions s join coffees k on k.id = s.coffee_id
+    where s.brewed_at >= ws and s.brewed_at < we and s.deleted_at is null and coalesce(btrim(split_part(k.origin, ',', 1)), '') <> '';
+  elsif t = 'rated' then
+    target := greatest(3, round(base * 0.7)); title := format('Rate %s sessions', target); unit := 'rated';
+    select count(*) into progress from sessions where brewed_at >= ws and brewed_at < we and deleted_at is null and coalesce(rating, 0) > 0;
+  elsif t = 'notes' then
+    target := greatest(3, round(base * 0.5)); title := format('Log tasting notes on %s sessions', target); unit := 'with notes';
+    select count(*) into progress from sessions where brewed_at >= ws and brewed_at < we and deleted_at is null and coalesce(btrim(extras->>'flavors'), '') <> '';
+  elsif t = 'everyone' then
+    target := greatest(2, round(brewers * 1.1)); title := format('%s people brew this week', target); unit := 'people';
+    select count(distinct owner_id) into progress from sessions where brewed_at >= ws and brewed_at < we and deleted_at is null;
+  else
+    target := case when methods_seen >= 3 then 3 else 2 end; title := format('Brew with %s different methods', target); unit := 'methods';
+    select count(distinct method) into progress from sessions where brewed_at >= ws and brewed_at < we and deleted_at is null and method is not null;
+  end if;
+  select count(*) into mine from sessions where owner_id = me() and brewed_at >= ws and brewed_at < we and deleted_at is null;
+  return jsonb_build_object('type', t, 'title', title, 'target', target, 'progress', least(progress, target), 'raw', progress, 'done', progress >= target,
+    'unit', unit, 'start', ws, 'end', we, 'yourSessions', mine);
+end $$;
+
 -- ---------------------------------------------------------------- reporting, your data, leaving
 create or replace function report(target_type text, target_id uuid, reason text default null) returns text
 language plpgsql set search_path = public as $$
@@ -753,9 +800,9 @@ grant execute on all functions in schema internal to authenticated;
 revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
-  my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text) from public, anon;
+  my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text) from public, anon;
 grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
-  my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text) to authenticated;
+  my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text) to authenticated;
 revoke execute on all functions in schema internal from public, anon;
