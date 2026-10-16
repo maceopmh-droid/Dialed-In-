@@ -528,11 +528,116 @@ language sql stable set search_path = public as $$
     limit 20) s;
 $$;
 
+-- ---------------------------------------------------------------- groups (phase 3: the database side; no screens yet)
+-- Optional. Open groups anyone can find and join; private groups take an invite code and hold up to 30 people. The
+-- people in your private groups are the app's people list (pull_events), so they share the group goal.
+create or replace function internal.new_code() returns text language sql volatile as $$
+  select string_agg(substr('abcdefghjkmnpqrstuvwxyz23456789', 1 + floor(random() * 31)::int, 1), '') from generate_series(1, 8);
+$$;
+
+create or replace function create_group(name text, open boolean default false) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare me_id uuid := me(); n text := regexp_replace(btrim(coalesce(create_group.name, '')), '\s+', ' ', 'g'); g groups;
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  if char_length(n) < 2 or char_length(n) > 60 then raise exception 'Give the group a name (2 to 60 characters).' using errcode = '22023'; end if;
+  insert into groups (name, is_open, owner_id, invite_code, goal_on, awards_on)
+  values (n, coalesce(open, false), me_id, case when coalesce(open, false) then null else internal.new_code() end, true, not coalesce(open, false)) returning * into g;
+  insert into group_members (group_id, user_id, role) values (g.id, me_id, 'owner');
+  return jsonb_build_object('id', g.id, 'name', g.name, 'open', g.is_open, 'invite', g.invite_code);
+end $$;
+
+-- an open group's id, or a private group's invite code
+create or replace function join_group(code text) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare me_id uuid := me(); g groups; c text := lower(btrim(coalesce(code, '')));
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  select * into g from groups where invite_code = c;
+  if not found and c ~ '^[0-9a-f-]{36}$' then select * into g from groups where id = c::uuid and is_open; end if;
+  if g.id is null then raise exception 'That invite doesn''t match a group.' using errcode = 'P0002'; end if;
+  if exists (select 1 from group_members m join profiles p on p.id = m.user_id where m.group_id = g.id and blocked_either(me_id, m.user_id) and m.role = 'owner') then
+    raise exception 'That invite doesn''t match a group.' using errcode = 'P0002';
+  end if;
+  if not g.is_open and (select count(*) from group_members where group_id = g.id) >= 30 then raise exception 'That group is full (30 people).' using errcode = '54000'; end if;
+  insert into group_members (group_id, user_id, role) values (g.id, me_id, 'member') on conflict do nothing;
+  return jsonb_build_object('id', g.id, 'name', g.name, 'open', g.is_open);
+end $$;
+
+-- leaving: the group passes to its longest-standing admin (or member); the last one out closes it
+create or replace function leave_group(group_id uuid) returns text
+language plpgsql security definer set search_path = public as $$
+declare me_id uuid := me(); g groups; heir uuid;
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  select * into g from groups where id = leave_group.group_id;
+  if not found or not is_group_member(g.id, me_id) then return 'not a member'; end if;
+  delete from group_members m where m.group_id = g.id and m.user_id = me_id;
+  if g.owner_id = me_id then
+    select m.user_id into heir from group_members m where m.group_id = g.id order by (m.role = 'admin') desc, m.joined_at limit 1;
+    if heir is null then delete from groups where id = g.id; return 'left; the group closed'; end if;
+    update groups set owner_id = heir where id = g.id;
+    update group_members m set role = 'owner' where m.group_id = g.id and m.user_id = heir;
+  end if;
+  return 'left';
+end $$;
+
+-- owners and admins: a fresh invite code (the old one stops working), and removing someone
+create or replace function new_invite(group_id uuid) returns text
+language plpgsql security definer set search_path = public as $$
+declare me_id uuid := me(); c text := internal.new_code();
+begin
+  if me_id is null or not internal.is_group_admin(new_invite.group_id, me_id) then raise exception 'Only the group''s owner or an admin can do that.' using errcode = '42501'; end if;
+  update groups set invite_code = c where id = new_invite.group_id and not is_open;
+  return c;
+end $$;
+
+create or replace function remove_member(group_id uuid, name text) returns text
+language plpgsql security definer set search_path = public as $$
+declare me_id uuid := me(); them uuid;
+begin
+  if me_id is null or not internal.is_group_admin(remove_member.group_id, me_id) then raise exception 'Only the group''s owner or an admin can do that.' using errcode = '42501'; end if;
+  select m.user_id into them from group_members m join profiles p on p.id = m.user_id
+  where m.group_id = remove_member.group_id and lower(coalesce(p.legacy_name, p.display_name)) = lower(btrim(coalesce(name, ''))) and m.role <> 'owner';
+  delete from group_members m where m.group_id = remove_member.group_id and m.user_id = them;
+  return case when them is null then 'not removed' else 'removed' end;
+end $$;
+
+-- the owner makes someone an admin (or back to a member)
+create or replace function set_member_role(group_id uuid, name text, role text) returns text
+language plpgsql security definer set search_path = public as $$
+declare me_id uuid := me();
+begin
+  if me_id is null or not exists (select 1 from groups g where g.id = set_member_role.group_id and g.owner_id = me_id) then raise exception 'Only the group''s owner can do that.' using errcode = '42501'; end if;
+  if role not in ('admin', 'member') then raise exception 'A member is an admin or a member.' using errcode = '22023'; end if;
+  update group_members m set role = set_member_role.role from profiles p
+  where m.group_id = set_member_role.group_id and p.id = m.user_id and m.role <> 'owner' and lower(coalesce(p.legacy_name, p.display_name)) = lower(btrim(coalesce(name, '')));
+  return role;
+end $$;
+
+create or replace function my_groups() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select coalesce(jsonb_agg(jsonb_build_object('id', g.id, 'name', g.name, 'open', g.is_open, 'role', m.role, 'goal', g.goal_on, 'awards', g.awards_on,
+           'invite', case when m.role in ('owner', 'admin') then g.invite_code end,
+           'members', (select jsonb_agg(jsonb_build_object('name', internal.name_of(x.user_id), 'role', x.role, 'countsInGoal', x.counts_in_goal) order by x.joined_at)
+                       from group_members x where x.group_id = g.id)) order by g.created_at), '[]'::jsonb)
+  from group_members m join groups g on g.id = m.group_id where m.user_id = me();
+$$;
+
+create or replace function find_groups(q text) returns jsonb
+language sql stable set search_path = public as $$
+  select coalesce(jsonb_agg(jsonb_build_object('id', g.id, 'name', g.name, 'members', (select count(*) from group_members m where m.group_id = g.id),
+           'joined', is_group_member(g.id, me())) order by g.name), '[]'::jsonb)
+  from groups g where g.is_open and char_length(btrim(coalesce(q, ''))) >= 2 and g.name ilike '%' || btrim(q) || '%';
+$$;
+
 grant usage on schema internal to authenticated;
 grant execute on all functions in schema internal to authenticated;
 -- only signed-in people can call these (Postgres lets everyone run a new function unless told otherwise)
 revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(),
-  follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text) from public, anon;
+  follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
+  create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text) from public, anon;
 grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(),
-  follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text) to authenticated;
+  follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
+  create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text) to authenticated;
 revoke execute on all functions in schema internal from public, anon;

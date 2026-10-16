@@ -443,4 +443,6 @@ revoke update on group_members from authenticated, anon;
 grant update (counts_in_goal) on group_members to authenticated;
 revoke update on comments from authenticated, anon;
 grant update (body, audience, parent_id, edited_at, deleted_at) on comments to authenticated;
+revoke insert, update on groups from authenticated, anon;   -- made and handed over by create_group / leave_group
+grant update (name, is_open, goal_on, awards_on) on groups to authenticated;
 revoke all on claim_codes, sheet_archive, backend_state from authenticated, anon;

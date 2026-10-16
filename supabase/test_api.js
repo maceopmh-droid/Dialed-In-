@@ -234,6 +234,23 @@ ok(fx('twin', `select block('Brew Buddy');`) === 'blocked' && JSON.parse(fx('new
 ok(fx('twin', `select unblock('Brew Buddy');`) === 'unblocked' && JSON.parse(fx('newbie', `select find_people('brew-');`)).length === 1, 'unblocking makes them findable again');
 ok(/nobody by that name/.test(fx('newbie', `select follow('nobody here');`)) && /permission denied/.test(fx('anon', `select follow('maceo');`)), 'following someone who doesn\'t exist, or while signed out, is refused');
 
+// --- groups (the database side of phase 3)
+const made = JSON.parse(fx('newbie', `select create_group('Saturday shots');`));
+ok(made.open === false && /^[a-z2-9]{8}$/.test(made.invite) && peopleOf('newbie') === 'Brew Buddy', 'Brew Buddy makes a private group: an 8-letter invite code, and so far the group is just them');
+ok(JSON.parse(fx('twin', `select join_group('${made.invite.toUpperCase()}');`)).name === 'Saturday shots' && peopleOf('newbie') === 'Brew Buddy,Brew-Buddy' && peopleOf('twin').includes('Brew Buddy'),
+   'Brew-Buddy joins with the code (capitals forgiven); they\'re now in each other\'s people list');
+ok(/doesn.t match/.test(fx('stranger', `select join_group('nope1234');`)) && /doesn.t match/.test(fx('stranger', `select join_group('${made.id}');`)), "a wrong code, or a private group's id, doesn't get you in");
+ok(/owner or an admin/.test(fx('twin', `select new_invite('${made.id}');`)) && fx('newbie', `select set_member_role('${made.id}', 'Brew-Buddy', 'admin');`) === 'admin' && /^[a-z2-9]{8}$/.test(fx('twin', `select new_invite('${made.id}');`)),
+   'only owners and admins make a new invite code; the owner makes Brew-Buddy an admin, who then can');
+ok(fx('twin', `select remove_member('${made.id}', 'Brew Buddy');`) === 'not removed', "an admin can't remove the owner");
+const open = JSON.parse(fx('stranger', `select create_group('Moka pot club', true);`));
+ok(open.open === true && open.invite === null && JSON.parse(fx('newbie', `select find_groups('moka');`)).some(g => g.id === open.id) && JSON.parse(fx('newbie', `select join_group('${open.id}');`)).open === true,
+   'an open group is found by name and joined by anyone, no code needed');
+ok(peopleOf('newbie') === 'Brew Buddy,Brew-Buddy', "an open group doesn't make its members your people (only private groups do)");
+ok(fx('newbie', `select leave_group('${made.id}');`) === 'left' && JSON.parse(fx('twin', 'select my_groups();')).find(g => g.id === made.id).role === 'owner', 'the owner leaves: the group passes to the admin');
+ok(fx('twin', `select leave_group('${made.id}');`) === 'left; the group closed' && one(`select count(*) from groups where id = '${made.id}';`) === '0', 'the last one out closes it');
+ok(/permission denied/.test(fx('maceo', `update group_members set role = 'owner' where user_id = me();`)) && /permission denied/.test(fx('maceo', `insert into groups (name, owner_id) values ('x', me());`)), "nobody makes themselves owner or makes a group around the checks");
+
 // round trip: what the app pulls, pushed back unchanged by its owner, changes nothing
 const STATE = `select md5(string_agg(t::text, '' order by t::text)) from (select s.legacy_id, method, grind, dose, yield, time_s, rating, taste, tasted, flavor_notes, extras, equipment, master, brewed_at, n.body, p.path,
   (select count(*) from likes l where l.session_id = s.id), (select count(*) from comments c where c.session_id = s.id) from sessions s
