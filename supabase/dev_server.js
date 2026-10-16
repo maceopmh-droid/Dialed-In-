@@ -183,6 +183,7 @@ async function handle(req, res) {
   return send(res, 404, { message: 'Not found in the stand-in: ' + req.method + ' ' + url.pathname });
 }
 
+['SIGTERM', 'SIGINT', 'SIGHUP'].forEach(sig => process.on(sig, () => process.exit(0)));   // stop cleanly when asked
 if (process.argv.includes('--fresh')) setup();
 http.createServer((req, res) => handle(req, res).catch(e => { console.error(e); send(res, 500, { message: String(e.message || e) }); })).listen(PORT, () => log(`Supabase stand-in on http://localhost:${PORT} (database ${DB})`));
 

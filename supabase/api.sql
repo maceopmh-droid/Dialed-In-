@@ -631,13 +631,131 @@ language sql stable set search_path = public as $$
   from groups g where g.is_open and char_length(btrim(coalesce(q, ''))) >= 2 and g.name ilike '%' || btrim(q) || '%';
 $$;
 
+-- ---------------------------------------------------------------- notifications (phase 3: the database side; no screens yet)
+-- Triggers write them as things happen; nothing is written while the Sheet's history is being imported, or between
+-- two people where either has blocked the other.
+create or replace function internal.notify(for_id uuid, by_id uuid, what text, ses uuid default null, cof uuid default null, cmt uuid default null, grp uuid default null) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if for_id is null or by_id is null or for_id = by_id or coalesce(current_setting('dialed.importing', true), '') = 'on' or blocked_either(for_id, by_id) then return; end if;
+  insert into notifications (user_id, actor_id, kind, session_id, coffee_id, comment_id, group_id) values (for_id, by_id, what, ses, cof, cmt, grp);
+end $$;
+
+create or replace function internal.on_like() returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if tg_table_name = 'likes' then perform internal.notify((select owner_id from sessions where id = new.session_id), new.user_id, 'like', new.session_id);
+  elsif tg_table_name = 'coffee_likes' then perform internal.notify((select owner_id from coffees where id = new.coffee_id), new.user_id, 'like', null, new.coffee_id);
+  else perform internal.notify((select author_id from comments where id = new.comment_id), new.user_id, 'comment_like', null, null, new.comment_id); end if;
+  return null;
+end $$;
+
+create or replace function internal.on_comment() returns trigger language plpgsql security definer set search_path = public as $$
+declare owner uuid := coalesce((select owner_id from sessions where id = new.session_id), (select owner_id from coffees where id = new.coffee_id));
+        parent_author uuid := (select author_id from comments where id = new.parent_id);
+begin
+  perform internal.notify(owner, new.author_id, 'comment', new.session_id, new.coffee_id, new.id);
+  if parent_author is distinct from owner then perform internal.notify(parent_author, new.author_id, 'reply', new.session_id, new.coffee_id, new.id); end if;
+  return null;
+end $$;
+
+create or replace function internal.on_follow() returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if tg_op = 'INSERT' then perform internal.notify(new.followee, new.follower, case when new.status = 'accepted' then 'follow' else 'follow_request' end);
+  elsif old.status = 'pending' and new.status = 'accepted' then perform internal.notify(new.follower, new.followee, 'follow_accepted'); end if;
+  return null;
+end $$;
+
+create or replace function internal.on_join() returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if new.role = 'member' then perform internal.notify((select owner_id from groups where id = new.group_id), new.user_id, 'joined_group', null, null, null, new.group_id); end if;
+  return null;
+end $$;
+
+drop trigger if exists notify_like on likes;            create trigger notify_like after insert on likes for each row execute function internal.on_like();
+drop trigger if exists notify_coffee_like on coffee_likes; create trigger notify_coffee_like after insert on coffee_likes for each row execute function internal.on_like();
+drop trigger if exists notify_comment_like on comment_likes; create trigger notify_comment_like after insert on comment_likes for each row execute function internal.on_like();
+drop trigger if exists notify_comment on comments;      create trigger notify_comment after insert on comments for each row execute function internal.on_comment();
+drop trigger if exists notify_follow on follows;        create trigger notify_follow after insert or update of status on follows for each row execute function internal.on_follow();
+drop trigger if exists notify_join on group_members;    create trigger notify_join after insert on group_members for each row execute function internal.on_join();
+
+-- your newest notifications (newest first) and how many are unread
+create or replace function my_notifications(max_count int default 50) returns jsonb
+language sql stable set search_path = public as $$
+  select jsonb_build_object(
+    'unread', (select count(*) from notifications where user_id = me() and read_at is null),
+    'items', coalesce((select jsonb_agg(jsonb_strip_nulls(jsonb_build_object('id', n.id, 'kind', n.kind, 'who', internal.name_of(n.actor_id), 'at', n.created_at, 'read', n.read_at is not null,
+               'session', (select coalesce(legacy_id, id::text) from sessions where id = n.session_id),
+               'coffee', (select coalesce(legacy_id, id::text) from coffees where id = n.coffee_id),
+               'comment', (select left(body, 140) from comments where id = n.comment_id and deleted_at is null),
+               'group', (select name from groups where id = n.group_id))) order by n.id desc)
+             from (select * from notifications where user_id = me() order by id desc limit greatest(1, least(coalesce(max_count, 50), 200))) n), '[]'::jsonb));
+$$;
+
+create or replace function mark_notifications_read(up_to bigint default null) returns int
+language plpgsql security definer set search_path = public as $$
+declare n int;
+begin
+  update notifications set read_at = now() where user_id = me() and read_at is null and (up_to is null or id <= up_to);
+  get diagnostics n = row_count;
+  return n;
+end $$;
+
+-- ---------------------------------------------------------------- reporting, your data, leaving
+create or replace function report(target_type text, target_id uuid, reason text default null) returns text
+language plpgsql set search_path = public as $$
+begin
+  if me() is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  insert into reports (reporter_id, target_type, target_id, reason) values (me(), report.target_type, report.target_id, left(report.reason, 1000));
+  return 'reported';
+end $$;
+
+-- everything that's yours, to download
+create or replace function export_my_data() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object(
+    'exported_at', now(),
+    'profile', (select to_jsonb(p) - 'auth_id' from profiles p where p.id = me()),
+    'coffees', coalesce((select jsonb_agg(to_jsonb(k) order by k.created_at) from coffees k where k.owner_id = me()), '[]'::jsonb),
+    'sessions', coalesce((select jsonb_agg(to_jsonb(s) || jsonb_build_object('notes', n.body, 'note_audience', n.audience, 'photo', ph.path, 'photo_audience', ph.audience) order by s.brewed_at)
+                          from sessions s left join session_notes n on n.session_id = s.id left join session_photos ph on ph.session_id = s.id where s.owner_id = me()), '[]'::jsonb),
+    'comments', coalesce((select jsonb_agg(to_jsonb(c) order by c.created_at) from comments c where c.author_id = me()), '[]'::jsonb),
+    'likes', coalesce((select jsonb_agg(l.session_id) from likes l where l.user_id = me()), '[]'::jsonb),
+    'equipment', coalesce((select jsonb_agg(to_jsonb(e) order by e.sort_order) from equipment e where e.owner_id = me()), '[]'::jsonb),
+    'gear', (select to_jsonb(g) from profile_gear g where g.profile_id = me()),
+    'want_to_try', coalesce((select jsonb_agg(w.coffee_id) from want_to_try w where w.owner_id = me()), '[]'::jsonb),
+    'following', coalesce((select jsonb_agg(internal.name_of(f.followee)) from follows f where f.follower = me()), '[]'::jsonb),
+    'followers', coalesce((select jsonb_agg(internal.name_of(f.follower)) from follows f where f.followee = me()), '[]'::jsonb),
+    'groups', coalesce((select jsonb_agg(jsonb_build_object('name', g.name, 'role', m.role)) from group_members m join groups g on g.id = m.group_id where m.user_id = me()), '[]'::jsonb));
+$$;
+
+-- deletes your account and everything in it. Groups you own pass on (or close); a coffee other people have logged
+-- sessions on passes to the first of them, so their sessions keep their coffee. Photos in storage are removed by the
+-- app through Supabase's storage API first (storage files can't be deleted from SQL).
+create or replace function delete_account(confirm_name text) returns text
+language plpgsql security definer set search_path = public as $$
+declare me_id uuid := me(); uid uuid := auth.uid(); g record; k record; heir uuid;
+begin
+  if me_id is null then raise exception 'Sign in first.' using errcode = '28000'; end if;
+  if lower(btrim(coalesce(confirm_name, ''))) <> lower(internal.name_of(me_id)) then raise exception 'Type your name exactly to confirm.' using errcode = '22023'; end if;
+  for g in select id from groups where owner_id = me_id loop perform leave_group(g.id); end loop;
+  for k in select id from coffees where owner_id = me_id loop
+    select s.owner_id into heir from sessions s where s.coffee_id = k.id and s.owner_id <> me_id order by s.brewed_at limit 1;
+    if heir is not null then update coffees set owner_id = heir where id = k.id; end if;
+  end loop;
+  delete from profiles where id = me_id;
+  delete from auth.users where id = uid;
+  return 'deleted';
+end $$;
+
 grant usage on schema internal to authenticated;
 grant execute on all functions in schema internal to authenticated;
 -- only signed-in people can call these (Postgres lets everyone run a new function unless told otherwise)
 revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
-  create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text) from public, anon;
+  create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
+  my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text) from public, anon;
 grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
-  create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text) to authenticated;
+  create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
+  my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text) to authenticated;
 revoke execute on all functions in schema internal from public, anon;

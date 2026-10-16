@@ -251,6 +251,38 @@ ok(fx('newbie', `select leave_group('${made.id}');`) === 'left' && JSON.parse(fx
 ok(fx('twin', `select leave_group('${made.id}');`) === 'left; the group closed' && one(`select count(*) from groups where id = '${made.id}';`) === '0', 'the last one out closes it');
 ok(/permission denied/.test(fx('maceo', `update group_members set role = 'owner' where user_id = me();`)) && /permission denied/.test(fx('maceo', `insert into groups (name, owner_id) values ('x', me());`)), "nobody makes themselves owner or makes a group around the checks");
 
+// --- notifications, reporting, your data, deleting your account (the database side of phase 3)
+const notes = who => JSON.parse(fx(who, 'select my_notifications();'));
+psql(`delete from notifications;`);
+push('aidan', { type: 'brew', id: 's2', beanId: 'b1', user: 'Maceo', owner: 'Maceo', likes: ['Aidan'], comments: [{ id: 'n1', user: 'Aidan', text: 'what grind?', timestamp: '2026-10-08T09:00:00.000Z' }] });
+push('julian', { type: 'brew', id: 's2', beanId: 'b1', user: 'Maceo', owner: 'Maceo', likes: ['Aidan', 'Julian'], comments: [{ id: 'n1', user: 'Aidan', text: 'what grind?', timestamp: '2026-10-08T09:00:00.000Z' },
+  { id: 'n2', user: 'Julian', text: 'same question', timestamp: '2026-10-08T09:05:00.000Z', parentId: 'n1' }] });
+let mn = notes('maceo');
+ok(mn.unread === 4 && mn.items.map(i => i.kind + ':' + i.who).sort().join() === 'comment:Aidan,comment:Julian,like:Aidan,like:Julian' && mn.items.every(i => i.session === 's2'),
+   "Maceo's bell: Aidan and Julian liked and commented on his session (4 unread)");
+ok(notes('aidan').items.map(i => i.kind + ':' + i.who).join() === 'reply:Julian', 'Aidan hears that Julian replied to his comment');
+push('aidan', { type: 'brew', id: 's2', beanId: 'b1', user: 'Maceo', owner: 'Maceo', likes: ['Aidan', 'Julian'], comments: [{ id: 'n1', user: 'Aidan', text: 'what grind?', timestamp: '2026-10-08T09:00:00.000Z' }, { id: 'n2', user: 'Julian', text: 'same question', timestamp: '2026-10-08T09:05:00.000Z', parentId: 'n1' }] });
+ok(notes('maceo').unread === 4, 'the same save again (an old phone resending) notifies nobody twice');
+ok(fx('maceo', 'select mark_notifications_read();') === '4' && notes('maceo').unread === 0, 'Maceo reads them');
+ok(/permission denied/.test(fx('maceo', `insert into notifications (user_id, actor_id, kind) values (me(), me(), 'like');`)) && notes('julian').items.every(i => i.who !== undefined) && !JSON.stringify(notes('julian')).includes('what grind'),
+   "nobody can write a notification directly, and you only ever see your own");
+ok(fx('stranger', `select report('session', '${one("select id from sessions where legacy_id = 's2';")}', 'spam');`) === 'reported' && one(`select count(*) from reports where reason = 'spam';`) === '1', 'anyone can report something');
+const exported = JSON.parse(fx('maceo', 'select export_my_data();'));
+ok(exported.profile.legacy_name === 'Maceo' && !('auth_id' in exported.profile) && exported.sessions.length >= 2 && exported.coffees.some(k => k.legacy_id === 'b1') && exported.equipment.length === 2,
+   'download my data: his profile, sessions, coffees and equipment');
+// someone new deletes their account: their group passes on, their coffee that others brewed stays (with a new owner)
+psql(`insert into auth.users values ('aaaaaaaa-0000-0000-0000-000000000011');`); AUTH.leaver = 'aaaaaaaa-0000-0000-0000-000000000011';
+fx('leaver', `select create_profile('Leaver');`);
+const lg = JSON.parse(fx('leaver', `select create_group('Leaving soon');`)); fx('maceo', `select join_group('${lg.invite}');`);
+push('leaver', { type: 'bean', id: 'bl', user: 'Leaver', owner: 'Leaver', roaster: 'Sey', name: 'Gesha', likes: [], comments: [] });
+push('leaver', { type: 'brew', id: 'sl', beanId: 'bl', user: 'Leaver', owner: 'Leaver', method: 'Espresso', date: '2026-10-09T08:00:00.000Z', likes: [], comments: [] });
+push('maceo', { type: 'brew', id: 'sm', beanId: 'bl', user: 'Maceo', owner: 'Maceo', method: 'Espresso', date: '2026-10-09T09:00:00.000Z', likes: [], comments: [] });
+ok(/exactly/.test(fx('leaver', `select delete_account('leave');`)), 'deleting an account needs your name typed exactly');
+ok(fx('leaver', `select delete_account('Leaver');`) === 'deleted' && one(`select count(*) from profiles where display_name = 'Leaver';`) === '0' && one(`select count(*) from sessions where legacy_id = 'sl';`) === '0' &&
+   one(`select count(*) from auth.users where id = '${AUTH.leaver}';`) === '0', 'delete account: the profile, its sessions and the sign-in are gone');
+ok(one(`select p.legacy_name from groups g join profiles p on p.id = g.owner_id where g.name = 'Leaving soon';`) === 'Maceo' && one(`select p.legacy_name from coffees k join profiles p on p.id = k.owner_id where k.legacy_id = 'bl';`) === 'Maceo' &&
+   one(`select count(*) from sessions where legacy_id = 'sm' and coffee_id is not null;`) === '1', "their group passed to Maceo, and the coffee Maceo brewed stays (now his), so his session keeps its coffee");
+
 // round trip: what the app pulls, pushed back unchanged by its owner, changes nothing
 const STATE = `select md5(string_agg(t::text, '' order by t::text)) from (select s.legacy_id, method, grind, dose, yield, time_s, rating, taste, tasted, flavor_notes, extras, equipment, master, brewed_at, n.body, p.path,
   (select count(*) from likes l where l.session_id = s.id), (select count(*) from comments c where c.session_id = s.id) from sessions s

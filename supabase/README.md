@@ -74,6 +74,15 @@ the last one out closes it), `new_invite(id)`, `remove_member(id, name)`, `set_m
 `my_groups()` and `find_groups(text)`. Private groups hold up to 30 people, and their members are each other's
 people list (so they share the group goal); open groups don't change anyone's people list.
 
+Notifications, reporting and your account (the database side of the rest of phase 3): triggers write a
+notification when someone likes, comments on or replies to your things, likes your comment, follows you (or asks
+to), approves your request, or joins your group; never for the Sheet's imported history, never twice for the same
+save, never between people who've blocked each other. `my_notifications()` and `mark_notifications_read()` are
+for the bell. `report(type, id, reason)` files a report. `export_my_data()` is "Download my data".
+`delete_account(your name)` deletes the account and everything in it; groups you own pass on, and a coffee other
+people logged sessions on passes to the first of them so their sessions keep it. (Photos in storage have to be
+removed through Supabase's storage API first; the app will do that before calling it.)
+
 **What the app may change directly.** Supabase lets signed-in people use every table through its web API, limited
 by the row rules. Row rules can't limit columns, so the end of `schema.sql` does: profiles are only made by
 `create_profile` / `claim_name`, a Sheet-era name can't be changed, a group member can only flip their own "counts
@@ -92,7 +101,7 @@ Signed-out calls are refused outright (Postgres lets anyone run a new function u
 node supabase/test_api.js --host <postgres socket dir or host> [--user postgres]
 ```
 
-`test_api.js` (84 checks) checks each rule with pretend people, then feeds each person's `pull_events()` to the real app
+`test_api.js` (94 checks) checks each rule with pretend people, then feeds each person's `pull_events()` to the real app
 (from `index.html`) to confirm the app reads it correctly. A private check (not in this repo, it needs the real
 Sheet) imports the history up to Oct 9, has everyone claim their name, compares each person's pull with what the
 app shows from the Sheet, then replays the 250 later real saves through `push_event` and compares again: all

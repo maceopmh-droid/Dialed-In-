@@ -36,7 +36,7 @@ create unique index profiles_name_key on profiles (lower(display_name));
 create table claim_codes (
   code          text primary key,
   legacy_name   text not null unique,
-  claimed_by    uuid references profiles (id),
+  claimed_by    uuid references profiles (id) on delete set null,
   claimed_at    timestamptz
 );
 
@@ -84,7 +84,7 @@ create table roasters (
   location      text,
   website       text,
   merged_into   uuid references roasters (id),
-  created_by    uuid references profiles (id),
+  created_by    uuid references profiles (id) on delete set null,
   created_at    timestamptz not null default now()
 );
 
@@ -217,6 +217,23 @@ create table flavors (                                 -- custom tasting notes p
   created_by    uuid references profiles (id) on delete set null,
   created_at    timestamptz not null default now()
 );
+
+-- what happened to your things (likes, comments, replies, follows, people joining your group), for the in-app bell and
+-- push later. Written by triggers (never by the app), read only by the person it's for.
+create table notifications (
+  id            bigint generated always as identity primary key,
+  user_id       uuid not null references profiles (id) on delete cascade,   -- who it's for
+  actor_id      uuid not null references profiles (id) on delete cascade,   -- who did it
+  kind          text not null check (kind in ('like', 'comment', 'reply', 'comment_like', 'follow', 'follow_request', 'follow_accepted', 'joined_group')),
+  session_id    uuid references sessions (id) on delete cascade,
+  coffee_id     uuid references coffees (id) on delete cascade,
+  comment_id    uuid references comments (id) on delete cascade,
+  group_id      uuid references groups (id) on delete cascade,
+  created_at    timestamptz not null default now(),
+  read_at       timestamptz
+);
+create index notifications_for on notifications (user_id, id desc);
+alter table notifications enable row level security;   -- its rule is with the others below
 
 -- the backend's own switches, never readable from the app (row rules on, no policies). After the move to accounts,
 -- cutover_at is set: from then on the app writes here directly, so nothing may rebuild the tables from the Sheet.
@@ -430,6 +447,7 @@ create policy flavors_add  on flavors for insert to authenticated with check (cr
 
 -- reports: you file them; reviewing goes through the admin page (server side)
 create policy reports_add on reports for insert to authenticated with check (reporter_id = me());
+create policy notifications_mine on notifications for select to authenticated using (user_id = me());
 
 -- ---------------------------------------------------------------- what the app may change directly
 -- Supabase lets signed-in people read and write every table through its web API, limited by the row rules above. Row
@@ -446,3 +464,4 @@ grant update (body, audience, parent_id, edited_at, deleted_at) on comments to a
 revoke insert, update on groups from authenticated, anon;   -- made and handed over by create_group / leave_group
 grant update (name, is_open, goal_on, awards_on) on groups to authenticated;
 revoke all on claim_codes, sheet_archive, backend_state from authenticated, anon;
+revoke insert, update, delete on notifications from authenticated, anon;   -- written by triggers, marked read by mark_notifications_read()
