@@ -14,6 +14,36 @@ Supabase project until Maceo creates one.
 python3 supabase/test_rls.py --host <postgres socket dir or host> [--user postgres]
 ```
 
+## Moving the Sheet's history in
+
+- `import_v9.js`: reads the Sheet's rows (as JSON: an array of rows, column G holding each event), runs the
+  app's own replay from the built `index.html` (`lib/app_in_node.js`), and writes SQL for the tables above.
+  Sheet-era names become profiles with no sign-in (claimed later). Migrated sessions, notes, photos and comments
+  start as **Friends**, so old history doesn't suddenly go public. Today's group becomes the private group
+  "Original crew" with the goal switches carried over. The whole Sheet is also kept in `sheet_archive`.
+- `parity.js`: turns the tables back into Sheet-style events, replays them through the app, and compares every
+  coffee, session, comment, like, note, photo, gear record, custom note and goal switch with what the app gets
+  from the Sheet. Prints ids and field names only.
+
+```
+node supabase/import_v9.js --html index.html --rows rows.json --out import.sql --summary summary.json
+psql ... -f supabase/schema.sql && psql ... -f import.sql
+node supabase/parity.js --html index.html --rows rows.json --psql "psql -h HOST -U USER -d DB" --known-history
+```
+
+On the Oct 15, 2026 Sheet (1,407 rows): 4 people, 31 coffees, 237 sessions, 252 comments, 296 likes, 217
+photos, 163 notes, 10 pieces of equipment, 29 custom notes; parity: everything matches. The test user John was
+skipped (removed, with nothing but an equipment record). Two sessions whose coffee was deleted long ago keep
+their old coffee link in `extras.beanId`.
+
+**Known difference:** achievement levels for "comments written" and "likes received" are counted today by
+walking the history of edits, which the tables don't keep (they hold each record's latest state). Phase 2 should
+count those from what exists (comments you wrote, likes you have). `--known-history` reports them without failing.
+
+The real Sheet export never goes in this repository (it's public and the rows hold everyone's notes).
+
+## The privacy test
+
 It drops and recreates a database called `dialed_rls_test`. Supabase's sign-in pieces (`auth.users`,
 `auth.uid()`, the `authenticated` and `anon` roles) are stood in for, so the same `schema.sql` runs on Supabase.
 
