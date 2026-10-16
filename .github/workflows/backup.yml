@@ -1,0 +1,45 @@
+# Nightly backup of the database (the free Supabase plan has none you can download): everything in the app's
+# tables plus the sign-in accounts, compressed and locked with the BACKUP_PASSPHRASE secret (AES-256), kept as a
+# workflow artifact for 30 days. Photos in storage are not included. The repository is public, so anyone signed in
+# to GitHub can download the file, but nobody can open it without the passphrase. Restoring: supabase/README.md.
+# Runs every night (once this file is on main) and when pushed to the `supabase-backup` branch.
+name: nightly backup
+on:
+  schedule:
+    - cron: '0 9 * * *'        # 4:00 am Central (09:00 UTC), after the nightly check
+  push:
+    branches: [supabase-backup]
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_REF: glombusdjwlrgjihnylk
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Is there a passphrase yet?
+        id: cfg
+        run: |
+          if [ -z "$BACKUP_PASSPHRASE" ]; then echo "skip=1" >> "$GITHUB_OUTPUT"; echo "No BACKUP_PASSPHRASE secret yet: no backup." > "$RUNNER_TEMP/b.txt"; cat "$RUNNER_TEMP/b.txt"; bash supabase/report.sh "Backup" "$RUNNER_TEMP/b.txt"; fi
+      - name: Find the database
+        if: steps.cfg.outputs.skip != '1'
+        run: |
+          set +e
+          bash supabase/find_db.sh 2> "$RUNNER_TEMP/find.txt"; rc=$?
+          cat "$RUNNER_TEMP/find.txt"; [ $rc -eq 0 ] || bash supabase/report.sh "Find the database" "$RUNNER_TEMP/find.txt"; exit $rc
+      - name: Back up, lock, and check the locked file opens
+        if: steps.cfg.outputs.skip != '1'
+        run: |
+          set +e
+          bash supabase/backup.sh "$RUNNER_TEMP/out" 2>&1 | tee "$RUNNER_TEMP/b.txt"; rc=${PIPESTATUS[0]}
+          bash supabase/report.sh "Backup" "$RUNNER_TEMP/b.txt"; exit $rc
+      - uses: actions/upload-artifact@v4
+        if: steps.cfg.outputs.skip != '1'
+        with:
+          name: dialed-in-backup-${{ github.run_id }}
+          path: ${{ runner.temp }}/out/*.gpg
+          retention-days: 30
+          if-no-files-found: error

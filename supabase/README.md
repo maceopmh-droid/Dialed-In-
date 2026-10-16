@@ -155,6 +155,26 @@ four people match. Two things it found about today's data:
   a comment and an unlike on the session of someone who never signed in) and confirms a second run finds nothing
   left to send.
 
+## Backups (`backup.sh`, `.github/workflows/backup.yml`)
+
+The free plan has no backups you can download, so GitHub makes one every night at 4 am Central: the sign-in
+accounts (`auth.users`) and the app's three schemas (`public`, `private`, `internal`: tables, privacy rules,
+permissions, triggers and data), gzipped and locked with AES-256 using the `BACKUP_PASSPHRASE` secret. It's kept as
+a workflow artifact for 30 days (the run's page → Artifacts). The repository is public, so anyone signed in to
+GitHub can download the file, but it can't be opened without the passphrase. Each run opens the locked file again
+and checks every table's row count against the database. Photos in storage are not included.
+
+To restore into a fresh Supabase project (or look inside):
+
+```
+gpg -d dialed-in-<date>.sql.gz.gpg | gunzip > dump.sql          # asks for the passphrase
+psql "<new project's connection string>" -v ON_ERROR_STOP=1 -f dump.sql
+psql "<new project's connection string>" -f supabase/storage.sql  # the photo bucket and its rules
+```
+
+Checked on the test copy: restored into an empty database, it has the same rows, 50 privacy rules, 13 rule helpers,
+24 triggers and the same permissions, and gives the same sync as the original (apart from order).
+
 ## Trying the app without a Supabase project: `dev_server.js`
 
 A stand-in for the few parts of Supabase the app uses (email-code sign-in, the database functions, photo storage),
