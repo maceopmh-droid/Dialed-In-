@@ -106,7 +106,7 @@ Signed-out calls are refused outright (Postgres lets anyone run a new function u
 node supabase/test_api.js --host <postgres socket dir or host> [--user postgres]
 ```
 
-`test_api.js` (97 checks) checks each rule with pretend people, then feeds each person's `pull_events()` to the real app
+`test_api.js` (98 checks) checks each rule with pretend people, then feeds each person's `pull_events()` to the real app
 (from `index.html`) to confirm the app reads it correctly. A private check (not in this repo, it needs the real
 Sheet) imports the history up to Oct 9, has everyone claim their name, compares each person's pull with what the
 app shows from the Sheet, then replays the 250 later real saves through `push_event` and compares again: all

@@ -302,5 +302,23 @@ pull('maceo').filter(e => e.type === 'brew').forEach(e => push('maceo', e));
 const after = one(STATE);
 ok(before === after, 'pushing back exactly what was pulled changes nothing (the app can resend safely)');
 
+// the nightly rebuild (before the move) can empty and refill every table, whatever now points at them
+const { buildImport } = require('./import_v9');
+const RB = 'dialed_api_rebuild', rb = sql => psql(sql, RB);
+psql(`drop database if exists ${RB}`, 'postgres'); psql(`create database ${RB}`, 'postgres');
+rb(`create schema auth; create table auth.users (id uuid primary key);
+  create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;`);
+rb(require('fs').readFileSync(path.join(__dirname, 'schema.sql'), 'utf8'));
+rb(require('fs').readFileSync(path.join(__dirname, 'api.sql'), 'utf8'));
+const fakeRows = [
+  ['2026-10-01', 'bean', 'Maceo', 'rb1', '', 'Onyx', JSON.stringify({ type: 'bean', id: 'rb1', user: 'Maceo', owner: 'Maceo', roaster: 'Onyx', name: 'Monarch', date: '2026-10-01T10:00:00Z', eventAt: '2026-10-01T10:00:00Z', likes: [], comments: [] })],
+  ['2026-10-02', 'brew', 'Aidan', 'rs1', 'rb1', 'Onyx', JSON.stringify({ type: 'brew', id: 'rs1', beanId: 'rb1', user: 'Aidan', owner: 'Aidan', method: 'Espresso', dose: 18, yield: 36, time: 28, date: '2026-10-02T10:00:00Z', eventAt: '2026-10-02T10:00:00Z', likes: ['Maceo'], comments: [] })]];
+rb(buildImport({ html: HTML, rows: fakeRows, mode: 'full' }).sql);
+rb(`insert into notifications (user_id, actor_id, kind, session_id) select s.owner_id, l.user_id, 'like', s.id from likes l join sessions s on s.id = l.session_id;`);   // as if a like had come in from the app
+const codesBefore = rb(`select string_agg(code, ',' order by code) from claim_codes;`);
+let rebuilt = ''; try { rb(buildImport({ html: HTML, rows: fakeRows, mode: 'rebuild' }).sql); } catch (e) { rebuilt = String(e.stderr || e.message); }
+ok(!rebuilt && rb(`select count(*) from sessions;`) === '1' && rb(`select count(*) from likes;`) === '1' && rb(`select count(*) from notifications;`) === '0' && rb(`select string_agg(code, ',' order by code) from claim_codes;`) === codesBefore,
+   'the nightly rebuild empties and refills the tables, even with notifications pointing at them (no notifications for history; claim codes kept)' + (rebuilt ? ' :: ' + rebuilt.slice(0, 160) : ''));
+
 console.log(fails ? `${fails} API checks FAILED` : 'all API checks passed');
 process.exit(fails ? 1 : 0);
