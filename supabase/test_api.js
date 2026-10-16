@@ -553,6 +553,8 @@ ok(/going a bit fast/.test(push('stranger', spamOn(21)).err || ''), 'the 21st wi
 ok(!push('stranger', spamOn(20)).err, 're-sending the same 20 is fine (only new comments count)');
 psql(`update internal.rate_log set at = at - interval '6 minutes';`);
 ok(!push('stranger', spamOn(21)).err && one(`select count(*) from comments where legacy_ref like 'dold#sp%';`) === '21', 'five minutes later it goes through');
+ok(!(() => { try { psql(`set dialed.replay = 'on'; set role authenticated; set request.jwt.claim.sub to '${AUTH.stranger}'; select push_event(${q(JSON.stringify(spamOn(21, 100)))}::jsonb);`); return ''; } catch (e) { return String(e.stderr || e.message); } })() && one(`select count(*) from comments where legacy_ref like 'dold#sp1__';`) === '21',
+   'carrying over earlier saves from the database itself (replay_late.js) is not held by the limits');
 psql(`delete from internal.rate_log where kind = 'report';`);
 const repAlerts0 = one(`select count(*) from notifications where kind = 'report';`);
 const reps = Array.from({ length: 21 }, (_, i) => fx('stranger', `select report_item('session', 'dold', 'r${i}');`));

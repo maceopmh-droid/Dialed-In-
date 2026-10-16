@@ -39,7 +39,7 @@ const list = s => (s ? s.split('\n').filter(Boolean) : []);
     const missing = who.filter(n => !people[n.toLowerCase()]);
     if (missing.length) { missing.forEach(n => { tally.waiting[n] = (tally.waiting[n] || 0) + 1; }); continue; }   // try again after they claim their name
     if (DRY) { console.log(`would apply ${event.type} ${event.id} as ${who.join(', ') || '(nobody: nothing changed)'}`); continue; }
-    const pushes = who.map(n => `set role authenticated; set request.jwt.claim.sub to '${people[n.toLowerCase()]}'; select push_event(${q(JSON.stringify(event))}::jsonb); reset role;`).join('\n');
+    const pushes = who.map(n => `set dialed.replay = 'on'; set role authenticated; set request.jwt.claim.sub to '${people[n.toLowerCase()]}'; select push_event(${q(JSON.stringify(event))}::jsonb); reset role;`).join('\n');   // (v14.6: not held by the speed limits)
     sql(`begin;\n${pushes}\ninsert into backend_state (key, value) values ('late:${k}', now()::text) on conflict (key) do nothing;\ncommit;`);
     done.add(k);
     tally.applied++;

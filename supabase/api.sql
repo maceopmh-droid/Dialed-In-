@@ -108,6 +108,9 @@ declare lim int[] := case what when 'comment' then array[20, 5, 300]       -- 20
                                when 'group' then array[5, 60, 20] else array[100, 10, 1000] end;
 begin
   if pid is null then return; end if;
+  -- carrying over saves made before (supabase/replay_late.js, from the database itself, never through the app's web
+  -- address) isn't someone going fast
+  if coalesce(current_setting('dialed.replay', true), '') = 'on' and session_user <> 'authenticator' then return; end if;
   if (select count(*) from internal.rate_log where profile_id = pid and kind = what and at > now() - make_interval(mins => lim[2])) >= lim[1]
      or (select count(*) from internal.rate_log where profile_id = pid and kind = what and at > now() - interval '1 day') >= lim[3] then
     raise exception 'You''re going a bit fast. Wait a few minutes and try again.' using errcode = '22023';

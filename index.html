@@ -17709,7 +17709,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const have = new Set(this.myGoals().map(g => g.type));
                 const kinds = [['week', 'Sessions a week'], ['coffees', 'New coffees a month'], ['beat', 'A rating to beat']];
                 const open = kinds.filter(([k]) => !have.has(k) || k === e.type);
-                const seg = e.editing || open.length < 2 ? `<p class="pg-kind">${(kinds.find(([k]) => k === e.type) || ['', ''])[1]}</p>` : `<div class="seg-control pg-kinds" role="tablist">${open.map(([k, l]) => `<button type="button" aria-pressed="${k === e.type}" onclick="app.setGoalKind('${k}')">${l}</button>`).join('')}</div>`;
+                const seg = e.editing || open.length < 2 ? `<p class="pg-kind">${(kinds.find(([k]) => k === e.type) || ['', ''])[1]}</p>` : `<div class="seg-control pg-kinds" role="tablist">${open.map(([k, l]) => `<button type="button" aria-pressed="${k === e.type}" onclick="app.setGoalKind('${app.escJs(k)}')">${l}</button>`).join('')}</div>`;
                 const coffees = this.goalCoffees();
                 const step = e.type === 'beat' ? 0.5 : 1, min = e.type === 'beat' ? 0.5 : 1, max = e.type === 'beat' ? 5 : e.type === 'week' ? 21 : 10;
                 const num = `<div class="pg-step"><button type="button" aria-label="Less" onclick="app.stepGoal(${-step}, ${min}, ${max})"${e.target <= min ? ' disabled' : ''}>−</button><b>${this.esc(e.type === 'beat' ? `${this.fmtNum(e.target, 1)} ★` : String(e.target))}</b><button type="button" aria-label="More" onclick="app.stepGoal(${step}, ${min}, ${max})"${e.target >= max ? ' disabled' : ''}>+</button></div>`;
