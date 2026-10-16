@@ -24,11 +24,14 @@ do $$ begin create role authenticated nologin; exception when duplicate_object t
 do $$ begin create role anon nologin; exception when duplicate_object then null; end $$;
 """
 
-GRANTS = """
+# what Supabase grants: everything on every new table and function (row rules and schema.sql's column limits do the rest)
+DEFAULTS = """
+alter default privileges in schema public grant select, insert, update, delete on tables to authenticated, anon;
+alter default privileges in schema public grant execute on functions to authenticated, anon;
 grant usage on schema public, auth to authenticated, anon;
-grant select, insert, update, delete on all tables in schema public to authenticated;
-grant select on all tables in schema public to anon;
-grant execute on all functions in schema public, auth to authenticated, anon;
+"""
+GRANTS = """
+grant execute on all functions in schema auth to authenticated, anon;
 """
 
 def sid(name): return '10000000-0000-0000-0000-' + hashlib.md5(name.encode()).hexdigest()[:12]
@@ -88,7 +91,7 @@ def main():
     ap = argparse.ArgumentParser(); ap.add_argument('--host', required=True); ap.add_argument('--user', default='postgres')
     a = ap.parse_args(); pg = PG(a.host, a.user)
     pg.run(f'drop database if exists {DB}', db='postgres'); pg.run(f'create database {DB}', db='postgres')
-    pg.run(STUB); pg.file(os.path.join(HERE, 'schema.sql')); pg.run(GRANTS); pg.run(seed())
+    pg.run(STUB); pg.run(DEFAULTS); pg.file(os.path.join(HERE, 'schema.sql')); pg.run(GRANTS); pg.run(seed())
 
     fails = 0
     def ok(cond, msg):
@@ -143,7 +146,19 @@ def main():
     ok(count('stranger', "select count(*) from group_members where group_id = '20000000-0000-0000-0000-000000000001';") == '0',
        "a private group's members are hidden from outsiders")
     ok(count('anon', 'select count(*) from profiles;') == '0', 'not signed in: no profiles')
-    ok(count('stranger', 'select count(*) from claim_codes;') == '0', 'claim codes are never readable from the app')
+    ok(all('permission denied' in count('stranger', f'select count(*) from {t};') for t in ('claim_codes', 'sheet_archive', 'backend_state')),
+       'claim codes, the Sheet archive and the backend switches are off limits to the app entirely')
+
+    # what the app can't change directly, whatever the row rules allow (column limits at the end of schema.sql)
+    fails_ = lambda who, sql: pg.as_(who, sql).returncode != 0
+    ok(fails_('opener', f"insert into follows values ('{U['opener']}', '{U['privy']}', 'accepted');") and not fails_('opener', f"insert into follows values ('{U['opener']}', '{U['privy']}', 'pending');"),
+       "following a private profile starts as a request (you can't approve yourself)")
+    ok(fails_('privy', f"update follows set follower = '{U['maceo']}' where followee = '{U['privy']}';") and not fails_('privy', f"update follows set status = 'accepted' where followee = '{U['privy']}' and follower = '{U['opener']}';"),
+       "a private profile approves a request, but can't rewrite who follows them")
+    ok(fails_('groupie', "update group_members set role = 'owner' where group_id = '20000000-0000-0000-0000-000000000001';"), "a member can't promote themselves in a group")
+    ok(fails_('stranger', "insert into group_members (group_id, user_id, role) select id, me(), 'owner' from groups where is_open;"), "joining an open group makes you a member, never its owner")
+    ok(fails_('newbie', "insert into profiles (auth_id, handle, display_name, legacy_name) values (auth.uid(), 'sneaky', 'Sneaky', 'John');"), "a profile can't be made directly (so nobody skips the name checks or takes a Sheet-era name)")
+    ok(fails_('maceo', "update profiles set legacy_name = 'John' where auth_id = auth.uid();") and not fails_('maceo', "update profiles set city = 'Chicago' where auth_id = auth.uid();"), "you can edit your profile, but not the Sheet-era name it claimed")
 
     # coffees, their comments and likes; gear and lists
     k = f"insert into coffees (id, owner_id, name) values ('40000000-0000-0000-0000-000000000001', '{U['maceo']}', 'Monarch');"

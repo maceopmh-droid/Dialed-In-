@@ -21,9 +21,9 @@ psql(`create schema auth; create table auth.users (id uuid primary key);
   create function auth.uid() returns uuid language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claim.sub', true), ''), (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub'))::uuid $$;
   do $$ begin create role authenticated nologin; exception when duplicate_object then null; end $$;
   do $$ begin create role anon nologin; exception when duplicate_object then null; end $$;`);
+psql(`alter default privileges in schema public grant select, insert, update, delete on tables to authenticated, anon; alter default privileges in schema public grant execute on functions to authenticated, anon; grant usage on schema public, auth to authenticated, anon;`);   // what Supabase grants on every new table and function
 psql(require('fs').readFileSync(path.join(__dirname, 'schema.sql'), 'utf8'));
-psql(`grant usage on schema public, auth to authenticated, anon; grant select, insert, update, delete on all tables in schema public to authenticated;
-      grant execute on all functions in schema public, auth to authenticated, anon;`);
+psql(`grant execute on all functions in schema auth to authenticated, anon;`);
 psql(require('fs').readFileSync(path.join(__dirname, 'api.sql'), 'utf8'));
 // Supabase storage stood in (its objects table, foldername() and row rules switched on), then storage.sql
 psql(`create schema storage; create table storage.buckets (id text primary key, name text, public boolean);
@@ -148,8 +148,9 @@ const forStranger = pull('stranger');
 const st = loadApp(HTML); st.user = 'Stranger'; st.process(forStranger);
 ok(st.beans.size === 1 && st.brews.size === 0, "a stranger sees the coffee (a shared fact) but none of the crew's Friends & groups sessions");
 const strangerSeesMaceo = forStranger.filter(e => e.type === 'gear' && e.owner === 'Maceo');
-ok(strangerSeesMaceo.length === 1 && strangerSeesMaceo[0].items.map(i => i.name).join() === 'Niche Zero,Decent' && !strangerSeesMaceo[0].recipes.length && !Object.keys(strangerSeesMaceo[0].lastByMethod).length,
-   "a stranger sees Maceo's equipment (it's on his profile) but not his recipes or last setup");
+ok(strangerSeesMaceo.length === 1 && strangerSeesMaceo[0].items.map(i => i.name).join() === 'Niche Zero,Decent' && (strangerSeesMaceo[0].fabFour || []).join() === 'b1' &&
+   !strangerSeesMaceo[0].recipes.length && !Object.keys(strangerSeesMaceo[0].lastByMethod).length,
+   "a stranger sees what Maceo's profile shows (equipment, favorite coffees) but not his recipes or last setup");
 as('maceo', `update equipment set hidden = true where name = 'Decent';`);
 ok(!JSON.stringify(pull('stranger')).includes('Decent') && JSON.stringify(pull('maceo')).includes('Decent'), 'equipment Maceo hides is gone for others and still his');
 as('maceo', `update equipment set hidden = false where name = 'Decent';`);
@@ -169,6 +170,10 @@ push('aidan', { type: 'brew', id: 'sa', beanId: 'b1', user: 'Aidan', owner: 'Aid
 ok(one(`select count(*) from session_photos p join sessions s on s.id = p.session_id where s.legacy_id = 'sa';`) === '0', "Aidan can't point his session at Maceo's photo (that would show it to his own friends)");
 push('maceo', { type: 'brew', id: 's2', beanId: 'b1', user: 'Maceo', owner: 'Maceo', method: 'Pour Over', dose: 15, yield: 250, time: 180, rating: 4.5, date: '2026-10-05T08:00:00.000Z', likes: [], comments: [], photo: { path: 'sb:' + MPATH, url: 'https://example.supabase.co/storage/v1/object/sign/photos/x?token=t' } });
 ok(one(`select path from session_photos p join sessions s on s.id = p.session_id where s.legacy_id = 's2';`) === 'sb:' + MPATH, 'resending the session with its short-lived link keeps the stored path');
+
+// --- the people list: you and your private groups
+const peopleOf = who => ((pull(who).find(e => e.type === 'gear' && e.owner === '__people__') || {}).people || []).map(p => p.name).sort().join();
+ok(peopleOf('aidan') === 'Aidan,Julian,Maceo' && peopleOf('stranger') === 'Stranger', "the people list is you and your private group (the crew for Aidan; just the stranger for the stranger)");
 
 // --- your color: from your own saves only (a like on someone else's session carries their color)
 push('aidan', { ...B1, likes: ['Aidan'], actor: 'Maceo', actorColor: '#123456' });
@@ -212,6 +217,22 @@ ok(/taken/.test(as('twin', `select create_profile('brew buddy');`).err || ''), '
 ok(/"handle": "brewbuddy2"/.test(as('twin', `select create_profile('Brew-Buddy');`).out || ''), 'a different name that makes the same handle gets the next free one');
 ok(/already has a profile/.test(as('newbie', `select create_profile('second');`).err || ''), 'one profile per account');
 ok(/permission denied/.test(as('anon', `select create_profile('sneaky');`).err || ''), 'not signed in: refused');
+
+// --- following (the database side of phase 3)
+const fx = (who, sql) => { const r = as(who, sql); return r.err ? 'ERR ' + r.err : r.out; };
+ok(fx('newbie', `select follow('maceo');`) === 'following' && !pull('newbie').some(e => e.id === 's2'), 'Brew Buddy follows Maceo (open profile: right away); a one-way follow doesn\'t show Friends sessions');
+ok(fx('maceo', `select follow('Brew Buddy');`) === 'following' && pull('newbie').some(e => e.id === 's2'), 'Maceo follows back: now they\'re friends, so Brew Buddy sees his Friends & groups sessions');
+ok(JSON.parse(fx('maceo', 'select my_people();')).following.some(f => f.name === 'Brew Buddy' && f.friend), 'my_people marks the friend');
+as('twin', `update profiles set is_private = true where auth_id = auth.uid();`);
+ok(fx('newbie', `select follow('brew-buddy');`) === 'requested', 'following a private profile sends a request');
+ok(JSON.parse(fx('twin', 'select my_people();')).followers.map(f => f.name + ':' + f.status).join() === 'Brew Buddy:pending', '...which shows in their followers as pending');
+ok(fx('twin', `select answer_follow('Brew Buddy', true);`) === 'approved' && JSON.parse(fx('newbie', 'select my_people();')).following.some(f => f.name === 'Brew-Buddy' && f.status === 'accepted'), 'they approve it');
+const found = JSON.parse(fx('newbie', `select find_people('ma');`));
+ok(found.length === 1 && found[0].name === 'Maceo' && found[0].you === 'accepted' && found[0].followsYou === true, 'find_people: typing "ma" finds Maceo, with who follows whom');
+ok(fx('twin', `select block('Brew Buddy');`) === 'blocked' && JSON.parse(fx('newbie', `select find_people('brew');`)).length === 0 && /nobody by that name/.test(fx('newbie', `select follow('Brew-Buddy');`)),
+   'blocking ends the follows both ways; the blocked person can no longer find or follow them (and isn\'t told why)');
+ok(fx('twin', `select unblock('Brew Buddy');`) === 'unblocked' && JSON.parse(fx('newbie', `select find_people('brew-');`)).length === 1, 'unblocking makes them findable again');
+ok(/nobody by that name/.test(fx('newbie', `select follow('nobody here');`)) && /permission denied/.test(fx('anon', `select follow('maceo');`)), 'following someone who doesn\'t exist, or while signed out, is refused');
 
 // round trip: what the app pulls, pushed back unchanged by its owner, changes nothing
 const STATE = `select md5(string_agg(t::text, '' order by t::text)) from (select s.legacy_id, method, grind, dose, yield, time_s, rating, taste, tasted, flavor_notes, extras, equipment, master, brewed_at, n.body, p.path,

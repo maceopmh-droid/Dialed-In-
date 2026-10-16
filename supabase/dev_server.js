@@ -44,9 +44,9 @@ function setup() {
     create function auth.uid() returns uuid language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claim.sub', true), ''), (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub'))::uuid $$;
     do $$ begin create role authenticated nologin; exception when duplicate_object then null; end $$;
     do $$ begin create role anon nologin; exception when duplicate_object then null; end $$;`);
+  psql(`alter default privileges in schema public grant select, insert, update, delete on tables to authenticated, anon; alter default privileges in schema public grant execute on functions to authenticated, anon; grant usage on schema public, auth to authenticated, anon;`);   // what Supabase grants on every new table and function
   psql(fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8'));
-  psql(`grant usage on schema public, auth to authenticated, anon; grant select, insert, update, delete on all tables in schema public to authenticated;
-        grant execute on all functions in schema auth to authenticated, anon;`);
+  psql(`grant execute on all functions in schema auth to authenticated, anon;`);
   psql(fs.readFileSync(path.join(__dirname, 'api.sql'), 'utf8'));
   psql(`create schema storage; create table storage.buckets (id text primary key, name text, public boolean);
     create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text references storage.buckets (id), name text, owner uuid, unique (bucket_id, name));

@@ -43,6 +43,15 @@ const key = e => JSON.stringify(canon(e));
     if (missing.length) { ok = false; console.log('  missing, e.g.', missing.slice(0, 5).map(e => `${e.type} ${e.id}`).join(' | ')); }
   }
 
+  // after the move to accounts the app writes to the tables directly: they must never be rebuilt from the Sheet again
+  const cutover = sql(`select value from backend_state where key = 'cutover_at';`, false);
+  if (cutover) {
+    console.log(`moved to accounts on ${cutover}: the tables are the source of truth now, so they're not rebuilt or compared with the Sheet.`);
+    console.log('(saves that still reach the Sheet from a phone that hasn\'t updated: node supabase/replay_late.js)');
+    console.log(ok ? 'shadow backend: OK' : 'shadow backend: PROBLEMS (see above)');
+    process.exit(ok ? 0 : 1);
+  }
+
   // 3. rebuild the content tables from the archive
   if (!process.argv.includes('--no-rebuild')) {
     const source = liveEvents ? liveEvents.map(e => ['', '', '', '', '', '', JSON.stringify(e)]) : rows;

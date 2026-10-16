@@ -6,7 +6,7 @@ Supabase project until Maceo creates one.
 - `schema.sql`: the tables (profiles, follows, blocks, groups, coffees, sessions, notes, photos, likes, comments,
   reports) and the privacy rules, written as Postgres row-level security. Every read is checked against the
   "Who sees what" rules in the plan before anything leaves the database.
-- `test_rls.py`: runs `schema.sql` on a real Postgres and checks, as seven pretend people (you, a friend, a
+- `test_rls.py` (51 checks): runs `schema.sql` on a real Postgres and checks, as seven pretend people (you, a friend, a
   stranger who follows you, a private profile, a private-group buddy, an open-group member, someone who blocked
   you, plus someone signed in with no profile yet and an old name nobody has claimed), exactly which sessions, notes, photos, comments, groups and profiles each can see or change.
 
@@ -62,6 +62,18 @@ functions translate, and the privacy rules above decide every read and write (th
   `_`) is the name the app shows; Sheet-era names can't be taken.
 - `my_profile()`: the signed-in person's profile, or null before they claim a name or make one.
 
+Following (the database side of phase 3; the app has no screens for it yet): `follow(name)`, `unfollow(name)`,
+`answer_follow(name, accept)` for requests to a private profile, `block(name)` / `unblock(name)`, `my_people()`
+and `find_people(text)`. Following an open profile is immediate; a private one gets a request. Two people who
+follow each other are friends, and friends see each other's Friends & groups sessions. Blocking ends follows both
+ways, and the blocked person can't find or follow you (they're told there's nobody by that name).
+
+**What the app may change directly.** Supabase lets signed-in people use every table through its web API, limited
+by the row rules. Row rules can't limit columns, so the end of `schema.sql` does: profiles are only made by
+`create_profile` / `claim_name`, a Sheet-era name can't be changed, a group member can only flip their own "counts
+in group goal" (never their role), a follow can only be approved (not rewritten), a private profile can't be
+followed without a request, and claim codes, the Sheet archive and the backend switches are off limits.
+
 `storage.sql` (load after `api.sql`) sets up photo storage: a private bucket, one folder per account. You can only
 put files in your own folder, and you can read a photo only if you may see the session it belongs to (the check
 reads `session_photos`, whose own row rules apply). `push_event` refuses a photo path outside your own folder, so
@@ -74,7 +86,7 @@ Signed-out calls are refused outright (Postgres lets anyone run a new function u
 node supabase/test_api.js --host <postgres socket dir or host> [--user postgres]
 ```
 
-`test_api.js` checks each rule with pretend people, then feeds each person's `pull_events()` to the real app
+`test_api.js` (74 checks) checks each rule with pretend people, then feeds each person's `pull_events()` to the real app
 (from `index.html`) to confirm the app reads it correctly. A private check (not in this repo, it needs the real
 Sheet) imports the history up to Oct 9, has everyone claim their name, compares each person's pull with what the
 app shows from the Sheet, then replays the 250 later real saves through `push_event` and compares again: all
@@ -87,6 +99,18 @@ four people match. Two things it found about today's data:
   saved under Maceo's name within the same second. The app's edit screen only lets owners edit, so this was a
   one-off cleanup outside the normal screens. In the new backend that kind of fix is maintenance done directly in
   the database, not an app save; the private check applies those saves as the owner.
+
+## The move itself
+
+`CUTOVER.md` is the step-by-step, from creating the project to everyone signed in. Two safety pieces:
+
+- `backend_state.cutover_at` records the move. After it, the Sheet import refuses to run and the nightly check
+  stops rebuilding the tables, since the app writes to them directly from then on.
+- `replay_late.js` carries over saves that still reach the Sheet after the move (a phone that hadn't updated). Each
+  one goes through `push_event` as each person whose part of the record it changed (`lib/replay.js`), so the same
+  rules apply as for a save from the app. A save is never applied twice; saves by someone who hasn't claimed their
+  name yet wait for the next run. The private real-data check moves the history over at Oct 9, replays the 250
+  later real saves with this script, and confirms all four people's views match the Sheet.
 
 ## Trying the app without a Supabase project: `dev_server.js`
 

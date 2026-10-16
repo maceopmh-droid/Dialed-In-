@@ -88,8 +88,8 @@ begin
   if char_length(h) < 2 then h := 'brewer'; end if;
   while exists (select 1 from profiles where handle = h || case when i = 1 then '' else i::text end) loop i := i + 1; end loop;
   begin
-    insert into profiles (auth_id, handle, display_name, color)
-    values (uid, h || case when i = 1 then '' else i::text end, n, case when create_profile.color ~ '^#[0-9a-fA-F]{6}$' then create_profile.color end) returning * into p;
+    insert into profiles (auth_id, handle, display_name, color, joined_at)
+    values (uid, h || case when i = 1 then '' else i::text end, n, case when create_profile.color ~ '^#[0-9a-fA-F]{6}$' then create_profile.color end, now()) returning * into p;
   exception when unique_violation then   -- someone took it a moment ago
     raise exception 'That name is taken.' using errcode = '23505';
   end;
@@ -100,6 +100,15 @@ end $$;
 create or replace function my_profile() returns jsonb
 language sql stable security definer set search_path = public as $$
   select jsonb_build_object('id', p.id, 'name', coalesce(p.legacy_name, p.display_name), 'handle', p.handle) from profiles p where p.auth_id = auth.uid();
+$$;
+
+-- the parts of other people's gear their profile shows: favorite coffees and roaster choices (their merges and "not the
+-- same" apply to everyone's roaster pages; favorite roasters and roaster details show there too). Recipes and last
+-- setups stay private, so this reads profile_gear past its owner-only rule and returns only these columns.
+create or replace function internal.public_gear(viewer uuid) returns table (profile_id uuid, fab_four jsonb, roasters jsonb, updated_at timestamptz)
+language sql stable security definer set search_path = public as $$
+  select g.profile_id, coalesce(g.favorites->'fabFour', '[]'::jsonb), coalesce(g.roaster_prefs, '{}'::jsonb), g.updated_at
+  from profile_gear g where g.profile_id <> viewer and not blocked_either(viewer, g.profile_id);
 $$;
 
 -- ---------------------------------------------------------------- reading: pull_events()
@@ -163,19 +172,34 @@ begin
        left join session_notes n on n.session_id = s.id left join session_photos p on p.session_id = s.id
   where s.deleted_at is null), '[]'::jsonb);
 
-  -- your gear in full; other people's equipment (what their profile shows)
-  out := out || coalesce((select jsonb_agg(jsonb_build_object('type', 'gear', 'id', 'gear-' || internal.name_of(g.profile_id),
-      'user', internal.name_of(g.profile_id), 'owner', internal.name_of(g.profile_id), 'actor', internal.name_of(g.profile_id),
+  -- your gear in full
+  out := out || coalesce((select jsonb_agg(jsonb_build_object('type', 'gear', 'id', 'gear-' || internal.name_of(me_id),
+      'user', internal.name_of(me_id), 'owner', internal.name_of(me_id), 'actor', internal.name_of(me_id),
       'items', coalesce((select jsonb_agg(jsonb_build_object('id', coalesce(e.legacy_id, e.id::text), 'name', e.name, 'type', e.type) order by e.sort_order, e.created_at)
-                         from equipment e where e.owner_id = g.profile_id), '[]'::jsonb),
-      'lastByMethod', g.last_by_method, 'recipes', g.recipes, 'fabFour', coalesce(g.favorites->'fabFour', '[]'::jsonb), 'roasters', g.roaster_prefs,
-      'date', g.updated_at, 'eventAt', g.updated_at))
-    from profile_gear g), '[]'::jsonb);
-  out := out || coalesce((select jsonb_agg(jsonb_build_object('type', 'gear', 'id', 'gear-' || internal.name_of(o.owner_id),
-      'user', internal.name_of(o.owner_id), 'owner', internal.name_of(o.owner_id), 'actor', internal.name_of(o.owner_id),
-      'items', o.items, 'lastByMethod', '{}'::jsonb, 'recipes', '[]'::jsonb, 'date', o.at, 'eventAt', o.at))
-    from (select e.owner_id, jsonb_agg(jsonb_build_object('id', coalesce(e.legacy_id, e.id::text), 'name', e.name, 'type', e.type) order by e.sort_order, e.created_at) as items, max(e.created_at) as at
-          from equipment e where e.owner_id <> me_id group by e.owner_id) o), '[]'::jsonb);
+                         from equipment e where e.owner_id = me_id), '[]'::jsonb),
+      'lastByMethod', coalesce(g.last_by_method, '{}'::jsonb), 'recipes', coalesce(g.recipes, '[]'::jsonb), 'fabFour', coalesce(g.favorites->'fabFour', '[]'::jsonb),
+      'roasters', coalesce(g.roaster_prefs, '{}'::jsonb), 'date', coalesce(g.updated_at, now()), 'eventAt', coalesce(g.updated_at, now())))
+    from (select 1) one left join profile_gear g on g.profile_id = me_id
+    where g.profile_id is not null or exists (select 1 from equipment e where e.owner_id = me_id)), '[]'::jsonb);
+  -- other people's: what their profile shows (equipment they haven't hidden, favorite coffees, roaster choices); never
+  -- their recipes or last setups
+  out := out || coalesce((select jsonb_agg(jsonb_build_object('type', 'gear', 'id', 'gear-' || internal.name_of(o.pid),
+      'user', internal.name_of(o.pid), 'owner', internal.name_of(o.pid), 'actor', internal.name_of(o.pid),
+      'items', coalesce((select jsonb_agg(jsonb_build_object('id', coalesce(e.legacy_id, e.id::text), 'name', e.name, 'type', e.type) order by e.sort_order, e.created_at)
+                         from equipment e where e.owner_id = o.pid), '[]'::jsonb),
+      'lastByMethod', '{}'::jsonb, 'recipes', '[]'::jsonb, 'fabFour', coalesce(pg.fab_four, '[]'::jsonb), 'roasters', coalesce(pg.roasters, '{}'::jsonb),
+      'date', coalesce(pg.updated_at, (select max(e.created_at) from equipment e where e.owner_id = o.pid)),
+      'eventAt', coalesce(pg.updated_at, (select max(e.created_at) from equipment e where e.owner_id = o.pid))))
+    from (select e.owner_id as pid from equipment e where e.owner_id <> me_id union select x.profile_id from internal.public_gear(me_id) x) o
+    left join internal.public_gear(me_id) pg on pg.profile_id = o.pid), '[]'::jsonb);
+
+  -- the app's people list: you and everyone in your private groups (its group goal, awards and Settings use it)
+  out := out || jsonb_build_array(jsonb_build_object('type', 'gear', 'id', 'gear-__people__', 'user', '__people__', 'owner', '__people__', 'actor', '__people__',
+      'people', coalesce((select jsonb_agg(jsonb_strip_nulls(jsonb_build_object('name', internal.name_of(p.id), 'color', p.color, 'addedAt', p.created_at, 'joinedAt', p.joined_at)) order by p.created_at, p.id)
+                          from profiles p
+                          where p.id = me_id or p.id in (select m2.user_id from group_members m1 join group_members m2 on m2.group_id = m1.group_id
+                                                         join groups g on g.id = m1.group_id where m1.user_id = me_id and not g.is_open)), '[]'::jsonb),
+      'removed', '[]'::jsonb, 'items', '[]'::jsonb, 'date', '2026-01-01T00:00:00Z', 'eventAt', '2026-01-01T00:00:00Z'));
 
   -- custom tasting notes
   out := out || coalesce((select jsonb_agg(jsonb_build_object('type', 'flavor', 'id', f.id::text, 'name', f.name, 'user', internal.name_of(f.created_by),
@@ -413,9 +437,102 @@ begin
   return jsonb_build_object('ok', true, 'type', t, 'id', ev->>'id');
 end $$;
 
+-- ---------------------------------------------------------------- following (phase 3: the database side; no screens yet)
+-- People are found and named the way the app knows them. Following an open profile is immediate; a private profile
+-- gets a request to approve. Friends are two people who follow each other (the row rules' "Friends & groups").
+create or replace function internal.profile_by_name(nm text, viewer uuid) returns uuid
+language sql stable security definer set search_path = public as $$
+  select p.id from profiles p
+  where lower(coalesce(p.legacy_name, p.display_name)) = lower(btrim(coalesce(nm, ''))) and p.id <> viewer and not blocked_either(viewer, p.id)
+  limit 1;
+$$;
+
+create or replace function follow(name text) returns text   -- 'following' or 'requested'
+language plpgsql set search_path = public as $$
+declare me_id uuid := me(); them uuid; st text;
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  them := internal.profile_by_name(follow.name, me_id);
+  if them is null then raise exception 'There''s nobody by that name.' using errcode = 'P0002'; end if;   -- blocked looks the same
+  insert into follows (follower, followee, status)
+  values (me_id, them, case when (select is_private from profiles where id = them) then 'pending' else 'accepted' end)
+  on conflict (follower, followee) do nothing;
+  select status into st from follows where follower = me_id and followee = them;
+  return case when st = 'accepted' then 'following' else 'requested' end;
+end $$;
+
+create or replace function unfollow(name text) returns text
+language plpgsql set search_path = public as $$
+declare me_id uuid := me();
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  delete from follows where follower = me_id and followee = internal.profile_by_name(unfollow.name, me_id);
+  return 'not following';
+end $$;
+
+-- your answer to a follow request (or, with accept = false, removing a follower)
+create or replace function answer_follow(name text, accept boolean) returns text
+language plpgsql set search_path = public as $$
+declare me_id uuid := me(); them uuid;
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  them := internal.profile_by_name(answer_follow.name, me_id);
+  if accept then update follows set status = 'accepted' where follower = them and followee = me_id;
+  else delete from follows where follower = them and followee = me_id; end if;
+  return case when accept then 'approved' else 'removed' end;
+end $$;
+
+-- blocking hides everything both ways and ends any follow between you
+create or replace function block(name text) returns text
+language plpgsql set search_path = public as $$
+declare me_id uuid := me(); them uuid;
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  them := internal.profile_by_name(block.name, me_id);
+  if them is null then raise exception 'There''s nobody by that name.' using errcode = 'P0002'; end if;
+  delete from follows where (follower = me_id and followee = them) or (follower = them and followee = me_id);
+  insert into blocks (blocker, blocked) values (me_id, them) on conflict do nothing;
+  return 'blocked';
+end $$;
+
+create or replace function unblock(name text) returns text
+language plpgsql security definer set search_path = public as $$   -- the blocked person can't be found by name while blocked
+declare me_id uuid := me();
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  delete from blocks where blocker = me_id and blocked in (select id from profiles where lower(coalesce(legacy_name, display_name)) = lower(btrim(coalesce(unblock.name, ''))));
+  return 'unblocked';
+end $$;
+
+-- who you follow, who follows you (requests included) and who you've blocked
+create or replace function my_people() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object(
+    'following', coalesce((select jsonb_agg(jsonb_build_object('name', internal.name_of(f.followee), 'status', f.status, 'friend', is_friend(me(), f.followee)) order by internal.name_of(f.followee))
+                           from follows f where f.follower = me()), '[]'::jsonb),
+    'followers', coalesce((select jsonb_agg(jsonb_build_object('name', internal.name_of(f.follower), 'status', f.status) order by f.status desc, internal.name_of(f.follower))
+                           from follows f where f.followee = me()), '[]'::jsonb),
+    'blocked', coalesce((select jsonb_agg(internal.name_of(b.blocked) order by internal.name_of(b.blocked)) from blocks b where b.blocker = me()), '[]'::jsonb));
+$$;
+
+-- people whose name or handle starts with what you typed (never anyone blocked either way)
+create or replace function find_people(q text) returns jsonb
+language sql stable set search_path = public as $$
+  select coalesce(jsonb_agg(x order by x->>'name'), '[]'::jsonb) from (
+    select jsonb_build_object('name', internal.name_of(p.id), 'handle', p.handle, 'color', p.color, 'private', p.is_private,
+             'you', (select f.status from follows f where f.follower = me() and f.followee = p.id),
+             'followsYou', exists (select 1 from follows f where f.follower = p.id and f.followee = me() and f.status = 'accepted')) as x
+    from profiles p
+    where p.id <> me() and char_length(btrim(coalesce(q, ''))) >= 2
+      and (coalesce(p.legacy_name, p.display_name) ilike btrim(q) || '%' or p.handle ilike btrim(q) || '%')
+    limit 20) s;
+$$;
+
 grant usage on schema internal to authenticated;
 grant execute on all functions in schema internal to authenticated;
 -- only signed-in people can call these (Postgres lets everyone run a new function unless told otherwise)
-revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile() from public, anon;
-grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile() to authenticated;
+revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(),
+  follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text) from public, anon;
+grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(),
+  follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text) to authenticated;
 revoke execute on all functions in schema internal from public, anon;

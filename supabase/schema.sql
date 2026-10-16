@@ -21,12 +21,13 @@ create table profiles (
                                                    -- profile (Sheet-era names exist before they're claimed);
                                                    -- deleting the account deletes the profile and everything in it
   handle        text not null unique check (handle ~ '^[a-z0-9_]{2,24}$'),
-  display_name  text not null check (char_length(display_name) between 1 and 40),
+  display_name  text not null check (char_length(display_name) between 1 and 40 and display_name !~ '^__'),
   color         text check (color ~ '^#[0-9a-fA-F]{6}$'),
   avatar_path   text,
   is_private    boolean not null default false,
   city          text,
   legacy_name   text unique,                       -- the Sheet-era name this account claimed
+  joined_at     timestamptz,                       -- when they joined through the welcome (the feed says so); null for the original crew
   created_at    timestamptz not null default now()
 );
 -- the app knows people by name, so names are unique ignoring capitals
@@ -217,6 +218,15 @@ create table flavors (                                 -- custom tasting notes p
   created_at    timestamptz not null default now()
 );
 
+-- the backend's own switches, never readable from the app (row rules on, no policies). After the move to accounts,
+-- cutover_at is set: from then on the app writes here directly, so nothing may rebuild the tables from the Sheet.
+create table backend_state (
+  key           text primary key,
+  value         text not null,
+  updated_at    timestamptz not null default now()
+);
+alter table backend_state enable row level security;
+
 create table sheet_archive (                          -- every row of the V9 Sheet, exactly as it was (read-only)
   event_key     text primary key,                      -- md5 of column G as stored, so resending a row is harmless
   row_no        integer,                               -- where it sat in the Sheet when it was copied
@@ -334,7 +344,8 @@ create policy profiles_edit  on profiles for update to authenticated using (auth
 
 -- follows: you see your own follows both ways; you create your own (pending if their profile is private)
 create policy follows_read   on follows for select to authenticated using (me() in (follower, followee));
-create policy follows_add    on follows for insert to authenticated with check (follower = me() and not blocked_either(follower, followee));
+create policy follows_add    on follows for insert to authenticated with check (follower = me() and not blocked_either(follower, followee)
+  and (status = 'pending' or not coalesce((select p.is_private from profiles p where p.id = followee), false)));   -- a private profile approves you first
 create policy follows_accept on follows for update to authenticated using (followee = me());
 create policy follows_remove on follows for delete to authenticated using (me() in (follower, followee));
 
@@ -348,7 +359,7 @@ create policy groups_edit  on groups for update to authenticated using (owner_id
 create policy members_read on group_members for select to authenticated
   using (is_group_member(group_id, me()) or exists (select 1 from groups g where g.id = group_id and g.is_open));
 create policy members_join on group_members for insert to authenticated
-  with check (user_id = me() and exists (select 1 from groups g where g.id = group_id and g.is_open));
+  with check (user_id = me() and role = 'member' and exists (select 1 from groups g where g.id = group_id and g.is_open));
 create policy members_leave on group_members for delete to authenticated using (user_id = me());
 
 -- roasters and coffees are shared facts: everyone signed in reads; you add and edit your own
@@ -419,3 +430,17 @@ create policy flavors_add  on flavors for insert to authenticated with check (cr
 
 -- reports: you file them; reviewing goes through the admin page (server side)
 create policy reports_add on reports for insert to authenticated with check (reporter_id = me());
+
+-- ---------------------------------------------------------------- what the app may change directly
+-- Supabase lets signed-in people read and write every table through its web API, limited by the row rules above. Row
+-- rules can't say which columns may change, so these do: nobody can make a profile without the checks in
+-- create_profile / claim_name, promote themselves in a group, rewrite someone's follow, or move a comment.
+revoke insert, update on profiles from authenticated, anon;
+grant update (display_name, color, avatar_path, is_private, city) on profiles to authenticated;
+revoke update on follows from authenticated, anon;
+grant update (status) on follows to authenticated;
+revoke update on group_members from authenticated, anon;
+grant update (counts_in_goal) on group_members to authenticated;
+revoke update on comments from authenticated, anon;
+grant update (body, audience, parent_id, edited_at, deleted_at) on comments to authenticated;
+revoke all on claim_codes, sheet_archive, backend_state from authenticated, anon;

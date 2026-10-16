@@ -108,8 +108,10 @@ A.brews.forEach((a, id) => {
   ['verdict', 'brewer', 'recipeName', 'flavors'].forEach(f => same('session', id, f, a[f] ?? null, b[f] ?? null));
 });
 const gearOf = (app, who) => { const g = app.gearByUser.get(who) || {}; return [(g.items || []).map(i => [String(i.id), i.name, i.type]), g.recipes || [], g.lastByMethod || {}, g.fabFour || [], g.roasters || {}]; };
-// seen as `viewer`, other people's gear is only their equipment (recipes and settings are private)
-A.knownPeople().forEach(p => viewer && p !== viewer ? same('gear', p, 'equipment', gearOf(A, p)[0], gearOf(B, p)[0]) : same('gear', p, 'record', gearOf(A, p), gearOf(B, p)));
+// seen as `viewer`, other people's gear is what their profile shows
+// (their equipment, favorite coffees and roaster choices show on their profile and roaster pages; recipes and last setups don't)
+const shown = g => [g[0], g[3], g[4]];
+A.knownPeople().forEach(p => viewer && p !== viewer ? same('gear', p, 'what their profile shows', shown(gearOf(A, p)), shown(gearOf(B, p))) : same('gear', p, 'record', gearOf(A, p), gearOf(B, p)));
 A.knownPeople().forEach(p => same('goal switch', p, 'counts', A.goalExcluded(p), B.goalExcluded(p)));
 same('custom notes', '-', 'names', [...A.customFlavors.values()].map(f => f.name).sort(), [...B.customFlavors.values()].map(f => f.name).sort());
 same('achievements', '-', 'levels', A.achievementLevelsByUser || {}, B.achievementLevelsByUser || {});
