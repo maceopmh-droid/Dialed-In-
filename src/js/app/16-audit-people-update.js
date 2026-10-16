@@ -197,6 +197,7 @@
 
             async checkForUpdate() {
                 if (typeof location === 'undefined' || !location.pathname || typeof fetch !== 'function') return;
+                if (this.isNative && this.isNative()) return;   // v14.6: the iPhone app updates through the App Store
                 const mine = this.runningVersion(); if (!mine) return;
                 this._updCheckedAt = Date.now();
                 try {

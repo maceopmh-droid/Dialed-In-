@@ -5,6 +5,7 @@
             pushState() { return this._push || (this._push = { key: null, at: 0, on: false, loading: false, busy: false }); },
 
             pushSupported() {
+                if (this.isNative && this.isNative()) return Boolean(this.nativePlugin('PushNotifications'));   // v14.6: the iPhone app (Apple's push service)
                 return typeof navigator !== 'undefined' && 'serviceWorker' in navigator && typeof window !== 'undefined' && 'PushManager' in window && 'Notification' in window;
             },
 
@@ -22,9 +23,15 @@
                 if (!force && st.at && Date.now() - st.at < 10 * 60000) return;
                 st.loading = true;
                 try {
-                    const key = await Supa.rpc('push_key', {});
-                    st.key = typeof key === 'string' && key ? key : null;
-                    if (st.key && this.pushSupported()) {
+                    if (this.isNative && this.isNative()) {   // v14.6: the iPhone app: is Apple's push service set up?
+                        const ready = await Supa.rpc('push_ready', {});
+                        st.key = ready && ready.apns ? 'apns' : null;
+                        if (st.key) { const ns = await this.nativePushState(); st.on = ns.on; st.denied = ns.denied; }
+                    } else {
+                        const key = await Supa.rpc('push_key', {});
+                        st.key = typeof key === 'string' && key ? key : null;
+                    }
+                    if (st.key && this.pushSupported() && !(this.isNative && this.isNative())) {
                         const reg = await navigator.serviceWorker.getRegistration();
                         const sub = reg && reg.pushManager ? await reg.pushManager.getSubscription() : null;
                         st.on = Boolean(sub) && Notification.permission === 'granted';
@@ -46,7 +53,7 @@
                         ? '<div class="pp-private"><span><b>Notifications on this phone</b><small>Add Dialed In to your Home Screen (Share, then Add to Home Screen) and open it from there to turn them on.</small></span></div>'
                         : '';
                 }
-                const denied = Notification.permission === 'denied';
+                const denied = this.isNative && this.isNative() ? Boolean(st.denied) : Notification.permission === 'denied';
                 return `<div class="pp-private push-row"><span><b>Notifications on this phone</b><small>${denied ? 'They\'re turned off for Dialed In in your phone\'s settings.' : 'Likes, comments, follows and answers, on your lock screen.'}</small></span><button type="button" class="goal-sw" role="switch" aria-checked="${st.on ? 'true' : 'false'}" aria-label="Notifications on this phone"${denied || st.busy ? ' disabled' : ''} onclick="app.setPush(this.getAttribute('aria-checked') !== 'true')"></button></div>`;
             },
 
@@ -55,6 +62,11 @@
                 if (st.busy || !st.key || !this.pushSupported()) return;
                 st.busy = true;
                 try {
+                    if (this.isNative && this.isNative()) {   // v14.6: the iPhone app
+                        if (on) { if (!(await this.nativePushOn())) { this.showToast('Notifications stay off. You can allow them in Settings, Notifications, Dialed In.'); return; } st.on = true; this.showToast('Notifications are on for this phone.'); }
+                        else { await this.nativePushOff(); st.on = false; this.showToast('Notifications are off for this phone.'); }
+                        return;
+                    }
                     if (on) {
                         const perm = await Notification.requestPermission();   // first, while it's still the tap (iPhone needs that)
                         if (perm !== 'granted') { this.showToast('Notifications stay off. You can allow them in your phone\'s settings.'); return; }

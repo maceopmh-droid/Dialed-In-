@@ -1,0 +1,103 @@
+# The iPhone app. Builds the same index.html into a native shell (Capacitor) on GitHub's Mac computers, so nobody needs
+# Xcode. Every run: builds for the iPhone simulator, opens it there and saves screenshots (light and dark) to the run.
+# When Maceo's App Store Connect key is in the secrets, it also signs the app and sends it to TestFlight.
+#   secrets  ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8 (App Store Connect, Users and Access, Integrations, a key with Admin
+#            access), APPLE_TEAM_ID (developer.apple.com, Membership)
+#   variable IOS_BUNDLE_ID (Settings, Variables; defaults to com.dialedin.coffee): must match the app in App Store Connect
+# Runs when pushed to the `ios` branch, or by hand (Actions, ios, Run workflow). Nothing here touches the website.
+name: ios
+on:
+  push:
+    branches: [ios]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 45
+    env:
+      BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID || 'com.dialedin.coffee' }}
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Make the iPhone project
+        working-directory: native
+        run: |
+          set -e
+          sed -i '' "s/\"appId\": \"[^\"]*\"/\"appId\": \"$BUNDLE_ID\"/" capacitor.config.json
+          npm install --no-audit --no-fund
+          node scripts/www.js
+          npx cap add ios
+          npx cap sync ios
+          bash ios-setup.sh
+          echo "VERSION=$(cat www/version.txt)" >> "$GITHUB_ENV"
+          if [ -d ios/App/App.xcworkspace ]; then echo "XC=-workspace ios/App/App.xcworkspace" >> "$GITHUB_ENV"; else echo "XC=-project ios/App/App.xcodeproj" >> "$GITHUB_ENV"; fi
+          xcodebuild -version | head -1
+      - name: Build for the simulator
+        working-directory: native
+        run: |
+          set -o pipefail
+          xcodebuild $XC -scheme App -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/dd TARGETED_DEVICE_FAMILY=1 CODE_SIGNING_ALLOWED=NO MARKETING_VERSION="$VERSION" build | tail -25
+      - name: Open it in the simulator and take screenshots
+        working-directory: native
+        continue-on-error: true
+        run: |
+          set -e
+          dev=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for k in sorted(d, reverse=True) if 'iOS' in k for x in d[k] if x['name'].startswith('iPhone 16') or x['name'].startswith('iPhone 17')))")
+          xcrun simctl boot "$dev"; xcrun simctl bootstatus "$dev" -b >/dev/null
+          app=build/dd/Build/Products/Debug-iphonesimulator/App.app
+          xcrun simctl install "$dev" "$app"
+          mkdir -p build/shots
+          for look in light dark; do
+            xcrun simctl ui "$dev" appearance $look
+            xcrun simctl terminate "$dev" "$BUNDLE_ID" 2>/dev/null || true
+            xcrun simctl launch "$dev" "$BUNDLE_ID"
+            sleep 15
+            xcrun simctl io "$dev" screenshot "build/shots/$look.png"
+          done
+          ls -la build/shots
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: simulator-screenshots
+          path: native/build/shots
+          if-no-files-found: ignore
+      - name: Is there an App Store Connect key yet?
+        id: cfg
+        run: |
+          if [ -z "$ASC_KEY_P8" ] || [ -z "$ASC_KEY_ID" ] || [ -z "$ASC_ISSUER_ID" ] || [ -z "$APPLE_TEAM_ID" ]; then
+            echo "skip=1" >> "$GITHUB_OUTPUT"; echo "No App Store Connect key yet: built for the simulator only."
+          fi
+      - name: Sign and send to TestFlight
+        if: steps.cfg.outputs.skip != '1'
+        working-directory: native
+        run: |
+          set -eo pipefail
+          mkdir -p "$RUNNER_TEMP/keys"; key="$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8"
+          printf '%s\n' "$ASC_KEY_P8" > "$key"
+          auth=(-allowProvisioningUpdates -authenticationKeyPath "$key" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID")
+          xcodebuild $XC -scheme App -configuration Release -destination 'generic/platform=iOS' -archivePath build/App.xcarchive \
+            "${auth[@]}" DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
+            CODE_SIGN_ENTITLEMENTS=App/App.entitlements TARGETED_DEVICE_FAMILY=1 \
+            MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="${{ github.run_number }}" archive | tail -25
+          cat > build/ExportOptions.plist <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>$APPLE_TEAM_ID</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict></plist>
+          PLIST
+          xcodebuild -exportArchive -archivePath build/App.xcarchive -exportOptionsPlist build/ExportOptions.plist -exportPath build/out "${auth[@]}" | tail -25
+          rm -f "$key"
+          echo "Sent build ${{ github.run_number }} (v$VERSION) to TestFlight; it shows up in App Store Connect after Apple processes it (10 to 30 minutes)."

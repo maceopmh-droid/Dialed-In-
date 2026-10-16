@@ -70,7 +70,8 @@
 
             init() {
                 if (this.noteInviteLink) this.noteInviteLink();   // v14.4: ?join=CODE, offered once you're signed in
-                if (this.noteProfileLink) this.noteProfileLink();   // v14.5: ?u=Name opens their profile once you're signed in
+                if (this.noteProfileLink) this.noteProfileLink();
+                if (this.bindNative) this.bindNative();   // v14.6: inside the iPhone app   // v14.5: ?u=Name opens their profile once you're signed in
                 if (this.bindProfileLinks) this.bindProfileLinks();   // v14.5: every name and circle opens that person's profile
                 if (this.notePushOpen) this.notePushOpen();   // v14.5: a tapped phone notification opens the bell
                 this.initFlavors();

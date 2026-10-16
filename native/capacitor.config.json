@@ -1,0 +1,13 @@
+{
+  "appId": "com.dialedin.coffee",
+  "appName": "Dialed In",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#F7F6F2",
+    "limitsNavigationsToAppBoundDomains": false
+  },
+  "plugins": {
+    "PushNotifications": { "presentationOptions": ["badge", "sound", "alert"] }
+  }
+}

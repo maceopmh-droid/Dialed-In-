@@ -12,6 +12,7 @@
             },
 
             onThemeChange() {
+                if (this.nativeStatusBar) this.nativeStatusBar();
                 // canvases read colors when drawn, so redraw what's on screen
                 try { this.render(); } catch (err) { console.warn('theme redraw', err); }
                 if (this.activeGroup && this.detailBrews) {

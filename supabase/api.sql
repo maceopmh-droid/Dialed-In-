@@ -1216,6 +1216,8 @@ create table if not exists push_subscriptions (
   created_at    timestamptz not null default now()
 );
 create index if not exists push_subscriptions_profile on push_subscriptions (profile_id);
+-- v14.6: the iPhone app gets its notifications from Apple's push service (APNs): endpoint 'apns:<device token>'
+alter table push_subscriptions add column if not exists kind text not null default 'web';
 alter table push_subscriptions enable row level security;   -- no rules: only the calls below and the sender touch it
 revoke all on push_subscriptions from authenticated, anon;
 
@@ -1225,16 +1227,27 @@ language sql stable security definer set search_path = public as $$
   select value from backend_state where key = 'vapid_public' and exists (select 1 from backend_state where key = 'push_url');
 $$;
 
+-- v14.6: what this phone can use: web push (the Home Screen web app) and/or Apple's push service (the iPhone app)
+create or replace function push_ready() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object('web', (select value from backend_state where key = 'vapid_public'),
+                            'apns', exists (select 1 from backend_state where key = 'apns_key'))
+  where exists (select 1 from backend_state where key = 'push_url');
+$$;
+
 create or replace function save_push(sub jsonb) returns text
 language plpgsql security definer set search_path = public as $$
-declare me_id uuid := me(); ep text := sub->>'endpoint'; k1 text := sub->'keys'->>'p256dh'; k2 text := sub->'keys'->>'auth';
+declare me_id uuid := me(); ep text := sub->>'endpoint'; k1 text := sub->'keys'->>'p256dh'; k2 text := sub->'keys'->>'auth'; kd text := 'web';
 begin
   if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
-  if ep is null or ep !~ '^https://' or char_length(ep) > 1000 or coalesce(k1, '') = '' or coalesce(k2, '') = '' or char_length(k1) > 200 or char_length(k2) > 100 then
+  if sub->>'kind' = 'apns' then   -- v14.6: the iPhone app (a device token from Apple)
+    if coalesce(sub->>'token', '') !~ '^[0-9a-fA-F]{32,200}$' then raise exception 'That phone''s notification details don''t look right.' using errcode = '22023'; end if;
+    ep := 'apns:' || lower(sub->>'token'); k1 := ''; k2 := ''; kd := 'apns';
+  elsif ep is null or ep !~ '^https://' or char_length(ep) > 1000 or coalesce(k1, '') = '' or coalesce(k2, '') = '' or char_length(k1) > 200 or char_length(k2) > 100 then
     raise exception 'That phone''s notification details don''t look right.' using errcode = '22023';
   end if;
-  insert into push_subscriptions (endpoint, profile_id, p256dh, auth) values (ep, me_id, k1, k2)
-  on conflict (endpoint) do update set profile_id = me_id, p256dh = excluded.p256dh, auth = excluded.auth, created_at = now();
+  insert into push_subscriptions (endpoint, profile_id, p256dh, auth, kind) values (ep, me_id, k1, k2, kd)
+  on conflict (endpoint) do update set profile_id = me_id, p256dh = excluded.p256dh, auth = excluded.auth, kind = excluded.kind, created_at = now();
   delete from push_subscriptions where profile_id = me_id and endpoint not in (select endpoint from push_subscriptions where profile_id = me_id order by created_at desc limit 10);
   return 'on';
 end $$;
@@ -1276,7 +1289,12 @@ begin
     'subject', coalesce((select value from backend_state where key = 'vapid_subject'), 'mailto:dialedin@example.com'),
     'publicKey', (select value from backend_state where key = 'vapid_public'),
     'privateKey', (select value from backend_state where key = 'vapid_private'),
-    'subs', coalesce((select jsonb_agg(jsonb_build_object('endpoint', s.endpoint, 'p256dh', s.p256dh, 'auth', s.auth)) from push_subscriptions s where s.profile_id = n.user_id), '[]'::jsonb));
+    'subs', coalesce((select jsonb_agg(jsonb_build_object('endpoint', s.endpoint, 'p256dh', s.p256dh, 'auth', s.auth, 'kind', s.kind)) from push_subscriptions s where s.profile_id = n.user_id), '[]'::jsonb),
+    -- v14.6: Apple's push service, for the iPhone app (set up by the ios workflow from Maceo's Apple key)
+    'apns', (select jsonb_build_object('key', max(value) filter (where key = 'apns_key'), 'keyId', max(value) filter (where key = 'apns_key_id'),
+                                       'teamId', max(value) filter (where key = 'apns_team_id'), 'topic', max(value) filter (where key = 'apns_topic'),
+                                       'host', coalesce(max(value) filter (where key = 'apns_host'), 'api.push.apple.com'))
+             from backend_state where key like 'apns_%'));
 end $$;
 revoke execute on function internal.push_payload(bigint, text) from public, anon, authenticated;
 revoke execute on function internal.push_text(notifications) from public, anon, authenticated;
@@ -1365,13 +1383,13 @@ grant execute on all functions in schema internal to authenticated;
 -- only signed-in people can call these (Postgres lets everyone run a new function unless told otherwise)
 revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text), report_item(text, text, text),
   profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
-  push_key(), save_push(jsonb), remove_push(text),
+  push_key(), push_ready(), save_push(jsonb), remove_push(text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version() from public, anon;
 grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text), report_item(text, text, text),
   profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
-  push_key(), save_push(jsonb), remove_push(text),
+  push_key(), push_ready(), save_push(jsonb), remove_push(text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version() to authenticated;

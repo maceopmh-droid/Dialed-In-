@@ -2,6 +2,8 @@
 # database calls it), and stores the function's address, a shared secret and a VAPID key pair in backend_state
 # (made once, never printed; the keys never leave the database). Until this has run, the app shows no switch.
 # Needs the SUPABASE_ACCESS_TOKEN secret (Supabase, Account, Access Tokens) and SUPABASE_DB_PASSWORD.
+# v14.6, the iPhone app: when the Apple push key is in the secrets (APNS_KEY_P8, APNS_KEY_ID, APPLE_TEAM_ID; from
+# developer.apple.com, Keys, with Apple Push Notifications service), it's stored in backend_state too, never printed.
 # Runs when pushed to the `supabase-push` branch; safe to run again (it only redeploys the function).
 name: supabase push
 on:
@@ -16,6 +18,10 @@ jobs:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
       SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      APNS_KEY_P8: ${{ secrets.APNS_KEY_P8 }}
+      APNS_KEY_ID: ${{ secrets.APNS_KEY_ID }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID || 'com.dialedin.coffee' }}
     steps:
       - uses: actions/checkout@v4
       - name: Is there an access token yet?
@@ -56,6 +62,21 @@ jobs:
           SQL
           rc=$?
           cat "$RUNNER_TEMP/p.txt"; bash supabase/report.sh "Push setup" "$RUNNER_TEMP/p.txt"; exit $rc
+      - name: Store the Apple push key (the iPhone app), when it's there
+        if: steps.cfg.outputs.skip != '1'
+        run: |
+          set +e
+          if [ -z "$APNS_KEY_P8" ] || [ -z "$APNS_KEY_ID" ] || [ -z "$APPLE_TEAM_ID" ]; then
+            echo "No Apple push key yet: the iPhone app's notifications wait for it." | tee "$RUNNER_TEMP/a.txt"; bash supabase/report.sh "Apple push" "$RUNNER_TEMP/a.txt"; exit 0
+          fi
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -Atq -v k="$APNS_KEY_P8" -v kid="$APNS_KEY_ID" -v team="$APPLE_TEAM_ID" -v topic="$BUNDLE_ID" > "$RUNNER_TEMP/a.txt" 2>&1 <<'SQL'
+          insert into backend_state (key, value) values ('apns_key', :'k'), ('apns_key_id', :'kid'), ('apns_team_id', :'team'), ('apns_topic', :'topic')
+          on conflict (key) do update set value = excluded.value, updated_at = now();
+          select 'Apple push key stored for ' || (select value from backend_state where key = 'apns_topic');
+          select 'iPhones signed up so far: ' || count(*) from push_subscriptions where endpoint like 'apns:%';
+          SQL
+          rc=$?
+          cat "$RUNNER_TEMP/a.txt"; bash supabase/report.sh "Apple push" "$RUNNER_TEMP/a.txt"; exit $rc
       - name: Check the function answers (a wrong secret is turned away)
         if: steps.cfg.outputs.skip != '1'
         run: |

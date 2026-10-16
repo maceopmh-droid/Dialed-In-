@@ -11,7 +11,10 @@
                 return st.list;
             },
 
-            inviteLink(code) { return `${location.origin}${location.pathname}?join=${encodeURIComponent(code)}`; },
+            inviteLink(code) {   // (from the iPhone app, the website's address: that's what a friend can open)
+                const web = typeof location !== 'undefined' && /^https?:$/.test(location.protocol);
+                return `${web ? location.origin + location.pathname : 'https://maceopmh-droid.github.io/Dialed-In-/'}?join=${encodeURIComponent(code)}`;
+            },
 
             renderGroups(body) {
                 const st = this.grState();

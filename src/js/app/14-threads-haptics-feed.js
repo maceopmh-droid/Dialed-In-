@@ -89,6 +89,7 @@
                 this._hapticLog = (this._hapticLog || []).concat([kind]).slice(-50);
                 const buzz = { tap: 10, tick: 5, success: [12, 70, 18], cue: 90, warn: [25, 60, 25, 60, 25], finish: [120, 80, 120] }[kind] || 10;
                 if (this._hxOn && (kind === 'tap' || kind === 'success' || kind === 'warn')) return;
+                if (this.nativeHaptic && this.nativeHaptic(kind)) return;   // v14.6: the iPhone app's own haptics
                 try {
                     if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') { navigator.vibrate(buzz); return; }
                 } catch (e) {}

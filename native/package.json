@@ -1,0 +1,18 @@
+{
+  "name": "dialed-in-ios",
+  "private": true,
+  "version": "1.0.0",
+  "description": "The iPhone app: the same index.html inside a native shell (Capacitor), built by the ios workflow.",
+  "scripts": {
+    "www": "node scripts/www.js"
+  },
+  "dependencies": {
+    "@capacitor/app": "^7.0.0",
+    "@capacitor/cli": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/haptics": "^7.0.0",
+    "@capacitor/ios": "^7.0.0",
+    "@capacitor/push-notifications": "^7.0.0",
+    "@capacitor/status-bar": "^7.0.0"
+  }
+}
