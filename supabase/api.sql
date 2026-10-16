@@ -1056,6 +1056,96 @@ begin
   raise exception 'Dismiss or remove.' using errcode = '22023';
 end $$;
 
+-- ---------------------------------------------------------------- v14.5: phone notifications (Web Push)
+-- A phone that turns notifications on (Settings, from the Home Screen app) saves its push subscription here. When a
+-- notification is written, a trigger asks the send-push function (supabase/functions) to deliver it, through pg_net.
+-- Nothing happens until the supabase-push workflow has set it up (the function, its address, the VAPID keys); until
+-- then push_key() is null and the app shows no switch.
+create table if not exists push_subscriptions (
+  endpoint      text primary key,
+  profile_id    uuid not null references profiles (id) on delete cascade,
+  p256dh        text not null,
+  auth          text not null,
+  created_at    timestamptz not null default now()
+);
+create index if not exists push_subscriptions_profile on push_subscriptions (profile_id);
+alter table push_subscriptions enable row level security;   -- no rules: only the calls below and the sender touch it
+revoke all on push_subscriptions from authenticated, anon;
+
+-- the public half of the VAPID key pair the app subscribes with (null until the sender is set up)
+create or replace function push_key() returns text
+language sql stable security definer set search_path = public as $$
+  select value from backend_state where key = 'vapid_public' and exists (select 1 from backend_state where key = 'push_url');
+$$;
+
+create or replace function save_push(sub jsonb) returns text
+language plpgsql security definer set search_path = public as $$
+declare me_id uuid := me(); ep text := sub->>'endpoint'; k1 text := sub->'keys'->>'p256dh'; k2 text := sub->'keys'->>'auth';
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  if ep is null or ep !~ '^https://' or char_length(ep) > 1000 or coalesce(k1, '') = '' or coalesce(k2, '') = '' or char_length(k1) > 200 or char_length(k2) > 100 then
+    raise exception 'That phone''s notification details don''t look right.' using errcode = '22023';
+  end if;
+  insert into push_subscriptions (endpoint, profile_id, p256dh, auth) values (ep, me_id, k1, k2)
+  on conflict (endpoint) do update set profile_id = me_id, p256dh = excluded.p256dh, auth = excluded.auth, created_at = now();
+  delete from push_subscriptions where profile_id = me_id and endpoint not in (select endpoint from push_subscriptions where profile_id = me_id order by created_at desc limit 10);
+  return 'on';
+end $$;
+
+create or replace function remove_push(endpoint text) returns text
+language plpgsql security definer set search_path = public as $$
+begin
+  delete from push_subscriptions where push_subscriptions.endpoint = remove_push.endpoint and profile_id = me();
+  return 'off';
+end $$;
+
+-- what the lock screen says, in the bell's words
+create or replace function internal.push_text(n notifications) returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object('title', 'Dialed In', 'tag', 'n' || n.id, 'body',
+    coalesce(internal.name_of(n.actor_id), 'Someone') || ' ' || case n.kind
+      when 'like' then case when n.coffee_id is not null and n.session_id is null then 'liked your coffee' else 'liked your session' end
+      when 'comment' then 'commented' || coalesce(': ' || (select left(body, 120) from comments where id = n.comment_id and deleted_at is null), '')
+      when 'reply' then 'replied' || coalesce(': ' || (select left(body, 120) from comments where id = n.comment_id and deleted_at is null), '')
+      when 'comment_like' then 'liked your comment'
+      when 'follow' then 'started following you'
+      when 'follow_request' then 'wants to follow you'
+      when 'follow_accepted' then 'approved your follow request'
+      when 'joined_group' then 'joined ' || coalesce((select name from groups where id = n.group_id), 'your group')
+      when 'helpful' then 'marked your answer most helpful'
+      else 'did something' end);
+$$;
+
+-- for the sender only (it connects as the database owner): one notification's text and the phones to send it to
+create or replace function internal.push_payload(nid bigint, secret text) returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare n notifications;
+begin
+  if secret is null or secret is distinct from (select value from backend_state where key = 'push_secret') then return null; end if;
+  select * into n from notifications where id = nid;
+  if not found then return null; end if;
+  return internal.push_text(n) || jsonb_build_object(
+    'subject', coalesce((select value from backend_state where key = 'vapid_subject'), 'mailto:dialedin@example.com'),
+    'publicKey', (select value from backend_state where key = 'vapid_public'),
+    'privateKey', (select value from backend_state where key = 'vapid_private'),
+    'subs', coalesce((select jsonb_agg(jsonb_build_object('endpoint', s.endpoint, 'p256dh', s.p256dh, 'auth', s.auth)) from push_subscriptions s where s.profile_id = n.user_id), '[]'::jsonb));
+end $$;
+revoke execute on function internal.push_payload(bigint, text) from public, anon, authenticated;
+revoke execute on function internal.push_text(notifications) from public, anon, authenticated;
+
+create or replace function internal.on_notification() returns trigger language plpgsql security definer set search_path = public as $$
+declare url text := (select value from backend_state where key = 'push_url'); secret text := (select value from backend_state where key = 'push_secret');
+begin
+  if url is null or secret is null or not exists (select 1 from push_subscriptions where profile_id = new.user_id)
+     or not exists (select 1 from pg_extension where extname = 'pg_net') then return null; end if;
+  execute 'select net.http_post(url := $1, body := $2, headers := $3, timeout_milliseconds := 5000)'
+    using url, jsonb_build_object('id', new.id), jsonb_build_object('Content-Type', 'application/json', 'x-push-secret', secret);
+  return null;
+exception when others then return null;   -- a notification is never lost because a push couldn't be queued
+end $$;
+drop trigger if exists push_notification on notifications;
+create trigger push_notification after insert on notifications for each row execute function internal.on_notification();
+
 -- ---------------------------------------------------------------- reporting, your data, leaving
 create or replace function report(target_type text, target_id uuid, reason text default null) returns text
 language plpgsql set search_path = public as $$
@@ -1127,12 +1217,15 @@ grant execute on all functions in schema internal to authenticated;
 -- only signed-in people can call these (Postgres lets everyone run a new function unless told otherwise)
 revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), report_item(text, text, text),
   profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
+  push_key(), save_push(jsonb), remove_push(text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version() from public, anon;
 grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), report_item(text, text, text),
   profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
+  push_key(), save_push(jsonb), remove_push(text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version() to authenticated;
 revoke execute on all functions in schema internal from public, anon;
+revoke execute on function internal.push_payload(bigint, text), internal.push_text(notifications) from authenticated;   -- the sender's alone (it has the phones' addresses and the VAPID key)

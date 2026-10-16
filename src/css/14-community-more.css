@@ -45,3 +45,5 @@
         .profile-feed { display: grid; gap: 13px; }
         .prof-count { margin-left: 4px; color: var(--text-muted); font-weight: 700; }
         .prof-coffee-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 12px; }
+        /* Settings: notifications on this phone */
+        .pp-private .goal-sw[disabled] { opacity: 0.45; cursor: default; }

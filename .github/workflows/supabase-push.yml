@@ -1,0 +1,65 @@
+# Sets up phone notifications (Web Push): deploys the send-push function to Supabase, turns on pg_net (how the
+# database calls it), and stores the function's address, a shared secret and a VAPID key pair in backend_state
+# (made once, never printed; the keys never leave the database). Until this has run, the app shows no switch.
+# Needs the SUPABASE_ACCESS_TOKEN secret (Supabase, Account, Access Tokens) and SUPABASE_DB_PASSWORD.
+# Runs when pushed to the `supabase-push` branch; safe to run again (it only redeploys the function).
+name: supabase push
+on:
+  push:
+    branches: [supabase-push]
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_REF: glombusdjwlrgjihnylk
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Is there an access token yet?
+        id: cfg
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then echo "skip=1" >> "$GITHUB_OUTPUT"; echo "No SUPABASE_ACCESS_TOKEN secret yet: nothing set up." > "$RUNNER_TEMP/c.txt"; cat "$RUNNER_TEMP/c.txt"; bash supabase/report.sh "Push setup" "$RUNNER_TEMP/c.txt"; fi
+      - uses: supabase/setup-cli@v1
+        if: steps.cfg.outputs.skip != '1'
+        with:
+          version: latest
+      - name: Deploy the send-push function
+        if: steps.cfg.outputs.skip != '1'
+        run: |
+          set +e
+          supabase functions deploy send-push --project-ref "$PROJECT_REF" --no-verify-jwt 2>&1 | tee "$RUNNER_TEMP/d.txt"; rc=${PIPESTATUS[0]}
+          bash supabase/report.sh "Deploy send-push" "$RUNNER_TEMP/d.txt"; exit $rc
+      - name: Find the database
+        if: steps.cfg.outputs.skip != '1'
+        run: |
+          set +e
+          bash supabase/find_db.sh 2> "$RUNNER_TEMP/find.txt"; rc=$?
+          cat "$RUNNER_TEMP/find.txt"; [ $rc -eq 0 ] || bash supabase/report.sh "Find the database" "$RUNNER_TEMP/find.txt"; exit $rc
+      - name: Turn on pg_net and store the address, the secret and the keys (once)
+        if: steps.cfg.outputs.skip != '1'
+        run: |
+          set +e
+          npm install --no-save --silent web-push@3.6.7 >/dev/null 2>&1
+          keys=$(node -e "const k=require('web-push').generateVAPIDKeys(); process.stdout.write(k.publicKey + ' ' + k.privateKey)")
+          pub=${keys% *}; priv=${keys#* }; sec=$(openssl rand -hex 24)
+          echo "::add-mask::$priv"; echo "::add-mask::$sec"
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -Atq -v pub="$pub" -v priv="$priv" -v sec="$sec" -v url="https://$PROJECT_REF.supabase.co/functions/v1/send-push" > "$RUNNER_TEMP/p.txt" 2>&1 <<'SQL'
+          create extension if not exists pg_net;
+          insert into backend_state (key, value) values ('vapid_public', :'pub'), ('vapid_private', :'priv'), ('push_secret', :'sec') on conflict (key) do nothing;
+          insert into backend_state (key, value) values ('push_url', :'url') on conflict (key) do update set value = excluded.value, updated_at = now();
+          select 'pg_net: ' || coalesce((select extversion from pg_extension where extname = 'pg_net'), 'missing');
+          select 'keys stored: ' || count(*) from backend_state where key in ('vapid_public', 'vapid_private', 'push_secret', 'push_url');
+          select 'phones signed up so far: ' || count(*) from push_subscriptions;
+          SQL
+          rc=$?
+          cat "$RUNNER_TEMP/p.txt"; bash supabase/report.sh "Push setup" "$RUNNER_TEMP/p.txt"; exit $rc
+      - name: Check the function answers (a wrong secret is turned away)
+        if: steps.cfg.outputs.skip != '1'
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "https://$PROJECT_REF.supabase.co/functions/v1/send-push" -H 'Content-Type: application/json' -H 'x-push-secret: wrong' -d '{"id":1}')
+          echo "send-push answered $code (403 expected)" | tee "$RUNNER_TEMP/k.txt"
+          bash supabase/report.sh "Function check" "$RUNNER_TEMP/k.txt"
+          [ "$code" = "403" ]

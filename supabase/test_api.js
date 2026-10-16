@@ -460,6 +460,26 @@ ok(fx('maceo', `select resolve_report('comment', '${r1.target}', 'remove');`) ==
 ok(!JSON.parse(fx('maceo', 'select review_reports();')).some(r => r.ref === 'bb1' || r.kind === 'comment'), '...and both leave the review list');
 ok(/Only reviewers/.test(fx('aidan', `select resolve_report('session', '${bbRow.target}', 'remove');`)), 'nobody else can resolve a report');
 
+// phone notifications: nothing until the sender is set up; then a phone saves its subscription, and the sender reads
+// one notification's text and the phones to send it to (only with the shared secret)
+ok(fx('maceo', 'select push_key();') === '', 'push_key() is empty until the sender is set up (so the app shows no switch)');
+psql(`insert into backend_state (key, value) values ('vapid_public', 'BPUBLICKEY'), ('vapid_private', 'private-key'), ('push_url', 'https://example.com/functions/v1/send-push'), ('push_secret', 's3cret')
+  on conflict (key) do update set value = excluded.value;`);
+ok(fx('maceo', 'select push_key();') === 'BPUBLICKEY', '...then it hands out the public key');
+const SUB = { endpoint: 'https://push.example.com/abc', keys: { p256dh: 'BKEY', auth: 'AUTH' } };
+ok(/look right/.test(fx('maceo', `select save_push(${q(JSON.stringify({ endpoint: 'http://insecure', keys: SUB.keys }))}::jsonb);`)) && fx('maceo', `select save_push(${q(JSON.stringify(SUB))}::jsonb);`) === 'on' &&
+   one(`select p.legacy_name from push_subscriptions s join profiles p on p.id = s.profile_id;`) === 'Maceo', 'Maceo turns notifications on for his phone (a bad subscription is refused)');
+ok(/permission denied/.test(fx('aidan', 'select * from push_subscriptions;')) && /permission denied/.test(fx('anon', `select save_push(${q(JSON.stringify(SUB))}::jsonb);`)), "nobody can read the phones' addresses, and signed-out visitors can't save one");
+ok(/permission denied/.test(fx('maceo', `select internal.push_payload(1, 's3cret');`)), '...nor ask for what the sender reads');
+psql(`delete from notifications;`);
+push('aidan', { type: 'brew', id: 's2', beanId: 'b1', user: 'Maceo', owner: 'Maceo', likes: ['Aidan'], comments: [] });
+const nid = one(`select id from notifications order by id desc limit 1;`);
+const pay = JSON.parse(one(`select internal.push_payload(${nid}, 's3cret');`));
+ok(pay && pay.body === 'Aidan liked your session' && pay.subs.length === 1 && pay.subs[0].endpoint === SUB.endpoint && pay.privateKey === 'private-key' && one(`select internal.push_payload(${nid}, 'wrong') is null;`) === 't',
+   `a like is still saved with the sender set up (no pg_net here), and the sender reads "${pay && pay.body}" and Maceo's phone (never without the secret)`);
+ok(fx('maceo', `select remove_push(${q(SUB.endpoint)});`) === 'off' && one(`select count(*) from push_subscriptions;`) === '0', 'he turns them off: the phone is forgotten');
+psql(`delete from backend_state where key in ('vapid_public', 'vapid_private', 'push_url', 'push_secret');`);
+
 // the community goal counts Everyone and Friends sessions, not Only me; and says how many people brewed this week
 const g0 = JSON.parse(fx('julian', 'select community_goal();'));
 push('julian', { type: 'brew', id: 'jg2', beanId: 'b1', user: 'Julian', owner: 'Julian', method: 'Espresso', date: NOW(), audience: 'only_me', likes: [], comments: [] });
