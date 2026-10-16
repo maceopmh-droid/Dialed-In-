@@ -35,6 +35,10 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   ok(Number(one(`select count(*) from pg_policies where schemaname = 'storage' and tablename = 'objects' and policyname like 'photos\\_%';`)) === 4, 'the four photo rules are in place');
   const moved = one(`select coalesce((select value from backend_state where key = 'cutover_at'), '');`);
   console.log(moved ? `(moved to accounts on ${moved}: the app writes here directly)` : '(not moved to accounts yet: the Sheet is still in charge)');
+  const claimed = one(`select coalesce(string_agg(legacy_name, ', ' order by legacy_name), '') from profiles where legacy_name is not null and auth_id is not null;`);
+  const waiting = one(`select coalesce(string_agg(legacy_name, ', ' order by legacy_name), '') from profiles where legacy_name is not null and auth_id is null;`);
+  const newcomers = one(`select count(*) from profiles where legacy_name is null;`);
+  console.log(`(signed in and claimed: ${claimed || 'nobody yet'}; not yet: ${waiting || 'nobody'}; new profiles: ${newcomers})`);
 
   // from the outside, the way a phone talks to it, signed out
   const h = { apikey: PUBLISHABLE_KEY, 'Content-Type': 'application/json' };
