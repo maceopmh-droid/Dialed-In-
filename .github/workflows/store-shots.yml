@@ -9,7 +9,7 @@ on:
 
 jobs:
   shots:
-    runs-on: macos-15
+    runs-on: macos-26   # Apple takes only apps built with Xcode 26 or later
     timeout-minutes: 45
     permissions:
       contents: write   # (only to put the screenshots on the app-store-shots branch)
@@ -21,6 +21,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Use the newest Xcode (Apple takes uploads built with Xcode 26 or later)
+        run: |
+          x=$(ls -d /Applications/Xcode_*.app 2>/dev/null | grep -E 'Xcode_[0-9.]+\.app$' | sort -V | tail -1)
+          [ -n "$x" ] && sudo xcode-select -s "$x"
+          v=$(xcodebuild -version | head -1); echo "::notice title=Xcode::$v"
+          [ "$(echo "$v" | sed -E 's/Xcode ([0-9]+).*/\1/')" -ge 26 ] || { echo "::error title=Xcode::$v is older than Xcode 26; Apple won't take the upload."; exit 1; }
       - name: Make the iPhone project
         working-directory: native
         run: |
@@ -89,7 +95,7 @@ jobs:
             xcrun simctl terminate "$dev" "$BUNDLE_ID" 2>/dev/null || true
             xcrun simctl launch --console-pty "$dev" "$BUNDLE_ID" > "build/console_$look.log" 2>&1 &
             # if the app can't reach the runner, it says so in its log and holds each screen 8 s: take it from there
-            ( tail -n +1 -f "build/console_$look.log" | while IFS= read -r l; do case "$l" in *DIALED-SHOT-FAIL*/shot?name=*) n=${l##*name=}; n=${n%% *}; sleep 2; xcrun simctl io "$dev" screenshot "build/shots/${n}_$look.png" >/dev/null 2>&1; echo "shot (fallback) ${n}_$look";; esac; done ) &
+            ( tail -n +1 -f "build/console_$look.log" | while IFS= read -r l; do case "$l" in *DIALED-SHOT-FAIL*/shot?name=*) n=${l##*name=}; n=${n%% *}; [ -f "build/shots/${n}_$look.png" ] || { sleep 2; xcrun simctl io "$dev" screenshot "build/shots/${n}_$look.png" >/dev/null 2>&1; echo "shot (fallback) ${n}_$look" >> build/server.log; };; esac; done ) &
             watcher=$!
             for i in $(seq 1 120); do [ -f "build/shots/.done_$look" ] && break; sleep 3; done
             kill $watcher 2>/dev/null || true
@@ -97,6 +103,7 @@ jobs:
             [ -f "build/shots/.done_$look" ] || echo "::warning title=Screenshots::the $look run didn't finish in 6 minutes"
           done
           cat build/server.log
+          echo "::notice title=Screenshot log::$(tr '\n' ' ' < build/server.log | cut -c1-900)"
           rm -f "$app/public/index.html"   # (the copy with the password; the runner is thrown away anyway)
           n=$(ls build/shots/*.png 2>/dev/null | wc -l | tr -d ' ')
           echo "::notice title=Screenshots::$n screenshots ($(ls build/shots/*.png 2>/dev/null | xargs -n1 basename | tr '\n' ' '))"

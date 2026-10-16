@@ -46,7 +46,7 @@ jobs:
   build:
     needs: check
     if: always()
-    runs-on: macos-15
+    runs-on: macos-26   # Apple takes only apps built with Xcode 26 or later
     timeout-minutes: 45
     permissions:
       contents: write   # (only to put the simulator screenshots on the ios-shots branch)
@@ -63,6 +63,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Use the newest Xcode (Apple takes uploads built with Xcode 26 or later)
+        run: |
+          x=$(ls -d /Applications/Xcode_*.app 2>/dev/null | grep -E 'Xcode_[0-9.]+\.app$' | sort -V | tail -1)
+          [ -n "$x" ] && sudo xcode-select -s "$x"
+          v=$(xcodebuild -version | head -1); echo "::notice title=Xcode::$v"
+          [ "$(echo "$v" | sed -E 's/Xcode ([0-9]+).*/\1/')" -ge 26 ] || { echo "::error title=Xcode::$v is older than Xcode 26; Apple won't take the upload."; exit 1; }
       - name: Make the iPhone project
         working-directory: native
         run: |
