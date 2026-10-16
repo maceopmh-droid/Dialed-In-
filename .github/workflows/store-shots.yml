@@ -81,7 +81,7 @@ jobs:
           def changed(a, b):   # pixels that differ in the top band, where iOS shows notification banners
               box = (0, 110, 1320, 480)
               d = ImageChops.difference(Image.open(a).convert('L').crop(box), Image.open(b).convert('L').crop(box))
-              return sum(1 for v in d.getdata() if v > 24)
+              return sum(1 for v in d.tobytes() if v > 24)
           class H(http.server.BaseHTTPRequestHandler):
               def log_message(self, *a): pass
               def do_GET(self):
@@ -93,13 +93,16 @@ jobs:
                       name = ''.join(c for c in q.get('name', ['x'])[0] if c.isalnum() or c in '_-')
                       final, a, b = os.path.join(out, f'{name}_{look}.png'), os.path.join(out, '.a.png'), os.path.join(out, '.b.png')
                       # two screenshots 6 s apart must agree at the top, so a passing banner never lands in one
-                      grab(a); tries = 0
-                      while True:
-                          time.sleep(6); grab(b); tries += 1
-                          n = changed(a, b)
-                          if n < 400 or tries >= 5: break
-                          os.replace(b, a)
-                      os.replace(b, final); print(f'shot {name}_{look}' + (f' (after {tries} tries)' if tries > 1 else ''), flush=True)
+                      try:
+                          grab(a); tries = 0
+                          while True:
+                              time.sleep(6); grab(b); tries += 1
+                              n = changed(a, b)
+                              if n < 400 or tries >= 5: break
+                              os.replace(b, a)
+                          os.replace(b, final); print(f'shot {name}_{look}' + (f' (after {tries} tries)' if tries > 1 else ''), flush=True)
+                      except Exception as e:   # whatever went wrong, the screen as it is now
+                          grab(final); print(f'shot {name}_{look} (single: {type(e).__name__}: {str(e)[:120]})', flush=True)
                   elif u.path == '/done':
                       open(os.path.join(out, f'.done_{look}'), 'w').write(q.get('ok', ['?'])[0]); print(f'done {look} ok={q.get("ok", ["?"])[0]}', flush=True)
                   try:
@@ -108,7 +111,7 @@ jobs:
           http.server.ThreadingHTTPServer(('127.0.0.1', 8765), H).serve_forever()
           PY
           echo light > build/shots/.look
-          python3 build/server.py "$dev" build/shots > build/server.log 2>&1 &
+          python3 -W ignore build/server.py "$dev" build/shots > build/server.log 2>&1 &
           for look in light dark; do
             echo $look > build/shots/.look
             xcrun simctl ui "$dev" appearance $look
