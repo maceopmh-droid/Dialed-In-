@@ -16,12 +16,14 @@
                     if (pushRow) { const pu = document.createElement('div'); pu.innerHTML = pushRow; list.appendChild(pu.firstElementChild); }
                     if (this.acctToolsHtml) { const at = document.createElement('div'); at.innerHTML = this.acctToolsHtml(); while (at.firstElementChild) list.appendChild(at.firstElementChild); }   // (the tools, then the legal links)
                 }
+                // v14.6: with accounts, Settings is only yours: the old list of people (and their group goal switches) stays
+                // for the Sheet-era app; who shares your goal is your private communities
                 const head = document.createElement('div');
                 head.className = 'user-head';
                 head.innerHTML = '<span>Counts in group goal</span>';
-                list.appendChild(head);
+                if (!acct) list.appendChild(head);
 
-                this.users.forEach(userName => {
+                (acct ? [] : this.users).forEach(userName => {
                     const row = document.createElement('div');
                     row.className = 'user-row';
                     const color = this.getUserColor(userName);
