@@ -13,6 +13,7 @@
 const { execSync } = require('child_process');
 const { buildImport, eventKey } = require('./import_v9');
 const { runParity, report } = require('./parity');
+const { fetchSheet } = require('./lib/sheet');
 
 const arg = k => { const i = process.argv.indexOf('--' + k); return i > 0 ? process.argv[i + 1] : null; };
 const PSQL = arg('psql'), HTML = arg('html'), LIVE = arg('live'), LIVE_FILE = arg('live-file');
@@ -31,10 +32,8 @@ const key = e => JSON.stringify(canon(e));
   // 2. the live Sheet vs the archive
   let liveEvents = null;
   if (LIVE || LIVE_FILE) {
-    let body;
-    if (LIVE_FILE) body = JSON.parse(require('fs').readFileSync(LIVE_FILE, 'utf8'));
-    else { const res = await fetch(LIVE + (LIVE.includes('?') ? '&' : '?') + 'v=2&since=0&t=' + Date.now()); body = await res.json(); }
-    liveEvents = Array.isArray(body) ? body : (body.events || []);
+    if (LIVE_FILE) { const body = JSON.parse(require('fs').readFileSync(LIVE_FILE, 'utf8')); liveEvents = Array.isArray(body) ? body : (body.events || []); }
+    else liveEvents = await fetchSheet(LIVE);
     const have = new Set(archive.map(([, json]) => key(JSON.parse(json))));
     const missing = liveEvents.filter(e => !have.has(key(e)));
     const liveKeys = new Set(liveEvents.map(key));

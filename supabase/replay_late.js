@@ -13,6 +13,7 @@ const fs = require('fs');
 const { execSync } = require('child_process');
 const { planReplay } = require('./lib/replay');
 const { contentKey } = require('./import_v9');
+const { fetchSheet } = require('./lib/sheet');
 
 const arg = k => { const i = process.argv.indexOf('--' + k); return i > 0 ? process.argv[i + 1] : null; };
 const PSQL = arg('psql'), LIVE = arg('live'), ROWS = arg('rows'), DRY = process.argv.includes('--dry-run');
@@ -24,7 +25,7 @@ const list = s => (s ? s.split('\n').filter(Boolean) : []);
 (async () => {
   let events;
   if (ROWS) events = JSON.parse(fs.readFileSync(ROWS, 'utf8')).filter(r => typeof r[6] === 'string' && r[6][0] === '{').map(r => { try { return JSON.parse(r[6]); } catch (e) { return null; } }).filter(Boolean);
-  else { const res = await fetch(LIVE + (LIVE.includes('?') ? '&' : '?') + 'v=2&since=0&t=' + Date.now()); const body = await res.json(); events = Array.isArray(body) ? body : (body.events || []); }
+  else events = await fetchSheet(LIVE);
   const imported = new Set(list(sql(`select event_key from backend_imported;`)));
   if (!imported.size) { console.error('Nothing records what the tables were built from (run the import or the nightly check first), so nothing can count as new.'); process.exit(2); }
   const done = new Set(list(sql(`select substr(key, 6) from backend_state where key like 'late:%';`)));

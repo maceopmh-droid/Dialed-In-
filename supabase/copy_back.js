@@ -12,6 +12,7 @@
 // People who never signed in on Supabase have nothing new there, so nothing of theirs is sent.
 const { execSync } = require('child_process');
 const { loadApp } = require('./lib/app_in_node');
+const { fetchSheet } = require('./lib/sheet');
 
 const arg = k => { const i = process.argv.indexOf('--' + k); return i > 0 ? process.argv[i + 1] : null; };
 const PSQL = arg('psql'), HTML = arg('html'), LIVE = arg('live'), POST = process.argv.includes('--post');
@@ -23,9 +24,7 @@ const canon = v => Array.isArray(v) ? v.map(canon) : (v && typeof v === 'object'
 
 (async () => {
   // the Sheet now, through the app
-  const res = await fetch(LIVE + (LIVE.includes('?') ? '&' : '?') + 'v=2&since=0&t=' + Date.now());
-  const body = await res.json();
-  const sheetEvents = Array.isArray(body) ? body : (body.events || []);
+  const sheetEvents = await fetchSheet(LIVE);
   const S = loadApp(HTML); S.user = ''; S.process(sheetEvents);
 
   // Supabase now: each signed-in person's own records, as they see them
