@@ -24,7 +24,7 @@ const crypto = require('crypto');
 const path = require('path');
 const { loadApp } = require('./lib/app_in_node');
 
-const CONTENT_TABLES = ['notifications', 'group_members', 'groups', 'comment_likes', 'coffee_likes', 'likes', 'comments', 'session_notes', 'session_photos',
+const CONTENT_TABLES = ['highlights', 'highlight_months', 'notifications', 'group_members', 'groups', 'comment_likes', 'coffee_likes', 'likes', 'comments', 'session_notes', 'session_photos',
   'sessions', 'want_to_try', 'coffees', 'roasters', 'equipment', 'profile_gear', 'flavors'];
 
 function buildImport({ html, rows, mode = 'full' }) {

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v14.6 -->
+<!-- Dialed In v14.7 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="14.6">
+    <meta name="dialed-in-version" content="14.7">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -3514,6 +3514,16 @@
             #d-timeline-pane, #d-everyone-pane { max-width: var(--read-w); margin-left: auto; margin-right: auto; }
             .sc-card .session-photo-wrap.feed-photo, .feed-list .session-photo-wrap.feed-photo, .profile-feed .session-photo-wrap.feed-photo { width: 100%; }
         }
+        /* v14.7: monthly highlights (Discover, the first week of a month) */
+        .hl-card { padding: 13px 14px 6px; margin-bottom: 12px; }
+        .hl-head { display: flex; flex-direction: column; gap: 1px; margin-bottom: 4px; }
+        .hl-head b { font-size: 0.98rem; font-weight: 800; }
+        .hl-head small { font-size: 0.76rem; color: var(--text-muted); }
+        .hl-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 0; border: 0; border-top: 1px solid rgba(var(--hair-rgb), 0.07); background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+        .hl-head + .hl-row { border-top: 0; }
+        .hl-main { display: flex; flex-direction: column; min-width: 0; }
+        .hl-main b { font-size: 0.88rem; font-weight: 750; }
+        .hl-main small { font-size: 0.78rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -3869,7 +3879,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v14.6</div>
+            <div class="app-version">Dialed In · v14.7</div>
         </div>
     </div>
 
@@ -16648,7 +16658,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (this.feedMode() === 'groups') { this.renderGroupFeed(grid); return; }
                 const st = this.commState();
                 const list = this.communityEntries();
-                const head = this.feedModeHtml() + (this.communityGoalHtml ? this.communityGoalHtml() : '') + (this.commFilterHtml ? this.commFilterHtml() : '');
+                const head = this.feedModeHtml() + (this.highlightsHtml ? this.highlightsHtml() : '') + (this.communityGoalHtml ? this.communityGoalHtml() : '') + (this.commFilterHtml ? this.commFilterHtml() : '');   // v14.7: last month's highlights, the first week
                 if (!list.length) {
                     const f = st.filter || '';
                     const none = f === 'help' ? 'No help requests right now. When someone asks for help dialing in, it shows here.'
@@ -17796,6 +17806,47 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 this.saveGoals(this.myGoals().filter(x => x.type !== e.type));
                 this.closeReview();
                 this.showToast('Goal removed.');
+            },
+            // ---- v14.7: monthly highlights. For the first week of a month, Discover opens with last month's: a few people
+            // spotlighted for different reasons (best first month, most improved on one coffee, most helpful, explorer,
+            // standout photo), never the same person two months running. Tap one for their profile.
+            hlState() { return this._hl || (this._hl = { month: '', items: null, at: 0, loading: false }); },
+
+            hlShowing(now = Date.now()) { return new Date(now).getDate() <= 7; },
+
+            async loadHighlights() {
+                const st = this.hlState();
+                if (st.loading || !this.acctOn() || !Supa.ready()) return;
+                st.loading = true;
+                try { const out = await Supa.rpc('monthly_highlights', {}); st.month = (out && out.month) || ''; st.items = Array.isArray(out && out.items) ? out.items : []; }
+                catch (e) { st.items = st.items || []; }
+                finally { st.loading = false; st.at = Date.now(); }
+                if (this.tab === 'feed') { this._feedHtml = null; this.render(); }
+            },
+
+            hlLine(h) {
+                const d = h.detail || {}, n = (v, one, many) => `${v} ${Number(v) === 1 ? one : many}`;
+                switch (h.kind) {
+                    case 'first_month': return ['Best first month', n(d.sessions, 'session', 'sessions')];
+                    case 'improved': return ['Most improved', `${d.coffee ? `${d.coffee}: ` : ''}${this.fmtNum(d.from, 1)} to ${this.fmtNum(d.to, 1)} ★`];
+                    case 'helpful': return ['Most helpful', n(d.answers, 'answer marked most helpful', 'answers marked most helpful')];
+                    case 'explorer': return ['Explorer', n(d.origins, 'origin', 'origins')];
+                    case 'photo': return ['Standout photo', n(d.likes, 'like', 'likes')];
+                    default: return ['', ''];
+                }
+            },
+
+            highlightsHtml() {
+                if (!this.acctOn() || !this.hlShowing()) return '';
+                const st = this.hlState();
+                if (!st.loading && !st.at) setTimeout(() => this.loadHighlights(), 0);
+                if (!st.items || !st.items.length) return '';
+                const label = st.month ? new Date(`${st.month}T12:00:00`).toLocaleDateString(undefined, { month: 'long' }) : 'Last month';
+                const rows = st.items.map(h => {
+                    const [what, more] = this.hlLine(h);
+                    return `<button type="button" class="hl-row" data-profile="${this.esc(h.name)}">${this.personDotHtml(h.name, h.color)}<span class="hl-main"><b>${this.esc(h.name)}</b><small>${this.esc(what)}${more ? ` · ${this.esc(more)}` : ''}</small></span></button>`;
+                }).join('');
+                return `<section class="feed-card hl-card" aria-label="${this.esc(label)} highlights"><div class="hl-head"><b>${this.esc(label)} highlights</b><small>From what people shared with Everyone</small></div>${rows}</section>`;
             },
         };
         window.onload = () => app.init();

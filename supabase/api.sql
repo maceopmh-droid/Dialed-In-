@@ -524,6 +524,91 @@ begin
     'summary', summary);
 end $$;
 
+-- ---------------------------------------------------------------- v14.7: monthly highlights
+-- Instead of awards that would go to the same heavy brewers every month: a handful of people spotlighted for
+-- different reasons, from what was shared with Everyone last month. Nobody is featured two months running, and one
+-- person gets at most one highlight a month. Worked out once, the first time anyone asks after the month ends, then
+-- kept (so it never changes under people). Everyone sees the same ones, except people they've blocked.
+--   first_month  best first month: joined that month, the most sessions (at least 3)
+--   improved     most improved on one coffee: the biggest rise from their first rating on it that month (at least 1 star)
+--   helpful      most helpful: answers marked most helpful that month
+--   explorer     most origins explored (at least 3)
+--   photo        standout photo: the session photo with the most likes from other people (at least 2)
+create table if not exists highlights (
+  month       date not null,
+  kind        text not null,
+  profile_id  uuid not null references profiles (id) on delete cascade,
+  session_id  uuid references sessions (id) on delete set null,
+  detail      jsonb not null default '{}',
+  made_at     timestamptz not null default now(),
+  primary key (month, kind)
+);
+alter table highlights enable row level security;   -- no rules: read through monthly_highlights() only
+revoke all on highlights from anon, authenticated;
+create table if not exists highlight_months (month date primary key, made_at timestamptz not null default now());
+alter table highlight_months enable row level security;
+revoke all on highlight_months from anon, authenticated;
+
+create or replace function internal.make_highlights(m date) returns void
+language plpgsql security definer set search_path = public as $$
+declare taken uuid[]; m1 date := (m + interval '1 month')::date; r record;
+begin
+  perform pg_advisory_xact_lock(hashtext('highlights:' || m::text));
+  if exists (select 1 from highlight_months where month = m) then return; end if;
+  taken := coalesce((select array_agg(profile_id) from highlights where month = (m - interval '1 month')::date), '{}');   -- last month's: not again
+  create temp table hl_pool on commit drop as
+    select s.id, s.owner_id, s.rating, s.brewed_at, s.coffee_id,
+           coalesce(nullif(lower(btrim(k.roaster_text)), ''), '?') || '|' || coalesce(nullif(lower(btrim(k.name)), ''), s.coffee_id::text) as ckey, k.name as cname,
+           nullif(lower(btrim(split_part(coalesce(k.origin, ''), ',', 1))), '') as origin
+    from sessions s left join coffees k on k.id = s.coffee_id
+    where s.deleted_at is null and s.audience = 'everyone' and s.brewed_at >= m and s.brewed_at < m1
+      and not exists (select 1 from reports x where x.target_type = 'session' and x.target_id = s.id and x.status in ('hidden', 'removed'));
+  -- best first month
+  select p.owner_id, count(*) as n into r from hl_pool p join profiles o on o.id = p.owner_id
+  where o.joined_at >= m and o.joined_at < m1 and not (p.owner_id = any(taken))
+  group by p.owner_id having count(*) >= 3 order by count(*) desc, avg(coalesce(p.rating, 0)) desc, p.owner_id limit 1;
+  if found then insert into highlights (month, kind, profile_id, detail) values (m, 'first_month', r.owner_id, jsonb_build_object('sessions', r.n)); taken := taken || r.owner_id; end if;
+  -- most improved on one coffee
+  select x.owner_id, x.cname, x.first_r, x.best_r, x.best_id into r from (
+    select p.owner_id, max(p.cname) as cname,
+           (array_agg(p.rating order by p.brewed_at) filter (where p.rating > 0))[1] as first_r,
+           max(p.rating) as best_r,
+           (array_agg(p.id order by p.rating desc nulls last, p.brewed_at desc))[1] as best_id,
+           count(*) filter (where p.rating > 0) as n
+    from hl_pool p where not (p.owner_id = any(taken)) group by p.owner_id, p.ckey) x
+  where x.n >= 3 and x.best_r - x.first_r >= 1 order by x.best_r - x.first_r desc, x.best_r desc, x.owner_id limit 1;
+  if found then insert into highlights (month, kind, profile_id, session_id, detail) values (m, 'improved', r.owner_id, r.best_id, jsonb_build_object('coffee', r.cname, 'from', r.first_r, 'to', r.best_r)); taken := taken || r.owner_id; end if;
+  -- most helpful
+  select c.author_id, count(*) as n into r from comments c join sessions s on s.id = c.session_id
+  where c.most_helpful and c.deleted_at is null and c.created_at >= m and c.created_at < m1 and s.audience = 'everyone' and not (c.author_id = any(taken))
+  group by c.author_id order by count(*) desc, c.author_id limit 1;
+  if found then insert into highlights (month, kind, profile_id, detail) values (m, 'helpful', r.author_id, jsonb_build_object('answers', r.n)); taken := taken || r.author_id; end if;
+  -- most origins explored
+  select p.owner_id, count(distinct p.origin) as n into r from hl_pool p where p.origin is not null and not (p.owner_id = any(taken))
+  group by p.owner_id having count(distinct p.origin) >= 3 order by count(distinct p.origin) desc, p.owner_id limit 1;
+  if found then insert into highlights (month, kind, profile_id, detail) values (m, 'explorer', r.owner_id, jsonb_build_object('origins', r.n)); taken := taken || r.owner_id; end if;
+  -- standout photo
+  select p.owner_id, p.id, (select count(*) from likes l where l.session_id = p.id and l.user_id <> p.owner_id) as n into r
+  from hl_pool p join session_photos ph on ph.session_id = p.id and ph.audience = 'everyone'
+  where not (p.owner_id = any(taken)) order by 3 desc, p.brewed_at desc limit 1;
+  if found and r.n >= 2 then insert into highlights (month, kind, profile_id, session_id, detail) values (m, 'photo', r.owner_id, r.id, jsonb_build_object('likes', r.n)); end if;
+  insert into highlight_months (month) values (m);
+end $$;
+
+create or replace function monthly_highlights(month date default null) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare me_id uuid := me(); m date := date_trunc('month', coalesce(monthly_highlights.month, (now() - interval '1 month')::date))::date;
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  if m >= date_trunc('month', now())::date then raise exception 'That month isn''t over yet.' using errcode = '22023'; end if;
+  if not exists (select 1 from highlight_months where highlight_months.month = m) then perform internal.make_highlights(m); end if;
+  return jsonb_build_object('month', m, 'items', coalesce((select jsonb_agg(jsonb_strip_nulls(jsonb_build_object(
+      'kind', h.kind, 'name', internal.name_of(h.profile_id), 'color', internal.color_of(h.profile_id),
+      'session', (select coalesce(s.legacy_id, s.id::text) from sessions s where s.id = h.session_id and s.deleted_at is null and s.audience = 'everyone'),
+      'detail', h.detail)) order by array_position(array['first_month', 'improved', 'helpful', 'explorer', 'photo'], h.kind))
+    from highlights h where h.month = m and not private.blocked_either(me_id, h.profile_id)), '[]'::jsonb));
+end $$;
+
 -- ---------------------------------------------------------------- has anything changed? data_version()
 -- v14.4: a fingerprint of your circle (you, your friends, your groups, the people you follow): what the sync would
 -- send you. The app asks for it (a few bytes) every sync and only pulls everything again when it changed. It's your
@@ -1484,13 +1569,13 @@ end $$;
 grant usage on schema internal to authenticated;
 grant execute on all functions in schema internal to authenticated;
 -- only signed-in people can call these (Postgres lets everyone run a new function unless told otherwise)
-revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text), coffee_community(text, text, timestamptz, int), report_item(text, text, text),
+revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text), coffee_community(text, text, timestamptz, int), monthly_highlights(date), report_item(text, text, text),
   profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
   push_key(), push_ready(), save_push(jsonb), remove_push(text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version() from public, anon;
-grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text), coffee_community(text, text, timestamptz, int), report_item(text, text, text),
+grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text), coffee_community(text, text, timestamptz, int), monthly_highlights(date), report_item(text, text, text),
   profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
   push_key(), push_ready(), save_push(jsonb), remove_push(text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),

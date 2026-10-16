@@ -162,3 +162,13 @@
             #d-timeline-pane, #d-everyone-pane { max-width: var(--read-w); margin-left: auto; margin-right: auto; }
             .sc-card .session-photo-wrap.feed-photo, .feed-list .session-photo-wrap.feed-photo, .profile-feed .session-photo-wrap.feed-photo { width: 100%; }
         }
+        /* v14.7: monthly highlights (Discover, the first week of a month) */
+        .hl-card { padding: 13px 14px 6px; margin-bottom: 12px; }
+        .hl-head { display: flex; flex-direction: column; gap: 1px; margin-bottom: 4px; }
+        .hl-head b { font-size: 0.98rem; font-weight: 800; }
+        .hl-head small { font-size: 0.76rem; color: var(--text-muted); }
+        .hl-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 0; border: 0; border-top: 1px solid rgba(var(--hair-rgb), 0.07); background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+        .hl-head + .hl-row { border-top: 0; }
+        .hl-main { display: flex; flex-direction: column; min-width: 0; }
+        .hl-main b { font-size: 0.88rem; font-weight: 750; }
+        .hl-main small { font-size: 0.78rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

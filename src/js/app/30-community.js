@@ -151,7 +151,7 @@
                 if (this.feedMode() === 'groups') { this.renderGroupFeed(grid); return; }
                 const st = this.commState();
                 const list = this.communityEntries();
-                const head = this.feedModeHtml() + (this.communityGoalHtml ? this.communityGoalHtml() : '') + (this.commFilterHtml ? this.commFilterHtml() : '');
+                const head = this.feedModeHtml() + (this.highlightsHtml ? this.highlightsHtml() : '') + (this.communityGoalHtml ? this.communityGoalHtml() : '') + (this.commFilterHtml ? this.commFilterHtml() : '');   // v14.7: last month's highlights, the first week
                 if (!list.length) {
                     const f = st.filter || '';
                     const none = f === 'help' ? 'No help requests right now. When someone asks for help dialing in, it shows here.'

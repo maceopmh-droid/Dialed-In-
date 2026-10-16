@@ -564,6 +564,46 @@ ok(reps.slice(0, 20).every(r => r === 'reported') && /going a bit fast/.test(rep
 ok(Number(one(`select count(*) from notifications where kind = 'report';`)) - Number(repAlerts0) <= 1, 'reporting the same thing again doesn\'t alert the reviewer again');
 psql(`delete from internal.rate_log; delete from comments where legacy_ref like 'dold#sp%'; delete from reports where reason ~ '^r[0-9]+$';`);
 
+// v14.7: monthly highlights: different people for different reasons, from what was shared with Everyone; once worked
+// out they're kept; nobody two months running; at most one each; people you blocked don't show for you
+{
+  const M0 = new Date(); const ym = (y, mo) => `${y}-${String(mo).padStart(2, '0')}-01`;
+  const prev = new Date(Date.UTC(M0.getUTCFullYear(), M0.getUTCMonth() - 1, 1)), prev2 = new Date(Date.UTC(M0.getUTCFullYear(), M0.getUTCMonth() - 2, 1));
+  const PM = ym(prev.getUTCFullYear(), prev.getUTCMonth() + 1), PM2 = ym(prev2.getUTCFullYear(), prev2.getUTCMonth() + 1);
+  const inPM = (d, h = 12) => `${PM.slice(0, 8)}${String(d).padStart(2, '0')}T${String(h).padStart(2, '0')}:00:00Z`;
+  psql(`insert into auth.users values ('aaaaaaaa-0000-0000-0000-000000000061'), ('aaaaaaaa-0000-0000-0000-000000000062'), ('aaaaaaaa-0000-0000-0000-000000000063');`);
+  AUTH.h1 = 'aaaaaaaa-0000-0000-0000-000000000061'; AUTH.h2 = 'aaaaaaaa-0000-0000-0000-000000000062'; AUTH.h3 = 'aaaaaaaa-0000-0000-0000-000000000063';
+  fx('h1', `select create_profile('Hana');`); fx('h2', `select create_profile('Hugo');`); fx('h3', `select create_profile('Hedy');`);
+  psql(`update profiles set joined_at = '${inPM(2)}' where display_name = 'Hana'; update profiles set joined_at = '${PM2}' where display_name in ('Hugo', 'Hedy');`);
+  // Hana: new last month, 4 sessions; Hugo: one coffee from 2 to 4.5 stars; Hedy: three origins, and a photo two people liked
+  const bean = (who, name, id, origin) => push(who, { type: 'bean', id, user: name, owner: name, roaster: 'Test', name: id, origin, likes: [], comments: [] });
+  const brew = (who, name, id, beanId, d, rating, extra = {}) => push(who, { type: 'brew', id, beanId, user: name, owner: name, method: 'Espresso', rating, date: inPM(d), audience: 'everyone', likes: [], comments: [], ...extra });
+  bean('h1', 'Hana', 'hb1', 'Kenya'); [3, 5, 7, 9].forEach((d, i) => brew('h1', 'Hana', 'hs' + i, 'hb1', d, 3));
+  bean('h2', 'Hugo', 'gb1', 'Brazil'); brew('h2', 'Hugo', 'gs1', 'gb1', 4, 2); brew('h2', 'Hugo', 'gs2', 'gb1', 10, 3.5); brew('h2', 'Hugo', 'gs3', 'gb1', 18, 4.5);
+  ['Ethiopia', 'Colombia', 'Peru'].forEach((o, i) => bean('h3', 'Hedy', 'eb' + i, o));
+  ['eb0', 'eb1', 'eb2'].forEach((b, i) => brew('h3', 'Hedy', 'es' + i, b, 6 + i, 4));
+  psql(`insert into session_photos (session_id, path, audience) select id, 'sb:${AUTH.h3}/es0.jpg', 'everyone' from sessions where legacy_id = 'es0';
+        insert into likes (session_id, user_id) select s.id, p.id from sessions s, profiles p where s.legacy_id = 'es0' and p.display_name in ('Hana', 'Hugo');`);
+  const hl = JSON.parse(fx('stranger', `select monthly_highlights();`));
+  const kinds = Object.fromEntries((hl.items || []).map(x => [x.kind, x.name]));
+  ok(hl.month === PM && kinds.first_month === 'Hana' && kinds.improved === 'Hugo' && kinds.explorer === 'Hedy' && !kinds.photo, `last month's highlights: ${JSON.stringify(kinds)} (one each: Hedy has the explorer one, so the photo goes to nobody else with two likes)`);
+  const imp = hl.items.find(x => x.kind === 'improved');
+  ok(imp && imp.detail.from === 2 && imp.detail.to === 4.5 && imp.session === 'gs3', `"most improved" says from 2 to 4.5 stars, and points at that session (${JSON.stringify(imp)})`);
+  psql(`update sessions set rating = 5 where legacy_id = 'hs0';`);
+  ok(JSON.stringify(JSON.parse(fx('maceo', `select monthly_highlights();`)).items) === JSON.stringify(hl.items), 'once worked out, they stay the same (for everyone)');
+  fx('h1', `select block('Hugo');`);
+  ok(!JSON.parse(fx('h1', `select monthly_highlights();`)).items.some(x => x.name === 'Hugo'), 'someone you blocked (or who blocked you) isn\'t shown to you');
+  fx('h1', `select unblock('Hugo');`);
+  ok(/isn't over yet/.test(fx('stranger', `select monthly_highlights(date_trunc('month', now())::date);`)), 'this month: not yet');
+  ok(/permission denied/.test(fx('anon', `select monthly_highlights();`)), 'not signed in: refused');
+  // the month before: nobody featured last month can be featured in it... (checked going forward: a new month skips last month's people)
+  psql(`insert into highlights (month, kind, profile_id) select '${PM2}'::date, 'first_month', id from profiles where display_name = 'Hugo';`);
+  psql(`delete from highlights where month = '${PM}'; delete from highlight_months where month = '${PM}';`);
+  const hl2 = JSON.parse(fx('stranger', `select monthly_highlights();`));
+  ok(!hl2.items.some(x => x.name === 'Hugo'), `nobody two months running (Hugo was featured the month before, so not again: ${JSON.stringify(hl2.items.map(x => x.kind + ':' + x.name))})`);
+  psql(`delete from highlights; delete from highlight_months;`);
+}
+
 // the community goal counts Everyone and Friends sessions, not Only me; and says how many people brewed this week
 const g0 = JSON.parse(fx('julian', 'select community_goal();'));
 push('julian', { type: 'brew', id: 'jg2', beanId: 'b1', user: 'Julian', owner: 'Julian', method: 'Espresso', date: NOW(), audience: 'only_me', likes: [], comments: [] });
