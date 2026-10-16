@@ -45,3 +45,9 @@ jobs:
           set +e
           node supabase/shadow_check.js --psql "psql '$DB_URL'" --html index.html --live "$SHEET_URL" 2>&1 | tee "$RUNNER_TEMP/shadow.txt"; rc=${PIPESTATUS[0]}
           bash supabase/report.sh "Shadow check" "$RUNNER_TEMP/shadow.txt"; exit $rc
+      - name: After the move, carry over saves that still reached the Sheet
+        run: |
+          set +e
+          if [ -z "$(psql "$DB_URL" -Atqc "select value from backend_state where key = 'cutover_at'")" ]; then echo "Not moved yet: nothing to carry over." | tee "$RUNNER_TEMP/late.txt"; bash supabase/report.sh "Late saves" "$RUNNER_TEMP/late.txt"; exit 0; fi
+          node supabase/replay_late.js --psql "psql '$DB_URL'" --live "$SHEET_URL" 2>&1 | tee "$RUNNER_TEMP/late.txt"; rc=${PIPESTATUS[0]}
+          bash supabase/report.sh "Late saves" "$RUNNER_TEMP/late.txt"; exit $rc

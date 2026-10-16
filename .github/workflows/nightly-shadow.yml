@@ -2,7 +2,8 @@
 # tables are rebuilt from the live Sheet, and the app must show exactly the same thing from either side.
 # Does nothing until a SUPABASE_DB_PASSWORD (or SUPABASE_DB_URL) secret exists (Settings > Secrets and variables >
 # Actions), so it's safe to have in the repository before Supabase is set up. Scheduled runs only happen once this
-# file is on main. The logs are public: it prints only counts, record ids and field names.
+# file is on main. After the move it also carries over any save that still reached the Sheet (replay_late.js).
+# The logs are public: it prints only counts, record ids, field names and first names.
 name: nightly shadow check
 on:
   schedule:
@@ -30,7 +31,20 @@ jobs:
           node-version: '20'
       - name: Find the database
         if: steps.cfg.outputs.skip != '1'
-        run: bash supabase/find_db.sh
+        run: |
+          set +e
+          bash supabase/find_db.sh 2> "$RUNNER_TEMP/find.txt"; rc=$?
+          cat "$RUNNER_TEMP/find.txt"; [ $rc -eq 0 ] || bash supabase/report.sh "Find the database" "$RUNNER_TEMP/find.txt"; exit $rc
       - name: Archive the live Sheet, rebuild the tables from it, parity with the app
         if: steps.cfg.outputs.skip != '1'
-        run: node supabase/shadow_check.js --psql "psql '$DB_URL'" --html index.html --live "$SHEET_URL"
+        run: |
+          set +e
+          node supabase/shadow_check.js --psql "psql '$DB_URL'" --html index.html --live "$SHEET_URL" 2>&1 | tee "$RUNNER_TEMP/shadow.txt"; rc=${PIPESTATUS[0]}
+          bash supabase/report.sh "Shadow check" "$RUNNER_TEMP/shadow.txt"; exit $rc
+      - name: After the move, carry over saves that still reached the Sheet
+        if: steps.cfg.outputs.skip != '1'
+        run: |
+          set +e
+          if [ -z "$(psql "$DB_URL" -Atqc "select value from backend_state where key = 'cutover_at'")" ]; then echo "Not moved yet: nothing to carry over." | tee "$RUNNER_TEMP/late.txt"; bash supabase/report.sh "Late saves" "$RUNNER_TEMP/late.txt"; exit 0; fi
+          node supabase/replay_late.js --psql "psql '$DB_URL'" --live "$SHEET_URL" 2>&1 | tee "$RUNNER_TEMP/late.txt"; rc=${PIPESTATUS[0]}
+          bash supabase/report.sh "Late saves" "$RUNNER_TEMP/late.txt"; exit $rc
