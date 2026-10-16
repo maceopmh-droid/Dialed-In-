@@ -535,6 +535,14 @@ ok(cs.events.some(e => e.type === 'bean' && e.id === 'mb9') && cs.events.some(e 
 ok(JSON.parse(fx('stranger', `select coffee_community('', '');`)).summary === null && cc('stranger', ", max_items => 40").next === null, 'no name: nothing; the last page says so');
 ok(/permission denied/.test(fx('anon', `select coffee_community('sey', 'kenya kiambu');`)), 'not signed in: refused');
 
+// v14.6: your own goals ride in your gear record: saved, back in your pull, never in anyone else's
+const myGear = pull('maceo').find(e => e.type === 'gear' && e.id === 'gear-Maceo') || { type: 'gear', id: 'gear-Maceo', user: 'Maceo', owner: 'Maceo', items: [] };
+const goalsIn = [{ type: 'week', target: 5 }, { type: 'beat', target: 4.5, key: 'onyx|monarch', name: 'Monarch', since: '2026-10-16T12:00:00Z' }, { type: 'coffees', target: 2 }, { type: 'week', target: 9 }];
+ok(!push('maceo', { ...myGear, goals: goalsIn }).err, 'saving goals with the gear record');
+const gBack = (pull('maceo').find(e => e.type === 'gear' && e.id === 'gear-Maceo') || {}).goals || [];
+ok(gBack.length === 3 && gBack[0].target === 5 && gBack[1].key === 'onyx|monarch', `your goals come back in your pull (at most three: ${JSON.stringify(gBack.map(g => g.type))})`);
+ok(!pull('aidan').some(e => e.type === 'gear' && e.owner === 'Maceo' && 'goals' in e) && !pull('stranger').some(e => e.type === 'gear' && e.owner === 'Maceo' && 'goals' in e), 'nobody else gets your goals (a friend or a stranger)');
+
 // v14.6: speed limits: 20 new comments in 5 minutes (by the server's clock), then "going a bit fast"; reports too
 const spamOn = (n, from = 0) => ({ type: 'brew', id: 'dold', beanId: 'db1', user: 'Discoverer One', owner: 'Discoverer One', method: 'Pour Over', date: ago(24 * 9), audience: 'everyone',
   notes: 'bright, floral, long sweet finish', rating: 5, likes: [], comments: Array.from({ length: n }, (_, i) => ({ id: 'sp' + (from + i), user: 'Stranger', text: 'nice ' + (from + i), timestamp: '2020-01-01T00:00:00Z', parentId: '', likes: [] })) });
