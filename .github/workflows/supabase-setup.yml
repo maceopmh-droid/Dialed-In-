@@ -24,13 +24,24 @@ jobs:
         with:
           node-version: '20'
       - name: Find the database
-        run: bash supabase/find_db.sh
+        run: |
+          set +e
+          bash supabase/find_db.sh 2> "$RUNNER_TEMP/find.txt"; rc=$?
+          cat "$RUNNER_TEMP/find.txt"; bash supabase/report.sh "Find the database" "$RUNNER_TEMP/find.txt"; exit $rc
       - name: Load the database (only into an empty project; all three files in one go, all or nothing)
         run: |
-          if [ "$(psql "$DB_URL" -Atqc "select to_regclass('public.profiles') is not null")" = "t" ]; then echo "Already loaded: nothing to do."; exit 0; fi
-          psql "$DB_URL" -1 -q -v ON_ERROR_STOP=1 -f supabase/schema.sql -f supabase/api.sql -f supabase/storage.sql
-          echo "Loaded schema.sql, api.sql and storage.sql."
+          set +e
+          if [ "$(psql "$DB_URL" -Atqc "select to_regclass('public.profiles') is not null")" = "t" ]; then echo "Already loaded: nothing to do." | tee "$RUNNER_TEMP/load.txt"; bash supabase/report.sh "Load" "$RUNNER_TEMP/load.txt"; exit 0; fi
+          PGOPTIONS='-c client_min_messages=warning' psql "$DB_URL" -1 -q -v ON_ERROR_STOP=1 -f supabase/schema.sql -f supabase/api.sql -f supabase/storage.sql 2>&1 | tee "$RUNNER_TEMP/load.txt"
+          rc=${PIPESTATUS[0]}; [ $rc -eq 0 ] && echo "Loaded schema.sql, api.sql and storage.sql." | tee -a "$RUNNER_TEMP/load.txt"
+          bash supabase/report.sh "Load" "$RUNNER_TEMP/load.txt"; exit $rc
       - name: Check the project
-        run: node supabase/check_project.js
+        run: |
+          set +e
+          node supabase/check_project.js 2>&1 | tee "$RUNNER_TEMP/check.txt"; rc=${PIPESTATUS[0]}
+          bash supabase/report.sh "Project checks" "$RUNNER_TEMP/check.txt"; exit $rc
       - name: Shadow check (archive the live Sheet, rebuild the tables from it, compare with the app)
-        run: node supabase/shadow_check.js --psql "psql '$DB_URL'" --html index.html --live "$SHEET_URL"
+        run: |
+          set +e
+          node supabase/shadow_check.js --psql "psql '$DB_URL'" --html index.html --live "$SHEET_URL" 2>&1 | tee "$RUNNER_TEMP/shadow.txt"; rc=${PIPESTATUS[0]}
+          bash supabase/report.sh "Shadow check" "$RUNNER_TEMP/shadow.txt"; exit $rc
