@@ -62,8 +62,8 @@ jobs:
               def do_GET(self):
                   u = urllib.parse.urlparse(self.path); q = urllib.parse.parse_qs(u.query)
                   if u.path == '/tap':
-                      x, y = q['x'][0], q['y'][0]
-                      r = subprocess.run(['idb', 'ui', 'tap', '--udid', dev, x, y], capture_output=True, text=True)
+                      x, y = str(round(float(q['x'][0]))), str(round(float(q['y'][0])))
+                      r = subprocess.run(['idb', 'ui', 'tap', x, y, '--udid', dev], capture_output=True, text=True)
                       if r.returncode: print('tap failed', r.stderr.strip()[:200], flush=True)
                   elif u.path == '/result': print('RESULT ' + q['r'][0], flush=True)
                   elif u.path == '/log': print('LOG ' + q['m'][0], flush=True)
