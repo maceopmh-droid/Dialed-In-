@@ -3558,6 +3558,14 @@
         .legal-done { border: 0; background: none; font: inherit; font-weight: 700; color: var(--matcha); padding: 8px 4px; min-height: 44px; cursor: pointer; }
         #legal-frame { flex: 1; width: 100%; border: 0; background: var(--paper); }
 
+
+        /* v14.8: on a phone the top bar is see-through glass, so when the page is scrolled a little, what you see through
+           it (like the Feed tabs) is what a tap reaches; only the bar's own buttons take taps */
+        @media (max-width: 768px) {
+            .header-sticky, .header-sticky .header-top, .header-sticky .header-top > div, .header-sticky h2 { pointer-events: none; }
+            .header-sticky button, .header-sticky a, .header-sticky input, .header-sticky select, .header-sticky label, .header-sticky [onclick],
+            .header-sticky .header-controls, .header-sticky .mobile-controls-panel, .header-sticky .status-badge { pointer-events: auto; }
+        }
     </style>
 </head>
 <body>
