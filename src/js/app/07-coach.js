@@ -383,6 +383,6 @@
             },
 
             coachHtml(k, title) {
-                return `<div class="next-card coach ${k.mode}"><div class="next-title">${this.esc(title)}${k.conf ? ` \u00b7 ${this.esc(k.conf)}` : ''}</div><div class="next-headline">${this.esc(k.head)}</div>${k.next ? `<div class="coach-next"><span>Next</span>${this.esc(k.next)}</div>` : ''}${k.why.length ? `<div class="next-detail">${this.esc(k.why.join(' '))}</div>` : ''}${k.ev.length ? `<div class="ev">${k.ev.map(e => `<span class="evc ${e.side}">${this.esc(e.text)}</span>`).join('')}</div>` : ''}${k.ctx.length ? `<div class="coach-ctx">${k.ctx.map(([a, b]) => `<div><b>${this.esc(a)}</b>${this.esc(b)}</div>`).join('')}</div>` : ''}</div>`;
+                return `<div class="next-card coach ${k.mode}"><div class="next-title">${this.esc(title)}${k.conf ? ` \u00b7 ${this.esc(k.conf)}` : ''}</div><div class="next-headline">${this.esc(k.head)}</div>${k.next ? `<div class="coach-next"><span>Next</span>${this.esc(k.next).split(' \u00b7 ').map(x => `<i class="cn">${x}</i>`).join(' \u00b7 ')}</div>` : ''}${k.why.length ? `<div class="next-detail">${this.esc(k.why.join(' '))}</div>` : ''}${k.ev.length ? `<div class="ev">${k.ev.map(e => `<span class="evc ${e.side}">${this.esc(e.text)}</span>`).join('')}</div>` : ''}${k.ctx.length ? `<div class="coach-ctx">${k.ctx.map(([a, b]) => `<div><b>${this.esc(a)}</b>${this.esc(b)}</div>`).join('')}</div>` : ''}</div>`;
             },
 
