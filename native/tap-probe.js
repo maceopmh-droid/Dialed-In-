@@ -17,30 +17,38 @@
         try { if (app.closeWelcome) app.closeWelcome(); } catch (e) { /* none */ }
         await ask('/hello');
         const results = [];
-        // a control first: a tap on the bottom bar's Profiles (if this doesn't switch, the taps aren't reaching the app)
-        app.setTab('my'); await sleep(700);
-        const prof = document.querySelector('.mob-item[data-tab="profile"]');
-        if (prof) { const r = prof.getBoundingClientRect(); await ask(`/tap?x=${(r.left + r.width / 2).toFixed(1)}&y=${(r.top + r.height / 2).toFixed(1)}`); await sleep(900); results.push({ at: 'control: bottom bar Profiles', x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2), was: 'my', now: app.tab, hit: 'Profiles' }); }
+        const tapAt = async (x, y) => { await ask(`/tap?x=${x.toFixed(1)}&y=${y.toFixed(1)}`); await sleep(800); };
+        const center = el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
+        // controls: the bottom bar
+        for (const [from, to] of [['my', 'profile'], ['profile', 'feed'], ['feed', 'my']]) {
+            app.setTab(from); await sleep(800);
+            const el = document.querySelector(`.mob-item[data-tab="${to}"]`); if (!el) continue;
+            const [x, y] = center(el); const hit = document.elementFromPoint(x, y);
+            await tapAt(x, y);
+            results.push({ at: `bottom bar ${to} (from ${from})`, x: Math.round(x), y: Math.round(y), was: from, now: app.tab, hit: hit ? (hit.className || hit.tagName).toString().slice(0, 18) : 'none' });
+        }
         const reset = async () => { app.setTab('feed'); app.setFeedMode('following'); const m = document.getElementById('main-content'); if (m) m.scrollTop = 0; await sleep(900); };
-        await reset();
-        const btns = () => [...document.querySelectorAll('.seg-control.feed-mode button')];
-        const rects = btns().map(b => { const r = b.getBoundingClientRect(); return { label: b.textContent.trim(), x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height) }; });
-        await ask('/log?m=' + encodeURIComponent('tabs ' + JSON.stringify(rects) + ' screen ' + innerWidth + 'x' + innerHeight + ' dpr ' + devicePixelRatio));
-        const com = rects.find(r => r.label === 'Community'), fol = rects.find(r => r.label === 'Following'), dis = rects.find(r => r.label === 'Discover');
-        const points = [];
-        if (com) {
-            for (let f = 0.06; f < 1; f += 0.11) points.push({ name: `Community ${Math.round(f * 100)}% across`, x: com.x + com.w * f, y: com.y + com.h / 2 });
-            points.push({ name: 'Community top edge', x: com.x + com.w / 2, y: com.y + 4 }, { name: 'Community bottom edge', x: com.x + com.w / 2, y: com.y + com.h - 4 });
-        }
-        if (dis) points.push({ name: 'Discover middle', x: dis.x + dis.w / 2, y: dis.y + dis.h / 2 }, { name: 'Discover 15% across', x: dis.x + dis.w * 0.15, y: dis.y + dis.h / 2 });
-        for (const pt of points) {
+        const tabs = async label => {
             await reset();
-            const before = app.feedMode();
-            const hit = document.elementFromPoint(pt.x, pt.y);
-            await ask(`/tap?x=${pt.x.toFixed(1)}&y=${pt.y.toFixed(1)}`);
-            await sleep(700);
-            results.push({ at: pt.name, x: Math.round(pt.x), y: Math.round(pt.y), was: before, now: app.feedMode(), hit: hit ? (hit.textContent || hit.tagName).trim().slice(0, 14) : 'none' });
-        }
+            const btns = [...document.querySelectorAll('.seg-control.feed-mode button')];
+            const rects = btns.map(b => { const r = b.getBoundingClientRect(); return { label: b.textContent.trim(), x: r.left, y: r.top, w: r.width, h: r.height }; });
+            const com = rects.find(r => r.label === 'Community'), dis = rects.find(r => r.label === 'Discover');
+            const points = [];
+            if (com) for (const f of [0.08, 0.25, 0.42, 0.58, 0.75, 0.92]) points.push({ name: `${label}: Community ${Math.round(f * 100)}%`, x: com.x + com.w * f, y: com.y + com.h / 2 });
+            if (dis) points.push({ name: `${label}: Discover 20%`, x: dis.x + dis.w * 0.2, y: dis.y + dis.h / 2 });
+            for (const pt of points) {
+                await reset();
+                const before = app.feedMode(), hit = document.elementFromPoint(pt.x, pt.y);
+                await tapAt(pt.x, pt.y);
+                results.push({ at: pt.name, x: Math.round(pt.x), y: Math.round(pt.y), was: before, now: app.feedMode(), hit: hit ? (hit.textContent || hit.tagName).trim().slice(0, 14) : 'none' });
+            }
+            await ask('/log?m=' + encodeURIComponent(label + ' tabs ' + JSON.stringify(rects.map(r => ({ l: r.label, x: Math.round(r.x), w: Math.round(r.w) })))));
+        };
+        await tabs('app');
+        // the same with the home-screen web app's tap haptics (iPhone Safari has them; the app uses the phone's own)
+        try { const orig = app.isNative; app.isNative = () => false; app._hxOn = false; app.installTapHaptics(); app.isNative = orig; } catch (e) { await ask('/log?m=' + encodeURIComponent('haptics: ' + e)); }
+        await ask('/log?m=' + encodeURIComponent('web-app haptics on: ' + document.documentElement.classList.contains('hx-on') + ', labels: ' + document.querySelectorAll('label.hx').length));
+        await tabs('web app');
         await ask('/result?r=' + encodeURIComponent(JSON.stringify(results)));
         await ask('/done');
     };

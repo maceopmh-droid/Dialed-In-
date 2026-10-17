@@ -80,7 +80,7 @@ jobs:
           cat build/taps.log | head -5
           r=$(grep '^RESULT ' build/taps.log | head -1 | cut -c8-)
           [ -n "$r" ] || { echo "::error title=Taps::no result ($(tr '\n' ' ' < build/taps.log | cut -c1-600))"; exit 1; }
-          echo "::notice title=Tab layout::$(grep '^LOG tabs' build/taps.log | head -1 | cut -c5-)"
+          echo "::notice title=Probe notes::$(grep '^LOG ' build/taps.log | cut -c5- | tr '\n' ' ' | cut -c1-900)"
           python3 -c "
           import json, sys
           rs = json.loads(sys.argv[1])
