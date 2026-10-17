@@ -28,7 +28,22 @@
                 const local = typeof location !== 'undefined' && /^https?:$/.test(location.protocol) && !/^capacitor:/.test(String(location.href));
                 return (local ? '' : 'https://maceopmh-droid.github.io/Dialed-In-/') + page + '.html';
             },
-            legalLinksHtml() { return `<a href="${this.legalUrl('terms')}" target="_blank" rel="noopener">Terms</a> and <a href="${this.legalUrl('privacy')}" target="_blank" rel="noopener">Privacy Policy</a>`; },
+            legalLinksHtml() { return `<a href="${this.legalUrl('terms')}" target="_blank" rel="noopener" onclick="app.openLegal('terms'); return false;">Terms</a> and <a href="${this.legalUrl('privacy')}" target="_blank" rel="noopener" onclick="app.openLegal('privacy'); return false;">Privacy Policy</a>`; },
+
+            // v14.7: Terms and Privacy open in a sheet inside the app (the pages ship with it), with Done to come back
+            openLegal(page) {
+                const m = document.getElementById('legal-modal'), f = document.getElementById('legal-frame');
+                if (!m || !f) { location.href = this.legalUrl(page); return; }
+                const title = page === 'privacy' ? 'Privacy Policy' : 'Terms of Use';
+                document.getElementById('legal-title').textContent = title; f.title = title;
+                f.src = (page === 'privacy' ? 'privacy' : 'terms') + '.html';
+                m.classList.add('active');
+            },
+            closeLegal() {
+                const m = document.getElementById('legal-modal'), f = document.getElementById('legal-frame');
+                if (m) m.classList.remove('active');
+                if (f) f.removeAttribute('src');
+            },
 
             acctToolsHtml() {
                 return `<div class="acct-tools">${this.isReviewer && this.isReviewer() ? '<button type="button" class="btn-outline pp-act" onclick="app.openReview()">Review reports</button>' : ''}<button type="button" class="btn-outline pp-act" onclick="app.openGuidelines()">Community guidelines</button><button type="button" class="btn-outline pp-act" onclick="app.downloadMyData()">Download my data</button><button type="button" class="btn-outline pp-act acct-delete" onclick="app.deleteMyAccount()">Delete account</button></div><p class="acct-legal">${this.legalLinksHtml()}</p>`;

@@ -3525,11 +3525,38 @@
         .hl-main b { font-size: 0.88rem; font-weight: 750; }
         .hl-main small { font-size: 0.78rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-        /* v14.7: on an iPhone, full-screen pages (a coffee, a roaster) get a soft strip behind the clock and battery, so the
-           page doesn't scroll under them; it's 0 tall wherever there's no status bar (computers, browsers) */
-        #status-scrim { display: none; position: fixed; top: 0; left: 0; right: 0; height: var(--safe-top); z-index: 5001; pointer-events: none;
-            background: rgba(var(--paper-rgb), 0.82); -webkit-backdrop-filter: blur(14px) saturate(1.3); backdrop-filter: blur(14px) saturate(1.3); }
-        #detail-view.active ~ #status-scrim, #roaster-view.active ~ #status-scrim { display: block; }
+        /* v14.7: on an iPhone, the status bar sits on a soft blur that fades out downward (no colored strip), so whatever
+           scrolls under the clock and battery is blurred, like Instagram. It's 0 tall where there's no status bar. */
+        #status-scrim { position: fixed; top: 0; left: 0; right: 0; height: calc(var(--safe-top) * 1.2); z-index: 5500; pointer-events: none; }
+        #status-scrim::before, #status-scrim::after { content: ''; position: absolute; inset: 0; }
+        #status-scrim::before { -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent); mask-image: linear-gradient(to bottom, #000 40%, transparent); }
+        #status-scrim::after { background: rgba(var(--paper-rgb), 0.12); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); -webkit-mask-image: linear-gradient(to bottom, #000 25%, transparent 75%); mask-image: linear-gradient(to bottom, #000 25%, transparent 75%); }
+
+        /* v14.7: scrolling down on a phone tucks the top bar away and shrinks the bottom bar (body.bars-tucked) */
+        @media (max-width: 768px) {
+            .header-sticky { transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+            body.bars-tucked .header-sticky { transform: translateY(-100%); }
+            #mobile-nav { transition: height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), max-width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+            body.bars-tucked #mobile-nav { height: 52px; max-width: 300px; }
+            .mob-item { transition: font-size 0.2s, gap 0.2s, letter-spacing 0.2s; }
+            body.bars-tucked .mob-item { font-size: 0; gap: 0; letter-spacing: 0; }
+            .mob-fab { transition: width 0.3s, height 0.3s; }
+            body.bars-tucked .mob-fab { width: 40px; height: 40px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .header-sticky, #mobile-nav, .mob-item, .mob-fab { transition: none !important; }
+        }
+
+        /* v14.7: Community guidelines and Reports open from Settings, so their sheet goes on top of it (it was opening behind) */
+        #review-modal { z-index: 6100; }
+
+        /* v14.7: Terms and Privacy Policy in a sheet inside the app */
+        #legal-modal { z-index: 6200; }
+        #legal-modal .legal-card { display: flex; flex-direction: column; height: min(86vh, 900px); max-height: none; padding: 0; overflow: hidden; }
+        .legal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px 10px; border-bottom: 1px solid rgba(var(--hair-rgb), 0.08); }
+        .legal-head h2 { margin: 0; font-size: 1.15rem; }
+        .legal-done { border: 0; background: none; font: inherit; font-weight: 700; color: var(--matcha); padding: 8px 4px; min-height: 44px; cursor: pointer; }
+        #legal-frame { flex: 1; width: 100%; border: 0; background: var(--paper); }
 
     </style>
 </head>
@@ -3836,6 +3863,14 @@
         <div class="modal-card people-card">
             <h2>Reports</h2>
             <div id="review-body"></div>
+        </div>
+    </div>
+
+    <!-- Terms and Privacy Policy, read inside the app (v14.7: opening them as a page left no way back) -->
+    <div id="legal-modal" class="modal" onclick="if(event.target===this) app.closeLegal()">
+        <div class="modal-card legal-card">
+            <div class="legal-head"><h2 id="legal-title">Terms of Use</h2><button type="button" class="legal-done" onclick="app.closeLegal()">Done</button></div>
+            <iframe id="legal-frame" title="Terms of Use"></iframe>
         </div>
     </div>
 
@@ -5324,6 +5359,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 this.watchLikeLines();
                 this.installHaptics();
                 this.installTapHaptics();
+                if (this.bindScrollBars) this.bindScrollBars();   // v14.7
                 this.bindRatingSlider();
                 this.setTab(this.tab);
                 this.outboxReady = this.loadOutbox();
@@ -9217,11 +9253,13 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 return out;
             },
 
-            bestRatingFor(user, beanId) {
+            // v14.7: the stars on a coffee's tile are that person's average for it (their rated sessions), not their best
+            avgRatingFor(user, beanId) {
                 const bean = this.beans.get(String(beanId));
                 if (!bean) return 0;
                 const key = this.beanGroupKey(bean);
-                return this.brewsOf(user).filter(b => this.groupKeyOfBrew(b) === key).reduce((m, b) => Math.max(m, this.normalizeRating(b.rating)), 0);
+                const rs = this.brewsOf(user).filter(b => this.groupKeyOfBrew(b) === key).map(b => this.normalizeRating(b.rating)).filter(r => r > 0);
+                return rs.length ? Math.round(rs.reduce((a, r) => a + r, 0) / rs.length * 10) / 10 : 0;
             },
 
             coverArt(bean) {
@@ -9243,7 +9281,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const click = opts.click || (bean ? `app.openFeedTarget('${app.escJs(bean.id)}','',false)` : '');
                 if (!bean) return `<button type="button" class="fab-tile empty${opts.small ? ' small' : ''}"${click ? ` onclick="${click}"` : ' disabled'} aria-label="${opts.editable ? 'Add a favorite' : 'Empty slot'}"><span class="fab-art empty">${opts.editable ? '<svg class="icon"><use href="#i-plus"/></svg>' : ''}</span><span class="fab-name">${opts.editable ? 'Add favorite' : '—'}</span></button>`;
                 const art = this.coverArt(bean);
-                const r = opts.user ? this.bestRatingFor(opts.user, bean.id) : 0;
+                const r = opts.user ? this.avgRatingFor(opts.user, bean.id) : 0;
                 return `<button type="button" class="fab-tile${opts.small ? ' small' : ''}" onclick="${click}" aria-label="${this.esc(this.beanLabel(bean))}"><span class="fab-art" style="background:${art.bg}"><b>${this.esc(art.initials)}</b>${r ? `<em>${this.esc(this.fmtNum(r))}★</em>` : ''}</span><span class="fab-name">${this.esc(bean.name || this.beanLabel(bean))}</span><span class="fab-roaster">${this.esc(bean.roaster || '')}</span></button>`;
             },
 
@@ -9251,9 +9289,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (!who) return '';
                 const mine = who === this.user;
                 const slots = this.fabFourOf(who);
-                const last = this.lastFourOf(who);
                 const favRo = this.favRoastersOf(who);
-                if (!mine && !slots.some(Boolean) && !last.length && !favRo.length) return '';
+                if (!mine && !slots.some(Boolean) && !favRo.length) return '';   // v14.7: no "Recently brewed" row (the sessions below are in order already)
                 const tiles = slots.map((id, i) => this.fabTileHtml(id, { user: who, editable: mine, click: mine ? `app.openFabPicker(${i})` : '' })).join('');
                 return `
                     <div class="profile-card fab-four">
@@ -9261,7 +9298,6 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         <div class="fab-sub">${mine ? 'Up to four coffees you love. Tap a slot to add or change one.' : (slots.some(Boolean) ? `${this.esc(who)}'s favorite coffees.` : `${this.esc(who)} hasn't picked favorites yet.`)}</div>
                         <div class="fab-row">${tiles}</div>
                         ${this.favRoastersHtml(who, favRo, mine)}
-                        ${last.length ? `<div class="label fab-last-label">Recently brewed</div><div class="fab-row small">${last.map(x => this.fabTileHtml(x.beanId, { user: who, small: true })).join('')}</div>` : ''}
                     </div>`;
             },
 
@@ -9719,6 +9755,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const freshRecap = tab === 'profile' && this.tab !== 'profile' && !this._noRecapJump ? this.freshRecap() : null;
                 if (freshRecap) { this.profileSection = 'activity'; this.recapPeriod = freshRecap; setTimeout(() => { const el = document.getElementById('recap-card'); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); }
                 this.tab = tab;
+                if (this.setBarsTucked) this.setBarsTucked(false);   // v14.7: a new tab starts with both bars
                 document.querySelectorAll('.nav-btn, .mob-item').forEach(el => el.classList.remove('active'));
                 document.querySelectorAll(`[data-tab="${tab}"]`).forEach(el => el.classList.add('active'));
                 const titles = { my: 'My Collection', shared: 'Shared Library', feed: this.acctOn() ? 'Feed' : 'Community Feed', profile: 'Profiles' };
@@ -16997,7 +17034,22 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const local = typeof location !== 'undefined' && /^https?:$/.test(location.protocol) && !/^capacitor:/.test(String(location.href));
                 return (local ? '' : 'https://maceopmh-droid.github.io/Dialed-In-/') + page + '.html';
             },
-            legalLinksHtml() { return `<a href="${this.legalUrl('terms')}" target="_blank" rel="noopener">Terms</a> and <a href="${this.legalUrl('privacy')}" target="_blank" rel="noopener">Privacy Policy</a>`; },
+            legalLinksHtml() { return `<a href="${this.legalUrl('terms')}" target="_blank" rel="noopener" onclick="app.openLegal('terms'); return false;">Terms</a> and <a href="${this.legalUrl('privacy')}" target="_blank" rel="noopener" onclick="app.openLegal('privacy'); return false;">Privacy Policy</a>`; },
+
+            // v14.7: Terms and Privacy open in a sheet inside the app (the pages ship with it), with Done to come back
+            openLegal(page) {
+                const m = document.getElementById('legal-modal'), f = document.getElementById('legal-frame');
+                if (!m || !f) { location.href = this.legalUrl(page); return; }
+                const title = page === 'privacy' ? 'Privacy Policy' : 'Terms of Use';
+                document.getElementById('legal-title').textContent = title; f.title = title;
+                f.src = (page === 'privacy' ? 'privacy' : 'terms') + '.html';
+                m.classList.add('active');
+            },
+            closeLegal() {
+                const m = document.getElementById('legal-modal'), f = document.getElementById('legal-frame');
+                if (m) m.classList.remove('active');
+                if (f) f.removeAttribute('src');
+            },
 
             acctToolsHtml() {
                 return `<div class="acct-tools">${this.isReviewer && this.isReviewer() ? '<button type="button" class="btn-outline pp-act" onclick="app.openReview()">Review reports</button>' : ''}<button type="button" class="btn-outline pp-act" onclick="app.openGuidelines()">Community guidelines</button><button type="button" class="btn-outline pp-act" onclick="app.downloadMyData()">Download my data</button><button type="button" class="btn-outline pp-act acct-delete" onclick="app.deleteMyAccount()">Delete account</button></div><p class="acct-legal">${this.legalLinksHtml()}</p>`;
@@ -17856,6 +17908,37 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 }).join('');
                 return `<section class="feed-card hl-card" aria-label="${this.esc(label)} highlights"><div class="hl-head"><b>${this.esc(label)} highlights</b><small>From what people shared with Everyone</small></div>${rows}</section>`;
             },
+            // ---- v14.7: like Instagram on a phone: scrolling down tucks the top bar away and makes the bottom bar smaller;
+            // a small scroll back up brings both back. Near the top both bars always show. Computers keep both as they are.
+            bindScrollBars() {
+                if (this._barsBound || typeof document === 'undefined') return;
+                const sc = document.getElementById('main-content');
+                if (!sc || typeof sc.addEventListener !== 'function') return;
+                this._barsBound = true;
+                const phone = () => typeof matchMedia === 'function' && matchMedia('(max-width: 768px)').matches;
+                const raf = typeof requestAnimationFrame === 'function' ? requestAnimationFrame : (f => setTimeout(f, 16));
+                let last = sc.scrollTop, down = 0, up = 0, queued = false;
+                const update = () => {
+                    queued = false;
+                    const y = sc.scrollTop, max = sc.scrollHeight - sc.clientHeight, dy = y - last;
+                    last = y;
+                    if (!phone()) { this.setBarsTucked(false); return; }
+                    const head = document.querySelector('.header-sticky');
+                    if (y <= (head ? head.offsetHeight : 120)) { down = up = 0; this.setBarsTucked(false); return; }   // near the top
+                    if (y >= max - 2) return;   // the bounce at the very bottom isn't a scroll back up
+                    if (dy > 0) { down += dy; up = 0; if (down > 12) this.setBarsTucked(true); }
+                    else if (dy < 0) { up -= dy; down = 0; if (up > 8) this.setBarsTucked(false); }
+                };
+                sc.addEventListener('scroll', () => { if (!queued) { queued = true; raf(update); } }, { passive: true });
+            },
+
+            setBarsTucked(on) {
+                on = Boolean(on);
+                if (this._barsTucked === on || typeof document === 'undefined' || !document.body) return;
+                this._barsTucked = on;
+                document.body.classList.toggle('bars-tucked', on);
+            },
+
         };
         window.onload = () => app.init();
     </script>

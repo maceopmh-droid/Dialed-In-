@@ -1,0 +1,31 @@
+            // ---- v14.7: like Instagram on a phone: scrolling down tucks the top bar away and makes the bottom bar smaller;
+            // a small scroll back up brings both back. Near the top both bars always show. Computers keep both as they are.
+            bindScrollBars() {
+                if (this._barsBound || typeof document === 'undefined') return;
+                const sc = document.getElementById('main-content');
+                if (!sc || typeof sc.addEventListener !== 'function') return;
+                this._barsBound = true;
+                const phone = () => typeof matchMedia === 'function' && matchMedia('(max-width: 768px)').matches;
+                const raf = typeof requestAnimationFrame === 'function' ? requestAnimationFrame : (f => setTimeout(f, 16));
+                let last = sc.scrollTop, down = 0, up = 0, queued = false;
+                const update = () => {
+                    queued = false;
+                    const y = sc.scrollTop, max = sc.scrollHeight - sc.clientHeight, dy = y - last;
+                    last = y;
+                    if (!phone()) { this.setBarsTucked(false); return; }
+                    const head = document.querySelector('.header-sticky');
+                    if (y <= (head ? head.offsetHeight : 120)) { down = up = 0; this.setBarsTucked(false); return; }   // near the top
+                    if (y >= max - 2) return;   // the bounce at the very bottom isn't a scroll back up
+                    if (dy > 0) { down += dy; up = 0; if (down > 12) this.setBarsTucked(true); }
+                    else if (dy < 0) { up -= dy; down = 0; if (up > 8) this.setBarsTucked(false); }
+                };
+                sc.addEventListener('scroll', () => { if (!queued) { queued = true; raf(update); } }, { passive: true });
+            },
+
+            setBarsTucked(on) {
+                on = Boolean(on);
+                if (this._barsTucked === on || typeof document === 'undefined' || !document.body) return;
+                this._barsTucked = on;
+                document.body.classList.toggle('bars-tucked', on);
+            },
+

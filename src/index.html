@@ -340,6 +340,14 @@
         </div>
     </div>
 
+    <!-- Terms and Privacy Policy, read inside the app (v14.7: opening them as a page left no way back) -->
+    <div id="legal-modal" class="modal" onclick="if(event.target===this) app.closeLegal()">
+        <div class="modal-card legal-card">
+            <div class="legal-head"><h2 id="legal-title">Terms of Use</h2><button type="button" class="legal-done" onclick="app.closeLegal()">Done</button></div>
+            <iframe id="legal-frame" title="Terms of Use"></iframe>
+        </div>
+    </div>
+
     <!-- People (v14.4, new backend only) -->
     <div id="people-modal" class="modal" onclick="if(event.target===this) app.closePeople()">
         <div class="modal-card people-card">
@@ -723,6 +731,7 @@
 @@include js/app/37-coffee-community.js
 @@include js/app/38-personal-goals.js
 @@include js/app/39-highlights.js
+@@include js/app/40-scroll-bars.js
 @@include js/app/99-end.js
 @@include js/99-boot.js
     </script>

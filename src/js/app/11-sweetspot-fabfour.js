@@ -115,11 +115,13 @@
                 return out;
             },
 
-            bestRatingFor(user, beanId) {
+            // v14.7: the stars on a coffee's tile are that person's average for it (their rated sessions), not their best
+            avgRatingFor(user, beanId) {
                 const bean = this.beans.get(String(beanId));
                 if (!bean) return 0;
                 const key = this.beanGroupKey(bean);
-                return this.brewsOf(user).filter(b => this.groupKeyOfBrew(b) === key).reduce((m, b) => Math.max(m, this.normalizeRating(b.rating)), 0);
+                const rs = this.brewsOf(user).filter(b => this.groupKeyOfBrew(b) === key).map(b => this.normalizeRating(b.rating)).filter(r => r > 0);
+                return rs.length ? Math.round(rs.reduce((a, r) => a + r, 0) / rs.length * 10) / 10 : 0;
             },
 
             coverArt(bean) {
@@ -141,7 +143,7 @@
                 const click = opts.click || (bean ? `app.openFeedTarget('${app.escJs(bean.id)}','',false)` : '');
                 if (!bean) return `<button type="button" class="fab-tile empty${opts.small ? ' small' : ''}"${click ? ` onclick="${click}"` : ' disabled'} aria-label="${opts.editable ? 'Add a favorite' : 'Empty slot'}"><span class="fab-art empty">${opts.editable ? '<svg class="icon"><use href="#i-plus"/></svg>' : ''}</span><span class="fab-name">${opts.editable ? 'Add favorite' : '—'}</span></button>`;
                 const art = this.coverArt(bean);
-                const r = opts.user ? this.bestRatingFor(opts.user, bean.id) : 0;
+                const r = opts.user ? this.avgRatingFor(opts.user, bean.id) : 0;
                 return `<button type="button" class="fab-tile${opts.small ? ' small' : ''}" onclick="${click}" aria-label="${this.esc(this.beanLabel(bean))}"><span class="fab-art" style="background:${art.bg}"><b>${this.esc(art.initials)}</b>${r ? `<em>${this.esc(this.fmtNum(r))}★</em>` : ''}</span><span class="fab-name">${this.esc(bean.name || this.beanLabel(bean))}</span><span class="fab-roaster">${this.esc(bean.roaster || '')}</span></button>`;
             },
 
@@ -149,9 +151,8 @@
                 if (!who) return '';
                 const mine = who === this.user;
                 const slots = this.fabFourOf(who);
-                const last = this.lastFourOf(who);
                 const favRo = this.favRoastersOf(who);
-                if (!mine && !slots.some(Boolean) && !last.length && !favRo.length) return '';
+                if (!mine && !slots.some(Boolean) && !favRo.length) return '';   // v14.7: no "Recently brewed" row (the sessions below are in order already)
                 const tiles = slots.map((id, i) => this.fabTileHtml(id, { user: who, editable: mine, click: mine ? `app.openFabPicker(${i})` : '' })).join('');
                 return `
                     <div class="profile-card fab-four">
@@ -159,7 +160,6 @@
                         <div class="fab-sub">${mine ? 'Up to four coffees you love. Tap a slot to add or change one.' : (slots.some(Boolean) ? `${this.esc(who)}'s favorite coffees.` : `${this.esc(who)} hasn't picked favorites yet.`)}</div>
                         <div class="fab-row">${tiles}</div>
                         ${this.favRoastersHtml(who, favRo, mine)}
-                        ${last.length ? `<div class="label fab-last-label">Recently brewed</div><div class="fab-row small">${last.map(x => this.fabTileHtml(x.beanId, { user: who, small: true })).join('')}</div>` : ''}
                     </div>`;
             },
 

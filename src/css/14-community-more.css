@@ -173,9 +173,36 @@
         .hl-main b { font-size: 0.88rem; font-weight: 750; }
         .hl-main small { font-size: 0.78rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-        /* v14.7: on an iPhone, full-screen pages (a coffee, a roaster) get a soft strip behind the clock and battery, so the
-           page doesn't scroll under them; it's 0 tall wherever there's no status bar (computers, browsers) */
-        #status-scrim { display: none; position: fixed; top: 0; left: 0; right: 0; height: var(--safe-top); z-index: 5001; pointer-events: none;
-            background: rgba(var(--paper-rgb), 0.82); -webkit-backdrop-filter: blur(14px) saturate(1.3); backdrop-filter: blur(14px) saturate(1.3); }
-        #detail-view.active ~ #status-scrim, #roaster-view.active ~ #status-scrim { display: block; }
+        /* v14.7: on an iPhone, the status bar sits on a soft blur that fades out downward (no colored strip), so whatever
+           scrolls under the clock and battery is blurred, like Instagram. It's 0 tall where there's no status bar. */
+        #status-scrim { position: fixed; top: 0; left: 0; right: 0; height: calc(var(--safe-top) * 1.2); z-index: 5500; pointer-events: none; }
+        #status-scrim::before, #status-scrim::after { content: ''; position: absolute; inset: 0; }
+        #status-scrim::before { -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent); mask-image: linear-gradient(to bottom, #000 40%, transparent); }
+        #status-scrim::after { background: rgba(var(--paper-rgb), 0.12); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); -webkit-mask-image: linear-gradient(to bottom, #000 25%, transparent 75%); mask-image: linear-gradient(to bottom, #000 25%, transparent 75%); }
+
+        /* v14.7: scrolling down on a phone tucks the top bar away and shrinks the bottom bar (body.bars-tucked) */
+        @media (max-width: 768px) {
+            .header-sticky { transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+            body.bars-tucked .header-sticky { transform: translateY(-100%); }
+            #mobile-nav { transition: height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), max-width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+            body.bars-tucked #mobile-nav { height: 52px; max-width: 300px; }
+            .mob-item { transition: font-size 0.2s, gap 0.2s, letter-spacing 0.2s; }
+            body.bars-tucked .mob-item { font-size: 0; gap: 0; letter-spacing: 0; }
+            .mob-fab { transition: width 0.3s, height 0.3s; }
+            body.bars-tucked .mob-fab { width: 40px; height: 40px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .header-sticky, #mobile-nav, .mob-item, .mob-fab { transition: none !important; }
+        }
+
+        /* v14.7: Community guidelines and Reports open from Settings, so their sheet goes on top of it (it was opening behind) */
+        #review-modal { z-index: 6100; }
+
+        /* v14.7: Terms and Privacy Policy in a sheet inside the app */
+        #legal-modal { z-index: 6200; }
+        #legal-modal .legal-card { display: flex; flex-direction: column; height: min(86vh, 900px); max-height: none; padding: 0; overflow: hidden; }
+        .legal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px 10px; border-bottom: 1px solid rgba(var(--hair-rgb), 0.08); }
+        .legal-head h2 { margin: 0; font-size: 1.15rem; }
+        .legal-done { border: 0; background: none; font: inherit; font-weight: 700; color: var(--matcha); padding: 8px 4px; min-height: 44px; cursor: pointer; }
+        #legal-frame { flex: 1; width: 100%; border: 0; background: var(--paper); }
 

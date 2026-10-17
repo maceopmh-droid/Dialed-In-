@@ -25,6 +25,7 @@
                 const freshRecap = tab === 'profile' && this.tab !== 'profile' && !this._noRecapJump ? this.freshRecap() : null;
                 if (freshRecap) { this.profileSection = 'activity'; this.recapPeriod = freshRecap; setTimeout(() => { const el = document.getElementById('recap-card'); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); }
                 this.tab = tab;
+                if (this.setBarsTucked) this.setBarsTucked(false);   // v14.7: a new tab starts with both bars
                 document.querySelectorAll('.nav-btn, .mob-item').forEach(el => el.classList.remove('active'));
                 document.querySelectorAll(`[data-tab="${tab}"]`).forEach(el => el.classList.add('active'));
                 const titles = { my: 'My Collection', shared: 'Shared Library', feed: this.acctOn() ? 'Feed' : 'Community Feed', profile: 'Profiles' };
