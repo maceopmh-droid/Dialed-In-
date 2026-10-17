@@ -1,6 +1,7 @@
-# Real iPhone taps on the Feed tabs in the simulator (through iOS's own touch handling, with idb), to find spots where
-# a tap on Community doesn't land. Signed in as the review account. Reports which points switched the tab. The simulator
-# copy gets native/tap-probe.js and the account's password; it's never uploaded. Runs when pushed to `ios-taps`.
+# Real iPhone taps in the simulator (through iOS's own touch handling, with idb) for what a desktop browser can't show:
+# what native/tap-probe.js checks (v15.0: the bottom bar from Feed, and posting a comment with the keyboard up). Signed
+# in as the review account. The simulator copy gets native/tap-probe.js and the account's password; it's never
+# uploaded. Runs when pushed to `ios-taps`.
 name: ios taps
 on:
   push:
@@ -68,6 +69,9 @@ jobs:
                   elif u.path == '/fling':
                       # a quick swipe down (the list flies back up) without waiting for it to settle
                       subprocess.run(['idb', 'ui', 'swipe', '195', q['y1'][0], '195', q['y2'][0], '--duration', '0.08', '--udid', dev], capture_output=True)
+                  elif u.path == '/text':
+                      r = subprocess.run(['idb', 'ui', 'text', q['t'][0], '--udid', dev], capture_output=True, text=True)
+                      if r.returncode: print('text failed', r.stderr.strip()[:200], flush=True)
                   elif u.path == '/result': print('RESULT ' + q['r'][0], flush=True)
                   elif u.path == '/log': print('LOG ' + q['m'][0], flush=True)
                   elif u.path in ('/hello', '/done'): print(u.path[1:], flush=True)

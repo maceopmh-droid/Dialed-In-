@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v14.9 -->
+<!-- Dialed In v15.0 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="14.9">
+    <meta name="dialed-in-version" content="15.0">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -32,6 +32,7 @@
 @@include css/12-people.css
 @@include css/13-community.css
 @@include css/14-community-more.css
+@@include css/15-v15.css
     </style>
 </head>
 <body>
@@ -237,6 +238,7 @@
                 <button type="button" class="dh-pill dh-back" onclick="app.closeDetail()"><svg class="icon"><use href="#i-arrow-left"/></svg>Library</button>
                 <div class="dh-actions">
                     <button type="button" id="d-want-btn" class="dh-pill dh-want" onclick="app.toggleWantToTry()" style="display:none;" aria-pressed="false"><svg class="icon"><use href="#i-bookmark"/></svg><span>Want to try</span></button>
+                    <button type="button" class="btn-clean dh-share" onclick="app.shareCurrentCoffee()" aria-label="Share this coffee"><svg class="icon"><use href="#i-share-2"/></svg></button>
                     <div class="hero-actions">
                         <button class="btn-clean" onclick="app.editBean()" aria-label="Edit coffee"><svg class="icon"><use href="#i-edit-2"/></svg></button>
                         <button class="btn-clean danger" onclick="app.deleteBean()" aria-label="Delete coffee"><svg class="icon"><use href="#i-trash-2"/></svg></button>
@@ -359,43 +361,45 @@
     </div>
 
     <div id="settings-modal" class="modal" onclick="if(event.target===this) app.closeModals()">
-        <div class="modal-card">
-            <h2>Settings</h2>
+        <div class="modal-card settings-card">
+            <div class="set-top"><h2>Settings</h2><button type="button" class="set-done" onclick="app.closeModals()">Done</button></div>
 
-            <label>Appearance</label>
-            <div class="seg-control" role="group" aria-label="Appearance">
-                <button type="button" data-theme-opt="system" onclick="app.setThemePref('system')">System</button>
-                <button type="button" data-theme-opt="light" onclick="app.setThemePref('light')">Light</button>
-                <button type="button" data-theme-opt="dark" onclick="app.setThemePref('dark')">Dark</button>
-            </div>
-            
-            <label id="user-list-label">Active User</label>
+            <!-- v15.0: grouped like the phone's own Settings. With an account: you, then Appearance, then the groups in #settings-acct -->
+            <label id="user-list-label" class="set-legacy-only">Active User</label>
             <div id="user-list" style="display:grid; gap:0.6rem; margin-bottom: 0.6rem;"></div>
-            <p class="settings-note">Switch off anyone who only brews now and then. They won't count toward the weekly group goal or show up in it.</p>
-
-            <label>Feed Name Color</label>
-            <div class="user-color-row">
-                <input type="color" id="user-color-input" class="user-color-input" onchange="app.saveUserColor(this.value)">
-                <div class="user-color-meta">
-                    <div id="user-color-name" class="user-color-name">Current User</div>
-                    <div id="user-color-value" class="user-color-value">#586A58</div>
-                </div>
-            </div>
-            
+            <p class="settings-note set-legacy-only">Switch off anyone who only brews now and then. They won't count toward the weekly group goal or show up in it.</p>
             <div id="add-user-row" style="display:flex; gap:12px;">
                 <input type="text" id="new-user-input" placeholder="Name" style="margin:0;">
                 <button class="btn-outline" style="width:auto; padding: 12px 24px;" onclick="app.addUser()">+ Add</button>
             </div>
 
-            <!-- Export Data -->
-            <label style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid var(--linen);">Export Data</label>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                <button class="btn-outline" onclick="app.exportData('json')">JSON</button>
-                <button class="btn-outline" onclick="app.exportData('csv')">CSV</button>
+            <div class="set-label">Appearance</div>
+            <div class="set-group">
+                <div class="set-row set-theme">
+                    <div class="seg-control" role="group" aria-label="Appearance">
+                        <button type="button" data-theme-opt="system" onclick="app.setThemePref('system')">System</button>
+                        <button type="button" data-theme-opt="light" onclick="app.setThemePref('light')">Light</button>
+                        <button type="button" data-theme-opt="dark" onclick="app.setThemePref('dark')">Dark</button>
+                    </div>
+                </div>
+                <div class="set-row set-color">
+                    <span class="set-main"><b>Your color</b><small>Your name and picture in the app</small></span>
+                    <span class="set-color-val"><span id="user-color-value" class="user-color-value">#586A58</span><i id="user-color-swatch" class="set-swatch"></i></span>
+                    <input type="color" id="user-color-input" class="set-color-input" aria-label="Your color" onchange="app.saveUserColor(this.value)">
+                </div>
             </div>
 
-            <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v14.9</div>
+            <div id="settings-acct"></div>
+
+            <div class="set-legacy-only">
+                <div class="set-label">Export data</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <button class="btn-outline" onclick="app.exportData('json')">JSON</button>
+                    <button class="btn-outline" onclick="app.exportData('csv')">CSV</button>
+                </div>
+            </div>
+
+            <div class="app-version">Dialed In · v15.0</div>
         </div>
     </div>
 
@@ -617,9 +621,9 @@
             <div class="guide-track"><div id="guide-bar" class="guide-bar"></div><i id="guide-cursor" class="guide-cursor"></i></div>
             <div class="guide-actions">
                 <button type="button" id="guide-start" class="btn-primary guide-go" onclick="app.guideStartPause()">Start</button>
-                <button type="button" class="btn-outline" onclick="app.guideNext()">Next step</button>
+                <button type="button" class="btn-primary guide-finish" onclick="app.finishGuide()">Finish &amp; log it</button>
             </div>
-            <div class="guide-foot"><button type="button" class="chip-btn" aria-pressed="false" onclick="app.toggleGuideSound(this)">Sound</button><button type="button" class="link-btn" onclick="app.finishGuide()">Finish &amp; log it</button></div>
+            <div class="guide-foot"><button type="button" class="chip-btn" aria-pressed="false" onclick="app.toggleGuideSound(this)">Sound</button></div>
         </div>
     </div>
     <!-- Master Profile Modal -->
@@ -732,6 +736,7 @@
 @@include js/app/38-personal-goals.js
 @@include js/app/39-highlights.js
 @@include js/app/40-scroll-bars.js
+@@include js/app/41-v15.js
 @@include js/app/99-end.js
 @@include js/99-boot.js
     </script>

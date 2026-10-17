@@ -17,6 +17,7 @@
                 const [data, me] = await Promise.all([Supa.rpc('my_people', {}), Supa.rpc('my_profile', {})]);
                 st.data = data && typeof data === 'object' ? data : { following: [], followers: [], blocked: [] };
                 st.me = me || null; st.at = Date.now();
+                this.adoptPeopleColors(st.data, st.me);   // v15.0: People and their profiles show the same color
                 try { safeSet('dialed_people_cache', JSON.stringify({ who: this.user, data: st.data })); } catch (e) {}
                 return st.data;
             },
@@ -154,10 +155,9 @@
             // the follow button (and a small menu with Block) on someone else's profile
             profileFollowHtml(name) {
                 if (!this.acctOn() || !name || name === this.user || !this.ppState().data) return '';
-                const rel = this.relationTo(name), st = this.ppState(), n = this.esc(name);
-                const tag = rel.friend ? '<span class="you-tag pp-friend">Friends</span>' : rel.followsYou ? '<span class="pp-note">Follows you</span>' : '';
+                const rel = this.relationTo(name), st = this.ppState(), n = this.esc(name);   // (v15.0: Friends / Follows you sit beside the name)
                 const menu = st.menu === name ? `<div class="pp-menu">${rel.followsYou ? `<button type="button" data-name="${n}" onclick="app.peopleAct('remove', this.getAttribute('data-name'))">Remove follower</button>` : ''}<button type="button" data-name="${n}" onclick="app.reportItem('profile', this.getAttribute('data-name'))">Report ${n}</button>${rel.blocked ? '' : `<button type="button" class="pp-danger" data-name="${n}" onclick="app.peopleAct('block', this.getAttribute('data-name'))">Block ${n}</button>`}</div>` : '';
-                return `<div class="hero-follow">${this.followBtnHtml(name, rel, 'hero-act')}${tag}<button type="button" class="btn-clean pp-more" aria-label="More" data-name="${n}" onclick="app.togglePersonMenu(this.getAttribute('data-name'))"><span></span><span></span><span></span></button>${menu}</div>`;
+                return `<div class="hero-follow">${this.followBtnHtml(name, rel, 'hero-act')}<button type="button" class="btn-clean pp-more" aria-label="More" data-name="${n}" onclick="app.togglePersonMenu(this.getAttribute('data-name'))"><span></span><span></span><span></span></button>${menu}</div>`;
             },
 
             togglePersonMenu(name) { const st = this.ppState(); st.menu = st.menu === name ? '' : name; this.render(); },
@@ -181,7 +181,7 @@
             },
 
             // the Profiles row: you, then the people you follow (friends first, most recently brewing first). Each person's
-            // own list, never the same names for everyone. One row, as many as fit; People has the rest.
+            // own list, never the same names for everyone. (v15.0: all of them, in a row that scrolls.)
             profileRowPeople() {
                 if (!this.acctOn()) return this.knownPeople();
                 const d = this.ppState().data, me = this.user;
@@ -191,20 +191,24 @@
                 return [...new Set([me, ...byRecent(following.filter(f => f.friend)), ...byRecent(following.filter(f => !f.friend))].filter(Boolean))];
             },
 
-            // keep the row to one line: hide the chips that don't fit (never you, the person showing, or People)
+            // v15.0: the row scrolls sideways with everyone in it (nobody hidden behind People). It keeps its place when
+            // the page redraws, and the person you're looking at is always in view.
             fitPeopleRow(grid) {
                 const row = grid && grid.querySelector && grid.querySelector('.people-switch.one-row');
-                if (!row) return;
-                const chips = [...row.querySelectorAll('.person-chip:not(.pp-chip)')], more = row.querySelector('.pp-chip');
-                chips.forEach(c => { c.hidden = false; });
-                const cs = typeof getComputedStyle === 'function' ? getComputedStyle(row) : null;
-                const gap = parseFloat(cs && cs.columnGap) || 6, avail = row.clientWidth - (more ? more.offsetWidth + gap : 0);
-                if (!(avail > 0)) return;
-                const active = row.querySelector('.person-chip.active:not(.pp-chip)');
-                const must = new Set([chips[0], active].filter(Boolean));
-                let used = [...must].reduce((t, c) => t + c.offsetWidth + gap, 0);
-                let full = false;   // in order: once someone doesn't fit, the rest wait in People
-                chips.forEach(c => { if (must.has(c)) return; const w = c.offsetWidth + gap; if (!full && used + w <= avail) used += w; else { full = true; c.hidden = true; } });
+                const sc = row && row.querySelector('.ps-scroll');
+                if (!sc || typeof sc.getBoundingClientRect !== 'function') return;
+                const max = () => Math.max(0, sc.scrollWidth - sc.clientWidth);
+                const fade = () => sc.classList.toggle('ps-more', max() > 2 && sc.scrollLeft < max() - 2);
+                sc.scrollLeft = Math.min(this._psLeft || 0, max());
+                const a = sc.querySelector('.person-chip.active');
+                if (a) {
+                    const r = a.getBoundingClientRect(), b = sc.getBoundingClientRect();
+                    if (r.left < b.left + 10) sc.scrollLeft -= b.left + 10 - r.left;
+                    else if (r.right > b.right - 34) sc.scrollLeft += r.right - (b.right - 34);
+                }
+                this._psLeft = sc.scrollLeft;
+                fade();
+                sc.addEventListener('scroll', () => { this._psLeft = sc.scrollLeft; fade(); }, { passive: true });
                 if (!this._rowFitBound && typeof window !== 'undefined' && window.addEventListener) {
                     this._rowFitBound = true;
                     window.addEventListener('resize', () => { if (this.tab === 'profile') this.fitPeopleRow(document.getElementById('grid')); });

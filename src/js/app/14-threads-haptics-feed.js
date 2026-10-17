@@ -464,7 +464,7 @@
                             ${this.lazyPanes(brew)}
                             ${this.renderThread('brew', brew, { inputId: `feed-comment-input-brew-${brew.id}`, lead: `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('brew', brew.id)}"${this.likePopStyle('brew', brew.id)} onclick="app.toggleLike('${app.escJs(brew.id)}', event)" title="Like session">
                                     <svg class="heart-icon"><use href="#i-heart"/></svg>
-                                </button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}` })}
+                                </button><button type="button" class="social-btn share-btn" onclick="app.shareItem('session', '${app.escJs(brew.id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}` })}
                         </div>
                     </article>
                 `;
@@ -518,7 +518,7 @@
                             ${topTags.length ? `<div class="fb-tags">${topTags.map(tag => `<span class="tag">${this.esc(tag)}</span>`).join('')}</div>` : ''}
                             ${this.renderThread('bean', { ...bean, comments }, { inputId: `feed-comment-input-bean-${bean.id}`, lead: `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('bean', bean.id)}"${this.likePopStyle('bean', bean.id)} onclick="app.toggleBeanLike('${app.escJs(bean.id)}', event)" title="Like bean">
                                     <svg class="heart-icon"><use href="#i-heart"/></svg>
-                                </button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}<span class="social-owner-actions"><button class="btn-outline feed-open-link" type="button" onclick="app.openFeedTarget('${app.escJs(bean.id)}','',false); event.stopPropagation();">
+                                </button><button type="button" class="social-btn share-btn" onclick="app.shareItem('coffee', '${app.escJs(bean.id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}<span class="social-owner-actions"><button class="btn-outline feed-open-link" type="button" onclick="app.openFeedTarget('${app.escJs(bean.id)}','',false); event.stopPropagation();">
                                     Open Bean
                                 </button></span>` })}
                         </div>

@@ -49,12 +49,12 @@
             saveUserColor(value) {
                 const normalized = this.normalizeHexColor(value) || this.defaultUserColor(this.user);
                 this.setUserColor(this.user, normalized, true);
+                if (this.acctOn && this.acctOn() && this.user) { this.setColorPending(normalized); this.pushGear(); }   // v15.0: onto your profile now, so every device shows it
                 const input = document.getElementById('user-color-input');
-                const nameEl = document.getElementById('user-color-name');
-                const valEl = document.getElementById('user-color-value');
+                const valEl = document.getElementById('user-color-value'), sw = document.getElementById('user-color-swatch');
                 if (input) input.value = normalized;
-                if (nameEl) nameEl.innerText = this.user || 'Current User';
                 if (valEl) valEl.innerText = normalized.toUpperCase();
+                if (sw) sw.style.background = normalized;
                 this.render();
                 this.showToast('Feed color updated.');
             },

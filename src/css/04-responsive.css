@@ -5,7 +5,7 @@
             #mobile-nav { bottom: calc(8px + var(--safe-bottom)); }
             
             .header-sticky {
-                padding: max(0.9rem, calc(0.35rem + var(--safe-top))) 1rem 0.8rem;   /* v14.9: just below the status bar */
+                padding: max(0.9rem, calc(0.65rem + var(--safe-top))) 1rem 0.8rem;   /* v15.0: just below the status bar, clear of its blur */
             }
 
             .header-top {

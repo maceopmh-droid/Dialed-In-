@@ -214,7 +214,7 @@
             awardsCutoff(y, m) { return Math.max(this.monthRange(y, m)[1], Date.parse('2026-10-09T00:46:16Z')); },
 
             crewAwardsMemo(y, m) {
-                const k = `${this._crewScope ? this._crewScope.id : ''}|${y}-${m}`;   // v14.6: per community
+                const k = `${this._crewScope ? `${this._crewScope.id}:${[...this._crewScope.names].sort().join(',')}` : ''}|${y}-${m}`;   // v14.6: per community (v15.0: and who's in it)
                 const cut = this.awardsCutoff(y, m);
                 if (Date.now() >= cut) {
                     // v12.7: a finished month: frozen at its close, so later edits can't change the winners
@@ -258,6 +258,8 @@
                 // v14.6: awards belong to a private community (the one picked in Community); on your own there's no one
                 // to win against (Discover has the monthly highlights for everyone)
                 if (this.acctOn && this.acctOn() && !this._crewScope) {
+                    const fr = this.tab === 'profile' ? this.friendsCrew() : null;   // v15.0: your profile: you and your friends, every month
+                    if (fr) return this.withCrewScope(fr, () => this.renderCrewAwardsCard());
                     const gr = this.grState ? this.grState() : null;
                     if (gr && !gr.list && !this._grLoading) { this._grLoading = true; this.loadGroups().catch(() => null).finally(() => { this._grLoading = false; if (this.tab === 'profile') this.render(); }); }
                     const g = this.activeCrewGroup();
@@ -302,7 +304,7 @@
                     <div class="profile-card crew-awards" id="crew-awards">
                         ${head('Final · ready to reveal')}
                         <div class="aw-grid">${this.awardTilesHtml(awards, false, { sealed: true })}</div>
-                        <button type="button" class="btn-primary aw-reveal-btn" onclick="app.revealAwards('${app.escJs(key)}')">Reveal ${this.esc(name)}'s awards</button>
+                        <button type="button" class="btn-primary aw-reveal-btn" onclick="app.revealAwards('${app.escJs(key)}', '${app.escJs(this._crewScope ? this._crewScope.id : '')}')">Reveal ${this.esc(name)}'s awards</button>
                     </div>`;
                 }
                 const prevD = new Date(y, m - 2, 1);
@@ -366,7 +368,7 @@
             },
 
             openAwards(key, reveal = false, gid = '') {
-                if (gid) { this._feedGroup = String(gid); safeSet('dialed_feed_group', this._feedGroup); }   // v14.6: that community's awards
+                if (gid && gid !== 'friends') { this._feedGroup = String(gid); safeSet('dialed_feed_group', this._feedGroup); }   // v14.6: that community's awards (v15.0: not your friends' ones)
                 this.awardsMonth = key;
                 this.profileSection = 'activity';
                 this._noRecapJump = true;

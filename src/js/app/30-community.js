@@ -54,8 +54,17 @@
                 if (this.tab === 'feed' && this.feedMode() === 'discover') this.render();
                 try {
                     const args = { max_items: 20, ...(this.commFilterArgs ? this.commFilterArgs() : {}) };
-                    const page = await Supa.rpc('discover_feed', more ? { ...args, as_of: st.asOf, page: st.next } : args);
+                    let page = await Supa.rpc('discover_feed', more ? { ...args, as_of: st.asOf, page: st.next, ...(st.withFriends ? { with_friends: true } : {}) } : args);
                     if (st.seq !== seq) return;
+                    // v15.0: while few people share with Everyone, your friends' sessions are ranked in too (the same ranking)
+                    if (!more) {
+                        st.withFriends = false;
+                        if (page && Number(page.total || 0) < 8) {
+                            const wide = await Supa.rpc('discover_feed', { ...args, with_friends: true }).catch(() => null);
+                            if (st.seq !== seq) return;
+                            if (wide && Number(wide.total || 0) > Number(page.total || 0)) { page = wide; st.withFriends = true; }
+                        }
+                    }
                     const raw = page && Array.isArray(page.events) ? page.events : [];
                     await Supa.linkPhotos(raw);   // photos in storage: short-lived links, as in a sync
                     if (st.seq !== seq) return;
@@ -119,7 +128,7 @@
                     if (ev.type !== 'bean' && ev.type !== 'brew') return;
                     const id = String(ev.id), key = ev.type + ':' + id;
                     if (ev.type === 'bean' ? this.beans.has(id) : this.brews.has(id)) return;
-                    if (ev.actor && ev.actorColor && !this.userColors[ev.actor]) this.userColors[ev.actor] = this.normalizeHexColor(ev.actorColor) || this.userColors[ev.actor];
+                    if (ev.actor && ev.actorColor && ev.actor !== this.user) this.userColors[ev.actor] = this.normalizeHexColor(ev.actorColor) || this.userColors[ev.actor];   // v15.0: the color on their profile
                     this.applyEvent(ev);
                     this.communityIds.add(key);
                 });
@@ -166,7 +175,8 @@
                 const foot = st.error ? `<div class="comm-empty">${this.esc(st.error)}</div>`
                     : st.next !== null ? `<button type="button" class="btn-outline comm-more" onclick="app.loadCommunity(true)"${st.loading ? ' disabled' : ''}>${st.loading ? 'Loading…' : 'Show more'}</button>`
                     : `<div class="comm-empty">You're all caught up.</div>`;
-                grid.innerHTML = head + list.map(b => this.streamCard(b, true)).join('') + foot;
+                const wide = st.withFriends ? '<div class="comm-note">Few people share with Everyone yet, so Discover also ranks your friends\' sessions: newest first, lifted by photos, notes, likes, comments and rarer coffees.</div>' : '';
+                grid.innerHTML = head + wide + list.map(b => this.streamCard(b, true)).join('') + foot;
             },
 
             // ---- the Community tab: one of your communities at a time (a picker when you're in more than one)

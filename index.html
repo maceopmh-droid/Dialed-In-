@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v14.9 -->
+<!-- Dialed In v15.0 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="14.9">
+    <meta name="dialed-in-version" content="15.0">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -1358,7 +1358,7 @@
             #mobile-nav { bottom: calc(8px + var(--safe-bottom)); }
             
             .header-sticky {
-                padding: max(0.9rem, calc(0.35rem + var(--safe-top))) 1rem 0.8rem;   /* v14.9: just below the status bar */
+                padding: max(0.9rem, calc(0.65rem + var(--safe-top))) 1rem 0.8rem;   /* v15.0: just below the status bar, clear of its blur */
             }
 
             .header-top {
@@ -3528,6 +3528,7 @@
         /* v14.7: on an iPhone, the status bar sits on a soft blur that fades out downward (no colored strip), so whatever
            scrolls under the clock and battery is blurred, like Instagram. It's 0 tall where there's no status bar. */
         #status-scrim { position: fixed; top: 0; left: 0; right: 0; height: calc(var(--safe-top) * 1.2); z-index: 5500; pointer-events: none; }
+        body:not(.bars-tucked) #status-scrim { height: var(--safe-top); }   /* v15.0: while the top bar shows, the blur stays above its title */
         #status-scrim::before, #status-scrim::after { content: ''; position: absolute; inset: 0; }
         #status-scrim::before { -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent); mask-image: linear-gradient(to bottom, #000 40%, transparent); }
         #status-scrim::after { background: rgba(var(--paper-rgb), 0.12); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); -webkit-mask-image: linear-gradient(to bottom, #000 25%, transparent 75%); mask-image: linear-gradient(to bottom, #000 25%, transparent 75%); }
@@ -3566,6 +3567,100 @@
             .header-sticky button, .header-sticky a, .header-sticky input, .header-sticky select, .header-sticky label, .header-sticky [onclick],
             .header-sticky .header-controls, .header-sticky .mobile-controls-panel, .header-sticky .status-badge { pointer-events: auto; }
         }
+        /* ===================== v15.0 ===================== */
+        /* the bottom bar: each item is as tall as the bar, so a tap anywhere on it counts (also when it's compact) */
+        .mob-item { align-self: stretch; justify-content: center; -webkit-tap-highlight-color: transparent; }
+        .mob-fab { -webkit-tap-highlight-color: transparent; }
+
+        /* sheets never slide sideways; the roast date is as wide and tall as the other fields (iPhone draws date fields wider) */
+        .modal-card { overflow-x: hidden; }
+        .modal-card form [style*="grid"] > div { min-width: 0; }
+        .modal-card input[type="date"] { -webkit-appearance: none; appearance: none; display: block; width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; min-height: 45px; line-height: 1.2; text-align: left; }
+        .modal-card input[type="date"]::-webkit-date-and-time-value { text-align: left; margin: 0; }
+        .modal-card input[type="date"]::-webkit-calendar-picker-indicator { margin: 0; }
+
+        /* the log: the same room under Method / Grind, under Switch equipment and above the recipe */
+        #recipe-fields { margin-top: 1.4rem; }
+        #recipe-card:not([hidden]) { margin-top: 1.4rem; }
+
+        /* rows of chips that scroll sideways: room for the picked chip's glow */
+        .rc-chips { padding: 6px 10px 12px; margin: 4px -10px -8px; scroll-padding-inline: 10px; }
+
+        /* Profiles: you and everyone you follow in one row that scrolls; People stays at the end */
+        .profile-view { grid-template-columns: minmax(0, 1fr); }
+        .people-switch.one-row { flex-wrap: nowrap; overflow: visible; align-items: center; gap: 4px; }
+        .people-switch.one-row .ps-scroll { display: flex; align-items: center; gap: 6px; flex: 1 1 auto; min-width: 0; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; padding: 8px 8px 10px 10px; margin: -8px 0 -10px -10px; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+        .people-switch.one-row .ps-scroll::-webkit-scrollbar { display: none; }
+        .people-switch.one-row .ps-scroll.ps-more { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent); }
+        .people-switch.one-row .ps-scroll .person-chip { flex: none; white-space: nowrap; }
+        .people-switch.one-row > .pp-chip { flex: none; white-space: nowrap; }
+
+        /* someone's profile: the picture sits beside their name; Following and ••• get their own row underneath */
+        .profile-hero .hero-id { min-width: 0; }
+        .profile-hero .hero-name { flex-wrap: wrap; row-gap: 4px; }
+        .profile-hero .hero-name .pp-note { font-size: 0.72rem; font-weight: 650; color: var(--text-muted); }
+        .profile-hero .hero-follow { margin-top: 0; flex-wrap: nowrap; }
+        .profile-hero .hero-follow .hero-act { flex: 1 1 auto; justify-content: center; }
+        .profile-hero .hero-follow .pp-more { flex: none; width: 36px; height: 36px; }
+
+        /* Brew along: below the status bar; one steady bar; Finish & log it is the big green button next to Start */
+        .guide-sheet { padding-top: calc(var(--safe-top, 0px) + 14px); padding-bottom: calc(var(--safe-bottom, 0px) + 18px); }
+        .guide-step-bar i { width: 100%; transform-origin: left center; transform: scaleX(0); transition: none; will-change: transform; border-radius: 0; }
+        .guide-cursor { transition: none; }
+        .guide-actions { grid-template-columns: 1fr 1fr; }
+        .guide-finish { background: var(--grad-matcha) !important; color: var(--on-matcha) !important; border: 0 !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 10px 24px rgba(var(--matcha-rgb), 0.38) !important; }
+        .guide-foot { justify-content: flex-start; }
+
+        /* Settings: grouped like the phone's own Settings, with Done at the top */
+        #settings-modal .set-top { position: sticky; top: -3rem; z-index: 4; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: -3rem -3rem 0.8rem; padding: 1.6rem 3rem 0.8rem; background: rgba(var(--paper-rgb), 0.9); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+        #settings-modal .set-top h2 { margin: 0; }
+        .set-done { width: auto; margin: 0; padding: 8px 2px 8px 12px; border: 0; background: none; box-shadow: none; font: inherit; font-size: 1rem; font-weight: 700; letter-spacing: 0; text-transform: none; color: var(--matcha-ink, var(--matcha)); cursor: pointer; }
+        #settings-modal.acct .set-legacy-only { display: none !important; }
+        #settings-modal.acct #user-list { margin-bottom: 0 !important; }
+        .set-label { margin: 1.35rem 6px 7px; font-size: 0.8rem; font-weight: 650; color: var(--text-muted); letter-spacing: 0.01em; }
+        .set-group { border-radius: 16px; background: var(--surface); border: 1px solid rgba(var(--hair-rgb), 0.07); box-shadow: 0 1px 2px rgba(var(--hair-rgb), 0.04); overflow: hidden; }
+        .set-row { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; margin: 0; padding: 11px 14px; border: 0; border-radius: 0; background: none; box-shadow: none; font: inherit; text-align: left; text-transform: none; letter-spacing: 0; color: var(--ink); text-decoration: none; cursor: pointer; box-sizing: border-box; }
+        .set-group > * + *::before, .set-group > .set-row + .set-row::before { content: ''; position: absolute; top: 0; left: 14px; right: 0; height: 1px; background: rgba(var(--hair-rgb), 0.08); }
+        .set-group > * { position: relative; }
+        button.set-row:active, a.set-row:active { background: rgba(var(--hair-rgb), 0.05); }
+        .set-main { flex: 1 1 auto; min-width: 0; display: grid; gap: 2px; }
+        .set-main b { font-size: 0.95rem; font-weight: 650; color: var(--ink); }
+        .set-main small { font-size: 0.78rem; font-weight: 500; color: var(--text-muted); line-height: 1.35; }
+        .set-chev { flex: none; width: 15px; height: 15px; transform: rotate(-90deg); color: var(--text-faint); }
+        .set-theme { cursor: default; padding: 8px; }
+        .set-theme .seg-control { width: 100%; margin: 0; }
+        .set-color { cursor: pointer; }
+        .set-color-val { display: inline-flex; align-items: center; gap: 8px; font-size: 0.78rem; font-weight: 650; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+        .set-swatch { width: 26px; height: 26px; border-radius: 50%; box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px rgba(var(--hair-rgb), 0.14); }
+        .set-color-input { position: absolute; inset: 0; width: 100% !important; height: 100% !important; margin: 0; padding: 0; border: 0; opacity: 0; cursor: pointer; }
+        .set-group .pp-private { margin: 0; padding: 12px 14px; border: 0; }
+        .set-end { margin-top: 1.6rem; }
+        .set-end .set-row { justify-content: center; text-align: center; width: 100% !important; padding: 11px 14px !important; }
+        .set-end .set-main { flex: 0 1 auto; }
+        .set-end .acct-out b { color: var(--matcha-ink, var(--matcha)); }
+        .set-end .acct-delete b { color: #C0392B; }
+        #settings-modal .acct-row { margin: 0; padding: 14px; border: 1px solid rgba(var(--hair-rgb), 0.07); border-radius: 16px; background: var(--surface); box-shadow: 0 1px 2px rgba(var(--hair-rgb), 0.04); grid-template-columns: auto minmax(0, 1fr); }
+        #settings-modal .acct-row .acct-dot { width: 46px; height: 46px; font-size: 1.15rem; }
+        #settings-modal .acct-row .acct-who b { font-size: 1.08rem; }
+        #settings-modal .app-version { margin-top: 1.2rem; }
+        @media (max-width: 768px) {
+            #settings-modal .set-top { top: -1rem; margin: -1rem -0.82rem 0.6rem; padding: 1rem 0.82rem 0.6rem; }
+        }
+
+        /* sharing: a share button beside the like on posts, on coffee, roaster and profile pages, and Invite on a community's goal */
+        .share-btn { color: var(--text-faint); flex-shrink: 0; }
+        .share-btn .icon { width: 17px; height: 17px; }
+        .share-btn:active { color: var(--matcha); }
+        .thread.compact .thread-lead .share-btn { margin-left: -2px; }
+        .detail-hero .dh-share { width: 36px; height: 36px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 6px 16px rgba(var(--hair-rgb), 0.08); }
+        .detail-hero .dh-share .icon { width: 15px; height: 15px; }
+        .profile-hero .hero-row { position: relative; }
+        .profile-hero .hero-share { flex: none; align-self: flex-start; width: 34px; height: 34px; margin-left: auto; color: var(--text-muted); }
+        .profile-hero .hero-share .icon { width: 15px; height: 15px; }
+        .crew-quest .cq-right { display: inline-flex; align-items: center; gap: 8px; }
+        .cq-invite { display: inline-flex; align-items: center; gap: 4px; margin: 0; padding: 3px 9px 3px 8px; border: 1px solid rgba(var(--matcha-rgb), 0.28); border-radius: 999px; background: rgba(var(--matcha-rgb), 0.08); font: inherit; font-size: 0.66rem; font-weight: 750; color: var(--matcha-ink, var(--matcha)); cursor: pointer; }
+        .cq-invite .icon { width: 11px; height: 11px; }
+        .comm-note { margin: 2px 4px 12px; font-size: 0.8rem; line-height: 1.45; color: var(--text-muted); }
     </style>
 </head>
 <body>
@@ -3771,6 +3866,7 @@
                 <button type="button" class="dh-pill dh-back" onclick="app.closeDetail()"><svg class="icon"><use href="#i-arrow-left"/></svg>Library</button>
                 <div class="dh-actions">
                     <button type="button" id="d-want-btn" class="dh-pill dh-want" onclick="app.toggleWantToTry()" style="display:none;" aria-pressed="false"><svg class="icon"><use href="#i-bookmark"/></svg><span>Want to try</span></button>
+                    <button type="button" class="btn-clean dh-share" onclick="app.shareCurrentCoffee()" aria-label="Share this coffee"><svg class="icon"><use href="#i-share-2"/></svg></button>
                     <div class="hero-actions">
                         <button class="btn-clean" onclick="app.editBean()" aria-label="Edit coffee"><svg class="icon"><use href="#i-edit-2"/></svg></button>
                         <button class="btn-clean danger" onclick="app.deleteBean()" aria-label="Delete coffee"><svg class="icon"><use href="#i-trash-2"/></svg></button>
@@ -3893,43 +3989,45 @@
     </div>
 
     <div id="settings-modal" class="modal" onclick="if(event.target===this) app.closeModals()">
-        <div class="modal-card">
-            <h2>Settings</h2>
+        <div class="modal-card settings-card">
+            <div class="set-top"><h2>Settings</h2><button type="button" class="set-done" onclick="app.closeModals()">Done</button></div>
 
-            <label>Appearance</label>
-            <div class="seg-control" role="group" aria-label="Appearance">
-                <button type="button" data-theme-opt="system" onclick="app.setThemePref('system')">System</button>
-                <button type="button" data-theme-opt="light" onclick="app.setThemePref('light')">Light</button>
-                <button type="button" data-theme-opt="dark" onclick="app.setThemePref('dark')">Dark</button>
-            </div>
-            
-            <label id="user-list-label">Active User</label>
+            <!-- v15.0: grouped like the phone's own Settings. With an account: you, then Appearance, then the groups in #settings-acct -->
+            <label id="user-list-label" class="set-legacy-only">Active User</label>
             <div id="user-list" style="display:grid; gap:0.6rem; margin-bottom: 0.6rem;"></div>
-            <p class="settings-note">Switch off anyone who only brews now and then. They won't count toward the weekly group goal or show up in it.</p>
-
-            <label>Feed Name Color</label>
-            <div class="user-color-row">
-                <input type="color" id="user-color-input" class="user-color-input" onchange="app.saveUserColor(this.value)">
-                <div class="user-color-meta">
-                    <div id="user-color-name" class="user-color-name">Current User</div>
-                    <div id="user-color-value" class="user-color-value">#586A58</div>
-                </div>
-            </div>
-            
+            <p class="settings-note set-legacy-only">Switch off anyone who only brews now and then. They won't count toward the weekly group goal or show up in it.</p>
             <div id="add-user-row" style="display:flex; gap:12px;">
                 <input type="text" id="new-user-input" placeholder="Name" style="margin:0;">
                 <button class="btn-outline" style="width:auto; padding: 12px 24px;" onclick="app.addUser()">+ Add</button>
             </div>
 
-            <!-- Export Data -->
-            <label style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid var(--linen);">Export Data</label>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                <button class="btn-outline" onclick="app.exportData('json')">JSON</button>
-                <button class="btn-outline" onclick="app.exportData('csv')">CSV</button>
+            <div class="set-label">Appearance</div>
+            <div class="set-group">
+                <div class="set-row set-theme">
+                    <div class="seg-control" role="group" aria-label="Appearance">
+                        <button type="button" data-theme-opt="system" onclick="app.setThemePref('system')">System</button>
+                        <button type="button" data-theme-opt="light" onclick="app.setThemePref('light')">Light</button>
+                        <button type="button" data-theme-opt="dark" onclick="app.setThemePref('dark')">Dark</button>
+                    </div>
+                </div>
+                <div class="set-row set-color">
+                    <span class="set-main"><b>Your color</b><small>Your name and picture in the app</small></span>
+                    <span class="set-color-val"><span id="user-color-value" class="user-color-value">#586A58</span><i id="user-color-swatch" class="set-swatch"></i></span>
+                    <input type="color" id="user-color-input" class="set-color-input" aria-label="Your color" onchange="app.saveUserColor(this.value)">
+                </div>
             </div>
 
-            <button class="btn-primary" style="margin-top:2.5rem;" onclick="app.closeModals()">Done</button>
-            <div class="app-version">Dialed In · v14.9</div>
+            <div id="settings-acct"></div>
+
+            <div class="set-legacy-only">
+                <div class="set-label">Export data</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <button class="btn-outline" onclick="app.exportData('json')">JSON</button>
+                    <button class="btn-outline" onclick="app.exportData('csv')">CSV</button>
+                </div>
+            </div>
+
+            <div class="app-version">Dialed In · v15.0</div>
         </div>
     </div>
 
@@ -4151,9 +4249,9 @@
             <div class="guide-track"><div id="guide-bar" class="guide-bar"></div><i id="guide-cursor" class="guide-cursor"></i></div>
             <div class="guide-actions">
                 <button type="button" id="guide-start" class="btn-primary guide-go" onclick="app.guideStartPause()">Start</button>
-                <button type="button" class="btn-outline" onclick="app.guideNext()">Next step</button>
+                <button type="button" class="btn-primary guide-finish" onclick="app.finishGuide()">Finish &amp; log it</button>
             </div>
-            <div class="guide-foot"><button type="button" class="chip-btn" aria-pressed="false" onclick="app.toggleGuideSound(this)">Sound</button><button type="button" class="link-btn" onclick="app.finishGuide()">Finish &amp; log it</button></div>
+            <div class="guide-foot"><button type="button" class="chip-btn" aria-pressed="false" onclick="app.toggleGuideSound(this)">Sound</button></div>
         </div>
     </div>
     <!-- Master Profile Modal -->
@@ -5342,6 +5440,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             init() {
                 if (this.noteInviteLink) this.noteInviteLink();   // v14.4: ?join=CODE, offered once you're signed in
                 if (this.noteProfileLink) this.noteProfileLink();
+                if (this.noteShareLink) this.noteShareLink();   // v15.0: a shared session, coffee or roaster
                 if (this.bindNative) this.bindNative();   // v14.6: inside the iPhone app   // v14.5: ?u=Name opens their profile once you're signed in
                 if (this.bindProfileLinks) this.bindProfileLinks();   // v14.5: every name and circle opens that person's profile
                 if (this.notePushOpen) this.notePushOpen();   // v14.5: a tapped phone notification opens the bell
@@ -5484,12 +5583,12 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             saveUserColor(value) {
                 const normalized = this.normalizeHexColor(value) || this.defaultUserColor(this.user);
                 this.setUserColor(this.user, normalized, true);
+                if (this.acctOn && this.acctOn() && this.user) { this.setColorPending(normalized); this.pushGear(); }   // v15.0: onto your profile now, so every device shows it
                 const input = document.getElementById('user-color-input');
-                const nameEl = document.getElementById('user-color-name');
-                const valEl = document.getElementById('user-color-value');
+                const valEl = document.getElementById('user-color-value'), sw = document.getElementById('user-color-swatch');
                 if (input) input.value = normalized;
-                if (nameEl) nameEl.innerText = this.user || 'Current User';
                 if (valEl) valEl.innerText = normalized.toUpperCase();
+                if (sw) sw.style.background = normalized;
                 this.render();
                 this.showToast('Feed color updated.');
             },
@@ -6676,6 +6775,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     if (this.checkNotifications) this.checkNotifications();   // v14.4: the bell's unread count
                     if (this.checkPendingJoin) this.checkPendingJoin();   // v14.4: an invite link opened before signing in
                     if (this.checkPendingProfile) this.checkPendingProfile();   // v14.5: a profile link
+                    if (this.checkPendingShare) this.checkPendingShare();   // v15.0: a shared session, coffee or roaster
                     if (this.checkPushOpen) this.checkPushOpen();   // v14.5: opened from a phone notification
                     if (this.pendingOutbox().some(x => this.outboxDue(x))) setTimeout(() => this.flushOutbox(), 0);
                 } catch (e) {
@@ -7036,6 +7136,12 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     const existing = this.normalizeHexColor(this.userColors[actor] || '');
                     if (!actor || !color) return;
                     if (actor === this.user) {
+                        if (this.acctOn && this.acctOn()) {   // v15.0: the color on your profile, unless you just picked one here
+                            const pend = this.colorPending();
+                            if (pend) { if (pend === color) this.setColorPending(''); return; }
+                            if (existing !== color) { this.userColors[actor] = color; colorChanged = true; }
+                            return;
+                        }
                         if (!existing) {
                             this.userColors[actor] = color;
                             colorChanged = true;
@@ -8299,7 +8405,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     const next = this.knownPeople();
                     const changed = next.join('|') !== (this.users || []).join('|');
                     this.users = next;
-                    this.peopleState().active.forEach(p => { if (p.color && !this.normalizeHexColor(this.userColors[p.name])) this.setUserColor(p.name, p.color, true); });
+                    this.adoptColors([...this.peopleState().active.values()]);   // v15.0: the colors on their profiles win
                     return changed;
                 }
                 // v14.0: the shared people list, plus anyone who has logged anything
@@ -8757,9 +8863,12 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const bar = this.crewBarHtml(q, segs);
                 const faces = q.by.map(([p, n]) => `<span class="cq-face" data-profile="${this.esc(p)}"><b style="background:${this.esc(this.getUserColor(p))}">${this.esc(this.feedInitial(p))}</b>${n}</span>`).join('');
                 const left = q.done ? 'Done together' : (q.daysLeft <= 1 ? 'Last day' : `${q.daysLeft} days left`);
+                // v15.0: invite people to this community from its goal (its invite link, as in People)
+                const sg = this._crewScope && this._crewScope.id !== 'friends' && this.grState ? (this.grState().list || []).find(g => String(g.id) === this._crewScope.id) : null;
+                const invite = sg && sg.invite ? `<button type="button" class="cq-invite" data-g="${this.esc(String(sg.id))}" onclick="app.shareCommunity(this.getAttribute('data-g'), event)"><svg class="icon"><use href="#i-share-2"/></svg>Invite</button>` : '';
                 return `
                     <section class="feed-card crew-quest${q.done ? ' done' : ''}" aria-label="Group goal">
-                        <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-target"/></svg>Group goal · this week</span><span class="cq-left">${this.esc(left)}</span></div>
+                        <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-target"/></svg>Group goal · this week</span><span class="cq-right"><span class="cq-left">${this.esc(left)}</span>${invite}</span></div>
                         <div class="cq-title">${this.esc(q.title)}</div>
                         ${bar}
                         <div class="cq-meta"><span><b>${q.progress}</b> of ${q.target} ${this.esc(q.unit)}${q.detail ? ` · ${this.esc(q.detail)}` : ''}</span></div>
@@ -8983,7 +9092,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             awardsCutoff(y, m) { return Math.max(this.monthRange(y, m)[1], Date.parse('2026-10-09T00:46:16Z')); },
 
             crewAwardsMemo(y, m) {
-                const k = `${this._crewScope ? this._crewScope.id : ''}|${y}-${m}`;   // v14.6: per community
+                const k = `${this._crewScope ? `${this._crewScope.id}:${[...this._crewScope.names].sort().join(',')}` : ''}|${y}-${m}`;   // v14.6: per community (v15.0: and who's in it)
                 const cut = this.awardsCutoff(y, m);
                 if (Date.now() >= cut) {
                     // v12.7: a finished month: frozen at its close, so later edits can't change the winners
@@ -9027,6 +9136,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 // v14.6: awards belong to a private community (the one picked in Community); on your own there's no one
                 // to win against (Discover has the monthly highlights for everyone)
                 if (this.acctOn && this.acctOn() && !this._crewScope) {
+                    const fr = this.tab === 'profile' ? this.friendsCrew() : null;   // v15.0: your profile: you and your friends, every month
+                    if (fr) return this.withCrewScope(fr, () => this.renderCrewAwardsCard());
                     const gr = this.grState ? this.grState() : null;
                     if (gr && !gr.list && !this._grLoading) { this._grLoading = true; this.loadGroups().catch(() => null).finally(() => { this._grLoading = false; if (this.tab === 'profile') this.render(); }); }
                     const g = this.activeCrewGroup();
@@ -9071,7 +9182,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     <div class="profile-card crew-awards" id="crew-awards">
                         ${head('Final · ready to reveal')}
                         <div class="aw-grid">${this.awardTilesHtml(awards, false, { sealed: true })}</div>
-                        <button type="button" class="btn-primary aw-reveal-btn" onclick="app.revealAwards('${app.escJs(key)}')">Reveal ${this.esc(name)}'s awards</button>
+                        <button type="button" class="btn-primary aw-reveal-btn" onclick="app.revealAwards('${app.escJs(key)}', '${app.escJs(this._crewScope ? this._crewScope.id : '')}')">Reveal ${this.esc(name)}'s awards</button>
                     </div>`;
                 }
                 const prevD = new Date(y, m - 2, 1);
@@ -9135,7 +9246,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             },
 
             openAwards(key, reveal = false, gid = '') {
-                if (gid) { this._feedGroup = String(gid); safeSet('dialed_feed_group', this._feedGroup); }   // v14.6: that community's awards
+                if (gid && gid !== 'friends') { this._feedGroup = String(gid); safeSet('dialed_feed_group', this._feedGroup); }   // v14.6: that community's awards (v15.0: not your friends' ones)
                 this.awardsMonth = key;
                 this.profileSection = 'activity';
                 this._noRecapJump = true;
@@ -9637,14 +9748,28 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 this.openModal('guide-modal');
                 document.getElementById('guide-modal').classList.add('guide-open');
                 clearInterval(this.guideTick);
-                this.guideTick = setInterval(() => this.paintGuide(), 100);
                 this.paintGuide();
+                this.startGuideLoop();
+            },
+
+            // v15.0: the clock and the bars are painted every frame (they were every 100 ms, which stuttered on iPhone)
+            startGuideLoop() {
+                const token = this._guideLoop = (this._guideLoop || 0) + 1;
+                const raf = typeof requestAnimationFrame === 'function' ? requestAnimationFrame : (f => setTimeout(f, 33));
+                const step = () => {
+                    if (token !== this._guideLoop) return;
+                    const m = document.getElementById('guide-modal');
+                    if (!m || !m.classList.contains('active')) return;
+                    this.paintGuide();
+                    raf(step);
+                };
+                raf(step);
             },
 
             paintGuide() {
                 const plan = this.guidePlan || [];
                 const modal = document.getElementById('guide-modal');
-                if (!modal || !modal.classList.contains('active')) { clearInterval(this.guideTick); return; }
+                if (!modal || !modal.classList.contains('active')) { clearInterval(this.guideTick); this._guideLoop = (this._guideLoop || 0) + 1; return; }
                 const t = this.timerSeconds();
                 const i = this.guideStepAt(plan, t);
                 const done = i >= plan.length;
@@ -9652,7 +9777,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const kind = done ? { label: 'Done', color: '#3E8F62' } : (STEP_KINDS[st.k] || STEP_KINDS.wait);
                 modal.style.setProperty('--gc', kind.color);
                 const set = (id, v) => { const el = document.getElementById(id); if (el && el.textContent !== v) el.textContent = v; };
-                set('guide-clock', this.clock(t));
+                set('guide-clock', this.clock(Math.floor(t + 1e-6)));   // v15.0: whole seconds gone, like the log's timer and the countdown (it used to round up half a second early)
                 set('guide-kind', done ? 'Done' : kind.label.toUpperCase());
                 set('guide-main', done ? 'Finish & log it' : (st.k === 'pour' && st.to !== null ? `Pour to ${st.to} g` : kind.label));
                 const prevTo = done ? 0 : ([...plan.slice(0, i)].reverse().find(s => s.k === 'pour' && s.to !== null) || { to: 0 }).to;
@@ -9664,10 +9789,10 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 }
                 set('guide-next', next ? `Next: ${next.k === 'pour' && next.to !== null ? `pour to ${next.to} g` : (STEP_KINDS[next.k] || STEP_KINDS.wait).label.toLowerCase()} at ${this.clock(next.start)}` : (done ? '' : 'Last step'));
                 const fill = document.getElementById('guide-fill');
-                if (fill) fill.style.width = `${done ? 100 : Math.max(0, Math.min(100, ((t - st.start) / (st.end - st.start)) * 100))}%`;
+                if (fill) fill.style.transform = `scaleX(${done ? 1 : Math.max(0, Math.min(1, (t - st.start) / (st.end - st.start))).toFixed(4)})`;
                 const total = plan.length ? plan[plan.length - 1].end : 1;
                 const cursor = document.getElementById('guide-cursor');
-                if (cursor) cursor.style.left = `${Math.min(100, (t / total) * 100)}%`;
+                if (cursor) cursor.style.left = `${Math.min(100, (t / total) * 100).toFixed(3)}%`;
                 set('guide-start', this.timer.on ? 'Pause' : (t > 0 ? 'Resume' : 'Start'));
                 const left = st ? st.end - t : 99;
                 modal.classList.toggle('guide-soon', !!st && this.timer.on && left <= 3 && left > 0);
@@ -9716,6 +9841,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
             closeGuide() {
                 clearInterval(this.guideTick);
+                this._guideLoop = (this._guideLoop || 0) + 1;
                 if (this.wakeLock) { try { this.wakeLock.release(); } catch (e) {} this.wakeLock = null; }
                 const modal = document.getElementById('guide-modal');
                 if (modal) modal.classList.remove('active', 'guide-open', 'guide-soon');
@@ -10536,7 +10662,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                             ${this.lazyPanes(brew)}
                             ${this.renderThread('brew', brew, { inputId: `feed-comment-input-brew-${brew.id}`, lead: `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('brew', brew.id)}"${this.likePopStyle('brew', brew.id)} onclick="app.toggleLike('${app.escJs(brew.id)}', event)" title="Like session">
                                     <svg class="heart-icon"><use href="#i-heart"/></svg>
-                                </button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}` })}
+                                </button><button type="button" class="social-btn share-btn" onclick="app.shareItem('session', '${app.escJs(brew.id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}` })}
                         </div>
                     </article>
                 `;
@@ -10590,7 +10716,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                             ${topTags.length ? `<div class="fb-tags">${topTags.map(tag => `<span class="tag">${this.esc(tag)}</span>`).join('')}</div>` : ''}
                             ${this.renderThread('bean', { ...bean, comments }, { inputId: `feed-comment-input-bean-${bean.id}`, lead: `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('bean', bean.id)}"${this.likePopStyle('bean', bean.id)} onclick="app.toggleBeanLike('${app.escJs(bean.id)}', event)" title="Like bean">
                                     <svg class="heart-icon"><use href="#i-heart"/></svg>
-                                </button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}<span class="social-owner-actions"><button class="btn-outline feed-open-link" type="button" onclick="app.openFeedTarget('${app.escJs(bean.id)}','',false); event.stopPropagation();">
+                                </button><button type="button" class="social-btn share-btn" onclick="app.shareItem('coffee', '${app.escJs(bean.id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}<span class="social-owner-actions"><button class="btn-outline feed-open-link" type="button" onclick="app.openFeedTarget('${app.escJs(bean.id)}','',false); event.stopPropagation();">
                                     Open Bean
                                 </button></span>` })}
                         </div>
@@ -10976,7 +11102,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const ratio = e && e.ratio ? range(e.ratio, x => `1:${x.toFixed(1)}`) : '', secs = e && e.time ? range(e.time, x => `${this.fmtNum(x, 0)}`) + ' s' : '';
                 const esp = e ? `<section class="profile-card ro-sec"><div class="label">Dialing in their espresso</div><div class="ro-esp">The group's 4★+ shots of their coffees ran ${ratio ? `<b>${esc(ratio)}</b>` : ''}${ratio && secs ? ' in ' : ''}${secs ? `<b>${esc(secs)}</b>` : ''}.</div><div class="ro-sub" style="margin:6px 0 0">From ${e.shots} shots. Ratios and times only: grind numbers differ by grinder.</div></section>` : '';
                 page.innerHTML = `
-                    <div class="dh-top ro-top"><button type="button" class="dh-pill dh-back" onclick="app.goBackPage()"><svg class="icon"><use href="#i-arrow-left"/></svg><span>${esc(this.backLabel())}</span></button><div class="dh-actions"><button type="button" class="btn-clean ro-fav" aria-pressed="${fav}" aria-label="${fav ? 'Remove from favorites' : 'Favorite this roaster'}" onclick="app.toggleRoasterFav('${app.escJs(r.key)}')"><svg class="icon"><use href="#i-heart"/></svg></button><button type="button" class="btn-clean" aria-label="Edit roaster details" onclick="app.openRoasterEdit('${app.escJs(r.key)}')"><svg class="icon"><use href="#i-edit-2"/></svg></button></div></div>
+                    <div class="dh-top ro-top"><button type="button" class="dh-pill dh-back" onclick="app.goBackPage()"><svg class="icon"><use href="#i-arrow-left"/></svg><span>${esc(this.backLabel())}</span></button><div class="dh-actions"><button type="button" class="btn-clean ro-fav" aria-pressed="${fav}" aria-label="${fav ? 'Remove from favorites' : 'Favorite this roaster'}" onclick="app.toggleRoasterFav('${app.escJs(r.key)}')"><svg class="icon"><use href="#i-heart"/></svg></button><button type="button" class="btn-clean" aria-label="Share this roaster" data-roaster="${esc(r.name)}" onclick="app.shareItem('roaster', this.getAttribute('data-roaster'), event)"><svg class="icon"><use href="#i-share-2"/></svg></button><button type="button" class="btn-clean" aria-label="Edit roaster details" onclick="app.openRoasterEdit('${app.escJs(r.key)}')"><svg class="icon"><use href="#i-edit-2"/></svg></button></div></div>
                     <section class="profile-card profile-hero ro-hero" style="--pc-rgb:${rgb}">
                         <div class="ro-hero-row">${this.roasterTileHtml(r, true)}<div style="min-width:0"><h2>${esc(r.name)}</h2>${where ? `<div class="ro-where">${where}</div>` : `<button type="button" class="ro-add" onclick="app.openRoasterEdit('${app.escJs(r.key)}')">+ Add location &amp; website</button>`}</div></div>
                         ${info.note ? `<p class="ro-note">${esc(info.note)}</p>` : ''}
@@ -12319,7 +12445,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const coffeeName = (bean ? String(bean.name || '').trim() : '') || 'Coffee';
                 const roasterName = bean ? String(bean.roaster || '').trim() : '';
                 const id = this.esc(log.id);
-                const lead = `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('brew', log.id)}"${this.likePopStyle('brew', log.id)} onclick="app.toggleLike('${app.escJs(id)}', event)" title="Like session"><svg class="heart-icon"><use href="#i-heart"/></svg></button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}${owner === this.user ? `<span class="social-owner-actions"><button class="btn-clean" onclick="app.editBrew('${app.escJs(id)}')" title="Edit session"><svg class="icon" style="width:14px;height:14px;"><use href="#i-edit-2"/></svg></button><button class="btn-clean danger" onclick="app.delete('brew','${app.escJs(id)}')" title="Delete session"><svg class="icon" style="width:14px;height:14px;"><use href="#i-trash-2"/></svg></button></span>` : this.acctOn() ? `<span class="social-owner-actions"><button class="btn-clean" onclick="app.reportItem('session','${app.escJs(id)}', event)" title="Report session" aria-label="Report session"><svg class="icon" style="width:14px;height:14px;"><use href="#i-flag"/></svg></button></span>` : ''}`;
+                const lead = `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('brew', log.id)}"${this.likePopStyle('brew', log.id)} onclick="app.toggleLike('${app.escJs(id)}', event)" title="Like session"><svg class="heart-icon"><use href="#i-heart"/></svg></button><button type="button" class="social-btn share-btn" onclick="app.shareItem('session', '${app.escJs(id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}${owner === this.user ? `<span class="social-owner-actions"><button class="btn-clean" onclick="app.editBrew('${app.escJs(id)}')" title="Edit session"><svg class="icon" style="width:14px;height:14px;"><use href="#i-edit-2"/></svg></button><button class="btn-clean danger" onclick="app.delete('brew','${app.escJs(id)}')" title="Delete session"><svg class="icon" style="width:14px;height:14px;"><use href="#i-trash-2"/></svg></button></span>` : this.acctOn() ? `<span class="social-owner-actions"><button class="btn-clean" onclick="app.reportItem('session','${app.escJs(id)}', event)" title="Report session" aria-label="Report session"><svg class="icon" style="width:14px;height:14px;"><use href="#i-flag"/></svg></button></span>` : ''}`;
                 return `
                         <div class="feed-card-body">
                             <div class="feed-head">
@@ -12567,7 +12693,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         : [who === this.user && this.renderGoalsCard ? this.renderGoalsCard() : '', this.renderFabFour(who), this.profileCoffeesHtml(who), this.renderAchievementsCard(who), who !== this.user ? this.renderGearCard(who) : ''];   // v14.6: your goals first
                 const body = cards.filter(Boolean).join('') || '<div class="panel-empty">Nothing here yet. Log a few sessions and this fills in.</div>';
                 grid.innerHTML = [
-                    `<div class="people-switch${this.acctOn() ? ' one-row' : ''}">${chips}${peopleChip}</div>`,
+                    `<div class="people-switch${this.acctOn() ? ' one-row' : ''}">${this.acctOn() ? `<div class="ps-scroll">${chips}</div>` : chips}${peopleChip}</div>`,   // v15.0: everyone, in a row that scrolls
                     this.renderProfileHero(who),
                     this.profileNoteHtml ? this.profileNoteHtml(who) : '',
                     tabs,
@@ -12650,7 +12776,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const dots = r.weeks.map((on, i) => `<span class="week-dot${on ? ' on' : ''}" title="${i === 7 ? 'This week' : `${7 - i} week${7 - i === 1 ? '' : 's'} ago`}"></span>`).join('');
                 const streak = this.streakChipHtml(r.streak);
                 const last = r.lastT ? `Last brewed ${this.formatRelativeDate(r.lastT)}` : 'No sessions yet';
-                return `<section class="profile-card profile-hero" style="--pc-rgb:${this.hexRgb(color)}"><div class="hero-row"><div class="hero-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(user))}</div><div><div class="hero-name">${this.esc(user)}${user === this.user ? '<span class="you-tag">You</span>' : ''}</div><div class="hero-sub">${this.esc(last)}</div>${this.acctOn() ? this.profileFollowHtml(user) : ''}</div></div><div class="rhythm"><div class="week-dots">${dots}</div><div class="rhythm-text">Brewed in ${r.active} of the last 8 weeks</div>${streak}</div><div class="stat-row"><div class="stat-box"><div class="stat-num">${brews.length}</div><div class="stat-cap">${brews.length === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${beans}</div><div class="stat-cap">${beans === 1 ? 'Bean' : 'Beans'}</div></div><div class="stat-box"><div class="stat-num">${methods}</div><div class="stat-cap">${methods === 1 ? 'Method' : 'Methods'}</div></div></div></section>`;
+                return `<section class="profile-card profile-hero" style="--pc-rgb:${this.hexRgb(color)}"><div class="hero-row"><div class="hero-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(user))}</div><div class="hero-id"><div class="hero-name">${this.esc(user)}${user === this.user ? '<span class="you-tag">You</span>' : this.profileRelTagHtml(user)}</div><div class="hero-sub">${this.esc(last)}</div></div>${this.acctOn() ? `<button type="button" class="btn-clean hero-share" data-name="${this.esc(user)}" onclick="app.shareItem('profile', this.getAttribute('data-name'), event)" aria-label="Share ${this.esc(user)}'s profile"><svg class="icon"><use href="#i-share-2"/></svg></button>` : ''}</div>${this.acctOn() ? this.profileFollowHtml(user) : ''}<div class="rhythm"><div class="week-dots">${dots}</div><div class="rhythm-text">Brewed in ${r.active} of the last 8 weeks</div>${streak}</div><div class="stat-row"><div class="stat-box"><div class="stat-num">${brews.length}</div><div class="stat-cap">${brews.length === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${beans}</div><div class="stat-cap">${beans === 1 ? 'Bean' : 'Beans'}</div></div><div class="stat-box"><div class="stat-num">${methods}</div><div class="stat-cap">${methods === 1 ? 'Method' : 'Methods'}</div></div></div></section>`;
             },
 
             palateFor(user) {
@@ -12718,7 +12844,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             },
 
             renderFriendPalates() {
-                const others = this.knownPeople().filter(n => n !== this.user);
+                const others = this.friendNames();   // v15.0: your friends (you follow each other)
                 if (!others.length) return '';
                 const rows = others.map(name => {
                     const color = this.getUserColor(name);
@@ -15511,15 +15637,16 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const acct = this.acctOn();
                 const label = document.getElementById('user-list-label'); if (label) label.textContent = acct ? 'You' : 'Active User';
                 const addRow = document.getElementById('add-user-row'); if (addRow) addRow.style.display = acct ? 'none' : 'flex';
+                const sheet = document.getElementById('settings-modal'); if (sheet) sheet.classList.toggle('acct', acct);
+                const groups = document.getElementById('settings-acct'); if (groups) groups.innerHTML = '';
                 if (acct) {
+                    // v15.0: you at the top, then the groups (Privacy & notifications, Community, Your data, About), then
+                    // Sign out and Delete account
                     const me = document.createElement('div'); me.innerHTML = this.acctSettingsHtml(); list.appendChild(me.firstElementChild);
-                    // v14.4: a private profile approves its followers
-                    const priv = this.peoplePrivacyHtml();
-                    if (priv) { const pr = document.createElement('div'); pr.innerHTML = priv; list.appendChild(pr.firstElementChild); }
-                    else if (!this._privLoading) { this._privLoading = true; this.loadPeople(true).then(() => { this._privLoading = false; if (document.getElementById('settings-modal').classList.contains('active')) this.openSettings(); }).catch(() => { this._privLoading = false; }); }
+                    const priv = this.peoplePrivacyHtml();   // v14.4: a private profile approves its followers
+                    if (!priv && !this._privLoading) { this._privLoading = true; this.loadPeople(true).then(() => { this._privLoading = false; if (document.getElementById('settings-modal').classList.contains('active')) this.openSettings(); }).catch(() => { this._privLoading = false; }); }
                     const pushRow = this.pushRowHtml ? this.pushRowHtml() : '';   // v14.5: notifications on this phone
-                    if (pushRow) { const pu = document.createElement('div'); pu.innerHTML = pushRow; list.appendChild(pu.firstElementChild); }
-                    if (this.acctToolsHtml) { const at = document.createElement('div'); at.innerHTML = this.acctToolsHtml(); while (at.firstElementChild) list.appendChild(at.firstElementChild); }   // (the tools, then the legal links)
+                    if (groups) groups.innerHTML = this.acctToolsHtml(priv, pushRow);
                 }
                 // v14.6: with accounts, Settings is only yours: the old list of people (and their group goal switches) stays
                 // for the Sheet-era app; who shares your goal is your private communities
@@ -15577,12 +15704,11 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 });
 
                 const colorInput = document.getElementById('user-color-input');
-                const colorName = document.getElementById('user-color-name');
-                const colorValue = document.getElementById('user-color-value');
+                const colorValue = document.getElementById('user-color-value'), swatch = document.getElementById('user-color-swatch');
                 const currentColor = this.getUserColor(this.user);
                 if (colorInput) colorInput.value = currentColor;
-                if (colorName) colorName.innerText = this.user || 'Current User';
                 if (colorValue) colorValue.innerText = currentColor.toUpperCase();
+                if (swatch) swatch.style.background = currentColor;
 
                 this.cancelEquipmentEdit();
                 this.renderEquipmentList();
@@ -16339,7 +16465,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const sess = Supa.session() || {};
                 const email = sess.user && sess.user.email ? sess.user.email : '';
                 const color = this.getUserColor(this.user);
-                return `<div class="acct-row"><i class="acct-dot" style="background:${this.esc(color)}">${this.esc(this.feedInitial(this.user || '?'))}</i><span class="acct-who"><b>${this.esc(this.user || '')}</b>${email ? `<small>${this.esc(email)}</small>` : ''}</span><button type="button" class="btn-outline acct-out" onclick="app.signOut()">Sign out</button></div>`;
+                return `<div class="acct-row"><i class="acct-dot" style="background:${this.esc(color)}">${this.esc(this.feedInitial(this.user || '?'))}</i><span class="acct-who"><b>${this.esc(this.user || '')}</b>${email ? `<small>${this.esc(email)}</small>` : ''}</span></div>`;   // (v15.0: Sign out is at the bottom)
             },
             // ---- v14.4 (phase 3): People. Find people by name, follow them (friends = you follow each other), answer
             // follow requests when your profile is private, and block. New backend only: on the Sheet none of it shows.
@@ -16360,6 +16486,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const [data, me] = await Promise.all([Supa.rpc('my_people', {}), Supa.rpc('my_profile', {})]);
                 st.data = data && typeof data === 'object' ? data : { following: [], followers: [], blocked: [] };
                 st.me = me || null; st.at = Date.now();
+                this.adoptPeopleColors(st.data, st.me);   // v15.0: People and their profiles show the same color
                 try { safeSet('dialed_people_cache', JSON.stringify({ who: this.user, data: st.data })); } catch (e) {}
                 return st.data;
             },
@@ -16497,10 +16624,9 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             // the follow button (and a small menu with Block) on someone else's profile
             profileFollowHtml(name) {
                 if (!this.acctOn() || !name || name === this.user || !this.ppState().data) return '';
-                const rel = this.relationTo(name), st = this.ppState(), n = this.esc(name);
-                const tag = rel.friend ? '<span class="you-tag pp-friend">Friends</span>' : rel.followsYou ? '<span class="pp-note">Follows you</span>' : '';
+                const rel = this.relationTo(name), st = this.ppState(), n = this.esc(name);   // (v15.0: Friends / Follows you sit beside the name)
                 const menu = st.menu === name ? `<div class="pp-menu">${rel.followsYou ? `<button type="button" data-name="${n}" onclick="app.peopleAct('remove', this.getAttribute('data-name'))">Remove follower</button>` : ''}<button type="button" data-name="${n}" onclick="app.reportItem('profile', this.getAttribute('data-name'))">Report ${n}</button>${rel.blocked ? '' : `<button type="button" class="pp-danger" data-name="${n}" onclick="app.peopleAct('block', this.getAttribute('data-name'))">Block ${n}</button>`}</div>` : '';
-                return `<div class="hero-follow">${this.followBtnHtml(name, rel, 'hero-act')}${tag}<button type="button" class="btn-clean pp-more" aria-label="More" data-name="${n}" onclick="app.togglePersonMenu(this.getAttribute('data-name'))"><span></span><span></span><span></span></button>${menu}</div>`;
+                return `<div class="hero-follow">${this.followBtnHtml(name, rel, 'hero-act')}<button type="button" class="btn-clean pp-more" aria-label="More" data-name="${n}" onclick="app.togglePersonMenu(this.getAttribute('data-name'))"><span></span><span></span><span></span></button>${menu}</div>`;
             },
 
             togglePersonMenu(name) { const st = this.ppState(); st.menu = st.menu === name ? '' : name; this.render(); },
@@ -16524,7 +16650,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             },
 
             // the Profiles row: you, then the people you follow (friends first, most recently brewing first). Each person's
-            // own list, never the same names for everyone. One row, as many as fit; People has the rest.
+            // own list, never the same names for everyone. (v15.0: all of them, in a row that scrolls.)
             profileRowPeople() {
                 if (!this.acctOn()) return this.knownPeople();
                 const d = this.ppState().data, me = this.user;
@@ -16534,20 +16660,24 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 return [...new Set([me, ...byRecent(following.filter(f => f.friend)), ...byRecent(following.filter(f => !f.friend))].filter(Boolean))];
             },
 
-            // keep the row to one line: hide the chips that don't fit (never you, the person showing, or People)
+            // v15.0: the row scrolls sideways with everyone in it (nobody hidden behind People). It keeps its place when
+            // the page redraws, and the person you're looking at is always in view.
             fitPeopleRow(grid) {
                 const row = grid && grid.querySelector && grid.querySelector('.people-switch.one-row');
-                if (!row) return;
-                const chips = [...row.querySelectorAll('.person-chip:not(.pp-chip)')], more = row.querySelector('.pp-chip');
-                chips.forEach(c => { c.hidden = false; });
-                const cs = typeof getComputedStyle === 'function' ? getComputedStyle(row) : null;
-                const gap = parseFloat(cs && cs.columnGap) || 6, avail = row.clientWidth - (more ? more.offsetWidth + gap : 0);
-                if (!(avail > 0)) return;
-                const active = row.querySelector('.person-chip.active:not(.pp-chip)');
-                const must = new Set([chips[0], active].filter(Boolean));
-                let used = [...must].reduce((t, c) => t + c.offsetWidth + gap, 0);
-                let full = false;   // in order: once someone doesn't fit, the rest wait in People
-                chips.forEach(c => { if (must.has(c)) return; const w = c.offsetWidth + gap; if (!full && used + w <= avail) used += w; else { full = true; c.hidden = true; } });
+                const sc = row && row.querySelector('.ps-scroll');
+                if (!sc || typeof sc.getBoundingClientRect !== 'function') return;
+                const max = () => Math.max(0, sc.scrollWidth - sc.clientWidth);
+                const fade = () => sc.classList.toggle('ps-more', max() > 2 && sc.scrollLeft < max() - 2);
+                sc.scrollLeft = Math.min(this._psLeft || 0, max());
+                const a = sc.querySelector('.person-chip.active');
+                if (a) {
+                    const r = a.getBoundingClientRect(), b = sc.getBoundingClientRect();
+                    if (r.left < b.left + 10) sc.scrollLeft -= b.left + 10 - r.left;
+                    else if (r.right > b.right - 34) sc.scrollLeft += r.right - (b.right - 34);
+                }
+                this._psLeft = sc.scrollLeft;
+                fade();
+                sc.addEventListener('scroll', () => { this._psLeft = sc.scrollLeft; fade(); }, { passive: true });
                 if (!this._rowFitBound && typeof window !== 'undefined' && window.addEventListener) {
                     this._rowFitBound = true;
                     window.addEventListener('resize', () => { if (this.tab === 'profile') this.fitPeopleRow(document.getElementById('grid')); });
@@ -16615,8 +16745,17 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (this.tab === 'feed' && this.feedMode() === 'discover') this.render();
                 try {
                     const args = { max_items: 20, ...(this.commFilterArgs ? this.commFilterArgs() : {}) };
-                    const page = await Supa.rpc('discover_feed', more ? { ...args, as_of: st.asOf, page: st.next } : args);
+                    let page = await Supa.rpc('discover_feed', more ? { ...args, as_of: st.asOf, page: st.next, ...(st.withFriends ? { with_friends: true } : {}) } : args);
                     if (st.seq !== seq) return;
+                    // v15.0: while few people share with Everyone, your friends' sessions are ranked in too (the same ranking)
+                    if (!more) {
+                        st.withFriends = false;
+                        if (page && Number(page.total || 0) < 8) {
+                            const wide = await Supa.rpc('discover_feed', { ...args, with_friends: true }).catch(() => null);
+                            if (st.seq !== seq) return;
+                            if (wide && Number(wide.total || 0) > Number(page.total || 0)) { page = wide; st.withFriends = true; }
+                        }
+                    }
                     const raw = page && Array.isArray(page.events) ? page.events : [];
                     await Supa.linkPhotos(raw);   // photos in storage: short-lived links, as in a sync
                     if (st.seq !== seq) return;
@@ -16680,7 +16819,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     if (ev.type !== 'bean' && ev.type !== 'brew') return;
                     const id = String(ev.id), key = ev.type + ':' + id;
                     if (ev.type === 'bean' ? this.beans.has(id) : this.brews.has(id)) return;
-                    if (ev.actor && ev.actorColor && !this.userColors[ev.actor]) this.userColors[ev.actor] = this.normalizeHexColor(ev.actorColor) || this.userColors[ev.actor];
+                    if (ev.actor && ev.actorColor && ev.actor !== this.user) this.userColors[ev.actor] = this.normalizeHexColor(ev.actorColor) || this.userColors[ev.actor];   // v15.0: the color on their profile
                     this.applyEvent(ev);
                     this.communityIds.add(key);
                 });
@@ -16727,7 +16866,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const foot = st.error ? `<div class="comm-empty">${this.esc(st.error)}</div>`
                     : st.next !== null ? `<button type="button" class="btn-outline comm-more" onclick="app.loadCommunity(true)"${st.loading ? ' disabled' : ''}>${st.loading ? 'Loading…' : 'Show more'}</button>`
                     : `<div class="comm-empty">You're all caught up.</div>`;
-                grid.innerHTML = head + list.map(b => this.streamCard(b, true)).join('') + foot;
+                const wide = st.withFriends ? '<div class="comm-note">Few people share with Everyone yet, so Discover also ranks your friends\' sessions: newest first, lifted by photos, notes, likes, comments and rarer coffees.</div>' : '';
+                grid.innerHTML = head + wide + list.map(b => this.streamCard(b, true)).join('') + foot;
             },
 
             // ---- the Community tab: one of your communities at a time (a picker when you're in more than one)
@@ -17049,9 +17189,9 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             openLegal(page) {
                 const m = document.getElementById('legal-modal'), f = document.getElementById('legal-frame');
                 if (!m || !f) { location.href = this.legalUrl(page); return; }
-                const title = page === 'privacy' ? 'Privacy Policy' : 'Terms of Use';
+                const title = page === 'privacy' ? 'Privacy Policy' : page === 'support' ? 'Help' : 'Terms of Use';   // (v15.0: and Help)
                 document.getElementById('legal-title').textContent = title; f.title = title;
-                f.src = (page === 'privacy' ? 'privacy' : 'terms') + '.html';
+                f.src = (page === 'privacy' || page === 'support' ? page : 'terms') + '.html';
                 m.classList.add('active');
             },
             closeLegal() {
@@ -17060,8 +17200,19 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (f) f.removeAttribute('src');
             },
 
-            acctToolsHtml() {
-                return `<div class="acct-tools">${this.isReviewer && this.isReviewer() ? '<button type="button" class="btn-outline pp-act" onclick="app.openReview()">Review reports</button>' : ''}<button type="button" class="btn-outline pp-act" onclick="app.openGuidelines()">Community guidelines</button><button type="button" class="btn-outline pp-act" onclick="app.downloadMyData()">Download my data</button><button type="button" class="btn-outline pp-act acct-delete" onclick="app.deleteMyAccount()">Delete account</button></div><p class="acct-legal">${this.legalLinksHtml()}</p>`;
+            // v15.0: Settings with an account, in groups like the phone's own Settings (the rows above them, you and
+            // Appearance, are in the page)
+            acctToolsHtml(priv = '', pushRow = '') {
+                const row = (onclick, title, sub = '', cls = '') => `<button type="button" class="set-row set-link${cls ? ` ${cls}` : ''}" onclick="${onclick}"><span class="set-main"><b>${title}</b>${sub ? `<small>${sub}</small>` : ''}</span><svg class="icon set-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>`;
+                const link = (page, title) => `<a class="set-row set-link" href="${this.legalUrl(page)}" target="_blank" rel="noopener" onclick="app.openLegal('${page}'); return false;"><span class="set-main"><b>${title}</b></span><svg class="icon set-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></a>`;
+                const group = (label, rows, cls = '') => rows ? `<div class="set-label">${label}</div><div class="set-group${cls ? ` ${cls}` : ''}">${rows}</div>` : '';
+                return [
+                    group('Privacy and notifications', `${priv}${pushRow}`),
+                    group('Community', `${row('app.openGuidelines()', 'Community guidelines', 'What\'s welcome here, and how reporting works')}${this.isReviewer && this.isReviewer() ? row('app.openReview()', 'Review reports', 'Reports waiting for a reviewer') : ''}`),
+                    group('Your data', `${row('app.downloadMyData()', 'Download my data', 'Everything on your account, in one file')}${row('app.exportData(\'csv\')', 'Export sessions', 'A spreadsheet (CSV) of your sessions')}`),
+                    group('About', `${link('terms', 'Terms of Use')}${link('privacy', 'Privacy Policy')}${link('support', 'Help and support')}`, 'acct-legal'),
+                    `<div class="set-group set-end"><button type="button" class="set-row acct-out" onclick="app.signOut()"><span class="set-main"><b>Sign out</b></span></button><button type="button" class="set-row acct-delete" onclick="app.deleteMyAccount()"><span class="set-main"><b>Delete account</b></span></button></div>`
+                ].join('');
             },
 
             async downloadMyData() {
@@ -17154,6 +17305,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     await Supa.linkPhotos(raw);
                     st.events = raw.map(e => this.normalizeEvent(e)).filter(Boolean);
                     st.card = page && page.profile ? page.profile : null;
+                    if (st.card && st.card.color) this.adoptColors([{ name, color: st.card.color }]);   // v15.0
                     st.at = Date.now();
                 } catch (e) {
                     st.error = e && e.signedOut ? '' : /nobody/i.test(String(e && e.message || '')) ? 'There\'s nobody by that name.' : 'Couldn\'t load this profile. Check your connection.';
@@ -17529,15 +17681,34 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         this._openBellAfterSync = true;
                         const u = new URL(location.href); u.searchParams.delete('notifications'); history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
                     }
-                    if (this.pushSupported() && !(this.isNative && this.isNative())) navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.type === 'open-notifications' && this.acctOn()) { this.setTab('feed'); this.openNotifications(); } });
+                    if (this.pushSupported() && !(this.isNative && this.isNative())) navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.type === 'open-notifications') this.openBellFromPush(); });
                 } catch (e) {}
             },
 
             checkPushOpen() {
                 if (!this._openBellAfterSync || !this.acctOn() || !this.user) return;
                 this._openBellAfterSync = false;
-                this.setTab('feed');
-                this.openNotifications();
+                this.openBellFromPush();
+            },
+
+            // v15.0: a tapped notification opens the bell once the app is back on screen, signed in and loaded (not in
+            // the middle of waking up), and only once however many ways the tap arrives
+            openBellFromPush() {
+                if (!this.acctOn() || !this.user || !this.syncedOnce) { this._openBellAfterSync = true; return; }
+                if (this._bellPending) return;
+                this._bellPending = true;
+                const go = () => {
+                    this._bellPending = false;
+                    if (this.tab !== 'feed') this.setTab('feed');
+                    const m = document.getElementById('notif-modal');
+                    if (m && m.classList.contains('active')) { this.loadNotifications(50).then(() => this.renderNotifications()).catch(() => {}); return; }
+                    this.openNotifications();
+                };
+                const later = () => setTimeout(go, 250);
+                if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+                    const on = () => { if (document.visibilityState !== 'visible') return; document.removeEventListener('visibilitychange', on); later(); };
+                    document.addEventListener('visibilitychange', on);
+                } else later();
             },
             // ---- v14.6: inside the iPhone app (Capacitor). The same app, with its files built in (it opens offline with the
             // last synced data; saves wait in the outbox), plus what a website can't do: notifications from Apple's push
@@ -17643,7 +17814,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 document.documentElement.classList.add('is-native');
                 this.nativeStatusBar();
                 const P = this.nativePlugin('PushNotifications');
-                if (P && P.addListener) P.addListener('pushNotificationActionPerformed', () => { if (this.acctOn() && this.user) { this.setTab('feed'); this.openNotifications(); } else this._openBellAfterSync = true; });
+                if (P && P.addListener) P.addListener('pushNotificationActionPerformed', () => this.openBellFromPush());   // v15.0
                 setTimeout(() => this.nativePushRefresh(), 4000);
                 const A = this.nativePlugin('App');
                 if (A && A.addListener) A.addListener('appStateChange', s => { if (s && s.isActive && this.acctOn() && this.user) this.sync({ silent: true }); });
@@ -17951,10 +18122,11 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             // ---- v14.8: tabs (Following / Community / Discover, a profile's sections, People) switch when your finger
             // lifts, so a tap still counts when the list was still moving (iPhone spends that tap stopping the scroll
             // and sends no click). A press that slides more than a little is a scroll, not a tap.
+            // v15.0: the bottom bar works the same way (from Feed, a tap there used to need a second try)
             bindTabTaps() {
                 if (this._tabTapsBound || typeof document === 'undefined') return;
                 this._tabTapsBound = true;
-                const SEL = '.seg-control[role="tablist"] > button';
+                const SEL = '.seg-control[role="tablist"] > button, #mobile-nav .mob-item, #mobile-nav .mob-fab';
                 let down = null, fired = null;
                 document.addEventListener('pointerdown', e => {
                     const b = e.target && e.target.closest ? e.target.closest(SEL) : null;
@@ -17964,17 +18136,147 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 document.addEventListener('pointerup', e => {
                     const d = down; down = null;
                     if (!d || e.pointerId !== d.id || Math.hypot(e.clientX - d.x, e.clientY - d.y) > 10 || !d.b.isConnected) return;
-                    fired = { b: d.b, at: Date.now() };
+                    fired = { b: d.b, at: Date.now(), x: e.clientX, y: e.clientY };
                     d.b.click();   // the tab's own handler, right away
                 }, true);
-                // the click iPhone may still send for the same tap: it already counted
+                // the click iPhone may still send for the same tap: it already counted (whatever is under the finger now,
+                // like the sheet the + button just opened)
                 document.addEventListener('click', e => {
                     const f = fired;
                     if (!f || !e.isTrusted || Date.now() - f.at > 700) return;
                     const b = e.target && e.target.closest ? e.target.closest(SEL) : null;
-                    if (!b) return;
+                    if (!b && Math.hypot(e.clientX - f.x, e.clientY - f.y) > 30) return;
                     fired = null; e.preventDefault(); e.stopPropagation();
                 }, true);
+            },
+
+            // ---- v15.0: everyone's color is the one on their profile, the same on every phone and browser. Yours changes
+            // on the server as soon as you pick it (until the server has it, this device keeps your pick).
+            colorPending() {
+                let p = null;
+                try { p = JSON.parse(safeGet('dialed_color_pending') || 'null'); } catch (e) { p = null; }
+                return p && p.who && this.user && String(p.who).toLowerCase() === String(this.user).toLowerCase() ? this.normalizeHexColor(p.color) : '';
+            },
+            setColorPending(color) { safeSet('dialed_color_pending', color ? JSON.stringify({ who: this.user, color }) : ''); },
+
+            // colors the server sent (People, profiles, the people list): theirs wins over anything this device guessed
+            adoptColors(list) {
+                if (!Array.isArray(list)) return false;
+                let changed = false;
+                list.forEach(p => {
+                    const name = String((p && p.name) || '').trim(), color = this.normalizeHexColor((p && p.color) || '');
+                    if (!name || !color) return;
+                    if (name === this.user) {
+                        const pend = this.colorPending();
+                        if (pend) { if (pend === color) this.setColorPending(''); return; }
+                    }
+                    if (this.normalizeHexColor(this.userColors[name]) !== color) { this.userColors[name] = color; changed = true; }
+                });
+                if (changed) safeSet('dialed_user_colors', JSON.stringify(this.userColors));
+                return changed;
+            },
+            adoptPeopleColors(data, me) {
+                const d = data || {};
+                return this.adoptColors([...(d.following || []), ...(d.followers || []), ...(me && me.name ? [me] : [])]);
+            },
+
+            // ---- v15.0: your friends (you follow each other), for Friends' palates and the awards on your profile
+            friendNames() {
+                const others = () => this.knownPeople().filter(n => n && n !== this.user);
+                if (!(this.acctOn && this.acctOn())) return others();
+                const d = this.ppState().data;
+                if (!d) return others();
+                return [...new Set((d.following || []).filter(f => f && f.status === 'accepted' && f.friend).map(f => String(f.name || '')).filter(n => n && n !== this.user))];
+            },
+            // the awards on your profile are between you and your friends, every month (a community's own awards stay on
+            // its Community tab)
+            friendsCrew() {
+                if (!(this.acctOn && this.acctOn()) || !this.ppState().data) return null;
+                const names = this.friendNames();
+                if (!names.length) return null;
+                return { id: 'friends', name: 'Friends', open: false, since: '', members: [this.user, ...names].map(name => ({ name })) };
+            },
+
+            // someone's tag beside their name on their profile: Friends, or Follows you
+            profileRelTagHtml(name) {
+                if (!this.acctOn() || !name || name === this.user || !this.ppState().data) return '';
+                const rel = this.relationTo(name);
+                return rel.friend ? '<span class="you-tag pp-friend">Friends</span>' : rel.followsYou ? '<span class="pp-note">Follows you</span>' : '';
+            },
+
+            // ---- v15.0: share a session, a coffee, a roaster, a profile or a community as a link that opens that exact
+            // thing (for anyone signed in who can see it; a session or coffee they can't see opens its owner's profile)
+            shareBase() {
+                const web = typeof location !== 'undefined' && /^https?:$/.test(location.protocol);
+                return web ? location.origin + location.pathname : 'https://maceopmh-droid.github.io/Dialed-In-/';
+            },
+            shareUrl(params) {
+                const q = Object.entries(params).filter(([, v]) => v !== undefined && v !== null && String(v) !== '').map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`).join('&');
+                return `${this.shareBase()}?${q}`;
+            },
+            async shareLink(url, text, title = 'Dialed In') {
+                try { if (navigator.share) { await navigator.share({ title, text, url }); return 'shared'; } } catch (e) { if (e && e.name === 'AbortError') return 'cancelled'; }
+                try { await navigator.clipboard.writeText(url); this.showToast('Link copied.'); return 'copied'; } catch (e) { /* no clipboard */ }
+                prompt('Copy this link:', url);
+                return 'shown';
+            },
+            shareItem(kind, ref, event) {
+                if (event && event.stopPropagation) event.stopPropagation();
+                const id = String(ref || '');
+                if (kind === 'session') {
+                    const b = this.brews.get(id); if (!b) return;
+                    const owner = this.getBrewOwner(b), bean = this.beans.get(String(b.beanId || ''));
+                    const what = [b.method || 'session', bean && bean.name ? `of ${bean.name}` : ''].filter(Boolean).join(' ');
+                    return this.shareLink(this.shareUrl({ s: id, by: owner }), `${owner === this.user ? 'My' : `${owner}'s`} ${what} on Dialed In`);
+                }
+                if (kind === 'coffee') {
+                    const bean = this.beans.get(id); if (!bean) return;
+                    const owner = String(bean.user || bean.owner || '');
+                    return this.shareLink(this.shareUrl({ c: id, by: owner }), `${bean.name || 'A coffee'}${bean.roaster ? ` from ${bean.roaster}` : ''} on Dialed In`);
+                }
+                if (kind === 'roaster') return this.shareLink(this.shareUrl({ r: id }), `${id} on Dialed In`);
+                if (kind === 'profile') return this.shareLink(this.shareUrl({ u: id }), id === this.user ? 'Follow me on Dialed In' : `${id} on Dialed In`);
+            },
+            shareCurrentCoffee() { return this.shareItem('coffee', this.activeId); },
+            // a community: its invite link (the same one People has)
+            shareCommunity(gid, event) {
+                if (event && event.stopPropagation) event.stopPropagation();
+                const g = (this.grState().list || []).find(x => String(x.id) === String(gid));
+                if (!g || !g.invite) { this.showToast('Only its members can invite people.'); return; }
+                return this.shareInvite(g.invite, g.name);
+            },
+
+            // a shared link (?s= session or ?c= coffee, with by= its owner; ?r= roaster): remembered until you're signed in and loaded, then opened
+            noteShareLink() {
+                try {
+                    const q = new URLSearchParams(location.search), s = q.get('s'), c = q.get('c'), r = q.get('r');
+                    if (!s && !c && !r) return;
+                    safeSet('dialed_pending_share', JSON.stringify({ s: s || '', c: c || '', r: r || '', u: q.get('by') || '' }));
+                    const u = new URL(location.href); ['s', 'c', 'r', 'by'].forEach(k => u.searchParams.delete(k));
+                    history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
+                } catch (e) {}
+            },
+            checkPendingShare() {
+                if (!this.acctOn() || !Supa.ready() || !this.user) return;
+                let p = null;
+                try { p = JSON.parse(safeGet('dialed_pending_share') || 'null'); } catch (e) { p = null; }
+                if (!p) return;
+                safeSet('dialed_pending_share', '');
+                if (p.s) {
+                    const b = this.brews.get(String(p.s));
+                    if (b && this.beans.has(String(b.beanId || ''))) { this.setTab('feed'); this.openFeedTarget(b.beanId, String(p.s), false); return; }
+                    if (p.u && p.u !== this.user) this.openAnyProfile(p.u); else this.showToast('That session isn\'t shared with you.');
+                    return;
+                }
+                if (p.c) {
+                    if (this.beans.has(String(p.c))) { this.openFeedTarget(String(p.c)); return; }
+                    if (p.u && p.u !== this.user) this.openAnyProfile(p.u); else this.showToast('That coffee isn\'t shared with you.');
+                    return;
+                }
+                if (p.r) {
+                    if (this.roasterFind && this.roasterFind(p.r)) this.openRoaster(p.r);
+                    else this.showToast(`${p.r} isn't on Dialed In yet.`);
+                }
             },
 
         };
