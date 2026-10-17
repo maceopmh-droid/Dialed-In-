@@ -5,15 +5,16 @@ looks side by side. Writes store_01.png ... at 1320 x 2868 (iPhone 6.9"), the si
 
     python3 compose.py <raw dir> <out dir>
 
-The raw screens are named <screen>_<light|dark>.png (native/store-shots.js). The fonts are Inter (close to Apple's own
-SF Pro); FONT_BOLD and FONT_TEXT point elsewhere if needed.
+The raw screens are named <screen>_<light|dark>.png (native/store-shots.js). The headlines are in Inter Display (close to
+Apple's own SF Pro; native/appstore/fonts, SIL Open Font License); FONT_BOLD and FONT_TEXT point elsewhere if needed.
 """
 import os, sys
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 W, H = 1320, 2868
-FONT_BOLD = os.environ.get('FONT_BOLD', '/usr/share/fonts/opentype/inter/InterDisplay-Bold.otf')
-FONT_TEXT = os.environ.get('FONT_TEXT', '/usr/share/fonts/opentype/inter/InterDisplay-Medium.otf')
+HERE = os.path.dirname(os.path.abspath(__file__))
+FONT_BOLD = os.environ.get('FONT_BOLD', os.path.join(HERE, 'fonts', 'InterDisplay-Bold.otf'))
+FONT_TEXT = os.environ.get('FONT_TEXT', os.path.join(HERE, 'fonts', 'InterDisplay-Medium.otf'))
 
 # the set, in App Store order: (raw screen, look, headline, line under it). The first three show in search results.
 SET = [
@@ -78,16 +79,16 @@ def phone(raw, look, scale):
     return layer, pad
 
 
-def text_block(img, look, head, sub, top=200):
+def text_block(img, look, head, sub, top=190):
     L = LOOKS[look]
     d = ImageDraw.Draw(img)
-    fh, fs = ImageFont.truetype(FONT_BOLD, 104), ImageFont.truetype(FONT_TEXT, 46)
+    fh, fs = ImageFont.truetype(FONT_BOLD, 108), ImageFont.truetype(FONT_TEXT, 46)
     y = top
     for line in head.split('\n'):
         w = d.textlength(line, font=fh)
         d.text(((W - w) / 2, y), line, font=fh, fill=L['ink'])
-        y += 118
-    y += 30
+        y += 122
+    y += 28
     for line in sub.split('\n'):
         w = d.textlength(line, font=fs)
         d.text(((W - w) / 2, y), line, font=fs, fill=L['sub'])
@@ -99,8 +100,8 @@ def single(raw_dir, name, look, head, sub):
     img = background(look)
     bottom = text_block(img, look, head, sub)
     raw = Image.open(os.path.join(raw_dir, f'{name}_{look}.png'))
-    layer, pad = phone(raw, look, 0.74)
-    y = max(bottom + 70, 640)
+    layer, pad = phone(raw, look, 0.76)
+    y = max(bottom + 64, 610)
     img.paste(layer, ((W - layer.width) // 2, y - pad), layer)
     return img
 
@@ -113,7 +114,7 @@ def both(raw_dir, name, head, sub):
     right, _ = phone(Image.open(os.path.join(raw_dir, f'{name}_dark.png')), 'dark', 0.5)
     pw = left.width - 2 * pad
     y = max(bottom + 90, 680)
-    gap = 120   # how much the two phones overlap
+    gap = 190   # how much the two phones overlap
     x0 = (W - (2 * pw - gap)) // 2
     img.paste(left, (x0 - pad, y - pad), left)
     img.paste(right, (x0 + pw - gap - pad, y - pad + 170), right)
