@@ -1,0 +1,16 @@
+{
+  "locale": "en-US",
+  "subtitle": "Coffee log for dialing in",
+  "promotionalText": "Log every cup, see what changed, and get a next-shot suggestion from your own best brews. Share with friends, or ask the community for help dialing in.",
+  "keywords": "coffee,espresso,pour over,brew,log,grind,recipe,barista,aeropress,beans,roaster,tasting,journal",
+  "supportUrl": "https://maceopmh-droid.github.io/Dialed-In-/support.html",
+  "privacyPolicyUrl": "https://maceopmh-droid.github.io/Dialed-In-/privacy.html",
+  "primaryCategory": "FOOD_AND_DRINK",
+  "description": "Dialed In is a coffee log for people who want their next cup to be better than the last.\n\nLog a session in seconds: espresso, pour over, French press, AeroPress, moka pot or cold brew, each with the fields that matter for it. Rate it, slide the taste (acidity, sweetness, body, finish, bitterness), pick notes from the flavor wheel, add a photo.\n\nThen it helps:\n• A next-shot coach reads your notes and numbers and compares them with your best shot on that coffee: grind finer, a shorter ratio, or repeat it exactly.\n• Every coffee gets its own page: its flavor shape, a timeline, dial-in curves, and two sessions side by side.\n• Recipes with a coffee, water and ratio lock, and a guided pour mode on the timer.\n\nAnd it's better with people:\n• Follow friends, like and comment, and share each session with Everyone, Friends, or just you.\n• Communities with their own feed and a weekly goal set by how much everyone usually brews.\n• Discover: recent, interesting brews from all kinds of coffees. It ends; no endless scroll.\n• Stuck? Ask for help dialing in and anyone can answer.\n\nNo ads, no tracking. Download your data or delete your account any time in Settings.",
+  "review": {
+    "demoAccountName": "appreview@dialed-in.app",
+    "contactEmail": "dialedincoffeeapp@gmail.com",
+    "notes": "Dialed In normally signs people in with a 6-digit code emailed to them. For review, enter appreview@dialed-in.app on the email screen and the app asks for the password instead. The account has its own sample coffees and sessions.\n\nUser-generated content safeguards (guideline 1.2):\n- Offensive words are filtered in names, comments and public notes, and links from accounts younger than 3 days are held.\n- Any session or comment can be reported from its ••• menu, and any profile from the profile. Reported items disappear for the reporter at once, and items reported by 3 people are hidden from everyone until reviewed.\n- Reviewers get an alert and act within 24 hours.\n- Users can block anyone from their profile.\n- Terms (with zero tolerance for objectionable content) are agreed at sign-up.\n- Contact: dialedincoffeeapp@gmail.com.\n\nAccount deletion (5.1.1(v)): Settings, under your account, then Delete account.\n\nNative features: notifications through Apple's push service, haptics, offline use with the bundled app files, and the share sheet for exports."
+  },
+  "screenshots": ["01_coffee_light.png", "02_next_shot_light.png", "03_vs_last_light.png", "04_dialin_light.png", "05_log_taste_light.png", "06_palate_light.png", "07_collection_light.png"]
+}

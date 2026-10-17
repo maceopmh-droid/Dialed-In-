@@ -1,0 +1,37 @@
+# Fills in the App Store listing (text, category, age rating, review account, price, countries, screenshots, build)
+# through the App Store Connect API, from native/appstore/listing.json and the app-store-shots branch. It never submits
+# for review. Runs when pushed to the `appstore-listing` branch; safe to run again (it sets the same things again and
+# replaces the screenshots).
+name: app store listing
+on:
+  push:
+    branches: [appstore-listing]
+
+jobs:
+  listing:
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID || 'com.dialedincoffeeapp.ios' }}
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+      APNS_KEY_ID: ${{ secrets.APNS_KEY_ID }}
+      APNS_KEY_P8: ${{ secrets.APNS_KEY_P8 }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      REVIEW_PASSWORD: ${{ secrets.REVIEW_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Which secrets hold the App Store Connect key
+        id: apple
+        run: node native/scripts/apple-check.js
+      - name: Fill in the listing
+        if: steps.apple.outputs.ok == '1'
+        run: |
+          echo "::add-mask::$REVIEW_PASSWORD"
+          if [ "${{ steps.apple.outputs.asc_from }}" = "APNS" ]; then ASC_KEY_ID="$APNS_KEY_ID"; ASC_KEY_P8="$APNS_KEY_P8"; fi
+          k="$RUNNER_TEMP/k.p8"; body=$(printf '%s' "$ASC_KEY_P8" | tr -d '\r"' | sed -e 's/-----BEGIN [A-Z ]*-----//g' -e 's/-----END [A-Z ]*-----//g' | tr -d ' \n\t')
+          { echo "-----BEGIN PRIVATE KEY-----"; printf '%s\n' "$body" | fold -w 64; echo "-----END PRIVATE KEY-----"; } > "$k"
+          VERSION=$(grep -o '<meta name="dialed-in-version" content="[0-9.]*"' index.html | grep -o '[0-9][0-9.]*' | head -1)
+          S="$RUNNER_TEMP/shots"; git fetch -q --depth 1 origin app-store-shots && git worktree add -q "$S" FETCH_HEAD || S=""
+          ASC_KEY_ID="$ASC_KEY_ID" ASC_KEY_FILE="$k" VERSION="$VERSION" SHOTS_DIR="$S" node native/scripts/appstore-listing.js; rc=$?
+          rm -f "$k"; exit $rc
