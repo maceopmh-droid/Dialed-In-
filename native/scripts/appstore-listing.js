@@ -153,8 +153,14 @@ const must = (r, what) => { if (!r.ok) throw new Error(`${what} (${why(r)})`); r
 
   // ---- the build: the newest processed one with this version
   await step(`build for ${VERSION}`, async () => {
-    const r = must(await api('GET', `/v1/builds?filter[app]=${appId}&filter[preReleaseVersion.version]=${encodeURIComponent(VERSION)}&sort=-uploadedDate&limit=5`), 'builds');
-    const b = (r.j.data || []).find(x => x.attributes.processingState === 'VALID');
+    // a build Apple is still processing: wait for it (up to 25 minutes)
+    let r, b;
+    for (let i = 0; i < 50; i++) {
+      r = must(await api('GET', `/v1/builds?filter[app]=${appId}&filter[preReleaseVersion.version]=${encodeURIComponent(VERSION)}&sort=-uploadedDate&limit=5`), 'builds');
+      b = (r.j.data || []).find(x => x.attributes.processingState === 'VALID');
+      if (b || !(r.j.data || []).some(x => x.attributes.processingState === 'PROCESSING')) break;
+      await new Promise(res => setTimeout(res, 30000));
+    }
     if (!b) { todo.push(`a processed build of ${VERSION} to pick (none yet: ${(r.j.data || []).map(x => x.attributes.processingState).join(', ') || 'none uploaded'}); run this again once TestFlight shows it`); return false; }
     must(await api('PATCH', `/v1/appStoreVersions/${ver.id}/relationships/build`, { data: { type: 'builds', id: b.id } }), 'picking the build');
   });
