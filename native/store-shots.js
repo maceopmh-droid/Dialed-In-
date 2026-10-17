@@ -4,7 +4,7 @@
 // (window.__storeShots.shotUrl + "/shot?name=..."; the runner answers once the picture is taken).
 (function () {
     const C = window.__storeShots;
-    if (!C) return;
+    if (!C || window.top !== window) return;   // the app itself, not a page shown inside it
     const sleep = ms => new Promise(r => setTimeout(r, ms));
     const until = async (fn, ms = 30000) => { const t = Date.now(); while (Date.now() - t < ms) { try { if (fn()) return true; } catch (e) { /* not yet */ } await sleep(250); } return false; };
     const say = m => console.log('DIALED-' + m);
@@ -12,10 +12,12 @@
         try { const c = new AbortController(); const t = setTimeout(() => c.abort(), ms); await fetch(C.shotUrl + what, { cache: 'no-store', signal: c.signal }); clearTimeout(t); return true; }
         catch (e) { say('SHOT-FAIL ' + what + ' ' + e); return false; }
     };
-    const shot = async name => {
+    // check: the runner compares two quick screenshots for a passing notification banner (off where the page itself
+    // keeps moving at the top, like the log sheet over the spinning flavor shape)
+    const shot = async (name, check = true) => {
         await sleep(C.settle || 1500); say('SHOT ' + name);
-        const t0 = Date.now(), ok = await ask('/shot?name=' + encodeURIComponent(name), 90000), took = Date.now() - t0;
-        if (!ok || took < 500) fetch(C.shotUrl + '/log?m=' + encodeURIComponent(`${name}: ${ok ? 'answered' : 'failed'} after ${took} ms`)).catch(() => {});
+        const t0 = Date.now(), ok = await ask('/shot?name=' + encodeURIComponent(name) + (check ? '' : '&check=0'), 240000), took = Date.now() - t0;
+        fetch(C.shotUrl + '/log?m=' + encodeURIComponent(`${name}: ${ok ? 'answered' : 'failed'} after ${took} ms`)).catch(() => {});
         if (!ok) await sleep(8000);
     };
     // the phone's status bar area: things scrolled to the top of the screen go just below it
@@ -67,7 +69,7 @@
         await ask('/hello', 40000);   // the first request to the runner can be slow; not on a screenshot
         await sleep(1500);
         for (const [name, go] of plan) {
-            try { await go(); await shot(name); } catch (e) { say('STEP-FAIL ' + name + ' ' + (e && e.message)); }
+            try { await go(); await shot(name, !/log_taste/.test(name)); } catch (e) { say('STEP-FAIL ' + name + ' ' + (e && e.message)); }
         }
         say('DONE'); await ask('/done?ok=1');
     };

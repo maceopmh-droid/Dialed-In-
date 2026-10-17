@@ -96,7 +96,7 @@ jobs:
                           # one screenshot, and a second 1.5 s later: if the top of the screen differs (a notification banner
                           # passing), wait and take it again
                           grab(final); tries = 0
-                          while tries < 3:
+                          while tries < (1 if q.get('check', ['1'])[0] != '0' else 0):
                               time.sleep(1.5); grab(b)
                               if changed(final, b) < 400: break
                               tries += 1; time.sleep(4); grab(final)
