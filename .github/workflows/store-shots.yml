@@ -114,9 +114,10 @@ jobs:
           PY
           echo light > build/shots/.look
           python3 -W ignore build/server.py "$dev" build/shots > build/server.log 2>&1 &
-          for look in light dark; do
+          # a first pass that's thrown away: the app's first launch (signing in, first drawing) is slow and can lag behind
+          for look in warm light dark; do
             echo $look > build/shots/.look
-            xcrun simctl ui "$dev" appearance $look
+            xcrun simctl ui "$dev" appearance $([ $look = dark ] && echo dark || echo light)
             xcrun simctl terminate "$dev" "$BUNDLE_ID" 2>/dev/null || true
             xcrun simctl launch --console-pty "$dev" "$BUNDLE_ID" > "build/console_$look.log" 2>&1 &
             # if the app can't reach the runner, it says so in its log and holds each screen 8 s: take it from there
@@ -129,7 +130,7 @@ jobs:
           done
           cat build/server.log
           echo "::notice title=Screenshot log::$(tr '\n' ' ' < build/server.log | cut -c1-900)"
-          rm -f build/shots/00_*.png       # the throwaway first screenshots
+          rm -f build/shots/00_*.png build/shots/*_warm.png build/shots/*'&'*.png   # the throwaway screenshots
           rm -f "$app/public/index.html"   # (the copy with the password; the runner is thrown away anyway)
           n=$(ls build/shots/*.png 2>/dev/null | wc -l | tr -d ' ')
           echo "::notice title=Screenshots::$n screenshots ($(ls build/shots/*.png 2>/dev/null | xargs -n1 basename | tr '\n' ' '))"
