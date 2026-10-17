@@ -47,6 +47,7 @@
             const b = latest('review-c2', 'Espresso');
             closeAll(); app.openFeedTarget('review-c2', b.id); await sleep(600); app.setDetailTab('timeline'); await sleep(300);
             app.setCardTab(b.id, 'next'); await sleep(500); bringUp(historyLabel() || card(b.id), 14);
+            await sleep(1200); bringUp(historyLabel() || card(b.id), 14);   // (again, after friends' sessions have come in)
         }],
         // Following: a friend's espresso with its photo, the likes and the comments open
         ['03_feed', async () => {
@@ -109,6 +110,8 @@
         try { if (app.closeWelcome) app.closeWelcome(); } catch (e) { /* no welcome */ }
         await ask('/hello', 40000);   // the first request to the runner can be slow; not on a screenshot
         await sleep(1500);
+        // cleaner: no achievement lines inside the session cards
+        const st = document.createElement('style'); st.textContent = '.achievement-inline { display: none !important; }'; document.head.appendChild(st);
         const isDark = dark();
         for (const [name, go, light] of plan) {
             if (!isDark && !light) continue;
