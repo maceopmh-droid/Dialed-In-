@@ -42,6 +42,8 @@
         ['03_vs_last', async () => { const b = latest('review-c1', 'Espresso'); app.setCardTab(b.id, 'vs'); await sleep(500); bringUp(card(b.id)); }],
         ['04_dialin', async () => {
             closeAll(); app.openFeedTarget('review-c1'); await sleep(600); app.setDetailTab('dialin'); await sleep(900);
+            // room below the chart, so its tabs can come up to the top of the screen (the page ends right after it)
+            const v = document.getElementById('detail-view'); if (v) v.style.paddingBottom = '520px';
             bringUp(document.querySelector('.insight-tab[data-detail-tab="timeline"]'), 16);
         }],
         ['05_log_taste', async () => {

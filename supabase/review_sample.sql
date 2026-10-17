@@ -35,7 +35,7 @@ insert into review_sessions values
   ('review-s5',  'review-c1', 'Espresso',     '8',  18, 38, 30,  4.5, '{6,8,7,8,2,8}', '{"Jasmine": 3, "Honey": 2, "Bergamot": 1}',
      'One step finer and it''s back: sweet, floral, long finish.', '{}', 4.4),
   ('review-s6',  'review-c1', 'Pour Over',    '24', 15, 250, 185, 4,  '{7,7,4,7,2,7}', '{"Bergamot": 2, "Peach": 2, "Black tea": 1}',
-     'Clean and juicy.', '{"brewer": "V60", "temp": 94}', 3.6),
+     'Clean and juicy.', '{"brewer": "V60", "temp": 94}', 6.6),
   ('review-s7',  'review-c2', 'Espresso',     '10', 18, 36, 31,  3,   '{4,5,8,4,7,4}', '{"Bitter": 2, "Dark chocolate": 2}',
      'Too bitter and running long. Coarser next time.', '{}', 5.6),
   ('review-s8',  'review-c2', 'Espresso',     '11', 18, 38, 28,  4,   '{5,7,7,7,4,6}', '{"Milk chocolate": 3, "Cherry": 2, "Caramel": 1}',
