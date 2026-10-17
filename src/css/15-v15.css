@@ -11,8 +11,8 @@
         .modal-card input[type="date"]::-webkit-calendar-picker-indicator { margin: 0; }
 
         /* the log: the same room under Method / Grind, under Switch equipment and above the recipe */
-        #recipe-fields { margin-top: 1.4rem; }
-        #recipe-card:not([hidden]) { margin-top: 1.4rem; }
+        #recipe-fields { margin-top: 22px; }
+        #recipe-card:not([hidden]) { margin-top: 22px; }
 
         /* rows of chips that scroll sideways: room for the picked chip's glow */
         .rc-chips { padding: 6px 10px 12px; margin: 4px -10px -8px; scroll-padding-inline: 10px; }
@@ -79,11 +79,10 @@
             .modal-card .set-top { top: -1rem; margin: -1rem -0.82rem 0.6rem; padding: 1rem 0.82rem 0.6rem; }
         }
 
-        /* sharing: a share button beside the like on posts, on coffee, roaster and profile pages, and Invite on a community's goal */
-        .share-btn { color: var(--text-faint); flex-shrink: 0; }
-        .share-btn .icon { width: 17px; height: 17px; }
-        .share-btn:active { color: var(--matcha); }
-        .thread.compact .thread-lead .share-btn { margin-left: -2px; }
+        /* sharing: a share button at the top right of posts, on coffee, roaster and profile pages, and Invite on a community's goal */
+        .feed-head .feed-share { flex: none; display: grid; place-items: center; width: 34px; height: 34px; margin: -4px -8px -4px 2px; padding: 0; border: 0; background: none; color: var(--text-faint); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .feed-head .feed-share .icon { width: 16px; height: 16px; }
+        .feed-head .feed-share:active { color: var(--matcha); }
         .detail-hero .dh-share { width: 36px; height: 36px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 6px 16px rgba(var(--hair-rgb), 0.08); }
         .detail-hero .dh-share .icon { width: 15px; height: 15px; }
         .profile-hero .hero-row { position: relative; }

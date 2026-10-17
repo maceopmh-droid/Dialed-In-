@@ -487,7 +487,7 @@
                     if (pop) { if (had) void btn.offsetWidth; btn.classList.add('pop'); }
                     let line = lead.querySelector('.social-like-line');
                     if (likes.length) {
-                        if (!line) { line = document.createElement('div'); line.className = 'social-like-line'; (lead.querySelector('.share-btn') || btn).after(line); }   // (v15.0: after the share button, where a redraw puts it)
+                        if (!line) { line = document.createElement('div'); line.className = 'social-like-line'; btn.after(line); }
                         line.textContent = this.formatLikers(likes);
                     } else if (line) line.remove();
                 });

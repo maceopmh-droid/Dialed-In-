@@ -3580,8 +3580,8 @@
         .modal-card input[type="date"]::-webkit-calendar-picker-indicator { margin: 0; }
 
         /* the log: the same room under Method / Grind, under Switch equipment and above the recipe */
-        #recipe-fields { margin-top: 1.4rem; }
-        #recipe-card:not([hidden]) { margin-top: 1.4rem; }
+        #recipe-fields { margin-top: 22px; }
+        #recipe-card:not([hidden]) { margin-top: 22px; }
 
         /* rows of chips that scroll sideways: room for the picked chip's glow */
         .rc-chips { padding: 6px 10px 12px; margin: 4px -10px -8px; scroll-padding-inline: 10px; }
@@ -3648,11 +3648,10 @@
             .modal-card .set-top { top: -1rem; margin: -1rem -0.82rem 0.6rem; padding: 1rem 0.82rem 0.6rem; }
         }
 
-        /* sharing: a share button beside the like on posts, on coffee, roaster and profile pages, and Invite on a community's goal */
-        .share-btn { color: var(--text-faint); flex-shrink: 0; }
-        .share-btn .icon { width: 17px; height: 17px; }
-        .share-btn:active { color: var(--matcha); }
-        .thread.compact .thread-lead .share-btn { margin-left: -2px; }
+        /* sharing: a share button at the top right of posts, on coffee, roaster and profile pages, and Invite on a community's goal */
+        .feed-head .feed-share { flex: none; display: grid; place-items: center; width: 34px; height: 34px; margin: -4px -8px -4px 2px; padding: 0; border: 0; background: none; color: var(--text-faint); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .feed-head .feed-share .icon { width: 16px; height: 16px; }
+        .feed-head .feed-share:active { color: var(--matcha); }
         .detail-hero .dh-share { width: 36px; height: 36px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 6px 16px rgba(var(--hair-rgb), 0.08); }
         .detail-hero .dh-share .icon { width: 15px; height: 15px; }
         .profile-hero .hero-row { position: relative; }
@@ -3876,8 +3875,8 @@
             <div class="dh-top">
                 <button type="button" class="dh-pill dh-back" onclick="app.closeDetail()"><svg class="icon"><use href="#i-arrow-left"/></svg>Library</button>
                 <div class="dh-actions">
-                    <button type="button" id="d-want-btn" class="dh-pill dh-want" onclick="app.toggleWantToTry()" style="display:none;" aria-pressed="false"><svg class="icon"><use href="#i-bookmark"/></svg><span>Want to try</span></button>
                     <button type="button" class="btn-clean dh-share" onclick="app.shareCurrentCoffee()" aria-label="Share this coffee"><svg class="icon"><use href="#i-share-2"/></svg></button>
+                    <button type="button" id="d-want-btn" class="dh-pill dh-want" onclick="app.toggleWantToTry()" style="display:none;" aria-pressed="false"><svg class="icon"><use href="#i-bookmark"/></svg><span>Want to try</span></button>
                     <div class="hero-actions">
                         <button class="btn-clean" onclick="app.editBean()" aria-label="Edit coffee"><svg class="icon"><use href="#i-edit-2"/></svg></button>
                         <button class="btn-clean danger" onclick="app.deleteBean()" aria-label="Delete coffee"><svg class="icon"><use href="#i-trash-2"/></svg></button>
@@ -8831,7 +8830,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     if (pop) { if (had) void btn.offsetWidth; btn.classList.add('pop'); }
                     let line = lead.querySelector('.social-like-line');
                     if (likes.length) {
-                        if (!line) { line = document.createElement('div'); line.className = 'social-like-line'; (lead.querySelector('.share-btn') || btn).after(line); }   // (v15.0: after the share button, where a redraw puts it)
+                        if (!line) { line = document.createElement('div'); line.className = 'social-like-line'; btn.after(line); }
                         line.textContent = this.formatLikers(likes);
                     } else if (line) line.remove();
                 });
@@ -10675,7 +10674,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                                     <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}</div>
                                     <div class="feed-time" data-time="${this.esc(String(entry.date || brew.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || brew.date))}</div>
                                 </div>
-                                ${entry.community ? this.communityFollowHtml(owner) : ''}<div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(brew.method)}"/></svg>${this.esc(brew.method || 'Espresso')}</div>
+                                ${entry.community ? this.communityFollowHtml(owner) : ''}<div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(brew.method)}"/></svg>${this.esc(brew.method || 'Espresso')}</div><button type="button" class="feed-share" onclick="app.shareItem('session', '${app.escJs(brew.id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>
                             </div>
                             <div class="sc-title">
                                 <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(roasterName)}" onclick="app.openRoasterFrom(this, event)">${this.esc(roasterName)}</span></div>` : ''}${(tag => tag ? `<div class="sc-tags">${tag}</div>` : '')(this.helpTagHtml ? this.helpTagHtml(brew) : '')}</div>
@@ -10693,7 +10692,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                             ${this.lazyPanes(brew)}
                             ${this.renderThread('brew', brew, { inputId: `feed-comment-input-brew-${brew.id}`, lead: `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('brew', brew.id)}"${this.likePopStyle('brew', brew.id)} onclick="app.toggleLike('${app.escJs(brew.id)}', event)" title="Like session">
                                     <svg class="heart-icon"><use href="#i-heart"/></svg>
-                                </button><button type="button" class="social-btn share-btn" onclick="app.shareItem('session', '${app.escJs(brew.id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}` })}
+                                </button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}` })}
                         </div>
                     </article>
                 `;
@@ -10740,14 +10739,14 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                                     <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}</div>
                                     <div class="feed-time" data-time="${this.esc(String(entry.date || bean.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || bean.date))}</div>
                                 </div>
-                                <div class="feed-type">${this.esc(entry.kindLabel || 'Bean')}</div>
+                                <div class="feed-type">${this.esc(entry.kindLabel || 'Bean')}</div><button type="button" class="feed-share" onclick="app.shareItem('coffee', '${app.escJs(bean.id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>
                             </div>
                             <div class="feed-card-title" style="margin-top:11px">${this.esc(bean.name || beanName)}</div>
                             ${bean.roaster ? `<div class="fb-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(bean.roaster)}" onclick="app.openRoasterFrom(this, event)">${this.esc(bean.roaster)}</span></div>` : ''}
                             ${topTags.length ? `<div class="fb-tags">${topTags.map(tag => `<span class="tag">${this.esc(tag)}</span>`).join('')}</div>` : ''}
                             ${this.renderThread('bean', { ...bean, comments }, { inputId: `feed-comment-input-bean-${bean.id}`, lead: `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('bean', bean.id)}"${this.likePopStyle('bean', bean.id)} onclick="app.toggleBeanLike('${app.escJs(bean.id)}', event)" title="Like bean">
                                     <svg class="heart-icon"><use href="#i-heart"/></svg>
-                                </button><button type="button" class="social-btn share-btn" onclick="app.shareItem('coffee', '${app.escJs(bean.id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}<span class="social-owner-actions"><button class="btn-outline feed-open-link" type="button" onclick="app.openFeedTarget('${app.escJs(bean.id)}','',false); event.stopPropagation();">
+                                </button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}<span class="social-owner-actions"><button class="btn-outline feed-open-link" type="button" onclick="app.openFeedTarget('${app.escJs(bean.id)}','',false); event.stopPropagation();">
                                     Open Bean
                                 </button></span>` })}
                         </div>
@@ -12477,7 +12476,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const coffeeName = (bean ? String(bean.name || '').trim() : '') || 'Coffee';
                 const roasterName = bean ? String(bean.roaster || '').trim() : '';
                 const id = this.esc(log.id);
-                const lead = `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('brew', log.id)}"${this.likePopStyle('brew', log.id)} onclick="app.toggleLike('${app.escJs(id)}', event)" title="Like session"><svg class="heart-icon"><use href="#i-heart"/></svg></button><button type="button" class="social-btn share-btn" onclick="app.shareItem('session', '${app.escJs(id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}${owner === this.user ? `<span class="social-owner-actions"><button class="btn-clean" onclick="app.editBrew('${app.escJs(id)}')" title="Edit session"><svg class="icon" style="width:14px;height:14px;"><use href="#i-edit-2"/></svg></button><button class="btn-clean danger" onclick="app.delete('brew','${app.escJs(id)}')" title="Delete session"><svg class="icon" style="width:14px;height:14px;"><use href="#i-trash-2"/></svg></button></span>` : this.acctOn() ? `<span class="social-owner-actions"><button class="btn-clean" onclick="app.reportItem('session','${app.escJs(id)}', event)" title="Report session" aria-label="Report session"><svg class="icon" style="width:14px;height:14px;"><use href="#i-flag"/></svg></button></span>` : ''}`;
+                const lead = `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('brew', log.id)}"${this.likePopStyle('brew', log.id)} onclick="app.toggleLike('${app.escJs(id)}', event)" title="Like session"><svg class="heart-icon"><use href="#i-heart"/></svg></button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}${owner === this.user ? `<span class="social-owner-actions"><button class="btn-clean" onclick="app.editBrew('${app.escJs(id)}')" title="Edit session"><svg class="icon" style="width:14px;height:14px;"><use href="#i-edit-2"/></svg></button><button class="btn-clean danger" onclick="app.delete('brew','${app.escJs(id)}')" title="Delete session"><svg class="icon" style="width:14px;height:14px;"><use href="#i-trash-2"/></svg></button></span>` : this.acctOn() ? `<span class="social-owner-actions"><button class="btn-clean" onclick="app.reportItem('session','${app.escJs(id)}', event)" title="Report session" aria-label="Report session"><svg class="icon" style="width:14px;height:14px;"><use href="#i-flag"/></svg></button></span>` : ''}`;
                 return `
                         <div class="feed-card-body">
                             <div class="feed-head">
@@ -12486,7 +12485,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                                     <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}</div>
                                     <div class="feed-time">${this.esc(this.formatRelativeDate(log.date))}</div>
                                 </div>
-                                <div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(log.method)}"/></svg>${this.esc(log.method || 'Espresso')}</div>
+                                <div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(log.method)}"/></svg>${this.esc(log.method || 'Espresso')}</div><button type="button" class="feed-share" onclick="app.shareItem('session', '${app.escJs(id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>
                             </div>
                             <div class="sc-title">
                                 <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(roasterName)}" onclick="app.openRoasterFrom(this, event)">${this.esc(roasterName)}</span></div>` : ''}</div>
