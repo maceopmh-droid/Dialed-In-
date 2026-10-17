@@ -85,6 +85,9 @@ const must = (r, what) => { if (!r.ok) throw new Error(`${what} (${why(r)})`); r
   await step('App Review sign-in and notes', async () => {
     const attributes = { demoAccountRequired: true, demoAccountName: L.review.demoAccountName, demoAccountPassword: process.env.REVIEW_PASSWORD || '', notes: L.review.notes, contactEmail: L.review.contactEmail };
     const cur = await api('GET', `/v1/appStoreVersions/${ver.id}/appStoreReviewDetail`);
+    // what Apple has saved for this version's review contact, as yes/no only (Actions logs are public: never the values)
+    { const a = (cur.ok && cur.j && cur.j.data && cur.j.data.attributes) || null;
+      console.log(`::notice title=App Review contact on Apple's side::version ${ver.attributes ? ver.attributes.versionString : '?'}: ${a ? `review details saved; first name ${a.contactFirstName ? 'yes' : 'no'}, last name ${a.contactLastName ? 'yes' : 'no'}, phone ${a.contactPhone ? 'yes' : 'no'}, email ${a.contactEmail ? 'yes' : 'no'}` : `no review details saved yet (${cur.status || '?'})`}`); }
     if (cur.ok && cur.j && cur.j.data) {
       const a = cur.j.data.attributes || {};
       if (!a.contactFirstName || !a.contactLastName || !a.contactPhone) todo.push('App Review contact: your first name, last name and phone (App Store Connect, the version page, App Review Information); Apple needs them and they are not stored anywhere here');
