@@ -91,18 +91,20 @@ jobs:
                       grab(os.path.join(out, '.warm.png')); print(f'hello {look}', flush=True)
                   elif u.path == '/shot':
                       name = ''.join(c for c in q.get('name', ['x'])[0] if c.isalnum() or c in '_-')
-                      final, a, b = os.path.join(out, f'{name}_{look}.png'), os.path.join(out, '.a.png'), os.path.join(out, '.b.png')
-                      # two screenshots 6 s apart must agree at the top, so a passing banner never lands in one
+                      final, b = os.path.join(out, f'{name}_{look}.png'), os.path.join(out, f'.{name}_{look}_check.png')
                       try:
-                          grab(a); tries = 0
-                          while True:
-                              time.sleep(6); grab(b); tries += 1
-                              n = changed(a, b)
-                              if n < 400 or tries >= 5: break
-                              os.replace(b, a)
-                          os.replace(b, final); print(f'shot {name}_{look}' + (f' (after {tries} tries)' if tries > 1 else ''), flush=True)
-                      except Exception as e:   # whatever went wrong, the screen as it is now
+                          # one screenshot, and a second 1.5 s later: if the top of the screen differs (a notification banner
+                          # passing), wait and take it again
+                          grab(final); tries = 0
+                          while tries < 3:
+                              time.sleep(1.5); grab(b)
+                              if changed(final, b) < 400: break
+                              tries += 1; time.sleep(4); grab(final)
+                          print(f'shot {name}_{look}' + (f' (retaken {tries}x)' if tries else ''), flush=True)
+                      except Exception as e:
                           grab(final); print(f'shot {name}_{look} (single: {type(e).__name__}: {str(e)[:120]})', flush=True)
+                  elif u.path == '/log':
+                      print('log ' + q.get('m', [''])[0], flush=True)
                   elif u.path == '/done':
                       open(os.path.join(out, f'.done_{look}'), 'w').write(q.get('ok', ['?'])[0]); print(f'done {look} ok={q.get("ok", ["?"])[0]}', flush=True)
                   try:
