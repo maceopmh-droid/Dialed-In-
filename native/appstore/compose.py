@@ -121,8 +121,33 @@ def both(raw_dir, name, head, sub):
     return img
 
 
+def status_bars(raw_dir):
+    """The status bar should read the same on every screen, in both looks (9:41, full signal, full battery). Returns the
+    screens whose clock or signal differs from most of the others (the simulator can drop its override)."""
+    boxes = [(120, 55, 440, 140), (880, 55, 1240, 140)]   # the clock, and the signal / Wi-Fi / battery (not the island)
+    def ink(path):
+        im = Image.open(path).convert('L')
+        bits = []
+        for box in boxes:
+            px = im.crop(box).tobytes(); med = sorted(px)[len(px) // 2]
+            bits += [abs(v - med) > 60 for v in px]
+        return bits
+    names = sorted(f for f in os.listdir(raw_dir) if f.endswith(('_light.png', '_dark.png')) and not f.startswith(('00_', 'store_')))
+    if len(names) < 3:
+        return []
+    masks = {n: ink(os.path.join(raw_dir, n)) for n in names}
+    odd = []
+    for n in names:
+        diffs = sorted(sum(a != b for a, b in zip(masks[n], masks[m])) for m in names if m != n)
+        if diffs[len(diffs) // 2] > 1200:
+            odd.append(n)
+    return odd
+
+
 def main(raw_dir, out_dir):
     os.makedirs(out_dir, exist_ok=True)
+    for n in status_bars(raw_dir):
+        print(f'::warning title=Status bar::{n} has a different status bar from the rest of its look')
     made = []
     for i, (name, look, head, sub) in enumerate(SET, 1):
         p = os.path.join(out_dir, f'store_{i:02d}.png')

@@ -78,6 +78,10 @@ jobs:
           from PIL import Image, ImageChops
           dev, out = sys.argv[1], sys.argv[2]
           def grab(path): subprocess.run(['xcrun', 'simctl', 'io', dev, 'screenshot', path], capture_output=True)
+          def status_bar():   # 9:41, full signal and battery, set again before every screenshot (the simulator can drop it)
+              subprocess.run(['xcrun', 'simctl', 'status_bar', dev, 'override', '--time', '9:41', '--dataNetwork', 'wifi', '--wifiMode', 'active', '--wifiBars', '3',
+                              '--cellularMode', 'active', '--cellularBars', '4', '--batteryState', 'discharging', '--batteryLevel', '100'], capture_output=True)
+              time.sleep(1.2)
           def changed(a, b):   # pixels that differ in the top band, where iOS shows notification banners
               box = (0, 110, 1320, 480)
               d = ImageChops.difference(Image.open(a).convert('L').crop(box), Image.open(b).convert('L').crop(box))
@@ -95,7 +99,7 @@ jobs:
                       try:
                           # one screenshot, and a second 1.5 s later: if the top of the screen differs (a notification banner
                           # passing), wait and take it again
-                          grab(final); tries = 0
+                          status_bar(); grab(final); tries = 0
                           while tries < (1 if q.get('check', ['1'])[0] != '0' else 0):
                               time.sleep(1.5); grab(b)
                               if changed(final, b) < 400: break
@@ -118,6 +122,7 @@ jobs:
           for look in warm light dark; do
             echo $look > build/shots/.look
             xcrun simctl ui "$dev" appearance $([ $look = dark ] && echo dark || echo light)
+            sleep 2; xcrun simctl status_bar "$dev" override --time "9:41" --dataNetwork wifi --wifiMode active --wifiBars 3 --cellularMode active --cellularBars 4 --batteryState discharging --batteryLevel 100   # (switching the look can drop it)
             xcrun simctl terminate "$dev" "$BUNDLE_ID" 2>/dev/null || true
             xcrun simctl launch --console-pty "$dev" "$BUNDLE_ID" > "build/console_$look.log" 2>&1 &
             # if the app can't reach the runner, it says so in its log and holds each screen 8 s: take it from there

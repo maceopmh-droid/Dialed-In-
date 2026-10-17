@@ -20,8 +20,9 @@
         fetch(C.shotUrl + '/log?m=' + encodeURIComponent(`${name}: ${ok ? 'answered' : 'failed'} after ${took} ms`)).catch(() => {});
         if (!ok) await sleep(8000);
     };
-    // the phone's status bar area: things scrolled to the top of the screen go just below it
-    const safeTop = () => { const d = document.createElement('div'); d.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:env(safe-area-inset-top);visibility:hidden'; document.body.appendChild(d); const h = d.getBoundingClientRect().height; d.remove(); return h; };
+    // the phone's status bar area: things scrolled to the top of the screen go just below it (the app's --safe-top is
+    // the phone's own safe area; a desktop test can set it)
+    const safeTop = () => { const d = document.createElement('div'); d.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:var(--safe-top, env(safe-area-inset-top));visibility:hidden'; document.body.appendChild(d); const h = d.getBoundingClientRect().height; d.remove(); return h; };
     const scroller = el => { for (let n = el && el.parentElement; n; n = n.parentElement) { const cs = getComputedStyle(n); if (/(auto|scroll)/.test(cs.overflowY) && n.scrollHeight > n.clientHeight) return n; } return document.scrollingElement; };
     const bringUp = (el, gap = 10) => { if (!el) return; const sc = scroller(el); sc.scrollTop += el.getBoundingClientRect().top - safeTop() - gap; };
     const top = () => { const m = document.getElementById('main-content'); if (m) m.scrollTop = 0; window.scrollTo(0, 0); };
@@ -30,21 +31,29 @@
 
     const closeAll = () => { try { app.closeModals(); } catch (e) { /* none open */ } for (let i = 0; i < 4; i++) { const d = document.getElementById('detail-view'); if (!d || !d.classList.contains('active')) break; app.closeDetail(); } };
     const card = id => document.querySelector(`[data-card-brew="${id}"]`);
+    const historyLabel = () => [...document.querySelectorAll('#d-timeline-pane > label')].find(l => /session history/i.test(l.textContent));
     const plan = [
         // a throwaway first screenshot (the runner drops names starting 00_): the first one after the app opens can come out late
         ['00_warm', async () => { closeAll(); app.setTab('my'); app.openFeedTarget('review-c1'); await sleep(1500); }],
         ['01_coffee', async () => { closeAll(); app.setTab('my'); app.openFeedTarget('review-c1'); await sleep(700); top(); const v = document.getElementById('detail-view'); if (v) v.scrollTop = 0; }],
+        // a coffee's newest session with one of its tabs open, its "Session history" heading just below the status bar
+        // (so nothing sits under the clock)
         ['02_next_shot', async () => {
+            const b = latest('review-c2', 'Espresso');   // the quick, sour shot: the coach says what to change
+            closeAll(); app.openFeedTarget('review-c2', b.id); await sleep(600); app.setDetailTab('timeline'); await sleep(300);
+            app.setCardTab(b.id, 'next'); await sleep(500); bringUp(historyLabel() || card(b.id), 14);
+        }],
+        ['03_vs_last', async () => {
             const b = latest('review-c1', 'Espresso');
             closeAll(); app.openFeedTarget('review-c1', b.id); await sleep(600); app.setDetailTab('timeline'); await sleep(300);
-            app.setCardTab(b.id, 'next'); await sleep(500); bringUp(card(b.id));
+            app.setCardTab(b.id, 'vs'); await sleep(500); bringUp(historyLabel() || card(b.id), 14);
         }],
-        ['03_vs_last', async () => { const b = latest('review-c1', 'Espresso'); app.setCardTab(b.id, 'vs'); await sleep(500); bringUp(card(b.id)); }],
         ['04_dialin', async () => {
             closeAll(); app.openFeedTarget('review-c1'); await sleep(600); app.setDetailTab('dialin'); await sleep(900);
-            // room below the chart, so its tabs can come up to the top of the screen (the page ends right after it)
-            const v = document.getElementById('detail-view'); if (v) v.style.paddingBottom = '520px';
-            bringUp(document.querySelector('.insight-tab[data-detail-tab="timeline"]'), 16);
+            // the chart at the bottom of the screen, with the coffee's flavor wheel and notes above it (from the shape's
+            // buttons down, so the screen is full and nothing sits under the clock)
+            const btns = byText('#d-flavor button', /^Top view$/);
+            bringUp(btns ? btns.parentElement : document.querySelector('.insight-tab[data-detail-tab="timeline"]'), 8);
         }],
         ['05_log_taste', async () => {
             closeAll(); app.openFeedTarget('review-c3'); await sleep(600);
@@ -54,7 +63,13 @@
             await sleep(900);
             const h = byText('#brew-modal h3, #brew-modal h2, #brew-modal *', /^How did it taste\?$/); if (h) h.scrollIntoView({ block: 'start' });
         }],
-        ['06_palate', async () => { closeAll(); app.setTab('profile'); await sleep(400); app.setProfileSection('taste'); top(); }],
+        ['06_palate', async () => {
+            closeAll(); app.setTab('profile'); await sleep(400); app.setProfileSection('taste'); top(); await sleep(300);
+            // only the palate shows: what comes after it (Likely matches, empty for a sample account) would peek out under
+            // the bottom bar
+            const pal = byText('.profile-view .profile-card', /^\s*Your palate/);
+            for (let el = pal; el && !el.classList.contains('profile-view'); el = el.parentElement) for (let n = el.nextElementSibling; n; n = n.nextElementSibling) n.style.visibility = 'hidden';
+        }],
         ['07_collection', async () => { closeAll(); app.setTab('my'); top(); }],
     ];
 
