@@ -16,5 +16,6 @@ jobs:
         run: bash supabase/find_db.sh
       - name: Look (read only)
         run: |
+          set +e
           psql "$DB_URL" -v ON_ERROR_STOP=1 -Atq -c "set default_transaction_read_only = on;" -f supabase/diag.sql > "$RUNNER_TEMP/d.txt" 2>&1; rc=$?
           cat "$RUNNER_TEMP/d.txt"; bash supabase/report.sh "Diag" "$RUNNER_TEMP/d.txt"; exit $rc
