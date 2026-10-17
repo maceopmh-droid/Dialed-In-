@@ -4,7 +4,7 @@
 name: ios taps
 on:
   push:
-    branches: [ios-taps]
+    branches: [ios-taps, ios-taps-2]
 
 jobs:
   taps:
@@ -65,6 +65,10 @@ jobs:
                       x, y = str(round(float(q['x'][0]))), str(round(float(q['y'][0])))
                       r = subprocess.run(['idb', 'ui', 'tap', x, y, '--udid', dev], capture_output=True, text=True)
                       if r.returncode: print('tap failed', r.stderr.strip()[:200], flush=True)
+                  elif u.path == '/fling':
+                      # a quick swipe down (the list flies back up) without waiting for it to settle
+                      subprocess.Popen(['idb', 'ui', 'swipe', '195', q['y1'][0], '195', q['y2'][0], '--duration', '0.12', '--udid', dev])
+                      import time; time.sleep(0.35)
                   elif u.path == '/result': print('RESULT ' + q['r'][0], flush=True)
                   elif u.path == '/log': print('LOG ' + q['m'][0], flush=True)
                   elif u.path in ('/hello', '/done'): print(u.path[1:], flush=True)

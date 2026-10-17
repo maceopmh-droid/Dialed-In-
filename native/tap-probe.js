@@ -45,6 +45,17 @@
             await ask('/log?m=' + encodeURIComponent(label + ' tabs ' + JSON.stringify(rects.map(r => ({ l: r.label, x: Math.round(r.x), w: Math.round(r.w) })))));
         };
         await tabs('app');
+        // a fling back to the top, then a tap on Community straight away (while the list is still settling)
+        for (let i = 1; i <= 4; i++) {
+            await reset();
+            const m = document.getElementById('main-content'); if (m) m.scrollTop = Math.min(700, m.scrollHeight - m.clientHeight); await sleep(600);
+            const com = [...document.querySelectorAll('.seg-control.feed-mode button')].find(b => b.textContent.trim() === 'Community');
+            await ask(`/fling?y1=${Math.round(innerHeight * 0.35)}&y2=${Math.round(innerHeight * 0.85)}`);
+            const r = com ? com.getBoundingClientRect() : null;
+            const before = app.feedMode(), scrolled = m ? Math.round(m.scrollTop) : -1;
+            if (r) { await ask(`/tap?x=${(r.left + r.width / 2).toFixed(1)}&y=${(r.top + r.height / 2).toFixed(1)}`); await sleep(900); }
+            results.push({ at: `fling then Community #${i} (list at ${scrolled}px)`, x: r ? Math.round(r.left + r.width / 2) : 0, y: r ? Math.round(r.top + r.height / 2) : 0, was: before, now: app.feedMode(), hit: 'Community' });
+        }
         // the same with the home-screen web app's tap haptics (iPhone Safari has them; the app uses the phone's own)
         try { const orig = app.isNative; app.isNative = () => false; app._hxOn = false; app.installTapHaptics(); app.isNative = orig; } catch (e) { await ask('/log?m=' + encodeURIComponent('haptics: ' + e)); }
         await ask('/log?m=' + encodeURIComponent('web-app haptics on: ' + document.documentElement.classList.contains('hx-on') + ', labels: ' + document.querySelectorAll('label.hx').length));
