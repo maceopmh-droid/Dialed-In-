@@ -1,0 +1,20 @@
+# Read-only look at how communities, members and friendships stand (first names, counts and dates only: the logs are
+# public). Runs when pushed to the `supabase-diag` branch. Changes nothing.
+name: supabase diag
+on:
+  push:
+    branches: [supabase-diag]
+
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Find the database
+        run: bash supabase/find_db.sh
+      - name: Look (read only)
+        run: |
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -Atq -c "set default_transaction_read_only = on;" -f supabase/diag.sql > "$RUNNER_TEMP/d.txt" 2>&1; rc=$?
+          cat "$RUNNER_TEMP/d.txt"; bash supabase/report.sh "Diag" "$RUNNER_TEMP/d.txt"; exit $rc
