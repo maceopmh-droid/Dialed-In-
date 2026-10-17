@@ -1,0 +1,38 @@
+# A preview copy of the app at https://maceopmh-droid.github.io/Dialed-In-/preview/ so Maceo can try changes on his
+# phone (add it to the home screen as "Dialed In Preview") before they go live. It's the branch's index.html (plus the
+# icon, legal pages and push worker) put into the preview/ folder on main; the live app at the root isn't touched.
+# Same backend and same sign-in as the live app, so anything done in it is real. Runs when pushed to `preview`.
+name: preview
+on:
+  push:
+    branches: [preview]
+
+permissions:
+  contents: write
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    concurrency: preview
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: src
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: site
+      - name: Put this version at /preview/
+        run: |
+          set -e
+          mkdir -p site/preview
+          cp src/index.html src/icon.png src/terms.html src/privacy.html src/support.html src/sw.js site/preview/
+          v=$(grep -o '<meta name="dialed-in-version" content="[0-9.]*"' src/index.html | grep -o '[0-9][0-9.]*' | head -1)
+          # its own home-screen name, and kept out of search engines
+          sed -i 's|<title>Dialed In</title>|<title>Dialed In Preview</title><meta name="robots" content="noindex">|' site/preview/index.html
+          cd site
+          git add preview
+          if git diff --cached --quiet; then echo "::notice title=Preview::already showing v$v"; exit 0; fi
+          git -c user.name=github-actions -c user.email=github-actions@users.noreply.github.com commit -q -m "Preview: v$v (from ${GITHUB_SHA::7})"
+          git push -q origin HEAD:main
+          echo "::notice title=Preview::v$v is going up at https://maceopmh-droid.github.io/Dialed-In-/preview/ (about a minute)"
