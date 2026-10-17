@@ -3661,9 +3661,15 @@
         .crew-quest .cq-right { display: inline-flex; align-items: center; gap: 8px; }
         .cq-invite { display: inline-flex; align-items: center; gap: 4px; margin: 0; padding: 3px 9px 3px 8px; border: 1px solid rgba(var(--matcha-rgb), 0.28); border-radius: 999px; background: rgba(var(--matcha-rgb), 0.08); font: inherit; font-size: 0.66rem; font-weight: 750; color: var(--matcha-ink, var(--matcha)); cursor: pointer; }
         .cq-invite .icon { width: 11px; height: 11px; }
-        .comm-note { margin: 2px 4px 12px; font-size: 0.8rem; line-height: 1.45; color: var(--text-muted); }
         /* iPhone home-screen app: while typing, a tap on Post or Save goes straight to the button (not through the tick) */
-        html.hx-typing label.hx { pointer-events: none; }
+        html.typing label.hx { pointer-events: none; }
+        /* while typing, the bottom bar steps aside instead of riding up on the keyboard */
+        @media (max-width: 768px) { html.typing #mobile-nav { opacity: 0; visibility: hidden; pointer-events: none; transition: none; } }
+        /* Brew along: in a step's last 3 seconds the card pulses once on each number (3, 2, 1), in time with the countdown */
+        .guide-soon .guide-card { animation: none; }
+        .guide-card.beat { animation: guideBeat 0.75s ease-out; }
+        @keyframes guideBeat { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--gc) 50%, transparent); transform: scale(1.02); } 100% { box-shadow: 0 0 0 16px color-mix(in srgb, var(--gc) 0%, transparent); transform: scale(1); } }
+        @media (prefers-reduced-motion: reduce) { .guide-card.beat { animation: none; } }
     </style>
 </head>
 <body>
@@ -5471,6 +5477,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 this.installTapHaptics();
                 if (this.bindScrollBars) this.bindScrollBars();   // v14.7
                 if (this.bindTabTaps) this.bindTabTaps();   // v14.8
+                if (this.bindTyping) this.bindTyping();   // v15.0: while the keyboard is up
                 this.bindRatingSlider();
                 this.setTab(this.tab);
                 this.outboxReady = this.loadOutbox();
@@ -9079,11 +9086,22 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             },
 
             // ---- v12.7: everything as it stood at a moment (the event log replayed up to time t), for finished months
+            // v15.0: on the accounts backend the log has only each record's latest version, so a session edited (or
+            // re-saved by its owner) after the month closed still counts, as it is now; it used to drop out of that
+            // month's awards altogether, which handed September to whoever hadn't touched theirs
+            asOfKeeps(e, t) {
+                const at = e && e.eventAt ? this.toTime(e.eventAt) : NaN;
+                if (!Number.isFinite(at) || at <= t) return true;
+                if (!(this.acctOn && this.acctOn()) || !e || (e.type !== 'brew' && e.type !== 'bean')) return false;
+                const made = this.toTime(e.date);
+                return Number.isFinite(made) && made > 0 && made <= t;
+            },
+
             withStateAsOf(t, fn) {
                 const keep = { beans: this.beans, brews: this.brews, gear: this.gearByUser, flavors: this.customFlavors, tombs: this.tombs };
                 this.beans = new Map(); this.brews = new Map(); this.gearByUser = new Map(); this.customFlavors = new keep.flavors.constructor(); this.tombs = new Map();
                 try {
-                    (this.eventLog || []).forEach(e => { const at = e && e.eventAt ? this.toTime(e.eventAt) : NaN; if (!Number.isFinite(at) || at <= t) this.applyEvent(e); });
+                    (this.eventLog || []).forEach(e => { if (this.asOfKeeps(e, t)) this.applyEvent(e); });
                     return fn();
                 } finally {
                     this.beans = keep.beans; this.brews = keep.brews; this.gearByUser = keep.gear; this.customFlavors = keep.flavors; this.tombs = keep.tombs;
@@ -9101,7 +9119,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     // v12.7: a finished month: frozen at its close, so later edits can't change the winners
                     const log = this.eventLog || [];
                     let n = 0, last = 0;
-                    log.forEach(e => { const at = e && e.eventAt ? this.toTime(e.eventAt) : NaN; if (!Number.isFinite(at) || at <= cut) { n++; if (at > last) last = at; } });
+                    log.forEach(e => { if (!this.asOfKeeps(e, cut)) return; const at = e && e.eventAt ? this.toTime(e.eventAt) : NaN; n++; if (at > last) last = at; });
                     const stamp = `${n}:${last}`;
                     if (!this._awFrozen) this._awFrozen = new Map();
                     const hit = this._awFrozen.get(k);
@@ -9798,7 +9816,14 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (cursor) cursor.style.left = `${Math.min(100, (t / total) * 100).toFixed(3)}%`;
                 set('guide-start', this.timer.on ? 'Pause' : (t > 0 ? 'Resume' : 'Start'));
                 const left = st ? st.end - t : 99;
-                modal.classList.toggle('guide-soon', !!st && this.timer.on && left <= 3 && left > 0);
+                // v15.0: the last 3 seconds of a step pulse once on each number of the countdown (3, 2, 1), the moment it shows
+                const beat = st && this.timer.on && left <= 3 && left > 0 ? Math.ceil(left - 1e-6) : 0;
+                modal.classList.toggle('guide-soon', beat > 0);
+                if (beat && beat !== this._guideBeat) {
+                    const card = modal.querySelector('.guide-card');
+                    if (card) { card.classList.remove('beat'); void card.offsetWidth; card.classList.add('beat'); }
+                }
+                this._guideBeat = beat;
                 if (i !== this.guideLastStep) {
                     if (this.guideLastStep >= 0 && this.timer.on) this.guideCue(done);
                     this.guideLastStep = i;
@@ -10381,12 +10406,6 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (!ios || typeof nav.vibrate === 'function') return;
                 this._hxOn = true;
                 document.documentElement.classList.add('hx-on');
-                // v15.0: while you're typing (the keyboard is up), taps go straight to the button: through the tick, a Post
-                // or Save tapped with the keyboard up didn't go through on iPhone (no tick then)
-                const typing = el => el instanceof Element && (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && !/^(checkbox|radio|range|color|button|submit|reset|file|hidden|image)$/i.test(el.type || '')) || el.isContentEditable);
-                let typingOff = 0;
-                document.addEventListener('focusin', e => { if (!typing(e.target)) return; clearTimeout(typingOff); document.documentElement.classList.add('hx-typing'); }, true);
-                document.addEventListener('focusout', e => { if (!typing(e.target)) return; clearTimeout(typingOff); typingOff = setTimeout(() => { if (!typing(document.activeElement)) document.documentElement.classList.remove('hx-typing'); }, 600); }, true);
                 const HOSTS = '#isMasterInput + .slider, .note-wheel, .ns-track, .ns-ticks span, .rt-track, .like-btn, .cmt-like, .dh-want, [onclick*="app.pickNote("], [onclick*="app.cycleNote("], #timer-btn, [onclick*="app.resetTimer("], [onclick*="app.guideStartPause("], [onclick*="app.guideNext("], [onclick*="app.finishGuide("], [onclick*="app.setRecipeLock("], [onclick*="app.useRecipe("], [onclick*="app.saveRecipe("], [onclick*="app.cloneLatestSession("], .modal form button[type="submit"], .comment-submit, .aw-reveal-btn';
                 const sw = document.createElement('input');
                 sw.type = 'checkbox'; sw.id = 'hx-switch'; sw.setAttribute('switch', ''); sw.tabIndex = -1; sw.setAttribute('aria-hidden', 'true');
@@ -16875,8 +16894,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const foot = st.error ? `<div class="comm-empty">${this.esc(st.error)}</div>`
                     : st.next !== null ? `<button type="button" class="btn-outline comm-more" onclick="app.loadCommunity(true)"${st.loading ? ' disabled' : ''}>${st.loading ? 'Loading…' : 'Show more'}</button>`
                     : `<div class="comm-empty">You're all caught up.</div>`;
-                const wide = st.withFriends ? '<div class="comm-note">Few people share with Everyone yet, so Discover also ranks your friends\' sessions: newest first, lifted by photos, notes, likes, comments and rarer coffees.</div>' : '';
-                grid.innerHTML = head + wide + list.map(b => this.streamCard(b, true)).join('') + foot;
+                grid.innerHTML = head + list.map(b => this.streamCard(b, true)).join('') + foot;
             },
 
             // ---- the Community tab: one of your communities at a time (a picker when you're in more than one)
@@ -17123,7 +17141,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             async shareInvite(code, name) {
                 const url = this.inviteLink(code), text = `Join ${name} on Dialed In: ${url} (or use the invite code ${String(code).toUpperCase()})`;
                 try {
-                    if (navigator.share) { await navigator.share({ title: `Join ${name} on Dialed In`, text, url }); return; }
+                    if (navigator.share) { await navigator.share({ title: `Join ${name} on Dialed In`, text }); return; }   // (v15.0: the words and the link together)
                     await navigator.clipboard.writeText(text);
                     this.showToast('Invite link copied.');
                 } catch (e) { if (e && e.name === 'AbortError') return; this.showToast(`Invite code: ${String(code).toUpperCase()}`); }
@@ -17213,7 +17231,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             // Appearance, are in the page)
             acctToolsHtml(priv = '', pushRow = '') {
                 const row = (onclick, title, sub = '', cls = '') => `<button type="button" class="set-row set-link${cls ? ` ${cls}` : ''}" onclick="${onclick}"><span class="set-main"><b>${title}</b>${sub ? `<small>${sub}</small>` : ''}</span><svg class="icon set-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>`;
-                const link = (page, title) => `<a class="set-row set-link" href="${this.legalUrl(page)}" target="_blank" rel="noopener" onclick="app.openLegal('${page}'); return false;"><span class="set-main"><b>${title}</b></span><svg class="icon set-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></a>`;
+                const link = (page, title) => `<a class="set-row set-link" href="${this.legalUrl(page)}" target="_blank" rel="noopener" onclick="app.openLegal('${app.escJs(page)}'); return false;"><span class="set-main"><b>${title}</b></span><svg class="icon set-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></a>`;
                 const group = (label, rows, cls = '') => rows ? `<div class="set-label">${label}</div><div class="set-group${cls ? ` ${cls}` : ''}">${rows}</div>` : '';
                 return [
                     group('Privacy and notifications', `${priv}${pushRow}`),
@@ -18213,6 +18231,23 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 return rel.friend ? '<span class="you-tag pp-friend">Friends</span>' : rel.followsYou ? '<span class="pp-note">Follows you</span>' : '';
             },
 
+            // ---- v15.0: while you're typing (the keyboard is up) the page knows it (html.typing): the bottom bar steps
+            // aside instead of riding up on the keyboard, and on the home-screen app a tap on Post or Save goes straight
+            // to the button (through the tick layer it didn't go through on iPhone)
+            bindTyping() {
+                if (this._typingBound || typeof document === 'undefined' || !document.addEventListener) return;
+                this._typingBound = true;
+                const typing = el => typeof Element !== 'undefined' && el instanceof Element && (el.tagName === 'TEXTAREA' || el.isContentEditable
+                    || (el.tagName === 'INPUT' && !/^(checkbox|radio|range|color|button|submit|reset|file|hidden|image|date|time|datetime-local|month|week)$/i.test(el.type || '')));
+                let off = 0;
+                document.addEventListener('focusin', e => { if (!typing(e.target)) return; clearTimeout(off); document.documentElement.classList.add('typing'); }, true);
+                document.addEventListener('focusout', e => {
+                    if (!typing(e.target)) return;
+                    clearTimeout(off);
+                    off = setTimeout(() => { if (!typing(document.activeElement)) document.documentElement.classList.remove('typing'); }, 500);
+                }, true);
+            },
+
             // ---- v15.0: share a session, a coffee, a roaster, a profile or a community as a link that opens that exact
             // thing (for anyone signed in who can see it; a session or coffee they can't see opens its owner's profile)
             shareBase() {
@@ -18223,11 +18258,20 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const q = Object.entries(params).filter(([, v]) => v !== undefined && v !== null && String(v) !== '').map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`).join('&');
                 return `${this.shareBase()}?${q}`;
             },
+            // what it is goes in the message itself, with the link under it (Messages showed only the link when they were
+            // sent apart, and every link's preview reads the same)
             async shareLink(url, text, title = 'Dialed In') {
-                try { if (navigator.share) { await navigator.share({ title, text, url }); return 'shared'; } } catch (e) { if (e && e.name === 'AbortError') return 'cancelled'; }
-                try { await navigator.clipboard.writeText(url); this.showToast('Link copied.'); return 'copied'; } catch (e) { /* no clipboard */ }
-                prompt('Copy this link:', url);
+                const msg = `${text}\n${url}`;
+                try { if (navigator.share) { await navigator.share({ title, text: msg }); return 'shared'; } } catch (e) { if (e && e.name === 'AbortError') return 'cancelled'; }
+                try { await navigator.clipboard.writeText(msg); this.showToast('Link copied.'); return 'copied'; } catch (e) { /* no clipboard */ }
+                prompt('Copy this link:', msg);
                 return 'shown';
+            },
+            // "4.5★ · 18 g → 40 g (1:2.2) in 28 s" for a session
+            shareSessionLine(b) {
+                const r = this.normalizeRating(b.rating), dose = Number(b.dose) || 0, out = Number(b.yield) || 0, time = Number(b.time) || 0;
+                const recipe = dose && out ? `${this.fmtNum(dose, 1)} g → ${this.fmtNum(out, 1)} g (1:${this.fmtNum(out / dose, 1)})${time ? ` in ${b.method === 'Espresso' ? `${Math.round(time)} s` : this.clock(time)}` : ''}` : '';
+                return [r > 0 ? `${this.formatRating(r)}★` : '', recipe].filter(Boolean).join(' · ');
             },
             shareItem(kind, ref, event) {
                 if (event && event.stopPropagation) event.stopPropagation();
@@ -18235,16 +18279,21 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (kind === 'session') {
                     const b = this.brews.get(id); if (!b) return;
                     const owner = this.getBrewOwner(b), bean = this.beans.get(String(b.beanId || ''));
-                    const what = [b.method || 'session', bean && bean.name ? `of ${bean.name}` : ''].filter(Boolean).join(' ');
-                    return this.shareLink(this.shareUrl({ s: id, by: owner }), `${owner === this.user ? 'My' : `${owner}'s`} ${what} on Dialed In`);
+                    const coffee = bean && bean.name ? `${bean.name}${bean.roaster ? ` (${bean.roaster})` : ''}` : 'a coffee';
+                    const line = this.shareSessionLine(b);
+                    return this.shareLink(this.shareUrl({ s: id, by: owner }), `${owner === this.user ? 'My' : `${owner}'s`} ${String(b.method || 'session').toLowerCase()} of ${coffee}${line ? `: ${line}` : ''}. On Dialed In:`);
                 }
                 if (kind === 'coffee') {
                     const bean = this.beans.get(id); if (!bean) return;
                     const owner = String(bean.user || bean.owner || '');
-                    return this.shareLink(this.shareUrl({ c: id, by: owner }), `${bean.name || 'A coffee'}${bean.roaster ? ` from ${bean.roaster}` : ''} on Dialed In`);
+                    const bits = [bean.origin, bean.process, bean.roast ? `${bean.roast} roast` : ''].map(x => String(x || '').trim()).filter(Boolean).join(', ');
+                    return this.shareLink(this.shareUrl({ c: id, by: owner }), `${bean.name || 'A coffee'}${bean.roaster ? ` from ${bean.roaster}` : ''}${bits ? ` (${bits})` : ''}. On Dialed In:`);
                 }
-                if (kind === 'roaster') return this.shareLink(this.shareUrl({ r: id }), `${id} on Dialed In`);
-                if (kind === 'profile') return this.shareLink(this.shareUrl({ u: id }), id === this.user ? 'Follow me on Dialed In' : `${id} on Dialed In`);
+                if (kind === 'roaster') {
+                    const r = this.roasterFind ? this.roasterFind(this.roasterKey(id)) : null, n = r && r.coffees ? r.coffees.length : 0;
+                    return this.shareLink(this.shareUrl({ r: id }), `${id}, the roaster${n ? `: ${n} coffee${n === 1 ? '' : 's'} logged` : ''}. On Dialed In:`);
+                }
+                if (kind === 'profile') return this.shareLink(this.shareUrl({ u: id }), id === this.user ? `Follow me on Dialed In (${id}):` : `${id}'s coffee log on Dialed In:`);
             },
             shareCurrentCoffee() { return this.shareItem('coffee', this.activeId); },
             // a community: its invite link (the same one People has)
@@ -18283,7 +18332,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     return;
                 }
                 if (p.r) {
-                    if (this.roasterFind && this.roasterFind(p.r)) this.openRoaster(p.r);
+                    const k = this.roasterKey(p.r);
+                    if (this.roasterFind && this.roasterFind(k)) this.openRoaster(k);
                     else this.showToast(`${p.r} isn't on Dialed In yet.`);
                 }
             },
