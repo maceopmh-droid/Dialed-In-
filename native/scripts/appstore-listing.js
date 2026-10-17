@@ -37,6 +37,13 @@ const must = (r, what) => { if (!r.ok) throw new Error(`${what} (${why(r)})`); r
   const infos = must(await api('GET', `/v1/apps/${appId}/appInfos?limit=10`), 'app info');
   const info = (infos.j.data || []).find(i => !/READY_FOR_DISTRIBUTION|REPLACED_WITH_NEW_INFO/.test(i.attributes.state || i.attributes.appStoreState || '')) || (infos.j.data || [])[0];
   await step('category: Food & Drink', async () => must(await api('PATCH', `/v1/appInfos/${info.id}`, { data: { type: 'appInfos', id: info.id, relationships: { primaryCategory: { data: { type: 'appCategories', id: L.primaryCategory } } } } }), 'category'));
+  // the name shown beside the icon (its own step: a name someone else already uses is refused without holding up the rest)
+  if (L.name) await step(`name: ${L.name}`, async () => {
+    const locs = must(await api('GET', `/v1/appInfos/${info.id}/appInfoLocalizations?limit=50`), 'app info languages');
+    const loc = (locs.j.data || []).find(x => x.attributes.locale === L.locale);
+    if (!loc) throw new Error(`no ${L.locale} app info`);
+    must(await api('PATCH', `/v1/appInfoLocalizations/${loc.id}`, { data: { type: 'appInfoLocalizations', id: loc.id, attributes: { name: L.name } } }), 'name');
+  });
   await step('subtitle and privacy policy link', async () => {
     const locs = must(await api('GET', `/v1/appInfos/${info.id}/appInfoLocalizations?limit=50`), 'app info languages');
     const loc = (locs.j.data || []).find(x => x.attributes.locale === L.locale);

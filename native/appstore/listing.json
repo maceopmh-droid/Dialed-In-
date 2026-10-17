@@ -1,6 +1,7 @@
 {
   "locale": "en-US",
-  "subtitle": "Coffee log for dialing in",
+  "name": "Dialed In: Social Coffee Log",
+  "subtitle": "Log, share & dial in together",
   "promotionalText": "Log every cup, see what changed, and get a next-shot suggestion from your own best brews. Share with friends, or ask the community for help dialing in.",
   "keywords": "coffee,espresso,pour over,brew,log,grind,recipe,barista,aeropress,beans,roaster,tasting,journal",
   "supportUrl": "https://maceopmh-droid.github.io/Dialed-In-/support.html",
