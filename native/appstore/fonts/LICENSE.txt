@@ -1,4 +1,4 @@
-Inter Display (Bold, Medium), copyright 2016-2023 The Inter Project Authors (https://github.com/rsms/inter), under the SIL Open Font License 1.1 below. Used only to draw the App Store screenshot headlines (native/appstore/compose.py).
+Inter Display (Bold, Medium), copyright 2016-2023 The Inter Project Authors (https://github.com/rsms/inter), and Lora (Lora-Variable.ttf, unmodified), Copyright 2011 The Lora Project Authors (https://github.com/cyrealtype/Lora-Cyrillic), with Reserved Font Name "Lora". Both under the SIL Open Font License 1.1 below. Used only to draw the App Store screenshot headlines (native/appstore/compose.py).
 
 License: OFL-1.1
 PREAMBLE

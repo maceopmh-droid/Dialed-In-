@@ -1,7 +1,9 @@
-# App Store screenshots from the real iPhone app in the simulator (iPhone Pro Max, 1320 x 2868, light and dark), signed in
-# as the App Review account so they show only its own sample coffees (supabase/review_sample.sql), never a real person's.
-# The simulator copy gets native/store-shots.js and the account's password added; that copy is never uploaded anywhere.
-# Screenshots go to the app-store-shots branch. Runs when pushed to the `store-shots` branch.
+# App Store screenshots from the real iPhone app in the simulator (iPhone Pro Max, 1320 x 2868), every screen in dark and
+# the coffee page also in light. The app there talks to a stand-in backend on this runner (supabase/dev_server.js on
+# its own Postgres), filled with the review account's sample coffees and a made-up circle of friends and a community
+# (native/appstore/seed-world.js, store_world.sql): never the live backend, never a real person's data. The simulator
+# copy gets native/store-shots.js and the stand-in's address; that copy is never uploaded anywhere. Screenshots, raw and
+# finished (native/appstore/compose.py), go to the app-store-shots branch. Runs when pushed to the `store-shots` branch.
 name: store screenshots
 on:
   push:
@@ -15,7 +17,7 @@ jobs:
       contents: write   # (only to put the screenshots on the app-store-shots branch)
     env:
       BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID || 'com.dialedincoffeeapp.ios' }}
-      REVIEW_PASSWORD: ${{ secrets.REVIEW_PASSWORD }}
+      STAND_IN_PW: store-shots-stand-in   # the review account's password on the throwaway stand-in only
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -31,7 +33,6 @@ jobs:
         working-directory: native
         run: |
           set -e
-          [ -n "$REVIEW_PASSWORD" ] || { echo "::error title=Screenshots::No REVIEW_PASSWORD secret."; exit 1; }
           sed -i '' "s/\"appId\": \"[^\"]*\"/\"appId\": \"$BUNDLE_ID\"/" capacitor.config.json
           npm install --no-audit --no-fund
           node scripts/www.js
@@ -46,11 +47,20 @@ jobs:
           set -o pipefail
           xcodebuild $XC -scheme App -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath build/dd TARGETED_DEVICE_FAMILY=1 CODE_SIGNING_ALLOWED=NO MARKETING_VERSION="$VERSION" build | tail -5
+      - name: Start the stand-in backend with the sample account and the made-up friends (thrown away with the runner)
+        run: |
+          set -e
+          brew list postgresql@16 >/dev/null 2>&1 || brew install -q postgresql@16
+          PG="$(brew --prefix postgresql@16)/bin"; echo "$PG" >> "$GITHUB_PATH"; export PATH="$PG:$PATH"
+          D="$RUNNER_TEMP/pg"; K="$RUNNER_TEMP/pgsock"; mkdir -p "$K"
+          initdb -D "$D" -U postgres -A trust >/dev/null
+          pg_ctl -D "$D" -o "-k $K -c listen_addresses=''" -l "$RUNNER_TEMP/pg.log" -w start
+          nohup node supabase/dev_server.js --host "$K" --db dialed_world --port 54321 --fresh --allow-sql --quiet > "$RUNNER_TEMP/stand-in.log" 2>&1 &
+          echo "::notice title=Stand-in::$(node native/appstore/seed-world.js http://127.0.0.1:54321 dialed_world "$STAND_IN_PW")"
       - name: Take the screenshots
         working-directory: native
         run: |
           set -e
-          echo "::add-mask::$REVIEW_PASSWORD"
           dev=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; xs=[x for k in sorted(d, reverse=True) if 'iOS' in k for x in d[k] if 'Pro Max' in x['name']]; print(xs[0]['udid'] if xs else '')")
           [ -n "$dev" ] || { echo "::error title=Screenshots::No iPhone Pro Max simulator on this runner."; exit 1; }
           echo "simulator: $(xcrun simctl list devices -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['name'] + ' (' + k.split('.')[-1] + ')' for k in d for x in d[k] if x['udid'] == '$dev'))")"
@@ -65,10 +75,12 @@ jobs:
           python3 - "$app/public/index.html" <<'PY'
           import json, os, sys
           p = sys.argv[1]; s = open(p).read()
-          cfg = {'email': 'appreview@dialed-in.app', 'pw': os.environ['REVIEW_PASSWORD'], 'shotUrl': 'http://127.0.0.1:8765', 'settle': 1800}
+          cfg = {'email': 'appreview@dialed-in.app', 'pw': os.environ['STAND_IN_PW'], 'shotUrl': 'http://127.0.0.1:8765', 'settle': 1800}
+          backend = {'url': 'http://127.0.0.1:54321', 'anonKey': 'dev'}   # the stand-in on this runner, not the live backend
+          first = '<script>try { localStorage.setItem("dialed_supabase", ' + json.dumps(json.dumps(backend)) + '); } catch (e) {}</script>'
           tag = '<script>window.__storeShots = ' + json.dumps(cfg) + ';</script><script src="store-shots.js"></script>'
-          assert '</head>' in s
-          open(p, 'w').write(s.replace('</head>', tag + '</head>', 1))
+          assert '<head>' in s and '</head>' in s
+          open(p, 'w').write(s.replace('<head>', '<head>' + first, 1).replace('</head>', tag + '</head>', 1))
           PY
           xcrun simctl install "$dev" "$app"
           mkdir -p build/shots
@@ -119,7 +131,7 @@ jobs:
           echo light > build/shots/.look
           python3 -W ignore build/server.py "$dev" build/shots > build/server.log 2>&1 &
           # a first pass that's thrown away: the app's first launch (signing in, first drawing) is slow and can lag behind
-          for look in warm light dark; do
+          for look in warm dark light; do   # (the light pass takes only the coffee page)
             echo $look > build/shots/.look
             xcrun simctl ui "$dev" appearance $([ $look = dark ] && echo dark || echo light)
             sleep 2; xcrun simctl status_bar "$dev" override --time "9:41" --dataNetwork wifi --wifiMode active --wifiBars 3 --cellularMode active --cellularBars 4 --batteryState discharging --batteryLevel 100   # (switching the look can drop it)
@@ -136,7 +148,7 @@ jobs:
           cat build/server.log
           echo "::notice title=Screenshot log::$(tr '\n' ' ' < build/server.log | cut -c1-900)"
           rm -f build/shots/00_*.png build/shots/*_warm.png build/shots/*'&'*.png   # the throwaway screenshots
-          rm -f "$app/public/index.html"   # (the copy with the password; the runner is thrown away anyway)
+          rm -f "$app/public/index.html"   # (the copy pointed at the stand-in; the runner is thrown away anyway)
           n=$(ls build/shots/*.png 2>/dev/null | wc -l | tr -d ' ')
           echo "::notice title=Screenshots::$n screenshots ($(ls build/shots/*.png 2>/dev/null | xargs -n1 basename | tr '\n' ' '))"
           [ "$n" -gt 0 ]
