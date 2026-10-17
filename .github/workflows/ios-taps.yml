@@ -1,0 +1,88 @@
+# Real iPhone taps on the Feed tabs in the simulator (through iOS's own touch handling, with idb), to find spots where
+# a tap on Community doesn't land. Signed in as the review account. Reports which points switched the tab. The simulator
+# copy gets native/tap-probe.js and the account's password; it's never uploaded. Runs when pushed to `ios-taps`.
+name: ios taps
+on:
+  push:
+    branches: [ios-taps]
+
+jobs:
+  taps:
+    runs-on: macos-26
+    timeout-minutes: 40
+    env:
+      BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID || 'com.dialedincoffeeapp.ios' }}
+      REVIEW_PASSWORD: ${{ secrets.REVIEW_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Use the newest Xcode
+        run: |
+          x=$(ls -d /Applications/Xcode_*.app 2>/dev/null | grep -E 'Xcode_[0-9.]+\.app$' | sort -V | tail -1); [ -n "$x" ] && sudo xcode-select -s "$x"; xcodebuild -version | head -1
+      - name: Get idb (taps in the simulator)
+        run: |
+          brew tap facebook/fb >/dev/null 2>&1; brew install -q facebook/fb/idb-companion >/dev/null 2>&1 || brew install -q idb-companion
+          python3 -m pip install -q --break-system-packages fb-idb 2>/dev/null || python3 -m pip install -q fb-idb
+          which idb_companion && idb --help >/dev/null && echo "idb ready"
+      - name: Build the simulator app
+        working-directory: native
+        run: |
+          set -e
+          sed -i '' "s/\"appId\": \"[^\"]*\"/\"appId\": \"$BUNDLE_ID\"/" capacitor.config.json
+          npm install --no-audit --no-fund >/dev/null
+          node scripts/www.js; npx cap add ios >/dev/null; npx cap sync ios >/dev/null; bash ios-setup.sh >/dev/null
+          if [ -d ios/App/App.xcworkspace ]; then XC="-workspace ios/App/App.xcworkspace"; else XC="-project ios/App/App.xcodeproj"; fi
+          xcodebuild $XC -scheme App -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build/dd TARGETED_DEVICE_FAMILY=1 CODE_SIGNING_ALLOWED=NO build | tail -2
+      - name: Tap the Feed tabs
+        working-directory: native
+        run: |
+          set -e
+          echo "::add-mask::$REVIEW_PASSWORD"
+          dev=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; xs=[x for k in sorted(d, reverse=True) if 'iOS' in k for x in d[k] if x['name'].startswith('iPhone 17') and 'Pro' not in x['name'] and 'Air' not in x['name']] or [x for k in sorted(d, reverse=True) if 'iOS' in k for x in d[k] if x['name'].startswith('iPhone')]; print(xs[0]['udid'])")
+          xcrun simctl boot "$dev"; xcrun simctl bootstatus "$dev" -b >/dev/null
+          app=build/dd/Build/Products/Debug-iphonesimulator/App.app
+          cp tap-probe.js "$app/public/tap-probe.js"
+          python3 - "$app/public/index.html" <<'PY'
+          import json, os, sys
+          p = sys.argv[1]; s = open(p).read()
+          cfg = {'email': 'appreview@dialed-in.app', 'pw': os.environ['REVIEW_PASSWORD'], 'url': 'http://127.0.0.1:8766'}
+          open(p, 'w').write(s.replace('</head>', '<script>window.__tapProbe = ' + json.dumps(cfg) + ';</script><script src="tap-probe.js"></script></head>', 1))
+          PY
+          xcrun simctl install "$dev" "$app"
+          idb_companion --udid "$dev" > build/companion.log 2>&1 &
+          sleep 5; idb connect localhost 10882 >/dev/null 2>&1 || true
+          cat > build/tapserver.py <<'PY'
+          import http.server, subprocess, sys, urllib.parse
+          dev = sys.argv[1]
+          class H(http.server.BaseHTTPRequestHandler):
+              def log_message(self, *a): pass
+              def do_GET(self):
+                  u = urllib.parse.urlparse(self.path); q = urllib.parse.parse_qs(u.query)
+                  if u.path == '/tap':
+                      x, y = q['x'][0], q['y'][0]
+                      r = subprocess.run(['idb', 'ui', 'tap', '--udid', dev, x, y], capture_output=True, text=True)
+                      if r.returncode: print('tap failed', r.stderr.strip()[:200], flush=True)
+                  elif u.path == '/result': print('RESULT ' + q['r'][0], flush=True)
+                  elif u.path == '/log': print('LOG ' + q['m'][0], flush=True)
+                  elif u.path in ('/hello', '/done'): print(u.path[1:], flush=True)
+                  try:
+                      self.send_response(200); self.send_header('Access-Control-Allow-Origin', '*'); self.end_headers(); self.wfile.write(b'ok')
+                  except OSError: pass
+          http.server.ThreadingHTTPServer(('127.0.0.1', 8766), H).serve_forever()
+          PY
+          python3 build/tapserver.py "$dev" > build/taps.log 2>&1 &
+          xcrun simctl launch "$dev" "$BUNDLE_ID" >/dev/null
+          for i in $(seq 1 100); do grep -q '^done' build/taps.log && break; sleep 3; done
+          cat build/taps.log | head -5
+          r=$(grep '^RESULT ' build/taps.log | head -1 | cut -c8-)
+          [ -n "$r" ] || { echo "::error title=Taps::no result ($(tr '\n' ' ' < build/taps.log | cut -c1-600))"; exit 1; }
+          echo "::notice title=Tab layout::$(grep '^LOG tabs' build/taps.log | head -1 | cut -c5-)"
+          python3 -c "
+          import json, sys
+          rs = json.loads(sys.argv[1])
+          lines = [f\"{r['at']} ({r['x']},{r['y']}): {'switched' if r['now'] != r['was'] else 'NOT switched'} to {r['now']} (under the finger: {r['hit']})\" for r in rs]
+          print('::notice title=Taps::' + ' | '.join(lines))
+          " "$r"
+          rm -f "$app/public/index.html"
