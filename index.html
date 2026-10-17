@@ -3670,6 +3670,8 @@
         .guide-card.beat { animation: guideBeat 0.75s ease-out; }
         @keyframes guideBeat { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--gc) 50%, transparent); transform: scale(1.02); } 100% { box-shadow: 0 0 0 16px color-mix(in srgb, var(--gc) 0%, transparent); transform: scale(1); } }
         @media (prefers-reduced-motion: reduce) { .guide-card.beat { animation: none; } }
+        /* toasts: solid, not frosted glass (a blurred layer sliding in over the feed made iPhone redraw the photos under it) */
+        .toast { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; background: rgba(22, 30, 24, 0.96) !important; }
     </style>
 </head>
 <body>
@@ -5889,7 +5891,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     .split('|')
                     .map(item => String(item || '').trim())
                     .filter(Boolean);
-                const giveUp = () => { imgEl.onerror = null; const wrap = imgEl.closest('.session-photo-wrap'); if (wrap) wrap.classList.add('is-broken'); else imgEl.hidden = true; };   // v11.8: only when every source failed
+                const giveUp = () => { imgEl.onerror = null; (this._brokenPhotos || (this._brokenPhotos = new Set())).add(raw); const wrap = imgEl.closest('.session-photo-wrap'); if (wrap) wrap.classList.add('is-broken'); else imgEl.hidden = true; };   // v11.8: only when every source failed (v15.0: and remembered, so a redraw doesn't bring the empty box back)
                 if (!list.length) {
                     giveUp();
                     return;
@@ -5937,6 +5939,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (!photo) return '';
                 const modeClass = mode === 'feed' ? ' feed-photo' : ' detail-photo';
                 const fallbacks = this.buildDriveFallbackUrls(photo.fileId || this.extractDriveFileId(photo.url), photo.url);
+                if (this._brokenPhotos && this._brokenPhotos.has(fallbacks.join('|'))) return '';   // v15.0: one that never loaded stays away
                 const src = fallbacks[0] || photo.url;
                 return `
                     <div class="session-photo-wrap${modeClass}">
@@ -8828,7 +8831,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     if (pop) { if (had) void btn.offsetWidth; btn.classList.add('pop'); }
                     let line = lead.querySelector('.social-like-line');
                     if (likes.length) {
-                        if (!line) { line = document.createElement('div'); line.className = 'social-like-line'; btn.after(line); }
+                        if (!line) { line = document.createElement('div'); line.className = 'social-like-line'; (lead.querySelector('.share-btn') || btn).after(line); }   // (v15.0: after the share button, where a redraw puts it)
                         line.textContent = this.formatLikers(likes);
                     } else if (line) line.remove();
                 });
@@ -10759,7 +10762,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     this.loadPeople().then(() => { this._peopleLoading = false; if (this.tab === 'feed') this.render(); }).catch(() => { this._peopleLoading = false; });
                 }
                 if (this.acctOn() && this.feedMode() !== 'following') { this.renderCommunityFeed(grid); return; }   // v14.5: Community and Discover
-                grid.className = 'feed-list';
+                if (grid.className !== 'feed-list') grid.className = 'feed-list';
                 if (grid.getAttribute && grid.getAttribute('data-view') === 'community') { grid.removeAttribute('data-view'); this._feedHtml = null; }
                 const entries = this.feedEntries.slice(0, 220);
                 if (!entries.length) {
@@ -11915,7 +11918,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
             renderScreen() {
                 const grid = document.getElementById('grid');
-                grid.className = this.tab === 'feed' ? 'feed-list' : (this.tab === 'profile' ? 'profile-view' : 'grid');
+                const cls = this.tab === 'feed' ? 'feed-list' : (this.tab === 'profile' ? 'profile-view' : 'grid');
+                if (grid.className !== cls) grid.className = cls;   // v15.0: untouched when it's the same
                 if (!(this.tab === 'feed' && grid.getAttribute && grid.getAttribute('data-view') === 'feed')) {
                     grid.innerHTML = '';
                     if (grid.removeAttribute) grid.removeAttribute('data-view');
@@ -14982,8 +14986,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const updatedLikes = liked ? likes.filter(name => name !== this.user) : [...likes, this.user];
                 const updated = this.withBrewOwner({ ...brew, likes: updatedLikes }, brew);
                 if (!liked) this.likePopStart('brew', brewId);
-                this.push({ type: 'brew', ...updated }, { quiet: true });
-                this.showToast(liked ? 'Like removed.' : 'Session liked.');
+                this.push({ type: 'brew', ...updated }, { quiet: true });   // (v15.0: no toast; the heart shows it)
             },
 
             // v11.10: the like burst. Remember which heart was just liked; its clock starts on the first frame it's on screen
@@ -15053,10 +15056,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const updated = this.withBrewOwner({ ...brew, comments }, brew);
                 this.push({ type: 'brew', ...updated });
                 this.openCommentId = brewId;
-                const owner = this.getBrewOwner(brew);
-                if (owner !== this.user) {
-                    this.showToast(`${this.user} commented on ${owner}'s session`);
-                }
+                // (v15.0: no toast; the comment shows in the thread)
             },
 
             editComment(brewId, index, event) {
@@ -15150,7 +15150,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (!payload) return;
                 if (!liked) this.likePopStart('bean', beanId);
                 this.push(payload);
-                this.showToast(liked ? 'Like removed.' : 'Bean liked.');
+                // (v15.0: no toast; the heart shows it)
             },
 
             addBeanComment(beanId, event) {
@@ -15176,8 +15176,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const payload = this.buildBeanPayload(bean, { comments });
                 if (!payload) return;
                 this.push(payload);
-                const owner = String(bean.user || bean.owner || 'Unknown');
-                if (owner !== this.user) this.showToast(`${this.user} commented on ${owner}'s bean`);
+                // (v15.0: no toast; the comment shows in the thread)
             },
 
             editBeanComment(beanId, index, event) {
@@ -16872,8 +16871,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             },
 
             renderCommunityFeed(grid) {
-                grid.className = 'feed-list';
-                if (grid.setAttribute) grid.setAttribute('data-view', 'community');
+                if (grid.className !== 'feed-list') grid.className = 'feed-list';
+                if (grid.setAttribute && grid.getAttribute('data-view') !== 'community') grid.setAttribute('data-view', 'community');
                 this._feedHtml = null;
                 if (!this.ppState().data && !this._peopleLoading) { this._peopleLoading = true; this.loadPeople().then(() => { this._peopleLoading = false; if (this.tab === 'feed') this.render(); }).catch(() => { this._peopleLoading = false; }); }
                 if (this.feedMode() === 'groups') { this.renderGroupFeed(grid); return; }
@@ -16994,7 +16993,9 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             },
 
             paintNotifButton() {
-                document.querySelectorAll('.notif-btn').forEach(b => { const t = document.createElement('div'); t.innerHTML = this.notifButtonHtml(); b.replaceWith(t.firstElementChild); });
+                // v15.0: patched in place, and only when it changed (it's frosted glass: a new one every sync made the screen flicker)
+                const html = this.notifButtonHtml();
+                document.querySelectorAll('.notif-btn').forEach(b => { if (b.outerHTML === html) return; const t = document.createElement('div'); t.innerHTML = html; this.morphEl(b, t.firstElementChild); });
             },
 
             openNotifications() {

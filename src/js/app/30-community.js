@@ -153,8 +153,8 @@
             },
 
             renderCommunityFeed(grid) {
-                grid.className = 'feed-list';
-                if (grid.setAttribute) grid.setAttribute('data-view', 'community');
+                if (grid.className !== 'feed-list') grid.className = 'feed-list';
+                if (grid.setAttribute && grid.getAttribute('data-view') !== 'community') grid.setAttribute('data-view', 'community');
                 this._feedHtml = null;
                 if (!this.ppState().data && !this._peopleLoading) { this._peopleLoading = true; this.loadPeople().then(() => { this._peopleLoading = false; if (this.tab === 'feed') this.render(); }).catch(() => { this._peopleLoading = false; }); }
                 if (this.feedMode() === 'groups') { this.renderGroupFeed(grid); return; }

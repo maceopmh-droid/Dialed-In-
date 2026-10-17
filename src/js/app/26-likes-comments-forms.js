@@ -13,8 +13,7 @@
                 const updatedLikes = liked ? likes.filter(name => name !== this.user) : [...likes, this.user];
                 const updated = this.withBrewOwner({ ...brew, likes: updatedLikes }, brew);
                 if (!liked) this.likePopStart('brew', brewId);
-                this.push({ type: 'brew', ...updated }, { quiet: true });
-                this.showToast(liked ? 'Like removed.' : 'Session liked.');
+                this.push({ type: 'brew', ...updated }, { quiet: true });   // (v15.0: no toast; the heart shows it)
             },
 
             // v11.10: the like burst. Remember which heart was just liked; its clock starts on the first frame it's on screen
@@ -84,10 +83,7 @@
                 const updated = this.withBrewOwner({ ...brew, comments }, brew);
                 this.push({ type: 'brew', ...updated });
                 this.openCommentId = brewId;
-                const owner = this.getBrewOwner(brew);
-                if (owner !== this.user) {
-                    this.showToast(`${this.user} commented on ${owner}'s session`);
-                }
+                // (v15.0: no toast; the comment shows in the thread)
             },
 
             editComment(brewId, index, event) {
@@ -181,7 +177,7 @@
                 if (!payload) return;
                 if (!liked) this.likePopStart('bean', beanId);
                 this.push(payload);
-                this.showToast(liked ? 'Like removed.' : 'Bean liked.');
+                // (v15.0: no toast; the heart shows it)
             },
 
             addBeanComment(beanId, event) {
@@ -207,8 +203,7 @@
                 const payload = this.buildBeanPayload(bean, { comments });
                 if (!payload) return;
                 this.push(payload);
-                const owner = String(bean.user || bean.owner || 'Unknown');
-                if (owner !== this.user) this.showToast(`${this.user} commented on ${owner}'s bean`);
+                // (v15.0: no toast; the comment shows in the thread)
             },
 
             editBeanComment(beanId, index, event) {

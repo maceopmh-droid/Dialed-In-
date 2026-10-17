@@ -33,7 +33,9 @@
             },
 
             paintNotifButton() {
-                document.querySelectorAll('.notif-btn').forEach(b => { const t = document.createElement('div'); t.innerHTML = this.notifButtonHtml(); b.replaceWith(t.firstElementChild); });
+                // v15.0: patched in place, and only when it changed (it's frosted glass: a new one every sync made the screen flicker)
+                const html = this.notifButtonHtml();
+                document.querySelectorAll('.notif-btn').forEach(b => { if (b.outerHTML === html) return; const t = document.createElement('div'); t.innerHTML = html; this.morphEl(b, t.firstElementChild); });
             },
 
             openNotifications() {

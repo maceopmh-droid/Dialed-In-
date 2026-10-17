@@ -67,7 +67,8 @@
 
             renderScreen() {
                 const grid = document.getElementById('grid');
-                grid.className = this.tab === 'feed' ? 'feed-list' : (this.tab === 'profile' ? 'profile-view' : 'grid');
+                const cls = this.tab === 'feed' ? 'feed-list' : (this.tab === 'profile' ? 'profile-view' : 'grid');
+                if (grid.className !== cls) grid.className = cls;   // v15.0: untouched when it's the same
                 if (!(this.tab === 'feed' && grid.getAttribute && grid.getAttribute('data-view') === 'feed')) {
                     grid.innerHTML = '';
                     if (grid.removeAttribute) grid.removeAttribute('data-view');

@@ -101,3 +101,5 @@
         .guide-card.beat { animation: guideBeat 0.75s ease-out; }
         @keyframes guideBeat { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--gc) 50%, transparent); transform: scale(1.02); } 100% { box-shadow: 0 0 0 16px color-mix(in srgb, var(--gc) 0%, transparent); transform: scale(1); } }
         @media (prefers-reduced-motion: reduce) { .guide-card.beat { animation: none; } }
+        /* toasts: solid, not frosted glass (a blurred layer sliding in over the feed made iPhone redraw the photos under it) */
+        .toast { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; background: rgba(22, 30, 24, 0.96) !important; }
