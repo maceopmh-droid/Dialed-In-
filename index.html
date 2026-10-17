@@ -3611,9 +3611,10 @@
         .guide-finish { background: var(--grad-matcha) !important; color: var(--on-matcha) !important; border: 0 !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 10px 24px rgba(var(--matcha-rgb), 0.38) !important; }
         .guide-foot { justify-content: flex-start; }
 
-        /* Settings: grouped like the phone's own Settings, with Done at the top */
-        #settings-modal .set-top { position: sticky; top: -3rem; z-index: 4; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: -3rem -3rem 0.8rem; padding: 1.6rem 3rem 0.8rem; background: rgba(var(--paper-rgb), 0.9); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
-        #settings-modal .set-top h2 { margin: 0; }
+        /* Settings: grouped like the phone's own Settings, with Done at the top (v15.0: Notifications, People and Reports
+           get the same Done, so there's always a way out of a tall sheet) */
+        .modal-card .set-top { position: sticky; top: -3rem; z-index: 4; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: -3rem -3rem 0.8rem; padding: 1.6rem 3rem 0.8rem; background: rgba(var(--paper-rgb), 0.9); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+        .modal-card .set-top h2 { margin: 0; }
         .set-done { width: auto; margin: 0; padding: 8px 2px 8px 12px; border: 0; background: none; box-shadow: none; font: inherit; font-size: 1rem; font-weight: 700; letter-spacing: 0; text-transform: none; color: var(--matcha-ink, var(--matcha)); cursor: pointer; }
         #settings-modal.acct .set-legacy-only { display: none !important; }
         #settings-modal.acct #user-list { margin-bottom: 0 !important; }
@@ -3644,7 +3645,7 @@
         #settings-modal .acct-row .acct-who b { font-size: 1.08rem; }
         #settings-modal .app-version { margin-top: 1.2rem; }
         @media (max-width: 768px) {
-            #settings-modal .set-top { top: -1rem; margin: -1rem -0.82rem 0.6rem; padding: 1rem 0.82rem 0.6rem; }
+            .modal-card .set-top { top: -1rem; margin: -1rem -0.82rem 0.6rem; padding: 1rem 0.82rem 0.6rem; }
         }
 
         /* sharing: a share button beside the like on posts, on coffee, roaster and profile pages, and Invite on a community's goal */
@@ -3661,6 +3662,8 @@
         .cq-invite { display: inline-flex; align-items: center; gap: 4px; margin: 0; padding: 3px 9px 3px 8px; border: 1px solid rgba(var(--matcha-rgb), 0.28); border-radius: 999px; background: rgba(var(--matcha-rgb), 0.08); font: inherit; font-size: 0.66rem; font-weight: 750; color: var(--matcha-ink, var(--matcha)); cursor: pointer; }
         .cq-invite .icon { width: 11px; height: 11px; }
         .comm-note { margin: 2px 4px 12px; font-size: 0.8rem; line-height: 1.45; color: var(--text-muted); }
+        /* iPhone home-screen app: while typing, a tap on Post or Save goes straight to the button (not through the tick) */
+        html.hx-typing label.hx { pointer-events: none; }
     </style>
 </head>
 <body>
@@ -3957,7 +3960,7 @@
     <!-- Notifications (v14.4, new backend only) -->
     <div id="notif-modal" class="modal" onclick="if(event.target===this) app.closeNotifications()">
         <div class="modal-card people-card">
-            <h2>Notifications</h2>
+            <div class="set-top"><h2>Notifications</h2><button type="button" class="set-done" onclick="app.closeNotifications()">Done</button></div>
             <div id="notif-body"></div>
         </div>
     </div>
@@ -3965,7 +3968,7 @@
     <!-- Reviewing reports (v14.5, reviewers only) -->
     <div id="review-modal" class="modal" onclick="if(event.target===this) app.closeReview()">
         <div class="modal-card people-card">
-            <h2>Reports</h2>
+            <div class="set-top"><h2>Reports</h2><button type="button" class="set-done" onclick="app.closeReview()">Done</button></div>
             <div id="review-body"></div>
         </div>
     </div>
@@ -3981,7 +3984,7 @@
     <!-- People (v14.4, new backend only) -->
     <div id="people-modal" class="modal" onclick="if(event.target===this) app.closePeople()">
         <div class="modal-card people-card">
-            <h2>People</h2>
+            <div class="set-top"><h2>People</h2><button type="button" class="set-done" onclick="app.closePeople()">Done</button></div>
             <div id="people-tabs"></div>
             <input id="people-q" class="pp-search" type="search" placeholder="Find people by name" autocomplete="off" autocapitalize="words" spellcheck="false" oninput="app.peopleSearch(this.value)">
             <div id="people-body"></div>
@@ -10378,6 +10381,12 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (!ios || typeof nav.vibrate === 'function') return;
                 this._hxOn = true;
                 document.documentElement.classList.add('hx-on');
+                // v15.0: while you're typing (the keyboard is up), taps go straight to the button: through the tick, a Post
+                // or Save tapped with the keyboard up didn't go through on iPhone (no tick then)
+                const typing = el => el instanceof Element && (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && !/^(checkbox|radio|range|color|button|submit|reset|file|hidden|image)$/i.test(el.type || '')) || el.isContentEditable);
+                let typingOff = 0;
+                document.addEventListener('focusin', e => { if (!typing(e.target)) return; clearTimeout(typingOff); document.documentElement.classList.add('hx-typing'); }, true);
+                document.addEventListener('focusout', e => { if (!typing(e.target)) return; clearTimeout(typingOff); typingOff = setTimeout(() => { if (!typing(document.activeElement)) document.documentElement.classList.remove('hx-typing'); }, 600); }, true);
                 const HOSTS = '#isMasterInput + .slider, .note-wheel, .ns-track, .ns-ticks span, .rt-track, .like-btn, .cmt-like, .dh-want, [onclick*="app.pickNote("], [onclick*="app.cycleNote("], #timer-btn, [onclick*="app.resetTimer("], [onclick*="app.guideStartPause("], [onclick*="app.guideNext("], [onclick*="app.finishGuide("], [onclick*="app.setRecipeLock("], [onclick*="app.useRecipe("], [onclick*="app.saveRecipe("], [onclick*="app.cloneLatestSession("], .modal form button[type="submit"], .comment-submit, .aw-reveal-btn';
                 const sw = document.createElement('input');
                 sw.type = 'checkbox'; sw.id = 'hx-switch'; sw.setAttribute('switch', ''); sw.tabIndex = -1; sw.setAttribute('aria-hidden', 'true');

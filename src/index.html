@@ -329,7 +329,7 @@
     <!-- Notifications (v14.4, new backend only) -->
     <div id="notif-modal" class="modal" onclick="if(event.target===this) app.closeNotifications()">
         <div class="modal-card people-card">
-            <h2>Notifications</h2>
+            <div class="set-top"><h2>Notifications</h2><button type="button" class="set-done" onclick="app.closeNotifications()">Done</button></div>
             <div id="notif-body"></div>
         </div>
     </div>
@@ -337,7 +337,7 @@
     <!-- Reviewing reports (v14.5, reviewers only) -->
     <div id="review-modal" class="modal" onclick="if(event.target===this) app.closeReview()">
         <div class="modal-card people-card">
-            <h2>Reports</h2>
+            <div class="set-top"><h2>Reports</h2><button type="button" class="set-done" onclick="app.closeReview()">Done</button></div>
             <div id="review-body"></div>
         </div>
     </div>
@@ -353,7 +353,7 @@
     <!-- People (v14.4, new backend only) -->
     <div id="people-modal" class="modal" onclick="if(event.target===this) app.closePeople()">
         <div class="modal-card people-card">
-            <h2>People</h2>
+            <div class="set-top"><h2>People</h2><button type="button" class="set-done" onclick="app.closePeople()">Done</button></div>
             <div id="people-tabs"></div>
             <input id="people-q" class="pp-search" type="search" placeholder="Find people by name" autocomplete="off" autocapitalize="words" spellcheck="false" oninput="app.peopleSearch(this.value)">
             <div id="people-body"></div>

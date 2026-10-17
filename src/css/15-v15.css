@@ -42,9 +42,10 @@
         .guide-finish { background: var(--grad-matcha) !important; color: var(--on-matcha) !important; border: 0 !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 10px 24px rgba(var(--matcha-rgb), 0.38) !important; }
         .guide-foot { justify-content: flex-start; }
 
-        /* Settings: grouped like the phone's own Settings, with Done at the top */
-        #settings-modal .set-top { position: sticky; top: -3rem; z-index: 4; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: -3rem -3rem 0.8rem; padding: 1.6rem 3rem 0.8rem; background: rgba(var(--paper-rgb), 0.9); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
-        #settings-modal .set-top h2 { margin: 0; }
+        /* Settings: grouped like the phone's own Settings, with Done at the top (v15.0: Notifications, People and Reports
+           get the same Done, so there's always a way out of a tall sheet) */
+        .modal-card .set-top { position: sticky; top: -3rem; z-index: 4; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: -3rem -3rem 0.8rem; padding: 1.6rem 3rem 0.8rem; background: rgba(var(--paper-rgb), 0.9); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+        .modal-card .set-top h2 { margin: 0; }
         .set-done { width: auto; margin: 0; padding: 8px 2px 8px 12px; border: 0; background: none; box-shadow: none; font: inherit; font-size: 1rem; font-weight: 700; letter-spacing: 0; text-transform: none; color: var(--matcha-ink, var(--matcha)); cursor: pointer; }
         #settings-modal.acct .set-legacy-only { display: none !important; }
         #settings-modal.acct #user-list { margin-bottom: 0 !important; }
@@ -75,7 +76,7 @@
         #settings-modal .acct-row .acct-who b { font-size: 1.08rem; }
         #settings-modal .app-version { margin-top: 1.2rem; }
         @media (max-width: 768px) {
-            #settings-modal .set-top { top: -1rem; margin: -1rem -0.82rem 0.6rem; padding: 1rem 0.82rem 0.6rem; }
+            .modal-card .set-top { top: -1rem; margin: -1rem -0.82rem 0.6rem; padding: 1rem 0.82rem 0.6rem; }
         }
 
         /* sharing: a share button beside the like on posts, on coffee, roaster and profile pages, and Invite on a community's goal */
@@ -92,3 +93,5 @@
         .cq-invite { display: inline-flex; align-items: center; gap: 4px; margin: 0; padding: 3px 9px 3px 8px; border: 1px solid rgba(var(--matcha-rgb), 0.28); border-radius: 999px; background: rgba(var(--matcha-rgb), 0.08); font: inherit; font-size: 0.66rem; font-weight: 750; color: var(--matcha-ink, var(--matcha)); cursor: pointer; }
         .cq-invite .icon { width: 11px; height: 11px; }
         .comm-note { margin: 2px 4px 12px; font-size: 0.8rem; line-height: 1.45; color: var(--text-muted); }
+        /* iPhone home-screen app: while typing, a tap on Post or Save goes straight to the button (not through the tick) */
+        html.hx-typing label.hx { pointer-events: none; }
