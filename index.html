@@ -4249,7 +4249,7 @@
             <div class="guide-track"><div id="guide-bar" class="guide-bar"></div><i id="guide-cursor" class="guide-cursor"></i></div>
             <div class="guide-actions">
                 <button type="button" id="guide-start" class="btn-primary guide-go" onclick="app.guideStartPause()">Start</button>
-                <button type="button" class="btn-primary guide-finish" onclick="app.finishGuide()">Finish &amp; log it</button>
+                <button type="button" class="btn-primary guide-finish" onclick="app.finishGuide()">Finish &amp; log</button>
             </div>
             <div class="guide-foot"><button type="button" class="chip-btn" aria-pressed="false" onclick="app.toggleGuideSound(this)">Sound</button></div>
         </div>
@@ -9154,7 +9154,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const [y, m] = key.split('-').map(Number);
                 const name = this.monthName(key, false);
                 const picker = `<select class="recap-select" aria-label="Award month" onchange="app.setAwardsMonth(this.value)">${months.map(k => `<option value="${k}"${k === key ? ' selected' : ''}>${this.esc(this.monthName(k))}${this.monthLocked(k) ? ' (locked)' : ''}</option>`).join('')}</select>`;
-                const named = this._crewScope && this.crewGroups().length > 1 ? this._crewScope.name : '';   // v14.6: which community, when you're in more than one
+                const named = this._crewScope && this._crewScope.id !== 'friends' && this.crewGroups().length > 1 ? this._crewScope.name : '';   // v14.6: which community, when you're in more than one
                 const head = sub => `<div class="aw-head"><div><div class="label">Monthly awards${named ? ` · ${this.esc(named)}` : ''}</div><div class="aw-sub">${sub}</div></div>${picker}</div>`;
                 if (this.monthLocked(key)) {
                     const unlock = new Date(y, m, 1);

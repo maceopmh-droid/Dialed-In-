@@ -276,7 +276,7 @@
                 const [y, m] = key.split('-').map(Number);
                 const name = this.monthName(key, false);
                 const picker = `<select class="recap-select" aria-label="Award month" onchange="app.setAwardsMonth(this.value)">${months.map(k => `<option value="${k}"${k === key ? ' selected' : ''}>${this.esc(this.monthName(k))}${this.monthLocked(k) ? ' (locked)' : ''}</option>`).join('')}</select>`;
-                const named = this._crewScope && this.crewGroups().length > 1 ? this._crewScope.name : '';   // v14.6: which community, when you're in more than one
+                const named = this._crewScope && this._crewScope.id !== 'friends' && this.crewGroups().length > 1 ? this._crewScope.name : '';   // v14.6: which community, when you're in more than one
                 const head = sub => `<div class="aw-head"><div><div class="label">Monthly awards${named ? ` · ${this.esc(named)}` : ''}</div><div class="aw-sub">${sub}</div></div>${picker}</div>`;
                 if (this.monthLocked(key)) {
                     const unlock = new Date(y, m, 1);
