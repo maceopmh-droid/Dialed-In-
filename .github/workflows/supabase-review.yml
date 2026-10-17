@@ -1,6 +1,6 @@
 # The App Review account (App Store guideline 2.1: Apple's reviewer needs a way in, and can't receive our emailed
 # codes). Makes (or resets) one account, appreview@dialed-in.app, that signs in with the password in the REVIEW_PASSWORD
-# secret, with a profile called "App Review" and sample coffees and sessions of its own (Only me; supabase/review_sample.sql),
+# secret, with a profile called "Maya Rios" (made up) and sample coffees and sessions of its own (Only me; supabase/review_sample.sql),
 # so the reviewer finds a working app (and the App Store screenshots have something to show). The app shows the password
 # step only for that address. Runs when pushed to the `supabase-review` branch; safe to run again (it resets the password
 # and puts the samples back as written, dated from now).
@@ -49,6 +49,8 @@ jobs:
           insert into profiles (auth_id, handle, display_name, color, joined_at)
           select u.id, 'appreview', 'App Review', '#5B8DEF', now() from auth.users u join v on v.email = u.email
           where not exists (select 1 from profiles p where p.auth_id = u.id) and not exists (select 1 from profiles p where p.handle = 'appreview');
+          -- shown as Maya Rios (a made-up person) in the app and the App Store screenshots
+          update profiles p set display_name = 'Maya Rios', color = '#C07A45' from auth.users u, v where u.email = v.email and p.auth_id = u.id and (p.display_name is distinct from 'Maya Rios' or p.color is distinct from '#C07A45');
           -- its own sample coffees and sessions (Only me, so nobody else sees them): supabase/review_sample.sql
           create temp table rp as select p.id from profiles p join auth.users u on u.id = p.auth_id join v on v.email = u.email;
           \i supabase/review_sample.sql

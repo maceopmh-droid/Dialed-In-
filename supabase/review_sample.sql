@@ -1,22 +1,24 @@
 -- The App Review account's own sample coffees and sessions (all Only me, so nobody else ever sees them), so Apple's
 -- reviewer finds a working app: a profile with a palate, coffee pages with a flavor shape and dial-in curves, and the
--- next-shot coach with something to say. Also what the App Store screenshots show (no real person's data).
+-- next-shot coach with something to say. Also what the App Store screenshots show (no real person's data: a made-up
+-- person, Maya Rios, and made-up roasters).
 -- Expects a temp table rp(id) holding the review profile's id. Safe to run again: it puts the samples back as written
 -- here (dates count back from now), and leaves anything else on the account alone.
 
 set client_min_messages = warning;
 drop table if exists pg_temp.review_coffees, pg_temp.review_sessions;
-create temp table review_coffees (lid text, name text, origin text, process text, roast text, roasted_ago int, added_ago int);
+-- (made-up roasters and a made-up person: what the App Store screenshots show)
+create temp table review_coffees (lid text, name text, roaster text, origin text, process text, variety text, roast text, roasted_ago int, added_ago int);
 insert into review_coffees values
-  ('review-c1', 'Ethiopia Guji',   'Ethiopia', 'Washed',  'Light',  24, 13),
-  ('review-c2', 'Colombia Huila',  'Colombia', 'Natural', 'Medium', 20, 6),
-  ('review-c3', 'Kenya Nyeri',     'Kenya',    'Washed',  'Light',  12, 3);
+  ('review-c1', 'Guji Hambela',       'Quiet Hour Roasters',   'Ethiopia', 'Washed',  'Heirloom',     'Light',        24, 13),
+  ('review-c2', 'Huila Pink Bourbon', 'Field Lantern Coffee',  'Colombia', 'Natural', 'Pink Bourbon', 'Medium-Light', 20, 6),
+  ('review-c3', 'Nyeri Gatomboya',    'Alder Street Roasting', 'Kenya',    'Washed',  'SL28, SL34',   'Light',        12, 3);
 
-insert into coffees (legacy_id, owner_id, roaster_text, name, origin, process, roast, roast_date, created_at)
-select c.lid, rp.id, 'Sample Roasters', c.name, c.origin, c.process, c.roast, (now() - make_interval(days => c.roasted_ago))::date, now() - make_interval(days => c.added_ago)
+insert into coffees (legacy_id, owner_id, roaster_text, name, origin, process, variety, roast, roast_date, created_at)
+select c.lid, rp.id, c.roaster, c.name, c.origin, c.process, c.variety, c.roast, (now() - make_interval(days => c.roasted_ago))::date, now() - make_interval(days => c.added_ago)
 from rp, review_coffees c
-on conflict (legacy_id) do update set owner_id = excluded.owner_id, roaster_text = excluded.roaster_text, name = excluded.name, origin = excluded.origin,
-  process = excluded.process, roast = excluded.roast, roast_date = excluded.roast_date, created_at = excluded.created_at, updated_at = now(), deleted_at = null;
+on conflict (legacy_id) do update set owner_id = excluded.owner_id, roaster_text = excluded.roaster_text, roaster_id = null, name = excluded.name, origin = excluded.origin,
+  process = excluded.process, variety = excluded.variety, roast = excluded.roast, roast_date = excluded.roast_date, created_at = excluded.created_at, updated_at = now(), deleted_at = null;
 
 -- taste sliders 1-10 in the order acidity, sweetness, body, finish, bitterness, complexity (stored as "balance")
 create temp table review_sessions (lid text, cof text, method text, grind text, dose numeric, yld numeric, t numeric, rating numeric,
