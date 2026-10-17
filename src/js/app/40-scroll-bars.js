@@ -29,3 +29,32 @@
                 document.body.classList.toggle('bars-tucked', on);
             },
 
+            // ---- v14.8: tabs (Following / Community / Discover, a profile's sections, People) switch when your finger
+            // lifts, so a tap still counts when the list was still moving (iPhone spends that tap stopping the scroll
+            // and sends no click). A press that slides more than a little is a scroll, not a tap.
+            bindTabTaps() {
+                if (this._tabTapsBound || typeof document === 'undefined') return;
+                this._tabTapsBound = true;
+                const SEL = '.seg-control[role="tablist"] > button';
+                let down = null, fired = null;
+                document.addEventListener('pointerdown', e => {
+                    const b = e.target && e.target.closest ? e.target.closest(SEL) : null;
+                    down = b && e.pointerType !== 'mouse' ? { b, x: e.clientX, y: e.clientY, id: e.pointerId } : null;
+                }, true);
+                document.addEventListener('pointercancel', e => { if (down && e.pointerId === down.id) down = null; }, true);
+                document.addEventListener('pointerup', e => {
+                    const d = down; down = null;
+                    if (!d || e.pointerId !== d.id || Math.hypot(e.clientX - d.x, e.clientY - d.y) > 10 || !d.b.isConnected) return;
+                    fired = { b: d.b, at: Date.now() };
+                    d.b.click();   // the tab's own handler, right away
+                }, true);
+                // the click iPhone may still send for the same tap: it already counted
+                document.addEventListener('click', e => {
+                    const f = fired;
+                    if (!f || !e.isTrusted || Date.now() - f.at > 700) return;
+                    const b = e.target && e.target.closest ? e.target.closest(SEL) : null;
+                    if (!b) return;
+                    fired = null; e.preventDefault(); e.stopPropagation();
+                }, true);
+            },
+

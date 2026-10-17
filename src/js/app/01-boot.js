@@ -97,6 +97,7 @@
                 this.installHaptics();
                 this.installTapHaptics();
                 if (this.bindScrollBars) this.bindScrollBars();   // v14.7
+                if (this.bindTabTaps) this.bindTabTaps();   // v14.8
                 this.bindRatingSlider();
                 this.setTab(this.tab);
                 this.outboxReady = this.loadOutbox();
