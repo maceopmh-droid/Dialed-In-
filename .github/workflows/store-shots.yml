@@ -59,7 +59,7 @@ jobs:
           echo "::notice title=Stand-in::$(node native/appstore/seed-world.js http://127.0.0.1:54321 dialed_world "$STAND_IN_PW")"
       - name: Take the screenshots
         working-directory: native
-        timeout-minutes: 26   # (so the report below still runs if something hangs)
+        timeout-minutes: 22   # (so the report below still runs if something hangs)
         run: |
           set -e
           t() { perl -e 'alarm shift; exec @ARGV' "$@"; }   # a command that may hang gets a time limit
@@ -135,6 +135,9 @@ jobs:
           PY
           echo light > build/shots/.look
           python3 -W ignore build/server.py "$dev" build/shots > build/server.log 2>&1 &
+          # a look at the machine every 15 s (load, the busiest processes, free memory, the app's log size), for the report
+          ( while true; do { date -u +%H:%M:%S; uptime | sed 's/.*load/load/'; ps -Ao pcpu=,rss=,comm= -r | head -5 | awk '{n=split($3,a,"/"); printf "%s%% %dMB %s; ", $1, $2/1024, a[n]}'; echo; vm_stat | awk '/Pages free/ {printf "free %d MB; ", $3*16/1024}'; ls -la build/console_*.log 2>/dev/null | awk '{printf "%s %s; ", $9, $5}'; echo; } >> build/mon.log; sleep 15; done ) &
+          s0=$(date +%s); t 60 xcrun simctl io "$dev" screenshot /tmp/health.png >/dev/null 2>&1 && echo "simulator answers: a screenshot took $(( $(date +%s) - s0 )) s" >> build/server.log || echo "simulator didn't answer a screenshot in 60 s, before the app opened" >> build/server.log
           # a first pass that's thrown away: the app's first launch (signing in, first drawing) is slow and can lag behind
           for look in warm dark light; do   # (the light pass takes only the coffee page)
             echo $look > build/shots/.look; echo "pass $look starts $(date -u +%H:%M:%S)" >> build/server.log
@@ -145,10 +148,10 @@ jobs:
             # if the app can't reach the runner, it says so in its log and holds each screen 8 s: take it from there
             ( tail -n +1 -f "build/console_$look.log" | while IFS= read -r l; do case "$l" in *DIALED-SHOT-FAIL*/shot?name=*) n=${l##*name=}; n=${n%% *}; [ -f "build/shots/${n}_$look.png" ] || { sleep 2; xcrun simctl io "$dev" screenshot "build/shots/${n}_$look.png" >/dev/null 2>&1; echo "shot (fallback) ${n}_$look" >> build/server.log; };; esac; done ) &
             watcher=$!
-            for i in $(seq 1 120); do [ -f "build/shots/.done_$look" ] && break; sleep 3; done
+            for i in $(seq 1 100); do [ -f "build/shots/.done_$look" ] && break; sleep 3; done
             kill $watcher 2>/dev/null || true
             grep -o 'DIALED-[A-Z-]*[^"]*' "build/console_$look.log" | grep -v '^DIALED-SHOT ' | head -10 || true
-            [ -f "build/shots/.done_$look" ] || echo "::warning title=Screenshots::the $look run didn't finish in 6 minutes"
+            [ -f "build/shots/.done_$look" ] || echo "::warning title=Screenshots::the $look run didn't finish in 5 minutes"
           done
           rm -f "$app/public/index.html"   # (the copy pointed at the stand-in; the runner is thrown away anyway)
       - name: Report what happened
@@ -157,7 +160,10 @@ jobs:
         run: |
           echo "::notice title=Screenshot log::$(tr '\n' ' ' < build/server.log 2>/dev/null | tail -c 1500)"
           for look in warm dark light; do [ -f "build/console_$look.log" ] && echo "::notice title=App ($look)::$(grep -o 'DIALED-[A-Z-]*[^"]*' "build/console_$look.log" | grep -v '^DIALED-SHOT ' | head -12 | tr '\n' ' ' | cut -c1-900)"; done
-          echo "::notice title=Stand-in::$(tail -c 700 "$RUNNER_TEMP/stand-in.log" 2>/dev/null | tr '\n' ' ')"
+          echo "::notice title=Stand-in::$(tail -c 700 "$RUNNER_TEMP/stand-in.log" 2>/dev/null | tr '\n' ' ') (calls: $(curl -s -m 5 http://127.0.0.1:54321/__dev/stats))"
+          echo "::notice title=Machine (start)::$(head -c 1200 build/mon.log 2>/dev/null | tr '\n' ' ')"
+          echo "::notice title=Machine (end)::$(tail -c 1500 build/mon.log 2>/dev/null | tr '\n' ' ')"
+          for look in warm dark light; do [ -f "build/console_$look.log" ] && echo "::notice title=App log ($look)::$(wc -c < "build/console_$look.log") bytes; most repeated: $(head -c 4000000 "build/console_$look.log" | cut -c1-140 | sort | uniq -c | sort -rn | head -3 | tr '\n' ' ' | cut -c1-700)"; done
           rm -f build/shots/00_*.png build/shots/*_warm.png build/shots/*'&'*.png   # the throwaway screenshots
           echo "::notice title=Screenshots::$(ls build/shots/*.png 2>/dev/null | wc -l | tr -d ' ') screenshots ($(ls build/shots/*.png 2>/dev/null | xargs -n1 basename | tr '\n' ' '))"
       - name: Finish them (each screen in a tilted phone under a headline)
