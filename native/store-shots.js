@@ -24,6 +24,8 @@
     const closeAll = () => { try { app.closeModals(); } catch (e) { /* none open */ } for (let i = 0; i < 4; i++) { const d = document.getElementById('detail-view'); if (!d || !d.classList.contains('active')) break; app.closeDetail(); } };
     const card = id => document.querySelector(`[data-card-brew="${id}"]`);
     const plan = [
+        // a throwaway first screenshot (the runner drops names starting 00_): the first one after the app opens can come out late
+        ['00_warm', async () => { closeAll(); app.setTab('my'); app.openFeedTarget('review-c1'); await sleep(1500); }],
         ['01_coffee', async () => { closeAll(); app.setTab('my'); app.openFeedTarget('review-c1'); await sleep(700); top(); const v = document.getElementById('detail-view'); if (v) v.scrollTop = 0; }],
         ['02_next_shot', async () => {
             const b = latest('review-c1', 'Espresso');

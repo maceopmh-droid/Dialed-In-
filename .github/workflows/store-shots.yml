@@ -127,6 +127,7 @@ jobs:
           done
           cat build/server.log
           echo "::notice title=Screenshot log::$(tr '\n' ' ' < build/server.log | cut -c1-900)"
+          rm -f build/shots/00_*.png       # the throwaway first screenshots
           rm -f "$app/public/index.html"   # (the copy with the password; the runner is thrown away anyway)
           n=$(ls build/shots/*.png 2>/dev/null | wc -l | tr -d ' ')
           echo "::notice title=Screenshots::$n screenshots ($(ls build/shots/*.png 2>/dev/null | xargs -n1 basename | tr '\n' ' '))"
