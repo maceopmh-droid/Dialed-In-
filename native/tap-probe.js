@@ -45,6 +45,17 @@
             await ask('/log?m=' + encodeURIComponent(label + ' tabs ' + JSON.stringify(rects.map(r => ({ l: r.label, x: Math.round(r.x), w: Math.round(r.w) })))));
         };
         await tabs('app');
+        // the list scrolled a little, so the tabs sit partly under the see-through top bar: a tap where you see Community
+        for (const off of [20, 35, 50]) {
+            await reset();
+            const m = document.getElementById('main-content'); if (!m) break;
+            m.scrollTop = off; await sleep(600);
+            const com = [...document.querySelectorAll('.seg-control.feed-mode button')].find(b => b.textContent.trim() === 'Community');
+            const r = com.getBoundingClientRect(), head = document.querySelector('.header-sticky').getBoundingClientRect().bottom;
+            const x = r.left + r.width / 2, y = r.top + Math.min(r.height / 2, Math.max(4, (head - r.top) / 2)), before = app.feedMode(), hit = document.elementFromPoint(x, y);
+            await ask(`/tap?x=${x.toFixed(1)}&y=${y.toFixed(1)}`); await sleep(900);
+            results.push({ at: `list ${off}px down, Community under the top bar's edge (bar ends ${Math.round(head)}, tab ${Math.round(r.top)}-${Math.round(r.bottom)})`, x: Math.round(x), y: Math.round(y), was: before, now: app.feedMode(), hit: hit ? (hit.className || hit.tagName).toString().slice(0, 16) : 'none' });
+        }
         // a fling back to the top, then a tap on Community the moment the tabs are back on screen (the list still moving)
         for (let i = 1; i <= 4; i++) {
             await reset();
