@@ -92,6 +92,12 @@
         .crew-quest .cq-right { display: inline-flex; align-items: center; gap: 8px; }
         .cq-invite { display: inline-flex; align-items: center; gap: 4px; margin: 0; padding: 3px 9px 3px 8px; border: 1px solid rgba(var(--matcha-rgb), 0.28); border-radius: 999px; background: rgba(var(--matcha-rgb), 0.08); font: inherit; font-size: 0.66rem; font-weight: 750; color: var(--matcha-ink, var(--matcha)); cursor: pointer; }
         .cq-invite .icon { width: 11px; height: 11px; }
-        .comm-note { margin: 2px 4px 12px; font-size: 0.8rem; line-height: 1.45; color: var(--text-muted); }
         /* iPhone home-screen app: while typing, a tap on Post or Save goes straight to the button (not through the tick) */
-        html.hx-typing label.hx { pointer-events: none; }
+        html.typing label.hx { pointer-events: none; }
+        /* while typing, the bottom bar steps aside instead of riding up on the keyboard */
+        @media (max-width: 768px) { html.typing #mobile-nav { opacity: 0; visibility: hidden; pointer-events: none; transition: none; } }
+        /* Brew along: in a step's last 3 seconds the card pulses once on each number (3, 2, 1), in time with the countdown */
+        .guide-soon .guide-card { animation: none; }
+        .guide-card.beat { animation: guideBeat 0.75s ease-out; }
+        @keyframes guideBeat { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--gc) 50%, transparent); transform: scale(1.02); } 100% { box-shadow: 0 0 0 16px color-mix(in srgb, var(--gc) 0%, transparent); transform: scale(1); } }
+        @media (prefers-reduced-motion: reduce) { .guide-card.beat { animation: none; } }

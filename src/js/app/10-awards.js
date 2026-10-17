@@ -198,11 +198,22 @@
             },
 
             // ---- v12.7: everything as it stood at a moment (the event log replayed up to time t), for finished months
+            // v15.0: on the accounts backend the log has only each record's latest version, so a session edited (or
+            // re-saved by its owner) after the month closed still counts, as it is now; it used to drop out of that
+            // month's awards altogether, which handed September to whoever hadn't touched theirs
+            asOfKeeps(e, t) {
+                const at = e && e.eventAt ? this.toTime(e.eventAt) : NaN;
+                if (!Number.isFinite(at) || at <= t) return true;
+                if (!(this.acctOn && this.acctOn()) || !e || (e.type !== 'brew' && e.type !== 'bean')) return false;
+                const made = this.toTime(e.date);
+                return Number.isFinite(made) && made > 0 && made <= t;
+            },
+
             withStateAsOf(t, fn) {
                 const keep = { beans: this.beans, brews: this.brews, gear: this.gearByUser, flavors: this.customFlavors, tombs: this.tombs };
                 this.beans = new Map(); this.brews = new Map(); this.gearByUser = new Map(); this.customFlavors = new keep.flavors.constructor(); this.tombs = new Map();
                 try {
-                    (this.eventLog || []).forEach(e => { const at = e && e.eventAt ? this.toTime(e.eventAt) : NaN; if (!Number.isFinite(at) || at <= t) this.applyEvent(e); });
+                    (this.eventLog || []).forEach(e => { if (this.asOfKeeps(e, t)) this.applyEvent(e); });
                     return fn();
                 } finally {
                     this.beans = keep.beans; this.brews = keep.brews; this.gearByUser = keep.gear; this.customFlavors = keep.flavors; this.tombs = keep.tombs;
@@ -220,7 +231,7 @@
                     // v12.7: a finished month: frozen at its close, so later edits can't change the winners
                     const log = this.eventLog || [];
                     let n = 0, last = 0;
-                    log.forEach(e => { const at = e && e.eventAt ? this.toTime(e.eventAt) : NaN; if (!Number.isFinite(at) || at <= cut) { n++; if (at > last) last = at; } });
+                    log.forEach(e => { if (!this.asOfKeeps(e, cut)) return; const at = e && e.eventAt ? this.toTime(e.eventAt) : NaN; n++; if (at > last) last = at; });
                     const stamp = `${n}:${last}`;
                     if (!this._awFrozen) this._awFrozen = new Map();
                     const hit = this._awFrozen.get(k);

@@ -49,7 +49,7 @@
             // Appearance, are in the page)
             acctToolsHtml(priv = '', pushRow = '') {
                 const row = (onclick, title, sub = '', cls = '') => `<button type="button" class="set-row set-link${cls ? ` ${cls}` : ''}" onclick="${onclick}"><span class="set-main"><b>${title}</b>${sub ? `<small>${sub}</small>` : ''}</span><svg class="icon set-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>`;
-                const link = (page, title) => `<a class="set-row set-link" href="${this.legalUrl(page)}" target="_blank" rel="noopener" onclick="app.openLegal('${page}'); return false;"><span class="set-main"><b>${title}</b></span><svg class="icon set-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></a>`;
+                const link = (page, title) => `<a class="set-row set-link" href="${this.legalUrl(page)}" target="_blank" rel="noopener" onclick="app.openLegal('${app.escJs(page)}'); return false;"><span class="set-main"><b>${title}</b></span><svg class="icon set-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></a>`;
                 const group = (label, rows, cls = '') => rows ? `<div class="set-label">${label}</div><div class="set-group${cls ? ` ${cls}` : ''}">${rows}</div>` : '';
                 return [
                     group('Privacy and notifications', `${priv}${pushRow}`),

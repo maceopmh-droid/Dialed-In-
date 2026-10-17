@@ -327,7 +327,14 @@
                 if (cursor) cursor.style.left = `${Math.min(100, (t / total) * 100).toFixed(3)}%`;
                 set('guide-start', this.timer.on ? 'Pause' : (t > 0 ? 'Resume' : 'Start'));
                 const left = st ? st.end - t : 99;
-                modal.classList.toggle('guide-soon', !!st && this.timer.on && left <= 3 && left > 0);
+                // v15.0: the last 3 seconds of a step pulse once on each number of the countdown (3, 2, 1), the moment it shows
+                const beat = st && this.timer.on && left <= 3 && left > 0 ? Math.ceil(left - 1e-6) : 0;
+                modal.classList.toggle('guide-soon', beat > 0);
+                if (beat && beat !== this._guideBeat) {
+                    const card = modal.querySelector('.guide-card');
+                    if (card) { card.classList.remove('beat'); void card.offsetWidth; card.classList.add('beat'); }
+                }
+                this._guideBeat = beat;
                 if (i !== this.guideLastStep) {
                     if (this.guideLastStep >= 0 && this.timer.on) this.guideCue(done);
                     this.guideLastStep = i;

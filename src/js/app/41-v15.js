@@ -52,6 +52,23 @@
                 return rel.friend ? '<span class="you-tag pp-friend">Friends</span>' : rel.followsYou ? '<span class="pp-note">Follows you</span>' : '';
             },
 
+            // ---- v15.0: while you're typing (the keyboard is up) the page knows it (html.typing): the bottom bar steps
+            // aside instead of riding up on the keyboard, and on the home-screen app a tap on Post or Save goes straight
+            // to the button (through the tick layer it didn't go through on iPhone)
+            bindTyping() {
+                if (this._typingBound || typeof document === 'undefined' || !document.addEventListener) return;
+                this._typingBound = true;
+                const typing = el => typeof Element !== 'undefined' && el instanceof Element && (el.tagName === 'TEXTAREA' || el.isContentEditable
+                    || (el.tagName === 'INPUT' && !/^(checkbox|radio|range|color|button|submit|reset|file|hidden|image|date|time|datetime-local|month|week)$/i.test(el.type || '')));
+                let off = 0;
+                document.addEventListener('focusin', e => { if (!typing(e.target)) return; clearTimeout(off); document.documentElement.classList.add('typing'); }, true);
+                document.addEventListener('focusout', e => {
+                    if (!typing(e.target)) return;
+                    clearTimeout(off);
+                    off = setTimeout(() => { if (!typing(document.activeElement)) document.documentElement.classList.remove('typing'); }, 500);
+                }, true);
+            },
+
             // ---- v15.0: share a session, a coffee, a roaster, a profile or a community as a link that opens that exact
             // thing (for anyone signed in who can see it; a session or coffee they can't see opens its owner's profile)
             shareBase() {
@@ -62,11 +79,20 @@
                 const q = Object.entries(params).filter(([, v]) => v !== undefined && v !== null && String(v) !== '').map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`).join('&');
                 return `${this.shareBase()}?${q}`;
             },
+            // what it is goes in the message itself, with the link under it (Messages showed only the link when they were
+            // sent apart, and every link's preview reads the same)
             async shareLink(url, text, title = 'Dialed In') {
-                try { if (navigator.share) { await navigator.share({ title, text, url }); return 'shared'; } } catch (e) { if (e && e.name === 'AbortError') return 'cancelled'; }
-                try { await navigator.clipboard.writeText(url); this.showToast('Link copied.'); return 'copied'; } catch (e) { /* no clipboard */ }
-                prompt('Copy this link:', url);
+                const msg = `${text}\n${url}`;
+                try { if (navigator.share) { await navigator.share({ title, text: msg }); return 'shared'; } } catch (e) { if (e && e.name === 'AbortError') return 'cancelled'; }
+                try { await navigator.clipboard.writeText(msg); this.showToast('Link copied.'); return 'copied'; } catch (e) { /* no clipboard */ }
+                prompt('Copy this link:', msg);
                 return 'shown';
+            },
+            // "4.5★ · 18 g → 40 g (1:2.2) in 28 s" for a session
+            shareSessionLine(b) {
+                const r = this.normalizeRating(b.rating), dose = Number(b.dose) || 0, out = Number(b.yield) || 0, time = Number(b.time) || 0;
+                const recipe = dose && out ? `${this.fmtNum(dose, 1)} g → ${this.fmtNum(out, 1)} g (1:${this.fmtNum(out / dose, 1)})${time ? ` in ${b.method === 'Espresso' ? `${Math.round(time)} s` : this.clock(time)}` : ''}` : '';
+                return [r > 0 ? `${this.formatRating(r)}★` : '', recipe].filter(Boolean).join(' · ');
             },
             shareItem(kind, ref, event) {
                 if (event && event.stopPropagation) event.stopPropagation();
@@ -74,16 +100,21 @@
                 if (kind === 'session') {
                     const b = this.brews.get(id); if (!b) return;
                     const owner = this.getBrewOwner(b), bean = this.beans.get(String(b.beanId || ''));
-                    const what = [b.method || 'session', bean && bean.name ? `of ${bean.name}` : ''].filter(Boolean).join(' ');
-                    return this.shareLink(this.shareUrl({ s: id, by: owner }), `${owner === this.user ? 'My' : `${owner}'s`} ${what} on Dialed In`);
+                    const coffee = bean && bean.name ? `${bean.name}${bean.roaster ? ` (${bean.roaster})` : ''}` : 'a coffee';
+                    const line = this.shareSessionLine(b);
+                    return this.shareLink(this.shareUrl({ s: id, by: owner }), `${owner === this.user ? 'My' : `${owner}'s`} ${String(b.method || 'session').toLowerCase()} of ${coffee}${line ? `: ${line}` : ''}. On Dialed In:`);
                 }
                 if (kind === 'coffee') {
                     const bean = this.beans.get(id); if (!bean) return;
                     const owner = String(bean.user || bean.owner || '');
-                    return this.shareLink(this.shareUrl({ c: id, by: owner }), `${bean.name || 'A coffee'}${bean.roaster ? ` from ${bean.roaster}` : ''} on Dialed In`);
+                    const bits = [bean.origin, bean.process, bean.roast ? `${bean.roast} roast` : ''].map(x => String(x || '').trim()).filter(Boolean).join(', ');
+                    return this.shareLink(this.shareUrl({ c: id, by: owner }), `${bean.name || 'A coffee'}${bean.roaster ? ` from ${bean.roaster}` : ''}${bits ? ` (${bits})` : ''}. On Dialed In:`);
                 }
-                if (kind === 'roaster') return this.shareLink(this.shareUrl({ r: id }), `${id} on Dialed In`);
-                if (kind === 'profile') return this.shareLink(this.shareUrl({ u: id }), id === this.user ? 'Follow me on Dialed In' : `${id} on Dialed In`);
+                if (kind === 'roaster') {
+                    const r = this.roasterFind ? this.roasterFind(this.roasterKey(id)) : null, n = r && r.coffees ? r.coffees.length : 0;
+                    return this.shareLink(this.shareUrl({ r: id }), `${id}, the roaster${n ? `: ${n} coffee${n === 1 ? '' : 's'} logged` : ''}. On Dialed In:`);
+                }
+                if (kind === 'profile') return this.shareLink(this.shareUrl({ u: id }), id === this.user ? `Follow me on Dialed In (${id}):` : `${id}'s coffee log on Dialed In:`);
             },
             shareCurrentCoffee() { return this.shareItem('coffee', this.activeId); },
             // a community: its invite link (the same one People has)
@@ -122,7 +153,8 @@
                     return;
                 }
                 if (p.r) {
-                    if (this.roasterFind && this.roasterFind(p.r)) this.openRoaster(p.r);
+                    const k = this.roasterKey(p.r);
+                    if (this.roasterFind && this.roasterFind(k)) this.openRoaster(k);
                     else this.showToast(`${p.r} isn't on Dialed In yet.`);
                 }
             },

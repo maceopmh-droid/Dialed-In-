@@ -99,6 +99,7 @@
                 this.installTapHaptics();
                 if (this.bindScrollBars) this.bindScrollBars();   // v14.7
                 if (this.bindTabTaps) this.bindTabTaps();   // v14.8
+                if (this.bindTyping) this.bindTyping();   // v15.0: while the keyboard is up
                 this.bindRatingSlider();
                 this.setTab(this.tab);
                 this.outboxReady = this.loadOutbox();

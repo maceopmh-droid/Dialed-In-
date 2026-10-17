@@ -86,7 +86,7 @@
             async shareInvite(code, name) {
                 const url = this.inviteLink(code), text = `Join ${name} on Dialed In: ${url} (or use the invite code ${String(code).toUpperCase()})`;
                 try {
-                    if (navigator.share) { await navigator.share({ title: `Join ${name} on Dialed In`, text, url }); return; }
+                    if (navigator.share) { await navigator.share({ title: `Join ${name} on Dialed In`, text }); return; }   // (v15.0: the words and the link together)
                     await navigator.clipboard.writeText(text);
                     this.showToast('Invite link copied.');
                 } catch (e) { if (e && e.name === 'AbortError') return; this.showToast(`Invite code: ${String(code).toUpperCase()}`); }

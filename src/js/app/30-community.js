@@ -175,8 +175,7 @@
                 const foot = st.error ? `<div class="comm-empty">${this.esc(st.error)}</div>`
                     : st.next !== null ? `<button type="button" class="btn-outline comm-more" onclick="app.loadCommunity(true)"${st.loading ? ' disabled' : ''}>${st.loading ? 'Loading…' : 'Show more'}</button>`
                     : `<div class="comm-empty">You're all caught up.</div>`;
-                const wide = st.withFriends ? '<div class="comm-note">Few people share with Everyone yet, so Discover also ranks your friends\' sessions: newest first, lifted by photos, notes, likes, comments and rarer coffees.</div>' : '';
-                grid.innerHTML = head + wide + list.map(b => this.streamCard(b, true)).join('') + foot;
+                grid.innerHTML = head + list.map(b => this.streamCard(b, true)).join('') + foot;
             },
 
             // ---- the Community tab: one of your communities at a time (a picker when you're in more than one)

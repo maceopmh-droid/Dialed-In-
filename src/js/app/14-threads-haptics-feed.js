@@ -180,12 +180,6 @@
                 if (!ios || typeof nav.vibrate === 'function') return;
                 this._hxOn = true;
                 document.documentElement.classList.add('hx-on');
-                // v15.0: while you're typing (the keyboard is up), taps go straight to the button: through the tick, a Post
-                // or Save tapped with the keyboard up didn't go through on iPhone (no tick then)
-                const typing = el => el instanceof Element && (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && !/^(checkbox|radio|range|color|button|submit|reset|file|hidden|image)$/i.test(el.type || '')) || el.isContentEditable);
-                let typingOff = 0;
-                document.addEventListener('focusin', e => { if (!typing(e.target)) return; clearTimeout(typingOff); document.documentElement.classList.add('hx-typing'); }, true);
-                document.addEventListener('focusout', e => { if (!typing(e.target)) return; clearTimeout(typingOff); typingOff = setTimeout(() => { if (!typing(document.activeElement)) document.documentElement.classList.remove('hx-typing'); }, 600); }, true);
                 const HOSTS = '#isMasterInput + .slider, .note-wheel, .ns-track, .ns-ticks span, .rt-track, .like-btn, .cmt-like, .dh-want, [onclick*="app.pickNote("], [onclick*="app.cycleNote("], #timer-btn, [onclick*="app.resetTimer("], [onclick*="app.guideStartPause("], [onclick*="app.guideNext("], [onclick*="app.finishGuide("], [onclick*="app.setRecipeLock("], [onclick*="app.useRecipe("], [onclick*="app.saveRecipe("], [onclick*="app.cloneLatestSession("], .modal form button[type="submit"], .comment-submit, .aw-reveal-btn';
                 const sw = document.createElement('input');
                 sw.type = 'checkbox'; sw.id = 'hx-switch'; sw.setAttribute('switch', ''); sw.tabIndex = -1; sw.setAttribute('aria-hidden', 'true');
