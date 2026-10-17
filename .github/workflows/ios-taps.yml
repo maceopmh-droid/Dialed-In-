@@ -52,7 +52,8 @@ jobs:
           PY
           xcrun simctl install "$dev" "$app"
           idb_companion --udid "$dev" > build/companion.log 2>&1 &
-          sleep 5; idb connect localhost 10882 >/dev/null 2>&1 || true
+          sleep 6; idb connect localhost 10882 > build/connect.log 2>&1 || idb connect "$dev" >> build/connect.log 2>&1 || true
+          echo "::notice title=idb connect::$(tr '\n' ' ' < build/connect.log | cut -c1-300)" 
           cat > build/tapserver.py <<'PY'
           import http.server, subprocess, sys, urllib.parse
           dev = sys.argv[1]
@@ -75,6 +76,7 @@ jobs:
           python3 build/tapserver.py "$dev" > build/taps.log 2>&1 &
           xcrun simctl launch "$dev" "$BUNDLE_ID" >/dev/null
           for i in $(seq 1 100); do grep -q '^done' build/taps.log && break; sleep 3; done
+          echo "::notice title=idb::$(idb list-targets 2>&1 | grep -c Booted) booted target(s) seen; tap problems: $(grep -c '^tap failed' build/taps.log) $(grep '^tap failed' build/taps.log | head -2 | tr '\n' ' ' | cut -c1-400)"
           cat build/taps.log | head -5
           r=$(grep '^RESULT ' build/taps.log | head -1 | cut -c8-)
           [ -n "$r" ] || { echo "::error title=Taps::no result ($(tr '\n' ' ' < build/taps.log | cut -c1-600))"; exit 1; }

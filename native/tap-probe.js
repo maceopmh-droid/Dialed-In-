@@ -17,6 +17,10 @@
         try { if (app.closeWelcome) app.closeWelcome(); } catch (e) { /* none */ }
         await ask('/hello');
         const results = [];
+        // a control first: a tap on the bottom bar's Profiles (if this doesn't switch, the taps aren't reaching the app)
+        app.setTab('my'); await sleep(700);
+        const prof = document.querySelector('.mob-item[data-tab="profile"]');
+        if (prof) { const r = prof.getBoundingClientRect(); await ask(`/tap?x=${(r.left + r.width / 2).toFixed(1)}&y=${(r.top + r.height / 2).toFixed(1)}`); await sleep(900); results.push({ at: 'control: bottom bar Profiles', x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2), was: 'my', now: app.tab, hit: 'Profiles' }); }
         const reset = async () => { app.setTab('feed'); app.setFeedMode('following'); const m = document.getElementById('main-content'); if (m) m.scrollTop = 0; await sleep(900); };
         await reset();
         const btns = () => [...document.querySelectorAll('.seg-control.feed-mode button')];
