@@ -11,13 +11,17 @@ self.addEventListener('push', (e) => {
   }));
 });
 
+// the app that's open (this one, never the preview copy, which has its own worker) is brought forward first and then
+// told to open the bell; with none open, it opens on the bell
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
-  const url = new URL((e.notification.data && e.notification.data.url) || './', self.registration.scope).href;
-  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
-    for (const c of list) {
-      if ('focus' in c) { c.postMessage({ type: 'open-notifications' }); return c.focus(); }
-    }
-    return self.clients.openWindow(url);
+  const scope = self.registration.scope;
+  const url = new URL((e.notification.data && e.notification.data.url) || './', scope).href;
+  const ours = (c) => c.url.startsWith(scope) && !/^preview\//.test(c.url.slice(scope.length));
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(async (list) => {
+    const c = list.find((w) => ours(w) && 'focus' in w);
+    if (!c) return self.clients.openWindow(url);
+    try { await c.focus(); } catch (_) { /* the phone brings it forward itself */ }
+    c.postMessage({ type: 'open-notifications' });
   }));
 });
