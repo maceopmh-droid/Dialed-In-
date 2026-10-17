@@ -198,11 +198,22 @@
             },
 
             // ---- v12.7: everything as it stood at a moment (the event log replayed up to time t), for finished months
+            // v15.0: on the accounts backend the log has only each record's latest version, so a session edited (or
+            // re-saved by its owner) after the month closed still counts, as it is now; it used to drop out of that
+            // month's awards altogether, which handed September to whoever hadn't touched theirs
+            asOfKeeps(e, t) {
+                const at = e && e.eventAt ? this.toTime(e.eventAt) : NaN;
+                if (!Number.isFinite(at) || at <= t) return true;
+                if (!(this.acctOn && this.acctOn()) || !e || (e.type !== 'brew' && e.type !== 'bean')) return false;
+                const made = this.toTime(e.date);
+                return Number.isFinite(made) && made > 0 && made <= t;
+            },
+
             withStateAsOf(t, fn) {
                 const keep = { beans: this.beans, brews: this.brews, gear: this.gearByUser, flavors: this.customFlavors, tombs: this.tombs };
                 this.beans = new Map(); this.brews = new Map(); this.gearByUser = new Map(); this.customFlavors = new keep.flavors.constructor(); this.tombs = new Map();
                 try {
-                    (this.eventLog || []).forEach(e => { const at = e && e.eventAt ? this.toTime(e.eventAt) : NaN; if (!Number.isFinite(at) || at <= t) this.applyEvent(e); });
+                    (this.eventLog || []).forEach(e => { if (this.asOfKeeps(e, t)) this.applyEvent(e); });
                     return fn();
                 } finally {
                     this.beans = keep.beans; this.brews = keep.brews; this.gearByUser = keep.gear; this.customFlavors = keep.flavors; this.tombs = keep.tombs;
@@ -214,13 +225,13 @@
             awardsCutoff(y, m) { return Math.max(this.monthRange(y, m)[1], Date.parse('2026-10-09T00:46:16Z')); },
 
             crewAwardsMemo(y, m) {
-                const k = `${this._crewScope ? this._crewScope.id : ''}|${y}-${m}`;   // v14.6: per community
+                const k = `${this._crewScope ? `${this._crewScope.id}:${[...this._crewScope.names].sort().join(',')}` : ''}|${y}-${m}`;   // v14.6: per community (v15.0: and who's in it)
                 const cut = this.awardsCutoff(y, m);
                 if (Date.now() >= cut) {
                     // v12.7: a finished month: frozen at its close, so later edits can't change the winners
                     const log = this.eventLog || [];
                     let n = 0, last = 0;
-                    log.forEach(e => { const at = e && e.eventAt ? this.toTime(e.eventAt) : NaN; if (!Number.isFinite(at) || at <= cut) { n++; if (at > last) last = at; } });
+                    log.forEach(e => { if (!this.asOfKeeps(e, cut)) return; const at = e && e.eventAt ? this.toTime(e.eventAt) : NaN; n++; if (at > last) last = at; });
                     const stamp = `${n}:${last}`;
                     if (!this._awFrozen) this._awFrozen = new Map();
                     const hit = this._awFrozen.get(k);
@@ -258,6 +269,8 @@
                 // v14.6: awards belong to a private community (the one picked in Community); on your own there's no one
                 // to win against (Discover has the monthly highlights for everyone)
                 if (this.acctOn && this.acctOn() && !this._crewScope) {
+                    const fr = this.tab === 'profile' ? this.friendsCrew() : null;   // v15.0: your profile: you and your friends, every month
+                    if (fr) return this.withCrewScope(fr, () => this.renderCrewAwardsCard());
                     const gr = this.grState ? this.grState() : null;
                     if (gr && !gr.list && !this._grLoading) { this._grLoading = true; this.loadGroups().catch(() => null).finally(() => { this._grLoading = false; if (this.tab === 'profile') this.render(); }); }
                     const g = this.activeCrewGroup();
@@ -274,7 +287,7 @@
                 const [y, m] = key.split('-').map(Number);
                 const name = this.monthName(key, false);
                 const picker = `<select class="recap-select" aria-label="Award month" onchange="app.setAwardsMonth(this.value)">${months.map(k => `<option value="${k}"${k === key ? ' selected' : ''}>${this.esc(this.monthName(k))}${this.monthLocked(k) ? ' (locked)' : ''}</option>`).join('')}</select>`;
-                const named = this._crewScope && this.crewGroups().length > 1 ? this._crewScope.name : '';   // v14.6: which community, when you're in more than one
+                const named = this._crewScope && this._crewScope.id !== 'friends' && this.crewGroups().length > 1 ? this._crewScope.name : '';   // v14.6: which community, when you're in more than one
                 const head = sub => `<div class="aw-head"><div><div class="label">Monthly awards${named ? ` · ${this.esc(named)}` : ''}</div><div class="aw-sub">${sub}</div></div>${picker}</div>`;
                 if (this.monthLocked(key)) {
                     const unlock = new Date(y, m, 1);
@@ -302,7 +315,7 @@
                     <div class="profile-card crew-awards" id="crew-awards">
                         ${head('Final · ready to reveal')}
                         <div class="aw-grid">${this.awardTilesHtml(awards, false, { sealed: true })}</div>
-                        <button type="button" class="btn-primary aw-reveal-btn" onclick="app.revealAwards('${app.escJs(key)}')">Reveal ${this.esc(name)}'s awards</button>
+                        <button type="button" class="btn-primary aw-reveal-btn" onclick="app.revealAwards('${app.escJs(key)}', '${app.escJs(this._crewScope ? this._crewScope.id : '')}')">Reveal ${this.esc(name)}'s awards</button>
                     </div>`;
                 }
                 const prevD = new Date(y, m - 2, 1);
@@ -366,7 +379,7 @@
             },
 
             openAwards(key, reveal = false, gid = '') {
-                if (gid) { this._feedGroup = String(gid); safeSet('dialed_feed_group', this._feedGroup); }   // v14.6: that community's awards
+                if (gid && gid !== 'friends') { this._feedGroup = String(gid); safeSet('dialed_feed_group', this._feedGroup); }   // v14.6: that community's awards (v15.0: not your friends' ones)
                 this.awardsMonth = key;
                 this.profileSection = 'activity';
                 this._noRecapJump = true;

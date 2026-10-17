@@ -118,13 +118,32 @@
                         this._openBellAfterSync = true;
                         const u = new URL(location.href); u.searchParams.delete('notifications'); history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
                     }
-                    if (this.pushSupported() && !(this.isNative && this.isNative())) navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.type === 'open-notifications' && this.acctOn()) { this.setTab('feed'); this.openNotifications(); } });
+                    if (this.pushSupported() && !(this.isNative && this.isNative())) navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.type === 'open-notifications') this.openBellFromPush(); });
                 } catch (e) {}
             },
 
             checkPushOpen() {
                 if (!this._openBellAfterSync || !this.acctOn() || !this.user) return;
                 this._openBellAfterSync = false;
-                this.setTab('feed');
-                this.openNotifications();
+                this.openBellFromPush();
+            },
+
+            // v15.0: a tapped notification opens the bell once the app is back on screen, signed in and loaded (not in
+            // the middle of waking up), and only once however many ways the tap arrives
+            openBellFromPush() {
+                if (!this.acctOn() || !this.user || !this.syncedOnce) { this._openBellAfterSync = true; return; }
+                if (this._bellPending) return;
+                this._bellPending = true;
+                const go = () => {
+                    this._bellPending = false;
+                    if (this.tab !== 'feed') this.setTab('feed');
+                    const m = document.getElementById('notif-modal');
+                    if (m && m.classList.contains('active')) { this.loadNotifications(50).then(() => this.renderNotifications()).catch(() => {}); return; }
+                    this.openNotifications();
+                };
+                const later = () => setTimeout(go, 250);
+                if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+                    const on = () => { if (document.visibilityState !== 'visible') return; document.removeEventListener('visibilitychange', on); later(); };
+                    document.addEventListener('visibilitychange', on);
+                } else later();
             },

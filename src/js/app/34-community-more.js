@@ -64,6 +64,7 @@
                     await Supa.linkPhotos(raw);
                     st.events = raw.map(e => this.normalizeEvent(e)).filter(Boolean);
                     st.card = page && page.profile ? page.profile : null;
+                    if (st.card && st.card.color) this.adoptColors([{ name, color: st.card.color }]);   // v15.0
                     st.at = Date.now();
                 } catch (e) {
                     st.error = e && e.signedOut ? '' : /nobody/i.test(String(e && e.message || '')) ? 'There\'s nobody by that name.' : 'Couldn\'t load this profile. Check your connection.';

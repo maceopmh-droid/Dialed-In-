@@ -2,7 +2,7 @@
 // Xcode's automatic signing (which needs a registered iPhone for its development profile): a fresh Apple Distribution
 // certificate for this run (its private key never leaves the runner) and an App Store profile for the bundle ID.
 // Each run's profile is named "Dialed In CI ..." and holds only that run's certificate, so earlier runs' leftovers are
-// found through their profiles: those more than 3 hours old (Apple has long finished processing their builds) are
+// found through their profiles: those more than 40 minutes old (Apple has long finished processing their builds) are
 // revoked and deleted first. Nothing else on the account is touched. Prints only counts (GitHub Actions logs are public).
 //   env ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_FILE (a proper .p8 file), BUNDLE_ID, RUN_NUMBER
 // usage: node apple-sign.js <outDir>   writes key.pem, cert.cer, profile.mobileprovision, profile.env (PROFILE_NAME, PROFILE_UUID)
@@ -55,10 +55,10 @@ if (UNDO) { undo().catch(e => note('Signing', 'cleanup skipped: ' + String(e && 
     note('Signing', 'Turned on push notifications for the bundle ID.');
   }
 
-  // clean up what earlier runs made: their profiles (more than 3 hours old) and the certificate in each
+  // clean up what earlier runs made: their profiles (more than 40 minutes old) and the certificate in each
   const profiles = await api('GET', `/v1/profiles?limit=200&fields[profiles]=name,createdDate`);
   if (profiles.status !== 200) fail('Signing', `Couldn't list profiles (${why(profiles)})${profiles.status === 403 ? ': the App Store Connect key needs Admin access' : ''}.`);
-  const old = (profiles.j.data || []).filter(p => String(p.attributes.name || '').startsWith(PROFILE_PREFIX) && Date.now() - new Date(p.attributes.createdDate || 0).getTime() > 3 * HOURS);
+  const old = (profiles.j.data || []).filter(p => String(p.attributes.name || '').startsWith(PROFILE_PREFIX) && Date.now() - new Date(p.attributes.createdDate || 0).getTime() > 0.66 * HOURS);
   let revoked = 0, removed = 0;
   for (const p of old) {
     const pc = await api('GET', `/v1/profiles/${p.id}/certificates?limit=10`);
@@ -75,6 +75,16 @@ if (UNDO) { undo().catch(e => note('Signing', 'cleanup skipped: ' + String(e && 
   execFileSync('openssl', ['req', '-new', '-newkey', 'rsa:2048', '-nodes', '-keyout', keyFile, '-out', csrFile, '-subj', '/CN=Dialed In CI/O=Dialed In'], { stdio: 'ignore' });
   const csr = fs.readFileSync(csrFile, 'utf8');
   let cert = await api('POST', '/v1/certificates', { data: { type: 'certificates', attributes: { certificateType: 'DISTRIBUTION', csrContent: csr } } });
+  if (cert.status === 409 && !DRY) {   // Apple allows two at a time: take back the oldest one an earlier run made, then try again
+    const all = await api('GET', `/v1/profiles?limit=200&fields[profiles]=name,createdDate`);
+    const ours = ((all.status === 200 ? all.j.data : []) || []).filter(p => String(p.attributes.name || '').startsWith(PROFILE_PREFIX)).sort((a, b) => new Date(a.attributes.createdDate) - new Date(b.attributes.createdDate));
+    for (const p of ours.slice(0, 1)) {
+      const pc = await api('GET', `/v1/profiles/${p.id}/certificates?limit=10`);
+      for (const c of (pc.status === 200 ? pc.j.data : []) || []) await api('DELETE', `/v1/certificates/${c.id}`);
+      await api('DELETE', `/v1/profiles/${p.id}`);
+    }
+    cert = await api('POST', '/v1/certificates', { data: { type: 'certificates', attributes: { certificateType: 'DISTRIBUTION', csrContent: csr } } });
+  }
   if (cert.status === 409 || cert.status === 403) fail('Signing', `Apple wouldn't make another distribution certificate (${why(cert)}). The account allows only a few: developer.apple.com, Certificates, revoke an old Apple Distribution one you don't use, then run again.`);
   if (cert.status >= 300) fail('Signing', `Making the distribution certificate failed (${why(cert)}).`);
   fs.writeFileSync(path.join(OUT, 'cert.cer'), Buffer.from(cert.j.data.attributes.certificateContent, 'base64'));

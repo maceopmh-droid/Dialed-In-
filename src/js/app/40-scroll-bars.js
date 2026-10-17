@@ -32,10 +32,11 @@
             // ---- v14.8: tabs (Following / Community / Discover, a profile's sections, People) switch when your finger
             // lifts, so a tap still counts when the list was still moving (iPhone spends that tap stopping the scroll
             // and sends no click). A press that slides more than a little is a scroll, not a tap.
+            // v15.0: the bottom bar works the same way (from Feed, a tap there used to need a second try)
             bindTabTaps() {
                 if (this._tabTapsBound || typeof document === 'undefined') return;
                 this._tabTapsBound = true;
-                const SEL = '.seg-control[role="tablist"] > button';
+                const SEL = '.seg-control[role="tablist"] > button, #mobile-nav .mob-item, #mobile-nav .mob-fab';
                 let down = null, fired = null;
                 document.addEventListener('pointerdown', e => {
                     const b = e.target && e.target.closest ? e.target.closest(SEL) : null;
@@ -45,15 +46,16 @@
                 document.addEventListener('pointerup', e => {
                     const d = down; down = null;
                     if (!d || e.pointerId !== d.id || Math.hypot(e.clientX - d.x, e.clientY - d.y) > 10 || !d.b.isConnected) return;
-                    fired = { b: d.b, at: Date.now() };
+                    fired = { b: d.b, at: Date.now(), x: e.clientX, y: e.clientY };
                     d.b.click();   // the tab's own handler, right away
                 }, true);
-                // the click iPhone may still send for the same tap: it already counted
+                // the click iPhone may still send for the same tap: it already counted (whatever is under the finger now,
+                // like the sheet the + button just opened)
                 document.addEventListener('click', e => {
                     const f = fired;
                     if (!f || !e.isTrusted || Date.now() - f.at > 700) return;
                     const b = e.target && e.target.closest ? e.target.closest(SEL) : null;
-                    if (!b) return;
+                    if (!b && Math.hypot(e.clientX - f.x, e.clientY - f.y) > 30) return;
                     fired = null; e.preventDefault(); e.stopPropagation();
                 }, true);
             },

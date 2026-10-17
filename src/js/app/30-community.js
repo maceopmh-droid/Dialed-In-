@@ -54,8 +54,17 @@
                 if (this.tab === 'feed' && this.feedMode() === 'discover') this.render();
                 try {
                     const args = { max_items: 20, ...(this.commFilterArgs ? this.commFilterArgs() : {}) };
-                    const page = await Supa.rpc('discover_feed', more ? { ...args, as_of: st.asOf, page: st.next } : args);
+                    let page = await Supa.rpc('discover_feed', more ? { ...args, as_of: st.asOf, page: st.next, ...(st.withFriends ? { with_friends: true } : {}) } : args);
                     if (st.seq !== seq) return;
+                    // v15.0: while few people share with Everyone, your friends' sessions are ranked in too (the same ranking)
+                    if (!more) {
+                        st.withFriends = false;
+                        if (page && Number(page.total || 0) < 8) {
+                            const wide = await Supa.rpc('discover_feed', { ...args, with_friends: true }).catch(() => null);
+                            if (st.seq !== seq) return;
+                            if (wide && Number(wide.total || 0) > Number(page.total || 0)) { page = wide; st.withFriends = true; }
+                        }
+                    }
                     const raw = page && Array.isArray(page.events) ? page.events : [];
                     await Supa.linkPhotos(raw);   // photos in storage: short-lived links, as in a sync
                     if (st.seq !== seq) return;
@@ -119,7 +128,7 @@
                     if (ev.type !== 'bean' && ev.type !== 'brew') return;
                     const id = String(ev.id), key = ev.type + ':' + id;
                     if (ev.type === 'bean' ? this.beans.has(id) : this.brews.has(id)) return;
-                    if (ev.actor && ev.actorColor && !this.userColors[ev.actor]) this.userColors[ev.actor] = this.normalizeHexColor(ev.actorColor) || this.userColors[ev.actor];
+                    if (ev.actor && ev.actorColor && ev.actor !== this.user) this.userColors[ev.actor] = this.normalizeHexColor(ev.actorColor) || this.userColors[ev.actor];   // v15.0: the color on their profile
                     this.applyEvent(ev);
                     this.communityIds.add(key);
                 });
@@ -144,8 +153,8 @@
             },
 
             renderCommunityFeed(grid) {
-                grid.className = 'feed-list';
-                if (grid.setAttribute) grid.setAttribute('data-view', 'community');
+                if (grid.className !== 'feed-list') grid.className = 'feed-list';
+                if (grid.setAttribute && grid.getAttribute('data-view') !== 'community') grid.setAttribute('data-view', 'community');
                 this._feedHtml = null;
                 if (!this.ppState().data && !this._peopleLoading) { this._peopleLoading = true; this.loadPeople().then(() => { this._peopleLoading = false; if (this.tab === 'feed') this.render(); }).catch(() => { this._peopleLoading = false; }); }
                 if (this.feedMode() === 'groups') { this.renderGroupFeed(grid); return; }

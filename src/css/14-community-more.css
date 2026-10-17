@@ -176,6 +176,7 @@
         /* v14.7: on an iPhone, the status bar sits on a soft blur that fades out downward (no colored strip), so whatever
            scrolls under the clock and battery is blurred, like Instagram. It's 0 tall where there's no status bar. */
         #status-scrim { position: fixed; top: 0; left: 0; right: 0; height: calc(var(--safe-top) * 1.2); z-index: 5500; pointer-events: none; }
+        body:not(.bars-tucked) #status-scrim { height: var(--safe-top); }   /* v15.0: while the top bar shows, the blur stays above its title */
         #status-scrim::before, #status-scrim::after { content: ''; position: absolute; inset: 0; }
         #status-scrim::before { -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent); mask-image: linear-gradient(to bottom, #000 40%, transparent); }
         #status-scrim::after { background: rgba(var(--paper-rgb), 0.12); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); -webkit-mask-image: linear-gradient(to bottom, #000 25%, transparent 75%); mask-image: linear-gradient(to bottom, #000 25%, transparent 75%); }

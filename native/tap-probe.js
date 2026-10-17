@@ -1,78 +1,86 @@
-// Real iPhone taps on the Feed tabs (Following / Community / Discover), to find where a tap doesn't land. Only ever
-// added to the simulator copy of the app by .github/workflows/ios-taps.yml. Signed in as the review account, it puts
-// Feed on Following, then for each point asks the runner to tap there for real (idb, through iOS's own touch handling)
-// and notes which tab is selected afterwards. The runner reports the results.
+// Real iPhone taps in the simulator (idb, through iOS's own touch handling), for what a desktop browser can't show.
+// Only ever added to the simulator copy of the app by .github/workflows/ios-taps.yml, signed in as the review account.
+// v15.0 checks: the bottom bar from Feed (bars showing, bars tucked, a tap while the list is still moving), and posting
+// a comment with the keyboard up (the iPhone app, then the home-screen web app's tap haptics). The comment goes on the
+// review account's own Only me session and is deleted again at the end. The runner reports the results.
 (function () {
     const C = window.__tapProbe;
     if (!C) return;
     const sleep = ms => new Promise(r => setTimeout(r, ms));
     const until = async (fn, ms = 30000) => { const t = Date.now(); while (Date.now() - t < ms) { try { if (fn()) return true; } catch (e) { /* not yet */ } await sleep(250); } return false; };
     const ask = async (what, ms = 30000) => { try { const c = new AbortController(); const t = setTimeout(() => c.abort(), ms); const r = await fetch(C.url + what, { cache: 'no-store', signal: c.signal }); clearTimeout(t); return await r.text(); } catch (e) { return 'fail ' + e; } };
+    const log = m => ask('/log?m=' + encodeURIComponent(m));
     const run = async () => {
         await until(() => typeof app !== 'undefined' && typeof Supa !== 'undefined' && document.readyState === 'complete');
         try { const s = Supa.session && Supa.session(); if (!s || !s.profile) { const p = await Supa.signInWithPassword(C.email, C.pw); app.acctReady(p, null); return; } }
-        catch (e) { await ask('/log?m=' + encodeURIComponent('sign-in failed ' + (e && e.message))); return; }
+        catch (e) { await log('sign-in failed ' + (e && e.message)); return; }
         await until(() => app.syncedOnce && app.brews.size > 0, 60000);
         try { if (app.endTour) app.endTour(); } catch (e) { /* none */ }
         try { if (app.closeWelcome) app.closeWelcome(); } catch (e) { /* none */ }
         await ask('/hello');
+        await log('version ' + ((document.querySelector('meta[name="dialed-in-version"]') || {}).content || '?'));
         const results = [];
-        const tapAt = async (x, y) => { await ask(`/tap?x=${x.toFixed(1)}&y=${y.toFixed(1)}`); await sleep(800); };
-        const center = el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
-        // controls: the bottom bar
-        for (const [from, to] of [['my', 'profile'], ['profile', 'feed'], ['feed', 'my']]) {
-            app.setTab(from); await sleep(800);
-            const el = document.querySelector(`.mob-item[data-tab="${to}"]`); if (!el) continue;
-            const [x, y] = center(el); const hit = document.elementFromPoint(x, y);
+        const tapAt = async (x, y, wait = 800) => { await ask(`/tap?x=${x.toFixed(1)}&y=${y.toFixed(1)}`); await sleep(wait); };
+        const rect = el => el.getBoundingClientRect();
+        const main = () => document.getElementById('main-content');
+        const feedTop = async () => { app.setTab('feed'); app.setFeedMode('following'); main().scrollTop = 0; await sleep(900); };
+        const navItem = tab => document.querySelector(`#mobile-nav .mob-item[data-tab="${tab}"]`);
+        const nav = async (name, to, dy = 0) => {
+            const el = navItem(to); const r = rect(el); const x = r.left + r.width / 2, y = r.top + r.height / 2 + dy;
+            const hit = document.elementFromPoint(x, y), before = app.tab;
             await tapAt(x, y);
-            results.push({ at: `bottom bar ${to} (from ${from})`, x: Math.round(x), y: Math.round(y), was: from, now: app.tab, hit: hit ? (hit.className || hit.tagName).toString().slice(0, 18) : 'none' });
-        }
-        const reset = async () => { app.setTab('feed'); app.setFeedMode('following'); const m = document.getElementById('main-content'); if (m) m.scrollTop = 0; await sleep(900); };
-        const tabs = async label => {
-            await reset();
-            const btns = [...document.querySelectorAll('.seg-control.feed-mode button')];
-            const rects = btns.map(b => { const r = b.getBoundingClientRect(); return { label: b.textContent.trim(), x: r.left, y: r.top, w: r.width, h: r.height }; });
-            const com = rects.find(r => r.label === 'Community'), dis = rects.find(r => r.label === 'Discover');
-            const points = [];
-            if (com) for (const f of [0.08, 0.25, 0.42, 0.58, 0.75, 0.92]) points.push({ name: `${label}: Community ${Math.round(f * 100)}%`, x: com.x + com.w * f, y: com.y + com.h / 2 });
-            if (dis) points.push({ name: `${label}: Discover 20%`, x: dis.x + dis.w * 0.2, y: dis.y + dis.h / 2 });
-            for (const pt of points) {
-                await reset();
-                const before = app.feedMode(), hit = document.elementFromPoint(pt.x, pt.y);
-                await tapAt(pt.x, pt.y);
-                results.push({ at: pt.name, x: Math.round(pt.x), y: Math.round(pt.y), was: before, now: app.feedMode(), hit: hit ? (hit.textContent || hit.tagName).trim().slice(0, 14) : 'none' });
-            }
-            await ask('/log?m=' + encodeURIComponent(label + ' tabs ' + JSON.stringify(rects.map(r => ({ l: r.label, x: Math.round(r.x), w: Math.round(r.w) })))));
+            results.push({ at: name, x: Math.round(x), y: Math.round(y), was: before, now: app.tab, hit: hit ? String(hit.className || hit.tagName).slice(0, 18) : 'none' });
         };
-        await tabs('app');
-        // the list scrolled a little, so the tabs sit partly under the see-through top bar: a tap where you see Community
-        for (const off of [20, 35, 50]) {
-            await reset();
-            const m = document.getElementById('main-content'); if (!m) break;
-            m.scrollTop = off; await sleep(600);
-            const com = [...document.querySelectorAll('.seg-control.feed-mode button')].find(b => b.textContent.trim() === 'Community');
-            const r = com.getBoundingClientRect(), head = document.querySelector('.header-sticky').getBoundingClientRect().bottom;
-            const x = r.left + r.width / 2, y = r.top + Math.min(r.height / 2, Math.max(4, (head - r.top) / 2)), before = app.feedMode(), hit = document.elementFromPoint(x, y);
-            await ask(`/tap?x=${x.toFixed(1)}&y=${y.toFixed(1)}`); await sleep(900);
-            results.push({ at: `list ${off}px down, Community under the top bar's edge (bar ends ${Math.round(head)}, tab ${Math.round(r.top)}-${Math.round(r.bottom)})`, x: Math.round(x), y: Math.round(y), was: before, now: app.feedMode(), hit: hit ? (hit.className || hit.tagName).toString().slice(0, 16) : 'none' });
+        // 1. from Feed with both bars showing
+        await feedTop(); await nav('bottom bar Mine from Feed (bars showing)', 'my');
+        await feedTop(); await nav('bottom bar Profiles from Feed (bars showing)', 'profile');
+        // 2. from Feed, scrolled down so the top bar is tucked away and the bottom bar is compact
+        for (const [to, dy, label] of [['my', 0, 'on the icon'], ['shared', -14, '14 px above the icon'], ['profile', 14, '14 px below the icon']]) {
+            await feedTop();
+            const m = main(); m.scrollTop = Math.min(900, m.scrollHeight - m.clientHeight); await sleep(150); m.scrollTop += 40; await sleep(700);
+            await log(`tucked: ${document.body.classList.contains('bars-tucked')}, bar ${Math.round(rect(document.getElementById('mobile-nav')).height)} px tall`);
+            await nav(`compact bar from Feed, ${label} (${to})`, to, dy);
         }
-        // a fling back to the top, then a tap on Community the moment the tabs are back on screen (the list still moving)
-        for (let i = 1; i <= 4; i++) {
-            await reset();
-            const m = document.getElementById('main-content'); if (!m) break;
-            m.scrollTop = Math.min(500, m.scrollHeight - m.clientHeight); await sleep(700);
-            const start = Math.round(m.scrollTop);
-            ask(`/fling?y1=${Math.round(innerHeight * 0.3)}&y2=${Math.round(innerHeight * 0.9)}`);
-            let t0 = Date.now(); while (Date.now() - t0 < 2500 && m.scrollTop > 60) await sleep(16);
-            const com = [...document.querySelectorAll('.seg-control.feed-mode button')].find(b => b.textContent.trim() === 'Community');
-            const r = com.getBoundingClientRect(), at = Math.round(m.scrollTop), before = app.feedMode();
-            await ask(`/tap?x=${(r.left + r.width / 2).toFixed(1)}&y=${(r.top + r.height / 2).toFixed(1)}`); await sleep(900);
-            results.push({ at: `fling then Community #${i} (list ${start}px, ${at}px at the tap)`, x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2), was: before, now: app.feedMode(), hit: 'Community' });
+        // 3. a fling, then a tap on the bar while the list is still moving
+        for (const to of ['my', 'profile']) {
+            await feedTop();
+            const m = main(); m.scrollTop = Math.min(1400, m.scrollHeight - m.clientHeight); await sleep(700);
+            ask(`/fling?y1=${Math.round(innerHeight * 0.75)}&y2=${Math.round(innerHeight * 0.25)}`);
+            await sleep(140);
+            const at = Math.round(m.scrollTop);
+            await nav(`bottom bar ${to} right after a fling (list at ${at} px)`, to);
         }
-        // the same with the home-screen web app's tap haptics (iPhone Safari has them; the app uses the phone's own)
-        try { const orig = app.isNative; app.isNative = () => false; app._hxOn = false; app.installTapHaptics(); app.isNative = orig; } catch (e) { await ask('/log?m=' + encodeURIComponent('haptics: ' + e)); }
-        await ask('/log?m=' + encodeURIComponent('web-app haptics on: ' + document.documentElement.classList.contains('hx-on') + ', labels: ' + document.querySelectorAll('label.hx').length));
-        await tabs('web app');
+        // 4. a comment, typed with the keyboard up, then Post
+        const comment = async (label) => {
+            const b = [...app.brews.values()].filter(x => app.getBrewOwner(x) === app.user && app.beans.has(String(x.beanId))).sort((x, y) => app.toTime(y.date) - app.toTime(x.date))[0];
+            if (!b) { results.push({ at: label + ': no session of its own to comment on', x: 0, y: 0, was: '-', now: '-', hit: 'none' }); return; }
+            const id = String(b.id);
+            app.openFeedTarget(b.beanId, id, true); await sleep(1500);
+            const th = document.getElementById(`comments-${id}`);
+            if (!th) { results.push({ at: label + ': the session\'s comments didn\'t show', x: 0, y: 0, was: '-', now: '-', hit: 'none' }); return; }
+            if (!th.classList.contains('open')) { th.querySelector('.thread-toggle').click(); await sleep(500); }
+            const input = th.querySelector('.comment-input'); input.scrollIntoView({ block: 'center' }); await sleep(500);
+            let r = rect(input); await tapAt(r.left + 30, r.top + r.height / 2, 1500);
+            const text = `Probe ${label} ${Date.now() % 100000}`;
+            await ask('/text?t=' + encodeURIComponent(text)); await sleep(1200);
+            const typed = input.value;
+            const btn = th.querySelector('.comment-submit'); r = rect(btn);
+            const before = (app.brews.get(id).comments || []).length, hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+            await tapAt(r.left + r.width / 2, r.top + r.height / 2, 2500);
+            const list = app.brews.get(id).comments || [];
+            const posted = list.some(c => c && c.text === text);
+            results.push({ at: `${label}: typed "${typed === text ? 'ok' : typed.slice(0, 20)}", tapped Post`, x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2), was: String(before), now: posted ? 'posted' : `not posted (box: "${(th.isConnected ? (th.querySelector('.comment-input') || {}).value : input.value) || ''}")`, hit: hit ? String(hit.className || hit.tagName).slice(0, 18) : 'none' });
+            // tidy up: take it off again (the review account's own Only me session)
+            const i = list.findIndex(c => c && c.text === text);
+            if (i >= 0) { window.confirm = () => true; app.removeComment(id, i); await sleep(1500); }
+            if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+            if (app.closeDetail) app.closeDetail();
+            await sleep(800);
+        };
+        await comment('iPhone app');
+        try { const orig = app.isNative; app.isNative = () => false; app._hxOn = false; app.installTapHaptics(); app.isNative = orig; } catch (e) { await log('haptics: ' + e); }
+        await log('web-app haptics on: ' + document.documentElement.classList.contains('hx-on'));
+        await comment('web app haptics');
         await ask('/result?r=' + encodeURIComponent(JSON.stringify(results)));
         await ask('/done');
     };

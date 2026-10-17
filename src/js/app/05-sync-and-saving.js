@@ -226,6 +226,7 @@
                     if (this.checkNotifications) this.checkNotifications();   // v14.4: the bell's unread count
                     if (this.checkPendingJoin) this.checkPendingJoin();   // v14.4: an invite link opened before signing in
                     if (this.checkPendingProfile) this.checkPendingProfile();   // v14.5: a profile link
+                    if (this.checkPendingShare) this.checkPendingShare();   // v15.0: a shared session, coffee or roaster
                     if (this.checkPushOpen) this.checkPushOpen();   // v14.5: opened from a phone notification
                     if (this.pendingOutbox().some(x => this.outboxDue(x))) setTimeout(() => this.flushOutbox(), 0);
                 } catch (e) {
@@ -586,6 +587,12 @@
                     const existing = this.normalizeHexColor(this.userColors[actor] || '');
                     if (!actor || !color) return;
                     if (actor === this.user) {
+                        if (this.acctOn && this.acctOn()) {   // v15.0: the color on your profile, unless you just picked one here
+                            const pend = this.colorPending();
+                            if (pend) { if (pend === color) this.setColorPending(''); return; }
+                            if (existing !== color) { this.userColors[actor] = color; colorChanged = true; }
+                            return;
+                        }
                         if (!existing) {
                             this.userColors[actor] = color;
                             colorChanged = true;

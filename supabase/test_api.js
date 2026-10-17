@@ -481,7 +481,7 @@ psql(`delete from notifications;`);
 push('aidan', { type: 'brew', id: 's2', beanId: 'b1', user: 'Maceo', owner: 'Maceo', likes: ['Aidan'], comments: [] });
 const nid = one(`select id from notifications order by id desc limit 1;`);
 const pay = JSON.parse(one(`select internal.push_payload(${nid}, 's3cret');`));
-ok(pay && pay.body === 'Aidan liked your session' && pay.subs.length === 1 && pay.subs[0].endpoint === SUB.endpoint && pay.privateKey === 'private-key' && one(`select internal.push_payload(${nid}, 'wrong') is null;`) === 't',
+ok(pay && pay.title === 'Aidan' && pay.body === 'Liked your session' && pay.subs.length === 1 && pay.subs[0].endpoint === SUB.endpoint && pay.privateKey === 'private-key' && one(`select internal.push_payload(${nid}, 'wrong') is null;`) === 't',
    `a like is still saved with the sender set up (no pg_net here), and the sender reads "${pay && pay.body}" and Maceo's phone (never without the secret)`);
 ok(fx('maceo', `select remove_push(${q(SUB.endpoint)});`) === 'off' && one(`select count(*) from push_subscriptions;`) === '0', 'he turns them off: the phone is forgotten');
 psql(`delete from backend_state where key in ('vapid_public', 'vapid_private', 'push_url', 'push_secret');`);
@@ -513,6 +513,10 @@ ok(disc('stranger', `feed_method => 'espresso'`).order.every(id => ['deffort', '
 fx('stranger', `select report_item('session', 'dfresh', 'test');`);
 ok(!disc('stranger').order.includes('dfresh'), 'something you reported is gone from it');
 ok(/permission denied/.test(fx('anon', 'select discover_feed();')), 'not signed in: refused');
+// v15.0: with_friends also ranks Friends sessions you can see (a stranger still can't)
+fx('d1', `select follow('Discoverer Two');`); fx('d2', `select follow('Discoverer One');`);
+ok(disc('d2', 'with_friends => true').order.includes('dfriends') && !disc('d2').order.includes('dfriends') && !disc('stranger', 'with_friends => true').order.includes('dfriends'),
+   'with_friends: a friend sees the Friends session ranked in too; without it, or for a stranger, it stays out');
 
 // v14.6: everyone on a coffee (the coffee page's Everyone tab): same roaster and name however it's written, never your own,
 // nothing kept to Friends or reported; a summary with each method's usual ratio and time and the notes people pick, never grind

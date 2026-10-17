@@ -102,7 +102,7 @@
                 document.documentElement.classList.add('is-native');
                 this.nativeStatusBar();
                 const P = this.nativePlugin('PushNotifications');
-                if (P && P.addListener) P.addListener('pushNotificationActionPerformed', () => { if (this.acctOn() && this.user) { this.setTab('feed'); this.openNotifications(); } else this._openBellAfterSync = true; });
+                if (P && P.addListener) P.addListener('pushNotificationActionPerformed', () => this.openBellFromPush());   // v15.0
                 setTimeout(() => this.nativePushRefresh(), 4000);
                 const A = this.nativePlugin('App');
                 if (A && A.addListener) A.addListener('appStateChange', s => { if (s && s.isActive && this.acctOn() && this.user) this.sync({ silent: true }); });

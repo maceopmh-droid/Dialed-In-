@@ -6,15 +6,16 @@
                 const acct = this.acctOn();
                 const label = document.getElementById('user-list-label'); if (label) label.textContent = acct ? 'You' : 'Active User';
                 const addRow = document.getElementById('add-user-row'); if (addRow) addRow.style.display = acct ? 'none' : 'flex';
+                const sheet = document.getElementById('settings-modal'); if (sheet) sheet.classList.toggle('acct', acct);
+                const groups = document.getElementById('settings-acct'); if (groups) groups.innerHTML = '';
                 if (acct) {
+                    // v15.0: you at the top, then the groups (Privacy & notifications, Community, Your data, About), then
+                    // Sign out and Delete account
                     const me = document.createElement('div'); me.innerHTML = this.acctSettingsHtml(); list.appendChild(me.firstElementChild);
-                    // v14.4: a private profile approves its followers
-                    const priv = this.peoplePrivacyHtml();
-                    if (priv) { const pr = document.createElement('div'); pr.innerHTML = priv; list.appendChild(pr.firstElementChild); }
-                    else if (!this._privLoading) { this._privLoading = true; this.loadPeople(true).then(() => { this._privLoading = false; if (document.getElementById('settings-modal').classList.contains('active')) this.openSettings(); }).catch(() => { this._privLoading = false; }); }
+                    const priv = this.peoplePrivacyHtml();   // v14.4: a private profile approves its followers
+                    if (!priv && !this._privLoading) { this._privLoading = true; this.loadPeople(true).then(() => { this._privLoading = false; if (document.getElementById('settings-modal').classList.contains('active')) this.openSettings(); }).catch(() => { this._privLoading = false; }); }
                     const pushRow = this.pushRowHtml ? this.pushRowHtml() : '';   // v14.5: notifications on this phone
-                    if (pushRow) { const pu = document.createElement('div'); pu.innerHTML = pushRow; list.appendChild(pu.firstElementChild); }
-                    if (this.acctToolsHtml) { const at = document.createElement('div'); at.innerHTML = this.acctToolsHtml(); while (at.firstElementChild) list.appendChild(at.firstElementChild); }   // (the tools, then the legal links)
+                    if (groups) groups.innerHTML = this.acctToolsHtml(priv, pushRow);
                 }
                 // v14.6: with accounts, Settings is only yours: the old list of people (and their group goal switches) stays
                 // for the Sheet-era app; who shares your goal is your private communities
@@ -72,12 +73,11 @@
                 });
 
                 const colorInput = document.getElementById('user-color-input');
-                const colorName = document.getElementById('user-color-name');
-                const colorValue = document.getElementById('user-color-value');
+                const colorValue = document.getElementById('user-color-value'), swatch = document.getElementById('user-color-swatch');
                 const currentColor = this.getUserColor(this.user);
                 if (colorInput) colorInput.value = currentColor;
-                if (colorName) colorName.innerText = this.user || 'Current User';
                 if (colorValue) colorValue.innerText = currentColor.toUpperCase();
+                if (swatch) swatch.style.background = currentColor;
 
                 this.cancelEquipmentEdit();
                 this.renderEquipmentList();

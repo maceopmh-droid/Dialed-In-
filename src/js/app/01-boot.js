@@ -71,6 +71,7 @@
             init() {
                 if (this.noteInviteLink) this.noteInviteLink();   // v14.4: ?join=CODE, offered once you're signed in
                 if (this.noteProfileLink) this.noteProfileLink();
+                if (this.noteShareLink) this.noteShareLink();   // v15.0: a shared session, coffee or roaster
                 if (this.bindNative) this.bindNative();   // v14.6: inside the iPhone app   // v14.5: ?u=Name opens their profile once you're signed in
                 if (this.bindProfileLinks) this.bindProfileLinks();   // v14.5: every name and circle opens that person's profile
                 if (this.notePushOpen) this.notePushOpen();   // v14.5: a tapped phone notification opens the bell
@@ -98,6 +99,7 @@
                 this.installTapHaptics();
                 if (this.bindScrollBars) this.bindScrollBars();   // v14.7
                 if (this.bindTabTaps) this.bindTabTaps();   // v14.8
+                if (this.bindTyping) this.bindTyping();   // v15.0: while the keyboard is up
                 this.bindRatingSlider();
                 this.setTab(this.tab);
                 this.outboxReady = this.loadOutbox();

@@ -48,7 +48,7 @@
                         : [who === this.user && this.renderGoalsCard ? this.renderGoalsCard() : '', this.renderFabFour(who), this.profileCoffeesHtml(who), this.renderAchievementsCard(who), who !== this.user ? this.renderGearCard(who) : ''];   // v14.6: your goals first
                 const body = cards.filter(Boolean).join('') || '<div class="panel-empty">Nothing here yet. Log a few sessions and this fills in.</div>';
                 grid.innerHTML = [
-                    `<div class="people-switch${this.acctOn() ? ' one-row' : ''}">${chips}${peopleChip}</div>`,
+                    `<div class="people-switch${this.acctOn() ? ' one-row' : ''}">${this.acctOn() ? `<div class="ps-scroll">${chips}</div>` : chips}${peopleChip}</div>`,   // v15.0: everyone, in a row that scrolls
                     this.renderProfileHero(who),
                     this.profileNoteHtml ? this.profileNoteHtml(who) : '',
                     tabs,
@@ -131,7 +131,7 @@
                 const dots = r.weeks.map((on, i) => `<span class="week-dot${on ? ' on' : ''}" title="${i === 7 ? 'This week' : `${7 - i} week${7 - i === 1 ? '' : 's'} ago`}"></span>`).join('');
                 const streak = this.streakChipHtml(r.streak);
                 const last = r.lastT ? `Last brewed ${this.formatRelativeDate(r.lastT)}` : 'No sessions yet';
-                return `<section class="profile-card profile-hero" style="--pc-rgb:${this.hexRgb(color)}"><div class="hero-row"><div class="hero-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(user))}</div><div><div class="hero-name">${this.esc(user)}${user === this.user ? '<span class="you-tag">You</span>' : ''}</div><div class="hero-sub">${this.esc(last)}</div>${this.acctOn() ? this.profileFollowHtml(user) : ''}</div></div><div class="rhythm"><div class="week-dots">${dots}</div><div class="rhythm-text">Brewed in ${r.active} of the last 8 weeks</div>${streak}</div><div class="stat-row"><div class="stat-box"><div class="stat-num">${brews.length}</div><div class="stat-cap">${brews.length === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${beans}</div><div class="stat-cap">${beans === 1 ? 'Bean' : 'Beans'}</div></div><div class="stat-box"><div class="stat-num">${methods}</div><div class="stat-cap">${methods === 1 ? 'Method' : 'Methods'}</div></div></div></section>`;
+                return `<section class="profile-card profile-hero" style="--pc-rgb:${this.hexRgb(color)}"><div class="hero-row"><div class="hero-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(user))}</div><div class="hero-id"><div class="hero-name">${this.esc(user)}${user === this.user ? '<span class="you-tag">You</span>' : this.profileRelTagHtml(user)}</div><div class="hero-sub">${this.esc(last)}</div></div>${this.acctOn() ? `<button type="button" class="btn-clean hero-share" data-name="${this.esc(user)}" onclick="app.shareItem('profile', this.getAttribute('data-name'), event)" aria-label="Share ${this.esc(user)}'s profile"><svg class="icon"><use href="#i-share-2"/></svg></button>` : ''}</div>${this.acctOn() ? this.profileFollowHtml(user) : ''}<div class="rhythm"><div class="week-dots">${dots}</div><div class="rhythm-text">Brewed in ${r.active} of the last 8 weeks</div>${streak}</div><div class="stat-row"><div class="stat-box"><div class="stat-num">${brews.length}</div><div class="stat-cap">${brews.length === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${beans}</div><div class="stat-cap">${beans === 1 ? 'Bean' : 'Beans'}</div></div><div class="stat-box"><div class="stat-num">${methods}</div><div class="stat-cap">${methods === 1 ? 'Method' : 'Methods'}</div></div></div></section>`;
             },
 
             palateFor(user) {
@@ -199,7 +199,7 @@
             },
 
             renderFriendPalates() {
-                const others = this.knownPeople().filter(n => n !== this.user);
+                const others = this.friendNames();   // v15.0: your friends (you follow each other)
                 if (!others.length) return '';
                 const rows = others.map(name => {
                     const color = this.getUserColor(name);

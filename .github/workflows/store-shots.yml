@@ -58,7 +58,7 @@ jobs:
           python3 -m pip install -q --break-system-packages pillow 2>/dev/null || python3 -m pip install -q pillow
           xcrun simctl io "$dev" screenshot /tmp/warm.png >/dev/null 2>&1 || true
           sleep 60   # let the first-boot notices come and go before the app opens
-          xcrun simctl status_bar "$dev" override --time "9:41" --dataNetwork wifi --wifiMode active --wifiBars 3 --cellularMode active --cellularBars 4 --batteryState charged --batteryLevel 100
+          xcrun simctl status_bar "$dev" override --time "9:41" --dataNetwork wifi --wifiMode active --wifiBars 3 --cellularMode active --cellularBars 4 --batteryState discharging --batteryLevel 100
           # the simulator copy only: the screenshot plan and the review account's sign-in
           app=build/dd/Build/Products/Debug-iphonesimulator/App.app
           cp store-shots.js "$app/public/store-shots.js"
@@ -135,6 +135,11 @@ jobs:
           n=$(ls build/shots/*.png 2>/dev/null | wc -l | tr -d ' ')
           echo "::notice title=Screenshots::$n screenshots ($(ls build/shots/*.png 2>/dev/null | xargs -n1 basename | tr '\n' ' '))"
           [ "$n" -gt 0 ]
+      - name: Finish them (each screen in a phone frame under a headline, light and dark)
+        working-directory: native
+        run: |
+          python3 appstore/compose.py build/shots build/shots
+          echo "::notice title=Finished screenshots::$(ls build/shots/store_*.png | xargs -n1 basename | tr '\n' ' ')"
       - name: Put the screenshots on the app-store-shots branch
         working-directory: native
         run: |

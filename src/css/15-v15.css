@@ -1,0 +1,104 @@
+        /* ===================== v15.0 ===================== */
+        /* the bottom bar: each item is as tall as the bar, so a tap anywhere on it counts (also when it's compact) */
+        .mob-item { align-self: stretch; justify-content: center; -webkit-tap-highlight-color: transparent; }
+        .mob-fab { -webkit-tap-highlight-color: transparent; }
+
+        /* sheets never slide sideways; the roast date is as wide and tall as the other fields (iPhone draws date fields wider) */
+        .modal-card { overflow-x: hidden; }
+        .modal-card form [style*="grid"] > div { min-width: 0; }
+        .modal-card input[type="date"] { -webkit-appearance: none; appearance: none; display: block; width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; min-height: 45px; line-height: 1.2; text-align: left; }
+        .modal-card input[type="date"]::-webkit-date-and-time-value { text-align: left; margin: 0; }
+        .modal-card input[type="date"]::-webkit-calendar-picker-indicator { margin: 0; }
+
+        /* the log: the same room under Method / Grind, under Switch equipment and above the recipe */
+        #recipe-fields { margin-top: 22px; }
+        #recipe-card:not([hidden]) { margin-top: 22px; }
+
+        /* rows of chips that scroll sideways: room for the picked chip's glow */
+        .rc-chips { padding: 6px 10px 12px; margin: 4px -10px -8px; scroll-padding-inline: 10px; }
+
+        /* Profiles: you and everyone you follow in one row that scrolls; People stays at the end */
+        .profile-view { grid-template-columns: minmax(0, 1fr); }
+        .people-switch.one-row { flex-wrap: nowrap; overflow: visible; align-items: center; gap: 4px; }
+        .people-switch.one-row .ps-scroll { display: flex; align-items: center; gap: 6px; flex: 1 1 auto; min-width: 0; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; padding: 8px 8px 10px 10px; margin: -8px 0 -10px -10px; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+        .people-switch.one-row .ps-scroll::-webkit-scrollbar { display: none; }
+        .people-switch.one-row .ps-scroll.ps-more { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent); }
+        .people-switch.one-row .ps-scroll .person-chip { flex: none; white-space: nowrap; }
+        .people-switch.one-row > .pp-chip { flex: none; white-space: nowrap; }
+
+        /* someone's profile: the picture sits beside their name; Following and ••• get their own row underneath */
+        .profile-hero .hero-id { min-width: 0; }
+        .profile-hero .hero-name { flex-wrap: wrap; row-gap: 4px; }
+        .profile-hero .hero-name .pp-note { font-size: 0.72rem; font-weight: 650; color: var(--text-muted); }
+        .profile-hero .hero-follow { margin-top: 0; flex-wrap: nowrap; }
+        .profile-hero .hero-follow .hero-act { flex: 1 1 auto; justify-content: center; }
+        .profile-hero .hero-follow .pp-more { flex: none; width: 36px; height: 36px; }
+
+        /* Brew along: below the status bar; one steady bar; Finish & log it is the big green button next to Start */
+        .guide-sheet { padding-top: calc(var(--safe-top, 0px) + 14px); padding-bottom: calc(var(--safe-bottom, 0px) + 18px); }
+        .guide-step-bar i { width: 100%; transform-origin: left center; transform: scaleX(0); transition: none; will-change: transform; border-radius: 0; }
+        .guide-cursor { transition: none; }
+        .guide-actions { grid-template-columns: 1fr 1fr; }
+        .guide-finish { background: var(--grad-matcha) !important; color: var(--on-matcha) !important; border: 0 !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 10px 24px rgba(var(--matcha-rgb), 0.38) !important; }
+        .guide-foot { justify-content: flex-start; }
+
+        /* Settings: grouped like the phone's own Settings, with Done at the top (v15.0: Notifications, People and Reports
+           get the same Done, so there's always a way out of a tall sheet) */
+        .modal-card .set-top { position: sticky; top: -3rem; z-index: 4; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: -3rem -3rem 0.8rem; padding: 1.6rem 3rem 0.8rem; background: rgba(var(--paper-rgb), 0.9); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+        .modal-card .set-top h2 { margin: 0; }
+        .set-done { width: auto; margin: 0; padding: 8px 2px 8px 12px; border: 0; background: none; box-shadow: none; font: inherit; font-size: 1rem; font-weight: 700; letter-spacing: 0; text-transform: none; color: var(--matcha-ink, var(--matcha)); cursor: pointer; }
+        #settings-modal.acct .set-legacy-only { display: none !important; }
+        #settings-modal.acct #user-list { margin-bottom: 0 !important; }
+        .set-label { margin: 1.35rem 6px 7px; font-size: 0.8rem; font-weight: 650; color: var(--text-muted); letter-spacing: 0.01em; }
+        .set-group { border-radius: 16px; background: var(--surface); border: 1px solid rgba(var(--hair-rgb), 0.07); box-shadow: 0 1px 2px rgba(var(--hair-rgb), 0.04); overflow: hidden; }
+        .set-row { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; margin: 0; padding: 11px 14px; border: 0; border-radius: 0; background: none; box-shadow: none; font: inherit; text-align: left; text-transform: none; letter-spacing: 0; color: var(--ink); text-decoration: none; cursor: pointer; box-sizing: border-box; }
+        .set-group > * + *::before, .set-group > .set-row + .set-row::before { content: ''; position: absolute; top: 0; left: 14px; right: 0; height: 1px; background: rgba(var(--hair-rgb), 0.08); }
+        .set-group > * { position: relative; }
+        button.set-row:active, a.set-row:active { background: rgba(var(--hair-rgb), 0.05); }
+        .set-main { flex: 1 1 auto; min-width: 0; display: grid; gap: 2px; }
+        .set-main b { font-size: 0.95rem; font-weight: 650; color: var(--ink); }
+        .set-main small { font-size: 0.78rem; font-weight: 500; color: var(--text-muted); line-height: 1.35; }
+        .set-chev { flex: none; width: 15px; height: 15px; transform: rotate(-90deg); color: var(--text-faint); }
+        .set-theme { cursor: default; padding: 8px; }
+        .set-theme .seg-control { width: 100%; margin: 0; }
+        .set-color { cursor: pointer; }
+        .set-color-val { display: inline-flex; align-items: center; gap: 8px; font-size: 0.78rem; font-weight: 650; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+        .set-swatch { width: 26px; height: 26px; border-radius: 50%; box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px rgba(var(--hair-rgb), 0.14); }
+        .set-color-input { position: absolute; inset: 0; width: 100% !important; height: 100% !important; margin: 0; padding: 0; border: 0; opacity: 0; cursor: pointer; }
+        .set-group .pp-private { margin: 0; padding: 12px 14px; border: 0; }
+        .set-end { margin-top: 1.6rem; }
+        .set-end .set-row { justify-content: center; text-align: center; width: 100% !important; padding: 11px 14px !important; }
+        .set-end .set-main { flex: 0 1 auto; }
+        .set-end .acct-out b { color: var(--matcha-ink, var(--matcha)); }
+        .set-end .acct-delete b { color: #C0392B; }
+        #settings-modal .acct-row { margin: 0; padding: 14px; border: 1px solid rgba(var(--hair-rgb), 0.07); border-radius: 16px; background: var(--surface); box-shadow: 0 1px 2px rgba(var(--hair-rgb), 0.04); grid-template-columns: auto minmax(0, 1fr); }
+        #settings-modal .acct-row .acct-dot { width: 46px; height: 46px; font-size: 1.15rem; }
+        #settings-modal .acct-row .acct-who b { font-size: 1.08rem; }
+        #settings-modal .app-version { margin-top: 1.2rem; }
+        @media (max-width: 768px) {
+            .modal-card .set-top { top: -1rem; margin: -1rem -0.82rem 0.6rem; padding: 1rem 0.82rem 0.6rem; }
+        }
+
+        /* sharing: a share button at the top right of posts, on coffee, roaster and profile pages, and Invite on a community's goal */
+        .feed-head .feed-share { flex: none; display: grid; place-items: center; width: 34px; height: 34px; margin: -4px -8px -4px 2px; padding: 0; border: 0; background: none; color: var(--text-faint); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .feed-head .feed-share .icon { width: 16px; height: 16px; }
+        .feed-head .feed-share:active { color: var(--matcha); }
+        .detail-hero .dh-share { width: 36px; height: 36px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 6px 16px rgba(var(--hair-rgb), 0.08); }
+        .detail-hero .dh-share .icon { width: 15px; height: 15px; }
+        .profile-hero .hero-row { position: relative; }
+        .profile-hero .hero-share { flex: none; align-self: flex-start; width: 34px; height: 34px; margin-left: auto; color: var(--text-muted); }
+        .profile-hero .hero-share .icon { width: 15px; height: 15px; }
+        .crew-quest .cq-right { display: inline-flex; align-items: center; gap: 8px; }
+        .cq-invite { display: inline-flex; align-items: center; gap: 4px; margin: 0; padding: 3px 9px 3px 8px; border: 1px solid rgba(var(--matcha-rgb), 0.28); border-radius: 999px; background: rgba(var(--matcha-rgb), 0.08); font: inherit; font-size: 0.66rem; font-weight: 750; color: var(--matcha-ink, var(--matcha)); cursor: pointer; }
+        .cq-invite .icon { width: 11px; height: 11px; }
+        /* iPhone home-screen app: while typing, a tap on Post or Save goes straight to the button (not through the tick) */
+        html.typing label.hx { pointer-events: none; }
+        /* while typing, the bottom bar steps aside instead of riding up on the keyboard */
+        @media (max-width: 768px) { html.typing #mobile-nav { opacity: 0; visibility: hidden; pointer-events: none; transition: none; } }
+        /* Brew along: in a step's last 3 seconds the card pulses once on each number (3, 2, 1), in time with the countdown */
+        .guide-soon .guide-card { animation: none; }
+        .guide-card.beat { animation: guideBeat 0.75s ease-out; }
+        @keyframes guideBeat { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--gc) 50%, transparent); transform: scale(1.02); } 100% { box-shadow: 0 0 0 16px color-mix(in srgb, var(--gc) 0%, transparent); transform: scale(1); } }
+        @media (prefers-reduced-motion: reduce) { .guide-card.beat { animation: none; } }
+        /* toasts: solid, not frosted glass (a blurred layer sliding in over the feed made iPhone redraw the photos under it) */
+        .toast { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; background: rgba(22, 30, 24, 0.96) !important; }

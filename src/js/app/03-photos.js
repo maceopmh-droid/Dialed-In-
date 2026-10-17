@@ -34,7 +34,7 @@
                     .split('|')
                     .map(item => String(item || '').trim())
                     .filter(Boolean);
-                const giveUp = () => { imgEl.onerror = null; const wrap = imgEl.closest('.session-photo-wrap'); if (wrap) wrap.classList.add('is-broken'); else imgEl.hidden = true; };   // v11.8: only when every source failed
+                const giveUp = () => { imgEl.onerror = null; (this._brokenPhotos || (this._brokenPhotos = new Set())).add(raw); const wrap = imgEl.closest('.session-photo-wrap'); if (wrap) wrap.classList.add('is-broken'); else imgEl.hidden = true; };   // v11.8: only when every source failed (v15.0: and remembered, so a redraw doesn't bring the empty box back)
                 if (!list.length) {
                     giveUp();
                     return;
@@ -82,6 +82,7 @@
                 if (!photo) return '';
                 const modeClass = mode === 'feed' ? ' feed-photo' : ' detail-photo';
                 const fallbacks = this.buildDriveFallbackUrls(photo.fileId || this.extractDriveFileId(photo.url), photo.url);
+                if (this._brokenPhotos && this._brokenPhotos.has(fallbacks.join('|'))) return '';   // v15.0: one that never loaded stays away
                 const src = fallbacks[0] || photo.url;
                 return `
                     <div class="session-photo-wrap${modeClass}">

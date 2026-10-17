@@ -64,7 +64,7 @@
                                     <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}</div>
                                     <div class="feed-time">${this.esc(this.formatRelativeDate(log.date))}</div>
                                 </div>
-                                <div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(log.method)}"/></svg>${this.esc(log.method || 'Espresso')}</div>
+                                <div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(log.method)}"/></svg>${this.esc(log.method || 'Espresso')}</div><button type="button" class="feed-share" onclick="app.shareItem('session', '${app.escJs(id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>
                             </div>
                             <div class="sc-title">
                                 <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(roasterName)}" onclick="app.openRoasterFrom(this, event)">${this.esc(roasterName)}</span></div>` : ''}</div>

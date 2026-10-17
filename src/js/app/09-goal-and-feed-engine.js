@@ -74,7 +74,7 @@
                     const next = this.knownPeople();
                     const changed = next.join('|') !== (this.users || []).join('|');
                     this.users = next;
-                    this.peopleState().active.forEach(p => { if (p.color && !this.normalizeHexColor(this.userColors[p.name])) this.setUserColor(p.name, p.color, true); });
+                    this.adoptColors([...this.peopleState().active.values()]);   // v15.0: the colors on their profiles win
                     return changed;
                 }
                 // v14.0: the shared people list, plus anyone who has logged anything
@@ -532,9 +532,12 @@
                 const bar = this.crewBarHtml(q, segs);
                 const faces = q.by.map(([p, n]) => `<span class="cq-face" data-profile="${this.esc(p)}"><b style="background:${this.esc(this.getUserColor(p))}">${this.esc(this.feedInitial(p))}</b>${n}</span>`).join('');
                 const left = q.done ? 'Done together' : (q.daysLeft <= 1 ? 'Last day' : `${q.daysLeft} days left`);
+                // v15.0: invite people to this community from its goal (its invite link, as in People)
+                const sg = this._crewScope && this._crewScope.id !== 'friends' && this.grState ? (this.grState().list || []).find(g => String(g.id) === this._crewScope.id) : null;
+                const invite = sg && sg.invite ? `<button type="button" class="cq-invite" data-g="${this.esc(String(sg.id))}" onclick="app.shareCommunity(this.getAttribute('data-g'), event)"><svg class="icon"><use href="#i-share-2"/></svg>Invite</button>` : '';
                 return `
                     <section class="feed-card crew-quest${q.done ? ' done' : ''}" aria-label="Group goal">
-                        <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-target"/></svg>Group goal · this week</span><span class="cq-left">${this.esc(left)}</span></div>
+                        <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-target"/></svg>Group goal · this week</span><span class="cq-right"><span class="cq-left">${this.esc(left)}</span>${invite}</span></div>
                         <div class="cq-title">${this.esc(q.title)}</div>
                         ${bar}
                         <div class="cq-meta"><span><b>${q.progress}</b> of ${q.target} ${this.esc(q.unit)}${q.detail ? ` · ${this.esc(q.detail)}` : ''}</span></div>

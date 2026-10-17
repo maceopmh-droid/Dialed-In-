@@ -34,9 +34,9 @@
             openLegal(page) {
                 const m = document.getElementById('legal-modal'), f = document.getElementById('legal-frame');
                 if (!m || !f) { location.href = this.legalUrl(page); return; }
-                const title = page === 'privacy' ? 'Privacy Policy' : 'Terms of Use';
+                const title = page === 'privacy' ? 'Privacy Policy' : page === 'support' ? 'Help' : 'Terms of Use';   // (v15.0: and Help)
                 document.getElementById('legal-title').textContent = title; f.title = title;
-                f.src = (page === 'privacy' ? 'privacy' : 'terms') + '.html';
+                f.src = (page === 'privacy' || page === 'support' ? page : 'terms') + '.html';
                 m.classList.add('active');
             },
             closeLegal() {
@@ -45,8 +45,19 @@
                 if (f) f.removeAttribute('src');
             },
 
-            acctToolsHtml() {
-                return `<div class="acct-tools">${this.isReviewer && this.isReviewer() ? '<button type="button" class="btn-outline pp-act" onclick="app.openReview()">Review reports</button>' : ''}<button type="button" class="btn-outline pp-act" onclick="app.openGuidelines()">Community guidelines</button><button type="button" class="btn-outline pp-act" onclick="app.downloadMyData()">Download my data</button><button type="button" class="btn-outline pp-act acct-delete" onclick="app.deleteMyAccount()">Delete account</button></div><p class="acct-legal">${this.legalLinksHtml()}</p>`;
+            // v15.0: Settings with an account, in groups like the phone's own Settings (the rows above them, you and
+            // Appearance, are in the page)
+            acctToolsHtml(priv = '', pushRow = '') {
+                const row = (onclick, title, sub = '', cls = '') => `<button type="button" class="set-row set-link${cls ? ` ${cls}` : ''}" onclick="${onclick}"><span class="set-main"><b>${title}</b>${sub ? `<small>${sub}</small>` : ''}</span><svg class="icon set-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>`;
+                const link = (page, title) => `<a class="set-row set-link" href="${this.legalUrl(page)}" target="_blank" rel="noopener" onclick="app.openLegal('${app.escJs(page)}'); return false;"><span class="set-main"><b>${title}</b></span><svg class="icon set-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></a>`;
+                const group = (label, rows, cls = '') => rows ? `<div class="set-label">${label}</div><div class="set-group${cls ? ` ${cls}` : ''}">${rows}</div>` : '';
+                return [
+                    group('Privacy and notifications', `${priv}${pushRow}`),
+                    group('Community', `${row('app.openGuidelines()', 'Community guidelines', 'What\'s welcome here, and how reporting works')}${this.isReviewer && this.isReviewer() ? row('app.openReview()', 'Review reports', 'Reports waiting for a reviewer') : ''}`),
+                    group('Your data', `${row('app.downloadMyData()', 'Download my data', 'Everything on your account, in one file')}${row('app.exportData(\'csv\')', 'Export sessions', 'A spreadsheet (CSV) of your sessions')}`),
+                    group('About', `${link('terms', 'Terms of Use')}${link('privacy', 'Privacy Policy')}${link('support', 'Help and support')}`, 'acct-legal'),
+                    `<div class="set-group set-end"><button type="button" class="set-row acct-out" onclick="app.signOut()"><span class="set-main"><b>Sign out</b></span></button><button type="button" class="set-row acct-delete" onclick="app.deleteMyAccount()"><span class="set-main"><b>Delete account</b></span></button></div>`
+                ].join('');
             },
 
             async downloadMyData() {

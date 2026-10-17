@@ -446,7 +446,7 @@
                                     <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}</div>
                                     <div class="feed-time" data-time="${this.esc(String(entry.date || brew.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || brew.date))}</div>
                                 </div>
-                                ${entry.community ? this.communityFollowHtml(owner) : ''}<div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(brew.method)}"/></svg>${this.esc(brew.method || 'Espresso')}</div>
+                                ${entry.community ? this.communityFollowHtml(owner) : ''}<div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(brew.method)}"/></svg>${this.esc(brew.method || 'Espresso')}</div><button type="button" class="feed-share" onclick="app.shareItem('session', '${app.escJs(brew.id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>
                             </div>
                             <div class="sc-title">
                                 <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(roasterName)}" onclick="app.openRoasterFrom(this, event)">${this.esc(roasterName)}</span></div>` : ''}${(tag => tag ? `<div class="sc-tags">${tag}</div>` : '')(this.helpTagHtml ? this.helpTagHtml(brew) : '')}</div>
@@ -511,7 +511,7 @@
                                     <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}</div>
                                     <div class="feed-time" data-time="${this.esc(String(entry.date || bean.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || bean.date))}</div>
                                 </div>
-                                <div class="feed-type">${this.esc(entry.kindLabel || 'Bean')}</div>
+                                <div class="feed-type">${this.esc(entry.kindLabel || 'Bean')}</div><button type="button" class="feed-share" onclick="app.shareItem('coffee', '${app.escJs(bean.id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>
                             </div>
                             <div class="feed-card-title" style="margin-top:11px">${this.esc(bean.name || beanName)}</div>
                             ${bean.roaster ? `<div class="fb-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(bean.roaster)}" onclick="app.openRoasterFrom(this, event)">${this.esc(bean.roaster)}</span></div>` : ''}
@@ -533,7 +533,7 @@
                     this.loadPeople().then(() => { this._peopleLoading = false; if (this.tab === 'feed') this.render(); }).catch(() => { this._peopleLoading = false; });
                 }
                 if (this.acctOn() && this.feedMode() !== 'following') { this.renderCommunityFeed(grid); return; }   // v14.5: Community and Discover
-                grid.className = 'feed-list';
+                if (grid.className !== 'feed-list') grid.className = 'feed-list';
                 if (grid.getAttribute && grid.getAttribute('data-view') === 'community') { grid.removeAttribute('data-view'); this._feedHtml = null; }
                 const entries = this.feedEntries.slice(0, 220);
                 if (!entries.length) {

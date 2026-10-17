@@ -403,7 +403,10 @@ language sql stable security definer set search_path = public as $$
                (select count(*)::int from comments c where c.session_id = sid and c.author_id <> owner and c.deleted_at is null)];
 $$;
 
-create or replace function discover_feed(as_of timestamptz default null, page int default 0, max_items int default 20, feed_filter text default null, feed_method text default null) returns jsonb
+-- v15.0: with_friends also ranks sessions kept to Friends that you can see (while few people share with Everyone, the
+-- app asks for these so Discover isn't empty; the same ranking, and people you follow still count a bit less)
+drop function if exists discover_feed(timestamptz, int, int, text, text);
+create or replace function discover_feed(as_of timestamptz default null, page int default 0, max_items int default 20, feed_filter text default null, feed_method text default null, with_friends boolean default false) returns jsonb
 language plpgsql stable set search_path = public as $$
 declare me_id uuid := me(); t0 timestamptz := coalesce(as_of, now()); lim int := least(greatest(coalesce(max_items, 20), 1), 40);
         pg int := greatest(coalesce(page, 0), 0); ids uuid[]; total int; following uuid[]; my_methods text[]; my_roasters text[];
@@ -424,7 +427,7 @@ begin
            exists (select 1 from session_notes n where n.session_id = s.id and char_length(btrim(n.body)) >= 12) as notes,
            internal.engagement(s.id, s.owner_id) as eng
     from sessions s left join coffees k on k.id = s.coffee_id
-    where s.deleted_at is null and s.audience = 'everyone' and s.owner_id <> me_id
+    where s.deleted_at is null and (s.audience = 'everyone' or (coalesce(with_friends, false) and s.audience = 'friends')) and s.owner_id <> me_id
       and s.brewed_at <= t0 and s.brewed_at > t0 - interval '60 days'
       and (feed_filter is distinct from 'help' or s.help_wanted)
       and (feed_filter is distinct from 'new' or (select o.joined_at from profiles o where o.id = s.owner_id) > t0 - interval '14 days')
@@ -1448,19 +1451,21 @@ end $$;
 -- what the lock screen says, in the bell's words
 create or replace function internal.push_text(n notifications) returns jsonb
 language sql stable security definer set search_path = public as $$
-  select jsonb_build_object('title', 'Dialed In', 'tag', 'n' || n.id, 'body',
+  -- v15.0: who did it is the title and what they did is the text ("Aidan" / "Started following you"); the phone already
+  -- shows the app's name above it (a "Dialed In" title showed it twice)
+  select jsonb_build_object('title', case when n.kind = 'report' then 'New report' else coalesce(internal.name_of(n.actor_id), 'Someone') end, 'tag', 'n' || n.id, 'body',
     case when n.kind = 'report' then 'Something was reported. Review it in Settings.' else   -- (who reported it stays off the lock screen)
-    coalesce(internal.name_of(n.actor_id), 'Someone') || ' ' || case n.kind
-      when 'like' then case when n.coffee_id is not null and n.session_id is null then 'liked your coffee' else 'liked your session' end
-      when 'comment' then 'commented' || coalesce(': ' || (select left(body, 120) from comments where id = n.comment_id and deleted_at is null), '')
-      when 'reply' then 'replied' || coalesce(': ' || (select left(body, 120) from comments where id = n.comment_id and deleted_at is null), '')
-      when 'comment_like' then 'liked your comment'
-      when 'follow' then 'started following you'
-      when 'follow_request' then 'wants to follow you'
-      when 'follow_accepted' then 'approved your follow request'
-      when 'joined_group' then 'joined ' || coalesce((select name from groups where id = n.group_id), 'your group')
-      when 'helpful' then 'marked your answer most helpful'
-      else 'did something' end end);
+    case n.kind
+      when 'like' then case when n.coffee_id is not null and n.session_id is null then 'Liked your coffee' else 'Liked your session' end
+      when 'comment' then 'Commented' || coalesce(': ' || (select left(body, 120) from comments where id = n.comment_id and deleted_at is null), '')
+      when 'reply' then 'Replied' || coalesce(': ' || (select left(body, 120) from comments where id = n.comment_id and deleted_at is null), '')
+      when 'comment_like' then 'Liked your comment'
+      when 'follow' then 'Started following you'
+      when 'follow_request' then 'Wants to follow you'
+      when 'follow_accepted' then 'Approved your follow request'
+      when 'joined_group' then 'Joined ' || coalesce((select name from groups where id = n.group_id), 'your group')
+      when 'helpful' then 'Marked your answer most helpful'
+      else 'Did something' end end);
 $$;
 
 -- for the sender only (it connects as the database owner): one notification's text and the phones to send it to
@@ -1569,13 +1574,13 @@ end $$;
 grant usage on schema internal to authenticated;
 grant execute on all functions in schema internal to authenticated;
 -- only signed-in people can call these (Postgres lets everyone run a new function unless told otherwise)
-revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text), coffee_community(text, text, timestamptz, int), monthly_highlights(date), report_item(text, text, text),
+revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text, boolean), coffee_community(text, text, timestamptz, int), monthly_highlights(date), report_item(text, text, text),
   profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
   push_key(), push_ready(), save_push(jsonb), remove_push(text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version() from public, anon;
-grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text), coffee_community(text, text, timestamptz, int), monthly_highlights(date), report_item(text, text, text),
+grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text, boolean), coffee_community(text, text, timestamptz, int), monthly_highlights(date), report_item(text, text, text),
   profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
   push_key(), push_ready(), save_push(jsonb), remove_push(text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),

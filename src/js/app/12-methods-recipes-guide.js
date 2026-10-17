@@ -280,14 +280,28 @@
                 this.openModal('guide-modal');
                 document.getElementById('guide-modal').classList.add('guide-open');
                 clearInterval(this.guideTick);
-                this.guideTick = setInterval(() => this.paintGuide(), 100);
                 this.paintGuide();
+                this.startGuideLoop();
+            },
+
+            // v15.0: the clock and the bars are painted every frame (they were every 100 ms, which stuttered on iPhone)
+            startGuideLoop() {
+                const token = this._guideLoop = (this._guideLoop || 0) + 1;
+                const raf = typeof requestAnimationFrame === 'function' ? requestAnimationFrame : (f => setTimeout(f, 33));
+                const step = () => {
+                    if (token !== this._guideLoop) return;
+                    const m = document.getElementById('guide-modal');
+                    if (!m || !m.classList.contains('active')) return;
+                    this.paintGuide();
+                    raf(step);
+                };
+                raf(step);
             },
 
             paintGuide() {
                 const plan = this.guidePlan || [];
                 const modal = document.getElementById('guide-modal');
-                if (!modal || !modal.classList.contains('active')) { clearInterval(this.guideTick); return; }
+                if (!modal || !modal.classList.contains('active')) { clearInterval(this.guideTick); this._guideLoop = (this._guideLoop || 0) + 1; return; }
                 const t = this.timerSeconds();
                 const i = this.guideStepAt(plan, t);
                 const done = i >= plan.length;
@@ -295,7 +309,7 @@
                 const kind = done ? { label: 'Done', color: '#3E8F62' } : (STEP_KINDS[st.k] || STEP_KINDS.wait);
                 modal.style.setProperty('--gc', kind.color);
                 const set = (id, v) => { const el = document.getElementById(id); if (el && el.textContent !== v) el.textContent = v; };
-                set('guide-clock', this.clock(t));
+                set('guide-clock', this.clock(Math.floor(t + 1e-6)));   // v15.0: whole seconds gone, like the log's timer and the countdown (it used to round up half a second early)
                 set('guide-kind', done ? 'Done' : kind.label.toUpperCase());
                 set('guide-main', done ? 'Finish & log it' : (st.k === 'pour' && st.to !== null ? `Pour to ${st.to} g` : kind.label));
                 const prevTo = done ? 0 : ([...plan.slice(0, i)].reverse().find(s => s.k === 'pour' && s.to !== null) || { to: 0 }).to;
@@ -307,13 +321,20 @@
                 }
                 set('guide-next', next ? `Next: ${next.k === 'pour' && next.to !== null ? `pour to ${next.to} g` : (STEP_KINDS[next.k] || STEP_KINDS.wait).label.toLowerCase()} at ${this.clock(next.start)}` : (done ? '' : 'Last step'));
                 const fill = document.getElementById('guide-fill');
-                if (fill) fill.style.width = `${done ? 100 : Math.max(0, Math.min(100, ((t - st.start) / (st.end - st.start)) * 100))}%`;
+                if (fill) fill.style.transform = `scaleX(${done ? 1 : Math.max(0, Math.min(1, (t - st.start) / (st.end - st.start))).toFixed(4)})`;
                 const total = plan.length ? plan[plan.length - 1].end : 1;
                 const cursor = document.getElementById('guide-cursor');
-                if (cursor) cursor.style.left = `${Math.min(100, (t / total) * 100)}%`;
+                if (cursor) cursor.style.left = `${Math.min(100, (t / total) * 100).toFixed(3)}%`;
                 set('guide-start', this.timer.on ? 'Pause' : (t > 0 ? 'Resume' : 'Start'));
                 const left = st ? st.end - t : 99;
-                modal.classList.toggle('guide-soon', !!st && this.timer.on && left <= 3 && left > 0);
+                // v15.0: the last 3 seconds of a step pulse once on each number of the countdown (3, 2, 1), the moment it shows
+                const beat = st && this.timer.on && left <= 3 && left > 0 ? Math.ceil(left - 1e-6) : 0;
+                modal.classList.toggle('guide-soon', beat > 0);
+                if (beat && beat !== this._guideBeat) {
+                    const card = modal.querySelector('.guide-card');
+                    if (card) { card.classList.remove('beat'); void card.offsetWidth; card.classList.add('beat'); }
+                }
+                this._guideBeat = beat;
                 if (i !== this.guideLastStep) {
                     if (this.guideLastStep >= 0 && this.timer.on) this.guideCue(done);
                     this.guideLastStep = i;
@@ -359,6 +380,7 @@
 
             closeGuide() {
                 clearInterval(this.guideTick);
+                this._guideLoop = (this._guideLoop || 0) + 1;
                 if (this.wakeLock) { try { this.wakeLock.release(); } catch (e) {} this.wakeLock = null; }
                 const modal = document.getElementById('guide-modal');
                 if (modal) modal.classList.remove('active', 'guide-open', 'guide-soon');
