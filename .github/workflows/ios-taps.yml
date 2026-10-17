@@ -67,8 +67,7 @@ jobs:
                       if r.returncode: print('tap failed', r.stderr.strip()[:200], flush=True)
                   elif u.path == '/fling':
                       # a quick swipe down (the list flies back up) without waiting for it to settle
-                      subprocess.Popen(['idb', 'ui', 'swipe', '195', q['y1'][0], '195', q['y2'][0], '--duration', '0.12', '--udid', dev])
-                      import time; time.sleep(0.35)
+                      subprocess.run(['idb', 'ui', 'swipe', '195', q['y1'][0], '195', q['y2'][0], '--duration', '0.08', '--udid', dev], capture_output=True)
                   elif u.path == '/result': print('RESULT ' + q['r'][0], flush=True)
                   elif u.path == '/log': print('LOG ' + q['m'][0], flush=True)
                   elif u.path in ('/hello', '/done'): print(u.path[1:], flush=True)
