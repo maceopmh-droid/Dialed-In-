@@ -134,7 +134,7 @@
                 const mineBest = (() => { let best = null; brews.filter(b => this.getBrewOwner(b) === this.user).forEach(b => { const r = this.normalizeRating(b.rating); if (r <= 0) return; const br = best ? this.normalizeRating(best.rating) : -1; if (r > br) best = b; }); return best; })();
                 this.beanFlavorGhost = mineBest ? this.shapeValues(mineBest) : null;
                 const fc = this.flavorCounts(pool);
-                const chips = people.length > 1 && !this._lensPublic ? `<div class="bf-people">${['all', ...people].map(p => `<button type="button" class="chip-btn" aria-pressed="${this.beanFlavorWho === p}" data-who="${this.esc(p)}" onclick="app.setBeanFlavorWho(this.getAttribute('data-who'))">${p === 'all' ? 'All' : this.esc(p)}</button>`).join('')}</div>` : '';
+                const chips = people.length > 1 && people.length <= 8 ? `<div class="bf-people">${['all', ...people].map(p => `<button type="button" class="chip-btn" aria-pressed="${this.beanFlavorWho === p}" data-who="${this.esc(p)}" onclick="app.setBeanFlavorWho(this.getAttribute('data-who'))">${p === 'all' ? 'All' : this.esc(p)}</button>`).join('')}</div>` : '';
                 const words = this.describeCup(values, tasted, fc.notes.slice(0, 4).map(x => x.n), Object.fromEntries(fc.notes.map(x => [x.n, x.strength])));
                 box.innerHTML = `<div class="bf-head"><div><h3>Flavor profile</h3><p>${pool.length} session${pool.length === 1 ? '' : 's'} · ${this.beanFlavorWho === 'all' ? this.esc(this.lensLabel()) : this.esc(this.beanFlavorWho)}${mineBest ? ' · dashed: your best' : ''}</p></div></div>${chips}<div id="bf-shape"></div>${!tasted.length ? '<div class="flv-empty">No taste sliders set on these sessions yet.</div>' : ''}${fc.notes.length ? `<div class="bf-wheel">${this.wheelSvgStatic(fc)}<div class="flv-notes">${this.noteChipsHtml(fc.notes.slice(0, 12), true)}</div></div>` : ''}${words ? `<div class="flv-words">${this.esc(words)}</div>` : ''}`;
                 setTimeout(() => this.fillShapeImages(document.getElementById('detail-view')), 0);
@@ -176,6 +176,7 @@
                 if (!group || this.beanGroupKey(group.meta) !== prevKey) this._lens = this._lensKeep || '';
                 this._lensKeep = '';
                 this.detailAllBrews = [...brews];
+                if (this.coffeeCommOnOpen && group) this.coffeeCommOnOpen(group);   // this coffee's Everyone, before choosing the view
                 brews = this.lensBrews(brews);
                 if (!this._navKeep && !this.isDetailActive() && !this.roasterViewActive()) this.navStack = [];   // opened from the library or feed
                 if (!this._navKeep && this.roasterViewActive()) { const from = this.snapPage(); if (from) { this.navStack = this.navStack || []; this.navStack.push(from); } this.hideRoasterView(); }
@@ -255,6 +256,7 @@
                     `;
                     masterBox.appendChild(card);
                 });
+                this.moreDom(masterBox, 2, 'master recipes');   // v15.1
 
                 const logBox = document.getElementById('d-logs');
                 const keyedLogs = this.canPatchDom(logBox);
@@ -293,6 +295,7 @@
                     else { row.innerHTML = rowHtml; logBox.appendChild(row); }
                 });
                 if (keyedLogs) this.patchKeyed(logBox, logItems, this._logHtml);
+                this.cutLogs(logBox);   // v15.1: the latest five; the rest a tap away
                 this.paintLens();
             },
 

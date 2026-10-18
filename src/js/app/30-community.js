@@ -122,7 +122,7 @@
             applyCommunity() {
                 this.communityIds = new Set();
                 if (!this.acctOn()) return;
-                const all = [...Object.values(this._streams || {}).flatMap(st => st.events), ...(this.profState ? this.profState().events : [])];
+                const all = [...Object.values(this._streams || {}).flatMap(st => st.events), ...(this.profState ? this.profState().events : []), ...(this._coffeeComm ? this._coffeeComm.events : [])];   // v15.1: a coffee page's Everyone too
                 all.forEach(ev => {
                     if (ev.type === 'gear') { const o = String(ev.owner || ''); if (o && o !== this.user && !o.startsWith('__') && !this.gearByUser.has(o)) this.gearByUser.set(o, ev); return; }
                     if (ev.type !== 'bean' && ev.type !== 'brew') return;
@@ -141,6 +141,7 @@
                 if (!event || !this.isCommunity(event.type, event.id)) return;
                 Object.values(this._streams || {}).forEach(st => { st.events = st.events.map(e => (e.type === event.type && String(e.id) === String(event.id) ? event : e)); });
                 if (this.profState) { const p = this.profState(); p.events = p.events.map(e => (e.type === event.type && String(e.id) === String(event.id) ? event : e)); }
+                if (this._coffeeComm) this._coffeeComm.events = this._coffeeComm.events.map(e => (e.type === event.type && String(e.id) === String(event.id) ? event : e));
             },
 
             streamCard(b, community) { return this.renderFeedSessionCard({ kind: 'session', brewId: b.id, date: b.date, actorColor: b.actorColor || '', community }); },

@@ -372,11 +372,11 @@
                 return { c, circle, name: circle ? circle.name : 'Together', friends: !!circle && circle.id === 'friends' };
             },
 
-            // ---- v15.1: whose take on a coffee, on its page: You, each of your communities, Friends, Everyone (what people
-            // shared with Everyone on Dialed In). The rating, flavor shape, notes, sessions, dial-in and sweet spot all
-            // follow it. Opens on You when you've brewed it, else the first circle with sessions on it. A circle shows only
-            // when someone besides you in it has logged this coffee; All (everything you can see here) only when some
-            // sessions belong to none of them.
+            // ---- v15.1: whose take on a coffee, on its page: You, each of your communities, Friends, Everyone. Everyone is
+            // all of it: yours, your friends' and communities', and what anyone else on Dialed In shared with Everyone. The
+            // rating, flavor shape, notes, sessions, dial-in and sweet spot all follow it. Opens on You when you've brewed
+            // it, else the first circle with sessions on it. A circle shows only when someone besides you in it has logged
+            // this coffee; All (everything in your circle's sync) only when some of those sessions belong to none of them.
             lensOptions(all) {
                 if (!(this.acctOn && this.acctOn())) return [];
                 const owner = b => this.getBrewOwner(b), out = [], covered = new Set([this.user]);
@@ -389,9 +389,18 @@
                     const n = all.filter(b => names.has(owner(b))).length, others = all.filter(b => names.has(owner(b)) && owner(b) !== this.user).length;
                     if (others) out.push({ id: o.id, name: o.name, n, names });
                 });
-                if (all.some(b => !covered.has(owner(b)))) out.push({ id: 'all', name: 'All', n: all.length, names: new Set(all.map(owner)) });
-                out.push({ id: 'everyone', name: 'Everyone', n: 0 });
+                const circleSync = all.filter(b => !this.isCommunity('brew', b.id));   // strangers' public sessions are Everyone's
+                if (circleSync.some(b => !covered.has(owner(b)))) out.push({ id: 'all', name: 'All', n: circleSync.length, names: new Set(circleSync.map(owner)) });
+                const st = this.coffeeCommState ? this.coffeeCommState() : null, loaded = st && st.at && !st.loading;
+                out.push({ id: 'everyone', name: 'Everyone', n: loaded ? this.everyoneBrews(all).length : 0 });
                 return out;
+            },
+            // everything on this coffee: what's here already plus what people shared with Everyone (loaded with the page's
+            // Everyone; matched by roaster and name however it's written)
+            everyoneBrews(all) {
+                const st = this.coffeeCommState ? this.coffeeCommState() : null, seen = new Set(all.map(b => String(b.id)));
+                const extra = st ? st.events.filter(e => e && e.type === 'brew' && !this.reported(e.id) && !seen.has(String(e.id)) && seen.add(String(e.id))).map(e => this.brews.get(String(e.id)) || e) : [];
+                return [...all.filter(b => !this.reported(b.id) && b.audience !== 'only_me' || this.getBrewOwner(b) === this.user), ...extra];
             },
             activeLens(all = this.detailAllBrews || []) {
                 const list = this.lensOptions(all);
@@ -399,15 +408,18 @@
                 if (this._lensWant) {   // opened at someone's session: a view with it in
                     const w = this._lensWant; this._lensWant = '';
                     const cur = list.find(o => o.id === this._lens) || list[0];
-                    if (!(cur.names && cur.names.has(w))) { const hit = list.find(o => o.names && o.names.has(w)); if (hit) this._lens = hit.id; }
+                    if (!(cur.names && cur.names.has(w)) && cur.id !== 'everyone') { const hit = list.find(o => o.names && o.names.has(w)); this._lens = hit ? hit.id : 'everyone'; }
                 }
                 return list.find(o => o.id === this._lens) || list[0];
             },
             lensBrews(all) {
+                if (this.detailTab === 'everyone') this.detailTab = 'timeline';   // (the old Everyone tab)
                 const L = this.activeLens(all);
-                if (!L) { if (this.detailTab === 'everyone') this.detailTab = 'timeline'; return all; }
-                if (L.id === 'everyone') { this.detailTab = 'everyone'; return []; }
-                if (this.detailTab === 'everyone') this.detailTab = 'timeline';
+                if (!L) return all;
+                if (L.id === 'everyone') {
+                    setTimeout(() => { const st = this.coffeeCommState ? this.coffeeCommState() : null; if (st && st.key && !st.loading && (!st.at || Date.now() - st.at > 5 * 60000)) this.loadCoffeeCommunity(false); }, 0);
+                    return this.everyoneBrews(all);
+                }
                 return all.filter(b => L.names.has(this.getBrewOwner(b)));
             },
             lensLabel() { const L = this.activeLens(); return L ? L.name : 'All'; },
@@ -419,24 +431,77 @@
                 if (v) v.scrollTop = top;
             },
             paintLens() {
-                const box = document.getElementById('d-lens'), view = document.getElementById('detail-view');
+                const box = document.getElementById('d-lens');
                 if (!box) return;
                 const list = this.lensOptions(this.detailAllBrews || []), L = list.length ? this.activeLens() : null;
-                if (view) view.classList.toggle('lens-everyone', !!L && L.id === 'everyone');
                 if (list.length < 2) { box.hidden = true; box.innerHTML = ''; return; }
                 box.hidden = false;
-                box.innerHTML = `<div class="cp-lead">Sessions from</div><div class="comm-filters" role="tablist" aria-label="Sessions from">${list.map(o => `<button type="button" class="comm-chip${o.id === L.id ? ' on' : ''}" role="tab" aria-selected="${o.id === L.id}" data-l="${this.esc(o.id)}" onclick="app.setLens(this.getAttribute('data-l'))">${this.esc(o.name)}${o.n ? `<span class="lens-n">${o.n}</span>` : ''}</button>`).join('')}</div>`;
+                const chips = `<div class="cp-lead">Sessions from</div><div class="comm-filters" role="tablist" aria-label="Sessions from">${list.map(o => `<button type="button" class="comm-chip${o.id === L.id ? ' on' : ''}" role="tab" aria-selected="${o.id === L.id}" data-l="${this.esc(o.id)}" onclick="app.setLens(this.getAttribute('data-l'))">${this.esc(o.name)}${o.n ? `<span class="lens-n">${o.n}</span>` : ''}</button>`).join('')}</div>`;
+                box.innerHTML = chips + (L.id === 'everyone' ? this.everyoneSumHtml() : '');
             },
-            // Everyone came in: the page's stars, top notes and flavor shape from what people shared (never grind settings)
-            lensEveryoneLoaded(st) {
-                const L = this.activeLens();
-                if (!L || L.id !== 'everyone' || !this.isDetailActive()) return;
-                const pub = (st.events || []).filter(e => e && e.type === 'brew' && !this.reported(e.id));
-                const s = st.summary || {};
-                this._lensPublic = true;
-                try { this.renderBeanFlavor(pub); } finally { this._lensPublic = false; }
-                const rs = document.getElementById('d-rating-summary');
-                if (rs) { const html = pub.length ? this.beanStarsHtml(pub, Number(s.rating) || this.calculateAverageRating(pub), Number(s.sessions) || pub.length) : ''; rs.style.display = html ? 'inline-flex' : 'none'; rs.innerHTML = html; }
-                const tf = document.getElementById('d-top-flavors');
-                if (tf) tf.innerHTML = this.getTopFlavors(pub, 3).map(f => this.famChip(f)).join('');
+            // Everyone: how many people, and how it's usually brewed (the middle ratio, time and dose per method; never grind)
+            everyoneSumHtml() {
+                const st = this.coffeeCommState ? this.coffeeCommState() : null;
+                if (st && st.loading && !st.at) return `<div class="lens-sum">${this.loaderHtml('Loading everyone’s sessions…')}</div>`;
+                const pool = this.detailBrews || [];
+                if (!pool.length) return `<div class="lens-sum"><p class="lens-line">${this.esc(st && st.error ? st.error : 'Nobody has shared a session on this coffee yet.')}</p></div>`;
+                const people = new Set(pool.map(b => this.getBrewOwner(b))).size;
+                const med = a => { const v = a.filter(x => x > 0).sort((p, q) => p - q); return v.length ? (v.length % 2 ? v[(v.length - 1) / 2] : (v[v.length / 2 - 1] + v[v.length / 2]) / 2) : 0; };
+                const by = new Map();
+                pool.forEach(b => { const m = String(b.method || '').trim(); if (!m) return; if (!by.has(m)) by.set(m, []); by.get(m).push(b); });
+                const methods = [...by.entries()].sort((a, b) => b[1].length - a[1].length).map(([method, list]) => ({ method, n: list.length, ratio: med(list.map(b => this.ratioOf(b))), time: med(list.map(b => this.num(b.time))), dose: med(list.map(b => this.num(b.dose))) }));
+                const more = st && st.next ? `<button type="button" class="btn-outline cc-more" onclick="app.loadCoffeeCommunity(true)"${st.loading ? ' disabled' : ''}>${st.loading ? 'Loading…' : 'Load more from everyone'}</button>` : '';
+                return `<div class="lens-sum"><p class="lens-line">${people} ${people === 1 ? 'person' : 'people'} · ${pool.length} session${pool.length === 1 ? '' : 's'}</p>${this.coffeeCommMethodsHtml(methods)}${more}</div>`;
+            },
+            // Everyone's public sessions came in: draw the page again with them
+            lensEveryoneLoaded() {
+                const L = this.isDetailActive() ? this.activeLens() : null;
+                if (L && L.id === 'everyone') this.setLens('everyone');
+                else if (this.isDetailActive()) this.paintLens();
+            },
+
+            // ---- v15.1: lists that grow with the app (friends' palates, a roaster's coffees and drinkers, master recipes, a
+            // coffee's sessions, long comment threads) show their first few and "Show all N"; they start short again each
+            // time they're drawn. Never hides just one.
+            moreHtml(rows, limit = 3, noun = '') {
+                if (rows.length <= limit + 1) return rows.join('');
+                return `${rows.slice(0, limit).join('')}<div class="more-rest" hidden>${rows.slice(limit).join('')}</div><button type="button" class="more-toggle" aria-expanded="false" data-n="${rows.length}" data-noun="${this.esc(noun)}" onclick="app.toggleMoreRest(this, event)"><span>Show all ${rows.length}${noun ? ` ${this.esc(noun)}` : ''}</span><svg class="icon"><use href="#i-chevron-down"/></svg></button>`;
+            },
+            toggleMoreRest(btn, ev) {
+                if (ev) { ev.stopPropagation(); ev.preventDefault(); }
+                const rest = btn && btn.previousElementSibling;
+                if (!rest || !rest.classList.contains('more-rest')) return;
+                const open = rest.hidden;
+                rest.hidden = !open;
+                btn.setAttribute('aria-expanded', String(open)); btn.classList.toggle('open', open);
+                const t = btn.querySelector('span'); if (t) t.textContent = open ? 'Show less' : `Show all ${btn.dataset.n}${btn.dataset.noun ? ` ${btn.dataset.noun}` : ''}`;
+                if (!open && btn.scrollIntoView) btn.scrollIntoView({ block: 'nearest' });
+            },
+            // the same for a list drawn element by element
+            moreDom(box, limit, noun = '') {
+                if (!box || box.children.length <= limit + 1) return;
+                const rest = document.createElement('div'); rest.className = 'more-rest'; rest.hidden = true;
+                const n = box.children.length;
+                [...box.children].slice(limit).forEach(el => rest.appendChild(el));
+                box.appendChild(rest);
+                box.insertAdjacentHTML('beforeend', `<button type="button" class="more-toggle" aria-expanded="false" data-n="${n}" data-noun="${this.esc(noun)}" onclick="app.toggleMoreRest(this, event)"><span>Show all ${n}${noun ? ` ${this.esc(noun)}` : ''}</span><svg class="icon"><use href="#i-chevron-down"/></svg></button>`);
+            },
+            // a coffee's session history: the latest five (and the session you came to see, however old); it stays open for
+            // that coffee once you open it (until the app restarts)
+            cutLogs(box) {
+                if (!box) return;
+                const key = this.activeGroup ? this.beanGroupKey(this.activeGroup.meta) + '|' + (this._lens || '') : '';
+                this._logsOpen = this._logsOpen || new Set();
+                const target = this._logTarget || this.openCommentId || ''; this._logTarget = '';
+                const rows = [...box.children].filter(el => el.classList && el.classList.contains('log-row'));
+                const ti = target ? rows.findIndex(el => el.getAttribute('data-card-brew') === target) : -1;
+                if (ti >= 5) this._logsOpen.add(key);
+                const open = this._logsOpen.has(key), LIMIT = 5, cut = rows.length > LIMIT + 1 && !open;
+                rows.forEach((el, i) => el.classList.toggle('more-cut', cut && i >= LIMIT));
+                let btn = document.getElementById('d-logs-more');
+                if (rows.length <= LIMIT + 1) { if (btn) btn.remove(); return; }
+                if (!btn) { btn = document.createElement('button'); btn.type = 'button'; btn.id = 'd-logs-more'; btn.className = 'more-toggle logs-more'; box.parentNode.insertBefore(btn, box.nextSibling); }
+                btn.setAttribute('aria-expanded', String(!cut)); btn.classList.toggle('open', !cut);
+                btn.innerHTML = `<span>${cut ? `Show all ${rows.length} sessions` : 'Show fewer'}</span><svg class="icon"><use href="#i-chevron-down"/></svg>`;
+                btn.onclick = ev => { ev.stopPropagation(); if (this._logsOpen.has(key)) this._logsOpen.delete(key); else this._logsOpen.add(key); this.cutLogs(box); if (this._logsOpen.has(key) === false) btn.scrollIntoView({ block: 'nearest' }); };
             },

@@ -282,7 +282,9 @@
                             </div>
                         </div>`;
                 };
-                const list = tops.map(c => one(c, false) + kids(c).map(r => one(r, true)).join('')).join('');
+                const cutN = tops.length > 6 ? tops.length - 5 : 0;   // v15.1: a long thread opens on its newest five
+                const rowOf = c => one(c, false) + kids(c).map(r => one(r, true)).join('');
+                const list = (cutN ? `<button type="button" class="more-toggle cmt-earlier" onclick="event.stopPropagation(); this.nextElementSibling.hidden = false; this.remove();">Show ${cutN} earlier comments<svg class="icon"><use href="#i-chevron-down"/></svg></button><div class="more-rest" hidden>${tops.slice(0, cutN).map(rowOf).join('')}</div>` : '') + tops.slice(cutN).map(rowOf).join('');
                 const reply = this.replyTo && this.replyTo.key === key ? this.replyTo : null;
                 const submit = kind === 'bean' ? `app.addBeanComment('${app.escJs(id)}', event)` : `app.addComment('${app.escJs(id)}', event)`;
                 const keyHandler = opts.inputId && opts.inputId.startsWith('comment-input-')

@@ -35,7 +35,10 @@
                     if (st.key === key) st.error = /fetch|network|load failed/i.test(String(e && e.message)) ? 'Couldn\'t load. Check your connection.' : 'Couldn\'t load this. Try again in a moment.';
                 } finally {
                     if (st.key === key) st.loading = false;
+                    // v15.1: they join the app beside your circle's (likes and comments work; never your library or goals)
+                    if (st.key === key && st.at) { try { this.process(this.cloud.events); } catch (e) { /* drawn from the list then */ } }
                     this.renderCoffeeCommunity();
+                    if (st.key === key && this.lensEveryoneLoaded) this.lensEveryoneLoaded(st);
                 }
             },
 
@@ -90,5 +93,4 @@
                 }
                 const line = s && s.sessions ? [`${s.people} ${s.people === 1 ? 'person' : 'people'}`, `${s.sessions} session${s.sessions === 1 ? '' : 's'}`, s.rating ? `★ ${this.fmtNum(s.rating, 1)} average` : ''].filter(Boolean).join(' · ') : 'Sessions other people shared with Everyone.';
                 pane.innerHTML = `<div class="sweet-card cc-wrap"><div class="sw-head"><h3>Everyone on this coffee</h3><p>${this.esc(line)}</p></div>${body}</div>`;
-                if (this.lensEveryoneLoaded) this.lensEveryoneLoaded(st);   // v15.1: the page's rating and flavor shape, from everyone's
             },

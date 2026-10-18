@@ -201,10 +201,10 @@
             renderFriendPalates() {
                 const others = this.friendNames();   // v15.0: your friends (you follow each other)
                 if (!others.length) return '';
-                const rows = others.map(name => {
+                const rows = this.moreHtml(others.map(name => {
                     const color = this.getUserColor(name);
                     return `<button type="button" class="friend-palate" data-profile="${this.esc(name)}"><span class="person-dot" data-face="${this.esc(name)}" style="background:${this.esc(color)};">${this.esc(this.feedInitial(name))}</span><span class="friend-palate-text"><b>${this.esc(name)}</b>${this.esc(this.palateSentence(this.palateFor(name)))}</span></button>`;
-                }).join('');
+                }), 3, 'friends');   // v15.1: the first three; the rest a tap away
                 return `<section class="profile-card"><h4 class="section-label">Friends' palates</h4><div class="friend-palates">${rows}</div></section>`;
             },
 
@@ -283,7 +283,7 @@
                 });
                 const own = user === this.user;
                 const body = items.length
-                    ? `<div class="match-list">${items.map(({ bean, tried }) => `<button type="button" class="match-item" data-bean="${this.esc(bean.id)}" onclick="app.openFeedTarget(this.getAttribute('data-bean'),'',false)"><div><div class="match-name">${this.esc(this.beanLabel(bean))}</div><div class="match-why">From ${this.esc(bean.user || 'Unknown')}'s collection${bean.origin ? ` · ${this.esc(bean.origin)}` : ''}</div></div>${tried ? '<span class="tried-tag">Tried</span>' : ''}</button>`).join('')}</div>`
+                    ? `<div class="match-list">${this.moreHtml(items.map(({ bean, tried }) => `<button type="button" class="match-item" data-bean="${this.esc(bean.id)}" onclick="app.openFeedTarget(this.getAttribute('data-bean'),'',false)"><div><div class="match-name">${this.esc(this.beanLabel(bean))}</div><div class="match-why">From ${this.esc(bean.user || 'Unknown')}'s collection${bean.origin ? ` · ${this.esc(bean.origin)}` : ''}</div></div>${tried ? '<span class="tried-tag">Tried</span>' : ''}</button>`), 3, 'coffees')}</div>`
                     : `<div class="panel-empty">${own ? 'Nothing saved yet. Open a friend\'s coffee and tap Want to Try.' : `${this.esc(user)} hasn't saved any coffees yet.`}</div>`;
                 return `<section class="profile-card"><h4 class="section-label">${own ? 'Your want-to-try list' : `${this.esc(user)}'s want-to-try list`}</h4>${body}</section>`;
             },

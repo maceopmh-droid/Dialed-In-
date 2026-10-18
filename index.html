@@ -3775,9 +3775,19 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
 .d-lens { margin: 0 0 16px; }
 .d-lens .lens-n { margin-left: 6px; font-weight: 650; opacity: 0.7; font-variant-numeric: tabular-nums; }
 .d-lens .comm-chip.on .lens-n { opacity: 0.85; }
-/* Everyone: their stars, notes and flavor shape, and the list of what they shared; the rest is about your circle's sessions */
-#detail-view.lens-everyone .insight-tabs, #detail-view.lens-everyone #d-timeline-pane, #detail-view.lens-everyone #d-compare-pane,
-#detail-view.lens-everyone #d-side-pane, #detail-view.lens-everyone #d-sweet-pane, #detail-view.lens-everyone #d-dialin-pane { display: none !important; }
+.d-lens .lens-sum { margin-top: 12px; }
+.d-lens .lens-line { margin: 0 2px 10px; font-size: 0.8rem; color: var(--text-muted); }
+.d-lens .lens-sum .cc-more { margin-top: 10px; }
+
+/* v15.1: long lists show their first few; "Show all N" opens the rest in place */
+.more-rest { display: contents; }
+.more-rest[hidden] { display: none; }
+.log-row.more-cut { display: none !important; }
+.more-toggle { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100% !important; min-height: 40px !important; margin: 8px 0 0 !important; padding: 8px 14px !important; border-radius: 999px !important; border: 1px solid var(--line) !important; background: transparent !important; color: var(--text-muted) !important; font: inherit; font-size: 0.84rem !important; font-weight: 700 !important; box-shadow: none !important; cursor: pointer; }
+.more-toggle .icon { width: 15px; height: 15px; transition: transform 0.2s ease; }
+.more-toggle.open .icon { transform: rotate(180deg); }
+.more-toggle.cmt-earlier { margin: 0 0 10px !important; }
+#d-logs-more { margin: 4px 0 18px !important; }
     </style>
 </head>
 <body>
@@ -10843,7 +10853,9 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                             </div>
                         </div>`;
                 };
-                const list = tops.map(c => one(c, false) + kids(c).map(r => one(r, true)).join('')).join('');
+                const cutN = tops.length > 6 ? tops.length - 5 : 0;   // v15.1: a long thread opens on its newest five
+                const rowOf = c => one(c, false) + kids(c).map(r => one(r, true)).join('');
+                const list = (cutN ? `<button type="button" class="more-toggle cmt-earlier" onclick="event.stopPropagation(); this.nextElementSibling.hidden = false; this.remove();">Show ${cutN} earlier comments<svg class="icon"><use href="#i-chevron-down"/></svg></button><div class="more-rest" hidden>${tops.slice(0, cutN).map(rowOf).join('')}</div>` : '') + tops.slice(cutN).map(rowOf).join('');
                 const reply = this.replyTo && this.replyTo.key === key ? this.replyTo : null;
                 const submit = kind === 'bean' ? `app.addBeanComment('${app.escJs(id)}', event)` : `app.addComment('${app.escJs(id)}', event)`;
                 const keyHandler = opts.inputId && opts.inputId.startsWith('comment-input-')
@@ -11446,8 +11458,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const rgb = this.roasterPaint(r).rgb;
                 const best = r.best, bc = r.bestCoffee;
                 const bestCard = best && bc ? `<button type="button" class="profile-card ro-sec" data-bean="${esc(best.beanId)}" onclick="app.openCoffeeFromRoaster(this.getAttribute('data-bean'))"><div class="label">Best ${esc(this.shotWord(best.method))}</div><div class="ro-best"><div class="ro-best-main"><div class="ro-best-name">${esc(bc.name)}</div><div class="ro-best-line"><span>${esc(this.getBrewOwner(best))} · ${esc(this.shortDate(best.date))}</span><span class="star-meter" style="--fill:${this.starFill(best.rating)}%;--whole:${this.starWhole(best.rating)};--frac:${this.starFrac(best.rating)}"></span><span>${esc(this.formatRating(best.rating))}</span></div>${this.recipeLine(best, false) ? `<div class="ro-best-recipe">${esc(best.method || '')}${best.method ? ' · ' : ''}${esc(this.recipeLine(best, false))}</div>` : ''}</div><svg class="icon ro-go"><use href="#i-chevron-down"/></svg></div></button>` : '';
-                const coffees = `<section class="profile-card ro-sec"><div class="label">Their coffees</div>${r.coffees.map(c => `<button type="button" class="ro-cof" data-bean="${esc(c.beanId)}" onclick="app.openCoffeeFromRoaster(this.getAttribute('data-bean'))"><span class="ro-cof-main"><span class="ro-cof-name">${esc(c.name)}</span><span class="ro-cof-sub">${c.sessions} session${c.sessions === 1 ? '' : 's'}</span></span>${c.rated ? `<span class="ro-meter"><i style="width:${(c.avg / 5) * 100}%"></i></span><span class="ro-cof-n">${RoasterEngine.f1(c.avg)}★</span>` : ''}<svg class="icon ro-go"><use href="#i-chevron-down"/></svg></button>`).join('')}</section>`;
-                const who = r.people.length ? `<section class="profile-card ro-sec"><div class="label">Who drinks it</div>${r.people.map(p => `<div class="ro-who" data-profile="${esc(p.name)}"><span class="person-dot" data-face="${esc(p.name)}" style="background:${esc(this.getUserColor(p.name))}">${esc(this.feedInitial(p.name))}</span><span class="ro-who-t">${esc(p.name)}<small>${p.sessions} session${p.sessions === 1 ? '' : 's'}${p.rated ? ` · ${RoasterEngine.f1(p.avg)}★ average` : ''}</small></span>${p.top ? `<span class="ro-badge">${esc(p.name)}'s top roaster</span>` : ''}</div>`).join('')}</section>` : '';
+                const coffees = `<section class="profile-card ro-sec"><div class="label">Their coffees</div>${this.moreHtml(r.coffees.map(c => `<button type="button" class="ro-cof" data-bean="${esc(c.beanId)}" onclick="app.openCoffeeFromRoaster(this.getAttribute('data-bean'))"><span class="ro-cof-main"><span class="ro-cof-name">${esc(c.name)}</span><span class="ro-cof-sub">${c.sessions} session${c.sessions === 1 ? '' : 's'}</span></span>${c.rated ? `<span class="ro-meter"><i style="width:${(c.avg / 5) * 100}%"></i></span><span class="ro-cof-n">${RoasterEngine.f1(c.avg)}★</span>` : ''}<svg class="icon ro-go"><use href="#i-chevron-down"/></svg></button>`), 4, 'coffees')}</section>`;
+                const who = r.people.length ? `<section class="profile-card ro-sec"><div class="label">Who drinks it</div>${this.moreHtml(r.people.map(p => `<div class="ro-who" data-profile="${esc(p.name)}"><span class="person-dot" data-face="${esc(p.name)}" style="background:${esc(this.getUserColor(p.name))}">${esc(this.feedInitial(p.name))}</span><span class="ro-who-t">${esc(p.name)}<small>${p.sessions} session${p.sessions === 1 ? '' : 's'}${p.rated ? ` · ${RoasterEngine.f1(p.avg)}★ average` : ''}</small></span>${p.top ? `<span class="ro-badge">${esc(p.name)}'s top roaster</span>` : ''}</div>`), 4, 'people')}</section>` : '';
                 const e = r.espresso;
                 const range = (a, f) => a ? (Math.abs(a[1] - a[0]) < 1e-9 ? f(a[0]) : `${f(a[0])}–${f(a[1])}`) : '';
                 const ratio = e && e.ratio ? range(e.ratio, x => `1:${x.toFixed(1)}`) : '', secs = e && e.time ? range(e.time, x => `${this.fmtNum(x, 0)}`) + ' s' : '';
@@ -11463,7 +11475,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         ${this.roasterBarHtml('Process', r.proc, null, PROC_C)}
                     </section>
                     ${bestCard}${coffees}${who}${esp}
-                    <div class="ro-acts"><button type="button" class="btn-primary" onclick="app.logCoffeeForRoaster('${app.escJs(r.key)}')"><svg class="icon" style="width:16px;height:16px;stroke:currentColor"><use href="#i-plus"/></svg>Log a coffee</button><button type="button" class="btn-outline" onclick="app.showRoasterCoffees('${app.escJs(r.key)}')">All coffees</button></div>`;
+                    <div class="ro-acts"><button type="button" class="btn-primary" onclick="app.logCoffeeForRoaster('${app.escJs(r.key)}')"><svg class="icon" style="width:16px;height:16px;stroke:currentColor"><use href="#i-plus"/></svg>Add a coffee</button><button type="button" class="btn-outline" onclick="app.showRoasterCoffees('${app.escJs(r.key)}')">All coffees</button></div>`;
             },
 
             openRoasterEdit(key) {
@@ -12187,6 +12199,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 this.openCommentId = (openComments && brewId) ? String(brewId) : null;
                 const tb = brewId ? this.brews.get(String(brewId)) : null;
                 this._lensWant = tb ? this.getBrewOwner(tb) : '';   // v15.1: a view that has that session in it
+                this._logTarget = brewId ? String(brewId) : '';   // (and its card shown, however old)
                 this.openDetail(group, brews);
                 if (brewId) {
                     setTimeout(() => {
@@ -13202,10 +13215,10 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             renderFriendPalates() {
                 const others = this.friendNames();   // v15.0: your friends (you follow each other)
                 if (!others.length) return '';
-                const rows = others.map(name => {
+                const rows = this.moreHtml(others.map(name => {
                     const color = this.getUserColor(name);
                     return `<button type="button" class="friend-palate" data-profile="${this.esc(name)}"><span class="person-dot" data-face="${this.esc(name)}" style="background:${this.esc(color)};">${this.esc(this.feedInitial(name))}</span><span class="friend-palate-text"><b>${this.esc(name)}</b>${this.esc(this.palateSentence(this.palateFor(name)))}</span></button>`;
-                }).join('');
+                }), 3, 'friends');   // v15.1: the first three; the rest a tap away
                 return `<section class="profile-card"><h4 class="section-label">Friends' palates</h4><div class="friend-palates">${rows}</div></section>`;
             },
 
@@ -13284,7 +13297,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 });
                 const own = user === this.user;
                 const body = items.length
-                    ? `<div class="match-list">${items.map(({ bean, tried }) => `<button type="button" class="match-item" data-bean="${this.esc(bean.id)}" onclick="app.openFeedTarget(this.getAttribute('data-bean'),'',false)"><div><div class="match-name">${this.esc(this.beanLabel(bean))}</div><div class="match-why">From ${this.esc(bean.user || 'Unknown')}'s collection${bean.origin ? ` · ${this.esc(bean.origin)}` : ''}</div></div>${tried ? '<span class="tried-tag">Tried</span>' : ''}</button>`).join('')}</div>`
+                    ? `<div class="match-list">${this.moreHtml(items.map(({ bean, tried }) => `<button type="button" class="match-item" data-bean="${this.esc(bean.id)}" onclick="app.openFeedTarget(this.getAttribute('data-bean'),'',false)"><div><div class="match-name">${this.esc(this.beanLabel(bean))}</div><div class="match-why">From ${this.esc(bean.user || 'Unknown')}'s collection${bean.origin ? ` · ${this.esc(bean.origin)}` : ''}</div></div>${tried ? '<span class="tried-tag">Tried</span>' : ''}</button>`), 3, 'coffees')}</div>`
                     : `<div class="panel-empty">${own ? 'Nothing saved yet. Open a friend\'s coffee and tap Want to Try.' : `${this.esc(user)} hasn't saved any coffees yet.`}</div>`;
                 return `<section class="profile-card"><h4 class="section-label">${own ? 'Your want-to-try list' : `${this.esc(user)}'s want-to-try list`}</h4>${body}</section>`;
             },
@@ -15093,7 +15106,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const mineBest = (() => { let best = null; brews.filter(b => this.getBrewOwner(b) === this.user).forEach(b => { const r = this.normalizeRating(b.rating); if (r <= 0) return; const br = best ? this.normalizeRating(best.rating) : -1; if (r > br) best = b; }); return best; })();
                 this.beanFlavorGhost = mineBest ? this.shapeValues(mineBest) : null;
                 const fc = this.flavorCounts(pool);
-                const chips = people.length > 1 && !this._lensPublic ? `<div class="bf-people">${['all', ...people].map(p => `<button type="button" class="chip-btn" aria-pressed="${this.beanFlavorWho === p}" data-who="${this.esc(p)}" onclick="app.setBeanFlavorWho(this.getAttribute('data-who'))">${p === 'all' ? 'All' : this.esc(p)}</button>`).join('')}</div>` : '';
+                const chips = people.length > 1 && people.length <= 8 ? `<div class="bf-people">${['all', ...people].map(p => `<button type="button" class="chip-btn" aria-pressed="${this.beanFlavorWho === p}" data-who="${this.esc(p)}" onclick="app.setBeanFlavorWho(this.getAttribute('data-who'))">${p === 'all' ? 'All' : this.esc(p)}</button>`).join('')}</div>` : '';
                 const words = this.describeCup(values, tasted, fc.notes.slice(0, 4).map(x => x.n), Object.fromEntries(fc.notes.map(x => [x.n, x.strength])));
                 box.innerHTML = `<div class="bf-head"><div><h3>Flavor profile</h3><p>${pool.length} session${pool.length === 1 ? '' : 's'} · ${this.beanFlavorWho === 'all' ? this.esc(this.lensLabel()) : this.esc(this.beanFlavorWho)}${mineBest ? ' · dashed: your best' : ''}</p></div></div>${chips}<div id="bf-shape"></div>${!tasted.length ? '<div class="flv-empty">No taste sliders set on these sessions yet.</div>' : ''}${fc.notes.length ? `<div class="bf-wheel">${this.wheelSvgStatic(fc)}<div class="flv-notes">${this.noteChipsHtml(fc.notes.slice(0, 12), true)}</div></div>` : ''}${words ? `<div class="flv-words">${this.esc(words)}</div>` : ''}`;
                 setTimeout(() => this.fillShapeImages(document.getElementById('detail-view')), 0);
@@ -15135,6 +15148,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (!group || this.beanGroupKey(group.meta) !== prevKey) this._lens = this._lensKeep || '';
                 this._lensKeep = '';
                 this.detailAllBrews = [...brews];
+                if (this.coffeeCommOnOpen && group) this.coffeeCommOnOpen(group);   // this coffee's Everyone, before choosing the view
                 brews = this.lensBrews(brews);
                 if (!this._navKeep && !this.isDetailActive() && !this.roasterViewActive()) this.navStack = [];   // opened from the library or feed
                 if (!this._navKeep && this.roasterViewActive()) { const from = this.snapPage(); if (from) { this.navStack = this.navStack || []; this.navStack.push(from); } this.hideRoasterView(); }
@@ -15214,6 +15228,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     `;
                     masterBox.appendChild(card);
                 });
+                this.moreDom(masterBox, 2, 'master recipes');   // v15.1
 
                 const logBox = document.getElementById('d-logs');
                 const keyedLogs = this.canPatchDom(logBox);
@@ -15252,6 +15267,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     else { row.innerHTML = rowHtml; logBox.appendChild(row); }
                 });
                 if (keyedLogs) this.patchKeyed(logBox, logItems, this._logHtml);
+                this.cutLogs(logBox);   // v15.1: the latest five; the rest a tap away
                 this.paintLens();
             },
 
@@ -17179,7 +17195,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             applyCommunity() {
                 this.communityIds = new Set();
                 if (!this.acctOn()) return;
-                const all = [...Object.values(this._streams || {}).flatMap(st => st.events), ...(this.profState ? this.profState().events : [])];
+                const all = [...Object.values(this._streams || {}).flatMap(st => st.events), ...(this.profState ? this.profState().events : []), ...(this._coffeeComm ? this._coffeeComm.events : [])];   // v15.1: a coffee page's Everyone too
                 all.forEach(ev => {
                     if (ev.type === 'gear') { const o = String(ev.owner || ''); if (o && o !== this.user && !o.startsWith('__') && !this.gearByUser.has(o)) this.gearByUser.set(o, ev); return; }
                     if (ev.type !== 'bean' && ev.type !== 'brew') return;
@@ -17198,6 +17214,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (!event || !this.isCommunity(event.type, event.id)) return;
                 Object.values(this._streams || {}).forEach(st => { st.events = st.events.map(e => (e.type === event.type && String(e.id) === String(event.id) ? event : e)); });
                 if (this.profState) { const p = this.profState(); p.events = p.events.map(e => (e.type === event.type && String(e.id) === String(event.id) ? event : e)); }
+                if (this._coffeeComm) this._coffeeComm.events = this._coffeeComm.events.map(e => (e.type === event.type && String(e.id) === String(event.id) ? event : e));
             },
 
             streamCard(b, community) { return this.renderFeedSessionCard({ kind: 'session', brewId: b.id, date: b.date, actorColor: b.actorColor || '', community }); },
@@ -18239,7 +18256,10 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     if (st.key === key) st.error = /fetch|network|load failed/i.test(String(e && e.message)) ? 'Couldn\'t load. Check your connection.' : 'Couldn\'t load this. Try again in a moment.';
                 } finally {
                     if (st.key === key) st.loading = false;
+                    // v15.1: they join the app beside your circle's (likes and comments work; never your library or goals)
+                    if (st.key === key && st.at) { try { this.process(this.cloud.events); } catch (e) { /* drawn from the list then */ } }
                     this.renderCoffeeCommunity();
+                    if (st.key === key && this.lensEveryoneLoaded) this.lensEveryoneLoaded(st);
                 }
             },
 
@@ -18294,7 +18314,6 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 }
                 const line = s && s.sessions ? [`${s.people} ${s.people === 1 ? 'person' : 'people'}`, `${s.sessions} session${s.sessions === 1 ? '' : 's'}`, s.rating ? `★ ${this.fmtNum(s.rating, 1)} average` : ''].filter(Boolean).join(' · ') : 'Sessions other people shared with Everyone.';
                 pane.innerHTML = `<div class="sweet-card cc-wrap"><div class="sw-head"><h3>Everyone on this coffee</h3><p>${this.esc(line)}</p></div>${body}</div>`;
-                if (this.lensEveryoneLoaded) this.lensEveryoneLoaded(st);   // v15.1: the page's rating and flavor shape, from everyone's
             },
             // ---- v14.6: your own goals (Overview, your profile). Up to three, one of each kind: sessions a week, new coffees
             // a month, a rating to beat on one coffee. Only you see them; they ride in your gear record (goals) like favorites.
@@ -19074,11 +19093,11 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 return { c, circle, name: circle ? circle.name : 'Together', friends: !!circle && circle.id === 'friends' };
             },
 
-            // ---- v15.1: whose take on a coffee, on its page: You, each of your communities, Friends, Everyone (what people
-            // shared with Everyone on Dialed In). The rating, flavor shape, notes, sessions, dial-in and sweet spot all
-            // follow it. Opens on You when you've brewed it, else the first circle with sessions on it. A circle shows only
-            // when someone besides you in it has logged this coffee; All (everything you can see here) only when some
-            // sessions belong to none of them.
+            // ---- v15.1: whose take on a coffee, on its page: You, each of your communities, Friends, Everyone. Everyone is
+            // all of it: yours, your friends' and communities', and what anyone else on Dialed In shared with Everyone. The
+            // rating, flavor shape, notes, sessions, dial-in and sweet spot all follow it. Opens on You when you've brewed
+            // it, else the first circle with sessions on it. A circle shows only when someone besides you in it has logged
+            // this coffee; All (everything in your circle's sync) only when some of those sessions belong to none of them.
             lensOptions(all) {
                 if (!(this.acctOn && this.acctOn())) return [];
                 const owner = b => this.getBrewOwner(b), out = [], covered = new Set([this.user]);
@@ -19091,9 +19110,18 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     const n = all.filter(b => names.has(owner(b))).length, others = all.filter(b => names.has(owner(b)) && owner(b) !== this.user).length;
                     if (others) out.push({ id: o.id, name: o.name, n, names });
                 });
-                if (all.some(b => !covered.has(owner(b)))) out.push({ id: 'all', name: 'All', n: all.length, names: new Set(all.map(owner)) });
-                out.push({ id: 'everyone', name: 'Everyone', n: 0 });
+                const circleSync = all.filter(b => !this.isCommunity('brew', b.id));   // strangers' public sessions are Everyone's
+                if (circleSync.some(b => !covered.has(owner(b)))) out.push({ id: 'all', name: 'All', n: circleSync.length, names: new Set(circleSync.map(owner)) });
+                const st = this.coffeeCommState ? this.coffeeCommState() : null, loaded = st && st.at && !st.loading;
+                out.push({ id: 'everyone', name: 'Everyone', n: loaded ? this.everyoneBrews(all).length : 0 });
                 return out;
+            },
+            // everything on this coffee: what's here already plus what people shared with Everyone (loaded with the page's
+            // Everyone; matched by roaster and name however it's written)
+            everyoneBrews(all) {
+                const st = this.coffeeCommState ? this.coffeeCommState() : null, seen = new Set(all.map(b => String(b.id)));
+                const extra = st ? st.events.filter(e => e && e.type === 'brew' && !this.reported(e.id) && !seen.has(String(e.id)) && seen.add(String(e.id))).map(e => this.brews.get(String(e.id)) || e) : [];
+                return [...all.filter(b => !this.reported(b.id) && b.audience !== 'only_me' || this.getBrewOwner(b) === this.user), ...extra];
             },
             activeLens(all = this.detailAllBrews || []) {
                 const list = this.lensOptions(all);
@@ -19101,15 +19129,18 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (this._lensWant) {   // opened at someone's session: a view with it in
                     const w = this._lensWant; this._lensWant = '';
                     const cur = list.find(o => o.id === this._lens) || list[0];
-                    if (!(cur.names && cur.names.has(w))) { const hit = list.find(o => o.names && o.names.has(w)); if (hit) this._lens = hit.id; }
+                    if (!(cur.names && cur.names.has(w)) && cur.id !== 'everyone') { const hit = list.find(o => o.names && o.names.has(w)); this._lens = hit ? hit.id : 'everyone'; }
                 }
                 return list.find(o => o.id === this._lens) || list[0];
             },
             lensBrews(all) {
+                if (this.detailTab === 'everyone') this.detailTab = 'timeline';   // (the old Everyone tab)
                 const L = this.activeLens(all);
-                if (!L) { if (this.detailTab === 'everyone') this.detailTab = 'timeline'; return all; }
-                if (L.id === 'everyone') { this.detailTab = 'everyone'; return []; }
-                if (this.detailTab === 'everyone') this.detailTab = 'timeline';
+                if (!L) return all;
+                if (L.id === 'everyone') {
+                    setTimeout(() => { const st = this.coffeeCommState ? this.coffeeCommState() : null; if (st && st.key && !st.loading && (!st.at || Date.now() - st.at > 5 * 60000)) this.loadCoffeeCommunity(false); }, 0);
+                    return this.everyoneBrews(all);
+                }
                 return all.filter(b => L.names.has(this.getBrewOwner(b)));
             },
             lensLabel() { const L = this.activeLens(); return L ? L.name : 'All'; },
@@ -19121,26 +19152,79 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (v) v.scrollTop = top;
             },
             paintLens() {
-                const box = document.getElementById('d-lens'), view = document.getElementById('detail-view');
+                const box = document.getElementById('d-lens');
                 if (!box) return;
                 const list = this.lensOptions(this.detailAllBrews || []), L = list.length ? this.activeLens() : null;
-                if (view) view.classList.toggle('lens-everyone', !!L && L.id === 'everyone');
                 if (list.length < 2) { box.hidden = true; box.innerHTML = ''; return; }
                 box.hidden = false;
-                box.innerHTML = `<div class="cp-lead">Sessions from</div><div class="comm-filters" role="tablist" aria-label="Sessions from">${list.map(o => `<button type="button" class="comm-chip${o.id === L.id ? ' on' : ''}" role="tab" aria-selected="${o.id === L.id}" data-l="${this.esc(o.id)}" onclick="app.setLens(this.getAttribute('data-l'))">${this.esc(o.name)}${o.n ? `<span class="lens-n">${o.n}</span>` : ''}</button>`).join('')}</div>`;
+                const chips = `<div class="cp-lead">Sessions from</div><div class="comm-filters" role="tablist" aria-label="Sessions from">${list.map(o => `<button type="button" class="comm-chip${o.id === L.id ? ' on' : ''}" role="tab" aria-selected="${o.id === L.id}" data-l="${this.esc(o.id)}" onclick="app.setLens(this.getAttribute('data-l'))">${this.esc(o.name)}${o.n ? `<span class="lens-n">${o.n}</span>` : ''}</button>`).join('')}</div>`;
+                box.innerHTML = chips + (L.id === 'everyone' ? this.everyoneSumHtml() : '');
             },
-            // Everyone came in: the page's stars, top notes and flavor shape from what people shared (never grind settings)
-            lensEveryoneLoaded(st) {
-                const L = this.activeLens();
-                if (!L || L.id !== 'everyone' || !this.isDetailActive()) return;
-                const pub = (st.events || []).filter(e => e && e.type === 'brew' && !this.reported(e.id));
-                const s = st.summary || {};
-                this._lensPublic = true;
-                try { this.renderBeanFlavor(pub); } finally { this._lensPublic = false; }
-                const rs = document.getElementById('d-rating-summary');
-                if (rs) { const html = pub.length ? this.beanStarsHtml(pub, Number(s.rating) || this.calculateAverageRating(pub), Number(s.sessions) || pub.length) : ''; rs.style.display = html ? 'inline-flex' : 'none'; rs.innerHTML = html; }
-                const tf = document.getElementById('d-top-flavors');
-                if (tf) tf.innerHTML = this.getTopFlavors(pub, 3).map(f => this.famChip(f)).join('');
+            // Everyone: how many people, and how it's usually brewed (the middle ratio, time and dose per method; never grind)
+            everyoneSumHtml() {
+                const st = this.coffeeCommState ? this.coffeeCommState() : null;
+                if (st && st.loading && !st.at) return `<div class="lens-sum">${this.loaderHtml('Loading everyone’s sessions…')}</div>`;
+                const pool = this.detailBrews || [];
+                if (!pool.length) return `<div class="lens-sum"><p class="lens-line">${this.esc(st && st.error ? st.error : 'Nobody has shared a session on this coffee yet.')}</p></div>`;
+                const people = new Set(pool.map(b => this.getBrewOwner(b))).size;
+                const med = a => { const v = a.filter(x => x > 0).sort((p, q) => p - q); return v.length ? (v.length % 2 ? v[(v.length - 1) / 2] : (v[v.length / 2 - 1] + v[v.length / 2]) / 2) : 0; };
+                const by = new Map();
+                pool.forEach(b => { const m = String(b.method || '').trim(); if (!m) return; if (!by.has(m)) by.set(m, []); by.get(m).push(b); });
+                const methods = [...by.entries()].sort((a, b) => b[1].length - a[1].length).map(([method, list]) => ({ method, n: list.length, ratio: med(list.map(b => this.ratioOf(b))), time: med(list.map(b => this.num(b.time))), dose: med(list.map(b => this.num(b.dose))) }));
+                const more = st && st.next ? `<button type="button" class="btn-outline cc-more" onclick="app.loadCoffeeCommunity(true)"${st.loading ? ' disabled' : ''}>${st.loading ? 'Loading…' : 'Load more from everyone'}</button>` : '';
+                return `<div class="lens-sum"><p class="lens-line">${people} ${people === 1 ? 'person' : 'people'} · ${pool.length} session${pool.length === 1 ? '' : 's'}</p>${this.coffeeCommMethodsHtml(methods)}${more}</div>`;
+            },
+            // Everyone's public sessions came in: draw the page again with them
+            lensEveryoneLoaded() {
+                const L = this.isDetailActive() ? this.activeLens() : null;
+                if (L && L.id === 'everyone') this.setLens('everyone');
+                else if (this.isDetailActive()) this.paintLens();
+            },
+
+            // ---- v15.1: lists that grow with the app (friends' palates, a roaster's coffees and drinkers, master recipes, a
+            // coffee's sessions, long comment threads) show their first few and "Show all N"; they start short again each
+            // time they're drawn. Never hides just one.
+            moreHtml(rows, limit = 3, noun = '') {
+                if (rows.length <= limit + 1) return rows.join('');
+                return `${rows.slice(0, limit).join('')}<div class="more-rest" hidden>${rows.slice(limit).join('')}</div><button type="button" class="more-toggle" aria-expanded="false" data-n="${rows.length}" data-noun="${this.esc(noun)}" onclick="app.toggleMoreRest(this, event)"><span>Show all ${rows.length}${noun ? ` ${this.esc(noun)}` : ''}</span><svg class="icon"><use href="#i-chevron-down"/></svg></button>`;
+            },
+            toggleMoreRest(btn, ev) {
+                if (ev) { ev.stopPropagation(); ev.preventDefault(); }
+                const rest = btn && btn.previousElementSibling;
+                if (!rest || !rest.classList.contains('more-rest')) return;
+                const open = rest.hidden;
+                rest.hidden = !open;
+                btn.setAttribute('aria-expanded', String(open)); btn.classList.toggle('open', open);
+                const t = btn.querySelector('span'); if (t) t.textContent = open ? 'Show less' : `Show all ${btn.dataset.n}${btn.dataset.noun ? ` ${btn.dataset.noun}` : ''}`;
+                if (!open && btn.scrollIntoView) btn.scrollIntoView({ block: 'nearest' });
+            },
+            // the same for a list drawn element by element
+            moreDom(box, limit, noun = '') {
+                if (!box || box.children.length <= limit + 1) return;
+                const rest = document.createElement('div'); rest.className = 'more-rest'; rest.hidden = true;
+                const n = box.children.length;
+                [...box.children].slice(limit).forEach(el => rest.appendChild(el));
+                box.appendChild(rest);
+                box.insertAdjacentHTML('beforeend', `<button type="button" class="more-toggle" aria-expanded="false" data-n="${n}" data-noun="${this.esc(noun)}" onclick="app.toggleMoreRest(this, event)"><span>Show all ${n}${noun ? ` ${this.esc(noun)}` : ''}</span><svg class="icon"><use href="#i-chevron-down"/></svg></button>`);
+            },
+            // a coffee's session history: the latest five (and the session you came to see, however old); it stays open for
+            // that coffee once you open it (until the app restarts)
+            cutLogs(box) {
+                if (!box) return;
+                const key = this.activeGroup ? this.beanGroupKey(this.activeGroup.meta) + '|' + (this._lens || '') : '';
+                this._logsOpen = this._logsOpen || new Set();
+                const target = this._logTarget || this.openCommentId || ''; this._logTarget = '';
+                const rows = [...box.children].filter(el => el.classList && el.classList.contains('log-row'));
+                const ti = target ? rows.findIndex(el => el.getAttribute('data-card-brew') === target) : -1;
+                if (ti >= 5) this._logsOpen.add(key);
+                const open = this._logsOpen.has(key), LIMIT = 5, cut = rows.length > LIMIT + 1 && !open;
+                rows.forEach((el, i) => el.classList.toggle('more-cut', cut && i >= LIMIT));
+                let btn = document.getElementById('d-logs-more');
+                if (rows.length <= LIMIT + 1) { if (btn) btn.remove(); return; }
+                if (!btn) { btn = document.createElement('button'); btn.type = 'button'; btn.id = 'd-logs-more'; btn.className = 'more-toggle logs-more'; box.parentNode.insertBefore(btn, box.nextSibling); }
+                btn.setAttribute('aria-expanded', String(!cut)); btn.classList.toggle('open', !cut);
+                btn.innerHTML = `<span>${cut ? `Show all ${rows.length} sessions` : 'Show fewer'}</span><svg class="icon"><use href="#i-chevron-down"/></svg>`;
+                btn.onclick = ev => { ev.stopPropagation(); if (this._logsOpen.has(key)) this._logsOpen.delete(key); else this._logsOpen.add(key); this.cutLogs(box); if (this._logsOpen.has(key) === false) btn.scrollIntoView({ block: 'nearest' }); };
             },
         };
         window.onload = () => app.init();

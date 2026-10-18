@@ -16,6 +16,7 @@
                 this.openCommentId = (openComments && brewId) ? String(brewId) : null;
                 const tb = brewId ? this.brews.get(String(brewId)) : null;
                 this._lensWant = tb ? this.getBrewOwner(tb) : '';   // v15.1: a view that has that session in it
+                this._logTarget = brewId ? String(brewId) : '';   // (and its card shown, however old)
                 this.openDetail(group, brews);
                 if (brewId) {
                     setTimeout(() => {

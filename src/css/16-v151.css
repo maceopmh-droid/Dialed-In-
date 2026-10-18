@@ -100,6 +100,16 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
 .d-lens { margin: 0 0 16px; }
 .d-lens .lens-n { margin-left: 6px; font-weight: 650; opacity: 0.7; font-variant-numeric: tabular-nums; }
 .d-lens .comm-chip.on .lens-n { opacity: 0.85; }
-/* Everyone: their stars, notes and flavor shape, and the list of what they shared; the rest is about your circle's sessions */
-#detail-view.lens-everyone .insight-tabs, #detail-view.lens-everyone #d-timeline-pane, #detail-view.lens-everyone #d-compare-pane,
-#detail-view.lens-everyone #d-side-pane, #detail-view.lens-everyone #d-sweet-pane, #detail-view.lens-everyone #d-dialin-pane { display: none !important; }
+.d-lens .lens-sum { margin-top: 12px; }
+.d-lens .lens-line { margin: 0 2px 10px; font-size: 0.8rem; color: var(--text-muted); }
+.d-lens .lens-sum .cc-more { margin-top: 10px; }
+
+/* v15.1: long lists show their first few; "Show all N" opens the rest in place */
+.more-rest { display: contents; }
+.more-rest[hidden] { display: none; }
+.log-row.more-cut { display: none !important; }
+.more-toggle { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100% !important; min-height: 40px !important; margin: 8px 0 0 !important; padding: 8px 14px !important; border-radius: 999px !important; border: 1px solid var(--line) !important; background: transparent !important; color: var(--text-muted) !important; font: inherit; font-size: 0.84rem !important; font-weight: 700 !important; box-shadow: none !important; cursor: pointer; }
+.more-toggle .icon { width: 15px; height: 15px; transition: transform 0.2s ease; }
+.more-toggle.open .icon { transform: rotate(180deg); }
+.more-toggle.cmt-earlier { margin: 0 0 10px !important; }
+#d-logs-more { margin: 4px 0 18px !important; }
