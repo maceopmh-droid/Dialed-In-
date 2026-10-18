@@ -35,7 +35,7 @@
                 const people = [...tally.entries()].sort((a, b) => (b[1] - a[1]) || a[0].localeCompare(b[0])).map(e => e[0]);
                 if (!(avg > 0) && !people.length) return '';
                 const shown = people.slice(0, 4);
-                const faces = shown.map((p, i) => `<i style="background:${this.esc(this.getUserColor(p))};z-index:${9 - i}" title="${this.esc(p)}">${this.esc(this.feedInitial(p))}</i>`).join('')
+                const faces = shown.map((p, i) => `<i data-face="${this.esc(p)}" style="background:${this.esc(this.getUserColor(p))};z-index:${9 - i}" title="${this.esc(p)}">${this.esc(this.feedInitial(p))}</i>`).join('')
                     + (people.length > shown.length ? `<i class="more" style="z-index:1">+${people.length - shown.length}</i>` : '');
                 const stars = avg > 0 ? `<span class="star-meter" style="--fill:${this.starFill(avg)}%;--whole:${this.starWhole(avg)};--frac:${this.starFrac(avg)}"></span><b class="dh-avg">${this.esc(this.formatRating(avg).replace('/5', ''))}</b><span class="dh-n" title="${rated} rated session${rated === 1 ? '' : 's'}">${rated}</span>` : '';
                 return `${stars}${people.length ? `<span class="dh-faces" aria-label="Brewed by ${this.esc(people.join(', '))}">${faces}</span>` : ''}`;

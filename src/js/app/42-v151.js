@@ -87,9 +87,11 @@
                 const level = n => n >= 4 ? 3 : n >= 2 ? 2 : 1;
                 const paths = Object.entries(WORLD_MAP.c).map(([c, d]) => {
                     const list = D.by.get(c);
-                    const cls = `cm-land${belt.has(c) ? ' cm-belt' : ''}${list ? ` cm-on cm-l${level(list.length)}` : ''}${c === sel ? ' cm-sel' : ''}`;
+                    const cls = `cm-land${belt.has(c) ? ' cm-belt' : ''}${list ? ` cm-on cm-l${level(list.length)}` : ''}`;
                     return `<path class="${cls}" d="${d}"${list ? ` data-c="${c}"` : ''}/>`;
                 }).join('');
+                // the picked country's outline goes on top of everything (drawn with its neighbors, they covered parts of it)
+                const selLine = sel && WORLD_MAP.c[sel] ? `<path class="cm-selo" d="${WORLD_MAP.c[sel]}"/>` : '';
                 const hi = WORLD_MAP.dots.HI, hl = D.by.get('HI');
                 const dot = `<circle class="cm-dot${hl ? ` cm-on cm-l${level(hl.length)}` : ''}${sel === 'HI' ? ' cm-sel' : ''}" cx="${hi[0]}" cy="${hi[1]}" r="5"${hl ? ' data-c="HI"' : ''}/>`;
                 const order = [...D.by.entries()].sort((a, b) => b[1].length - a[1].length || this.coffeeCountryName(a[0]).localeCompare(this.coffeeCountryName(b[0])));
@@ -100,7 +102,7 @@
                 const own = user === this.user;
                 return `<section class="profile-card cmap" data-cmap="${esc(user)}" onclick="app.coffeeMapTap(event)"><h4 class="section-label">${own ? 'Your coffee map' : `${esc(user)}'s coffee map`}</h4>`
                     + `<div class="cm-sum">${D.coffees} coffee${D.coffees === 1 ? '' : 's'} from ${D.by.size} countr${D.by.size === 1 ? 'y' : 'ies'} · ${D.continents.size} of ${geo.continents.length} coffee continents</div>`
-                    + `<svg class="cm-svg" viewBox="0 34 ${WORLD_MAP.w} ${WORLD_MAP.h - 70}" role="img" aria-label="Map of the countries ${own ? 'your' : 'their'} coffees came from">${paths}${dot}</svg>`
+                    + `<svg class="cm-svg" viewBox="0 34 ${WORLD_MAP.w} ${WORLD_MAP.h - 70}" role="img" aria-label="Map of the countries ${own ? 'your' : 'their'} coffees came from">${paths}${dot}${selLine}</svg>`
                     + `<div class="cm-chips">${chips}</div><div class="cm-conts">${conts}</div>${list}</section>`;
             },
             coffeeMapTap(event) {

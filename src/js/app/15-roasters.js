@@ -172,7 +172,7 @@
 
             roasterCardHtml(r) {
                 const fav = this.user && r.favBy.includes(this.user);
-                const faces = r.people.slice(0, 3).map((p, i) => `<i style="background:${this.esc(this.getUserColor(p.name))};z-index:${9 - i}">${this.esc(this.feedInitial(p.name))}</i>`).join('') + (r.people.length > 3 ? `<i class="more">+${r.people.length - 3}</i>` : '');
+                const faces = r.people.slice(0, 3).map((p, i) => `<i data-face="${this.esc(p.name)}" style="background:${this.esc(this.getUserColor(p.name))};z-index:${9 - i}">${this.esc(this.feedInitial(p.name))}</i>`).join('') + (r.people.length > 3 ? `<i class="more">+${r.people.length - 3}</i>` : '');
                 const n = r.coffees.length;
                 return `<div class="card ro-card" role="button" tabindex="0" data-roaster-key="${this.esc(r.key)}" onclick="app.openRoaster(this.getAttribute('data-roaster-key'))">
                     <div class="ro-head">${this.roasterTileHtml(r)}<div class="ro-main"><span class="ro-name">${this.esc(r.name)}</span>${r.rated ? `<div class="ro-rate"><span class="star-meter" style="--fill:${this.starFill(r.avg)}%;--whole:${this.starWhole(r.avg)};--frac:${this.starFrac(r.avg)}"></span><span>${this.esc(RoasterEngine.f1(r.avg))}</span></div>` : ''}</div></div>

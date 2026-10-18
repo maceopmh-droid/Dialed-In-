@@ -16,7 +16,7 @@
                 const people = this.commentPeople(comments);
                 if (!people.length) return '';
                 const shown = people.slice(0, 3);
-                return `<span class="thread-faces" aria-hidden="true">${shown.map((p, i) => `<i style="background:${this.esc(this.getUserColor(p))};z-index:${9 - i}">${this.esc(this.feedInitial(p))}</i>`).join('')}${people.length > shown.length ? `<i class="more" style="z-index:1">+${people.length - shown.length}</i>` : ''}</span>`;
+                return `<span class="thread-faces" aria-hidden="true">${shown.map((p, i) => `<i data-face="${this.esc(p)}" style="background:${this.esc(this.getUserColor(p))};z-index:${9 - i}">${this.esc(this.feedInitial(p))}</i>`).join('')}${people.length > shown.length ? `<i class="more" style="z-index:1">+${people.length - shown.length}</i>` : ''}</span>`;
             },
 
             commentButtonLabel(comments) {

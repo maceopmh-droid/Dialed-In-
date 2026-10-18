@@ -435,7 +435,7 @@
             monthCardsHtml(user, s, period, best) {
                 const esc = v => this.esc(v);
                 const month = this.monthName(period.slice(2), false);
-                const face = n => `<b class="mrc-face" style="background:${esc(this.getUserColor(n))}">${esc(this.feedInitial(n))}</b>`;
+                const face = n => `<b class="mrc-face" data-face="${esc(n)}" style="background:${esc(this.getUserColor(n))}">${esc(this.feedInitial(n))}</b>`;
                 const amount = g => g >= 1000 ? `${this.fmtNum(g / 1000, 2)} kg` : `${Math.round(g)} g`;
                 const stats = [[amount(s.grams), 'coffee'], [s.avgRating ? `${this.fmtNum(s.avgRating, 1)}★` : '—', 'average rating'], [`${s.longestStreak} day${s.longestStreak === 1 ? '' : 's'}`, 'longest run'], [String(s.newBeans || 0), `new coffee${s.newBeans === 1 ? '' : 's'}`]];
                 const lines = [];

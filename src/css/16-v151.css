@@ -38,7 +38,8 @@
         .cm-on { cursor: pointer; }
         .cm-l1 { fill: rgba(var(--matcha-rgb), 0.68); } .cm-l2 { fill: rgba(var(--matcha-rgb), 0.86); } .cm-l3 { fill: var(--matcha); }
         :root[data-theme="dark"] .cm-on { filter: drop-shadow(0 0 3px rgba(var(--matcha-rgb), 0.55)); }
-        .cm-sel { stroke: var(--ink); stroke-width: 1.8; }
+        .cm-sel { stroke: var(--ink); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
+        .cm-selo { fill: none; stroke: var(--ink); stroke-width: 1.5px; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; pointer-events: none; }
         .cm-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
         .cm-chip { display: inline-flex; align-items: center; gap: 5px; width: auto; margin: 0; padding: 5px 10px; border: 1px solid rgba(var(--hair-rgb), 0.1); border-radius: 999px; background: var(--surface-2, rgba(var(--hair-rgb), 0.04)); font: inherit; font-size: 0.76rem; font-weight: 650; color: var(--ink-2, var(--ink)); text-transform: none; letter-spacing: 0; cursor: pointer; box-shadow: none; }
         .cm-chip b { font-weight: 750; color: var(--matcha-ink); }

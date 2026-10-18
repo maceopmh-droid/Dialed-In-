@@ -258,7 +258,7 @@
                     <div class="aw-tile${compact ? ' compact' : ''}${opts.sealed ? ' sealed' : ''}" style="--ac:${this.esc(aw.color)};--ac-rgb:${this.hexRgb(aw.color)};--i:${i}">
                         <span class="aw-icon"><svg class="icon"><use href="#${this.esc(aw.icon)}"/></svg></span>
                         <div class="aw-body"><div class="aw-title">${this.esc(aw.title)}</div>
-                        <div class="aw-win">${opts.sealed ? '<b class="aw-face" style="background:var(--text-faint)">?</b>Sealed' : aw.winners.map(n => `<b class="aw-face" style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</b>${this.esc(n)}`).join('<span class="aw-amp">&amp;</span>')}</div>
+                        <div class="aw-win">${opts.sealed ? '<b class="aw-face" style="background:var(--text-faint)">?</b>Sealed' : aw.winners.map(n => `<b class="aw-face" data-face="${this.esc(n)}" style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</b>${this.esc(n)}`).join('<span class="aw-amp">&amp;</span>')}</div>
                         ${compact ? '' : `<div class="aw-stat">${opts.sealed ? 'Revealed when you tap below' : this.esc(aw.stat)}</div>`}
                         ${rival && !opts.sealed ? `<div class="aw-rival">${this.esc(rival)}</div>` : ''}</div>
                     </div>`;
@@ -324,7 +324,7 @@
                 const standings = this.awardStandings(awards);
                 const topN = standings.length ? standings[0][1] : 0;
                 const champs = standings.filter(r => r[1] === topN).map(r => r[0]);
-                const face = n => `<b class="aw-face" style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</b>`;
+                const face = n => `<b class="aw-face" data-face="${this.esc(n)}" style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</b>`;
                 const champ = standings.length ? `
                         <div class="aw-champ">
                             <span class="aw-crown"><svg class="icon"><use href="#i-crown"/></svg></span>

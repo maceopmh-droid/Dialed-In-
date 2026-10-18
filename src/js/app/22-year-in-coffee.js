@@ -274,7 +274,7 @@
                 const y = you ? 'you' : D.user;
                 const your = you ? 'Your' : `${D.user}'s`;
                 const yourL = you ? 'your' : `${D.user}'s`;
-                const face = n => `<span class="wr-face" style="background:${esc(this.getUserColor(n))}">${esc(this.feedInitial(n))}</span>`;
+                const face = n => `<span class="wr-face" data-face="${esc(n)}" style="background:${esc(this.getUserColor(n))}">${esc(this.feedInitial(n))}</span>`;
                 const monthL = i => new Date(D.year, i, 1).toLocaleDateString(undefined, { month: 'long' });
                 const dayL = i => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][i];
                 const hourL = h => { const d = new Date(2020, 0, 1, h); return d.toLocaleTimeString(undefined, { hour: 'numeric' }).replace(':00', ''); };
@@ -464,7 +464,7 @@
                 el.setAttribute('aria-label', `${D.user}'s ${D.year} Year in Coffee`);
                 el.style.setProperty('--uc', D.color);
                 el.innerHTML = `<div class="wr-bars">${slides.map(() => '<i><b></b></i>').join('')}</div>
-                    <div class="wr-top"><span class="wr-who"><b style="background:${this.esc(D.color)}">${this.esc(this.feedInitial(D.user))}</b>${this.esc(D.user)} · ${D.year}</span><button type="button" class="wr-close" aria-label="Close" onclick="app.closeWrapped()"><svg class="icon"><use href="#i-x"/></svg></button></div>
+                    <div class="wr-top"><span class="wr-who"><b data-face="${this.esc(D.user)}" style="background:${this.esc(D.color)}">${this.esc(this.feedInitial(D.user))}</b>${this.esc(D.user)} · ${D.year}</span><button type="button" class="wr-close" aria-label="Close" onclick="app.closeWrapped()"><svg class="icon"><use href="#i-x"/></svg></button></div>
                     <div class="wr-stage"></div>`;
                 document.body.appendChild(el);
                 this._wr = { D, slides, i: 0, el, prevOverflow: document.body.style.overflow };

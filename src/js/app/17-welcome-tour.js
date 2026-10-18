@@ -44,7 +44,7 @@
             },
 
             wlFaces(rows, max = 5) {
-                return `<span class="wl-faces">${rows.slice(0, max).map(r => `<i style="background:${this.esc(this.getUserColor(r.name))}">${this.esc(this.feedInitial(r.name))}</i>`).join('')}</span>`;
+                return `<span class="wl-faces">${rows.slice(0, max).map(r => `<i data-face="${this.esc(r.name)}" style="background:${this.esc(this.getUserColor(r.name))}">${this.esc(this.feedInitial(r.name))}</i>`).join('')}</span>`;
             },
 
             wlNames(rows) {
@@ -85,7 +85,7 @@
                         <h2 class="wl-h2">Welcome back.</h2>
                         <p class="wl-sub">Who's brewing?</p>
                         <div class="wl-people">${rows.length ? rows.map(r => `<button type="button" class="wl-person" data-person="${esc(r.name)}" onclick="app.wlPick(this.getAttribute('data-person'))">
-                            <i style="background:${esc(this.getUserColor(r.name))}">${esc(this.feedInitial(r.name))}</i>
+                            <i data-face="${esc(r.name)}" style="background:${esc(this.getUserColor(r.name))}">${esc(this.feedInitial(r.name))}</i>
                             <span class="wl-pn"><b>${esc(r.name)}</b><small>${r.c ? `${r.c} session${r.c === 1 ? '' : 's'} · last brewed ${esc(this.formatRelativeDate(new Date(r.last).toISOString()).toLowerCase())}` : 'No sessions yet'}</small></span>
                             <svg class="icon wl-chev"><use href="#i-chevron-down"/></svg></button>`).join('') : '<div class="wl-empty">Loading the group…</div>'}</div>
                         <button type="button" class="wl-link" onclick="app.wlGo('name')">Not on the list? Set up a new profile</button>
@@ -217,7 +217,7 @@
                 if (prev) {
                     const name = n || 'You', c = s.color;
                     const best = this.wlGroup().best, bean = best ? this.beans.get(String(best.beanId)) : null;
-                    prev.innerHTML = `<div class="wl-pv-head"><i style="background:${this.esc(c)}">${this.esc(this.feedInitial(name))}</i><span><b style="color:${this.esc(c)}">${this.esc(name)}</b><small>Just now</small></span><em>Espresso</em></div>
+                    prev.innerHTML = `<div class="wl-pv-head"><i data-face="${this.esc(name)}" style="background:${this.esc(c)}">${this.esc(this.feedInitial(name))}</i><span><b style="color:${this.esc(c)}">${this.esc(name)}</b><small>Just now</small></span><em>Espresso</em></div>
                         <div class="wl-pv-title">${this.esc(bean ? (bean.name || 'Your first coffee') : 'Your first coffee')}</div>
                         <div class="wl-pv-strip"><span><b>18</b>g<small>Dose</small></span><span><b>40</b>g<small>Pull · 1:2.2</small></span><span><b>29</b>s<small>Time</small></span></div>`;
                 }
@@ -385,7 +385,7 @@
                 if (t.i >= n) {
                     const bean = this.wlFirstBean ? this.beans.get(String(this.wlFirstBean)) : null;
                     el.innerHTML = `<div class="wl-dim"></div><div class="wl-bubble wl-final" role="dialog" aria-label="All set">
-                        <div class="wl-final-face" style="background:${this.esc(this.getUserColor(this.user))}">${this.esc(this.feedInitial(this.user))}</div>
+                        <div class="wl-final-face" data-face="${this.esc(this.user || '')}" style="background:${this.esc(this.getUserColor(this.user))}">${this.esc(this.feedInitial(this.user))}</div>
                         <h4>You're dialed in, ${this.esc(this.user)}.</h4>
                         <p>${bean ? `Your first coffee is ready: <b>${this.esc(bean.name || 'Coffee')}</b>. Log a session and the coach starts learning your taste.` : 'Pick any coffee, log a session, and the coach starts learning your taste.'}</p>
                         <div class="wl-final-actions"><button type="button" class="btn-primary" onclick="app.tourFirstSession()">Log your first session</button><button type="button" class="wl-link" onclick="app.endTour()">Look around first</button></div>

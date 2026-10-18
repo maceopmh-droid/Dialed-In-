@@ -3713,7 +3713,8 @@
         .cm-on { cursor: pointer; }
         .cm-l1 { fill: rgba(var(--matcha-rgb), 0.68); } .cm-l2 { fill: rgba(var(--matcha-rgb), 0.86); } .cm-l3 { fill: var(--matcha); }
         :root[data-theme="dark"] .cm-on { filter: drop-shadow(0 0 3px rgba(var(--matcha-rgb), 0.55)); }
-        .cm-sel { stroke: var(--ink); stroke-width: 1.8; }
+        .cm-sel { stroke: var(--ink); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
+        .cm-selo { fill: none; stroke: var(--ink); stroke-width: 1.5px; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; pointer-events: none; }
         .cm-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
         .cm-chip { display: inline-flex; align-items: center; gap: 5px; width: auto; margin: 0; padding: 5px 10px; border: 1px solid rgba(var(--hair-rgb), 0.1); border-radius: 999px; background: var(--surface-2, rgba(var(--hair-rgb), 0.04)); font: inherit; font-size: 0.76rem; font-weight: 650; color: var(--ink-2, var(--ink)); text-transform: none; letter-spacing: 0; cursor: pointer; box-shadow: none; }
         .cm-chip b { font-weight: 750; color: var(--matcha-ink); }
@@ -9160,7 +9161,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     ? q.people.filter(p => (q.counts[p] || 0) >= q.per).map(p => ({ p, w: 1 / q.target }))
                     : q.by.map(([p, n]) => ({ p, w: Math.min(n, q.target) / q.target }));
                 const bar = this.crewBarHtml(q, segs);
-                const faces = q.by.map(([p, n]) => `<span class="cq-face" data-profile="${this.esc(p)}"><b style="background:${this.esc(this.getUserColor(p))}">${this.esc(this.feedInitial(p))}</b>${n}</span>`).join('');
+                const faces = q.by.map(([p, n]) => `<span class="cq-face" data-profile="${this.esc(p)}"><b data-face="${this.esc(p)}" style="background:${this.esc(this.getUserColor(p))}">${this.esc(this.feedInitial(p))}</b>${n}</span>`).join('');
                 const left = q.done ? 'Done together' : (q.daysLeft <= 1 ? 'Last day' : `${q.daysLeft} days left`);
                 // v15.0: invite people to this community from its goal (its invite link, as in People)
                 const sg = this._crewScope && this._crewScope.id !== 'friends' && this.grState ? (this.grState().list || []).find(g => String(g.id) === this._crewScope.id) : null;
@@ -9435,7 +9436,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     <div class="aw-tile${compact ? ' compact' : ''}${opts.sealed ? ' sealed' : ''}" style="--ac:${this.esc(aw.color)};--ac-rgb:${this.hexRgb(aw.color)};--i:${i}">
                         <span class="aw-icon"><svg class="icon"><use href="#${this.esc(aw.icon)}"/></svg></span>
                         <div class="aw-body"><div class="aw-title">${this.esc(aw.title)}</div>
-                        <div class="aw-win">${opts.sealed ? '<b class="aw-face" style="background:var(--text-faint)">?</b>Sealed' : aw.winners.map(n => `<b class="aw-face" style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</b>${this.esc(n)}`).join('<span class="aw-amp">&amp;</span>')}</div>
+                        <div class="aw-win">${opts.sealed ? '<b class="aw-face" style="background:var(--text-faint)">?</b>Sealed' : aw.winners.map(n => `<b class="aw-face" data-face="${this.esc(n)}" style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</b>${this.esc(n)}`).join('<span class="aw-amp">&amp;</span>')}</div>
                         ${compact ? '' : `<div class="aw-stat">${opts.sealed ? 'Revealed when you tap below' : this.esc(aw.stat)}</div>`}
                         ${rival && !opts.sealed ? `<div class="aw-rival">${this.esc(rival)}</div>` : ''}</div>
                     </div>`;
@@ -9501,7 +9502,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const standings = this.awardStandings(awards);
                 const topN = standings.length ? standings[0][1] : 0;
                 const champs = standings.filter(r => r[1] === topN).map(r => r[0]);
-                const face = n => `<b class="aw-face" style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</b>`;
+                const face = n => `<b class="aw-face" data-face="${this.esc(n)}" style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</b>`;
                 const champ = standings.length ? `
                         <div class="aw-champ">
                             <span class="aw-crown"><svg class="icon"><use href="#i-crown"/></svg></span>
@@ -10532,7 +10533,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const people = this.commentPeople(comments);
                 if (!people.length) return '';
                 const shown = people.slice(0, 3);
-                return `<span class="thread-faces" aria-hidden="true">${shown.map((p, i) => `<i style="background:${this.esc(this.getUserColor(p))};z-index:${9 - i}">${this.esc(this.feedInitial(p))}</i>`).join('')}${people.length > shown.length ? `<i class="more" style="z-index:1">+${people.length - shown.length}</i>` : ''}</span>`;
+                return `<span class="thread-faces" aria-hidden="true">${shown.map((p, i) => `<i data-face="${this.esc(p)}" style="background:${this.esc(this.getUserColor(p))};z-index:${9 - i}">${this.esc(this.feedInitial(p))}</i>`).join('')}${people.length > shown.length ? `<i class="more" style="z-index:1">+${people.length - shown.length}</i>` : ''}</span>`;
             },
 
             commentButtonLabel(comments) {
@@ -11253,7 +11254,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
             roasterCardHtml(r) {
                 const fav = this.user && r.favBy.includes(this.user);
-                const faces = r.people.slice(0, 3).map((p, i) => `<i style="background:${this.esc(this.getUserColor(p.name))};z-index:${9 - i}">${this.esc(this.feedInitial(p.name))}</i>`).join('') + (r.people.length > 3 ? `<i class="more">+${r.people.length - 3}</i>` : '');
+                const faces = r.people.slice(0, 3).map((p, i) => `<i data-face="${this.esc(p.name)}" style="background:${this.esc(this.getUserColor(p.name))};z-index:${9 - i}">${this.esc(this.feedInitial(p.name))}</i>`).join('') + (r.people.length > 3 ? `<i class="more">+${r.people.length - 3}</i>` : '');
                 const n = r.coffees.length;
                 return `<div class="card ro-card" role="button" tabindex="0" data-roaster-key="${this.esc(r.key)}" onclick="app.openRoaster(this.getAttribute('data-roaster-key'))">
                     <div class="ro-head">${this.roasterTileHtml(r)}<div class="ro-main"><span class="ro-name">${this.esc(r.name)}</span>${r.rated ? `<div class="ro-rate"><span class="star-meter" style="--fill:${this.starFill(r.avg)}%;--whole:${this.starWhole(r.avg)};--frac:${this.starFrac(r.avg)}"></span><span>${this.esc(RoasterEngine.f1(r.avg))}</span></div>` : ''}</div></div>
@@ -11762,7 +11763,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             },
 
             wlFaces(rows, max = 5) {
-                return `<span class="wl-faces">${rows.slice(0, max).map(r => `<i style="background:${this.esc(this.getUserColor(r.name))}">${this.esc(this.feedInitial(r.name))}</i>`).join('')}</span>`;
+                return `<span class="wl-faces">${rows.slice(0, max).map(r => `<i data-face="${this.esc(r.name)}" style="background:${this.esc(this.getUserColor(r.name))}">${this.esc(this.feedInitial(r.name))}</i>`).join('')}</span>`;
             },
 
             wlNames(rows) {
@@ -11803,7 +11804,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         <h2 class="wl-h2">Welcome back.</h2>
                         <p class="wl-sub">Who's brewing?</p>
                         <div class="wl-people">${rows.length ? rows.map(r => `<button type="button" class="wl-person" data-person="${esc(r.name)}" onclick="app.wlPick(this.getAttribute('data-person'))">
-                            <i style="background:${esc(this.getUserColor(r.name))}">${esc(this.feedInitial(r.name))}</i>
+                            <i data-face="${esc(r.name)}" style="background:${esc(this.getUserColor(r.name))}">${esc(this.feedInitial(r.name))}</i>
                             <span class="wl-pn"><b>${esc(r.name)}</b><small>${r.c ? `${r.c} session${r.c === 1 ? '' : 's'} · last brewed ${esc(this.formatRelativeDate(new Date(r.last).toISOString()).toLowerCase())}` : 'No sessions yet'}</small></span>
                             <svg class="icon wl-chev"><use href="#i-chevron-down"/></svg></button>`).join('') : '<div class="wl-empty">Loading the group…</div>'}</div>
                         <button type="button" class="wl-link" onclick="app.wlGo('name')">Not on the list? Set up a new profile</button>
@@ -11935,7 +11936,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (prev) {
                     const name = n || 'You', c = s.color;
                     const best = this.wlGroup().best, bean = best ? this.beans.get(String(best.beanId)) : null;
-                    prev.innerHTML = `<div class="wl-pv-head"><i style="background:${this.esc(c)}">${this.esc(this.feedInitial(name))}</i><span><b style="color:${this.esc(c)}">${this.esc(name)}</b><small>Just now</small></span><em>Espresso</em></div>
+                    prev.innerHTML = `<div class="wl-pv-head"><i data-face="${this.esc(name)}" style="background:${this.esc(c)}">${this.esc(this.feedInitial(name))}</i><span><b style="color:${this.esc(c)}">${this.esc(name)}</b><small>Just now</small></span><em>Espresso</em></div>
                         <div class="wl-pv-title">${this.esc(bean ? (bean.name || 'Your first coffee') : 'Your first coffee')}</div>
                         <div class="wl-pv-strip"><span><b>18</b>g<small>Dose</small></span><span><b>40</b>g<small>Pull · 1:2.2</small></span><span><b>29</b>s<small>Time</small></span></div>`;
                 }
@@ -12103,7 +12104,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (t.i >= n) {
                     const bean = this.wlFirstBean ? this.beans.get(String(this.wlFirstBean)) : null;
                     el.innerHTML = `<div class="wl-dim"></div><div class="wl-bubble wl-final" role="dialog" aria-label="All set">
-                        <div class="wl-final-face" style="background:${this.esc(this.getUserColor(this.user))}">${this.esc(this.feedInitial(this.user))}</div>
+                        <div class="wl-final-face" data-face="${this.esc(this.user || '')}" style="background:${this.esc(this.getUserColor(this.user))}">${this.esc(this.feedInitial(this.user))}</div>
                         <h4>You're dialed in, ${this.esc(this.user)}.</h4>
                         <p>${bean ? `Your first coffee is ready: <b>${this.esc(bean.name || 'Coffee')}</b>. Log a session and the coach starts learning your taste.` : 'Pick any coffee, log a session, and the coach starts learning your taste.'}</p>
                         <div class="wl-final-actions"><button type="button" class="btn-primary" onclick="app.tourFirstSession()">Log your first session</button><button type="button" class="wl-link" onclick="app.endTour()">Look around first</button></div>
@@ -12744,7 +12745,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const people = [...tally.entries()].sort((a, b) => (b[1] - a[1]) || a[0].localeCompare(b[0])).map(e => e[0]);
                 if (!(avg > 0) && !people.length) return '';
                 const shown = people.slice(0, 4);
-                const faces = shown.map((p, i) => `<i style="background:${this.esc(this.getUserColor(p))};z-index:${9 - i}" title="${this.esc(p)}">${this.esc(this.feedInitial(p))}</i>`).join('')
+                const faces = shown.map((p, i) => `<i data-face="${this.esc(p)}" style="background:${this.esc(this.getUserColor(p))};z-index:${9 - i}" title="${this.esc(p)}">${this.esc(this.feedInitial(p))}</i>`).join('')
                     + (people.length > shown.length ? `<i class="more" style="z-index:1">+${people.length - shown.length}</i>` : '');
                 const stars = avg > 0 ? `<span class="star-meter" style="--fill:${this.starFill(avg)}%;--whole:${this.starWhole(avg)};--frac:${this.starFrac(avg)}"></span><b class="dh-avg">${this.esc(this.formatRating(avg).replace('/5', ''))}</b><span class="dh-n" title="${rated} rated session${rated === 1 ? '' : 's'}">${rated}</span>` : '';
                 return `${stars}${people.length ? `<span class="dh-faces" aria-label="Brewed by ${this.esc(people.join(', '))}">${faces}</span>` : ''}`;
@@ -13399,7 +13400,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             monthCardsHtml(user, s, period, best) {
                 const esc = v => this.esc(v);
                 const month = this.monthName(period.slice(2), false);
-                const face = n => `<b class="mrc-face" style="background:${esc(this.getUserColor(n))}">${esc(this.feedInitial(n))}</b>`;
+                const face = n => `<b class="mrc-face" data-face="${esc(n)}" style="background:${esc(this.getUserColor(n))}">${esc(this.feedInitial(n))}</b>`;
                 const amount = g => g >= 1000 ? `${this.fmtNum(g / 1000, 2)} kg` : `${Math.round(g)} g`;
                 const stats = [[amount(s.grams), 'coffee'], [s.avgRating ? `${this.fmtNum(s.avgRating, 1)}★` : '—', 'average rating'], [`${s.longestStreak} day${s.longestStreak === 1 ? '' : 's'}`, 'longest run'], [String(s.newBeans || 0), `new coffee${s.newBeans === 1 ? '' : 's'}`]];
                 const lines = [];
@@ -13989,7 +13990,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const y = you ? 'you' : D.user;
                 const your = you ? 'Your' : `${D.user}'s`;
                 const yourL = you ? 'your' : `${D.user}'s`;
-                const face = n => `<span class="wr-face" style="background:${esc(this.getUserColor(n))}">${esc(this.feedInitial(n))}</span>`;
+                const face = n => `<span class="wr-face" data-face="${esc(n)}" style="background:${esc(this.getUserColor(n))}">${esc(this.feedInitial(n))}</span>`;
                 const monthL = i => new Date(D.year, i, 1).toLocaleDateString(undefined, { month: 'long' });
                 const dayL = i => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][i];
                 const hourL = h => { const d = new Date(2020, 0, 1, h); return d.toLocaleTimeString(undefined, { hour: 'numeric' }).replace(':00', ''); };
@@ -14179,7 +14180,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 el.setAttribute('aria-label', `${D.user}'s ${D.year} Year in Coffee`);
                 el.style.setProperty('--uc', D.color);
                 el.innerHTML = `<div class="wr-bars">${slides.map(() => '<i><b></b></i>').join('')}</div>
-                    <div class="wr-top"><span class="wr-who"><b style="background:${this.esc(D.color)}">${this.esc(this.feedInitial(D.user))}</b>${this.esc(D.user)} · ${D.year}</span><button type="button" class="wr-close" aria-label="Close" onclick="app.closeWrapped()"><svg class="icon"><use href="#i-x"/></svg></button></div>
+                    <div class="wr-top"><span class="wr-who"><b data-face="${this.esc(D.user)}" style="background:${this.esc(D.color)}">${this.esc(this.feedInitial(D.user))}</b>${this.esc(D.user)} · ${D.year}</span><button type="button" class="wr-close" aria-label="Close" onclick="app.closeWrapped()"><svg class="icon"><use href="#i-x"/></svg></button></div>
                     <div class="wr-stage"></div>`;
                 document.body.appendChild(el);
                 this._wr = { D, slides, i: 0, el, prevOverflow: document.body.style.overflow };
@@ -18734,9 +18735,11 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const level = n => n >= 4 ? 3 : n >= 2 ? 2 : 1;
                 const paths = Object.entries(WORLD_MAP.c).map(([c, d]) => {
                     const list = D.by.get(c);
-                    const cls = `cm-land${belt.has(c) ? ' cm-belt' : ''}${list ? ` cm-on cm-l${level(list.length)}` : ''}${c === sel ? ' cm-sel' : ''}`;
+                    const cls = `cm-land${belt.has(c) ? ' cm-belt' : ''}${list ? ` cm-on cm-l${level(list.length)}` : ''}`;
                     return `<path class="${cls}" d="${d}"${list ? ` data-c="${c}"` : ''}/>`;
                 }).join('');
+                // the picked country's outline goes on top of everything (drawn with its neighbors, they covered parts of it)
+                const selLine = sel && WORLD_MAP.c[sel] ? `<path class="cm-selo" d="${WORLD_MAP.c[sel]}"/>` : '';
                 const hi = WORLD_MAP.dots.HI, hl = D.by.get('HI');
                 const dot = `<circle class="cm-dot${hl ? ` cm-on cm-l${level(hl.length)}` : ''}${sel === 'HI' ? ' cm-sel' : ''}" cx="${hi[0]}" cy="${hi[1]}" r="5"${hl ? ' data-c="HI"' : ''}/>`;
                 const order = [...D.by.entries()].sort((a, b) => b[1].length - a[1].length || this.coffeeCountryName(a[0]).localeCompare(this.coffeeCountryName(b[0])));
@@ -18747,7 +18750,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const own = user === this.user;
                 return `<section class="profile-card cmap" data-cmap="${esc(user)}" onclick="app.coffeeMapTap(event)"><h4 class="section-label">${own ? 'Your coffee map' : `${esc(user)}'s coffee map`}</h4>`
                     + `<div class="cm-sum">${D.coffees} coffee${D.coffees === 1 ? '' : 's'} from ${D.by.size} countr${D.by.size === 1 ? 'y' : 'ies'} · ${D.continents.size} of ${geo.continents.length} coffee continents</div>`
-                    + `<svg class="cm-svg" viewBox="0 34 ${WORLD_MAP.w} ${WORLD_MAP.h - 70}" role="img" aria-label="Map of the countries ${own ? 'your' : 'their'} coffees came from">${paths}${dot}</svg>`
+                    + `<svg class="cm-svg" viewBox="0 34 ${WORLD_MAP.w} ${WORLD_MAP.h - 70}" role="img" aria-label="Map of the countries ${own ? 'your' : 'their'} coffees came from">${paths}${dot}${selLine}</svg>`
                     + `<div class="cm-chips">${chips}</div><div class="cm-conts">${conts}</div>${list}</section>`;
             },
             coffeeMapTap(event) {
