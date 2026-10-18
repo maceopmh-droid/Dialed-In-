@@ -12,7 +12,7 @@
                 try { const out = await Supa.rpc('monthly_highlights', {}); st.month = (out && out.month) || ''; st.items = Array.isArray(out && out.items) ? out.items : []; }
                 catch (e) { st.items = st.items || []; }
                 finally { st.loading = false; st.at = Date.now(); }
-                if (this.tab === 'feed') { this._feedHtml = null; this.render(); }
+                if (this.tab === 'feed') { this._feedHtml = null; this.render(); } else if (this.tab === 'profile') this.render();   // v15.1: Everyone on the Activity tab
             },
 
             hlLine(h) {
@@ -27,15 +27,20 @@
                 }
             },
 
+            hlMonthLabel() { const st = this.hlState(); return st.month ? new Date(`${st.month}T12:00:00`).toLocaleDateString(undefined, { month: 'long' }) : 'Last month'; },
+            hlRowsHtml() {
+                return (this.hlState().items || []).map(h => {
+                    const [what, more] = this.hlLine(h);
+                    return `<button type="button" class="hl-row" data-profile="${this.esc(h.name)}">${this.personDotHtml(h.name, h.color)}<span class="hl-main"><b>${this.esc(h.name)}</b><small>${this.esc(what)}${more ? ` · ${this.esc(more)}` : ''}</small></span></button>`;
+                }).join('');
+            },
+
             highlightsHtml() {
                 if (!this.acctOn() || !this.hlShowing()) return '';
                 const st = this.hlState();
                 if (!st.loading && !st.at) setTimeout(() => this.loadHighlights(), 0);
                 if (!st.items || !st.items.length) return '';
-                const label = st.month ? new Date(`${st.month}T12:00:00`).toLocaleDateString(undefined, { month: 'long' }) : 'Last month';
-                const rows = st.items.map(h => {
-                    const [what, more] = this.hlLine(h);
-                    return `<button type="button" class="hl-row" data-profile="${this.esc(h.name)}">${this.personDotHtml(h.name, h.color)}<span class="hl-main"><b>${this.esc(h.name)}</b><small>${this.esc(what)}${more ? ` · ${this.esc(more)}` : ''}</small></span></button>`;
-                }).join('');
+                const label = this.hlMonthLabel();
+                const rows = this.hlRowsHtml();
                 return `<section class="feed-card hl-card" aria-label="${this.esc(label)} highlights"><div class="hl-head"><b>${this.esc(label)} highlights</b><small>From what people shared with Everyone</small></div>${rows}</section>`;
             },

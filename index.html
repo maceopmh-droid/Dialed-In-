@@ -3676,14 +3676,14 @@
         /* ===================== v15.1 ===================== */
         /* the bottom bar: the tab you're on sits in a soft pill, clear in light and dark */
         .mob-item { isolation: isolate; }
-        .mob-item::before { content: ''; position: absolute; top: 50%; left: 50%; width: 60px; height: 50px; border-radius: 999px; z-index: -1; pointer-events: none;
+        .mob-item::before { content: ''; position: absolute; top: 50%; left: 50%; width: min(76px, calc(100% - 4px)); height: 50px; border-radius: 999px; z-index: -1; pointer-events: none;
             background: rgba(var(--matcha-rgb), 0.15); box-shadow: inset 0 0 0 1px rgba(var(--matcha-rgb), 0.2);
             opacity: 0; transform: translate(-50%, -50%) scale(0.72); transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), width 0.3s, height 0.3s; }
         :root[data-theme="dark"] .mob-item::before { background: rgba(var(--matcha-rgb), 0.17); box-shadow: inset 0 0 0 1px rgba(var(--matcha-rgb), 0.24); }
         .mob-item.active::before { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         .mob-item.active { color: var(--matcha-ink); }
         .mob-item.active .icon { filter: none; }
-        body.bars-tucked .mob-item::before { width: 48px; height: 38px; }
+        body.bars-tucked .mob-item::before { width: min(54px, calc(100% - 4px)); height: 38px; }
         @media (prefers-reduced-motion: reduce) { .mob-item::before { transition: none; } }
 
         /* the loading animation: the Dialed In logo (a flavor shape seen from above), turning */
@@ -3708,8 +3708,10 @@
         .cmap .cm-sum { margin: -2px 0 10px; font-size: 0.8rem; color: var(--text-muted); }
         .cm-svg { display: block; width: 100%; height: auto; margin: 0 -2px; }
         .cm-land { fill: rgba(var(--hair-rgb), 0.11); stroke: var(--surface); stroke-width: 0.8; stroke-linejoin: round; }
-        .cm-belt { fill: rgba(var(--matcha-rgb), 0.26); }
-        .cm-dot { fill: rgba(var(--matcha-rgb), 0.26); stroke: var(--surface); stroke-width: 1; }
+        .cm-tropic { stroke: rgba(var(--matcha-rgb), 0.75); stroke-width: 1px; stroke-dasharray: 4 4; vector-effect: non-scaling-stroke; pointer-events: none; }
+        .cm-legend { display: flex; align-items: center; gap: 7px; margin-top: 6px; font-size: 0.7rem; font-weight: 600; color: var(--text-faint); }
+        .cm-legend i { width: 18px; border-top: 1px dashed rgba(var(--matcha-rgb), 0.85); }
+        .cm-dot { fill: rgba(var(--hair-rgb), 0.11); stroke: var(--surface); stroke-width: 1; }
         .cm-on { cursor: pointer; }
         .cm-l1 { fill: rgba(var(--matcha-rgb), 0.68); } .cm-l2 { fill: rgba(var(--matcha-rgb), 0.86); } .cm-l3 { fill: var(--matcha); }
         :root[data-theme="dark"] .cm-on { filter: drop-shadow(0 0 3px rgba(var(--matcha-rgb), 0.55)); }
@@ -3746,6 +3748,25 @@
         .set-avatar { cursor: pointer; }
         .set-face { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 750; color: #fff; background-size: cover; background-position: center; box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px rgba(var(--hair-rgb), 0.14); }
         .set-avatar-remove b { color: #C0392B; }
+
+/* v15.1: whose awards and recap (a community, Friends, Everyone), and the awards card folding up */
+.circle-pick { margin: 0 0 12px; }
+.circle-pick .cp-lead { font-size: 0.78rem; color: var(--text-muted); margin: 0 2px 6px; }
+.circle-pick .comm-filters { margin: 0; }
+.crew-awards .aw-head { align-items: center; }
+.crew-awards .aw-head-t { flex: 1; min-width: 0; cursor: pointer; }
+.crew-awards.folded .aw-head { margin-bottom: 0; }
+.crew-awards.folded .aw-champ { margin-top: 12px; margin-bottom: 0; }
+.crew-awards.folded .aw-reveal-btn { margin-top: 12px; }
+.aw-toggle { flex: none; width: 34px !important; height: 34px; min-height: 34px !important; margin: 0 !important; padding: 0 !important; display: grid; place-items: center; border-radius: 999px !important; border: 1px solid var(--line) !important; background: var(--surface) !important; color: var(--ink) !important; box-shadow: none !important; cursor: pointer; }
+.aw-toggle .icon { width: 16px; height: 16px; transition: transform 0.2s ease; }
+.aw-toggle.open .icon { transform: rotate(180deg); }
+.ev-awards .ev-rows { padding: 0; margin: 8px 0 0; background: none; border: 0; box-shadow: none; }
+.ev-awards .ev-rows .hl-row:first-child { border-top: 0; }
+.crew-awards .aw-head-t .label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.crew-awards .aw-month { margin: -2px 0 12px; }
+.crew-awards .aw-month .recap-select { max-width: 100%; width: auto; }
+.crew-awards .aw-head-t .label { font-size: 1.02rem; font-weight: 750; letter-spacing: -0.01em; text-transform: none; color: var(--ink); }
     </style>
 </head>
 <body>
@@ -5377,7 +5398,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
         function safeSet(k, v) { memStore.set(k, String(v)); try { localStorage.setItem(k, v); } catch (e) {} }
         // v15.1: the world behind the coffee map: Natural Earth 1:110m countries (public domain), Equal Earth
         // projection, simplified. Made by tools/world_map.py; not edited by hand.
-        const WORLD_MAP = { w: 1000, h: 444, dots: {"HI": [80, 175]}, names: {"FJI": "Fiji", "TZA": "Tanzania", "SAH": "W. Sahara", "CAN": "Canada", "USA": "United States of America", "KAZ": "Kazakhstan", "UZB": "Uzbekistan", "PNG": "Papua New Guinea", "IDN": "Indonesia", "ARG": "Argentina", "CHL": "Chile", "COD": "Dem. Rep. Congo", "SOM": "Somalia", "KEN": "Kenya", "SDN": "Sudan", "TCD": "Chad", "HTI": "Haiti", "DOM": "Dominican Rep.", "RUS": "Russia", "BHS": "Bahamas", "FLK": "Falkland Is.", "NOR": "Norway", "GRL": "Greenland", "ATF": "Fr. S. Antarctic Lands", "TLS": "Timor-Leste", "ZAF": "South Africa", "LSO": "Lesotho", "MEX": "Mexico", "URY": "Uruguay", "BRA": "Brazil", "BOL": "Bolivia", "PER": "Peru", "COL": "Colombia", "PAN": "Panama", "CRI": "Costa Rica", "NIC": "Nicaragua", "HND": "Honduras", "SLV": "El Salvador", "GTM": "Guatemala", "BLZ": "Belize", "VEN": "Venezuela", "GUY": "Guyana", "SUR": "Suriname", "FRA": "France", "ECU": "Ecuador", "PRI": "Puerto Rico", "JAM": "Jamaica", "CUB": "Cuba", "ZWE": "Zimbabwe", "BWA": "Botswana", "NAM": "Namibia", "SEN": "Senegal", "MLI": "Mali", "MRT": "Mauritania", "BEN": "Benin", "NER": "Niger", "NGA": "Nigeria", "CMR": "Cameroon", "TGO": "Togo", "GHA": "Ghana", "CIV": "Côte d'Ivoire", "GIN": "Guinea", "GNB": "Guinea-Bissau", "LBR": "Liberia", "SLE": "Sierra Leone", "BFA": "Burkina Faso", "CAF": "Central African Rep.", "COG": "Congo", "GAB": "Gabon", "GNQ": "Eq. Guinea", "ZMB": "Zambia", "MWI": "Malawi", "MOZ": "Mozambique", "SWZ": "eSwatini", "AGO": "Angola", "BDI": "Burundi", "ISR": "Israel", "LBN": "Lebanon", "MDG": "Madagascar", "PSX": "Palestine", "GMB": "Gambia", "TUN": "Tunisia", "DZA": "Algeria", "JOR": "Jordan", "ARE": "United Arab Emirates", "QAT": "Qatar", "KWT": "Kuwait", "IRQ": "Iraq", "OMN": "Oman", "VUT": "Vanuatu", "KHM": "Cambodia", "THA": "Thailand", "LAO": "Laos", "MMR": "Myanmar", "VNM": "Vietnam", "PRK": "North Korea", "KOR": "South Korea", "MNG": "Mongolia", "IND": "India", "BGD": "Bangladesh", "BTN": "Bhutan", "NPL": "Nepal", "PAK": "Pakistan", "AFG": "Afghanistan", "TJK": "Tajikistan", "KGZ": "Kyrgyzstan", "TKM": "Turkmenistan", "IRN": "Iran", "SYR": "Syria", "ARM": "Armenia", "SWE": "Sweden", "BLR": "Belarus", "UKR": "Ukraine", "POL": "Poland", "AUT": "Austria", "HUN": "Hungary", "MDA": "Moldova", "ROU": "Romania", "LTU": "Lithuania", "LVA": "Latvia", "EST": "Estonia", "DEU": "Germany", "BGR": "Bulgaria", "GRC": "Greece", "TUR": "Turkey", "ALB": "Albania", "HRV": "Croatia", "CHE": "Switzerland", "LUX": "Luxembourg", "BEL": "Belgium", "NLD": "Netherlands", "PRT": "Portugal", "ESP": "Spain", "IRL": "Ireland", "NCL": "New Caledonia", "SLB": "Solomon Is.", "NZL": "New Zealand", "AUS": "Australia", "LKA": "Sri Lanka", "CHN": "China", "TWN": "Taiwan", "ITA": "Italy", "DNK": "Denmark", "GBR": "United Kingdom", "ISL": "Iceland", "AZE": "Azerbaijan", "GEO": "Georgia", "PHL": "Philippines", "MYS": "Malaysia", "BRN": "Brunei", "SVN": "Slovenia", "FIN": "Finland", "SVK": "Slovakia", "CZE": "Czechia", "ERI": "Eritrea", "JPN": "Japan", "PRY": "Paraguay", "YEM": "Yemen", "SAU": "Saudi Arabia", "CYN": "N. Cyprus", "CYP": "Cyprus", "MAR": "Morocco", "EGY": "Egypt", "LBY": "Libya", "ETH": "Ethiopia", "DJI": "Djibouti", "SOL": "Somaliland", "UGA": "Uganda", "RWA": "Rwanda", "BIH": "Bosnia and Herz.", "MKD": "North Macedonia", "SRB": "Serbia", "MNE": "Montenegro", "KOS": "Kosovo", "TTO": "Trinidad and Tobago", "SDS": "S. Sudan"}, c: {
+        const WORLD_MAP = { w: 1000, h: 444, belt: [161.6, 334.4], dots: {"HI": [80, 175]}, names: {"FJI": "Fiji", "TZA": "Tanzania", "SAH": "W. Sahara", "CAN": "Canada", "USA": "United States of America", "KAZ": "Kazakhstan", "UZB": "Uzbekistan", "PNG": "Papua New Guinea", "IDN": "Indonesia", "ARG": "Argentina", "CHL": "Chile", "COD": "Dem. Rep. Congo", "SOM": "Somalia", "KEN": "Kenya", "SDN": "Sudan", "TCD": "Chad", "HTI": "Haiti", "DOM": "Dominican Rep.", "RUS": "Russia", "BHS": "Bahamas", "FLK": "Falkland Is.", "NOR": "Norway", "GRL": "Greenland", "ATF": "Fr. S. Antarctic Lands", "TLS": "Timor-Leste", "ZAF": "South Africa", "LSO": "Lesotho", "MEX": "Mexico", "URY": "Uruguay", "BRA": "Brazil", "BOL": "Bolivia", "PER": "Peru", "COL": "Colombia", "PAN": "Panama", "CRI": "Costa Rica", "NIC": "Nicaragua", "HND": "Honduras", "SLV": "El Salvador", "GTM": "Guatemala", "BLZ": "Belize", "VEN": "Venezuela", "GUY": "Guyana", "SUR": "Suriname", "FRA": "France", "ECU": "Ecuador", "PRI": "Puerto Rico", "JAM": "Jamaica", "CUB": "Cuba", "ZWE": "Zimbabwe", "BWA": "Botswana", "NAM": "Namibia", "SEN": "Senegal", "MLI": "Mali", "MRT": "Mauritania", "BEN": "Benin", "NER": "Niger", "NGA": "Nigeria", "CMR": "Cameroon", "TGO": "Togo", "GHA": "Ghana", "CIV": "Côte d'Ivoire", "GIN": "Guinea", "GNB": "Guinea-Bissau", "LBR": "Liberia", "SLE": "Sierra Leone", "BFA": "Burkina Faso", "CAF": "Central African Rep.", "COG": "Congo", "GAB": "Gabon", "GNQ": "Eq. Guinea", "ZMB": "Zambia", "MWI": "Malawi", "MOZ": "Mozambique", "SWZ": "eSwatini", "AGO": "Angola", "BDI": "Burundi", "ISR": "Israel", "LBN": "Lebanon", "MDG": "Madagascar", "PSX": "Palestine", "GMB": "Gambia", "TUN": "Tunisia", "DZA": "Algeria", "JOR": "Jordan", "ARE": "United Arab Emirates", "QAT": "Qatar", "KWT": "Kuwait", "IRQ": "Iraq", "OMN": "Oman", "VUT": "Vanuatu", "KHM": "Cambodia", "THA": "Thailand", "LAO": "Laos", "MMR": "Myanmar", "VNM": "Vietnam", "PRK": "North Korea", "KOR": "South Korea", "MNG": "Mongolia", "IND": "India", "BGD": "Bangladesh", "BTN": "Bhutan", "NPL": "Nepal", "PAK": "Pakistan", "AFG": "Afghanistan", "TJK": "Tajikistan", "KGZ": "Kyrgyzstan", "TKM": "Turkmenistan", "IRN": "Iran", "SYR": "Syria", "ARM": "Armenia", "SWE": "Sweden", "BLR": "Belarus", "UKR": "Ukraine", "POL": "Poland", "AUT": "Austria", "HUN": "Hungary", "MDA": "Moldova", "ROU": "Romania", "LTU": "Lithuania", "LVA": "Latvia", "EST": "Estonia", "DEU": "Germany", "BGR": "Bulgaria", "GRC": "Greece", "TUR": "Turkey", "ALB": "Albania", "HRV": "Croatia", "CHE": "Switzerland", "LUX": "Luxembourg", "BEL": "Belgium", "NLD": "Netherlands", "PRT": "Portugal", "ESP": "Spain", "IRL": "Ireland", "NCL": "New Caledonia", "SLB": "Solomon Is.", "NZL": "New Zealand", "AUS": "Australia", "LKA": "Sri Lanka", "CHN": "China", "TWN": "Taiwan", "ITA": "Italy", "DNK": "Denmark", "GBR": "United Kingdom", "ISL": "Iceland", "AZE": "Azerbaijan", "GEO": "Georgia", "PHL": "Philippines", "MYS": "Malaysia", "BRN": "Brunei", "SVN": "Slovenia", "FIN": "Finland", "SVK": "Slovakia", "CZE": "Czechia", "ERI": "Eritrea", "JPN": "Japan", "PRY": "Paraguay", "YEM": "Yemen", "SAU": "Saudi Arabia", "CYN": "N. Cyprus", "CYP": "Cyprus", "MAR": "Morocco", "EGY": "Egypt", "LBY": "Libya", "ETH": "Ethiopia", "DJI": "Djibouti", "SOL": "Somaliland", "UGA": "Uganda", "RWA": "Rwanda", "BIH": "Bosnia and Herz.", "MKD": "North Macedonia", "SRB": "Serbia", "MNE": "Montenegro", "KOS": "Kosovo", "TTO": "Trinidad and Tobago", "SDS": "S. Sudan"}, c: {
             AFG: "M666 114l2 0 2 0 1 1 1 -1 1 0 1 -1 1 0 0 -1 0 -1 1 -1 2 1 0 1 1 3 1 1 1 -1 1 0 1 -2 2 0 2 0 1 1 -1 1 -1 0 -3 1 -2 0 -1 2 1 1 0 2 0 1 0 2 0 1 -3 0 2 2 -2 1 0 2 1 2 -1 1 -1 0 -2 0 0 1 -2 0 -1 2 0 3 -3 1 -1 0 -1 1 -1 -1 -3 1 -5 -2 2 -3 -1 -2 -2 -1 0 -2 -2 -3 1 -2 -2 0 1 -3 0 -4 2 1 2 0 0 -1 2 -1 1 -1 0 -3 2 0 0 -1 2 0z",
             AGO: "M536 266l-1 1 0 1 -1 1 0 1 -1 -3 1 -2 1 0zM534 271l1 -1 1 0 1 0 8 0 1 3 1 2 0 1 1 2 2 0 1 -1 2 1 0 -1 1 -2 1 0 1 -1 1 0 0 1 3 0 0 3 1 1 -1 2 0 3 1 1 0 4 1 0 1 0 2 0 1 0 0 1 0 2 0 1 0 2 0 1 -6 0 0 12 1 3 2 2 -5 2 -7 -1 -1 -2 -11 0 -1 1 -1 -2 -2 0 -2 1 -1 0 0 -2 0 -3 1 -4 0 -1 1 -4 1 -1 2 -2 0 -2 1 -3 0 -2 -1 -1 -1 -3 0 -2 0 -1 1 -1 -1 -4 -1 -2 -1 -2z",
             ALB: "M551 102l1 1 -1 0 0 2 -1 1 -1 0 0 -1 -1 -1 -1 -1 0 -3 1 -1 -1 0 0 -1 1 -2 0 1 1 0 1 1 0 1 0 1 0 1z",
@@ -9447,13 +9468,13 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 // v14.6: awards belong to a private community (the one picked in Community); on your own there's no one
                 // to win against (Discover has the monthly highlights for everyone)
                 if (this.acctOn && this.acctOn() && !this._crewScope) {
-                    const fr = this.tab === 'profile' ? this.friendsCrew() : null;   // v15.0: your profile: you and your friends, every month
-                    if (fr) return this.withCrewScope(fr, () => this.renderCrewAwardsCard());
                     const gr = this.grState ? this.grState() : null;
                     if (gr && !gr.list && !this._grLoading) { this._grLoading = true; this.loadGroups().catch(() => null).finally(() => { this._grLoading = false; if (this.tab === 'profile') this.render(); }); }
-                    const g = this.activeCrewGroup();
-                    if (!g || g.members.length < 2) return '';
-                    return this.withCrewScope(g, () => this.renderCrewAwardsCard());
+                    // v15.1: the circle picked above the card (a community first, if you're in one; then Friends; then Everyone)
+                    const c = this.activeCircle ? this.activeCircle() : null;
+                    if (!c) return '';
+                    if (c.id === 'everyone') return this.renderEveryoneAwardsCard();
+                    return this.withCrewScope(c.scope, () => this.renderCrewAwardsCard());
                 }
                 const months = this.awardMonths();
                 if (!this.brews.size) return '';
@@ -9465,13 +9486,18 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const [y, m] = key.split('-').map(Number);
                 const name = this.monthName(key, false);
                 const picker = `<select class="recap-select" aria-label="Award month" onchange="app.setAwardsMonth(this.value)">${months.map(k => `<option value="${k}"${k === key ? ' selected' : ''}>${this.esc(this.monthName(k))}${this.monthLocked(k) ? ' (locked)' : ''}</option>`).join('')}</select>`;
-                const named = this._crewScope && this._crewScope.id !== 'friends' && this.crewGroups().length > 1 ? this._crewScope.name : '';   // v14.6: which community, when you're in more than one
-                const head = sub => `<div class="aw-head"><div><div class="label">Monthly awards${named ? ` · ${this.esc(named)}` : ''}</div><div class="aw-sub">${sub}</div></div>${picker}</div>`;
+                const named = this._crewScope && this.tab === 'profile' ? (this._crewScope.id === 'friends' ? 'Friends' : this._crewScope.name) : '';   // v15.1: whose awards (a community's own tab already says)
+                // v15.1: the card folds up (just who won); the arrow opens it
+                const open = this.awardsOpen();
+                const tog = `<button type="button" class="aw-toggle${open ? ' open' : ''}" aria-expanded="${open}" aria-label="${open ? 'Show less' : 'Show all the awards'}" onclick="app.toggleAwards()"><svg class="icon"><use href="#i-chevron-down"/></svg></button>`;
+                // the title on one line, whose and how far along under it; the month picker only once it's open
+                const head = sub => `<div class="aw-head"><div class="aw-head-t" onclick="app.toggleAwards()"><div class="label">Monthly awards</div><div class="aw-sub">${named ? `${this.esc(named)} · ` : ''}${sub}</div></div>${tog}</div>${open ? `<div class="aw-month">${picker}</div>` : ''}`;
                 if (this.monthLocked(key)) {
                     const unlock = new Date(y, m, 1);
                     const days = this.daysUntil(unlock);
                     const ghosts = [['i-sun', '#E3AE45'], ['i-medal', '#C49A2C'], ['i-moon', '#6A7FC1'], ['i-flame', '#E0663A'], ['i-compass', '#5F8FDB'], ['i-star', '#36A57F']]
                         .map(([icon, c]) => `<div class="aw-tile" style="--ac:${c};--ac-rgb:${this.hexRgb(c)}"><span class="aw-icon"><svg class="icon"><use href="#${icon}"/></svg></span><div class="aw-body" style="flex:1"><span class="aw-ghost-bar" style="width:70%"></span><span class="aw-ghost-bar" style="width:45%"></span></div></div>`).join('');
+                    if (!open) return `<div class="profile-card crew-awards folded" id="crew-awards">${head(`In progress · unlocks ${this.esc(this.unlockLabel(unlock))}`)}</div>`;
                     return `
                     <div class="profile-card crew-awards" id="crew-awards">
                         ${head(`In progress · unlocks ${this.esc(this.unlockLabel(unlock))}`)}
@@ -9492,7 +9518,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     return `
                     <div class="profile-card crew-awards" id="crew-awards">
                         ${head('Final · ready to reveal')}
-                        <div class="aw-grid">${this.awardTilesHtml(awards, false, { sealed: true })}</div>
+                        ${open ? `<div class="aw-grid">${this.awardTilesHtml(awards, false, { sealed: true })}</div>` : ''}
                         <button type="button" class="btn-primary aw-reveal-btn" onclick="app.revealAwards('${app.escJs(key)}', '${app.escJs(this._crewScope ? this._crewScope.id : '')}')">Reveal ${this.esc(name)}'s awards</button>
                     </div>`;
                 }
@@ -9515,11 +9541,10 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const revealT = R && R.key === key ? Date.now() - R.at : -1;
                 const revealing = revealT >= 0 && revealT < awards.length * 150 + 1200 && this.motionOK();
                 return `
-                    <div class="profile-card crew-awards${revealing ? ' revealing' : ''}" id="crew-awards" style="--n:${awards.length}${revealing ? `;--aw-at:${-revealT}ms` : ''}">
-                        ${head('Final · from everyone\'s sessions')}
+                    <div class="profile-card crew-awards${revealing ? ' revealing' : ''}${open ? '' : ' folded'}" id="crew-awards" style="--n:${awards.length}${revealing ? `;--aw-at:${-revealT}ms` : ''}">
+                        ${head(`Final · ${awards.length} award${awards.length === 1 ? '' : 's'}`)}
                         ${champ}
-                        <div class="aw-grid">${this.awardTilesHtml(awards, false, { rivalry: aw => this.awardRivalry(aw, prevBy.get(aw.key)) })}</div>
-                        ${raceHtml}
+                        ${open ? `<div class="aw-grid">${this.awardTilesHtml(awards, false, { rivalry: aw => this.awardRivalry(aw, prevBy.get(aw.key)) })}</div>${raceHtml}` : ''}
                     </div>`;
             },
 
@@ -9529,6 +9554,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const g = gid ? null : this.activeCrewGroup && this.activeCrewGroup();
                 this.markSeen('dialed_awards_revealed', this.awardSeenKey(key, gid || (g ? String(g.id) : '')));
                 this.awardsMonth = key;
+                this._awOpen = true; safeSet('dialed_awards_open', '1');   // v15.1: the reveal opens the card
                 this._awReveal = { key, at: Date.now() };
                 this.render();
             },
@@ -9558,6 +9584,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
             openAwards(key, reveal = false, gid = '') {
                 if (gid && gid !== 'friends') { this._feedGroup = String(gid); safeSet('dialed_feed_group', this._feedGroup); }   // v14.6: that community's awards (v15.0: not your friends' ones)
+                if (gid && this.setCircle) { this._circle = gid === 'friends' ? 'friends' : 'g:' + gid; safeSet('dialed_circle', this._circle); }   // v15.1
+                this._awOpen = true; safeSet('dialed_awards_open', '1');
                 this.awardsMonth = key;
                 this.profileSection = 'activity';
                 this._noRecapJump = true;
@@ -13009,7 +13037,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     : section === 'taste'
                     ? [this.renderPalateCard(who), this.renderCoffeeMapCard ? this.renderCoffeeMapCard(who) : '', who === this.user ? this.renderFriendPalates() : '', this.renderMatchesCard(who), this.renderWantCard(who)]
                     : section === 'activity'
-                        ? [this.renderCrewAwardsCard(), this.renderCalendarCard(who), this.renderRecapCard(who)]
+                        ? [who === this.user && this.circlePickerHtml ? this.circlePickerHtml() : '', this.renderCrewAwardsCard(), this.renderCalendarCard(who), this.renderRecapCard(who)]
                         : [who === this.user && this.renderGoalsCard ? this.renderGoalsCard() : '', this.renderFabFour(who), this.profileCoffeesHtml(who), this.renderAchievementsCard(who), who !== this.user ? this.renderGearCard(who) : ''];   // v14.6: your goals first
                 const body = cards.filter(Boolean).join('') || '<div class="panel-empty">Nothing here yet. Log a few sessions and this fills in.</div>';
                 grid.innerHTML = [
@@ -13371,7 +13399,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             // ---- v12.0: the monthly recap as two cards, styled like the Year in Coffee but calm (no slides, nothing moves)
             monthCrewStats(period) {
                 const [a, b] = this.periodRange(period);
-                const list = this.sessionsBetween(a, b);
+                const list = this.crewSessionsBetween(a, b);   // v15.1: the circle's people only (it counted everyone loaded)
                 const owner = x => this.getBrewOwner(x);
                 const by = new Map();
                 list.forEach(x => by.set(owner(x), (by.get(owner(x)) || 0) + 1));
@@ -13416,13 +13444,17 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         ${lines.length ? `<div class="mrc-lines">${lines.map(row).join('')}</div>` : ''}
                         ${best}
                     </div>`;
-                const c = this.monthCrewStats(period);
+                // v15.1: the second card is the circle picked above the awards (a community, your friends); none for Everyone
+                const circle = user === this.user && this.acctOn() && this.activeCircle ? this.activeCircle() : null;
+                if (circle && circle.id === 'everyone') return you;
+                const c = circle ? this.withCrewScope(circle.scope, () => this.monthCrewStats(period)) : this.monthCrewStats(period);
+                const crewName = circle ? circle.name : 'The crew';
                 if (c.people.length < 2) return you;
                 const names = c.people.map(p => p[0]);
                 const crewG = `linear-gradient(150deg, ${names.map((n, i) => `${this.hexMix(this.getUserColor(n), '#000000', 0.12)} ${Math.round(i / Math.max(1, names.length - 1) * 100)}%`).join(', ')})`;
                 const max = c.people[0][1];
                 const board = c.people.map(([n, k]) => `<div><span class="mrc-name">${face(n)}<span class="mrc-nm">${esc(n)}</span></span><i><b style="width:${(k / max * 100).toFixed(1)}%"></b></i><span class="mrc-n">${k}</span></div>`).join('');
-                const cstats = [[amount(c.grams), 'coffee'], [String(c.fives), `5★ shot${c.fives === 1 ? '' : 's'}`], [String(c.likes), `like${c.likes === 1 ? '' : 's'}`], [String(c.goals), `goal${c.goals === 1 ? '' : 's'} reached`]];
+                const cstats = [[amount(c.grams), 'coffee'], [String(c.fives), `5★ shot${c.fives === 1 ? '' : 's'}`], [String(c.likes), `like${c.likes === 1 ? '' : 's'}`], circle && circle.id === 'friends' ? [String(c.count), `session${c.count === 1 ? '' : 's'}`] : [String(c.goals), `goal${c.goals === 1 ? '' : 's'} reached`]];   // v15.1: friends have no group goal
                 const clines = [];
                 if (c.coffee && c.coffee.bean) clines.push(['Crew coffee', `${String(c.coffee.bean.name || '').trim() || this.beanLabel(c.coffee.bean)} · ${c.coffee.n}×`]);
                 if (c.busiest && c.busiest[1] > 1) clines.push(['Busiest day', `${new Date(this.parseLocalDate(c.busiest[0])).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · ${c.busiest[1]} sessions`]);
@@ -13430,7 +13462,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 else if (c.sealed) clines.push(['Awards', 'ready to reveal']);
                 const crew = `
                     <div class="mrc-card mrc-crew" style="--crew-g:${esc(crewG)}">
-                        <div class="mrc-kicker"><span class="mrc-faces">${names.map(face).join('')}</span>The crew · ${esc(month)}</div>
+                        <div class="mrc-kicker"><span class="mrc-faces">${names.map(face).join('')}</span>${esc(crewName)} · ${esc(month)}</div>
                         <div class="mrc-head"><span class="mrc-big">${c.count}</span><span class="mrc-sub">sessions<br>together</span></div>
                         <div class="mrc-board">${board}</div>
                         <div class="mrc-stats">${cstats.map(([v, l]) => `<div><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join('')}</div>
@@ -17230,7 +17262,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const menu = this._groupMenu ? `<div class="pp-menu grp-menu">${gr.list.map(x => `<button type="button" class="${String(x.id) === String(g.id) ? 'on' : ''}" data-g="${this.esc(String(x.id))}" onclick="app.pickFeedGroup(this.getAttribute('data-g'))"><b>${this.esc(x.name)}</b><small>${(x.members || []).length} ${(x.members || []).length === 1 ? 'person' : 'people'} · ${x.open ? 'open' : 'private'}</small></button>`).join('')}<i class="grp-sep"></i><button type="button" onclick="app.openPeople('groups'); app.groupForm('find')">Find communities</button><button type="button" onclick="app.openPeople('groups'); app.groupForm('create')">Start a community</button></div>` : '';
                 const pick = `<div class="grp-pick"><button type="button" class="grp-pick-btn" aria-expanded="${this._groupMenu ? 'true' : 'false'}" onclick="app.toggleGroupMenu(event)"><span class="grp-name">${this.esc(g.name)}</span><svg class="icon"><use href="#i-chevron-down"/></svg></button><span class="grp-meta">${n} ${n === 1 ? 'person' : 'people'} · ${g.open ? 'open' : 'private'}</span>${menu}</div>`;
                 // a private community is the people who share the group goal and monthly awards (the crew's)
-                const tops = g.open ? '' : this.withCrewScope(g, () => [this.renderCrewQuest(), this.renderAwardsTeaser()].join(''));   // v14.6: this community's own
+                const tops = g.open ? '' : this.withCrewScope(g, () => [this.renderCrewQuest(), (g.members || []).length >= 2 ? this.renderCrewAwardsCard() : ''].join(''));   // v14.6: this community's own (v15.1: its awards card, folded)
                 const seen = new Set();
                 const list = st.events.filter(e => e.type === 'brew').map(e => this.brews.get(String(e.id))).filter(b => b && !seen.has(b.id) && seen.add(b.id) && b.audience !== 'only_me' && !this.reported(b.id))
                     .sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
@@ -18396,7 +18428,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 try { const out = await Supa.rpc('monthly_highlights', {}); st.month = (out && out.month) || ''; st.items = Array.isArray(out && out.items) ? out.items : []; }
                 catch (e) { st.items = st.items || []; }
                 finally { st.loading = false; st.at = Date.now(); }
-                if (this.tab === 'feed') { this._feedHtml = null; this.render(); }
+                if (this.tab === 'feed') { this._feedHtml = null; this.render(); } else if (this.tab === 'profile') this.render();   // v15.1: Everyone on the Activity tab
             },
 
             hlLine(h) {
@@ -18411,16 +18443,21 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 }
             },
 
+            hlMonthLabel() { const st = this.hlState(); return st.month ? new Date(`${st.month}T12:00:00`).toLocaleDateString(undefined, { month: 'long' }) : 'Last month'; },
+            hlRowsHtml() {
+                return (this.hlState().items || []).map(h => {
+                    const [what, more] = this.hlLine(h);
+                    return `<button type="button" class="hl-row" data-profile="${this.esc(h.name)}">${this.personDotHtml(h.name, h.color)}<span class="hl-main"><b>${this.esc(h.name)}</b><small>${this.esc(what)}${more ? ` · ${this.esc(more)}` : ''}</small></span></button>`;
+                }).join('');
+            },
+
             highlightsHtml() {
                 if (!this.acctOn() || !this.hlShowing()) return '';
                 const st = this.hlState();
                 if (!st.loading && !st.at) setTimeout(() => this.loadHighlights(), 0);
                 if (!st.items || !st.items.length) return '';
-                const label = st.month ? new Date(`${st.month}T12:00:00`).toLocaleDateString(undefined, { month: 'long' }) : 'Last month';
-                const rows = st.items.map(h => {
-                    const [what, more] = this.hlLine(h);
-                    return `<button type="button" class="hl-row" data-profile="${this.esc(h.name)}">${this.personDotHtml(h.name, h.color)}<span class="hl-main"><b>${this.esc(h.name)}</b><small>${this.esc(what)}${more ? ` · ${this.esc(more)}` : ''}</small></span></button>`;
-                }).join('');
+                const label = this.hlMonthLabel();
+                const rows = this.hlRowsHtml();
                 return `<section class="feed-card hl-card" aria-label="${this.esc(label)} highlights"><div class="hl-head"><b>${this.esc(label)} highlights</b><small>From what people shared with Everyone</small></div>${rows}</section>`;
             },
             // ---- v14.7: like Instagram on a phone: scrolling down tucks the top bar away and makes the bottom bar smaller;
@@ -18731,15 +18768,17 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const D = this.coffeeMapData(user), esc = s => this.esc(s);
                 if (!D.by.size) return '';
                 const sel = (this._mapSel || {})[user] && D.by.has(this._mapSel[user]) ? this._mapSel[user] : '';
-                const geo = this.coffeeGeo(), belt = new Set(Object.keys(geo.continent));
+                const geo = this.coffeeGeo();
                 const level = n => n >= 4 ? 3 : n >= 2 ? 2 : 1;
                 const paths = Object.entries(WORLD_MAP.c).map(([c, d]) => {
                     const list = D.by.get(c);
-                    const cls = `cm-land${belt.has(c) ? ' cm-belt' : ''}${list ? ` cm-on cm-l${level(list.length)}` : ''}`;
+                    const cls = `cm-land${list ? ` cm-on cm-l${level(list.length)}` : ''}`;   // (a country you haven't had a coffee from stays dark)
                     return `<path class="${cls}" d="${d}"${list ? ` data-c="${c}"` : ''}/>`;
                 }).join('');
                 // the picked country's outline goes on top of everything (drawn with its neighbors, they covered parts of it)
                 const selLine = sel && WORLD_MAP.c[sel] ? `<path class="cm-selo" d="${WORLD_MAP.c[sel]}"/>` : '';
+                // the coffee belt, dashed: between the tropics, where coffee grows
+                const belt = (WORLD_MAP.belt || []).map(y => `<line class="cm-tropic" x1="0" x2="${WORLD_MAP.w}" y1="${y}" y2="${y}"/>`).join('');
                 const hi = WORLD_MAP.dots.HI, hl = D.by.get('HI');
                 const dot = `<circle class="cm-dot${hl ? ` cm-on cm-l${level(hl.length)}` : ''}${sel === 'HI' ? ' cm-sel' : ''}" cx="${hi[0]}" cy="${hi[1]}" r="5"${hl ? ' data-c="HI"' : ''}/>`;
                 const order = [...D.by.entries()].sort((a, b) => b[1].length - a[1].length || this.coffeeCountryName(a[0]).localeCompare(this.coffeeCountryName(b[0])));
@@ -18750,7 +18789,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const own = user === this.user;
                 return `<section class="profile-card cmap" data-cmap="${esc(user)}" onclick="app.coffeeMapTap(event)"><h4 class="section-label">${own ? 'Your coffee map' : `${esc(user)}'s coffee map`}</h4>`
                     + `<div class="cm-sum">${D.coffees} coffee${D.coffees === 1 ? '' : 's'} from ${D.by.size} countr${D.by.size === 1 ? 'y' : 'ies'} · ${D.continents.size} of ${geo.continents.length} coffee continents</div>`
-                    + `<svg class="cm-svg" viewBox="0 34 ${WORLD_MAP.w} ${WORLD_MAP.h - 70}" role="img" aria-label="Map of the countries ${own ? 'your' : 'their'} coffees came from">${paths}${dot}${selLine}</svg>`
+                    + `<svg class="cm-svg" viewBox="0 34 ${WORLD_MAP.w} ${WORLD_MAP.h - 70}" role="img" aria-label="Map of the countries ${own ? 'your' : 'their'} coffees came from">${paths}${dot}${belt}${selLine}</svg><div class="cm-legend"><i></i>The coffee belt, where coffee grows</div>`
                     + `<div class="cm-chips">${chips}</div><div class="cm-conts">${conts}</div>${list}</section>`;
             },
             coffeeMapTap(event) {
@@ -18947,6 +18986,46 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 } catch (e) { this.showToast('Couldn\'t remove it. Check your connection.'); }
             },
 
+            // ---- v15.1: whose awards and recap you see on your Activity tab. A circle is one of your private communities
+            // (two or more people), your friends, or Everyone (last month's highlights from what people shared with
+            // Everyone). Communities come first; it opens on the one picked in Community, else your friends.
+            circleOptions() {
+                if (!(this.acctOn && this.acctOn())) return [];
+                const out = this.crewGroups().filter(g => g.members.length >= 2).map(g => ({ id: 'g:' + g.id, name: String(g.name || 'Community'), scope: g }));
+                const fr = this.friendsCrew ? this.friendsCrew() : null;
+                if (fr) out.push({ id: 'friends', name: 'Friends', scope: fr });
+                out.push({ id: 'everyone', name: 'Everyone', scope: null });
+                return out;
+            },
+            activeCircle() {
+                const list = this.circleOptions();
+                if (!list.length) return null;
+                const want = this._circle || safeGet('dialed_circle') || '';
+                const g = this.activeCrewGroup();
+                return list.find(o => o.id === want) || (g && list.find(o => o.id === 'g:' + g.id)) || list.find(o => o.id === 'friends') || list[0];
+            },
+            setCircle(id) { this._circle = String(id || ''); safeSet('dialed_circle', this._circle); this.render(); },
+            circlePickerHtml() {
+                const list = this.circleOptions();
+                if (list.length < 2) return '';
+                const c = this.activeCircle();
+                return `<div class="circle-pick"><div class="cp-lead">Awards and recaps with</div><div class="comm-filters" role="tablist" aria-label="Awards and recaps with">${list.map(o => `<button type="button" class="comm-chip${o.id === c.id ? ' on' : ''}" role="tab" aria-selected="${o.id === c.id}" data-c="${this.esc(o.id)}" onclick="app.setCircle(this.getAttribute('data-c'))">${this.esc(o.name)}</button>`).join('')}</div></div>`;
+            },
+
+            // the awards card folds to who won (it was the biggest thing on the tab); it remembers open or folded
+            awardsOpen() { if (this._awOpen == null) this._awOpen = safeGet('dialed_awards_open') === '1'; return !!this._awOpen; },
+            toggleAwards() { this._awOpen = !this.awardsOpen(); safeSet('dialed_awards_open', this._awOpen ? '1' : '0'); this.render(); },
+
+            // Everyone: last month's highlights (the same ones Discover shows the first week), folded like the awards
+            renderEveryoneAwardsCard() {
+                const st = this.hlState();
+                if (!st.loading && !st.at) setTimeout(() => this.loadHighlights(), 0);
+                const open = this.awardsOpen(), items = st.items || [];
+                const tog = items.length ? `<button type="button" class="aw-toggle${open ? ' open' : ''}" aria-expanded="${open}" aria-label="${open ? 'Show less' : 'Show the highlights'}" onclick="app.toggleAwards()"><svg class="icon"><use href="#i-chevron-down"/></svg></button>` : '';
+                const sub = !st.at ? 'Loading…' : items.length ? `${items.length} ${items.length === 1 ? 'person' : 'people'} spotlighted` : 'None yet for last month';
+                const head = `<div class="aw-head"><div class="aw-head-t"${items.length ? ' onclick="app.toggleAwards()"' : ''}><div class="label">${this.esc(this.hlMonthLabel())} highlights</div><div class="aw-sub">Everyone · ${this.esc(sub)}</div></div>${tog}</div>`;
+                return `<div class="profile-card crew-awards ev-awards${open && items.length ? '' : ' folded'}" id="crew-awards">${head}${open && items.length ? `<div class="hl-card ev-rows">${this.hlRowsHtml()}</div>` : ''}</div>`;
+            },
         };
         window.onload = () => app.init();
     </script>

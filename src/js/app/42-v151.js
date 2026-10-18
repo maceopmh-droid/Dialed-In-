@@ -83,15 +83,17 @@
                 const D = this.coffeeMapData(user), esc = s => this.esc(s);
                 if (!D.by.size) return '';
                 const sel = (this._mapSel || {})[user] && D.by.has(this._mapSel[user]) ? this._mapSel[user] : '';
-                const geo = this.coffeeGeo(), belt = new Set(Object.keys(geo.continent));
+                const geo = this.coffeeGeo();
                 const level = n => n >= 4 ? 3 : n >= 2 ? 2 : 1;
                 const paths = Object.entries(WORLD_MAP.c).map(([c, d]) => {
                     const list = D.by.get(c);
-                    const cls = `cm-land${belt.has(c) ? ' cm-belt' : ''}${list ? ` cm-on cm-l${level(list.length)}` : ''}`;
+                    const cls = `cm-land${list ? ` cm-on cm-l${level(list.length)}` : ''}`;   // (a country you haven't had a coffee from stays dark)
                     return `<path class="${cls}" d="${d}"${list ? ` data-c="${c}"` : ''}/>`;
                 }).join('');
                 // the picked country's outline goes on top of everything (drawn with its neighbors, they covered parts of it)
                 const selLine = sel && WORLD_MAP.c[sel] ? `<path class="cm-selo" d="${WORLD_MAP.c[sel]}"/>` : '';
+                // the coffee belt, dashed: between the tropics, where coffee grows
+                const belt = (WORLD_MAP.belt || []).map(y => `<line class="cm-tropic" x1="0" x2="${WORLD_MAP.w}" y1="${y}" y2="${y}"/>`).join('');
                 const hi = WORLD_MAP.dots.HI, hl = D.by.get('HI');
                 const dot = `<circle class="cm-dot${hl ? ` cm-on cm-l${level(hl.length)}` : ''}${sel === 'HI' ? ' cm-sel' : ''}" cx="${hi[0]}" cy="${hi[1]}" r="5"${hl ? ' data-c="HI"' : ''}/>`;
                 const order = [...D.by.entries()].sort((a, b) => b[1].length - a[1].length || this.coffeeCountryName(a[0]).localeCompare(this.coffeeCountryName(b[0])));
@@ -102,7 +104,7 @@
                 const own = user === this.user;
                 return `<section class="profile-card cmap" data-cmap="${esc(user)}" onclick="app.coffeeMapTap(event)"><h4 class="section-label">${own ? 'Your coffee map' : `${esc(user)}'s coffee map`}</h4>`
                     + `<div class="cm-sum">${D.coffees} coffee${D.coffees === 1 ? '' : 's'} from ${D.by.size} countr${D.by.size === 1 ? 'y' : 'ies'} · ${D.continents.size} of ${geo.continents.length} coffee continents</div>`
-                    + `<svg class="cm-svg" viewBox="0 34 ${WORLD_MAP.w} ${WORLD_MAP.h - 70}" role="img" aria-label="Map of the countries ${own ? 'your' : 'their'} coffees came from">${paths}${dot}${selLine}</svg>`
+                    + `<svg class="cm-svg" viewBox="0 34 ${WORLD_MAP.w} ${WORLD_MAP.h - 70}" role="img" aria-label="Map of the countries ${own ? 'your' : 'their'} coffees came from">${paths}${dot}${belt}${selLine}</svg><div class="cm-legend"><i></i>The coffee belt, where coffee grows</div>`
                     + `<div class="cm-chips">${chips}</div><div class="cm-conts">${conts}</div>${list}</section>`;
             },
             coffeeMapTap(event) {
@@ -299,3 +301,43 @@
                 } catch (e) { this.showToast('Couldn\'t remove it. Check your connection.'); }
             },
 
+            // ---- v15.1: whose awards and recap you see on your Activity tab. A circle is one of your private communities
+            // (two or more people), your friends, or Everyone (last month's highlights from what people shared with
+            // Everyone). Communities come first; it opens on the one picked in Community, else your friends.
+            circleOptions() {
+                if (!(this.acctOn && this.acctOn())) return [];
+                const out = this.crewGroups().filter(g => g.members.length >= 2).map(g => ({ id: 'g:' + g.id, name: String(g.name || 'Community'), scope: g }));
+                const fr = this.friendsCrew ? this.friendsCrew() : null;
+                if (fr) out.push({ id: 'friends', name: 'Friends', scope: fr });
+                out.push({ id: 'everyone', name: 'Everyone', scope: null });
+                return out;
+            },
+            activeCircle() {
+                const list = this.circleOptions();
+                if (!list.length) return null;
+                const want = this._circle || safeGet('dialed_circle') || '';
+                const g = this.activeCrewGroup();
+                return list.find(o => o.id === want) || (g && list.find(o => o.id === 'g:' + g.id)) || list.find(o => o.id === 'friends') || list[0];
+            },
+            setCircle(id) { this._circle = String(id || ''); safeSet('dialed_circle', this._circle); this.render(); },
+            circlePickerHtml() {
+                const list = this.circleOptions();
+                if (list.length < 2) return '';
+                const c = this.activeCircle();
+                return `<div class="circle-pick"><div class="cp-lead">Awards and recaps with</div><div class="comm-filters" role="tablist" aria-label="Awards and recaps with">${list.map(o => `<button type="button" class="comm-chip${o.id === c.id ? ' on' : ''}" role="tab" aria-selected="${o.id === c.id}" data-c="${this.esc(o.id)}" onclick="app.setCircle(this.getAttribute('data-c'))">${this.esc(o.name)}</button>`).join('')}</div></div>`;
+            },
+
+            // the awards card folds to who won (it was the biggest thing on the tab); it remembers open or folded
+            awardsOpen() { if (this._awOpen == null) this._awOpen = safeGet('dialed_awards_open') === '1'; return !!this._awOpen; },
+            toggleAwards() { this._awOpen = !this.awardsOpen(); safeSet('dialed_awards_open', this._awOpen ? '1' : '0'); this.render(); },
+
+            // Everyone: last month's highlights (the same ones Discover shows the first week), folded like the awards
+            renderEveryoneAwardsCard() {
+                const st = this.hlState();
+                if (!st.loading && !st.at) setTimeout(() => this.loadHighlights(), 0);
+                const open = this.awardsOpen(), items = st.items || [];
+                const tog = items.length ? `<button type="button" class="aw-toggle${open ? ' open' : ''}" aria-expanded="${open}" aria-label="${open ? 'Show less' : 'Show the highlights'}" onclick="app.toggleAwards()"><svg class="icon"><use href="#i-chevron-down"/></svg></button>` : '';
+                const sub = !st.at ? 'Loading…' : items.length ? `${items.length} ${items.length === 1 ? 'person' : 'people'} spotlighted` : 'None yet for last month';
+                const head = `<div class="aw-head"><div class="aw-head-t"${items.length ? ' onclick="app.toggleAwards()"' : ''}><div class="label">${this.esc(this.hlMonthLabel())} highlights</div><div class="aw-sub">Everyone · ${this.esc(sub)}</div></div>${tog}</div>`;
+                return `<div class="profile-card crew-awards ev-awards${open && items.length ? '' : ' folded'}" id="crew-awards">${head}${open && items.length ? `<div class="hl-card ev-rows">${this.hlRowsHtml()}</div>` : ''}</div>`;
+            },

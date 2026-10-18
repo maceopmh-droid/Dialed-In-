@@ -44,7 +44,7 @@
                     : section === 'taste'
                     ? [this.renderPalateCard(who), this.renderCoffeeMapCard ? this.renderCoffeeMapCard(who) : '', who === this.user ? this.renderFriendPalates() : '', this.renderMatchesCard(who), this.renderWantCard(who)]
                     : section === 'activity'
-                        ? [this.renderCrewAwardsCard(), this.renderCalendarCard(who), this.renderRecapCard(who)]
+                        ? [who === this.user && this.circlePickerHtml ? this.circlePickerHtml() : '', this.renderCrewAwardsCard(), this.renderCalendarCard(who), this.renderRecapCard(who)]
                         : [who === this.user && this.renderGoalsCard ? this.renderGoalsCard() : '', this.renderFabFour(who), this.profileCoffeesHtml(who), this.renderAchievementsCard(who), who !== this.user ? this.renderGearCard(who) : ''];   // v14.6: your goals first
                 const body = cards.filter(Boolean).join('') || '<div class="panel-empty">Nothing here yet. Log a few sessions and this fills in.</div>';
                 grid.innerHTML = [
@@ -406,7 +406,7 @@
             // ---- v12.0: the monthly recap as two cards, styled like the Year in Coffee but calm (no slides, nothing moves)
             monthCrewStats(period) {
                 const [a, b] = this.periodRange(period);
-                const list = this.sessionsBetween(a, b);
+                const list = this.crewSessionsBetween(a, b);   // v15.1: the circle's people only (it counted everyone loaded)
                 const owner = x => this.getBrewOwner(x);
                 const by = new Map();
                 list.forEach(x => by.set(owner(x), (by.get(owner(x)) || 0) + 1));
@@ -451,13 +451,17 @@
                         ${lines.length ? `<div class="mrc-lines">${lines.map(row).join('')}</div>` : ''}
                         ${best}
                     </div>`;
-                const c = this.monthCrewStats(period);
+                // v15.1: the second card is the circle picked above the awards (a community, your friends); none for Everyone
+                const circle = user === this.user && this.acctOn() && this.activeCircle ? this.activeCircle() : null;
+                if (circle && circle.id === 'everyone') return you;
+                const c = circle ? this.withCrewScope(circle.scope, () => this.monthCrewStats(period)) : this.monthCrewStats(period);
+                const crewName = circle ? circle.name : 'The crew';
                 if (c.people.length < 2) return you;
                 const names = c.people.map(p => p[0]);
                 const crewG = `linear-gradient(150deg, ${names.map((n, i) => `${this.hexMix(this.getUserColor(n), '#000000', 0.12)} ${Math.round(i / Math.max(1, names.length - 1) * 100)}%`).join(', ')})`;
                 const max = c.people[0][1];
                 const board = c.people.map(([n, k]) => `<div><span class="mrc-name">${face(n)}<span class="mrc-nm">${esc(n)}</span></span><i><b style="width:${(k / max * 100).toFixed(1)}%"></b></i><span class="mrc-n">${k}</span></div>`).join('');
-                const cstats = [[amount(c.grams), 'coffee'], [String(c.fives), `5★ shot${c.fives === 1 ? '' : 's'}`], [String(c.likes), `like${c.likes === 1 ? '' : 's'}`], [String(c.goals), `goal${c.goals === 1 ? '' : 's'} reached`]];
+                const cstats = [[amount(c.grams), 'coffee'], [String(c.fives), `5★ shot${c.fives === 1 ? '' : 's'}`], [String(c.likes), `like${c.likes === 1 ? '' : 's'}`], circle && circle.id === 'friends' ? [String(c.count), `session${c.count === 1 ? '' : 's'}`] : [String(c.goals), `goal${c.goals === 1 ? '' : 's'} reached`]];   // v15.1: friends have no group goal
                 const clines = [];
                 if (c.coffee && c.coffee.bean) clines.push(['Crew coffee', `${String(c.coffee.bean.name || '').trim() || this.beanLabel(c.coffee.bean)} · ${c.coffee.n}×`]);
                 if (c.busiest && c.busiest[1] > 1) clines.push(['Busiest day', `${new Date(this.parseLocalDate(c.busiest[0])).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · ${c.busiest[1]} sessions`]);
@@ -465,7 +469,7 @@
                 else if (c.sealed) clines.push(['Awards', 'ready to reveal']);
                 const crew = `
                     <div class="mrc-card mrc-crew" style="--crew-g:${esc(crewG)}">
-                        <div class="mrc-kicker"><span class="mrc-faces">${names.map(face).join('')}</span>The crew · ${esc(month)}</div>
+                        <div class="mrc-kicker"><span class="mrc-faces">${names.map(face).join('')}</span>${esc(crewName)} · ${esc(month)}</div>
                         <div class="mrc-head"><span class="mrc-big">${c.count}</span><span class="mrc-sub">sessions<br>together</span></div>
                         <div class="mrc-board">${board}</div>
                         <div class="mrc-stats">${cstats.map(([v, l]) => `<div><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join('')}</div>

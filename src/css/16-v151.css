@@ -1,14 +1,14 @@
         /* ===================== v15.1 ===================== */
         /* the bottom bar: the tab you're on sits in a soft pill, clear in light and dark */
         .mob-item { isolation: isolate; }
-        .mob-item::before { content: ''; position: absolute; top: 50%; left: 50%; width: 60px; height: 50px; border-radius: 999px; z-index: -1; pointer-events: none;
+        .mob-item::before { content: ''; position: absolute; top: 50%; left: 50%; width: min(76px, calc(100% - 4px)); height: 50px; border-radius: 999px; z-index: -1; pointer-events: none;
             background: rgba(var(--matcha-rgb), 0.15); box-shadow: inset 0 0 0 1px rgba(var(--matcha-rgb), 0.2);
             opacity: 0; transform: translate(-50%, -50%) scale(0.72); transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), width 0.3s, height 0.3s; }
         :root[data-theme="dark"] .mob-item::before { background: rgba(var(--matcha-rgb), 0.17); box-shadow: inset 0 0 0 1px rgba(var(--matcha-rgb), 0.24); }
         .mob-item.active::before { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         .mob-item.active { color: var(--matcha-ink); }
         .mob-item.active .icon { filter: none; }
-        body.bars-tucked .mob-item::before { width: 48px; height: 38px; }
+        body.bars-tucked .mob-item::before { width: min(54px, calc(100% - 4px)); height: 38px; }
         @media (prefers-reduced-motion: reduce) { .mob-item::before { transition: none; } }
 
         /* the loading animation: the Dialed In logo (a flavor shape seen from above), turning */
@@ -33,8 +33,10 @@
         .cmap .cm-sum { margin: -2px 0 10px; font-size: 0.8rem; color: var(--text-muted); }
         .cm-svg { display: block; width: 100%; height: auto; margin: 0 -2px; }
         .cm-land { fill: rgba(var(--hair-rgb), 0.11); stroke: var(--surface); stroke-width: 0.8; stroke-linejoin: round; }
-        .cm-belt { fill: rgba(var(--matcha-rgb), 0.26); }
-        .cm-dot { fill: rgba(var(--matcha-rgb), 0.26); stroke: var(--surface); stroke-width: 1; }
+        .cm-tropic { stroke: rgba(var(--matcha-rgb), 0.75); stroke-width: 1px; stroke-dasharray: 4 4; vector-effect: non-scaling-stroke; pointer-events: none; }
+        .cm-legend { display: flex; align-items: center; gap: 7px; margin-top: 6px; font-size: 0.7rem; font-weight: 600; color: var(--text-faint); }
+        .cm-legend i { width: 18px; border-top: 1px dashed rgba(var(--matcha-rgb), 0.85); }
+        .cm-dot { fill: rgba(var(--hair-rgb), 0.11); stroke: var(--surface); stroke-width: 1; }
         .cm-on { cursor: pointer; }
         .cm-l1 { fill: rgba(var(--matcha-rgb), 0.68); } .cm-l2 { fill: rgba(var(--matcha-rgb), 0.86); } .cm-l3 { fill: var(--matcha); }
         :root[data-theme="dark"] .cm-on { filter: drop-shadow(0 0 3px rgba(var(--matcha-rgb), 0.55)); }
@@ -71,3 +73,22 @@
         .set-avatar { cursor: pointer; }
         .set-face { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 750; color: #fff; background-size: cover; background-position: center; box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px rgba(var(--hair-rgb), 0.14); }
         .set-avatar-remove b { color: #C0392B; }
+
+/* v15.1: whose awards and recap (a community, Friends, Everyone), and the awards card folding up */
+.circle-pick { margin: 0 0 12px; }
+.circle-pick .cp-lead { font-size: 0.78rem; color: var(--text-muted); margin: 0 2px 6px; }
+.circle-pick .comm-filters { margin: 0; }
+.crew-awards .aw-head { align-items: center; }
+.crew-awards .aw-head-t { flex: 1; min-width: 0; cursor: pointer; }
+.crew-awards.folded .aw-head { margin-bottom: 0; }
+.crew-awards.folded .aw-champ { margin-top: 12px; margin-bottom: 0; }
+.crew-awards.folded .aw-reveal-btn { margin-top: 12px; }
+.aw-toggle { flex: none; width: 34px !important; height: 34px; min-height: 34px !important; margin: 0 !important; padding: 0 !important; display: grid; place-items: center; border-radius: 999px !important; border: 1px solid var(--line) !important; background: var(--surface) !important; color: var(--ink) !important; box-shadow: none !important; cursor: pointer; }
+.aw-toggle .icon { width: 16px; height: 16px; transition: transform 0.2s ease; }
+.aw-toggle.open .icon { transform: rotate(180deg); }
+.ev-awards .ev-rows { padding: 0; margin: 8px 0 0; background: none; border: 0; box-shadow: none; }
+.ev-awards .ev-rows .hl-row:first-child { border-top: 0; }
+.crew-awards .aw-head-t .label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.crew-awards .aw-month { margin: -2px 0 12px; }
+.crew-awards .aw-month .recap-select { max-width: 100%; width: auto; }
+.crew-awards .aw-head-t .label { font-size: 1.02rem; font-weight: 750; letter-spacing: -0.01em; text-transform: none; color: var(--ink); }

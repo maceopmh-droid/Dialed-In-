@@ -68,11 +68,13 @@ def main(src):
             paths[code] = ''.join(s)
     hx, hy = equal_earth(-155.6, 19.7)   # Hawaii (Kona), a dot: it's part of the United States on the map
     dots = {'HI': [round(W / 2 + hx * k), round(-hy * k - top)]}
+    # the coffee belt: between the Tropics of Cancer and Capricorn (23.44 degrees north and south)
+    belt = [round(-equal_earth(0, 23.44)[1] * k - top, 1), round(-equal_earth(0, -23.44)[1] * k - top, 1)]
     names = {f['properties']['ADM0_A3']: f['properties']['NAME'] for f in feats}
     body = ',\n'.join(f'            {c}: {json.dumps(p)}' for c, p in sorted(paths.items()))
     js = ('        // v15.1: the world behind the coffee map: Natural Earth 1:110m countries (public domain), Equal Earth\n'
           '        // projection, simplified. Made by tools/world_map.py; not edited by hand.\n'
-          f'        const WORLD_MAP = {{ w: {W}, h: {H}, dots: {json.dumps(dots)}, names: {json.dumps(names, ensure_ascii=False)}, c: {{\n{body}\n        }} }};\n')
+          f'        const WORLD_MAP = {{ w: {W}, h: {H}, belt: {json.dumps(belt)}, dots: {json.dumps(dots)}, names: {json.dumps(names, ensure_ascii=False)}, c: {{\n{body}\n        }} }};\n')
     out = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'src', 'js', '05-world-map.js')
     open(out, 'w', encoding='utf-8').write(js)
     print(f'{len(paths)} countries, {W} x {H}, {len(js.encode())} bytes -> {os.path.relpath(out)}')
