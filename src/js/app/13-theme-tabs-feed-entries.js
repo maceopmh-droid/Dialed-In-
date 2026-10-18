@@ -21,6 +21,7 @@
             },
 
             setTab(tab) {
+                const prevTab = this.tab;
                 if (tab === 'shared') { tab = 'my'; this.coffeeScope = 'all'; }   // v15.1: the old Shared tab is Coffees, All
                 if (tab === 'profile' && this.tab !== 'profile') this.profileUser = this.user;
                 const freshRecap = tab === 'profile' && this.tab !== 'profile' && !this._noRecapJump ? this.freshRecap() : null;
@@ -34,7 +35,8 @@
                 document.getElementById('view-title').innerText = titles[tab] || 'Coffees';
                 document.body.classList.toggle('feed-mode', tab === 'feed' || tab === 'profile');
                 document.body.classList.toggle('roasters-mode', tab === 'roasters');
-                ['search-input', 'search-input-mobile'].forEach(id => { const el = document.getElementById(id); if (el) el.placeholder = tab === 'roasters' ? 'Search roasters…' : 'Search coffees…'; });
+                if (prevTab !== tab && document.body.classList.contains('search-open')) { document.body.classList.remove('search-open'); const t = document.getElementById('search-input-top'); if (t) t.value = ''; ['search-input', 'search-input-mobile'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; }); }   // v15.1: a new tab starts unsearched
+                ['search-input', 'search-input-mobile', 'search-input-top'].forEach(id => { const el = document.getElementById(id); if (el) el.placeholder = tab === 'roasters' ? 'Search roasters…' : 'Search coffees…'; });
                 this.closeMobileControls();
                 this.updateAchievementCount();
                 this.render();

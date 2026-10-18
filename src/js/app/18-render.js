@@ -79,7 +79,8 @@
                 this.updateAchievementCount();
                 const desktopSearch = document.getElementById('search-input');
                 const mobileSearch = document.getElementById('search-input-mobile');
-                const searchQuery = ((desktopSearch && desktopSearch.value) || (mobileSearch && mobileSearch.value) || '').toLowerCase();
+                const topSearch = document.getElementById('search-input-top');
+                const searchQuery = ((desktopSearch && desktopSearch.value) || (mobileSearch && mobileSearch.value) || (topSearch && topSearch.value) || '').toLowerCase();
                 const mobileSort = document.getElementById('mobile-sort-select');
                 const mobileMethod = document.getElementById('mobile-method-select');
                 if (mobileSort) mobileSort.value = this.currentSort;

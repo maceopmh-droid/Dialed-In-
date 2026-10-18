@@ -112,6 +112,8 @@
             <div class="header-top">
                 <div style="flex: 1;">
                     <h2 id="view-title">Coffees</h2>
+                    <!-- v15.1: on a phone, search sits in the header (Coffees and Roasters), opened from the search button -->
+                    <div class="top-search" id="top-search"><svg class="icon"><use href="#i-search"/></svg><input type="search" id="search-input-top" placeholder="Search coffees…" autocomplete="off" autocapitalize="off" enterkeyhint="search" oninput="app.syncSearch(this.value, 'top')"><button type="button" class="top-search-x" onclick="app.closeTopSearch()" aria-label="Close search"><svg class="icon"><use href="#i-x"/></svg></button></div>
                     
                     <!-- Search Bar -->
                     <div class="search-bar">
@@ -135,6 +137,7 @@
                         <svg class="icon" style="width:16px;height:16px;"><use href="#i-award"/></svg>
                         <span id="achievement-count" class="locker-count">0</span>
                     </button>
+                    <button class="mobile-control-btn top-search-btn" id="top-search-btn" type="button" onclick="app.openTopSearch()" aria-label="Search"><svg class="icon"><use href="#i-search"/></svg></button>
                     <button class="mobile-control-btn" id="mobile-controls-btn" onclick="app.toggleMobileControls(event)" aria-label="Toggle filters">
                         <span class="line"></span><span class="line"></span><span class="line"></span>
                     </button>
@@ -158,7 +161,7 @@
             </div>
 
             <div id="mobile-controls-panel" class="mobile-controls-panel">
-                <div>
+                <div class="mc-search">
                     <label>Search</label>
                     <input type="text" id="search-input-mobile" placeholder="Search coffees…" oninput="app.syncSearch(this.value, 'mobile')">
                 </div>

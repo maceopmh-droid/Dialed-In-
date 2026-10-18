@@ -2,11 +2,14 @@
 .lvl-dot { display: none; width: 15px; height: 15px; margin-left: 5px; vertical-align: -2px; background: center / contain no-repeat; flex: none; }
 .lvl-badge { display: block; flex: none; }
 .lvl-row { display: flex; align-items: center; gap: 12px; width: 100% !important; margin: 14px 0 0 !important; padding: 10px 12px !important; border-radius: 16px !important; border: 1px solid rgba(var(--hair-rgb), 0.1) !important; background: rgba(var(--hair-rgb), 0.04) !important; color: var(--ink) !important; box-shadow: none !important; font: inherit; text-align: left; cursor: pointer; min-height: 0 !important; }
-.lvl-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; }
+.lvl-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
 .lvl-top { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
-.lvl-top b { font-size: 0.98rem; font-weight: 750; white-space: nowrap; }
-.lvl-top small { font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; }
-.lvl-top em { margin-left: auto; font-style: normal; font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.lvl-top b { min-width: 0; font-size: 0.98rem; font-weight: 750; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lvl-top em { margin-left: auto; flex: none; font-style: normal; font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; }
+.lvl-count { min-width: 0; font-size: 0.76rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+/* the profile card never grows past the screen for something inside it */
+.profile-hero { grid-template-columns: minmax(0, 1fr); }
+.lvl-row { min-width: 0; max-width: 100%; box-sizing: border-box; }
 .lvl-bar { display: block; height: 7px; border-radius: 999px; background: rgba(var(--hair-rgb), 0.1); overflow: hidden; }
 .lvl-bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #C8955A, #E2B84E); }
 .lvl-bar.big { height: 10px; margin: 14px 0 8px; }
@@ -40,3 +43,22 @@
 .bug-head small, .bug-ctx { font-size: 0.78rem; color: var(--text-muted); }
 .bug-text { margin: 6px 0; white-space: pre-wrap; font-size: 0.92rem; }
 .bug-item .chip-btn { margin-top: 8px; }
+.lvl-tier { margin: 12px 0 2px; font-size: 0.74rem; font-weight: 750; letter-spacing: 0.02em; color: var(--text-muted); }
+
+/* v15.1: search in the header on a phone: a search button beside the menu; it opens a field where the title was */
+.top-search, .top-search-btn { display: none; }
+@media (max-width: 768px) {
+    .top-search-btn { display: inline-flex; }
+    .top-search-btn .icon { width: 18px; height: 18px; }
+    body.feed-mode .top-search-btn, body.search-open .top-search-btn { display: none !important; }
+    #mobile-controls-panel .mc-search { display: none; }
+    body.search-open #view-title { display: none; }
+    body.search-open:not(.feed-mode) .top-search { display: flex; }
+    .header-top > div:first-child { min-width: 0; }
+    .top-search { align-items: center; gap: 8px; height: 40px; padding: 0 6px 0 12px; border-radius: 12px; background: var(--linen); color: var(--text-muted); min-width: 0; }
+    .top-search .icon { width: 17px; height: 17px; flex: none; }
+    .top-search input { flex: 1; min-width: 0; width: 100%; height: 100%; margin: 0 !important; padding: 0 !important; border: 0 !important; background: none !important; box-shadow: none !important; color: var(--ink); font: inherit; font-size: 1rem; outline: none; }
+    .top-search input::-webkit-search-cancel-button { display: none; }
+    .top-search-x { flex: none; width: 30px !important; height: 30px; min-height: 30px !important; margin: 0 !important; padding: 0 !important; display: grid; place-items: center; border: 0 !important; border-radius: 999px !important; background: rgba(var(--hair-rgb), 0.08) !important; color: var(--ink) !important; box-shadow: none !important; cursor: pointer; }
+    .top-search-x .icon { width: 14px; height: 14px; }
+}
