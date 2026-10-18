@@ -289,10 +289,10 @@
                 const picker = `<select class="recap-select" aria-label="Award month" onchange="app.setAwardsMonth(this.value)">${months.map(k => `<option value="${k}"${k === key ? ' selected' : ''}>${this.esc(this.monthName(k))}${this.monthLocked(k) ? ' (locked)' : ''}</option>`).join('')}</select>`;
                 const named = this._crewScope && this.tab === 'profile' ? (this._crewScope.id === 'friends' ? 'Friends' : this._crewScope.name) : '';   // v15.1: whose awards (a community's own tab already says)
                 // v15.1: the card folds up (just who won); the arrow opens it
-                const open = this.awardsOpen();
-                const tog = `<button type="button" class="aw-toggle${open ? ' open' : ''}" aria-expanded="${open}" aria-label="${open ? 'Show less' : 'Show all the awards'}" onclick="app.toggleAwards()"><svg class="icon"><use href="#i-chevron-down"/></svg></button>`;
+                const open = this._awInRow ? true : this.awardsOpen();
+                const tog = this._awInRow ? '' : `<button type="button" class="aw-toggle${open ? ' open' : ''}" aria-expanded="${open}" aria-label="${open ? 'Show less' : 'Show all the awards'}" onclick="app.toggleAwards()"><svg class="icon"><use href="#i-chevron-down"/></svg></button>`;
                 // the title on one line, whose and how far along under it; the month picker only once it's open
-                const head = sub => `<div class="aw-head"><div class="aw-head-t" onclick="app.toggleAwards()"><div class="label">Monthly awards</div><div class="aw-sub">${named ? `${this.esc(named)} · ` : ''}${sub}</div></div>${tog}</div>${open ? `<div class="aw-month">${picker}</div>` : ''}`;
+                const head = sub => this._awInRow ? `<div class="aw-month">${picker}</div>` : `<div class="aw-head"><div class="aw-head-t" onclick="app.toggleAwards()"><div class="label">Monthly awards</div><div class="aw-sub">${named ? `${this.esc(named)} · ` : ''}${sub}</div></div>${tog}</div>${open ? `<div class="aw-month">${picker}</div>` : ''}`;
                 if (this.monthLocked(key)) {
                     const unlock = new Date(y, m, 1);
                     const days = this.daysUntil(unlock);

@@ -113,3 +113,21 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
 .more-toggle.open .icon { transform: rotate(180deg); }
 .more-toggle.cmt-earlier { margin: 0 0 10px !important; }
 #d-logs-more { margin: 4px 0 18px !important; }
+
+/* v15.1: the profile's More, a list like Strava's: icon, what it is, where it stands, and an arrow */
+.profile-card.more-hub { padding: 4px 0; overflow: hidden; }
+.more-row { display: flex; align-items: center; gap: 14px; width: 100% !important; margin: 0 !important; padding: 15px 18px !important; border: 0 !important; border-radius: 0 !important; background: none !important; box-shadow: none !important; color: var(--ink) !important; font: inherit; text-align: left; cursor: pointer; min-height: 0 !important; }
+.more-hub > * + .more-row { border-top: 1px solid rgba(var(--hair-rgb), 0.08) !important; }
+.more-ic { flex: none; width: 26px; height: 26px; display: grid; place-items: center; color: var(--ink); }
+.more-ic .icon { width: 24px; height: 24px; }
+.more-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.more-t b { font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; text-transform: none; }
+.more-t small { font-size: 0.84rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.more-t .recap-new { margin: 0 2px 0 0; vertical-align: 1px; }
+.more-chev { flex: none; width: 18px; height: 18px; color: var(--text-muted); transform: rotate(-90deg); transition: transform 0.2s ease; }
+.more-row.expands .more-chev { transform: rotate(0deg); }
+.more-row.expands.open .more-chev { transform: rotate(180deg); }
+.more-panel { padding: 0 18px 18px; }
+.more-panel > .profile-card { background: none !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
+.more-panel .section-label { display: none; }
+.prof-coffee-grid .more-toggle { grid-column: 1 / -1; }

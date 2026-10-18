@@ -39,13 +39,13 @@
                 }
                 const section = ['sessions', 'overview', 'taste', 'activity'].includes(this.profileSection) ? this.profileSection : 'sessions';   // v14.5: Sessions first
                 const freshRecap = who === this.user ? this.freshRecap() : null;
-                const tabs = `<div class="seg-control profile-tabs" role="tablist" aria-label="Profile sections">${[['sessions', 'Sessions'], ['overview', 'Overview'], ['taste', 'Taste'], ['activity', 'Activity']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === section}" aria-pressed="${k === section}" onclick="app.setProfileSection('${app.escJs(k)}')">${l}${k === 'activity' && freshRecap && section !== 'activity' ? '<span class="nav-dot"></span>' : ''}</button>`).join('')}</div>`;
+                const tabs = `<div class="seg-control profile-tabs" role="tablist" aria-label="Profile sections">${[['sessions', 'Sessions'], ['overview', 'Overview'], ['taste', 'Taste'], ['activity', 'More']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === section}" aria-pressed="${k === section}" onclick="app.setProfileSection('${app.escJs(k)}')">${l}${k === 'activity' && freshRecap && section !== 'activity' ? '<span class="nav-dot"></span>' : ''}</button>`).join('')}</div>`;
                 const cards = section === 'sessions' ? [this.profileSessionsHtml(who)]
                     : section === 'taste'
                     ? [this.renderPalateCard(who), this.renderCoffeeMapCard ? this.renderCoffeeMapCard(who) : '', who === this.user ? this.renderFriendPalates() : '', this.renderMatchesCard(who), this.renderWantCard(who)]
                     : section === 'activity'
-                        ? [who === this.user && this.circlePickerHtml ? this.circlePickerHtml() : '', this.renderCrewAwardsCard(), this.renderCalendarCard(who), this.renderRecapCard(who)]
-                        : [who === this.user && this.renderGoalsCard ? this.renderGoalsCard() : '', this.renderFabFour(who), this.profileCoffeesHtml(who), this.renderAchievementsCard(who), who !== this.user ? this.renderGearCard(who) : ''];   // v14.6: your goals first
+                        ? [who === this.user && this.circlePickerHtml ? this.circlePickerHtml() : '', this.moreHubHtml(who)]   // v15.1: More, a list like Strava's (achievements, awards, recaps)
+                        : [who === this.user && this.renderGoalsCard ? this.renderGoalsCard() : '', this.renderFabFour(who), this.profileCoffeesHtml(who), this.renderCalendarCard(who), who !== this.user ? this.renderGearCard(who) : ''];   // v14.6: your goals first (v15.1: the calendar here; achievements in More)
                 const body = cards.filter(Boolean).join('') || '<div class="panel-empty">Nothing here yet. Log a few sessions and this fills in.</div>';
                 grid.innerHTML = [
                     `<div class="people-switch${this.acctOn() ? ' one-row' : ''}">${this.acctOn() ? `<div class="ps-scroll">${chips}</div>` : chips}${peopleChip}</div>`,   // v15.0: everyone, in a row that scrolls

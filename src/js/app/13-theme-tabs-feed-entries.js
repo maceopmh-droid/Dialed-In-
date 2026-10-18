@@ -24,7 +24,7 @@
                 if (tab === 'shared') { tab = 'my'; this.coffeeScope = 'all'; }   // v15.1: the old Shared tab is Coffees, All
                 if (tab === 'profile' && this.tab !== 'profile') this.profileUser = this.user;
                 const freshRecap = tab === 'profile' && this.tab !== 'profile' && !this._noRecapJump ? this.freshRecap() : null;
-                if (freshRecap) { this.profileSection = 'activity'; this.recapPeriod = freshRecap; setTimeout(() => { const el = document.getElementById('recap-card'); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); }
+                if (freshRecap) { this.profileSection = 'activity'; this.recapPeriod = freshRecap; this._recapOpen = true; setTimeout(() => { const el = document.getElementById('recap-card'); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); }
                 this.tab = tab;
                 if (this.setBarsTucked) this.setBarsTucked(false);   // v14.7: a new tab starts with both bars
                 document.querySelectorAll('.nav-btn, .mob-item').forEach(el => el.classList.remove('active'));

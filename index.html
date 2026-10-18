@@ -3788,6 +3788,24 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
 .more-toggle.open .icon { transform: rotate(180deg); }
 .more-toggle.cmt-earlier { margin: 0 0 10px !important; }
 #d-logs-more { margin: 4px 0 18px !important; }
+
+/* v15.1: the profile's More, a list like Strava's: icon, what it is, where it stands, and an arrow */
+.profile-card.more-hub { padding: 4px 0; overflow: hidden; }
+.more-row { display: flex; align-items: center; gap: 14px; width: 100% !important; margin: 0 !important; padding: 15px 18px !important; border: 0 !important; border-radius: 0 !important; background: none !important; box-shadow: none !important; color: var(--ink) !important; font: inherit; text-align: left; cursor: pointer; min-height: 0 !important; }
+.more-hub > * + .more-row { border-top: 1px solid rgba(var(--hair-rgb), 0.08) !important; }
+.more-ic { flex: none; width: 26px; height: 26px; display: grid; place-items: center; color: var(--ink); }
+.more-ic .icon { width: 24px; height: 24px; }
+.more-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.more-t b { font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; text-transform: none; }
+.more-t small { font-size: 0.84rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.more-t .recap-new { margin: 0 2px 0 0; vertical-align: 1px; }
+.more-chev { flex: none; width: 18px; height: 18px; color: var(--text-muted); transform: rotate(-90deg); transition: transform 0.2s ease; }
+.more-row.expands .more-chev { transform: rotate(0deg); }
+.more-row.expands.open .more-chev { transform: rotate(180deg); }
+.more-panel { padding: 0 18px 18px; }
+.more-panel > .profile-card { background: none !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
+.more-panel .section-label { display: none; }
+.prof-coffee-grid .more-toggle { grid-column: 1 / -1; }
     </style>
 </head>
 <body>
@@ -9510,10 +9528,10 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const picker = `<select class="recap-select" aria-label="Award month" onchange="app.setAwardsMonth(this.value)">${months.map(k => `<option value="${k}"${k === key ? ' selected' : ''}>${this.esc(this.monthName(k))}${this.monthLocked(k) ? ' (locked)' : ''}</option>`).join('')}</select>`;
                 const named = this._crewScope && this.tab === 'profile' ? (this._crewScope.id === 'friends' ? 'Friends' : this._crewScope.name) : '';   // v15.1: whose awards (a community's own tab already says)
                 // v15.1: the card folds up (just who won); the arrow opens it
-                const open = this.awardsOpen();
-                const tog = `<button type="button" class="aw-toggle${open ? ' open' : ''}" aria-expanded="${open}" aria-label="${open ? 'Show less' : 'Show all the awards'}" onclick="app.toggleAwards()"><svg class="icon"><use href="#i-chevron-down"/></svg></button>`;
+                const open = this._awInRow ? true : this.awardsOpen();
+                const tog = this._awInRow ? '' : `<button type="button" class="aw-toggle${open ? ' open' : ''}" aria-expanded="${open}" aria-label="${open ? 'Show less' : 'Show all the awards'}" onclick="app.toggleAwards()"><svg class="icon"><use href="#i-chevron-down"/></svg></button>`;
                 // the title on one line, whose and how far along under it; the month picker only once it's open
-                const head = sub => `<div class="aw-head"><div class="aw-head-t" onclick="app.toggleAwards()"><div class="label">Monthly awards</div><div class="aw-sub">${named ? `${this.esc(named)} · ` : ''}${sub}</div></div>${tog}</div>${open ? `<div class="aw-month">${picker}</div>` : ''}`;
+                const head = sub => this._awInRow ? `<div class="aw-month">${picker}</div>` : `<div class="aw-head"><div class="aw-head-t" onclick="app.toggleAwards()"><div class="label">Monthly awards</div><div class="aw-sub">${named ? `${this.esc(named)} · ` : ''}${sub}</div></div>${tog}</div>${open ? `<div class="aw-month">${picker}</div>` : ''}`;
                 if (this.monthLocked(key)) {
                     const unlock = new Date(y, m, 1);
                     const days = this.daysUntil(unlock);
@@ -10257,7 +10275,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (tab === 'shared') { tab = 'my'; this.coffeeScope = 'all'; }   // v15.1: the old Shared tab is Coffees, All
                 if (tab === 'profile' && this.tab !== 'profile') this.profileUser = this.user;
                 const freshRecap = tab === 'profile' && this.tab !== 'profile' && !this._noRecapJump ? this.freshRecap() : null;
-                if (freshRecap) { this.profileSection = 'activity'; this.recapPeriod = freshRecap; setTimeout(() => { const el = document.getElementById('recap-card'); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); }
+                if (freshRecap) { this.profileSection = 'activity'; this.recapPeriod = freshRecap; this._recapOpen = true; setTimeout(() => { const el = document.getElementById('recap-card'); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); }
                 this.tab = tab;
                 if (this.setBarsTucked) this.setBarsTucked(false);   // v14.7: a new tab starts with both bars
                 document.querySelectorAll('.nav-btn, .mob-item').forEach(el => el.classList.remove('active'));
@@ -13053,13 +13071,13 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 }
                 const section = ['sessions', 'overview', 'taste', 'activity'].includes(this.profileSection) ? this.profileSection : 'sessions';   // v14.5: Sessions first
                 const freshRecap = who === this.user ? this.freshRecap() : null;
-                const tabs = `<div class="seg-control profile-tabs" role="tablist" aria-label="Profile sections">${[['sessions', 'Sessions'], ['overview', 'Overview'], ['taste', 'Taste'], ['activity', 'Activity']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === section}" aria-pressed="${k === section}" onclick="app.setProfileSection('${app.escJs(k)}')">${l}${k === 'activity' && freshRecap && section !== 'activity' ? '<span class="nav-dot"></span>' : ''}</button>`).join('')}</div>`;
+                const tabs = `<div class="seg-control profile-tabs" role="tablist" aria-label="Profile sections">${[['sessions', 'Sessions'], ['overview', 'Overview'], ['taste', 'Taste'], ['activity', 'More']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === section}" aria-pressed="${k === section}" onclick="app.setProfileSection('${app.escJs(k)}')">${l}${k === 'activity' && freshRecap && section !== 'activity' ? '<span class="nav-dot"></span>' : ''}</button>`).join('')}</div>`;
                 const cards = section === 'sessions' ? [this.profileSessionsHtml(who)]
                     : section === 'taste'
                     ? [this.renderPalateCard(who), this.renderCoffeeMapCard ? this.renderCoffeeMapCard(who) : '', who === this.user ? this.renderFriendPalates() : '', this.renderMatchesCard(who), this.renderWantCard(who)]
                     : section === 'activity'
-                        ? [who === this.user && this.circlePickerHtml ? this.circlePickerHtml() : '', this.renderCrewAwardsCard(), this.renderCalendarCard(who), this.renderRecapCard(who)]
-                        : [who === this.user && this.renderGoalsCard ? this.renderGoalsCard() : '', this.renderFabFour(who), this.profileCoffeesHtml(who), this.renderAchievementsCard(who), who !== this.user ? this.renderGearCard(who) : ''];   // v14.6: your goals first
+                        ? [who === this.user && this.circlePickerHtml ? this.circlePickerHtml() : '', this.moreHubHtml(who)]   // v15.1: More, a list like Strava's (achievements, awards, recaps)
+                        : [who === this.user && this.renderGoalsCard ? this.renderGoalsCard() : '', this.renderFabFour(who), this.profileCoffeesHtml(who), this.renderCalendarCard(who), who !== this.user ? this.renderGearCard(who) : ''];   // v14.6: your goals first (v15.1: the calendar here; achievements in More)
                 const body = cards.filter(Boolean).join('') || '<div class="panel-empty">Nothing here yet. Log a few sessions and this fills in.</div>';
                 grid.innerHTML = [
                     `<div class="people-switch${this.acctOn() ? ' one-row' : ''}">${this.acctOn() ? `<div class="ps-scroll">${chips}</div>` : chips}${peopleChip}</div>`,   // v15.0: everyone, in a row that scrolls
@@ -17752,7 +17770,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 this.beans.forEach(bean => { if (bean.user === who && !seen.has(this.beanGroupKey(bean))) seen.set(this.beanGroupKey(bean), bean.id); });
                 if (!seen.size) return '';
                 const ids = [...seen.values()];
-                return `<div class="profile-card prof-coffees"><div class="label">Coffees <span class="prof-count">${ids.length}</span></div><div class="fab-row small prof-coffee-grid">${ids.map(id => this.fabTileHtml(id, { user: who, small: true })).join('')}</div></div>`;
+                return `<div class="profile-card prof-coffees"><div class="label">Coffees <span class="prof-count">${ids.length}</span></div><div class="fab-row small prof-coffee-grid">${this.moreHtml(ids.map(id => this.fabTileHtml(id, { user: who, small: true })), 8, 'coffees')}</div></div>`;
             },
 
             // ---- suggested people (People tab): who brews the same coffees, roasters, grinder or methods as you
@@ -19057,6 +19075,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const st = this.hlState();
                 if (!st.loading && !st.at) setTimeout(() => this.loadHighlights(), 0);
                 const open = this.awardsOpen(), items = st.items || [];
+                if (this._awInRow) return !st.at ? this.loadingBlockHtml('panel-empty') : items.length ? `<div class="profile-card crew-awards ev-awards" id="crew-awards"><div class="hl-card ev-rows">${this.hlRowsHtml()}</div></div>` : '<div class="panel-empty">No highlights for last month yet.</div>';   // inside More's row
                 const tog = items.length ? `<button type="button" class="aw-toggle${open ? ' open' : ''}" aria-expanded="${open}" aria-label="${open ? 'Show less' : 'Show the highlights'}" onclick="app.toggleAwards()"><svg class="icon"><use href="#i-chevron-down"/></svg></button>` : '';
                 const sub = !st.at ? 'Loading…' : items.length ? `${items.length} ${items.length === 1 ? 'person' : 'people'} spotlighted` : 'None yet for last month';
                 const head = `<div class="aw-head"><div class="aw-head-t"${items.length ? ' onclick="app.toggleAwards()"' : ''}><div class="label">${this.esc(this.hlMonthLabel())} highlights</div><div class="aw-sub">Everyone · ${this.esc(sub)}</div></div>${tog}</div>`;
@@ -19225,6 +19244,59 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 btn.setAttribute('aria-expanded', String(!cut)); btn.classList.toggle('open', !cut);
                 btn.innerHTML = `<span>${cut ? `Show all ${rows.length} sessions` : 'Show fewer'}</span><svg class="icon"><use href="#i-chevron-down"/></svg>`;
                 btn.onclick = ev => { ev.stopPropagation(); if (this._logsOpen.has(key)) this._logsOpen.delete(key); else this._logsOpen.add(key); this.cutLogs(box); if (this._logsOpen.has(key) === false) btn.scrollIntoView({ block: 'nearest' }); };
+            },
+
+            // ---- v15.1: the profile's More (was Activity), laid out like Strava's: a list of rows, each with what's in it.
+            // Achievements opens the locker; Monthly awards and Recaps open in place (they start closed; a fresh recap or an
+            // awards notification opens its row).
+            moreHubHtml(who) {
+                const own = who === this.user, esc = v => this.esc(v);
+                const chev = '<svg class="icon more-chev"><use href="#i-chevron-down"/></svg>';
+                const row = (key, icon, title, sub, onclick, open, expands) => `<button type="button" class="more-row${expands ? ' expands' : ''}${open ? ' open' : ''}" data-row="${key}" aria-expanded="${expands ? String(!!open) : 'false'}" onclick="${onclick}"><span class="more-ic"><svg class="icon"><use href="#${icon}"/></svg></span><span class="more-t"><b>${esc(title)}</b>${sub ? `<small>${sub}</small>` : ''}</span>${chev}</button>`;
+                const parts = [];
+                // achievements: the locker
+                const levels = this.achievementLevelsByUser[who] || {}, catalog = this.getAchievementCatalog();
+                const earned = catalog.reduce((s, d) => s + Number(levels[d.key] || 0), 0), total = catalog.reduce((s, d) => s + d.thresholds.length, 0);
+                parts.push(row('ach', 'i-medal', 'Achievements', `${earned} of ${total} levels`, `app.openAchievementLocker('${app.escJs(who)}')`, false, false));
+                // monthly awards (yours: the circle picked above)
+                if (own) {
+                    const open = this.awardsOpen();
+                    parts.push(row('awards', 'i-trophy', 'Monthly awards', esc(this.awardsLine()), 'app.toggleAwards()', open, true));
+                    if (open) { this._awInRow = true; try { parts.push(`<div class="more-panel">${this.renderCrewAwardsCard() || '<div class="panel-empty">No awards yet. They need a community or friends who brew.</div>'}</div>`); } finally { this._awInRow = false; } }
+                }
+                // recaps
+                const periods = this.recapPeriods(who);
+                if (periods.length) {
+                    const fresh = own ? this.freshRecap(who) : null;
+                    const unlocked = periods.filter(p => !this.periodLocked(p));
+                    const p = this.recapPeriod && periods.includes(this.recapPeriod) ? this.recapPeriod : (unlocked.find(x => x.startsWith('m:')) || periods[0]);
+                    const sub = `${fresh ? '<span class="recap-new">New</span> ' : ''}${esc(this.periodLabel(fresh || p))}${!fresh && this.periodLocked(p) ? ' · opens when it ends' : ''}`;
+                    const open = !!this._recapOpen;
+                    parts.push(row('recap', 'i-trend', 'Recaps', sub, 'app.toggleRecapRow()', open, true));
+                    if (open) parts.push(`<div class="more-panel">${this.renderRecapCard(who)}</div>`);
+                }
+                return `<section class="profile-card more-hub">${parts.join('')}</section>`;
+            },
+            toggleRecapRow() { this._recapOpen = !this._recapOpen; this.render(); },
+            // the awards row's line: whose, which month, and where it stands
+            awardsLine() {
+                const c = this.activeCircle ? this.activeCircle() : null;
+                if (c && c.id === 'everyone') return `Everyone · ${this.hlMonthLabel()} highlights`;
+                const scope = c ? c.scope : null;
+                const run = () => {
+                    const months = this.awardMonths();
+                    if (!months.length || !this.brews.size) return 'None yet';
+                    const key = months.includes(this.awardsMonth) ? this.awardsMonth : (months.find(k => !this.monthLocked(k)) || months[0]);
+                    const name = this.monthName(key, false), [y, m] = key.split('-').map(Number);
+                    if (this.monthLocked(key)) return `${name} in progress`;
+                    const awards = this.crewAwardsMemo(y, m - 1);
+                    if (!awards.length) return `${name}: not enough sessions`;
+                    if (this.awardsNeedReveal(key, awards)) return `${name}: ready to reveal`;
+                    const st = this.awardStandings(awards), top = st.length ? st[0][1] : 0, champs = st.filter(r => r[1] === top).map(r => r[0]);
+                    return champs.length ? `${name}: ${champs.join(' & ')} ${champs.length === 1 ? 'took it' : 'shared it'}` : name;
+                };
+                const line = scope ? this.withCrewScope(scope, run) : run();
+                return c ? `${c.name} · ${line}` : line;
             },
         };
         window.onload = () => app.init();

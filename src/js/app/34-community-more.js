@@ -126,7 +126,7 @@
                 this.beans.forEach(bean => { if (bean.user === who && !seen.has(this.beanGroupKey(bean))) seen.set(this.beanGroupKey(bean), bean.id); });
                 if (!seen.size) return '';
                 const ids = [...seen.values()];
-                return `<div class="profile-card prof-coffees"><div class="label">Coffees <span class="prof-count">${ids.length}</span></div><div class="fab-row small prof-coffee-grid">${ids.map(id => this.fabTileHtml(id, { user: who, small: true })).join('')}</div></div>`;
+                return `<div class="profile-card prof-coffees"><div class="label">Coffees <span class="prof-count">${ids.length}</span></div><div class="fab-row small prof-coffee-grid">${this.moreHtml(ids.map(id => this.fabTileHtml(id, { user: who, small: true })), 8, 'coffees')}</div></div>`;
             },
 
             // ---- suggested people (People tab): who brews the same coffees, roasters, grinder or methods as you

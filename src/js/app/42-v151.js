@@ -336,6 +336,7 @@
                 const st = this.hlState();
                 if (!st.loading && !st.at) setTimeout(() => this.loadHighlights(), 0);
                 const open = this.awardsOpen(), items = st.items || [];
+                if (this._awInRow) return !st.at ? this.loadingBlockHtml('panel-empty') : items.length ? `<div class="profile-card crew-awards ev-awards" id="crew-awards"><div class="hl-card ev-rows">${this.hlRowsHtml()}</div></div>` : '<div class="panel-empty">No highlights for last month yet.</div>';   // inside More's row
                 const tog = items.length ? `<button type="button" class="aw-toggle${open ? ' open' : ''}" aria-expanded="${open}" aria-label="${open ? 'Show less' : 'Show the highlights'}" onclick="app.toggleAwards()"><svg class="icon"><use href="#i-chevron-down"/></svg></button>` : '';
                 const sub = !st.at ? 'Loading…' : items.length ? `${items.length} ${items.length === 1 ? 'person' : 'people'} spotlighted` : 'None yet for last month';
                 const head = `<div class="aw-head"><div class="aw-head-t"${items.length ? ' onclick="app.toggleAwards()"' : ''}><div class="label">${this.esc(this.hlMonthLabel())} highlights</div><div class="aw-sub">Everyone · ${this.esc(sub)}</div></div>${tog}</div>`;
@@ -504,4 +505,57 @@
                 btn.setAttribute('aria-expanded', String(!cut)); btn.classList.toggle('open', !cut);
                 btn.innerHTML = `<span>${cut ? `Show all ${rows.length} sessions` : 'Show fewer'}</span><svg class="icon"><use href="#i-chevron-down"/></svg>`;
                 btn.onclick = ev => { ev.stopPropagation(); if (this._logsOpen.has(key)) this._logsOpen.delete(key); else this._logsOpen.add(key); this.cutLogs(box); if (this._logsOpen.has(key) === false) btn.scrollIntoView({ block: 'nearest' }); };
+            },
+
+            // ---- v15.1: the profile's More (was Activity), laid out like Strava's: a list of rows, each with what's in it.
+            // Achievements opens the locker; Monthly awards and Recaps open in place (they start closed; a fresh recap or an
+            // awards notification opens its row).
+            moreHubHtml(who) {
+                const own = who === this.user, esc = v => this.esc(v);
+                const chev = '<svg class="icon more-chev"><use href="#i-chevron-down"/></svg>';
+                const row = (key, icon, title, sub, onclick, open, expands) => `<button type="button" class="more-row${expands ? ' expands' : ''}${open ? ' open' : ''}" data-row="${key}" aria-expanded="${expands ? String(!!open) : 'false'}" onclick="${onclick}"><span class="more-ic"><svg class="icon"><use href="#${icon}"/></svg></span><span class="more-t"><b>${esc(title)}</b>${sub ? `<small>${sub}</small>` : ''}</span>${chev}</button>`;
+                const parts = [];
+                // achievements: the locker
+                const levels = this.achievementLevelsByUser[who] || {}, catalog = this.getAchievementCatalog();
+                const earned = catalog.reduce((s, d) => s + Number(levels[d.key] || 0), 0), total = catalog.reduce((s, d) => s + d.thresholds.length, 0);
+                parts.push(row('ach', 'i-medal', 'Achievements', `${earned} of ${total} levels`, `app.openAchievementLocker('${app.escJs(who)}')`, false, false));
+                // monthly awards (yours: the circle picked above)
+                if (own) {
+                    const open = this.awardsOpen();
+                    parts.push(row('awards', 'i-trophy', 'Monthly awards', esc(this.awardsLine()), 'app.toggleAwards()', open, true));
+                    if (open) { this._awInRow = true; try { parts.push(`<div class="more-panel">${this.renderCrewAwardsCard() || '<div class="panel-empty">No awards yet. They need a community or friends who brew.</div>'}</div>`); } finally { this._awInRow = false; } }
+                }
+                // recaps
+                const periods = this.recapPeriods(who);
+                if (periods.length) {
+                    const fresh = own ? this.freshRecap(who) : null;
+                    const unlocked = periods.filter(p => !this.periodLocked(p));
+                    const p = this.recapPeriod && periods.includes(this.recapPeriod) ? this.recapPeriod : (unlocked.find(x => x.startsWith('m:')) || periods[0]);
+                    const sub = `${fresh ? '<span class="recap-new">New</span> ' : ''}${esc(this.periodLabel(fresh || p))}${!fresh && this.periodLocked(p) ? ' · opens when it ends' : ''}`;
+                    const open = !!this._recapOpen;
+                    parts.push(row('recap', 'i-trend', 'Recaps', sub, 'app.toggleRecapRow()', open, true));
+                    if (open) parts.push(`<div class="more-panel">${this.renderRecapCard(who)}</div>`);
+                }
+                return `<section class="profile-card more-hub">${parts.join('')}</section>`;
+            },
+            toggleRecapRow() { this._recapOpen = !this._recapOpen; this.render(); },
+            // the awards row's line: whose, which month, and where it stands
+            awardsLine() {
+                const c = this.activeCircle ? this.activeCircle() : null;
+                if (c && c.id === 'everyone') return `Everyone · ${this.hlMonthLabel()} highlights`;
+                const scope = c ? c.scope : null;
+                const run = () => {
+                    const months = this.awardMonths();
+                    if (!months.length || !this.brews.size) return 'None yet';
+                    const key = months.includes(this.awardsMonth) ? this.awardsMonth : (months.find(k => !this.monthLocked(k)) || months[0]);
+                    const name = this.monthName(key, false), [y, m] = key.split('-').map(Number);
+                    if (this.monthLocked(key)) return `${name} in progress`;
+                    const awards = this.crewAwardsMemo(y, m - 1);
+                    if (!awards.length) return `${name}: not enough sessions`;
+                    if (this.awardsNeedReveal(key, awards)) return `${name}: ready to reveal`;
+                    const st = this.awardStandings(awards), top = st.length ? st[0][1] : 0, champs = st.filter(r => r[1] === top).map(r => r[0]);
+                    return champs.length ? `${name}: ${champs.join(' & ')} ${champs.length === 1 ? 'took it' : 'shared it'}` : name;
+                };
+                const line = scope ? this.withCrewScope(scope, run) : run();
+                return c ? `${c.name} · ${line}` : line;
             },
