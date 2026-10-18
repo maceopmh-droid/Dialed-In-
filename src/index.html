@@ -34,6 +34,7 @@
 @@include css/14-community-more.css
 @@include css/15-v15.css
 @@include css/16-v151.css
+@@include css/17-levels.css
     </style>
 </head>
 <body>
@@ -341,6 +342,25 @@
     </div>
 
     <!-- Reviewing reports (v14.5, reviewers only) -->
+    <!-- v15.1: your level, report a bug, and (reviewers) the bug reports -->
+    <div id="level-modal" class="modal" onclick="if(event.target===this) app.closeLevel()">
+        <div class="modal-card people-card">
+            <div class="set-top"><h2>Level</h2><button type="button" class="set-done" onclick="app.closeLevel()">Done</button></div>
+            <div id="level-body"></div>
+        </div>
+    </div>
+    <div id="bug-modal" class="modal" onclick="if(event.target===this) app.closeBugReport()">
+        <div class="modal-card people-card">
+            <div class="set-top"><h2>Report a bug</h2><button type="button" class="set-done" onclick="app.closeBugReport()">Cancel</button></div>
+            <div id="bug-body"></div>
+        </div>
+    </div>
+    <div id="bugs-modal" class="modal" onclick="if(event.target===this) app.closeBugReports()">
+        <div class="modal-card people-card">
+            <div class="set-top"><h2>Bug reports</h2><button type="button" class="set-done" onclick="app.closeBugReports()">Done</button></div>
+            <div id="bugs-body"></div>
+        </div>
+    </div>
     <div id="review-modal" class="modal" onclick="if(event.target===this) app.closeReview()">
         <div class="modal-card people-card">
             <div class="set-top"><h2>Reports</h2><button type="button" class="set-done" onclick="app.closeReview()">Done</button></div>
@@ -751,6 +771,7 @@
 @@include js/app/40-scroll-bars.js
 @@include js/app/41-v15.js
 @@include js/app/42-v151.js
+@@include js/app/43-levels.js
 @@include js/app/99-end.js
 @@include js/99-boot.js
     </script>

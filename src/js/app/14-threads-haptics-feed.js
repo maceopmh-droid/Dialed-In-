@@ -445,7 +445,7 @@
                             <div class="feed-head">
                                 <div class="feed-avatar" style="background:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(this.feedInitial(owner))}</div>
                                 <div class="feed-meta">
-                                    <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}</div>
+                                    <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}${this.levelDotHtml ? this.levelDotHtml(owner) : ''}</div>
                                     <div class="feed-time" data-time="${this.esc(String(entry.date || brew.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || brew.date))}</div>
                                 </div>
                                 ${entry.community ? this.communityFollowHtml(owner) : ''}<div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(brew.method)}"/></svg>${this.esc(brew.method || 'Espresso')}</div><button type="button" class="feed-share" onclick="app.shareItem('session', '${app.escJs(brew.id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>

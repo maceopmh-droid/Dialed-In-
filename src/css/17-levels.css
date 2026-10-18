@@ -1,0 +1,42 @@
+/* v15.1: crema levels: the badge beside a name on a session, the row on the profile card, and the level sheet */
+.lvl-dot { display: none; width: 15px; height: 15px; margin-left: 5px; vertical-align: -2px; background: center / contain no-repeat; flex: none; }
+.lvl-badge { display: block; flex: none; }
+.lvl-row { display: flex; align-items: center; gap: 12px; width: 100% !important; margin: 14px 0 0 !important; padding: 10px 12px !important; border-radius: 16px !important; border: 1px solid rgba(var(--hair-rgb), 0.1) !important; background: rgba(var(--hair-rgb), 0.04) !important; color: var(--ink) !important; box-shadow: none !important; font: inherit; text-align: left; cursor: pointer; min-height: 0 !important; }
+.lvl-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; }
+.lvl-top { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.lvl-top b { font-size: 0.98rem; font-weight: 750; white-space: nowrap; }
+.lvl-top small { font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; }
+.lvl-top em { margin-left: auto; font-style: normal; font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.lvl-bar { display: block; height: 7px; border-radius: 999px; background: rgba(var(--hair-rgb), 0.1); overflow: hidden; }
+.lvl-bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #C8955A, #E2B84E); }
+.lvl-bar.big { height: 10px; margin: 14px 0 8px; }
+.lvl-hero { text-align: center; padding: 6px 0 14px; }
+.lvl-hero .lvl-badge { margin: 0 auto 12px; }
+.lvl-kicker { font-size: 0.8rem; color: var(--text-muted); }
+.lvl-hero h3 { margin: 2px 0 4px; font-size: 1.6rem; letter-spacing: -0.02em; text-transform: none; }
+.lvl-crema { font-size: 0.95rem; color: var(--text-muted); }
+.lvl-crema b { color: var(--ink); font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.lvl-next { font-size: 0.84rem; color: var(--text-muted); }
+.lvl-sec { margin-top: 18px; }
+.lvl-cap { font-size: 0.82rem; font-weight: 750; color: var(--text-muted); margin: 0 0 6px; }
+.lvl-line { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 8px 0; border-top: 1px solid rgba(var(--hair-rgb), 0.07); font-size: 0.9rem; }
+.lvl-line small { color: var(--text-muted); }
+.lvl-line b { font-variant-numeric: tabular-nums; }
+.lvl-step { display: flex; align-items: center; gap: 12px; padding: 7px 0; border-top: 1px solid rgba(var(--hair-rgb), 0.07); }
+.lvl-step span { flex: 1; display: flex; flex-direction: column; }
+.lvl-step b { font-size: 0.92rem; }
+.lvl-step small { font-size: 0.76rem; color: var(--text-muted); }
+.lvl-step em { font-style: normal; font-size: 0.82rem; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.lvl-step.on { background: rgba(var(--matcha-rgb), 0.1); border-radius: 12px; padding-left: 8px; padding-right: 8px; border-top-color: transparent; }
+.lvl-step.locked .lvl-badge { opacity: 0.6; }
+.lvl-step.locked b { color: var(--text-muted); }
+/* report a bug */
+.bug-sub { margin: 0 0 12px; font-size: 0.88rem; color: var(--text-muted); }
+#bug-text { width: 100%; min-height: 130px; resize: vertical; }
+.bug-send { margin-top: 14px; }
+.bug-item { padding: 12px 0; border-top: 1px solid rgba(var(--hair-rgb), 0.08); }
+.bug-item.done { opacity: 0.55; }
+.bug-head { display: flex; justify-content: space-between; gap: 10px; }
+.bug-head small, .bug-ctx { font-size: 0.78rem; color: var(--text-muted); }
+.bug-text { margin: 6px 0; white-space: pre-wrap; font-size: 0.92rem; }
+.bug-item .chip-btn { margin-top: 8px; }

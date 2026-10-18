@@ -54,6 +54,7 @@
                 return [
                     group('Privacy and notifications', `${priv}${pushRow}`),
                     group('Community', `${row('app.openGuidelines()', 'Community guidelines', 'What\'s welcome here, and how reporting works')}${this.isReviewer && this.isReviewer() ? row('app.openReview()', 'Review reports', 'Reports waiting for a reviewer') : ''}`),
+                    group('Help', `${row('app.openBugReport()', 'Report a bug', 'Something broken or confusing? Tell us')}${this.isReviewer && this.isReviewer() ? row('app.openBugReports()', 'Bug reports', 'What people have reported') : ''}`),   // v15.1
                     group('Your data', `${row('app.downloadMyData()', 'Download my data', 'Everything on your account, in one file')}${row('app.exportData(\'csv\')', 'Export sessions', 'A spreadsheet (CSV) of your sessions')}`),
                     group('About', `${link('terms', 'Terms of Use')}${link('privacy', 'Privacy Policy')}${link('support', 'Help and support')}`, 'acct-legal'),
                     `<div class="set-group set-end"><button type="button" class="set-row acct-out" onclick="app.signOut()"><span class="set-main"><b>Sign out</b></span></button><button type="button" class="set-row acct-delete" onclick="app.deleteMyAccount()"><span class="set-main"><b>Delete account</b></span></button></div>`

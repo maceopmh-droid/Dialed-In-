@@ -224,8 +224,8 @@
                 names.forEach(n => this._faceWant.delete(n));
                 let list = [];
                 try { list = await Supa.rpc('faces', { names }); } catch (e) { return; }
-                const store = this.faceStore(), now = Date.now(), got = new Map((Array.isArray(list) ? list : []).map(x => [String(x.name || '').toLowerCase(), x.avatar || '']));
-                names.forEach(n => store.set(n.toLowerCase(), [got.get(n.toLowerCase()) || '', now]));
+                const store = this.faceStore(), now = Date.now(), got = new Map((Array.isArray(list) ? list : []).map(x => [String(x.name || '').toLowerCase(), x]));
+                names.forEach(n => { const x = got.get(n.toLowerCase()); store.set(n.toLowerCase(), [(x && x.avatar) || '', now, x && typeof x.crema === 'number' ? x.crema : null]); });   // v15.1: and their crema
                 this.saveFaces();
                 this.paintFaceRules();
             },
@@ -248,6 +248,7 @@
                 });
                 const css = rules.join('\n');
                 if (st.textContent !== css) st.textContent = css;
+                if (this.paintLevelRules) this.paintLevelRules();   // v15.1: the level marks too
             },
             myFacePath() { const v = this.faceStore().get(String(this.user || '').toLowerCase()); return v ? v[0] : ''; },
             paintAvatarSetting() {

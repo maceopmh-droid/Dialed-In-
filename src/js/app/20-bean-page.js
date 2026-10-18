@@ -61,7 +61,7 @@
                             <div class="feed-head">
                                 <div class="feed-avatar" style="background:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(this.feedInitial(owner))}</div>
                                 <div class="feed-meta">
-                                    <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}</div>
+                                    <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}${this.levelDotHtml ? this.levelDotHtml(owner) : ''}</div>
                                     <div class="feed-time">${this.esc(this.formatRelativeDate(log.date))}</div>
                                 </div>
                                 <div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(log.method)}"/></svg>${this.esc(log.method || 'Espresso')}</div><button type="button" class="feed-share" onclick="app.shareItem('session', '${app.escJs(id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>

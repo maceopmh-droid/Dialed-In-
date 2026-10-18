@@ -63,7 +63,8 @@
                     case 'follow_accepted': return `${who} approved your follow request`;
                     case 'joined_group': return `${who} joined ${this.esc(n.group || 'your group')}`;
                     case 'helpful': return `${who} marked your answer most helpful${said}`;   // v14.5
-                    case 'report': return 'Something was reported. Review it within a day.';   // v14.6: reviewers only (who reported it isn't shown)
+                    case 'report': return 'Something was reported. Review it within a day.';
+                    case 'bug': return 'Reported a bug. Read it in Settings.';   // v15.1: reviewers only   // v14.6: reviewers only (who reported it isn't shown)
                     default: return who;
                 }
             },
@@ -82,7 +83,8 @@
                 const n = (this.notifState().items || []).find(x => String(x.id) === String(id));
                 if (!n) return;
                 if (n.kind === 'follow_request') { this.closeNotifications(); this.openPeople(); return; }
-                if (n.kind === 'report') { this.closeNotifications(); if (this.openReview) this.openReview(); return; }   // v14.6
+                if (n.kind === 'report') { this.closeNotifications(); if (this.openReview) this.openReview(); return; }
+                if (n.kind === 'bug') { this.closeNotifications(); if (this.openBugReports) this.openBugReports(); return; }   // v15.1   // v14.6
                 if ((n.kind === 'follow' || n.kind === 'follow_accepted') && this.openAnyProfile) { this.closeNotifications(); this.openAnyProfile(n.who); return; }   // v14.5: their profile
                 if (n.kind === 'follow' || n.kind === 'follow_accepted') { this.closeNotifications(); this.openPeople(); return; }
                 if (n.kind === 'joined_group') { this.closeNotifications(); this.openPeople(); return; }

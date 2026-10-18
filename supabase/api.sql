@@ -110,6 +110,7 @@ declare lim int[] := case what when 'comment' then array[20, 5, 300]       -- 20
                                when 'session' then array[100, 10, 500]
                                when 'coffee' then array[50, 10, 300]
                                when 'report' then array[20, 60, 50]
+                               when 'bug' then array[5, 60, 20]          -- v15.1: 5 an hour, 20 a day
                                when 'group' then array[5, 60, 20] else array[100, 10, 1000] end;
 begin
   if pid is null then return; end if;
@@ -1324,7 +1325,7 @@ end $$;
 -- fields), and its author hears about it
 alter table notifications drop constraint if exists notifications_kind_check;
 alter table notifications add constraint notifications_kind_check
-  check (kind in ('like', 'comment', 'reply', 'comment_like', 'follow', 'follow_request', 'follow_accepted', 'joined_group', 'helpful', 'report'));
+  check (kind in ('like', 'comment', 'reply', 'comment_like', 'follow', 'follow_request', 'follow_accepted', 'joined_group', 'helpful', 'report', 'bug'));   -- v15.1: bug
 create or replace function internal.on_helpful() returns trigger language plpgsql security definer set search_path = public as $$
 declare cid text := nullif(btrim(coalesce(new.extras->>'helpfulAnswer', '')), ''); c comments;
 begin
@@ -1453,8 +1454,8 @@ create or replace function internal.push_text(n notifications) returns jsonb
 language sql stable security definer set search_path = public as $$
   -- v15.0: who did it is the title and what they did is the text ("Aidan" / "Started following you"); the phone already
   -- shows the app's name above it (a "Dialed In" title showed it twice)
-  select jsonb_build_object('title', case when n.kind = 'report' then 'New report' else coalesce(internal.name_of(n.actor_id), 'Someone') end, 'tag', 'n' || n.id, 'body',
-    case when n.kind = 'report' then 'Something was reported. Review it in Settings.' else   -- (who reported it stays off the lock screen)
+  select jsonb_build_object('title', case when n.kind = 'report' then 'New report' when n.kind = 'bug' then 'Bug report' else coalesce(internal.name_of(n.actor_id), 'Someone') end, 'tag', 'n' || n.id, 'body',
+    case when n.kind = 'report' then 'Something was reported. Review it in Settings.' when n.kind = 'bug' then coalesce(internal.name_of(n.actor_id), 'Someone') || ' reported a bug. Read it in Settings.' else   -- (who reported it stays off the lock screen)
     case n.kind
       when 'like' then case when n.coffee_id is not null and n.session_id is null then 'Liked your coffee' else 'Liked your session' end
       when 'comment' then 'Commented' || coalesce(': ' || (select left(body, 120) from comments where id = n.comment_id and deleted_at is null), '')
@@ -1640,6 +1641,74 @@ do $$ begin
   end if;
 end $$;
 
+-- ---------------------------------------------------------------- v15.1: crema (levels) and bug reports
+-- Crema: points for brewing, trying new coffees, commenting, likes, achievements, goals and awards. Each person's own
+-- app adds them up from everything it has (it's the only one that sees all of it) and saves the total here, so everyone
+-- sees the same level beside their name. faces() hands it out with the picture.
+alter table profiles add column if not exists crema int;
+alter table profiles add column if not exists crema_at timestamptz;
+create or replace function set_crema(points int) returns void
+language plpgsql security definer set search_path = public as $$
+declare me_id uuid := me();
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  update profiles set crema = least(greatest(coalesce(points, 0), 0), 1000000), crema_at = now() where id = me_id;
+end $$;
+
+create or replace function faces(names jsonb) returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare me_id uuid := me();
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  return coalesce((select jsonb_agg(jsonb_build_object('name', coalesce(p.legacy_name, p.display_name), 'avatar', p.avatar_path, 'crema', p.crema))
+    from profiles p
+    where lower(coalesce(p.legacy_name, p.display_name)) in (select lower(btrim(n)) from jsonb_array_elements_text(case when jsonb_typeof(names) = 'array' then names else '[]'::jsonb end) with ordinality as x(n, i) where i <= 200)
+      and not exists (select 1 from blocks b where (b.blocker = me_id and b.blocked = p.id) or (b.blocker = p.id and b.blocked = me_id))), '[]'::jsonb);
+end $$;
+
+-- Bug reports from Settings: what happened in the person's words, plus the app version, phone and screen. Reviewers
+-- hear about each one (the bell, and their phone) and read them in Settings.
+create table if not exists bug_reports (
+  id          uuid primary key default gen_random_uuid(),
+  reporter_id uuid references profiles (id) on delete set null,
+  body        text not null check (char_length(body) between 1 and 2000),
+  context     jsonb not null default '{}',
+  status      text not null default 'open' check (status in ('open', 'done')),
+  created_at  timestamptz not null default now()
+);
+alter table bug_reports enable row level security;   -- only through the functions below
+create or replace function report_bug(body text, context jsonb default '{}') returns text
+language plpgsql security definer set search_path = public as $$
+declare me_id uuid := me(); t text := left(btrim(coalesce(body, '')), 2000); adm uuid;
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  if t = '' then raise exception 'Say what happened first.' using errcode = '22023'; end if;
+  perform internal.rate_hit(me_id, 'bug');
+  insert into bug_reports (reporter_id, body, context)
+  values (me_id, t, case when jsonb_typeof(context) = 'object' and char_length(context::text) < 4000 then context else '{}'::jsonb end);
+  for adm in select x::uuid from backend_state, unnest(string_to_array(value, ',')) x where key = 'admins' and x ~ '^[0-9a-f-]{36}$' loop
+    perform internal.notify(adm, me_id, 'bug');
+  end loop;
+  return 'sent';
+end $$;
+
+-- reviewers: the newest first (open ones on top)
+create or replace function review_bugs(max_items int default 50) returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if not internal.is_admin(me()) then raise exception 'Only reviewers can see bug reports.' using errcode = '42501'; end if;
+  return coalesce((select jsonb_agg(jsonb_build_object('id', b.id, 'body', b.body, 'context', b.context, 'status', b.status, 'at', b.created_at,
+                                                        'name', internal.name_of(b.reporter_id)) order by (b.status = 'open') desc, b.created_at desc)
+                   from (select * from bug_reports order by (status = 'open') desc, created_at desc limit least(greatest(coalesce(max_items, 50), 1), 200)) b), '[]'::jsonb);
+end $$;
+
+create or replace function close_bug(bug_id uuid, done boolean default true) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not internal.is_admin(me()) then raise exception 'Only reviewers can do that.' using errcode = '42501'; end if;
+  update bug_reports set status = case when done then 'done' else 'open' end where id = bug_id;
+end $$;
+
 -- push_event and friends run as the signed-in person (so the row rules apply to every write) and use the helpers in
 -- "internal", so signed-in people need them; the app's web address doesn't serve that schema, so they can't be called
 -- directly.
@@ -1652,13 +1721,13 @@ revoke execute on function pull_events(), push_event(jsonb), claim_name(text), c
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version(),
-  coffee_catalog(text, int), set_avatar(text), faces(jsonb) from public, anon;
+  coffee_catalog(text, int), set_avatar(text), faces(jsonb), set_crema(int), report_bug(text, jsonb), review_bugs(int), close_bug(uuid, boolean) from public, anon;
 grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text, boolean), coffee_community(text, text, timestamptz, int), monthly_highlights(date), report_item(text, text, text),
   profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
   push_key(), push_ready(), save_push(jsonb), remove_push(text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version(),
-  coffee_catalog(text, int), set_avatar(text), faces(jsonb) to authenticated;
+  coffee_catalog(text, int), set_avatar(text), faces(jsonb), set_crema(int), report_bug(text, jsonb), review_bugs(int), close_bug(uuid, boolean) to authenticated;
 revoke execute on all functions in schema internal from public, anon;
 revoke execute on function internal.push_payload(bigint, text), internal.push_text(notifications) from authenticated;   -- the sender's alone (it has the phones' addresses and the VAPID key)
