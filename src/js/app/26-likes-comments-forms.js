@@ -392,7 +392,7 @@
                 const brew = this.brews.get(id);
                 if (!brew) return;
                 if (this.getBrewOwner(brew) !== this.user) {
-                    this.showToast('Only the owner can edit this master profile.');
+                    this.showToast('Only the owner can edit this master recipe.');
                     return;
                 }
 
@@ -453,7 +453,7 @@
                 const brew = this.brews.get(id);
                 if (!brew) return;
                 if (this.getBrewOwner(brew) !== this.user) {
-                    this.showToast('Only the owner can save this master profile.');
+                    this.showToast('Only the owner can save this master recipe.');
                     return;
                 }
 
@@ -484,24 +484,24 @@
                 }, brew);
                 this.push({ type: 'brew', ...updated });
                 this.closeModals();
-                this.showToast('Master profile saved.');
+                this.showToast('Master recipe saved.');
             },
 
             unpinMaster(id) {
                 const brew = this.brews.get(id);
                 if (!brew) return;
                 if (this.getBrewOwner(brew) !== this.user) {
-                    this.showToast('Only the owner can remove this master profile.');
+                    this.showToast('Only the owner can remove this master recipe.');
                     return;
                 }
-                if (!confirm('Remove this master profile? The session will stay in history.')) return;
+                if (!confirm('Remove this master recipe? The session will stay in history.')) return;
                 const updated = this.withBrewOwner({
                     ...brew,
                     isMaster: false,
                     masterProfile: null
                 }, brew);
                 this.push({ type: 'brew', ...updated });
-                this.showToast('Master profile removed.');
+                this.showToast('Master recipe removed.');
             },
 
             editBean() {
@@ -634,7 +634,7 @@
                 this.draftPhoto = null;
                 this.shareOpen(null);   // v14.2
                 this.renderDraftPhoto();
-                document.getElementById('brew-modal-title').innerText = 'Brewing Log';
+                document.getElementById('brew-modal-title').innerText = 'Log a session';
                 const verdictReset = document.getElementById('verdict-input');
                 if (verdictReset) verdictReset.value = '';
                 this.renderVerdict();

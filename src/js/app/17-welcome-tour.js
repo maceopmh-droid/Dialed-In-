@@ -87,7 +87,7 @@
                         <div class="wl-people">${rows.length ? rows.map(r => `<button type="button" class="wl-person" data-person="${esc(r.name)}" onclick="app.wlPick(this.getAttribute('data-person'))">
                             <i data-face="${esc(r.name)}" style="background:${esc(this.getUserColor(r.name))}">${esc(this.feedInitial(r.name))}</i>
                             <span class="wl-pn"><b>${esc(r.name)}</b><small>${r.c ? `${r.c} session${r.c === 1 ? '' : 's'} · last brewed ${esc(this.formatRelativeDate(new Date(r.last).toISOString()).toLowerCase())}` : 'No sessions yet'}</small></span>
-                            <svg class="icon wl-chev"><use href="#i-chevron-down"/></svg></button>`).join('') : '<div class="wl-empty">Loading the group…</div>'}</div>
+                            <svg class="icon wl-chev"><use href="#i-chevron-down"/></svg></button>`).join('') : '<div class="wl-empty">Loading…</div>'}</div>
                         <button type="button" class="wl-link" onclick="app.wlGo('name')">Not on the list? Set up a new profile</button>
                     </div>`;
                 } else if (s.step === 'name') {
@@ -135,8 +135,8 @@
                     html = `<div class="wl-step">
                         ${this.wlTop(3, 'gear')}
                         <h2 class="wl-h2">What's in your hopper?</h2>
-                        <p class="wl-sub">Pick a coffee the group is brewing, or add the bag you've got.</p>
-                        ${pop.length ? `<div class="wl-label">Popular with the group</div>
+                        <p class="wl-sub">Pick a coffee people are brewing, or add the bag you've got.</p>
+                        ${pop.length ? `<div class="wl-label">Popular right now</div>
                         <div class="wl-beans">${pop.map(c => `<button type="button" class="wl-bean${s.pick === c.id ? ' on' : ''}" data-id="${esc(c.id)}" onclick="app.wlPickBean(this.getAttribute('data-id'))">
                             <b>${esc(c.name)}</b><span>${esc(c.roaster)}</span>
                             <em>${c.avg ? `<span class="star-meter" style="--fill:${this.starFill(c.avg)}%;--whole:${this.starWhole(c.avg)};--frac:${this.starFrac(c.avg)}"></span> ${esc(this.fmtNum(c.avg))}` : ''}<small>${c.n} session${c.n === 1 ? '' : 's'}</small></em>
@@ -347,12 +347,12 @@
                 const desk = window.matchMedia && window.matchMedia('(min-width: 769px)').matches;
                 const nav = tab => desk ? `#sidebar .nav-btn[data-tab="${tab}"]` : `#mobile-nav .mob-item[data-tab="${tab}"]`;
                 return [
-                    { sel: nav('feed'), tab: 'feed', title: "Your friends' brews", text: 'Every session the group logs shows up here. Like it, comment, and chase the weekly group goal together. Your welcome post is already up.' },
-                    { sel: nav('shared'), tab: 'shared', title: 'The shared library', text: 'Every coffee anyone has brewed, with ratings, flavor shapes and the roasters they came from.' },
-                    { sel: nav('my'), tab: 'my', title: 'Your collection', text: 'Your coffees. Open one to log a session, see your dial-in curve, and get the next-shot coach.' },
+                    { sel: nav('feed'), tab: 'feed', title: 'Feed', text: 'Sessions from the people you follow show up here. Like them, comment, and brew toward your community\'s weekly goal. Your welcome post is already up.' },
+                    { sel: nav('my'), tab: 'my', title: 'Coffees', text: 'Yours under Mine, everyone\'s under All. Open one to log a session, see your dial-in curve, and get the next-shot coach.' },
+                    { sel: nav('roasters'), tab: 'roasters', title: 'Roasters', text: 'Every roaster you and your people have brewed, with their coffees, ratings and how their espresso runs.' },
                     { sel: desk ? '#sidebar .nav-btn:not([data-tab]):not(.settings-nav-btn)' : '#mobile-nav .mob-fab', tab: 'my', title: 'Add a coffee', text: 'New bag? Add it here, then log sessions on it.' },
-                    { sel: nav('profile'), tab: 'profile', title: 'Profiles', text: 'Your stats, favorites, gear and achievements, and everyone else’s.' },
-                    { sel: desk ? '#sidebar .settings-nav-btn' : '#mobile-controls-btn', tab: 'feed', title: 'Settings', text: desk ? 'Light or dark, your color, and who’s in the group.' : 'Filters and Settings live here: light or dark, your color, and who’s in the group.' }
+                    { sel: nav('profile'), tab: 'profile', title: 'Profile', text: 'Your stats, favorites, gear and achievements. Anyone else’s is a tap away.' },
+                    { sel: desk ? '#sidebar .settings-nav-btn' : '#mobile-controls-btn', tab: 'feed', title: 'Settings', text: desk ? 'Light or dark, your profile picture, notifications and privacy.' : 'Filters and Settings live here: light or dark, your profile picture, notifications and privacy.' }
                 ];
             },
 
@@ -376,7 +376,7 @@
                 const id = this.wlFirstBean;
                 this.endTour();
                 if (id && this.beans.has(String(id))) { this.openFeedTarget(id, '', false); setTimeout(() => this.openBrewModal(), 250); }
-                else { this.setTab('shared'); this.showToast('Open any coffee and tap Log New Session.'); }
+                else { this.coffeeScope = 'all'; this.setTab('my'); this.showToast('Open any coffee and tap Log a session.'); }
             },
 
             renderTour() {

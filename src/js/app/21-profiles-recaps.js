@@ -131,7 +131,7 @@
                 const dots = r.weeks.map((on, i) => `<span class="week-dot${on ? ' on' : ''}" title="${i === 7 ? 'This week' : `${7 - i} week${7 - i === 1 ? '' : 's'} ago`}"></span>`).join('');
                 const streak = this.streakChipHtml(r.streak);
                 const last = r.lastT ? `Last brewed ${this.formatRelativeDate(r.lastT)}` : 'No sessions yet';
-                return `<section class="profile-card profile-hero" style="--pc-rgb:${this.hexRgb(color)}"><div class="hero-row"><div class="hero-avatar" data-face="${this.esc(user)}" style="background:${this.esc(color)};">${this.esc(this.feedInitial(user))}</div><div class="hero-id"><div class="hero-name">${this.esc(user)}${user === this.user ? '<span class="you-tag">You</span>' : this.profileRelTagHtml(user)}</div><div class="hero-sub">${this.esc(last)}</div></div>${this.acctOn() ? `<button type="button" class="btn-clean hero-share" data-name="${this.esc(user)}" onclick="app.shareItem('profile', this.getAttribute('data-name'), event)" aria-label="Share ${this.esc(user)}'s profile"><svg class="icon"><use href="#i-share-2"/></svg></button>` : ''}</div>${this.acctOn() ? this.profileFollowHtml(user) : ''}<div class="rhythm"><div class="week-dots">${dots}</div><div class="rhythm-text">Brewed in ${r.active} of the last 8 weeks</div>${streak}</div><div class="stat-row"><div class="stat-box"><div class="stat-num">${brews.length}</div><div class="stat-cap">${brews.length === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${beans}</div><div class="stat-cap">${beans === 1 ? 'Bean' : 'Beans'}</div></div><div class="stat-box"><div class="stat-num">${methods}</div><div class="stat-cap">${methods === 1 ? 'Method' : 'Methods'}</div></div></div></section>`;
+                return `<section class="profile-card profile-hero" style="--pc-rgb:${this.hexRgb(color)}"><div class="hero-row"><div class="hero-avatar" data-face="${this.esc(user)}" style="background:${this.esc(color)};">${this.esc(this.feedInitial(user))}</div><div class="hero-id"><div class="hero-name">${this.esc(user)}${user === this.user ? '<span class="you-tag">You</span>' : this.profileRelTagHtml(user)}</div><div class="hero-sub">${this.esc(last)}</div></div>${this.acctOn() ? `<button type="button" class="btn-clean hero-share" data-name="${this.esc(user)}" onclick="app.shareItem('profile', this.getAttribute('data-name'), event)" aria-label="Share ${this.esc(user)}'s profile"><svg class="icon"><use href="#i-share-2"/></svg></button>` : ''}</div>${this.acctOn() ? this.profileFollowHtml(user) : ''}<div class="rhythm"><div class="week-dots">${dots}</div><div class="rhythm-text">Brewed in ${r.active} of the last 8 weeks</div>${streak}</div><div class="stat-row"><div class="stat-box"><div class="stat-num">${brews.length}</div><div class="stat-cap">${brews.length === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${beans}</div><div class="stat-cap">${beans === 1 ? 'Coffee' : 'Coffees'}</div></div><div class="stat-box"><div class="stat-num">${methods}</div><div class="stat-cap">${methods === 1 ? 'Method' : 'Methods'}</div></div></div></section>`;
             },
 
             palateFor(user) {
@@ -256,12 +256,12 @@
 
             renderMatchesCard(user) {
                 const own = user === this.user;
-                const title = own ? 'Likely matches for you' : `Likely matches for you from ${this.esc(user)}'s beans`;
+                const title = own ? 'Likely matches for you' : `Likely matches for you from ${this.esc(user)}'s coffees`;
                 if (!this.user) return '';
                 const matches = this.likelyMatches(this.user, own ? null : user);
                 let body;
                 if (matches === null) body = '<div class="panel-empty">Log at least 3 sessions and your matches will show here.</div>';
-                else if (!matches.length) body = `<div class="panel-empty">${own ? 'No untried beans in the library match your palate yet.' : `Nothing of ${this.esc(user)}'s that you haven't tried matches your palate yet.`}</div>`;
+                else if (!matches.length) body = `<div class="panel-empty">${own ? 'Nothing you haven\'t tried matches your palate yet.' : `Nothing of ${this.esc(user)}'s that you haven't tried matches your palate yet.`}</div>`;
                 else {
                     body = `<div class="match-list">${matches.map(m => {
                         const label = m.score >= 0.55 ? 'Strong match' : (m.score >= 0.35 ? 'Good match' : 'Worth a try');
@@ -284,7 +284,7 @@
                 const own = user === this.user;
                 const body = items.length
                     ? `<div class="match-list">${items.map(({ bean, tried }) => `<button type="button" class="match-item" data-bean="${this.esc(bean.id)}" onclick="app.openFeedTarget(this.getAttribute('data-bean'),'',false)"><div><div class="match-name">${this.esc(this.beanLabel(bean))}</div><div class="match-why">From ${this.esc(bean.user || 'Unknown')}'s collection${bean.origin ? ` · ${this.esc(bean.origin)}` : ''}</div></div>${tried ? '<span class="tried-tag">Tried</span>' : ''}</button>`).join('')}</div>`
-                    : `<div class="panel-empty">${own ? 'Nothing saved yet. Open a friend\'s bean and tap Want to Try.' : `${this.esc(user)} hasn't saved any beans yet.`}</div>`;
+                    : `<div class="panel-empty">${own ? 'Nothing saved yet. Open a friend\'s coffee and tap Want to Try.' : `${this.esc(user)} hasn't saved any coffees yet.`}</div>`;
                 return `<section class="profile-card"><h4 class="section-label">${own ? 'Your want-to-try list' : `${this.esc(user)}'s want-to-try list`}</h4>${body}</section>`;
             },
 
@@ -341,9 +341,9 @@
                     }
                 });
                 const key = keyItems.length
-                    ? `<div class="cal-key">${keyItems.map(k => `<span class="cal-key-item"><span class="cal-swatch" style="background:${k.color};"></span>${this.esc(k.label)}</span>`).join('')}</div><div class="cal-rating-key"><span>Color = bean of the day's best shot.</span><span class="cal-swatch" style="opacity:1;"></span><span>5★</span><span class="cal-swatch" style="opacity:0.61;"></span><span>2★</span><span class="cal-swatch" style="opacity:0.28;"></span><span>unrated</span></div>`
+                    ? `<div class="cal-key">${keyItems.map(k => `<span class="cal-key-item"><span class="cal-swatch" style="background:${k.color};"></span>${this.esc(k.label)}</span>`).join('')}</div><div class="cal-rating-key"><span>Color = the coffee of the day's top-rated session.</span><span class="cal-swatch" style="opacity:1;"></span><span>5★</span><span class="cal-swatch" style="opacity:0.61;"></span><span>2★</span><span class="cal-swatch" style="opacity:0.28;"></span><span>unrated</span></div>`
                     : '';
-                return `<section class="profile-card"><h4 class="section-label">Coffee calendar</h4><div class="cal-head"><div class="cal-sub">${days.size} brewing day${days.size === 1 ? '' : 's'} in ${year}</div><div class="cal-nav"><button type="button" class="cal-btn" onclick="app.shiftCalendarYear(-1)" aria-label="Previous year">‹</button><span>${year}</span><button type="button" class="cal-btn" onclick="app.shiftCalendarYear(1)" aria-label="Next year"${year >= thisYear ? ' disabled' : ''}>›</button></div></div><div class="cal-grid">${cells}</div>${key}<div class="cal-day" id="cal-day">${days.size ? 'Tap a day to see the bean and rating.' : ''}</div></section>`;
+                return `<section class="profile-card"><h4 class="section-label">Coffee calendar</h4><div class="cal-head"><div class="cal-sub">${days.size} brewing day${days.size === 1 ? '' : 's'} in ${year}</div><div class="cal-nav"><button type="button" class="cal-btn" onclick="app.shiftCalendarYear(-1)" aria-label="Previous year">‹</button><span>${year}</span><button type="button" class="cal-btn" onclick="app.shiftCalendarYear(1)" aria-label="Next year"${year >= thisYear ? ' disabled' : ''}>›</button></div></div><div class="cal-grid">${cells}</div>${key}<div class="cal-day" id="cal-day">${days.size ? 'Tap a day to see the coffee and rating.' : ''}</div></section>`;
             },
 
             showCalendarDay(el) {
@@ -452,18 +452,17 @@
                         ${best}
                     </div>`;
                 // v15.1: the second card is the circle picked above the awards (a community, your friends); none for Everyone
-                const circle = user === this.user && this.acctOn() && this.activeCircle ? this.activeCircle() : null;
-                if (circle && circle.id === 'everyone') return you;
-                const c = circle ? this.withCrewScope(circle.scope, () => this.monthCrewStats(period)) : this.monthCrewStats(period);
-                const crewName = circle ? circle.name : 'The crew';
-                if (c.people.length < 2) return you;
+                // or on someone else's recap (it would be your circle's numbers)
+                const rc = this.recapCircle(user, period);
+                if (!rc) return you;
+                const c = rc.c, crewName = rc.name, circle = rc.circle;
                 const names = c.people.map(p => p[0]);
                 const crewG = `linear-gradient(150deg, ${names.map((n, i) => `${this.hexMix(this.getUserColor(n), '#000000', 0.12)} ${Math.round(i / Math.max(1, names.length - 1) * 100)}%`).join(', ')})`;
                 const max = c.people[0][1];
                 const board = c.people.map(([n, k]) => `<div><span class="mrc-name">${face(n)}<span class="mrc-nm">${esc(n)}</span></span><i><b style="width:${(k / max * 100).toFixed(1)}%"></b></i><span class="mrc-n">${k}</span></div>`).join('');
-                const cstats = [[amount(c.grams), 'coffee'], [String(c.fives), `5★ shot${c.fives === 1 ? '' : 's'}`], [String(c.likes), `like${c.likes === 1 ? '' : 's'}`], circle && circle.id === 'friends' ? [String(c.count), `session${c.count === 1 ? '' : 's'}`] : [String(c.goals), `goal${c.goals === 1 ? '' : 's'} reached`]];   // v15.1: friends have no group goal
+                const cstats = [[amount(c.grams), 'coffee'], [String(c.fives), `5★ session${c.fives === 1 ? '' : 's'}`], [String(c.likes), `like${c.likes === 1 ? '' : 's'}`], circle && circle.id === 'friends' ? [String(c.count), `session${c.count === 1 ? '' : 's'}`] : [String(c.goals), `goal${c.goals === 1 ? '' : 's'} reached`]];   // v15.1: friends have no group goal
                 const clines = [];
-                if (c.coffee && c.coffee.bean) clines.push(['Crew coffee', `${String(c.coffee.bean.name || '').trim() || this.beanLabel(c.coffee.bean)} · ${c.coffee.n}×`]);
+                if (c.coffee && c.coffee.bean) clines.push(['Coffee in common', `${String(c.coffee.bean.name || '').trim() || this.beanLabel(c.coffee.bean)} · ${c.coffee.n}×`]);
                 if (c.busiest && c.busiest[1] > 1) clines.push(['Busiest day', `${new Date(this.parseLocalDate(c.busiest[0])).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · ${c.busiest[1]} sessions`]);
                 if (c.champ.length) clines.push(['Champion', c.champ.join(' & ')]);
                 else if (c.sealed) clines.push(['Awards', 'ready to reveal']);
@@ -497,8 +496,8 @@
             async shareMonthRecap(s) {
                 const user = s.user, period = s.period;
                 const month = this.monthName(period.slice(2));
-                const c = typeof this.monthCrewStats === 'function' ? this.monthCrewStats(period) : null;
-                const crew = c && c.people.length > 1 ? c : null;
+                const rc = this.recapCircle(user, period);   // v15.1: the circle picked above the awards (none for Everyone)
+                const crew = rc ? rc.c : null;
                 const W = 1080, PAD = 60, CW = W - PAD * 2, IN = 50;
                 const font = (w, z) => `${w} ${z}px -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif`;
                 const amount = g => g >= 1000 ? `${this.fmtNum(g / 1000, 2)} kg` : `${Math.round(g)} g`;
@@ -506,11 +505,11 @@
                 const youLines = [];
                 if (s.topBean) youLines.push(['Top coffee', `${s.topBean.name || s.topBean.label} · ${s.topBean.count}×`]);
                 if (s.topMethod) youLines.push(['Method', `${s.topMethod.label} · ${s.topMethod.count}×`]);
-                if (s.best) { const bn = this.beans.get(String(s.best.beanId)); youLines.push(['Best shot', `${bn ? (String(bn.name || '').trim() || this.beanLabel(bn)) : 'Coffee'} · ${this.fmtNum(this.normalizeRating(s.best.rating))}★`]); }
+                if (s.best) { const bn = this.beans.get(String(s.best.beanId)); youLines.push(['Top rated', `${bn ? (String(bn.name || '').trim() || this.beanLabel(bn)) : 'Coffee'} · ${this.fmtNum(this.normalizeRating(s.best.rating))}★`]); }
                 if (s.buddy) youLines.push(['Brew buddy', s.buddy.name]);
-                const crewStats = crew ? [[amount(crew.grams), 'coffee'], [String(crew.fives), `5★ shot${crew.fives === 1 ? '' : 's'}`], [String(crew.likes), `like${crew.likes === 1 ? '' : 's'}`], [String(crew.goals), `goal${crew.goals === 1 ? '' : 's'} reached`]] : [];
+                const crewStats = crew ? [[amount(crew.grams), 'coffee'], [String(crew.fives), `5★ session${crew.fives === 1 ? '' : 's'}`], [String(crew.likes), `like${crew.likes === 1 ? '' : 's'}`], rc.friends ? [String(crew.count), `session${crew.count === 1 ? '' : 's'}`] : [String(crew.goals), `goal${crew.goals === 1 ? '' : 's'} reached`]] : [];
                 const crewLines = [];
-                if (crew && crew.coffee && crew.coffee.bean) crewLines.push(['Crew coffee', `${String(crew.coffee.bean.name || '').trim() || this.beanLabel(crew.coffee.bean)} · ${crew.coffee.n}×`]);
+                if (crew && crew.coffee && crew.coffee.bean) crewLines.push(['Coffee in common', `${String(crew.coffee.bean.name || '').trim() || this.beanLabel(crew.coffee.bean)} · ${crew.coffee.n}×`]);
                 if (crew && crew.busiest && crew.busiest[1] > 1) crewLines.push(['Busiest day', `${new Date(this.parseLocalDate(crew.busiest[0])).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · ${crew.busiest[1]} sessions`]);
                 if (crew && crew.champ.length) crewLines.push(['Champion', crew.champ.join(' & ')]);
                 const statsH = 2 * 132 + 22;
@@ -538,7 +537,7 @@
                 head(y + 110, s.count, `session${s.count === 1 ? '' : 's'}`, `on ${s.days} day${s.days === 1 ? '' : 's'}`);
                 stats(y + 330, youStats);
                 lines(y + 330 + statsH + 70, youLines);
-                // the crew's card
+                // the circle's card
                 if (crew) {
                     y += youH + 40;
                     const names = crew.people.map(p => p[0]);
@@ -546,7 +545,7 @@
                     names.forEach((n, i) => cg.addColorStop(names.length > 1 ? i / (names.length - 1) : 0, this.hexMix(this.getUserColor(n), '#000000', 0.25)));
                     card(y, crewH, cg);
                     names.forEach((n, i) => face(n, PAD + IN + 26 + i * 64, y + 80, 26));
-                    ctx.fillStyle = '#fff'; ctx.font = font(750, 40); ctx.fillText(`The crew · ${this.monthName(period.slice(2), false)}`, PAD + IN + 26 + names.length * 64, y + 94);
+                    ctx.fillStyle = '#fff'; ctx.font = font(750, 40); ctx.fillText(`${rc.name} · ${this.monthName(period.slice(2), false)}`, PAD + IN + 26 + names.length * 64, y + 94);
                     head(y + 110, crew.count, 'sessions', 'together');
                     const max = crew.people[0][1], by = y + 330;
                     crew.people.forEach(([n, k], i) => { const yy = by + i * 62; face(n, PAD + IN + 22, yy + 20, 20); ctx.fillStyle = '#fff'; ctx.font = font(750, 36); ctx.fillText(this.fitText(ctx, n, 200), PAD + IN + 58, yy + 33); const bx = PAD + IN + 290, bw = CW - IN * 2 - 290 - 90; ctx.fillStyle = 'rgba(255,255,255,0.2)'; this.roundRect(ctx, bx, yy + 12, bw, 16, 8); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,0.92)'; this.roundRect(ctx, bx, yy + 12, Math.max(16, bw * k / max), 16, 8); ctx.fill(); ctx.textAlign = 'right'; ctx.fillText(String(k), PAD + CW - IN, yy + 33); ctx.textAlign = 'left'; });
@@ -680,13 +679,13 @@
 
             recapLines(s) {
                 const lines = [];
-                if (s.topBean) lines.push(['Top bean', `${s.topBean.label} · ${s.topBean.count}×`]);
+                if (s.topBean) lines.push(['Top coffee', `${s.topBean.label} · ${s.topBean.count}×`]);
                 if (s.topRoaster) lines.push(['Top roaster', s.topRoaster.label]);
                 if (s.topMethod) lines.push(['Most-used method', `${s.topMethod.label} · ${s.topMethod.count}×`]);
-                lines.push(['New beans tried', String(s.newBeans || 0)]);
+                lines.push(['New coffees tried', String(s.newBeans || 0)]);
                 lines.push(['Longest daily run', `${s.longestStreak} day${s.longestStreak === 1 ? '' : 's'}`]);
                 if (s.avgRating) lines.push(['Average rating', `${this.fmtNum(s.avgRating)}★`]);
-                if (s.buddy) lines.push(['Brew buddy', `${s.buddy.name} · ${s.buddy.count} session${s.buddy.count === 1 ? '' : 's'} on the same beans`]);
+                if (s.buddy) lines.push(['Brew buddy', `${s.buddy.name} · ${s.buddy.count} session${s.buddy.count === 1 ? '' : 's'} on the same coffees`]);
                 if (s.isYear) lines.push(['Months active', `${s.months} of 12`]);
                 return lines;
             },
@@ -743,7 +742,7 @@
                         const photo = this.normalizePhoto(s.best.photo);
                         const fb = photo ? this.buildDriveFallbackUrls(photo.fileId || this.extractDriveFileId(photo.url), photo.url) : [];
                         const src = photo ? (fb[0] || photo.url) : '';
-                        best = `<div class="recap-best">${src ? `<img src="${this.esc(src)}" alt="Best shot" loading="lazy" data-fallback-index="0" data-fallbacks="${this.esc(fb.join('|'))}" onerror="app.handlePhotoFallback(this)">` : ''}<div class="recap-best-text"><b>Best shot</b> · ${this.esc(this.shortDate(s.best.date))}<br>${this.esc((bn => bn ? (String(bn.name || '').trim() || this.beanLabel(bn)) : 'Coffee')(this.beans.get(String(s.best.beanId))))} · ${this.esc(this.fmtNum(this.normalizeRating(s.best.rating)))}★</div></div>`;
+                        best = `<div class="recap-best">${src ? `<img src="${this.esc(src)}" alt="Top-rated session" loading="lazy" data-fallback-index="0" data-fallbacks="${this.esc(fb.join('|'))}" onerror="app.handlePhotoFallback(this)">` : ''}<div class="recap-best-text"><b>Best shot</b> · ${this.esc(this.shortDate(s.best.date))}<br>${this.esc((bn => bn ? (String(bn.name || '').trim() || this.beanLabel(bn)) : 'Coffee')(this.beans.get(String(s.best.beanId))))} · ${this.esc(this.fmtNum(this.normalizeRating(s.best.rating)))}★</div></div>`;
                     }
                     const cover = isYear && typeof this.yearCoverHtml === 'function' ? this.yearCoverHtml(user, Number(period.slice(2))) : '';
                     const share = '<button type="button" class="btn-outline recap-share" onclick="app.shareRecap()">Share Recap Image</button>';

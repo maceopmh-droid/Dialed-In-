@@ -1,7 +1,7 @@
             openFeedTarget(beanId, brewId = '', openComments = false) {
                 const targetBean = this.beans.get(String(beanId || ''));
                 if (!targetBean) {
-                    this.showToast('That bean no longer exists.');
+                    this.showToast('That coffee no longer exists.');
                     return;
                 }
                 const key = this.beanGroupKey(targetBean);
@@ -14,6 +14,8 @@
                 };
                 const brews = Array.from(this.brews.values()).filter(brew => group.ids.includes(brew.beanId));
                 this.openCommentId = (openComments && brewId) ? String(brewId) : null;
+                const tb = brewId ? this.brews.get(String(brewId)) : null;
+                this._lensWant = tb ? this.getBrewOwner(tb) : '';   // v15.1: a view that has that session in it
                 this.openDetail(group, brews);
                 if (brewId) {
                     setTimeout(() => {
@@ -95,7 +97,7 @@
                     return;
                 }
 
-                if (this.tab === 'shared' && this.libraryMode === 'roasters') { this.renderRoasterList(grid, searchQuery); return; }
+                if (this.tab === 'roasters') { this.renderRoasterList(grid, searchQuery); return; }
 
                 let list = this.buildBeanGroups();
                 // v14.4: the library is your circle's; community sessions and coffees (Feed, Community) stay out of it
@@ -104,7 +106,7 @@
                         .map(item => ({ group: item.group, brews: item.brews.filter(b => !this.communityIds.has('brew:' + b.id)) }));
                 }
 
-                if (this.tab === 'my') {
+                if (this.tab === 'my' && this.coffeeScopeNow() === 'mine') {   // v15.1: Coffees, Mine (All is everyone's)
                     list = list.filter(item => item.group.users.has(this.user));
                 }
 
@@ -117,10 +119,11 @@
                 }
 
                 if (this.currentMethodFilter !== 'all') {
-                    list = list.filter(item => item.brews.some(brew => brew.method === this.currentMethodFilter));
+                    const want = String(this.currentMethodFilter).toLowerCase();   // v15.1: "AeroPress" and "Aeropress" are the same method
+                    list = list.filter(item => item.brews.some(brew => String(brew.method || '').toLowerCase() === want));
                 }
 
-                if (this.tab === 'shared' && this.roasterFilter) {
+                if (this.roasterFilter) {
                     const fr = this.roasterFind(this.roasterFilter);   // v13.4: follows a merge
                     if (!fr) this.roasterFilter = '';
                     else { this.roasterFilter = fr.key; list = list.filter(item => this.roasterKey(item.group.meta.roaster) === this.roasterFilter); }
@@ -155,7 +158,7 @@
                     const art = isShared ? '#i-leaf-line' : '#i-bean-line';
 
                     card.innerHTML = `
-                        ${isNew ? '<div class="fresh-dot" title="New bean"></div>' : ''}
+                        ${isNew ? '<div class="fresh-dot" title="New coffee"></div>' : ''}
                         ${avgRating > 0 ? `
                             <div class="card-rating">
                                 <span class="star-meter" style="--fill:${this.starFill(avgRating)}%;--whole:${this.starWhole(avgRating)};--frac:${this.starFrac(avgRating)}"></span>
@@ -191,11 +194,11 @@
                 });
 
                 if (!list.length) {
-                    const message = (searchQuery || this.currentMethodFilter !== 'all' || (this.tab === 'shared' && this.roasterFilter))
-                        ? 'No beans match your filters.'
-                        : 'No beans yet. Add your first coffee!';
+                    const message = (searchQuery || this.currentMethodFilter !== 'all' || this.roasterFilter)
+                        ? 'No coffees match your filters.'
+                        : 'No coffees yet. Add your first one with the + button.';
                     grid.innerHTML = `<div style="text-align:center; color:#999; padding:3rem;">${message}</div>`;
                 }
-                if (this.tab === 'shared' && grid.insertAdjacentHTML) grid.insertAdjacentHTML('afterbegin', this.libSwitchHtml() + this.roasterFilterHtml());
+                if (this.tab === 'my' && grid.insertAdjacentHTML) grid.insertAdjacentHTML('afterbegin', this.coffeeScopeHtml() + this.roasterFilterHtml());
             },
 

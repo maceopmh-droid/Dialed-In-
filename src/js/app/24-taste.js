@@ -115,7 +115,7 @@
                     const rv = ref ? this.tasteValue(ref, k) : null;
                     if (ghost) {
                         ghost.hidden = rv === null;
-                        if (rv !== null) { ghost.style.left = `calc(${(Math.round(rv) - 1) / 9} * (100% - 26px) + 13px)`; ghost.title = `Your best shot: ${rv}`; }
+                        if (rv !== null) { ghost.style.left = `calc(${(Math.round(rv) - 1) / 9} * (100% - 26px) + 13px)`; ghost.title = `Your best: ${rv}`; }
                     }
                 });
             },
@@ -139,7 +139,7 @@
                 const host = document.getElementById('taste-shape');
                 if (host && typeof FlavorShape !== 'undefined') {
                     if (!this.tasteView) {
-                        this.tasteView = FlavorShape.createView({ values: () => this.formTasteValues(), ghost: () => { const r = this.tasteReference(); return r ? this.shapeValues(r) : null; }, ghostLabel: 'Best shot', isSet: k => this.tasteTouched.has(k) });
+                        this.tasteView = FlavorShape.createView({ values: () => this.formTasteValues(), ghost: () => { const r = this.tasteReference(); return r ? this.shapeValues(r) : null; }, ghostLabel: 'Best', isSet: k => this.tasteTouched.has(k) });
                     }
                     if (this.tasteView.el.parentNode !== host && typeof host.replaceChildren === 'function') host.replaceChildren(this.tasteView.el);
                     this.tasteView.start();
@@ -148,7 +148,7 @@
                 const target = document.getElementById('taste-target');
                 if (target) {
                     target.hidden = !ref;
-                    if (ref) target.innerHTML = `<span>Target</span><b>Your best shot · ${this.esc(this.shortDate(ref.date))} · ${this.esc(this.fmtNum(this.normalizeRating(ref.rating)))}★ · ${this.esc(this.recipeLine(ref, true))}</b>`;
+                    if (ref) target.innerHTML = `<span>Target</span><b>Your best ${this.shotWord(this.readFormRecipe().method)} · ${this.esc(this.shortDate(ref.date))} · ${this.esc(this.fmtNum(this.normalizeRating(ref.rating)))}★ · ${this.esc(this.recipeLine(ref, true))}</b>`;
                 }
                 this.paintTasteSliders();
                 this.renderTasteTip();
@@ -213,11 +213,13 @@
                 return { ...base, conf: 'possible', head: 'A little different from your best shot, but nothing points to grind or ratio.', detail: 'Keep the recipe and see if the difference repeats.' };
             },
 
-            renderTipHtml(a) {
+            renderTipHtml(a, method = '') {
                 if (!a) return '';
+                a = this.methodWorded(a, method);   // v15.1: shot for espresso, brew for the rest
+                const w = this.shotWord(method);
                 const ev = a.ok && a.evidence && a.evidence.length ? `<div class="ev">${a.evidence.map(e => `<span class="evc ${e.side}">${this.esc(e.text)}</span>`).join('')}</div>` : '';
-                const ref = a.ok && a.ref ? `<div class="next-detail">Compared with your best shot of this coffee (${this.esc(this.shortDate(a.ref.date))}, ${this.esc(this.fmtNum(this.normalizeRating(a.ref.rating)))}★).</div>` : '';
-                return `<div class="next-card${a.ok ? '' : ' empty'}"><div class="next-title">Next shot${a.conf ? ` · ${this.esc(a.conf)}` : ''}</div><div class="next-headline">${this.esc(a.head)}</div>${a.ok && a.detail ? `<div class="next-detail">${this.esc(a.detail)}</div>` : ''}${a.note ? `<div class="next-detail">${this.esc(a.note)}</div>` : ''}${ev}${ref}</div>`;
+                const ref = a.ok && a.ref ? `<div class="next-detail">Compared with your best ${w} of this coffee (${this.esc(this.shortDate(a.ref.date))}, ${this.esc(this.fmtNum(this.normalizeRating(a.ref.rating)))}★).</div>` : '';
+                return `<div class="next-card${a.ok ? '' : ' empty'}"><div class="next-title">Next ${w}${a.conf ? ` · ${this.esc(a.conf)}` : ''}</div><div class="next-headline">${this.esc(a.head)}</div>${a.ok && a.detail ? `<div class="next-detail">${this.esc(a.detail)}</div>` : ''}${a.note ? `<div class="next-detail">${this.esc(a.note)}</div>` : ''}${ev}${ref}</div>`;
             },
 
             // v11.7: the Next-shot tip follows everything you type, not just notes and sliders
@@ -231,16 +233,16 @@
                 const box = document.getElementById('taste-tip');
                 if (!box) return;
                 const c = this.coachFromForm();
-                if (c.method && this.activeGroup) { box.innerHTML = this.coachHtml(this.coach(c), 'Next shot'); return; }
+                if (c.method && this.activeGroup) { box.innerHTML = this.coachHtml(this.coach(c), `Next ${this.shotWord(c.method)}`); return; }
                 const ref = this.tasteReference();
                 const tasted = [...this.tasteTouched];
                 const cur = { values: this.formTasteValues(), tasted, notes: [...this.selFlavors], ...this.readFormRecipe() };
-                if (ref) { box.innerHTML = this.renderTipHtml(this.adviseAgainst(cur, ref)); return; }
+                if (ref) { box.innerHTML = this.renderTipHtml(this.adviseAgainst(cur, ref), cur.method); return; }
                 // no best shot of this coffee yet: read the shot on its own
                 const form = this.getBrewForm();
                 const editing = form && form.elements && form.elements.id ? form.elements.id.value : '';
                 const ctx = this.activeGroup ? this.firstShotContext(this.beanGroupKey(this.activeGroup.meta), this.user, cur.method, editing) : {};
-                box.innerHTML = this.renderTipHtml(this.adviseFirstShot(cur, ctx));
+                box.innerHTML = this.renderTipHtml(this.adviseFirstShot(cur, ctx), cur.method);
             },
 
             updateNextShotHint() {
@@ -248,7 +250,7 @@
                 this.renderTasteTip();
                 const target = document.getElementById('taste-target');
                 const ref = this.tasteReference();
-                if (target) { target.hidden = !ref; if (ref) target.innerHTML = `<span>Target</span><b>Your best shot · ${this.esc(this.shortDate(ref.date))} · ${this.esc(this.fmtNum(this.normalizeRating(ref.rating)))}★ · ${this.esc(this.recipeLine(ref, true))}</b>`; }
+                if (target) { target.hidden = !ref; if (ref) target.innerHTML = `<span>Target</span><b>Your best ${this.shotWord(this.readFormRecipe().method)} · ${this.esc(this.shortDate(ref.date))} · ${this.esc(this.fmtNum(this.normalizeRating(ref.rating)))}★ · ${this.esc(this.recipeLine(ref, true))}</b>`; }
             },
 
             // ---- notes wheel in the log form
@@ -318,7 +320,7 @@
                 wheel.innerHTML = this.wheelSvg({ fam: this.wheelFam, group: this.wheelGroup, interactive: true, counts, groupCounts });
                 const tray = document.getElementById('note-tray');
                 if (tray) {
-                    if (this.wheelFam == null) tray.innerHTML = '<p class="note-help">Start broad, then go specific. “Tastes off” notes help your next shot most.</p>';
+                    if (this.wheelFam == null) tray.innerHTML = '<p class="note-help">Start broad, then go specific. “Tastes off” notes help the coach most.</p>';
                     else {
                         const groups = this.wheelGroup == null ? NOTE_WHEEL[this.wheelFam].groups : [NOTE_WHEEL[this.wheelFam].groups[this.wheelGroup]];
                         tray.innerHTML = groups.map(([g, notes]) => `${this.wheelGroup == null ? `<div class="note-group">${this.esc(g)}</div>` : ''}<div class="note-chips">${notes.map(nm => `<button type="button" class="note-chip" aria-pressed="${this.selFlavors.includes(nm)}" onclick="app.pickNote('${app.escJs(nm)}', event)">${this.esc(nm)}</button>`).join('')}</div>`).join('');

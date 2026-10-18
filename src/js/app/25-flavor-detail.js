@@ -101,10 +101,10 @@
                 this.viewerValues = this.shapeValues(brew);
                 this.viewerGhost = best ? this.shapeValues(best) : null;
                 this.viewerTasted = this.tastedKeys(brew);
-                if (!this.viewerView) this.viewerView = FlavorShape.createView({ values: () => this.viewerValues, ghost: () => this.viewerGhost, ghostLabel: 'Best shot', isSet: k => (this.viewerTasted || []).includes(k), fullGestures: true });
+                if (!this.viewerView) this.viewerView = FlavorShape.createView({ values: () => this.viewerValues, ghost: () => this.viewerGhost, ghostLabel: 'Best', isSet: k => (this.viewerTasted || []).includes(k), fullGestures: true });
                 const bean = this.beans.get(String(brew.beanId));
                 document.getElementById('shape-title').innerText = bean ? this.beanLabel(bean) : 'Flavor shape';
-                document.getElementById('shape-sub').innerText = `${this.getBrewOwner(brew)} · ${this.shortDate(brew.date)}${brew.method ? ` · ${brew.method}` : ''}${best ? ` · dashed: best shot (${this.shortDate(best.date)})` : ''}`;
+                document.getElementById('shape-sub').innerText = `${this.getBrewOwner(brew)} · ${this.shortDate(brew.date)}${brew.method ? ` · ${brew.method}` : ''}${best ? ` · dashed: best ${this.shotWord(brew.method)} (${this.shortDate(best.date)})` : ''}`;
                 const host = document.getElementById('shape-host');
                 if (typeof host.replaceChildren === 'function') host.replaceChildren(this.viewerView.el);
                 const fc = this.flavorCounts([brew]);
@@ -134,9 +134,9 @@
                 const mineBest = (() => { let best = null; brews.filter(b => this.getBrewOwner(b) === this.user).forEach(b => { const r = this.normalizeRating(b.rating); if (r <= 0) return; const br = best ? this.normalizeRating(best.rating) : -1; if (r > br) best = b; }); return best; })();
                 this.beanFlavorGhost = mineBest ? this.shapeValues(mineBest) : null;
                 const fc = this.flavorCounts(pool);
-                const chips = people.length > 1 ? `<div class="bf-people">${['all', ...people].map(p => `<button type="button" class="chip-btn" aria-pressed="${this.beanFlavorWho === p}" data-who="${this.esc(p)}" onclick="app.setBeanFlavorWho(this.getAttribute('data-who'))">${p === 'all' ? 'Everyone' : this.esc(p)}</button>`).join('')}</div>` : '';
+                const chips = people.length > 1 && !this._lensPublic ? `<div class="bf-people">${['all', ...people].map(p => `<button type="button" class="chip-btn" aria-pressed="${this.beanFlavorWho === p}" data-who="${this.esc(p)}" onclick="app.setBeanFlavorWho(this.getAttribute('data-who'))">${p === 'all' ? 'All' : this.esc(p)}</button>`).join('')}</div>` : '';
                 const words = this.describeCup(values, tasted, fc.notes.slice(0, 4).map(x => x.n), Object.fromEntries(fc.notes.map(x => [x.n, x.strength])));
-                box.innerHTML = `<div class="bf-head"><div><h3>Flavor profile</h3><p>${pool.length} session${pool.length === 1 ? '' : 's'} · ${this.beanFlavorWho === 'all' ? 'everyone' : this.esc(this.beanFlavorWho)}${mineBest ? ' · dashed: your best shot' : ''}</p></div></div>${chips}<div id="bf-shape"></div>${!tasted.length ? '<div class="flv-empty">No taste sliders set on these sessions yet.</div>' : ''}${fc.notes.length ? `<div class="bf-wheel">${this.wheelSvgStatic(fc)}<div class="flv-notes">${this.noteChipsHtml(fc.notes.slice(0, 12), true)}</div></div>` : ''}${words ? `<div class="flv-words">${this.esc(words)}</div>` : ''}`;
+                box.innerHTML = `<div class="bf-head"><div><h3>Flavor profile</h3><p>${pool.length} session${pool.length === 1 ? '' : 's'} · ${this.beanFlavorWho === 'all' ? this.esc(this.lensLabel()) : this.esc(this.beanFlavorWho)}${mineBest ? ' · dashed: your best' : ''}</p></div></div>${chips}<div id="bf-shape"></div>${!tasted.length ? '<div class="flv-empty">No taste sliders set on these sessions yet.</div>' : ''}${fc.notes.length ? `<div class="bf-wheel">${this.wheelSvgStatic(fc)}<div class="flv-notes">${this.noteChipsHtml(fc.notes.slice(0, 12), true)}</div></div>` : ''}${words ? `<div class="flv-words">${this.esc(words)}</div>` : ''}`;
                 setTimeout(() => this.fillShapeImages(document.getElementById('detail-view')), 0);
                 if (typeof FlavorShape !== 'undefined' && tasted.length) {
                     if (!this.beanView) this.beanView = FlavorShape.createView({ values: () => this.beanFlavorValues, ghost: () => this.beanFlavorGhost, ghostLabel: 'Your best' });
@@ -171,6 +171,12 @@
             },
 
             openDetail(group, brews) {
+                // v15.1: whose take on this coffee (You, a community, Friends, Everyone); another coffee picks its own
+                const prevKey = this.activeGroup ? this.beanGroupKey(this.activeGroup.meta) : '';
+                if (!group || this.beanGroupKey(group.meta) !== prevKey) this._lens = this._lensKeep || '';
+                this._lensKeep = '';
+                this.detailAllBrews = [...brews];
+                brews = this.lensBrews(brews);
                 if (!this._navKeep && !this.isDetailActive() && !this.roasterViewActive()) this.navStack = [];   // opened from the library or feed
                 if (!this._navKeep && this.roasterViewActive()) { const from = this.snapPage(); if (from) { this.navStack = this.navStack || []; this.navStack.push(from); } this.hideRoasterView(); }
                 document.getElementById('detail-view').classList.add('active');
@@ -197,7 +203,7 @@
                 document.getElementById('d-origin').innerText = bean.origin || '-';
                 document.getElementById('d-process').innerText = bean.process || '-';
                 document.getElementById('d-roast').innerText = bean.roast || '-';
-                this.renderDetailExtras(group, brews);
+                this.renderDetailExtras(group, this.detailAllBrews);
 
                 const overallRating = this.calculateAverageRating(brews);
                 const ratedCount = brews.filter(item => this.normalizeRating(item.rating) > 0).length;
@@ -234,10 +240,10 @@
                             <div style="font-size:0.65rem; color:var(--matcha); font-weight:800; text-transform:uppercase;">${this.esc(masterOwner)}'s Master</div>
                             ${masterOwner === this.user ? `
                                 <div class="master-actions">
-                                    <button class="btn-clean" onclick="app.openMasterModal('${app.escJs(master.id)}')" title="Edit master profile">
+                                    <button class="btn-clean" onclick="app.openMasterModal('${app.escJs(master.id)}')" title="Edit master recipe">
                                         <svg class="icon" style="width:14px;height:14px;"><use href="#i-edit-2"/></svg>
                                     </button>
-                                    <button class="btn-clean danger" onclick="app.unpinMaster('${app.escJs(master.id)}')" title="Remove master profile">
+                                    <button class="btn-clean danger" onclick="app.unpinMaster('${app.escJs(master.id)}')" title="Remove master recipe">
                                         <svg class="icon" style="width:14px;height:14px;"><use href="#i-trash-2"/></svg>
                                     </button>
                                 </div>
@@ -287,6 +293,7 @@
                     else { row.innerHTML = rowHtml; logBox.appendChild(row); }
                 });
                 if (keyedLogs) this.patchKeyed(logBox, logItems, this._logHtml);
+                this.paintLens();
             },
 
             refreshDetail() {

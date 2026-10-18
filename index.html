@@ -3767,6 +3767,17 @@
 .crew-awards .aw-month { margin: -2px 0 12px; }
 .crew-awards .aw-month .recap-select { max-width: 100%; width: auto; }
 .crew-awards .aw-head-t .label { font-size: 1.02rem; font-weight: 750; letter-spacing: -0.01em; text-transform: none; color: var(--ink); }
+
+/* v15.1: the Roasters tab has its own sorting; the coffee filters and sort menu are for Coffees */
+body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters-mode #mobile-controls-panel .mc-sort, body.roasters-mode #mobile-controls-panel .mc-method { display: none !important; }
+
+/* v15.1: whose take on a coffee (You, a community, Friends, Everyone), at the top of its page */
+.d-lens { margin: 0 0 16px; }
+.d-lens .lens-n { margin-left: 6px; font-weight: 650; opacity: 0.7; font-variant-numeric: tabular-nums; }
+.d-lens .comm-chip.on .lens-n { opacity: 0.85; }
+/* Everyone: their stars, notes and flavor shape, and the list of what they shared; the rest is about your circle's sessions */
+#detail-view.lens-everyone .insight-tabs, #detail-view.lens-everyone #d-timeline-pane, #detail-view.lens-everyone #d-compare-pane,
+#detail-view.lens-everyone #d-side-pane, #detail-view.lens-everyone #d-sweet-pane, #detail-view.lens-everyone #d-dialin-pane { display: none !important; }
     </style>
 </head>
 <body>
@@ -3775,7 +3786,9 @@
     <script id="boot-script">(function () { try { var b = document.getElementById('boot-bar'); if (b) setTimeout(function () { b.style.width = '22%'; }, 30); setTimeout(function () { var s = document.getElementById('boot-screen'); if (s && s.parentNode) s.parentNode.removeChild(s); }, 9000); } catch (e) {} })();</script>
     <!-- SVG Icon Definitions -->
     <svg><defs>
-        <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4.6"/><circle cx="12" cy="12" r="1.2"/></symbol><symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 4.5h8v4.2a4 4 0 0 1-8 0Z"/><path d="M8 6H5.2a2.6 2.6 0 0 0 2.9 3.6M16 6h2.8a2.6 2.6 0 0 1-2.9 3.6"/><path d="M12 12.7v3.6M8.8 20h6.4M9.8 16.3h4.4l.6 3.7H9.2Z"/></symbol><symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.8"/><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M5.6 18.4l1.6-1.6M16.8 7.2l1.6-1.6"/></symbol><symbol id="i-moon" viewBox="0 0 24 24"><path d="M19.5 14.6A7.6 7.6 0 0 1 9.4 4.5a7.6 7.6 0 1 0 10.1 10.1Z"/></symbol><symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="m15.3 8.7-1.9 4.7-4.7 1.9 1.9-4.7Z"/></symbol><symbol id="i-star" viewBox="0 0 24 24"><path d="m12 4.2 2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 16.6l-4.8 2.5.9-5.4-3.9-3.8 5.4-.8Z"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8.6A1.6 1.6 0 0 1 5.6 7h2.2l1.4-2h5.6l1.4 2h2.2A1.6 1.6 0 0 1 20 8.6v8.8a1.6 1.6 0 0 1-1.6 1.6H5.6A1.6 1.6 0 0 1 4 17.4Z"/><circle cx="12" cy="12.6" r="3.4"/></symbol><symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 3.5 20 6.5l-3 3"/><path d="M4 11.5v-1a4 4 0 0 1 4-4h12"/><path d="m7 20.5-3-3 3-3"/><path d="M20 12.5v1a4 4 0 0 1-4 4H4"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m15.5 15.5 4.6 4.6"/></symbol><symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21Z"/><circle cx="12" cy="10" r="2.4"/></symbol><symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 21c-3.6 0-6.2-2.5-6.2-5.9 0-2.7 1.7-4.6 3.3-6.3.2 1.6 1 2.7 2.1 3.2-.3-3 1-6 3.6-8 0 2.9 1.4 4.6 2.6 6.3 1 1.4 1.8 2.9 1.8 4.8 0 3.4-3.6 5.9-7.2 5.9Z"/></symbol><symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M3.6 12h16.8M12 3.6c2.3 2.4 3.4 5.2 3.4 8.4s-1.1 6-3.4 8.4c-2.3-2.4-3.4-5.2-3.4-8.4S9.7 6 12 3.6Z"/></symbol><symbol id="i-trend" viewBox="0 0 24 24"><path d="m4 17 5.5-5.5 3.5 3.5L20 8"/><path d="M14.5 8H20v5.5"/></symbol><symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2-5 4 10 2-5h6"/></symbol><symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3 5.5 13.2H12L11 21l7.5-10.2H12Z"/></symbol><symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="2.4"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></symbol><symbol id="i-crown" viewBox="0 0 24 24"><path d="m4 8.5 3.8 3.4L12 5.5l4.2 6.4L20 8.5 18.4 18H5.6Z"/><path d="M5.8 20.5h12.4"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.4"/><path d="M8.2 10.5V8a3.8 3.8 0 0 1 7.6 0v2.5"/></symbol><symbol id="i-medal" viewBox="0 0 24 24"><circle cx="12" cy="14.5" r="5"/><path d="M8.6 10.8 6 3.5h4l2 4.2 2-4.2h4l-2.6 7.3"/></symbol><symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5Z"/></symbol><symbol id="i-coffee" viewBox="0 0 24 24"><path d="M5 9h11v4.5A5.5 5.5 0 0 1 10.5 19h0A5.5 5.5 0 0 1 5 13.5Z"/><path d="M16 10.5h1.25a2.75 2.75 0 0 1 0 5.5H15.4"/><path d="M8.5 3.5c-.6.9.6 1.6 0 2.6M12 3.5c-.6.9.6 1.6 0 2.6"/><path d="M4 21.5h14"/></symbol>
+        <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4.6"/><circle cx="12" cy="12" r="1.2"/></symbol><symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 4.5h8v4.2a4 4 0 0 1-8 0Z"/><path d="M8 6H5.2a2.6 2.6 0 0 0 2.9 3.6M16 6h2.8a2.6 2.6 0 0 1-2.9 3.6"/><path d="M12 12.7v3.6M8.8 20h6.4M9.8 16.3h4.4l.6 3.7H9.2Z"/></symbol><symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.8"/><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M5.6 18.4l1.6-1.6M16.8 7.2l1.6-1.6"/></symbol><symbol id="i-moon" viewBox="0 0 24 24"><path d="M19.5 14.6A7.6 7.6 0 0 1 9.4 4.5a7.6 7.6 0 1 0 10.1 10.1Z"/></symbol><symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="m15.3 8.7-1.9 4.7-4.7 1.9 1.9-4.7Z"/></symbol><symbol id="i-star" viewBox="0 0 24 24"><path d="m12 4.2 2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 16.6l-4.8 2.5.9-5.4-3.9-3.8 5.4-.8Z"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8.6A1.6 1.6 0 0 1 5.6 7h2.2l1.4-2h5.6l1.4 2h2.2A1.6 1.6 0 0 1 20 8.6v8.8a1.6 1.6 0 0 1-1.6 1.6H5.6A1.6 1.6 0 0 1 4 17.4Z"/><circle cx="12" cy="12.6" r="3.4"/></symbol><symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 3.5 20 6.5l-3 3"/><path d="M4 11.5v-1a4 4 0 0 1 4-4h12"/><path d="m7 20.5-3-3 3-3"/><path d="M20 12.5v1a4 4 0 0 1-4 4H4"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m15.5 15.5 4.6 4.6"/></symbol><symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21Z"/><circle cx="12" cy="10" r="2.4"/></symbol><symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 21c-3.6 0-6.2-2.5-6.2-5.9 0-2.7 1.7-4.6 3.3-6.3.2 1.6 1 2.7 2.1 3.2-.3-3 1-6 3.6-8 0 2.9 1.4 4.6 2.6 6.3 1 1.4 1.8 2.9 1.8 4.8 0 3.4-3.6 5.9-7.2 5.9Z"/></symbol><symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M3.6 12h16.8M12 3.6c2.3 2.4 3.4 5.2 3.4 8.4s-1.1 6-3.4 8.4c-2.3-2.4-3.4-5.2-3.4-8.4S9.7 6 12 3.6Z"/></symbol><symbol id="i-trend" viewBox="0 0 24 24"><path d="m4 17 5.5-5.5 3.5 3.5L20 8"/><path d="M14.5 8H20v5.5"/></symbol><symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2-5 4 10 2-5h6"/></symbol><symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3 5.5 13.2H12L11 21l7.5-10.2H12Z"/></symbol><symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="2.4"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></symbol><symbol id="i-crown" viewBox="0 0 24 24"><path d="m4 8.5 3.8 3.4L12 5.5l4.2 6.4L20 8.5 18.4 18H5.6Z"/><path d="M5.8 20.5h12.4"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.4"/><path d="M8.2 10.5V8a3.8 3.8 0 0 1 7.6 0v2.5"/></symbol><symbol id="i-medal" viewBox="0 0 24 24"><circle cx="12" cy="14.5" r="5"/><path d="M8.6 10.8 6 3.5h4l2 4.2 2-4.2h4l-2.6 7.3"/></symbol><symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5Z"/></symbol><symbol id="i-bean" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="6.3" ry="8.8" transform="rotate(35 12 12)"/><path d="M16.4 5.6c-2.6 1.5-2.4 4.1-3.9 5.6s-4 1.7-5 5.2"/></symbol>
+        <symbol id="i-roaster" viewBox="0 0 24 24"><path d="M4 9.6 5.6 4.5h12.8L20 9.6"/><path d="M4 9.6a2.67 2.67 0 0 0 5.33 0 2.67 2.67 0 0 0 5.34 0 2.67 2.67 0 0 0 5.33 0"/><path d="M5.6 12.6v7.4h12.8v-7.4"/><path d="M10.2 20v-4.4h3.6V20"/></symbol>
+        <symbol id="i-coffee" viewBox="0 0 24 24"><path d="M5 9h11v4.5A5.5 5.5 0 0 1 10.5 19h0A5.5 5.5 0 0 1 5 13.5Z"/><path d="M16 10.5h1.25a2.75 2.75 0 0 1 0 5.5H15.4"/><path d="M8.5 3.5c-.6.9.6 1.6 0 2.6M12 3.5c-.6.9.6 1.6 0 2.6"/><path d="M4 21.5h14"/></symbol>
         <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.2" r="3.3"/><path d="M3.4 19.5a5.6 5.6 0 0 1 11.2 0"/><path d="M15.8 5.1a3.2 3.2 0 0 1 0 6.2M17.4 14.3a5.3 5.3 0 0 1 3.2 5.2"/></symbol>
         <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.7"/><path d="M5 20.2a7 7 0 0 1 14 0"/></symbol>
         <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5.5v13M5.5 12h13"/></symbol>
@@ -3810,12 +3823,12 @@
     <div id="sidebar">
         <h1>Dialed In</h1>
         <button class="nav-btn active" data-tab="my" onclick="app.setTab('my')">
-            <svg class="icon"><use href="#i-coffee"/></svg>
-            My Collection
+            <svg class="icon"><use href="#i-bean"/></svg>
+            Coffees
         </button>
-        <button class="nav-btn" data-tab="shared" onclick="app.setTab('shared')">
-            <svg class="icon"><use href="#i-users"/></svg>
-            Shared Library
+        <button class="nav-btn" data-tab="roasters" onclick="app.setTab('roasters')">
+            <svg class="icon"><use href="#i-roaster"/></svg>
+            Roasters
         </button>
         <button class="nav-btn" data-tab="feed" onclick="app.setTab('feed')">
             <svg class="icon"><use href="#i-activity"/></svg>
@@ -3823,11 +3836,11 @@
         </button>
         <button class="nav-btn" data-tab="profile" onclick="app.setTab('profile')">
             <svg class="icon"><use href="#i-user"/></svg>
-            Profiles
+            Profile
         </button>
         <button class="nav-btn" onclick="app.openBeanModal()">
             <svg class="icon"><use href="#i-plus"/></svg>
-            New Entry
+            Add coffee
         </button>
         <div style="flex:1"></div>
         <button class="nav-btn settings-nav-btn" onclick="app.openSettings()">
@@ -3841,11 +3854,11 @@
         <div class="header-sticky">
             <div class="header-top">
                 <div style="flex: 1;">
-                    <h2 id="view-title">My Collection</h2>
+                    <h2 id="view-title">Coffees</h2>
                     
                     <!-- Search Bar -->
                     <div class="search-bar">
-                        <input type="text" id="search-input" placeholder="Search beans..." oninput="app.syncSearch(this.value, 'desktop')">
+                        <input type="text" id="search-input" placeholder="Search coffees…" oninput="app.syncSearch(this.value, 'desktop')">
                     </div>
                     
                     <!-- Method Filters -->
@@ -3855,7 +3868,7 @@
                         <button class="filter-chip" data-method="Pour Over" onclick="app.setMethodFilter('Pour Over')">Pour Over</button>
                         <button class="filter-chip" data-method="French Press" onclick="app.setMethodFilter('French Press')">French Press</button>
                         <button class="filter-chip" data-method="Moka Pot" onclick="app.setMethodFilter('Moka Pot')">Moka Pot</button>
-                        <button class="filter-chip" data-method="Aeropress" onclick="app.setMethodFilter('Aeropress')">Aeropress</button>
+                        <button class="filter-chip" data-method="Aeropress" onclick="app.setMethodFilter('Aeropress')">AeroPress</button>
                         <button class="filter-chip" data-method="Cold Brew" onclick="app.setMethodFilter('Cold Brew')">Cold Brew</button>
                     </div>
                 </div>
@@ -3874,9 +3887,9 @@
                             <svg class="icon" style="width:12px;height:12px;"><use href="#i-chevron-down"/></svg>
                         </button>
                         <div class="sort-menu" id="sort-menu">
-                            <div class="sort-option selected" data-sort="recent" onclick="app.setSort('recent')">Most Recently Used</div>
-                            <div class="sort-option" data-sort="rated" onclick="app.setSort('rated')">Top Rated</div>
-                            <div class="sort-option" data-sort="added" onclick="app.setSort('added')">Date Added (Oldest)</div>
+                            <div class="sort-option selected" data-sort="recent" onclick="app.setSort('recent')">Recently brewed</div>
+                            <div class="sort-option" data-sort="rated" onclick="app.setSort('rated')">Top rated</div>
+                            <div class="sort-option" data-sort="added" onclick="app.setSort('added')">Oldest first</div>
                         </div>
                     </div>
                     
@@ -3890,25 +3903,25 @@
             <div id="mobile-controls-panel" class="mobile-controls-panel">
                 <div>
                     <label>Search</label>
-                    <input type="text" id="search-input-mobile" placeholder="Search beans..." oninput="app.syncSearch(this.value, 'mobile')">
+                    <input type="text" id="search-input-mobile" placeholder="Search coffees…" oninput="app.syncSearch(this.value, 'mobile')">
                 </div>
-                <div>
+                <div class="mc-sort">
                     <label>Sort</label>
                     <select id="mobile-sort-select" onchange="app.setSort(this.value)">
-                        <option value="recent">Most Recently Used</option>
-                        <option value="rated">Top Rated</option>
-                        <option value="added">Date Added (Oldest)</option>
+                        <option value="recent">Recently brewed</option>
+                        <option value="rated">Top rated</option>
+                        <option value="added">Oldest first</option>
                     </select>
                 </div>
-                <div>
-                    <label>Brew Type</label>
+                <div class="mc-method">
+                    <label>Method</label>
                     <select id="mobile-method-select" onchange="app.setMethodFilter(this.value)">
                         <option value="all">All</option>
                         <option value="Espresso">Espresso</option>
                         <option value="Pour Over">Pour Over</option>
                         <option value="French Press">French Press</option>
                         <option value="Moka Pot">Moka Pot</option>
-                        <option value="Aeropress">Aeropress</option>
+                        <option value="Aeropress">AeroPress</option>
                         <option value="Cold Brew">Cold Brew</option>
                     </select>
                 </div>
@@ -3924,12 +3937,12 @@
     <!-- Mobile Navigation -->
     <div id="mobile-nav">
         <div class="mob-item active" data-tab="my" onclick="app.setTab('my')">
-            <svg class="icon" style="width:20px;height:20px;"><use href="#i-coffee"/></svg>
-            Mine
+            <svg class="icon" style="width:20px;height:20px;"><use href="#i-bean"/></svg>
+            Coffees
         </div>
-        <div class="mob-item" data-tab="shared" onclick="app.setTab('shared')">
-            <svg class="icon" style="width:20px;height:20px;"><use href="#i-users"/></svg>
-            Shared
+        <div class="mob-item" data-tab="roasters" onclick="app.setTab('roasters')">
+            <svg class="icon" style="width:20px;height:20px;"><use href="#i-roaster"/></svg>
+            Roasters
         </div>
         <div class="mob-fab" onclick="app.openBeanModal()">
             <svg class="icon" style="width:24px;height:24px;"><use href="#i-plus"/></svg>
@@ -3940,7 +3953,7 @@
         </div>
         <div class="mob-item" data-tab="profile" onclick="app.setTab('profile')">
             <svg class="icon" style="width:20px;height:20px;"><use href="#i-user"/></svg>
-            Profiles
+            Profile
         </div>
     </div>
 
@@ -3972,7 +3985,7 @@
     <div id="detail-view">
         <div class="detail-hero">
             <div class="dh-top">
-                <button type="button" class="dh-pill dh-back" onclick="app.closeDetail()"><svg class="icon"><use href="#i-arrow-left"/></svg>Library</button>
+                <button type="button" class="dh-pill dh-back" onclick="app.closeDetail()"><svg class="icon"><use href="#i-arrow-left"/></svg>Coffees</button>
                 <div class="dh-actions">
                     <button type="button" class="btn-clean dh-share" onclick="app.shareCurrentCoffee()" aria-label="Share this coffee"><svg class="icon"><use href="#i-share-2"/></svg></button>
                     <button type="button" id="d-want-btn" class="dh-pill dh-want" onclick="app.toggleWantToTry()" style="display:none;" aria-pressed="false"><svg class="icon"><use href="#i-bookmark"/></svg><span>Want to try</span></button>
@@ -3999,29 +4012,29 @@
             <div style="display:grid; grid-template-columns:1fr auto; gap:8px;">
                 <button class="btn-primary" onclick="app.openBrewModal()">
                     <svg class="icon" style="width:16px; height:16px; stroke:white;"><use href="#i-plus"/></svg>
-                    Log New Session
+                    Log a session
                 </button>
                 <button class="btn-outline" onclick="app.cloneLatestSession()" style="width:auto; padding:12px 16px;">Clone</button>
             </div>
         </div>
 
         <div style="padding: 2rem 3rem 150px;">
+            <div id="d-lens" class="circle-pick d-lens" hidden></div>
             <section id="d-flavor" class="bean-flavor"></section>
 
             <div class="insight-tabs">
                 <button class="insight-tab active" data-detail-tab="timeline" onclick="app.setDetailTab('timeline')">Timeline</button>
                 <button class="insight-tab" data-detail-tab="compare" onclick="app.setDetailTab('compare')">Compare</button>
-                <button class="insight-tab" data-detail-tab="side" onclick="app.setDetailTab('side')">Side by Side</button>
-                <button class="insight-tab" data-detail-tab="dialin" onclick="app.setDetailTab('dialin')">Dial-In</button>
+                <button class="insight-tab" data-detail-tab="side" onclick="app.setDetailTab('side')">Side by side</button>
+                <button class="insight-tab" data-detail-tab="dialin" onclick="app.setDetailTab('dialin')">Dial-in</button>
                 <button class="insight-tab" data-detail-tab="sweet" onclick="app.setDetailTab('sweet')">Sweet spot</button>
-                <button class="insight-tab" data-detail-tab="everyone" onclick="app.setDetailTab('everyone')" hidden>Everyone</button>
             </div>
 
             <div id="d-timeline-pane">
-                <label style="font-size:0.7rem; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); font-weight:800; display:block; margin-bottom:1rem;">Master Profiles</label>
+                <label style="font-size:0.7rem; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); font-weight:800; display:block; margin-bottom:1rem;">Master recipes</label>
                 <div id="d-masters" style="margin-bottom: 3rem;"></div>
                 
-                <label style="font-size:0.7rem; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); font-weight:800; display:block; margin-bottom:1rem;">Session History</label>
+                <label style="font-size:0.7rem; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); font-weight:800; display:block; margin-bottom:1rem;">Session history</label>
                 <div id="d-logs"></div>
             </div>
 
@@ -4187,7 +4200,7 @@
     <!-- Brew Modal -->
     <div id="brew-modal" class="modal" onclick="if(event.target===this) app.closeBrewModal()">
         <div class="modal-card">
-            <h2 id="brew-modal-title">Brewing Log</h2>
+            <h2 id="brew-modal-title">Log a session</h2>
             
             <!-- Timer -->
             <div class="timer-hero">
@@ -4211,7 +4224,7 @@
                             <option value="Pour Over">Pour Over</option>
                             <option value="French Press">French Press</option>
                             <option value="Moka Pot">Moka Pot</option>
-                            <option value="Aeropress">Aeropress</option>
+                            <option value="Aeropress">AeroPress</option>
                             <option value="Cold Brew">Cold Brew</option>
                         </select>
                     </div>
@@ -4318,14 +4331,14 @@
                     </div>
                 </div>
 
-                <!-- Master Brew Toggle -->
+                <!-- Master recipe toggle -->
                 <div class="toggle-row">
-                    <span style="font-weight:700; font-size:0.9rem; color:var(--matcha);">Pin as Master Brew?</span>
+                    <span style="font-weight:700; font-size:0.9rem; color:var(--matcha);">Pin as master recipe?</span>
                     <label class="switch"><input type="checkbox" id="isMasterInput"><span class="slider"></span></label>
                 </div>
 
                 <div id="share-row" class="share-row" hidden></div>
-                <button type="submit" class="btn-primary" style="margin-top: 2rem;">Record Session</button>
+                <button type="submit" class="btn-primary" style="margin-top: 2rem;">Save session</button>
                 <button type="button" class="btn-outline" style="margin-top:10px; border:none; background:none; color:#AAA;" onclick="app.closeBrewModal()">Dismiss</button>
                 </div>
             </form>
@@ -4369,10 +4382,10 @@
             <div class="guide-foot"><button type="button" class="chip-btn" aria-pressed="false" onclick="app.toggleGuideSound(this)">Sound</button></div>
         </div>
     </div>
-    <!-- Master Profile Modal -->
+    <!-- Master recipe modal -->
     <div id="master-modal" class="modal" onclick="if(event.target===this) app.closeModals()">
         <div class="modal-card">
-            <h2>Master Profile</h2>
+            <h2>Master recipe</h2>
             <form onsubmit="app.handleMasterSubmit(event)">
                 <input type="hidden" name="id" id="master-edit-id">
 
@@ -4384,7 +4397,7 @@
                             <option value="Pour Over">Pour Over</option>
                             <option value="French Press">French Press</option>
                             <option value="Moka Pot">Moka Pot</option>
-                            <option value="Aeropress">Aeropress</option>
+                            <option value="Aeropress">AeroPress</option>
                             <option value="Cold Brew">Cold Brew</option>
                         </select>
                     </div>
@@ -4404,7 +4417,7 @@
                 <label>Tasting Notes</label>
                 <textarea name="notes" rows="3" placeholder="Flavor texture, balance, finish..."></textarea>
 
-                <button type="submit" class="btn-primary" style="margin-top: 2rem;">Save Master Profile</button>
+                <button type="submit" class="btn-primary" style="margin-top: 2rem;">Save master recipe</button>
                 <button type="button" class="btn-outline" style="margin-top:10px; border:none; background:none; color:#AAA;" onclick="app.closeModals()">Dismiss</button>
             </form>
         </div>
@@ -5834,9 +5847,9 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 try {
                     const params = new URLSearchParams(window.location.search || '');
                     const view = String(params.get('view') || '').toLowerCase();
-                    if (view === 'feed' || view === 'shared' || view === 'my' || view === 'profile') {
+                    if (view === 'feed' || view === 'roasters' || view === 'my' || view === 'profile') {
                         this.tab = view;
-                    }
+                    } else if (view === 'shared') { this.tab = 'my'; this.coffeeScope = 'all'; }   // v15.1: old links
                 } catch (err) {
                     this.tab = this.tab || 'my';
                 }
@@ -6539,7 +6552,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     {
                         key: 'beans_used',
                         group: 'Exploring',
-                        desc: 'Different beans brewed',
+                        desc: 'Different coffees brewed',
                         title: 'Bean Explorer',
                         thresholds: [5, 10, 20, 35, 50, 75, 100, 150, 200, 300],
                         metric: stats => (stats.beanIds ? stats.beanIds.size : 0),
@@ -6548,8 +6561,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     },
                     {
                         key: 'comments_written',
-                        group: 'Community',
-                        desc: 'Comments left on sessions and beans',
+                        group: 'Social',
+                        desc: 'Comments left on sessions and coffees',
                         title: 'Community Voice',
                         thresholds: [5, 15, 30, 50, 80, 120, 180, 260, 360, 500],
                         metric: stats => stats.commentsWritten,
@@ -6558,13 +6571,13 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     },
                     {
                         key: 'likes_received',
-                        group: 'Community',
+                        group: 'Social',
                         desc: 'Likes received from friends',
                         title: 'Crowd Favorite',
                         thresholds: [5, 15, 30, 60, 100, 160, 240, 360, 520, 720],
                         metric: stats => stats.likesReceived,
                         format: value => `${Math.round(value)}`,
-                        sentence: value => `earned ${Math.round(value)} likes from the community`
+                        sentence: value => `earned ${Math.round(value)} likes`
                     },
                     {
                         key: 'brew_master',
@@ -6614,7 +6627,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         thresholds: [2, 3, 5, 8, 12, 16, 20, 25, 30, 40],
                         metric: stats => (stats.roasterSet ? stats.roasterSet.size : 0),
                         format: value => `${Math.round(value)} roaster${Math.round(value) === 1 ? '' : 's'}`,
-                        sentence: value => `brewed beans from ${Math.round(value)} different roasters`
+                        sentence: value => `brewed coffees from ${Math.round(value)} different roasters`
                     },
                     {
                         key: 'roast_spectrum',
@@ -6690,7 +6703,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 [this.achievementUnlockByBrew, this.achievementUnlockByBean].forEach(map => map.forEach(list => list.forEach(u => { if (u.user === user) recent.push(u); })));
                 recent.sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
                 const recentHtml = recent.slice(0, 3).map(u => `<div>${this.esc(u.definition.title)}${u.definition.thresholds.length > 1 ? ` Lv ${u.level}` : ''} · ${this.esc(this.shortDate(u.date))}</div>`).join('');
-                const groups = ['Brewing', 'Exploring', 'Community'].map(groupName => {
+                const groups = ['Brewing', 'Exploring', 'Social'].map(groupName => {
                     const defs = catalog.filter(d => (d.group || 'Brewing') === groupName);
                     return `<div class="ach-group"><div class="ach-group-title">${groupName}</div><div class="ach-cards">${defs.map(d => this.renderAchievementCard(d, stats, levels)).join('')}</div></div>`;
                 }).join('');
@@ -8213,10 +8226,10 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     mode = 'refine';
                     if (esp && c.time > 0) aim = [Math.round(c.time - 2), Math.round(c.time + 2)];
                     const best = ref ? (c.rating > refR ? `It beats your ${this.fmtNum(refR)}\u2605 from ${this.shortDate(ref.date)}.` : `It matches your ${this.fmtNum(refR)}\u2605 from ${this.shortDate(ref.date)}, your best so far.`) : 'Your first rated shot of this coffee.';   // v14.7: a tie isn't a win
-                    if (c.rating >= 5 && U0 < 1 && O0 < 1) { head = 'Perfect score. Lock this recipe in.'; next = recipe(keepG, c.dose, c.yield); why.push(best, 'Repeat it exactly, and pin it as your Master recipe.'); }
+                    if (c.rating >= 5 && U0 < 1 && O0 < 1) { head = 'Perfect score. Lock this recipe in.'; next = recipe(keepG, c.dose, c.yield); why.push(best, 'Repeat it exactly, and pin it as your master recipe.'); }
                     else if (saidU && U0 >= 1.2 && U0 > O0) { head = esp ? `Your best yet. Next time, let it run to ${this.fmtNum(c.yield + 2, 1)} g instead of ${this.fmtNum(c.yield, 1)} g.` : `Your best yet. Next time, grind one step finer (${plainG(finer)}).`; next = esp ? recipe(keepG, c.dose, c.yield + 2) : recipe(finer, c.dose, c.yield); why.push(best, words('under'), esp ? 'Letting a little more coffee through brings out more sweetness and softens that sourness, without touching the grind that got you here.' : 'A slightly finer grind extracts a little more sweetness to balance it.'); }
                     else if (saidO && O0 >= 1.2 && O0 > U0) { head = esp ? `Your best yet. Next time, stop it at ${this.fmtNum(Math.max(c.dose, c.yield - 2), 1)} g instead of ${this.fmtNum(c.yield, 1)} g.` : `Your best yet. Next time, grind one step coarser (${plainG(coarser)}).`; next = esp ? recipe(keepG, c.dose, Math.max(c.dose, c.yield - 2)) : recipe(coarser, c.dose, c.yield); why.push(best, words('over'), esp ? 'Stopping a little earlier leaves the harsher end of the shot behind and keeps the sweetness.' : 'A slightly coarser grind takes the edge off.'); }
-                    else { head = 'Your best yet. Repeat it exactly.'; next = recipe(keepG, c.dose, c.yield); why.push(best, 'Change nothing next time; if it repeats, pin it as Master.'); }
+                    else { head = 'Your best yet. Repeat it exactly.'; next = recipe(keepG, c.dose, c.yield); why.push(best, 'Change nothing next time; if it repeats, pin it as your master recipe.'); }
                     conf = '';
                 } else if (U >= 1.2 && O >= 1.2) {
                     conf = confOf(Math.min(U, O) + 1);
@@ -8315,7 +8328,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     if (mode !== 'ask') conf = [conf, 'first shot of this coffee'].filter(Boolean).join(' \u00b7 ');
                 }
                 const from = c.verdict ? 'verdict' : (read.quotes.length || tagU || tagO) ? 'notes' : (sliderOnly && (U > 0 || O > 0)) ? 'sliders' : 'recipe';
-                return { mode, head, next, why: why.filter(Boolean), conf, ev, ctx, ref, U, O, gm, from };
+                // v15.1: "shot" is espresso's word; other methods read "brew"
+                return this.methodWorded({ mode, head, next, why: why.filter(Boolean), conf, ev, ctx, ref, U, O, gm, from }, c.method);
             },
 
             coachHtml(k, title) {
@@ -8392,7 +8406,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     for (const theme of ['light', 'dark']) {
                         safe('theme', () => this.setThemePref(theme));
                         check(document.documentElement.getAttribute('data-theme') === theme, `theme switches to ${theme}`);
-                        for (const tab of ['feed', 'my', 'shared', 'profile']) {
+                        for (const tab of ['feed', 'my', 'roasters', 'profile']) {
                             safe('tab', () => this.setTab(tab));
                             const grid = document.getElementById('grid');
                             check(grid && !bad(grid.innerText), `${theme} ${tab}: no undefined/NaN text`);
@@ -8435,8 +8449,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     if (onProgress) onProgress('pages');
                     // 4b. roasters (v13.0): the list and every roaster's page
                     section = 'roasters';
-                    const keepMode = this.libraryMode;
-                    safe('roaster list', () => { this.setTab('shared'); this.setLibraryMode('roasters'); });
+                    safe('roaster list', () => { this.setTab('roasters'); });
                     const rg = document.getElementById('grid');
                     check(rg && rg.querySelector('.ro-sorts') && !bad(rg.innerText), 'roaster list renders');
                     check(noOverflow(), 'roaster list fits the screen');
@@ -8451,7 +8464,6 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         safe('roaster back', () => this.goBackPage());
                     }
                     check(!this.roasterViewActive(), 'roaster pages close');
-                    this.libraryMode = keepMode;
                     await tick();
                     // 5. tip engine, thousands of random shots
                     section = 'tips';
@@ -9188,8 +9200,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const sg = this._crewScope && this._crewScope.id !== 'friends' && this.grState ? (this.grState().list || []).find(g => String(g.id) === this._crewScope.id) : null;
                 const invite = sg && sg.invite ? `<button type="button" class="cq-invite" data-g="${this.esc(String(sg.id))}" onclick="app.shareCommunity(this.getAttribute('data-g'), event)"><svg class="icon"><use href="#i-share-2"/></svg>Invite</button>` : '';
                 return `
-                    <section class="feed-card crew-quest${q.done ? ' done' : ''}" aria-label="Group goal">
-                        <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-target"/></svg>Group goal · this week</span><span class="cq-right"><span class="cq-left">${this.esc(left)}</span>${invite}</span></div>
+                    <section class="feed-card crew-quest${q.done ? ' done' : ''}" aria-label="${this._crewScope ? 'Community goal' : 'Group goal'}">
+                        <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-target"/></svg>${this._crewScope ? 'Community goal' : 'Group goal'} · this week</span><span class="cq-right"><span class="cq-left">${this.esc(left)}</span>${invite}</span></div>
                         <div class="cq-title">${this.esc(q.title)}</div>
                         ${bar}
                         <div class="cq-meta"><span><b>${q.progress}</b> of ${q.target} ${this.esc(q.unit)}${q.detail ? ` · ${this.esc(q.detail)}` : ''}</span></div>
@@ -9659,14 +9671,14 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const points = byMethod.filter(p => this.sweetWho === 'all' || p.who === this.sweetWho);
                 const chip = (label, active, fn) => `<button type="button" class="chip-btn" aria-pressed="${active}" onclick="${fn}">${this.esc(label)}</button>`;
                 const methodRow = methods.length > 1 ? `<div class="sw-chips">${methods.map(m => chip(m, m === this.sweetMethod, `app.setSweet('method', '${app.escJs(m)}')`)).join('')}</div>` : '';
-                const peopleRow = people.length > 1 ? `<div class="sw-chips">${['all', ...people].map(p => chip(p === 'all' ? 'Everyone' : p, p === this.sweetWho, `app.setSweet('who', '${app.escJs(p)}')`)).join('')}</div>` : '';
+                const peopleRow = people.length > 1 ? `<div class="sw-chips">${['all', ...people].map(p => chip(p === 'all' ? 'All' : p, p === this.sweetWho, `app.setSweet('who', '${app.escJs(p)}')`)).join('')}</div>` : '';
                 if (points.length < 3) {
-                    pane.innerHTML = `<div class="sweet-card"><div class="sw-head"><h3>Sweet spot</h3><p>Where your best shots land: ratio against time, colored by rating.</p></div>${methodRow}${peopleRow}<div class="panel-empty">Log a few rated sessions with dose, yield and time${this.sweetMethod ? ` for ${this.esc(this.sweetMethod)}` : ''} to see your sweet spot.</div></div>`;
+                    pane.innerHTML = `<div class="sweet-card"><div class="sw-head"><h3>Sweet spot</h3><p>Where your best ${this.esc(this.shotWord(this.sweetMethod))}s land: ratio against time, colored by rating.</p></div>${methodRow}${peopleRow}<div class="panel-empty">Log a few rated sessions with dose, yield and time${this.sweetMethod ? ` for ${this.esc(this.sweetMethod)}` : ''} to see your sweet spot.</div></div>`;
                     return;
                 }
                 const zone = this.sweetZone(points);
                 const summary = zone
-                    ? `Best shots${this.sweetWho === 'all' ? '' : ` for ${this.esc(this.sweetWho)}`} cluster at <b>1:${this.fmtNum(zone.r0, 1)}${zone.r1 - zone.r0 >= 0.05 ? `–${this.fmtNum(zone.r1, 1)}` : ''}</b> in <b>${zone.t1 - zone.t0 < 1 ? this.esc(this.fmtSeconds(zone.t0)) : (zone.t1 < 90 ? `${Math.round(zone.t0)}–${Math.round(zone.t1)} s` : `${this.esc(this.fmtSeconds(zone.t0))}–${this.esc(this.fmtSeconds(zone.t1))}`)}</b> (${zone.n} shots at ${this.fmtNum(zone.cut)}★+).`
+                    ? `Best ${this.esc(this.shotWord(this.sweetMethod))}s${this.sweetWho === 'all' ? '' : ` for ${this.esc(this.sweetWho)}`} cluster at <b>1:${this.fmtNum(zone.r0, 1)}${zone.r1 - zone.r0 >= 0.05 ? `–${this.fmtNum(zone.r1, 1)}` : ''}</b> in <b>${zone.t1 - zone.t0 < 1 ? this.esc(this.fmtSeconds(zone.t0)) : (zone.t1 < 90 ? `${Math.round(zone.t0)}–${Math.round(zone.t1)} s` : `${this.esc(this.fmtSeconds(zone.t0))}–${this.esc(this.fmtSeconds(zone.t1))}`)}</b> (${zone.n} ${this.esc(this.shotWord(this.sweetMethod))}s at ${this.fmtNum(zone.cut)}★+).`
                     : 'Rate a few more sessions to find the cluster.';
                 pane.innerHTML = `
                     <div class="sweet-card">
@@ -10227,11 +10239,12 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 // canvases read colors when drawn, so redraw what's on screen
                 try { this.render(); } catch (err) { console.warn('theme redraw', err); }
                 if (this.activeGroup && this.detailBrews) {
-                    try { this.openDetail(this.activeGroup, this.detailBrews); } catch (err) { console.warn('theme detail redraw', err); }
+                    try { this.openDetail(this.activeGroup, this.detailAllBrews || this.detailBrews); } catch (err) { console.warn('theme detail redraw', err); }
                 }
             },
 
             setTab(tab) {
+                if (tab === 'shared') { tab = 'my'; this.coffeeScope = 'all'; }   // v15.1: the old Shared tab is Coffees, All
                 if (tab === 'profile' && this.tab !== 'profile') this.profileUser = this.user;
                 const freshRecap = tab === 'profile' && this.tab !== 'profile' && !this._noRecapJump ? this.freshRecap() : null;
                 if (freshRecap) { this.profileSection = 'activity'; this.recapPeriod = freshRecap; setTimeout(() => { const el = document.getElementById('recap-card'); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); }
@@ -10239,9 +10252,12 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (this.setBarsTucked) this.setBarsTucked(false);   // v14.7: a new tab starts with both bars
                 document.querySelectorAll('.nav-btn, .mob-item').forEach(el => el.classList.remove('active'));
                 document.querySelectorAll(`[data-tab="${tab}"]`).forEach(el => el.classList.add('active'));
-                const titles = { my: 'My Collection', shared: 'Shared Library', feed: this.acctOn() ? 'Feed' : 'Community Feed', profile: 'Profiles' };
-                document.getElementById('view-title').innerText = titles[tab] || 'My Collection';
+                // v15.1: the page title is the tab's name (Coffees holds yours and everyone's; Roasters is its own tab)
+                const titles = { my: 'Coffees', roasters: 'Roasters', feed: 'Feed', profile: 'Profile' };
+                document.getElementById('view-title').innerText = titles[tab] || 'Coffees';
                 document.body.classList.toggle('feed-mode', tab === 'feed' || tab === 'profile');
+                document.body.classList.toggle('roasters-mode', tab === 'roasters');
+                ['search-input', 'search-input-mobile'].forEach(id => { const el = document.getElementById(id); if (el) el.placeholder = tab === 'roasters' ? 'Search roasters…' : 'Search coffees…'; });
                 this.closeMobileControls();
                 this.updateAchievementCount();
                 this.render();
@@ -10404,7 +10420,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         const libraryAdd = users.size > 0 && !users.has(actor);
                         users.add(actor);
                         beanKeyUsers.set(key, users);
-                        const beanName = `${event.roaster || ''} ${event.name || ''}`.trim() || 'Unnamed Bean';
+                        const beanName = `${event.roaster || ''} ${event.name || ''}`.trim() || 'Unnamed coffee';
                         const prevBean = beanStates.get(beanId);
 
                         if (!seenBeanIds.has(beanId)) {
@@ -10412,7 +10428,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                             items.push({
                                 id: `feed-bean-${beanId}-${this.toTime(ts)}`,
                                 kind: libraryAdd ? 'library' : 'bean',
-                                kindLabel: libraryAdd ? 'Library' : 'New Bean',
+                                kindLabel: libraryAdd ? 'Added' : 'New coffee',
                                 actor,
                                 actorColor,
                                 date: ts,
@@ -10847,7 +10863,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                             <div class="cmt-compose">
                                 <div class="reply-chip"${reply ? '' : ' hidden'}>Replying to <b>${reply ? this.esc(reply.user) : ''}</b><button type="button" onclick="app.cancelReply(event)" aria-label="Cancel reply">×</button></div>
                                 <div class="cmt-input-row">
-                                    <input type="text" class="comment-input" id="${this.esc(opts.inputId)}" placeholder="${kind === 'bean' ? 'Comment on this bean…' : 'Add a comment…'}" onkeydown="${keyHandler}" maxlength="280">
+                                    <input type="text" class="comment-input" id="${this.esc(opts.inputId)}" placeholder="${kind === 'bean' ? 'Comment on this coffee…' : 'Add a comment…'}" onkeydown="${keyHandler}" maxlength="280">
                                     ${this.cmtShareHtml ? this.cmtShareHtml(kind, target, key) : ''}
                                     <button type="button" class="comment-submit" onclick="${submit}">Post</button>
                                 </div>
@@ -11043,7 +11059,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (!bean) return '';
                 const owner = String(bean.user || bean.owner || 'Unknown');
                 const color = this.getUserColor(owner, entry.actorColor || '');
-                const beanName = `${bean.roaster || ''} ${bean.name || ''}`.trim() || 'Unnamed Bean';
+                const beanName = `${bean.roaster || ''} ${bean.name || ''}`.trim() || 'Unnamed coffee';
                 const likes = this.normalizeLikeList(bean.likes, owner);
                 const comments = this.normalizeCommentList(bean.comments, `bean-${bean.id}`, bean.date);
                 const topTags = [bean.variety, bean.origin, bean.process].filter(Boolean).slice(0, 3);
@@ -11217,19 +11233,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 });
             },
 
-            // ---- the library switch
-            setLibraryMode(mode) {
-                this.libraryMode = mode === 'roasters' ? 'roasters' : 'coffees';
-                this.render();
-                window.scrollTo(0, 0);
-            },
-
             setRoasterSort(k) { this.roasterSort = k; this.render(); },
-
-            libSwitchHtml() {
-                const m = this.libraryMode === 'roasters' ? 'roasters' : 'coffees';
-                return `<div class="seg-control lib-switch" role="tablist" aria-label="Library">${[['coffees', 'Coffees'], ['roasters', 'Roasters']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === m}" aria-pressed="${k === m}" onclick="app.setLibraryMode('${app.escJs(k)}')">${l}</button>`).join('')}</div>`;
-            },
 
             roasterFilterHtml() {
                 const r = this.roasterFilter ? this.roasterFind(this.roasterFilter) : null;
@@ -11267,7 +11271,6 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const s = !q && D.suggestions[0];
                 const merge = s ? `<div class="profile-card ro-merge"><p><b>${this.esc(s.b.name)}</b> (${this.esc(this.roasterPeopleLabel(s.b))}, ${s.b.sessions} session${s.b.sessions === 1 ? '' : 's'}) and <b>${this.esc(s.a.name)}</b> (${this.esc(this.roasterPeopleLabel(s.a))}, ${s.a.sessions} session${s.a.sessions === 1 ? '' : 's'}) look like the same roaster. Merge them so their stats add up?</p><div class="ro-merge-actions"><button type="button" class="btn-primary" onclick="app.mergeRoasters('${app.escJs(s.a.key)}', '${app.escJs(s.b.key)}')">Merge</button><button type="button" class="btn-outline" onclick="app.notSameRoasters('${app.escJs(s.a.key)}', '${app.escJs(s.b.key)}')">Not the same</button></div></div>` : '';
                 grid.innerHTML = [
-                    this.libSwitchHtml(),
                     `<div class="ro-sorts" role="group" aria-label="Sort roasters">${sorts.map(([k, l]) => `<button type="button" class="chip-btn" aria-pressed="${k === cur}" onclick="app.setRoasterSort('${app.escJs(k)}')">${l}</button>`).join('')}</div>`,
                     merge,
                     list.length ? list.map(r => this.roasterCardHtml(r)).join('') : `<div class="ro-empty">${q ? 'No roasters match your search.' : 'No roasters yet. Add a coffee and its roaster shows up here.'}</div>`
@@ -11319,7 +11322,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
             snapPage() {
                 if (this.roasterViewActive()) return { kind: 'roaster', key: this.roasterOpen, scroll: document.getElementById('roaster-view').scrollTop };
-                if (this.isDetailActive()) return { kind: 'bean', group: { meta: this.activeGroup.meta, ids: [...this.activeGroup.ids], users: new Set(this.activeGroup.users) }, scroll: document.getElementById('detail-view').scrollTop };
+                if (this.isDetailActive()) return { kind: 'bean', lens: this._lens || '', group: { meta: this.activeGroup.meta, ids: [...this.activeGroup.ids], users: new Set(this.activeGroup.users) }, scroll: document.getElementById('detail-view').scrollTop };
                 return null;
             },
 
@@ -11379,6 +11382,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         this.hideRoasterView();
                         const brews = Array.from(this.brews.values()).filter(b => ids.includes(b.beanId));
                         this._navKeep = true;
+                        this._lensKeep = prev.lens || '';   // v15.1: back to the same take on it
                         this.openDetail({ ...prev.group, ids }, brews);
                         this._navKeep = false;
                         document.getElementById('detail-view').scrollTop = prev.scroll || 0;
@@ -11390,7 +11394,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
             backLabel() {
                 const prev = (this.navStack || [])[this.navStack ? this.navStack.length - 1 : 0];
-                if (!prev) return this.tab === 'feed' ? 'Feed' : (this.tab === 'profile' ? 'Profiles' : 'Library');   // v13.4: where Back actually goes
+                if (!prev) return ({ feed: 'Feed', profile: 'Profile', roasters: 'Roasters' })[this.tab] || 'Coffees';   // v13.4: where Back actually goes
                 if (prev.kind === 'roaster') { const r = this.roasterFind(prev.key); return r ? r.name : 'Back'; }
                 return (prev.group && prev.group.meta && prev.group.meta.name) || 'Back';
             },
@@ -11441,13 +11445,13 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const PROC_C = { Washed: '#4F86A6', Natural: '#B4566E', Honey: '#D4A238', Fermented: '#7A5D8F', Anaerobic: '#563F6E', Mixed: '#8E958F' };
                 const rgb = this.roasterPaint(r).rgb;
                 const best = r.best, bc = r.bestCoffee;
-                const bestCard = best && bc ? `<button type="button" class="profile-card ro-sec" data-bean="${esc(best.beanId)}" onclick="app.openCoffeeFromRoaster(this.getAttribute('data-bean'))"><div class="label">Best shot</div><div class="ro-best"><div class="ro-best-main"><div class="ro-best-name">${esc(bc.name)}</div><div class="ro-best-line"><span>${esc(this.getBrewOwner(best))} · ${esc(this.shortDate(best.date))}</span><span class="star-meter" style="--fill:${this.starFill(best.rating)}%;--whole:${this.starWhole(best.rating)};--frac:${this.starFrac(best.rating)}"></span><span>${esc(this.formatRating(best.rating))}</span></div>${this.recipeLine(best, false) ? `<div class="ro-best-recipe">${esc(best.method || '')}${best.method ? ' · ' : ''}${esc(this.recipeLine(best, false))}</div>` : ''}</div><svg class="icon ro-go"><use href="#i-chevron-down"/></svg></div></button>` : '';
+                const bestCard = best && bc ? `<button type="button" class="profile-card ro-sec" data-bean="${esc(best.beanId)}" onclick="app.openCoffeeFromRoaster(this.getAttribute('data-bean'))"><div class="label">Best ${esc(this.shotWord(best.method))}</div><div class="ro-best"><div class="ro-best-main"><div class="ro-best-name">${esc(bc.name)}</div><div class="ro-best-line"><span>${esc(this.getBrewOwner(best))} · ${esc(this.shortDate(best.date))}</span><span class="star-meter" style="--fill:${this.starFill(best.rating)}%;--whole:${this.starWhole(best.rating)};--frac:${this.starFrac(best.rating)}"></span><span>${esc(this.formatRating(best.rating))}</span></div>${this.recipeLine(best, false) ? `<div class="ro-best-recipe">${esc(best.method || '')}${best.method ? ' · ' : ''}${esc(this.recipeLine(best, false))}</div>` : ''}</div><svg class="icon ro-go"><use href="#i-chevron-down"/></svg></div></button>` : '';
                 const coffees = `<section class="profile-card ro-sec"><div class="label">Their coffees</div>${r.coffees.map(c => `<button type="button" class="ro-cof" data-bean="${esc(c.beanId)}" onclick="app.openCoffeeFromRoaster(this.getAttribute('data-bean'))"><span class="ro-cof-main"><span class="ro-cof-name">${esc(c.name)}</span><span class="ro-cof-sub">${c.sessions} session${c.sessions === 1 ? '' : 's'}</span></span>${c.rated ? `<span class="ro-meter"><i style="width:${(c.avg / 5) * 100}%"></i></span><span class="ro-cof-n">${RoasterEngine.f1(c.avg)}★</span>` : ''}<svg class="icon ro-go"><use href="#i-chevron-down"/></svg></button>`).join('')}</section>`;
                 const who = r.people.length ? `<section class="profile-card ro-sec"><div class="label">Who drinks it</div>${r.people.map(p => `<div class="ro-who" data-profile="${esc(p.name)}"><span class="person-dot" data-face="${esc(p.name)}" style="background:${esc(this.getUserColor(p.name))}">${esc(this.feedInitial(p.name))}</span><span class="ro-who-t">${esc(p.name)}<small>${p.sessions} session${p.sessions === 1 ? '' : 's'}${p.rated ? ` · ${RoasterEngine.f1(p.avg)}★ average` : ''}</small></span>${p.top ? `<span class="ro-badge">${esc(p.name)}'s top roaster</span>` : ''}</div>`).join('')}</section>` : '';
                 const e = r.espresso;
                 const range = (a, f) => a ? (Math.abs(a[1] - a[0]) < 1e-9 ? f(a[0]) : `${f(a[0])}–${f(a[1])}`) : '';
                 const ratio = e && e.ratio ? range(e.ratio, x => `1:${x.toFixed(1)}`) : '', secs = e && e.time ? range(e.time, x => `${this.fmtNum(x, 0)}`) + ' s' : '';
-                const esp = e ? `<section class="profile-card ro-sec"><div class="label">Dialing in their espresso</div><div class="ro-esp">The group's 4★+ shots of their coffees ran ${ratio ? `<b>${esc(ratio)}</b>` : ''}${ratio && secs ? ' in ' : ''}${secs ? `<b>${esc(secs)}</b>` : ''}.</div><div class="ro-sub" style="margin:6px 0 0">From ${e.shots} shots. Ratios and times only: grind numbers differ by grinder.</div></section>` : '';
+                const esp = e ? `<section class="profile-card ro-sec"><div class="label">Dialing in their espresso</div><div class="ro-esp">4★+ shots of their coffees ran ${ratio ? `<b>${esc(ratio)}</b>` : ''}${ratio && secs ? ' in ' : ''}${secs ? `<b>${esc(secs)}</b>` : ''}.</div><div class="ro-sub" style="margin:6px 0 0">From ${e.shots} shots. Ratios and times only: grind numbers differ by grinder.</div></section>` : '';
                 page.innerHTML = `
                     <div class="dh-top ro-top"><button type="button" class="dh-pill dh-back" onclick="app.goBackPage()"><svg class="icon"><use href="#i-arrow-left"/></svg><span>${esc(this.backLabel())}</span></button><div class="dh-actions"><button type="button" class="btn-clean ro-fav" aria-pressed="${fav}" aria-label="${fav ? 'Remove from favorites' : 'Favorite this roaster'}" onclick="app.toggleRoasterFav('${app.escJs(r.key)}')"><svg class="icon"><use href="#i-heart"/></svg></button><button type="button" class="btn-clean" aria-label="Share this roaster" data-roaster="${esc(r.name)}" onclick="app.shareItem('roaster', this.getAttribute('data-roaster'), event)"><svg class="icon"><use href="#i-share-2"/></svg></button><button type="button" class="btn-clean" aria-label="Edit roaster details" onclick="app.openRoasterEdit('${app.escJs(r.key)}')"><svg class="icon"><use href="#i-edit-2"/></svg></button></div></div>
                     <section class="profile-card profile-hero ro-hero" style="--pc-rgb:${rgb}">
@@ -11496,8 +11500,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 document.getElementById('detail-view').classList.remove('active');
                 this.roasterOpen = '';
                 this.roasterFilter = key;
-                this.libraryMode = 'coffees';
-                this.setTab('shared');
+                this.coffeeScope = 'all';   // v15.1: that roaster's coffees, everyone's, on the Coffees tab
+                this.setTab('my');
                 window.scrollTo(0, 0);
             },
 
@@ -11834,7 +11838,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         <div class="wl-people">${rows.length ? rows.map(r => `<button type="button" class="wl-person" data-person="${esc(r.name)}" onclick="app.wlPick(this.getAttribute('data-person'))">
                             <i data-face="${esc(r.name)}" style="background:${esc(this.getUserColor(r.name))}">${esc(this.feedInitial(r.name))}</i>
                             <span class="wl-pn"><b>${esc(r.name)}</b><small>${r.c ? `${r.c} session${r.c === 1 ? '' : 's'} · last brewed ${esc(this.formatRelativeDate(new Date(r.last).toISOString()).toLowerCase())}` : 'No sessions yet'}</small></span>
-                            <svg class="icon wl-chev"><use href="#i-chevron-down"/></svg></button>`).join('') : '<div class="wl-empty">Loading the group…</div>'}</div>
+                            <svg class="icon wl-chev"><use href="#i-chevron-down"/></svg></button>`).join('') : '<div class="wl-empty">Loading…</div>'}</div>
                         <button type="button" class="wl-link" onclick="app.wlGo('name')">Not on the list? Set up a new profile</button>
                     </div>`;
                 } else if (s.step === 'name') {
@@ -11882,8 +11886,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     html = `<div class="wl-step">
                         ${this.wlTop(3, 'gear')}
                         <h2 class="wl-h2">What's in your hopper?</h2>
-                        <p class="wl-sub">Pick a coffee the group is brewing, or add the bag you've got.</p>
-                        ${pop.length ? `<div class="wl-label">Popular with the group</div>
+                        <p class="wl-sub">Pick a coffee people are brewing, or add the bag you've got.</p>
+                        ${pop.length ? `<div class="wl-label">Popular right now</div>
                         <div class="wl-beans">${pop.map(c => `<button type="button" class="wl-bean${s.pick === c.id ? ' on' : ''}" data-id="${esc(c.id)}" onclick="app.wlPickBean(this.getAttribute('data-id'))">
                             <b>${esc(c.name)}</b><span>${esc(c.roaster)}</span>
                             <em>${c.avg ? `<span class="star-meter" style="--fill:${this.starFill(c.avg)}%;--whole:${this.starWhole(c.avg)};--frac:${this.starFrac(c.avg)}"></span> ${esc(this.fmtNum(c.avg))}` : ''}<small>${c.n} session${c.n === 1 ? '' : 's'}</small></em>
@@ -12094,12 +12098,12 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const desk = window.matchMedia && window.matchMedia('(min-width: 769px)').matches;
                 const nav = tab => desk ? `#sidebar .nav-btn[data-tab="${tab}"]` : `#mobile-nav .mob-item[data-tab="${tab}"]`;
                 return [
-                    { sel: nav('feed'), tab: 'feed', title: "Your friends' brews", text: 'Every session the group logs shows up here. Like it, comment, and chase the weekly group goal together. Your welcome post is already up.' },
-                    { sel: nav('shared'), tab: 'shared', title: 'The shared library', text: 'Every coffee anyone has brewed, with ratings, flavor shapes and the roasters they came from.' },
-                    { sel: nav('my'), tab: 'my', title: 'Your collection', text: 'Your coffees. Open one to log a session, see your dial-in curve, and get the next-shot coach.' },
+                    { sel: nav('feed'), tab: 'feed', title: 'Feed', text: 'Sessions from the people you follow show up here. Like them, comment, and brew toward your community\'s weekly goal. Your welcome post is already up.' },
+                    { sel: nav('my'), tab: 'my', title: 'Coffees', text: 'Yours under Mine, everyone\'s under All. Open one to log a session, see your dial-in curve, and get the next-shot coach.' },
+                    { sel: nav('roasters'), tab: 'roasters', title: 'Roasters', text: 'Every roaster you and your people have brewed, with their coffees, ratings and how their espresso runs.' },
                     { sel: desk ? '#sidebar .nav-btn:not([data-tab]):not(.settings-nav-btn)' : '#mobile-nav .mob-fab', tab: 'my', title: 'Add a coffee', text: 'New bag? Add it here, then log sessions on it.' },
-                    { sel: nav('profile'), tab: 'profile', title: 'Profiles', text: 'Your stats, favorites, gear and achievements, and everyone else’s.' },
-                    { sel: desk ? '#sidebar .settings-nav-btn' : '#mobile-controls-btn', tab: 'feed', title: 'Settings', text: desk ? 'Light or dark, your color, and who’s in the group.' : 'Filters and Settings live here: light or dark, your color, and who’s in the group.' }
+                    { sel: nav('profile'), tab: 'profile', title: 'Profile', text: 'Your stats, favorites, gear and achievements. Anyone else’s is a tap away.' },
+                    { sel: desk ? '#sidebar .settings-nav-btn' : '#mobile-controls-btn', tab: 'feed', title: 'Settings', text: desk ? 'Light or dark, your profile picture, notifications and privacy.' : 'Filters and Settings live here: light or dark, your profile picture, notifications and privacy.' }
                 ];
             },
 
@@ -12123,7 +12127,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const id = this.wlFirstBean;
                 this.endTour();
                 if (id && this.beans.has(String(id))) { this.openFeedTarget(id, '', false); setTimeout(() => this.openBrewModal(), 250); }
-                else { this.setTab('shared'); this.showToast('Open any coffee and tap Log New Session.'); }
+                else { this.coffeeScope = 'all'; this.setTab('my'); this.showToast('Open any coffee and tap Log a session.'); }
             },
 
             renderTour() {
@@ -12168,7 +12172,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             openFeedTarget(beanId, brewId = '', openComments = false) {
                 const targetBean = this.beans.get(String(beanId || ''));
                 if (!targetBean) {
-                    this.showToast('That bean no longer exists.');
+                    this.showToast('That coffee no longer exists.');
                     return;
                 }
                 const key = this.beanGroupKey(targetBean);
@@ -12181,6 +12185,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 };
                 const brews = Array.from(this.brews.values()).filter(brew => group.ids.includes(brew.beanId));
                 this.openCommentId = (openComments && brewId) ? String(brewId) : null;
+                const tb = brewId ? this.brews.get(String(brewId)) : null;
+                this._lensWant = tb ? this.getBrewOwner(tb) : '';   // v15.1: a view that has that session in it
                 this.openDetail(group, brews);
                 if (brewId) {
                     setTimeout(() => {
@@ -12262,7 +12268,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     return;
                 }
 
-                if (this.tab === 'shared' && this.libraryMode === 'roasters') { this.renderRoasterList(grid, searchQuery); return; }
+                if (this.tab === 'roasters') { this.renderRoasterList(grid, searchQuery); return; }
 
                 let list = this.buildBeanGroups();
                 // v14.4: the library is your circle's; community sessions and coffees (Feed, Community) stay out of it
@@ -12271,7 +12277,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         .map(item => ({ group: item.group, brews: item.brews.filter(b => !this.communityIds.has('brew:' + b.id)) }));
                 }
 
-                if (this.tab === 'my') {
+                if (this.tab === 'my' && this.coffeeScopeNow() === 'mine') {   // v15.1: Coffees, Mine (All is everyone's)
                     list = list.filter(item => item.group.users.has(this.user));
                 }
 
@@ -12284,10 +12290,11 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 }
 
                 if (this.currentMethodFilter !== 'all') {
-                    list = list.filter(item => item.brews.some(brew => brew.method === this.currentMethodFilter));
+                    const want = String(this.currentMethodFilter).toLowerCase();   // v15.1: "AeroPress" and "Aeropress" are the same method
+                    list = list.filter(item => item.brews.some(brew => String(brew.method || '').toLowerCase() === want));
                 }
 
-                if (this.tab === 'shared' && this.roasterFilter) {
+                if (this.roasterFilter) {
                     const fr = this.roasterFind(this.roasterFilter);   // v13.4: follows a merge
                     if (!fr) this.roasterFilter = '';
                     else { this.roasterFilter = fr.key; list = list.filter(item => this.roasterKey(item.group.meta.roaster) === this.roasterFilter); }
@@ -12322,7 +12329,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     const art = isShared ? '#i-leaf-line' : '#i-bean-line';
 
                     card.innerHTML = `
-                        ${isNew ? '<div class="fresh-dot" title="New bean"></div>' : ''}
+                        ${isNew ? '<div class="fresh-dot" title="New coffee"></div>' : ''}
                         ${avgRating > 0 ? `
                             <div class="card-rating">
                                 <span class="star-meter" style="--fill:${this.starFill(avgRating)}%;--whole:${this.starWhole(avgRating)};--frac:${this.starFrac(avgRating)}"></span>
@@ -12358,12 +12365,12 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 });
 
                 if (!list.length) {
-                    const message = (searchQuery || this.currentMethodFilter !== 'all' || (this.tab === 'shared' && this.roasterFilter))
-                        ? 'No beans match your filters.'
-                        : 'No beans yet. Add your first coffee!';
+                    const message = (searchQuery || this.currentMethodFilter !== 'all' || this.roasterFilter)
+                        ? 'No coffees match your filters.'
+                        : 'No coffees yet. Add your first one with the + button.';
                     grid.innerHTML = `<div style="text-align:center; color:#999; padding:3rem;">${message}</div>`;
                 }
-                if (this.tab === 'shared' && grid.insertAdjacentHTML) grid.insertAdjacentHTML('afterbegin', this.libSwitchHtml() + this.roasterFilterHtml());
+                if (this.tab === 'my' && grid.insertAdjacentHTML) grid.insertAdjacentHTML('afterbegin', this.coffeeScopeHtml() + this.roasterFilterHtml());
             },
 
             // ===================== v9 features =====================
@@ -12509,7 +12516,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const active = this.cardTab(brew);
                 const id = this.esc(brew.id);
                 const tab = (key, label) => `<button type="button" class="card-tab${active === key ? ' active' : ''}" data-tab-key="${key}" onclick="app.setCardTab('${app.escJs(id)}','${app.escJs(key)}',event)">${label}</button>`;
-                return `<div class="card-tabs">${tab('session', 'Session')}${tab('flavor', 'Flavor')}${tab('vs', 'Vs. Last Time')}${tab('next', 'Next Shot')}</div>`;
+                return `<div class="card-tabs">${tab('session', 'Session')}${tab('flavor', 'Flavor')}${tab('vs', 'Vs. last time')}${tab('next', `Next ${this.shotWord(brew.method)}`)}</div>`;
             },
 
             setCardTab(brewId, tab, event) {
@@ -12689,7 +12696,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     detail.push('Body read light on the taste sliders.');
                 } else if (signal.kind === 'balanced') {
                     headline = 'Keep this recipe.';
-                    detail.push(this.isMasterBrew(brew) ? 'It\'s already pinned as a Master profile.' : 'It\'s worth pinning as a Master profile.');
+                    detail.push(this.isMasterBrew(brew) ? 'It\'s already pinned as a master recipe.' : 'It\'s worth pinning as a master recipe.');
                 } else if (signal.kind === 'off') {
                     headline = 'Low rating, but no taste clue to act on.';
                     detail.push('Add a quick verdict, taste sliders or a note next time, and a specific change will show here.');
@@ -12711,13 +12718,14 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             renderNextPane(brew) {
                 const active = this.cardTab(brew) === 'next' ? ' active' : '';
                 const owner = this.getBrewOwner(brew);
-                const advice = this.nextShotAdvice(brew);
-                const title = owner === this.user ? 'Your next shot' : `${this.esc(owner)}'s next shot`;
-                if (advice.coach) return `<div class="card-pane pane-block log-wide${active}" data-pane="next">${this.coachHtml(advice.coach, owner === this.user ? 'Your next shot' : `${owner}'s next shot`)}</div>`;
+                const advice = this.methodWorded(this.nextShotAdvice(brew), brew.method);
+                const w = this.shotWord(brew.method);
+                const title = owner === this.user ? `Your next ${w}` : `${this.esc(owner)}'s next ${w}`;
+                if (advice.coach) return `<div class="card-pane pane-block log-wide${active}" data-pane="next">${this.coachHtml(advice.coach, owner === this.user ? `Your next ${w}` : `${owner}'s next ${w}`)}</div>`;
                 let bestLine = '';
                 if (advice.best) {
                     const isThis = String(advice.best.id) === String(brew.id);
-                    const label = isThis ? 'This is the best-rated shot of this bean so far' : `Best so far · ${this.esc(this.shortDate(advice.best.date))}`;
+                    const label = isThis ? `This is the best-rated ${w} of this coffee so far` : `Best so far · ${this.esc(this.shortDate(advice.best.date))}`;
                     bestLine = `<div class="next-best">${label}: ${this.esc(this.recipeLine(advice.best, true))} · ${this.esc(this.fmtNum(this.normalizeRating(advice.best.rating)))}★</div>`;
                 }
                 return `<div class="card-pane pane-block log-wide${active}" data-pane="next"><div class="next-card"><div class="next-title">${title}${advice.conf ? ` · ${this.esc(advice.conf)}` : ''}</div><div class="next-headline">${this.esc(advice.headline)}</div>${advice.detail.map(d => `<div class="next-detail">${this.esc(d)}</div>`).join('')}${(advice.evidence || []).length ? `<div class="ev">${advice.evidence.map(e => `<span class="evc ${e.side}">${this.esc(e.text)}</span>`).join('')}</div>` : ''}${bestLine}</div></div>`;
@@ -12870,7 +12878,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     || beans[0];
                 if (!holder) return;
                 if (String(holder.user || holder.owner || '') === this.user) {
-                    this.showToast('This bean is already in your collection.');
+                    this.showToast('You\'ve already added this coffee.');
                     return;
                 }
                 const list = Array.isArray(holder.wantToTry) ? holder.wantToTry : [];
@@ -12907,7 +12915,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const rated = latestFirst.filter(b => this.normalizeRating(b.rating) > 0);
                 const best = rated.slice().sort((a, b) => this.normalizeRating(b.rating) - this.normalizeRating(a.rating))[0];
                 const pick = master ? this.getMasterProfile(master) : (best || latestFirst[0]);
-                const pickLabel = master ? 'Master recipe' : (best ? 'Best-rated shot' : 'Latest shot');
+                const pickLabel = master ? 'Master recipe' : `${best ? 'Best-rated' : 'Latest'} ${this.shotWord(pick && pick.method)}`;
                 const methods = [...new Set(list.map(b => b.method).filter(Boolean))];
                 const avg = key => list.reduce((s, b) => s + (b[key] === undefined || b[key] === '' ? 5 : this.num(b[key])), 0) / list.length;
                 const bars = [['Acidity', 'acidity'], ['Sweetness', 'sweetness'], ['Body', 'body'], ['Finish', 'finish'], ['Complexity', 'balance']].map(([label, key]) => {
@@ -12934,7 +12942,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     let how = 'pinned as Master';
                     if (dialedAt < 0) {
                         dialedAt = shots.findIndex(b => this.normalizeRating(b.rating) >= 4.5);
-                        how = 'first 4.5★ shot';
+                        how = 'first 4.5★ session';
                     }
                     return { owner, method, shots, ratings, dialedAt, how };
                 }).sort((a, b) => a.owner.localeCompare(b.owner) || a.method.localeCompare(b.method));
@@ -12944,7 +12952,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const pane = document.getElementById('d-dialin-pane');
                 if (!pane) return;
                 const all = this.dialinSeries();
-                const head = '<div class="sw-head"><h3>Dial-in</h3><p>Each person\'s ratings, shot by shot. The star marks where they dialed it in.</p></div>';
+                const head = '<div class="sw-head"><h3>Dial-in</h3><p>Each person\'s ratings, session by session. The star marks where they dialed it in.</p></div>';
                 if (!all.length) { pane.innerHTML = `<div class="sweet-card">${head}<div class="panel-empty">No sessions on this coffee yet.</div></div>`; return; }
                 const shotsOf = m => all.filter(s => s.method === m).reduce((n, s) => n + s.shots.length, 0);
                 const methods = [...new Set(all.map(s => s.method).filter(Boolean))].sort((a, b) => shotsOf(b) - shotsOf(a));
@@ -12958,9 +12966,9 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     const rated = s.ratings.filter(Boolean);
                     const n = s.shots.length;
                     const status = s.dialedAt >= 0
-                        ? `Dialed in on shot ${s.dialedAt + 1} · ${s.how === 'pinned as Master' ? 'Master' : 'first 4.5★'}`
+                        ? `Dialed in on session ${s.dialedAt + 1} · ${s.how === 'pinned as Master' ? 'Master' : 'first 4.5★'}`
                         : (rated.length ? `Best so far ${this.fmtNum(Math.max(...rated))}★` : 'No ratings yet');
-                    return `<div class="di-row"><i style="background:${this.esc(s.color)}"></i><b>${this.esc(s.owner)}</b><span>${this.esc(status)}</span><em>${n} shot${n === 1 ? '' : 's'}</em></div>`;
+                    return `<div class="di-row"><i style="background:${this.esc(s.color)}"></i><b>${this.esc(s.owner)}</b><span>${this.esc(status)}</span><em>${n} session${n === 1 ? '' : 's'}</em></div>`;
                 }).join('');
                 if (!anyRated) { pane.innerHTML = `<div class="sweet-card">${head}${methodRow}<div class="panel-empty">Rate shots on this coffee and each person's curve draws here.</div><div class="di-rows">${rows}</div></div>`; return; }
                 const W = 340, H = 200, L = 30, R = 14, T = 14, B = 28;
@@ -12977,14 +12985,14 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     if (!pts.length) return '';
                     let d = `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
                     for (let i = 1; i < pts.length; i++) { const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], mx = (x0 + x1) / 2; d += ` C${mx.toFixed(1)} ${y0.toFixed(1)} ${mx.toFixed(1)} ${y1.toFixed(1)} ${x1.toFixed(1)} ${y1.toFixed(1)}`; }
-                    const dots = s.ratings.map((r, i) => r && i !== s.dialedAt ? `<circle class="di-dot" cx="${X(i).toFixed(1)}" cy="${Y(r).toFixed(1)}" r="3.6" fill="${this.esc(s.color)}"><title>${this.esc(s.owner)} · shot ${i + 1} · ${this.fmtNum(r)}★</title></circle>` : '').join('');
+                    const dots = s.ratings.map((r, i) => r && i !== s.dialedAt ? `<circle class="di-dot" cx="${X(i).toFixed(1)}" cy="${Y(r).toFixed(1)}" r="3.6" fill="${this.esc(s.color)}"><title>${this.esc(s.owner)} · session ${i + 1} · ${this.fmtNum(r)}★</title></circle>` : '').join('');
                     const mark = s.dialedAt >= 0 && s.ratings[s.dialedAt] ? star(X(s.dialedAt), Y(s.ratings[s.dialedAt]), 8.5, s.color) : '';
                     return `<path class="di-line" d="${d}" stroke="${this.esc(s.color)}"/>${dots}${mark}`;
                 }).join('');
                 pane.innerHTML = `
                     <div class="sweet-card">
                         ${head}${methodRow}
-                        <div class="sw-chart"><svg class="sweet-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Dial-in curves">${grid}<text class="sw-axis" x="${(L + W - R) / 2}" y="${H - 3}" text-anchor="middle">Shot number</text>${lines}</svg></div>
+                        <div class="sw-chart"><svg class="sweet-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Dial-in curves">${grid}<text class="sw-axis" x="${(L + W - R) / 2}" y="${H - 3}" text-anchor="middle">Session number</text>${lines}</svg></div>
                         <div class="di-rows">${rows}</div>
                     </div>`;
             },
@@ -13124,7 +13132,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const dots = r.weeks.map((on, i) => `<span class="week-dot${on ? ' on' : ''}" title="${i === 7 ? 'This week' : `${7 - i} week${7 - i === 1 ? '' : 's'} ago`}"></span>`).join('');
                 const streak = this.streakChipHtml(r.streak);
                 const last = r.lastT ? `Last brewed ${this.formatRelativeDate(r.lastT)}` : 'No sessions yet';
-                return `<section class="profile-card profile-hero" style="--pc-rgb:${this.hexRgb(color)}"><div class="hero-row"><div class="hero-avatar" data-face="${this.esc(user)}" style="background:${this.esc(color)};">${this.esc(this.feedInitial(user))}</div><div class="hero-id"><div class="hero-name">${this.esc(user)}${user === this.user ? '<span class="you-tag">You</span>' : this.profileRelTagHtml(user)}</div><div class="hero-sub">${this.esc(last)}</div></div>${this.acctOn() ? `<button type="button" class="btn-clean hero-share" data-name="${this.esc(user)}" onclick="app.shareItem('profile', this.getAttribute('data-name'), event)" aria-label="Share ${this.esc(user)}'s profile"><svg class="icon"><use href="#i-share-2"/></svg></button>` : ''}</div>${this.acctOn() ? this.profileFollowHtml(user) : ''}<div class="rhythm"><div class="week-dots">${dots}</div><div class="rhythm-text">Brewed in ${r.active} of the last 8 weeks</div>${streak}</div><div class="stat-row"><div class="stat-box"><div class="stat-num">${brews.length}</div><div class="stat-cap">${brews.length === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${beans}</div><div class="stat-cap">${beans === 1 ? 'Bean' : 'Beans'}</div></div><div class="stat-box"><div class="stat-num">${methods}</div><div class="stat-cap">${methods === 1 ? 'Method' : 'Methods'}</div></div></div></section>`;
+                return `<section class="profile-card profile-hero" style="--pc-rgb:${this.hexRgb(color)}"><div class="hero-row"><div class="hero-avatar" data-face="${this.esc(user)}" style="background:${this.esc(color)};">${this.esc(this.feedInitial(user))}</div><div class="hero-id"><div class="hero-name">${this.esc(user)}${user === this.user ? '<span class="you-tag">You</span>' : this.profileRelTagHtml(user)}</div><div class="hero-sub">${this.esc(last)}</div></div>${this.acctOn() ? `<button type="button" class="btn-clean hero-share" data-name="${this.esc(user)}" onclick="app.shareItem('profile', this.getAttribute('data-name'), event)" aria-label="Share ${this.esc(user)}'s profile"><svg class="icon"><use href="#i-share-2"/></svg></button>` : ''}</div>${this.acctOn() ? this.profileFollowHtml(user) : ''}<div class="rhythm"><div class="week-dots">${dots}</div><div class="rhythm-text">Brewed in ${r.active} of the last 8 weeks</div>${streak}</div><div class="stat-row"><div class="stat-box"><div class="stat-num">${brews.length}</div><div class="stat-cap">${brews.length === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${beans}</div><div class="stat-cap">${beans === 1 ? 'Coffee' : 'Coffees'}</div></div><div class="stat-box"><div class="stat-num">${methods}</div><div class="stat-cap">${methods === 1 ? 'Method' : 'Methods'}</div></div></div></section>`;
             },
 
             palateFor(user) {
@@ -13249,12 +13257,12 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
             renderMatchesCard(user) {
                 const own = user === this.user;
-                const title = own ? 'Likely matches for you' : `Likely matches for you from ${this.esc(user)}'s beans`;
+                const title = own ? 'Likely matches for you' : `Likely matches for you from ${this.esc(user)}'s coffees`;
                 if (!this.user) return '';
                 const matches = this.likelyMatches(this.user, own ? null : user);
                 let body;
                 if (matches === null) body = '<div class="panel-empty">Log at least 3 sessions and your matches will show here.</div>';
-                else if (!matches.length) body = `<div class="panel-empty">${own ? 'No untried beans in the library match your palate yet.' : `Nothing of ${this.esc(user)}'s that you haven't tried matches your palate yet.`}</div>`;
+                else if (!matches.length) body = `<div class="panel-empty">${own ? 'Nothing you haven\'t tried matches your palate yet.' : `Nothing of ${this.esc(user)}'s that you haven't tried matches your palate yet.`}</div>`;
                 else {
                     body = `<div class="match-list">${matches.map(m => {
                         const label = m.score >= 0.55 ? 'Strong match' : (m.score >= 0.35 ? 'Good match' : 'Worth a try');
@@ -13277,7 +13285,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const own = user === this.user;
                 const body = items.length
                     ? `<div class="match-list">${items.map(({ bean, tried }) => `<button type="button" class="match-item" data-bean="${this.esc(bean.id)}" onclick="app.openFeedTarget(this.getAttribute('data-bean'),'',false)"><div><div class="match-name">${this.esc(this.beanLabel(bean))}</div><div class="match-why">From ${this.esc(bean.user || 'Unknown')}'s collection${bean.origin ? ` · ${this.esc(bean.origin)}` : ''}</div></div>${tried ? '<span class="tried-tag">Tried</span>' : ''}</button>`).join('')}</div>`
-                    : `<div class="panel-empty">${own ? 'Nothing saved yet. Open a friend\'s bean and tap Want to Try.' : `${this.esc(user)} hasn't saved any beans yet.`}</div>`;
+                    : `<div class="panel-empty">${own ? 'Nothing saved yet. Open a friend\'s coffee and tap Want to Try.' : `${this.esc(user)} hasn't saved any coffees yet.`}</div>`;
                 return `<section class="profile-card"><h4 class="section-label">${own ? 'Your want-to-try list' : `${this.esc(user)}'s want-to-try list`}</h4>${body}</section>`;
             },
 
@@ -13334,9 +13342,9 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     }
                 });
                 const key = keyItems.length
-                    ? `<div class="cal-key">${keyItems.map(k => `<span class="cal-key-item"><span class="cal-swatch" style="background:${k.color};"></span>${this.esc(k.label)}</span>`).join('')}</div><div class="cal-rating-key"><span>Color = bean of the day's best shot.</span><span class="cal-swatch" style="opacity:1;"></span><span>5★</span><span class="cal-swatch" style="opacity:0.61;"></span><span>2★</span><span class="cal-swatch" style="opacity:0.28;"></span><span>unrated</span></div>`
+                    ? `<div class="cal-key">${keyItems.map(k => `<span class="cal-key-item"><span class="cal-swatch" style="background:${k.color};"></span>${this.esc(k.label)}</span>`).join('')}</div><div class="cal-rating-key"><span>Color = the coffee of the day's top-rated session.</span><span class="cal-swatch" style="opacity:1;"></span><span>5★</span><span class="cal-swatch" style="opacity:0.61;"></span><span>2★</span><span class="cal-swatch" style="opacity:0.28;"></span><span>unrated</span></div>`
                     : '';
-                return `<section class="profile-card"><h4 class="section-label">Coffee calendar</h4><div class="cal-head"><div class="cal-sub">${days.size} brewing day${days.size === 1 ? '' : 's'} in ${year}</div><div class="cal-nav"><button type="button" class="cal-btn" onclick="app.shiftCalendarYear(-1)" aria-label="Previous year">‹</button><span>${year}</span><button type="button" class="cal-btn" onclick="app.shiftCalendarYear(1)" aria-label="Next year"${year >= thisYear ? ' disabled' : ''}>›</button></div></div><div class="cal-grid">${cells}</div>${key}<div class="cal-day" id="cal-day">${days.size ? 'Tap a day to see the bean and rating.' : ''}</div></section>`;
+                return `<section class="profile-card"><h4 class="section-label">Coffee calendar</h4><div class="cal-head"><div class="cal-sub">${days.size} brewing day${days.size === 1 ? '' : 's'} in ${year}</div><div class="cal-nav"><button type="button" class="cal-btn" onclick="app.shiftCalendarYear(-1)" aria-label="Previous year">‹</button><span>${year}</span><button type="button" class="cal-btn" onclick="app.shiftCalendarYear(1)" aria-label="Next year"${year >= thisYear ? ' disabled' : ''}>›</button></div></div><div class="cal-grid">${cells}</div>${key}<div class="cal-day" id="cal-day">${days.size ? 'Tap a day to see the coffee and rating.' : ''}</div></section>`;
             },
 
             showCalendarDay(el) {
@@ -13445,18 +13453,17 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         ${best}
                     </div>`;
                 // v15.1: the second card is the circle picked above the awards (a community, your friends); none for Everyone
-                const circle = user === this.user && this.acctOn() && this.activeCircle ? this.activeCircle() : null;
-                if (circle && circle.id === 'everyone') return you;
-                const c = circle ? this.withCrewScope(circle.scope, () => this.monthCrewStats(period)) : this.monthCrewStats(period);
-                const crewName = circle ? circle.name : 'The crew';
-                if (c.people.length < 2) return you;
+                // or on someone else's recap (it would be your circle's numbers)
+                const rc = this.recapCircle(user, period);
+                if (!rc) return you;
+                const c = rc.c, crewName = rc.name, circle = rc.circle;
                 const names = c.people.map(p => p[0]);
                 const crewG = `linear-gradient(150deg, ${names.map((n, i) => `${this.hexMix(this.getUserColor(n), '#000000', 0.12)} ${Math.round(i / Math.max(1, names.length - 1) * 100)}%`).join(', ')})`;
                 const max = c.people[0][1];
                 const board = c.people.map(([n, k]) => `<div><span class="mrc-name">${face(n)}<span class="mrc-nm">${esc(n)}</span></span><i><b style="width:${(k / max * 100).toFixed(1)}%"></b></i><span class="mrc-n">${k}</span></div>`).join('');
-                const cstats = [[amount(c.grams), 'coffee'], [String(c.fives), `5★ shot${c.fives === 1 ? '' : 's'}`], [String(c.likes), `like${c.likes === 1 ? '' : 's'}`], circle && circle.id === 'friends' ? [String(c.count), `session${c.count === 1 ? '' : 's'}`] : [String(c.goals), `goal${c.goals === 1 ? '' : 's'} reached`]];   // v15.1: friends have no group goal
+                const cstats = [[amount(c.grams), 'coffee'], [String(c.fives), `5★ session${c.fives === 1 ? '' : 's'}`], [String(c.likes), `like${c.likes === 1 ? '' : 's'}`], circle && circle.id === 'friends' ? [String(c.count), `session${c.count === 1 ? '' : 's'}`] : [String(c.goals), `goal${c.goals === 1 ? '' : 's'} reached`]];   // v15.1: friends have no group goal
                 const clines = [];
-                if (c.coffee && c.coffee.bean) clines.push(['Crew coffee', `${String(c.coffee.bean.name || '').trim() || this.beanLabel(c.coffee.bean)} · ${c.coffee.n}×`]);
+                if (c.coffee && c.coffee.bean) clines.push(['Coffee in common', `${String(c.coffee.bean.name || '').trim() || this.beanLabel(c.coffee.bean)} · ${c.coffee.n}×`]);
                 if (c.busiest && c.busiest[1] > 1) clines.push(['Busiest day', `${new Date(this.parseLocalDate(c.busiest[0])).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · ${c.busiest[1]} sessions`]);
                 if (c.champ.length) clines.push(['Champion', c.champ.join(' & ')]);
                 else if (c.sealed) clines.push(['Awards', 'ready to reveal']);
@@ -13490,8 +13497,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             async shareMonthRecap(s) {
                 const user = s.user, period = s.period;
                 const month = this.monthName(period.slice(2));
-                const c = typeof this.monthCrewStats === 'function' ? this.monthCrewStats(period) : null;
-                const crew = c && c.people.length > 1 ? c : null;
+                const rc = this.recapCircle(user, period);   // v15.1: the circle picked above the awards (none for Everyone)
+                const crew = rc ? rc.c : null;
                 const W = 1080, PAD = 60, CW = W - PAD * 2, IN = 50;
                 const font = (w, z) => `${w} ${z}px -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif`;
                 const amount = g => g >= 1000 ? `${this.fmtNum(g / 1000, 2)} kg` : `${Math.round(g)} g`;
@@ -13499,11 +13506,11 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const youLines = [];
                 if (s.topBean) youLines.push(['Top coffee', `${s.topBean.name || s.topBean.label} · ${s.topBean.count}×`]);
                 if (s.topMethod) youLines.push(['Method', `${s.topMethod.label} · ${s.topMethod.count}×`]);
-                if (s.best) { const bn = this.beans.get(String(s.best.beanId)); youLines.push(['Best shot', `${bn ? (String(bn.name || '').trim() || this.beanLabel(bn)) : 'Coffee'} · ${this.fmtNum(this.normalizeRating(s.best.rating))}★`]); }
+                if (s.best) { const bn = this.beans.get(String(s.best.beanId)); youLines.push(['Top rated', `${bn ? (String(bn.name || '').trim() || this.beanLabel(bn)) : 'Coffee'} · ${this.fmtNum(this.normalizeRating(s.best.rating))}★`]); }
                 if (s.buddy) youLines.push(['Brew buddy', s.buddy.name]);
-                const crewStats = crew ? [[amount(crew.grams), 'coffee'], [String(crew.fives), `5★ shot${crew.fives === 1 ? '' : 's'}`], [String(crew.likes), `like${crew.likes === 1 ? '' : 's'}`], [String(crew.goals), `goal${crew.goals === 1 ? '' : 's'} reached`]] : [];
+                const crewStats = crew ? [[amount(crew.grams), 'coffee'], [String(crew.fives), `5★ session${crew.fives === 1 ? '' : 's'}`], [String(crew.likes), `like${crew.likes === 1 ? '' : 's'}`], rc.friends ? [String(crew.count), `session${crew.count === 1 ? '' : 's'}`] : [String(crew.goals), `goal${crew.goals === 1 ? '' : 's'} reached`]] : [];
                 const crewLines = [];
-                if (crew && crew.coffee && crew.coffee.bean) crewLines.push(['Crew coffee', `${String(crew.coffee.bean.name || '').trim() || this.beanLabel(crew.coffee.bean)} · ${crew.coffee.n}×`]);
+                if (crew && crew.coffee && crew.coffee.bean) crewLines.push(['Coffee in common', `${String(crew.coffee.bean.name || '').trim() || this.beanLabel(crew.coffee.bean)} · ${crew.coffee.n}×`]);
                 if (crew && crew.busiest && crew.busiest[1] > 1) crewLines.push(['Busiest day', `${new Date(this.parseLocalDate(crew.busiest[0])).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · ${crew.busiest[1]} sessions`]);
                 if (crew && crew.champ.length) crewLines.push(['Champion', crew.champ.join(' & ')]);
                 const statsH = 2 * 132 + 22;
@@ -13531,7 +13538,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 head(y + 110, s.count, `session${s.count === 1 ? '' : 's'}`, `on ${s.days} day${s.days === 1 ? '' : 's'}`);
                 stats(y + 330, youStats);
                 lines(y + 330 + statsH + 70, youLines);
-                // the crew's card
+                // the circle's card
                 if (crew) {
                     y += youH + 40;
                     const names = crew.people.map(p => p[0]);
@@ -13539,7 +13546,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     names.forEach((n, i) => cg.addColorStop(names.length > 1 ? i / (names.length - 1) : 0, this.hexMix(this.getUserColor(n), '#000000', 0.25)));
                     card(y, crewH, cg);
                     names.forEach((n, i) => face(n, PAD + IN + 26 + i * 64, y + 80, 26));
-                    ctx.fillStyle = '#fff'; ctx.font = font(750, 40); ctx.fillText(`The crew · ${this.monthName(period.slice(2), false)}`, PAD + IN + 26 + names.length * 64, y + 94);
+                    ctx.fillStyle = '#fff'; ctx.font = font(750, 40); ctx.fillText(`${rc.name} · ${this.monthName(period.slice(2), false)}`, PAD + IN + 26 + names.length * 64, y + 94);
                     head(y + 110, crew.count, 'sessions', 'together');
                     const max = crew.people[0][1], by = y + 330;
                     crew.people.forEach(([n, k], i) => { const yy = by + i * 62; face(n, PAD + IN + 22, yy + 20, 20); ctx.fillStyle = '#fff'; ctx.font = font(750, 36); ctx.fillText(this.fitText(ctx, n, 200), PAD + IN + 58, yy + 33); const bx = PAD + IN + 290, bw = CW - IN * 2 - 290 - 90; ctx.fillStyle = 'rgba(255,255,255,0.2)'; this.roundRect(ctx, bx, yy + 12, bw, 16, 8); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,0.92)'; this.roundRect(ctx, bx, yy + 12, Math.max(16, bw * k / max), 16, 8); ctx.fill(); ctx.textAlign = 'right'; ctx.fillText(String(k), PAD + CW - IN, yy + 33); ctx.textAlign = 'left'; });
@@ -13673,13 +13680,13 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
             recapLines(s) {
                 const lines = [];
-                if (s.topBean) lines.push(['Top bean', `${s.topBean.label} · ${s.topBean.count}×`]);
+                if (s.topBean) lines.push(['Top coffee', `${s.topBean.label} · ${s.topBean.count}×`]);
                 if (s.topRoaster) lines.push(['Top roaster', s.topRoaster.label]);
                 if (s.topMethod) lines.push(['Most-used method', `${s.topMethod.label} · ${s.topMethod.count}×`]);
-                lines.push(['New beans tried', String(s.newBeans || 0)]);
+                lines.push(['New coffees tried', String(s.newBeans || 0)]);
                 lines.push(['Longest daily run', `${s.longestStreak} day${s.longestStreak === 1 ? '' : 's'}`]);
                 if (s.avgRating) lines.push(['Average rating', `${this.fmtNum(s.avgRating)}★`]);
-                if (s.buddy) lines.push(['Brew buddy', `${s.buddy.name} · ${s.buddy.count} session${s.buddy.count === 1 ? '' : 's'} on the same beans`]);
+                if (s.buddy) lines.push(['Brew buddy', `${s.buddy.name} · ${s.buddy.count} session${s.buddy.count === 1 ? '' : 's'} on the same coffees`]);
                 if (s.isYear) lines.push(['Months active', `${s.months} of 12`]);
                 return lines;
             },
@@ -13736,7 +13743,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         const photo = this.normalizePhoto(s.best.photo);
                         const fb = photo ? this.buildDriveFallbackUrls(photo.fileId || this.extractDriveFileId(photo.url), photo.url) : [];
                         const src = photo ? (fb[0] || photo.url) : '';
-                        best = `<div class="recap-best">${src ? `<img src="${this.esc(src)}" alt="Best shot" loading="lazy" data-fallback-index="0" data-fallbacks="${this.esc(fb.join('|'))}" onerror="app.handlePhotoFallback(this)">` : ''}<div class="recap-best-text"><b>Best shot</b> · ${this.esc(this.shortDate(s.best.date))}<br>${this.esc((bn => bn ? (String(bn.name || '').trim() || this.beanLabel(bn)) : 'Coffee')(this.beans.get(String(s.best.beanId))))} · ${this.esc(this.fmtNum(this.normalizeRating(s.best.rating)))}★</div></div>`;
+                        best = `<div class="recap-best">${src ? `<img src="${this.esc(src)}" alt="Top-rated session" loading="lazy" data-fallback-index="0" data-fallbacks="${this.esc(fb.join('|'))}" onerror="app.handlePhotoFallback(this)">` : ''}<div class="recap-best-text"><b>Best shot</b> · ${this.esc(this.shortDate(s.best.date))}<br>${this.esc((bn => bn ? (String(bn.name || '').trim() || this.beanLabel(bn)) : 'Coffee')(this.beans.get(String(s.best.beanId))))} · ${this.esc(this.fmtNum(this.normalizeRating(s.best.rating)))}★</div></div>`;
                     }
                     const cover = isYear && typeof this.yearCoverHtml === 'function' ? this.yearCoverHtml(user, Number(period.slice(2))) : '';
                     const share = '<button type="button" class="btn-outline recap-share" onclick="app.shareRecap()">Share Recap Image</button>';
@@ -14136,13 +14143,13 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
                     if (C.topCoffees.length) {
                         const list = C.topCoffees.map((c, i) => `<li class="wr-in" style="--d:${i + 1}"><span class="n">${i + 1}</span><span class="t">${esc(c.name)}<span class="s">${c.roaster ? `${esc(c.roaster)} · ` : ''}${c.count} sessions · ${c.who.map(n => esc(n)).join(', ')}</span></span></li>`).join('');
-                        add('espresso', `<div class="wr-k wr-in" style="--d:0">The crew's top coffees</div><ol class="wr-rank">${list}</ol>`, 8000);
+                        add('espresso', `<div class="wr-k wr-in" style="--d:0">Your top coffees together</div><ol class="wr-rank">${list}</ol>`, 8000);
                     }
 
                     if (C.methods.length) {
                         const mmax = C.methods[0][1];
                         const mrows = C.methods.slice(0, 6).map(([m, n], i) => `<div class="wr-bar-row wr-in" style="--d:${i + 1}"><span>${esc(m)}</span><span class="v">${n} · ${n / C.sessions < 0.01 ? '<1' : Math.round(n / C.sessions * 100)}%</span><span class="track"><span class="fill" style="width:${(n / mmax * 100).toFixed(1)}%;--d:${i}"></span></span></div>`).join('');
-                        add('cherry', `<div class="wr-k wr-in" style="--d:0">The crew's go-to method</div><div class="wr-big word wr-in" style="--d:1">${esc(C.methods[0][0])}</div><div class="wr-p wr-in" style="--d:2">${C.methods.length === 1 ? 'Every single session.' : `${C.methods.length} methods in all.`}${C.shots ? ` <b>${C.shots}</b> espresso shot${C.shots === 1 ? '' : 's'} pulled.` : ''}</div>${C.methods.length > 1 ? `<div class="wr-bars-h">${mrows}</div>` : ''}`, 7500);
+                        add('cherry', `<div class="wr-k wr-in" style="--d:0">Your go-to method together</div><div class="wr-big word wr-in" style="--d:1">${esc(C.methods[0][0])}</div><div class="wr-p wr-in" style="--d:2">${C.methods.length === 1 ? 'Every single session.' : `${C.methods.length} methods in all.`}${C.shots ? ` <b>${C.shots}</b> espresso shot${C.shots === 1 ? '' : 's'} pulled.` : ''}</div>${C.methods.length > 1 ? `<div class="wr-bars-h">${mrows}</div>` : ''}`, 7500);
                     }
 
                     if (C.originList.length) {
@@ -14156,7 +14163,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         const bars = C.months.map((n, i) => `<span class="${i === C.peakMonth ? 'peak' : ''}" style="height:${Math.max(3, n / cmax * 100)}%;--d:${i}" title="${esc(monthL(i))}: ${n}"></span>`).join('');
                         const labels = C.months.map((_, i) => `<span>${esc(monthL(i).charAt(0))}</span>`).join('');
                         const bd = C.busiest ? new Date(this.parseLocalDate(C.busiest.key)).toLocaleDateString(undefined, { month: 'long', day: 'numeric' }) : '';
-                        add('night', `<div class="wr-k wr-in" style="--d:0">The crew's busiest month</div><div class="wr-big word wr-in" style="--d:1">${esc(monthL(C.peakMonth))}</div><div class="wr-p wr-in" style="--d:2"><b>${C.months[C.peakMonth]}</b> sessions.${C.busiest && C.busiest.n > 1 ? ` Busiest single day: <b>${esc(bd)}</b>, ${C.busiest.n} sessions${C.busiest.who.length > 1 ? ` from ${who(C.busiest.who)}` : ''}.` : ''}${C.weekday !== null ? ` Favorite day: <b>${dayL(C.weekday)}</b>.` : ''}${C.hour !== null ? ` Peak hour: <b>${hourL(C.hour)}</b>.` : ''}</div><div class="wr-months wr-in" style="--d:3">${bars}</div><div class="wr-months-l">${labels}</div>`, 8000);
+                        add('night', `<div class="wr-k wr-in" style="--d:0">Your busiest month together</div><div class="wr-big word wr-in" style="--d:1">${esc(monthL(C.peakMonth))}</div><div class="wr-p wr-in" style="--d:2"><b>${C.months[C.peakMonth]}</b> sessions.${C.busiest && C.busiest.n > 1 ? ` Busiest single day: <b>${esc(bd)}</b>, ${C.busiest.n} sessions${C.busiest.who.length > 1 ? ` from ${who(C.busiest.who)}` : ''}.` : ''}${C.weekday !== null ? ` Favorite day: <b>${dayL(C.weekday)}</b>.` : ''}${C.hour !== null ? ` Peak hour: <b>${hourL(C.hour)}</b>.` : ''}</div><div class="wr-months wr-in" style="--d:3">${bars}</div><div class="wr-months-l">${labels}</div>`, 8000);
                     }
 
                     if (C.streak.days >= 3) {
@@ -14172,17 +14179,17 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     if (C.taste || C.notes.length >= 3) {
                         const img = C.taste && typeof FlavorShape !== 'undefined' ? (() => { try { return FlavorShape.snapshot(C.taste.vals, null, { width: 330, height: 248, zoom: 1.1, labels: false }); } catch (e) { return ''; } })() : '';
                         const chips = C.notes.slice(0, 8).map(([n, c], i) => `<span class="wr-chip wr-in" style="--d:${i + 3}">${esc(n)}<em>${c}</em></span>`).join('');
-                        add('crema', `<div class="wr-k wr-in" style="--d:0">The crew's flavor shape</div>${img ? `<img class="wr-shape wr-in" style="--d:1" src="${img}" alt="">` : ''}${C.taste && C.taste.top ? `<div class="wr-p wr-in" style="--d:2">Together you chase <b>${esc(C.taste.top.label.toLowerCase())}</b>: ${this.fmtNum(C.taste.top.v, 1)} out of 10 across ${C.taste.n} tasted sessions.</div>` : ''}${chips ? `<div class="wr-small wr-in" style="--d:2">Notes the crew found most</div><div class="wr-chips">${chips}</div>` : ''}`, 8000);
+                        add('crema', `<div class="wr-k wr-in" style="--d:0">Your flavor shape together</div>${img ? `<img class="wr-shape wr-in" style="--d:1" src="${img}" alt="">` : ''}${C.taste && C.taste.top ? `<div class="wr-p wr-in" style="--d:2">Together you chase <b>${esc(C.taste.top.label.toLowerCase())}</b>: ${this.fmtNum(C.taste.top.v, 1)} out of 10 across ${C.taste.n} tasted sessions.</div>` : ''}${chips ? `<div class="wr-small wr-in" style="--d:2">Notes the crew found most</div><div class="wr-chips">${chips}</div>` : ''}`, 8000);
                     }
 
                     if (C.likes + C.comments > 0) {
                         const ml = C.mostLiked;
-                        add('espresso', `<div class="wr-k wr-in" style="--d:0">The crew handed out</div><div class="wr-big wr-in" style="--d:1" data-count="${C.likes}">${C.likes}</div><div class="wr-unit wr-in" style="--d:2">like${C.likes === 1 ? '' : 's'}</div><div class="wr-p wr-in" style="--d:3">and wrote <b>${C.comments}</b> comment${C.comments === 1 ? '' : 's'}.${C.allLiked > 1 ? `<br><b>${C.allLiked}</b> sessions got a like from everyone else.` : ml ? `<br>Most-liked session: <b>${esc(ml.owner)}'s ${esc(beanName(ml.bean))}</b>, ${this.shortDate(ml.date)}, with ${ml.n} like${ml.n === 1 ? '' : 's'}.` : ''}${C.fan ? `<br>Biggest fan: <b>${esc(C.fan.from)}</b>, who liked ${esc(C.fan.to)}'s sessions ${C.fan.n} times.` : ''}</div>`, 7500);
+                        add('espresso', `<div class="wr-k wr-in" style="--d:0">Together you handed out</div><div class="wr-big wr-in" style="--d:1" data-count="${C.likes}">${C.likes}</div><div class="wr-unit wr-in" style="--d:2">like${C.likes === 1 ? '' : 's'}</div><div class="wr-p wr-in" style="--d:3">and wrote <b>${C.comments}</b> comment${C.comments === 1 ? '' : 's'}.${C.allLiked > 1 ? `<br><b>${C.allLiked}</b> sessions got a like from everyone else.` : ml ? `<br>Most-liked session: <b>${esc(ml.owner)}'s ${esc(beanName(ml.bean))}</b>, ${this.shortDate(ml.date)}, with ${ml.n} like${ml.n === 1 ? '' : 's'}.` : ''}${C.fan ? `<br>Biggest fan: <b>${esc(C.fan.from)}</b>, who liked ${esc(C.fan.to)}'s sessions ${C.fan.n} times.` : ''}</div>`, 7500);
                     }
 
                     if (C.coffee) {
                         const shared = C.coffee.who.length > 1;
-                        add('crema', `<div class="wr-k wr-in" style="--d:0">The crew's coffee of the year</div><div class="wr-big word wr-in wr-bean" style="--d:1">${esc(beanName(C.coffee.bean))}</div><div class="wr-p wr-in" style="--d:2">${C.coffee.bean && C.coffee.bean.roaster ? `${esc(C.coffee.bean.roaster)}. ` : ''}Brewed <b>${C.coffee.n}</b> times${shared ? ` by ${who(C.coffee.who)}` : ` by ${esc(C.coffee.who[0])}`}.</div>${C.loved && C.loved.bean && this.beanGroupKey(C.loved.bean) !== this.beanGroupKey(C.coffee.bean) ? `<div class="wr-p wr-in" style="--d:3">Most loved: <b>${esc(beanName(C.loved.bean))}</b>, ${this.fmtNum(C.loved.avg, 1)}★ across ${C.loved.n} rated sessions.</div>` : ''}`);
+                        add('crema', `<div class="wr-k wr-in" style="--d:0">Your coffee of the year together</div><div class="wr-big word wr-in wr-bean" style="--d:1">${esc(beanName(C.coffee.bean))}</div><div class="wr-p wr-in" style="--d:2">${C.coffee.bean && C.coffee.bean.roaster ? `${esc(C.coffee.bean.roaster)}. ` : ''}Brewed <b>${C.coffee.n}</b> times${shared ? ` by ${who(C.coffee.who)}` : ` by ${esc(C.coffee.who[0])}`}.</div>${C.loved && C.loved.bean && this.beanGroupKey(C.loved.bean) !== this.beanGroupKey(C.coffee.bean) ? `<div class="wr-p wr-in" style="--d:3">Most loved: <b>${esc(beanName(C.loved.bean))}</b>, ${this.fmtNum(C.loved.avg, 1)}★ across ${C.loved.n} rated sessions.</div>` : ''}`);
                     }
                     if (C.yearly.length) {
                         const badges = C.yearly.map((x, i) => `<div class="wr-badge" style="--d:${i};--ac:${esc(x.color)}"><span class="ic"><svg class="icon"><use href="#${esc(x.icon)}"/></svg></span><div style="min-width:0"><div class="bt">${esc(x.title)}</div><div class="bw">${esc(x.winners.join(' & '))}</div></div></div>`).join('');
@@ -14196,7 +14203,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     <div><div class="l">Coffee</div><div class="v">${kg}</div></div>
                     ${D.topCoffees[0] ? `<div class="wide"><div class="l">Top coffee</div><div class="v">${esc(D.topCoffees[0].name)}</div></div>` : ''}
                     <div><div class="l">Personality</div><div class="v">${esc(D.persona.title.replace(/^The /, ''))}</div></div>
-                    <div><div class="l">${D.awardCount ? 'Awards' : 'Best shot'}</div><div class="v">${D.awardCount ? D.awardCount : D.best ? `${this.fmtNum(D.best.rating)}★` : '—'}</div></div>
+                    <div><div class="l">${D.awardCount ? 'Awards' : 'Top rated'}</div><div class="v">${D.awardCount ? D.awardCount : D.best ? `${this.fmtNum(D.best.rating)}★` : '—'}</div></div>
                 </div><div class="wr-actions wr-in" style="--d:2"><button type="button" onclick="app.shareWrapped()">Share</button><button type="button" class="ghost" onclick="app.wrappedGo(0)">Replay</button><button type="button" class="ghost" onclick="app.closeWrapped()">Done</button></div>`, 60000);
                 return S;
             },
@@ -14568,7 +14575,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     const missing = all.filter(x => !used.has(x.toLowerCase()));
                     return `<div class="achievement-hint">${this.esc(have.length ? `Done: ${have.join(' · ')}` : 'None yet')}${missing.length ? `<br>${this.esc(`To go: ${missing.join(' · ')}`)}` : ''}</div>`;
                 };
-                if (def.key === 'brew_master') hint = listHint(['Espresso', 'Pour Over', 'French Press', 'Moka Pot', 'Aeropress', 'Cold Brew'], stats.methodSet);
+                if (def.key === 'brew_master') hint = listHint(['Espresso', 'Pour Over', 'French Press', 'Moka Pot', 'AeroPress', 'Cold Brew'], stats.methodSet);
                 if (def.key === 'roast_spectrum') hint = listHint(['Light', 'Medium-Light', 'Medium', 'Medium-Dark', 'Dark'], stats.roastSet);
                 return `<div class="ach-card${done ? ' complete' : ''}"><div class="ach-top"><div class="ach-name">${this.esc(def.title)}</div><div class="ach-level">${levelText}</div></div><div class="ach-desc">${this.esc(def.desc || '')}</div>${pips}<div class="achievement-track"><div class="achievement-fill" style="width:${progress}%;"></div></div><div class="achievement-meta"><span>${this.esc(def.format(value))}</span><span>${this.esc(right)}</span></div>${hint}</div>`;
             },
@@ -14690,7 +14697,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     const rv = ref ? this.tasteValue(ref, k) : null;
                     if (ghost) {
                         ghost.hidden = rv === null;
-                        if (rv !== null) { ghost.style.left = `calc(${(Math.round(rv) - 1) / 9} * (100% - 26px) + 13px)`; ghost.title = `Your best shot: ${rv}`; }
+                        if (rv !== null) { ghost.style.left = `calc(${(Math.round(rv) - 1) / 9} * (100% - 26px) + 13px)`; ghost.title = `Your best: ${rv}`; }
                     }
                 });
             },
@@ -14714,7 +14721,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const host = document.getElementById('taste-shape');
                 if (host && typeof FlavorShape !== 'undefined') {
                     if (!this.tasteView) {
-                        this.tasteView = FlavorShape.createView({ values: () => this.formTasteValues(), ghost: () => { const r = this.tasteReference(); return r ? this.shapeValues(r) : null; }, ghostLabel: 'Best shot', isSet: k => this.tasteTouched.has(k) });
+                        this.tasteView = FlavorShape.createView({ values: () => this.formTasteValues(), ghost: () => { const r = this.tasteReference(); return r ? this.shapeValues(r) : null; }, ghostLabel: 'Best', isSet: k => this.tasteTouched.has(k) });
                     }
                     if (this.tasteView.el.parentNode !== host && typeof host.replaceChildren === 'function') host.replaceChildren(this.tasteView.el);
                     this.tasteView.start();
@@ -14723,7 +14730,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const target = document.getElementById('taste-target');
                 if (target) {
                     target.hidden = !ref;
-                    if (ref) target.innerHTML = `<span>Target</span><b>Your best shot · ${this.esc(this.shortDate(ref.date))} · ${this.esc(this.fmtNum(this.normalizeRating(ref.rating)))}★ · ${this.esc(this.recipeLine(ref, true))}</b>`;
+                    if (ref) target.innerHTML = `<span>Target</span><b>Your best ${this.shotWord(this.readFormRecipe().method)} · ${this.esc(this.shortDate(ref.date))} · ${this.esc(this.fmtNum(this.normalizeRating(ref.rating)))}★ · ${this.esc(this.recipeLine(ref, true))}</b>`;
                 }
                 this.paintTasteSliders();
                 this.renderTasteTip();
@@ -14788,11 +14795,13 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 return { ...base, conf: 'possible', head: 'A little different from your best shot, but nothing points to grind or ratio.', detail: 'Keep the recipe and see if the difference repeats.' };
             },
 
-            renderTipHtml(a) {
+            renderTipHtml(a, method = '') {
                 if (!a) return '';
+                a = this.methodWorded(a, method);   // v15.1: shot for espresso, brew for the rest
+                const w = this.shotWord(method);
                 const ev = a.ok && a.evidence && a.evidence.length ? `<div class="ev">${a.evidence.map(e => `<span class="evc ${e.side}">${this.esc(e.text)}</span>`).join('')}</div>` : '';
-                const ref = a.ok && a.ref ? `<div class="next-detail">Compared with your best shot of this coffee (${this.esc(this.shortDate(a.ref.date))}, ${this.esc(this.fmtNum(this.normalizeRating(a.ref.rating)))}★).</div>` : '';
-                return `<div class="next-card${a.ok ? '' : ' empty'}"><div class="next-title">Next shot${a.conf ? ` · ${this.esc(a.conf)}` : ''}</div><div class="next-headline">${this.esc(a.head)}</div>${a.ok && a.detail ? `<div class="next-detail">${this.esc(a.detail)}</div>` : ''}${a.note ? `<div class="next-detail">${this.esc(a.note)}</div>` : ''}${ev}${ref}</div>`;
+                const ref = a.ok && a.ref ? `<div class="next-detail">Compared with your best ${w} of this coffee (${this.esc(this.shortDate(a.ref.date))}, ${this.esc(this.fmtNum(this.normalizeRating(a.ref.rating)))}★).</div>` : '';
+                return `<div class="next-card${a.ok ? '' : ' empty'}"><div class="next-title">Next ${w}${a.conf ? ` · ${this.esc(a.conf)}` : ''}</div><div class="next-headline">${this.esc(a.head)}</div>${a.ok && a.detail ? `<div class="next-detail">${this.esc(a.detail)}</div>` : ''}${a.note ? `<div class="next-detail">${this.esc(a.note)}</div>` : ''}${ev}${ref}</div>`;
             },
 
             // v11.7: the Next-shot tip follows everything you type, not just notes and sliders
@@ -14806,16 +14815,16 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const box = document.getElementById('taste-tip');
                 if (!box) return;
                 const c = this.coachFromForm();
-                if (c.method && this.activeGroup) { box.innerHTML = this.coachHtml(this.coach(c), 'Next shot'); return; }
+                if (c.method && this.activeGroup) { box.innerHTML = this.coachHtml(this.coach(c), `Next ${this.shotWord(c.method)}`); return; }
                 const ref = this.tasteReference();
                 const tasted = [...this.tasteTouched];
                 const cur = { values: this.formTasteValues(), tasted, notes: [...this.selFlavors], ...this.readFormRecipe() };
-                if (ref) { box.innerHTML = this.renderTipHtml(this.adviseAgainst(cur, ref)); return; }
+                if (ref) { box.innerHTML = this.renderTipHtml(this.adviseAgainst(cur, ref), cur.method); return; }
                 // no best shot of this coffee yet: read the shot on its own
                 const form = this.getBrewForm();
                 const editing = form && form.elements && form.elements.id ? form.elements.id.value : '';
                 const ctx = this.activeGroup ? this.firstShotContext(this.beanGroupKey(this.activeGroup.meta), this.user, cur.method, editing) : {};
-                box.innerHTML = this.renderTipHtml(this.adviseFirstShot(cur, ctx));
+                box.innerHTML = this.renderTipHtml(this.adviseFirstShot(cur, ctx), cur.method);
             },
 
             updateNextShotHint() {
@@ -14823,7 +14832,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 this.renderTasteTip();
                 const target = document.getElementById('taste-target');
                 const ref = this.tasteReference();
-                if (target) { target.hidden = !ref; if (ref) target.innerHTML = `<span>Target</span><b>Your best shot · ${this.esc(this.shortDate(ref.date))} · ${this.esc(this.fmtNum(this.normalizeRating(ref.rating)))}★ · ${this.esc(this.recipeLine(ref, true))}</b>`; }
+                if (target) { target.hidden = !ref; if (ref) target.innerHTML = `<span>Target</span><b>Your best ${this.shotWord(this.readFormRecipe().method)} · ${this.esc(this.shortDate(ref.date))} · ${this.esc(this.fmtNum(this.normalizeRating(ref.rating)))}★ · ${this.esc(this.recipeLine(ref, true))}</b>`; }
             },
 
             // ---- notes wheel in the log form
@@ -14893,7 +14902,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 wheel.innerHTML = this.wheelSvg({ fam: this.wheelFam, group: this.wheelGroup, interactive: true, counts, groupCounts });
                 const tray = document.getElementById('note-tray');
                 if (tray) {
-                    if (this.wheelFam == null) tray.innerHTML = '<p class="note-help">Start broad, then go specific. “Tastes off” notes help your next shot most.</p>';
+                    if (this.wheelFam == null) tray.innerHTML = '<p class="note-help">Start broad, then go specific. “Tastes off” notes help the coach most.</p>';
                     else {
                         const groups = this.wheelGroup == null ? NOTE_WHEEL[this.wheelFam].groups : [NOTE_WHEEL[this.wheelFam].groups[this.wheelGroup]];
                         tray.innerHTML = groups.map(([g, notes]) => `${this.wheelGroup == null ? `<div class="note-group">${this.esc(g)}</div>` : ''}<div class="note-chips">${notes.map(nm => `<button type="button" class="note-chip" aria-pressed="${this.selFlavors.includes(nm)}" onclick="app.pickNote('${app.escJs(nm)}', event)">${this.esc(nm)}</button>`).join('')}</div>`).join('');
@@ -15051,10 +15060,10 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 this.viewerValues = this.shapeValues(brew);
                 this.viewerGhost = best ? this.shapeValues(best) : null;
                 this.viewerTasted = this.tastedKeys(brew);
-                if (!this.viewerView) this.viewerView = FlavorShape.createView({ values: () => this.viewerValues, ghost: () => this.viewerGhost, ghostLabel: 'Best shot', isSet: k => (this.viewerTasted || []).includes(k), fullGestures: true });
+                if (!this.viewerView) this.viewerView = FlavorShape.createView({ values: () => this.viewerValues, ghost: () => this.viewerGhost, ghostLabel: 'Best', isSet: k => (this.viewerTasted || []).includes(k), fullGestures: true });
                 const bean = this.beans.get(String(brew.beanId));
                 document.getElementById('shape-title').innerText = bean ? this.beanLabel(bean) : 'Flavor shape';
-                document.getElementById('shape-sub').innerText = `${this.getBrewOwner(brew)} · ${this.shortDate(brew.date)}${brew.method ? ` · ${brew.method}` : ''}${best ? ` · dashed: best shot (${this.shortDate(best.date)})` : ''}`;
+                document.getElementById('shape-sub').innerText = `${this.getBrewOwner(brew)} · ${this.shortDate(brew.date)}${brew.method ? ` · ${brew.method}` : ''}${best ? ` · dashed: best ${this.shotWord(brew.method)} (${this.shortDate(best.date)})` : ''}`;
                 const host = document.getElementById('shape-host');
                 if (typeof host.replaceChildren === 'function') host.replaceChildren(this.viewerView.el);
                 const fc = this.flavorCounts([brew]);
@@ -15084,9 +15093,9 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const mineBest = (() => { let best = null; brews.filter(b => this.getBrewOwner(b) === this.user).forEach(b => { const r = this.normalizeRating(b.rating); if (r <= 0) return; const br = best ? this.normalizeRating(best.rating) : -1; if (r > br) best = b; }); return best; })();
                 this.beanFlavorGhost = mineBest ? this.shapeValues(mineBest) : null;
                 const fc = this.flavorCounts(pool);
-                const chips = people.length > 1 ? `<div class="bf-people">${['all', ...people].map(p => `<button type="button" class="chip-btn" aria-pressed="${this.beanFlavorWho === p}" data-who="${this.esc(p)}" onclick="app.setBeanFlavorWho(this.getAttribute('data-who'))">${p === 'all' ? 'Everyone' : this.esc(p)}</button>`).join('')}</div>` : '';
+                const chips = people.length > 1 && !this._lensPublic ? `<div class="bf-people">${['all', ...people].map(p => `<button type="button" class="chip-btn" aria-pressed="${this.beanFlavorWho === p}" data-who="${this.esc(p)}" onclick="app.setBeanFlavorWho(this.getAttribute('data-who'))">${p === 'all' ? 'All' : this.esc(p)}</button>`).join('')}</div>` : '';
                 const words = this.describeCup(values, tasted, fc.notes.slice(0, 4).map(x => x.n), Object.fromEntries(fc.notes.map(x => [x.n, x.strength])));
-                box.innerHTML = `<div class="bf-head"><div><h3>Flavor profile</h3><p>${pool.length} session${pool.length === 1 ? '' : 's'} · ${this.beanFlavorWho === 'all' ? 'everyone' : this.esc(this.beanFlavorWho)}${mineBest ? ' · dashed: your best shot' : ''}</p></div></div>${chips}<div id="bf-shape"></div>${!tasted.length ? '<div class="flv-empty">No taste sliders set on these sessions yet.</div>' : ''}${fc.notes.length ? `<div class="bf-wheel">${this.wheelSvgStatic(fc)}<div class="flv-notes">${this.noteChipsHtml(fc.notes.slice(0, 12), true)}</div></div>` : ''}${words ? `<div class="flv-words">${this.esc(words)}</div>` : ''}`;
+                box.innerHTML = `<div class="bf-head"><div><h3>Flavor profile</h3><p>${pool.length} session${pool.length === 1 ? '' : 's'} · ${this.beanFlavorWho === 'all' ? this.esc(this.lensLabel()) : this.esc(this.beanFlavorWho)}${mineBest ? ' · dashed: your best' : ''}</p></div></div>${chips}<div id="bf-shape"></div>${!tasted.length ? '<div class="flv-empty">No taste sliders set on these sessions yet.</div>' : ''}${fc.notes.length ? `<div class="bf-wheel">${this.wheelSvgStatic(fc)}<div class="flv-notes">${this.noteChipsHtml(fc.notes.slice(0, 12), true)}</div></div>` : ''}${words ? `<div class="flv-words">${this.esc(words)}</div>` : ''}`;
                 setTimeout(() => this.fillShapeImages(document.getElementById('detail-view')), 0);
                 if (typeof FlavorShape !== 'undefined' && tasted.length) {
                     if (!this.beanView) this.beanView = FlavorShape.createView({ values: () => this.beanFlavorValues, ghost: () => this.beanFlavorGhost, ghostLabel: 'Your best' });
@@ -15121,6 +15130,12 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             },
 
             openDetail(group, brews) {
+                // v15.1: whose take on this coffee (You, a community, Friends, Everyone); another coffee picks its own
+                const prevKey = this.activeGroup ? this.beanGroupKey(this.activeGroup.meta) : '';
+                if (!group || this.beanGroupKey(group.meta) !== prevKey) this._lens = this._lensKeep || '';
+                this._lensKeep = '';
+                this.detailAllBrews = [...brews];
+                brews = this.lensBrews(brews);
                 if (!this._navKeep && !this.isDetailActive() && !this.roasterViewActive()) this.navStack = [];   // opened from the library or feed
                 if (!this._navKeep && this.roasterViewActive()) { const from = this.snapPage(); if (from) { this.navStack = this.navStack || []; this.navStack.push(from); } this.hideRoasterView(); }
                 document.getElementById('detail-view').classList.add('active');
@@ -15147,7 +15162,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 document.getElementById('d-origin').innerText = bean.origin || '-';
                 document.getElementById('d-process').innerText = bean.process || '-';
                 document.getElementById('d-roast').innerText = bean.roast || '-';
-                this.renderDetailExtras(group, brews);
+                this.renderDetailExtras(group, this.detailAllBrews);
 
                 const overallRating = this.calculateAverageRating(brews);
                 const ratedCount = brews.filter(item => this.normalizeRating(item.rating) > 0).length;
@@ -15184,10 +15199,10 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                             <div style="font-size:0.65rem; color:var(--matcha); font-weight:800; text-transform:uppercase;">${this.esc(masterOwner)}'s Master</div>
                             ${masterOwner === this.user ? `
                                 <div class="master-actions">
-                                    <button class="btn-clean" onclick="app.openMasterModal('${app.escJs(master.id)}')" title="Edit master profile">
+                                    <button class="btn-clean" onclick="app.openMasterModal('${app.escJs(master.id)}')" title="Edit master recipe">
                                         <svg class="icon" style="width:14px;height:14px;"><use href="#i-edit-2"/></svg>
                                     </button>
-                                    <button class="btn-clean danger" onclick="app.unpinMaster('${app.escJs(master.id)}')" title="Remove master profile">
+                                    <button class="btn-clean danger" onclick="app.unpinMaster('${app.escJs(master.id)}')" title="Remove master recipe">
                                         <svg class="icon" style="width:14px;height:14px;"><use href="#i-trash-2"/></svg>
                                     </button>
                                 </div>
@@ -15237,6 +15252,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     else { row.innerHTML = rowHtml; logBox.appendChild(row); }
                 });
                 if (keyedLogs) this.patchKeyed(logBox, logItems, this._logHtml);
+                this.paintLens();
             },
 
             refreshDetail() {
@@ -15686,7 +15702,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const brew = this.brews.get(id);
                 if (!brew) return;
                 if (this.getBrewOwner(brew) !== this.user) {
-                    this.showToast('Only the owner can edit this master profile.');
+                    this.showToast('Only the owner can edit this master recipe.');
                     return;
                 }
 
@@ -15747,7 +15763,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const brew = this.brews.get(id);
                 if (!brew) return;
                 if (this.getBrewOwner(brew) !== this.user) {
-                    this.showToast('Only the owner can save this master profile.');
+                    this.showToast('Only the owner can save this master recipe.');
                     return;
                 }
 
@@ -15778,24 +15794,24 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 }, brew);
                 this.push({ type: 'brew', ...updated });
                 this.closeModals();
-                this.showToast('Master profile saved.');
+                this.showToast('Master recipe saved.');
             },
 
             unpinMaster(id) {
                 const brew = this.brews.get(id);
                 if (!brew) return;
                 if (this.getBrewOwner(brew) !== this.user) {
-                    this.showToast('Only the owner can remove this master profile.');
+                    this.showToast('Only the owner can remove this master recipe.');
                     return;
                 }
-                if (!confirm('Remove this master profile? The session will stay in history.')) return;
+                if (!confirm('Remove this master recipe? The session will stay in history.')) return;
                 const updated = this.withBrewOwner({
                     ...brew,
                     isMaster: false,
                     masterProfile: null
                 }, brew);
                 this.push({ type: 'brew', ...updated });
-                this.showToast('Master profile removed.');
+                this.showToast('Master recipe removed.');
             },
 
             editBean() {
@@ -15928,7 +15944,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 this.draftPhoto = null;
                 this.shareOpen(null);   // v14.2
                 this.renderDraftPhoto();
-                document.getElementById('brew-modal-title').innerText = 'Brewing Log';
+                document.getElementById('brew-modal-title').innerText = 'Log a session';
                 const verdictReset = document.getElementById('verdict-input');
                 if (verdictReset) verdictReset.value = '';
                 this.renderVerdict();
@@ -17262,7 +17278,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const menu = this._groupMenu ? `<div class="pp-menu grp-menu">${gr.list.map(x => `<button type="button" class="${String(x.id) === String(g.id) ? 'on' : ''}" data-g="${this.esc(String(x.id))}" onclick="app.pickFeedGroup(this.getAttribute('data-g'))"><b>${this.esc(x.name)}</b><small>${(x.members || []).length} ${(x.members || []).length === 1 ? 'person' : 'people'} · ${x.open ? 'open' : 'private'}</small></button>`).join('')}<i class="grp-sep"></i><button type="button" onclick="app.openPeople('groups'); app.groupForm('find')">Find communities</button><button type="button" onclick="app.openPeople('groups'); app.groupForm('create')">Start a community</button></div>` : '';
                 const pick = `<div class="grp-pick"><button type="button" class="grp-pick-btn" aria-expanded="${this._groupMenu ? 'true' : 'false'}" onclick="app.toggleGroupMenu(event)"><span class="grp-name">${this.esc(g.name)}</span><svg class="icon"><use href="#i-chevron-down"/></svg></button><span class="grp-meta">${n} ${n === 1 ? 'person' : 'people'} · ${g.open ? 'open' : 'private'}</span>${menu}</div>`;
                 // a private community is the people who share the group goal and monthly awards (the crew's)
-                const tops = g.open ? '' : this.withCrewScope(g, () => [this.renderCrewQuest(), (g.members || []).length >= 2 ? this.renderCrewAwardsCard() : ''].join(''));   // v14.6: this community's own (v15.1: its awards card, folded)
+                const tops = g.open ? '' : this.withCrewScope(g, () => this.renderCrewQuest());   // v14.6: this community's own goal (v15.1: its awards live on your profile's Activity tab only)
                 const seen = new Set();
                 const list = st.events.filter(e => e.type === 'brew').map(e => this.brews.get(String(e.id))).filter(b => b && !seen.has(b.id) && seen.add(b.id) && b.audience !== 'only_me' && !this.reported(b.id))
                     .sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
@@ -18212,7 +18228,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 st.loading = true; st.error = '';
                 this.renderCoffeeCommunity();
                 try {
-                    const out = await Supa.rpc('coffee_community', { coffee_roaster: st.roaster, coffee_name: st.name, before: more ? st.next : null, max_items: 10 });
+                    const out = await Supa.rpc('coffee_community', { coffee_roaster: st.roaster, coffee_name: st.name, before: more ? st.next : null, max_items: more ? 10 : 30 });   // v15.1: enough for a flavor shape
                     if (st.key !== key) return;   // they moved on to another coffee
                     const events = Array.isArray(out && out.events) ? out.events : [];
                     st.events = more ? st.events.concat(events) : events;
@@ -18278,6 +18294,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 }
                 const line = s && s.sessions ? [`${s.people} ${s.people === 1 ? 'person' : 'people'}`, `${s.sessions} session${s.sessions === 1 ? '' : 's'}`, s.rating ? `★ ${this.fmtNum(s.rating, 1)} average` : ''].filter(Boolean).join(' · ') : 'Sessions other people shared with Everyone.';
                 pane.innerHTML = `<div class="sweet-card cc-wrap"><div class="sw-head"><h3>Everyone on this coffee</h3><p>${this.esc(line)}</p></div>${body}</div>`;
+                if (this.lensEveryoneLoaded) this.lensEveryoneLoaded(st);   // v15.1: the page's rating and flavor shape, from everyone's
             },
             // ---- v14.6: your own goals (Overview, your profile). Up to three, one of each kind: sessions a week, new coffees
             // a month, a rating to beat on one coffee. Only you see them; they ride in your gear record (goals) like favorites.
@@ -19025,6 +19042,105 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const sub = !st.at ? 'Loading…' : items.length ? `${items.length} ${items.length === 1 ? 'person' : 'people'} spotlighted` : 'None yet for last month';
                 const head = `<div class="aw-head"><div class="aw-head-t"${items.length ? ' onclick="app.toggleAwards()"' : ''}><div class="label">${this.esc(this.hlMonthLabel())} highlights</div><div class="aw-sub">Everyone · ${this.esc(sub)}</div></div>${tog}</div>`;
                 return `<div class="profile-card crew-awards ev-awards${open && items.length ? '' : ' folded'}" id="crew-awards">${head}${open && items.length ? `<div class="hl-card ev-rows">${this.hlRowsHtml()}</div>` : ''}</div>`;
+            },
+
+            // ---- v15.1: the Coffees tab holds yours (Mine) and everyone's you can see (All); it remembers which
+            coffeeScopeNow() { if (!this.coffeeScope) this.coffeeScope = safeGet('dialed_coffee_scope') === 'all' ? 'all' : 'mine'; return this.coffeeScope; },
+            setCoffeeScope(v) { this.coffeeScope = v === 'all' ? 'all' : 'mine'; safeSet('dialed_coffee_scope', this.coffeeScope); this.render(); window.scrollTo(0, 0); },
+            coffeeScopeHtml() {
+                const m = this.coffeeScopeNow();
+                return `<div class="seg-control lib-switch" role="tablist" aria-label="Whose coffees">${[['mine', 'Mine'], ['all', 'All']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === m}" aria-pressed="${k === m}" onclick="app.setCoffeeScope('${k}')">${l}</button>`).join('')}</div>`;
+            },
+
+            // ---- v15.1: "shot" is espresso's word; every other method gets "brew" (a pour over isn't a shot)
+            shotWord(method) { return !method || /espresso/i.test(String(method)) ? 'shot' : 'brew'; },
+            methodWorded(o, method) {
+                if (!o || this.shotWord(method) === 'shot') return o;
+                const t = v => typeof v === 'string' ? v.replace(/\b([Ss])hot(s?)\b/g, (m, s, pl) => (s === 'S' ? 'Brew' : 'brew') + pl) : Array.isArray(v) ? v.map(t) : (v && typeof v === 'object' && typeof v.text === 'string' ? { ...v, text: t(v.text) } : v);
+                const out = { ...o };
+                ['head', 'headline', 'detail', 'note', 'conf', 'why', 'ctx', 'evidence', 'ev'].forEach(k => { if (k in out) out[k] = t(out[k]); });
+                return out;
+            },
+
+            // ---- v15.1: the recap's second card: the circle picked above the awards (a community, your friends). None for
+            // Everyone, or on someone else's recap (it would be your circle's numbers).
+            recapCircle(user, period) {
+                const acct = this.acctOn && this.acctOn();
+                if (acct && user !== this.user) return null;
+                const circle = acct && this.activeCircle ? this.activeCircle() : null;
+                if (circle && circle.id === 'everyone') return null;
+                const c = circle ? this.withCrewScope(circle.scope, () => this.monthCrewStats(period)) : this.monthCrewStats(period);
+                if (!c || c.people.length < 2) return null;
+                return { c, circle, name: circle ? circle.name : 'Together', friends: !!circle && circle.id === 'friends' };
+            },
+
+            // ---- v15.1: whose take on a coffee, on its page: You, each of your communities, Friends, Everyone (what people
+            // shared with Everyone on Dialed In). The rating, flavor shape, notes, sessions, dial-in and sweet spot all
+            // follow it. Opens on You when you've brewed it, else the first circle with sessions on it. A circle shows only
+            // when someone besides you in it has logged this coffee; All (everything you can see here) only when some
+            // sessions belong to none of them.
+            lensOptions(all) {
+                if (!(this.acctOn && this.acctOn())) return [];
+                const owner = b => this.getBrewOwner(b), out = [], covered = new Set([this.user]);
+                const mine = all.filter(b => owner(b) === this.user).length;
+                if (mine) out.push({ id: 'me', name: 'You', n: mine, names: new Set([this.user]) });
+                this.circleOptions().forEach(o => {
+                    if (o.id === 'everyone') return;
+                    const names = new Set(o.scope.members.map(m => m.name));
+                    names.forEach(x => covered.add(x));
+                    const n = all.filter(b => names.has(owner(b))).length, others = all.filter(b => names.has(owner(b)) && owner(b) !== this.user).length;
+                    if (others) out.push({ id: o.id, name: o.name, n, names });
+                });
+                if (all.some(b => !covered.has(owner(b)))) out.push({ id: 'all', name: 'All', n: all.length, names: new Set(all.map(owner)) });
+                out.push({ id: 'everyone', name: 'Everyone', n: 0 });
+                return out;
+            },
+            activeLens(all = this.detailAllBrews || []) {
+                const list = this.lensOptions(all);
+                if (!list.length) return null;
+                if (this._lensWant) {   // opened at someone's session: a view with it in
+                    const w = this._lensWant; this._lensWant = '';
+                    const cur = list.find(o => o.id === this._lens) || list[0];
+                    if (!(cur.names && cur.names.has(w))) { const hit = list.find(o => o.names && o.names.has(w)); if (hit) this._lens = hit.id; }
+                }
+                return list.find(o => o.id === this._lens) || list[0];
+            },
+            lensBrews(all) {
+                const L = this.activeLens(all);
+                if (!L) { if (this.detailTab === 'everyone') this.detailTab = 'timeline'; return all; }
+                if (L.id === 'everyone') { this.detailTab = 'everyone'; return []; }
+                if (this.detailTab === 'everyone') this.detailTab = 'timeline';
+                return all.filter(b => L.names.has(this.getBrewOwner(b)));
+            },
+            lensLabel() { const L = this.activeLens(); return L ? L.name : 'All'; },
+            setLens(id) {
+                const v = document.getElementById('detail-view'), top = v ? v.scrollTop : 0;
+                this._lens = String(id || '');
+                this._navKeep = true;
+                try { this.openDetail(this.activeGroup, this.detailAllBrews || []); } finally { this._navKeep = false; }
+                if (v) v.scrollTop = top;
+            },
+            paintLens() {
+                const box = document.getElementById('d-lens'), view = document.getElementById('detail-view');
+                if (!box) return;
+                const list = this.lensOptions(this.detailAllBrews || []), L = list.length ? this.activeLens() : null;
+                if (view) view.classList.toggle('lens-everyone', !!L && L.id === 'everyone');
+                if (list.length < 2) { box.hidden = true; box.innerHTML = ''; return; }
+                box.hidden = false;
+                box.innerHTML = `<div class="cp-lead">Sessions from</div><div class="comm-filters" role="tablist" aria-label="Sessions from">${list.map(o => `<button type="button" class="comm-chip${o.id === L.id ? ' on' : ''}" role="tab" aria-selected="${o.id === L.id}" data-l="${this.esc(o.id)}" onclick="app.setLens(this.getAttribute('data-l'))">${this.esc(o.name)}${o.n ? `<span class="lens-n">${o.n}</span>` : ''}</button>`).join('')}</div>`;
+            },
+            // Everyone came in: the page's stars, top notes and flavor shape from what people shared (never grind settings)
+            lensEveryoneLoaded(st) {
+                const L = this.activeLens();
+                if (!L || L.id !== 'everyone' || !this.isDetailActive()) return;
+                const pub = (st.events || []).filter(e => e && e.type === 'brew' && !this.reported(e.id));
+                const s = st.summary || {};
+                this._lensPublic = true;
+                try { this.renderBeanFlavor(pub); } finally { this._lensPublic = false; }
+                const rs = document.getElementById('d-rating-summary');
+                if (rs) { const html = pub.length ? this.beanStarsHtml(pub, Number(s.rating) || this.calculateAverageRating(pub), Number(s.sessions) || pub.length) : ''; rs.style.display = html ? 'inline-flex' : 'none'; rs.innerHTML = html; }
+                const tf = document.getElementById('d-top-flavors');
+                if (tf) tf.innerHTML = this.getTopFlavors(pub, 3).map(f => this.famChip(f)).join('');
             },
         };
         window.onload = () => app.init();

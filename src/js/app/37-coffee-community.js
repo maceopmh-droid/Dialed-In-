@@ -24,7 +24,7 @@
                 st.loading = true; st.error = '';
                 this.renderCoffeeCommunity();
                 try {
-                    const out = await Supa.rpc('coffee_community', { coffee_roaster: st.roaster, coffee_name: st.name, before: more ? st.next : null, max_items: 10 });
+                    const out = await Supa.rpc('coffee_community', { coffee_roaster: st.roaster, coffee_name: st.name, before: more ? st.next : null, max_items: more ? 10 : 30 });   // v15.1: enough for a flavor shape
                     if (st.key !== key) return;   // they moved on to another coffee
                     const events = Array.isArray(out && out.events) ? out.events : [];
                     st.events = more ? st.events.concat(events) : events;
@@ -90,4 +90,5 @@
                 }
                 const line = s && s.sessions ? [`${s.people} ${s.people === 1 ? 'person' : 'people'}`, `${s.sessions} session${s.sessions === 1 ? '' : 's'}`, s.rating ? `★ ${this.fmtNum(s.rating, 1)} average` : ''].filter(Boolean).join(' · ') : 'Sessions other people shared with Everyone.';
                 pane.innerHTML = `<div class="sweet-card cc-wrap"><div class="sw-head"><h3>Everyone on this coffee</h3><p>${this.esc(line)}</p></div>${body}</div>`;
+                if (this.lensEveryoneLoaded) this.lensEveryoneLoaded(st);   // v15.1: the page's rating and flavor shape, from everyone's
             },

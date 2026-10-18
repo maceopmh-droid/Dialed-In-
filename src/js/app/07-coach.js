@@ -277,10 +277,10 @@
                     mode = 'refine';
                     if (esp && c.time > 0) aim = [Math.round(c.time - 2), Math.round(c.time + 2)];
                     const best = ref ? (c.rating > refR ? `It beats your ${this.fmtNum(refR)}\u2605 from ${this.shortDate(ref.date)}.` : `It matches your ${this.fmtNum(refR)}\u2605 from ${this.shortDate(ref.date)}, your best so far.`) : 'Your first rated shot of this coffee.';   // v14.7: a tie isn't a win
-                    if (c.rating >= 5 && U0 < 1 && O0 < 1) { head = 'Perfect score. Lock this recipe in.'; next = recipe(keepG, c.dose, c.yield); why.push(best, 'Repeat it exactly, and pin it as your Master recipe.'); }
+                    if (c.rating >= 5 && U0 < 1 && O0 < 1) { head = 'Perfect score. Lock this recipe in.'; next = recipe(keepG, c.dose, c.yield); why.push(best, 'Repeat it exactly, and pin it as your master recipe.'); }
                     else if (saidU && U0 >= 1.2 && U0 > O0) { head = esp ? `Your best yet. Next time, let it run to ${this.fmtNum(c.yield + 2, 1)} g instead of ${this.fmtNum(c.yield, 1)} g.` : `Your best yet. Next time, grind one step finer (${plainG(finer)}).`; next = esp ? recipe(keepG, c.dose, c.yield + 2) : recipe(finer, c.dose, c.yield); why.push(best, words('under'), esp ? 'Letting a little more coffee through brings out more sweetness and softens that sourness, without touching the grind that got you here.' : 'A slightly finer grind extracts a little more sweetness to balance it.'); }
                     else if (saidO && O0 >= 1.2 && O0 > U0) { head = esp ? `Your best yet. Next time, stop it at ${this.fmtNum(Math.max(c.dose, c.yield - 2), 1)} g instead of ${this.fmtNum(c.yield, 1)} g.` : `Your best yet. Next time, grind one step coarser (${plainG(coarser)}).`; next = esp ? recipe(keepG, c.dose, Math.max(c.dose, c.yield - 2)) : recipe(coarser, c.dose, c.yield); why.push(best, words('over'), esp ? 'Stopping a little earlier leaves the harsher end of the shot behind and keeps the sweetness.' : 'A slightly coarser grind takes the edge off.'); }
-                    else { head = 'Your best yet. Repeat it exactly.'; next = recipe(keepG, c.dose, c.yield); why.push(best, 'Change nothing next time; if it repeats, pin it as Master.'); }
+                    else { head = 'Your best yet. Repeat it exactly.'; next = recipe(keepG, c.dose, c.yield); why.push(best, 'Change nothing next time; if it repeats, pin it as your master recipe.'); }
                     conf = '';
                 } else if (U >= 1.2 && O >= 1.2) {
                     conf = confOf(Math.min(U, O) + 1);
@@ -379,7 +379,8 @@
                     if (mode !== 'ask') conf = [conf, 'first shot of this coffee'].filter(Boolean).join(' \u00b7 ');
                 }
                 const from = c.verdict ? 'verdict' : (read.quotes.length || tagU || tagO) ? 'notes' : (sliderOnly && (U > 0 || O > 0)) ? 'sliders' : 'recipe';
-                return { mode, head, next, why: why.filter(Boolean), conf, ev, ctx, ref, U, O, gm, from };
+                // v15.1: "shot" is espresso's word; other methods read "brew"
+                return this.methodWorded({ mode, head, next, why: why.filter(Boolean), conf, ev, ctx, ref, U, O, gm, from }, c.method);
             },
 
             coachHtml(k, title) {

@@ -161,9 +161,9 @@
                 try {
                     const params = new URLSearchParams(window.location.search || '');
                     const view = String(params.get('view') || '').toLowerCase();
-                    if (view === 'feed' || view === 'shared' || view === 'my' || view === 'profile') {
+                    if (view === 'feed' || view === 'roasters' || view === 'my' || view === 'profile') {
                         this.tab = view;
-                    }
+                    } else if (view === 'shared') { this.tab = 'my'; this.coffeeScope = 'all'; }   // v15.1: old links
                 } catch (err) {
                     this.tab = this.tab || 'my';
                 }

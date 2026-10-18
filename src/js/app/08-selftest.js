@@ -68,7 +68,7 @@
                     for (const theme of ['light', 'dark']) {
                         safe('theme', () => this.setThemePref(theme));
                         check(document.documentElement.getAttribute('data-theme') === theme, `theme switches to ${theme}`);
-                        for (const tab of ['feed', 'my', 'shared', 'profile']) {
+                        for (const tab of ['feed', 'my', 'roasters', 'profile']) {
                             safe('tab', () => this.setTab(tab));
                             const grid = document.getElementById('grid');
                             check(grid && !bad(grid.innerText), `${theme} ${tab}: no undefined/NaN text`);
@@ -111,8 +111,7 @@
                     if (onProgress) onProgress('pages');
                     // 4b. roasters (v13.0): the list and every roaster's page
                     section = 'roasters';
-                    const keepMode = this.libraryMode;
-                    safe('roaster list', () => { this.setTab('shared'); this.setLibraryMode('roasters'); });
+                    safe('roaster list', () => { this.setTab('roasters'); });
                     const rg = document.getElementById('grid');
                     check(rg && rg.querySelector('.ro-sorts') && !bad(rg.innerText), 'roaster list renders');
                     check(noOverflow(), 'roaster list fits the screen');
@@ -127,7 +126,6 @@
                         safe('roaster back', () => this.goBackPage());
                     }
                     check(!this.roasterViewActive(), 'roaster pages close');
-                    this.libraryMode = keepMode;
                     await tick();
                     // 5. tip engine, thousands of random shots
                     section = 'tips';

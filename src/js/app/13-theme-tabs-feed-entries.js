@@ -16,11 +16,12 @@
                 // canvases read colors when drawn, so redraw what's on screen
                 try { this.render(); } catch (err) { console.warn('theme redraw', err); }
                 if (this.activeGroup && this.detailBrews) {
-                    try { this.openDetail(this.activeGroup, this.detailBrews); } catch (err) { console.warn('theme detail redraw', err); }
+                    try { this.openDetail(this.activeGroup, this.detailAllBrews || this.detailBrews); } catch (err) { console.warn('theme detail redraw', err); }
                 }
             },
 
             setTab(tab) {
+                if (tab === 'shared') { tab = 'my'; this.coffeeScope = 'all'; }   // v15.1: the old Shared tab is Coffees, All
                 if (tab === 'profile' && this.tab !== 'profile') this.profileUser = this.user;
                 const freshRecap = tab === 'profile' && this.tab !== 'profile' && !this._noRecapJump ? this.freshRecap() : null;
                 if (freshRecap) { this.profileSection = 'activity'; this.recapPeriod = freshRecap; setTimeout(() => { const el = document.getElementById('recap-card'); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); }
@@ -28,9 +29,12 @@
                 if (this.setBarsTucked) this.setBarsTucked(false);   // v14.7: a new tab starts with both bars
                 document.querySelectorAll('.nav-btn, .mob-item').forEach(el => el.classList.remove('active'));
                 document.querySelectorAll(`[data-tab="${tab}"]`).forEach(el => el.classList.add('active'));
-                const titles = { my: 'My Collection', shared: 'Shared Library', feed: this.acctOn() ? 'Feed' : 'Community Feed', profile: 'Profiles' };
-                document.getElementById('view-title').innerText = titles[tab] || 'My Collection';
+                // v15.1: the page title is the tab's name (Coffees holds yours and everyone's; Roasters is its own tab)
+                const titles = { my: 'Coffees', roasters: 'Roasters', feed: 'Feed', profile: 'Profile' };
+                document.getElementById('view-title').innerText = titles[tab] || 'Coffees';
                 document.body.classList.toggle('feed-mode', tab === 'feed' || tab === 'profile');
+                document.body.classList.toggle('roasters-mode', tab === 'roasters');
+                ['search-input', 'search-input-mobile'].forEach(id => { const el = document.getElementById(id); if (el) el.placeholder = tab === 'roasters' ? 'Search roasters…' : 'Search coffees…'; });
                 this.closeMobileControls();
                 this.updateAchievementCount();
                 this.render();
@@ -193,7 +197,7 @@
                         const libraryAdd = users.size > 0 && !users.has(actor);
                         users.add(actor);
                         beanKeyUsers.set(key, users);
-                        const beanName = `${event.roaster || ''} ${event.name || ''}`.trim() || 'Unnamed Bean';
+                        const beanName = `${event.roaster || ''} ${event.name || ''}`.trim() || 'Unnamed coffee';
                         const prevBean = beanStates.get(beanId);
 
                         if (!seenBeanIds.has(beanId)) {
@@ -201,7 +205,7 @@
                             items.push({
                                 id: `feed-bean-${beanId}-${this.toTime(ts)}`,
                                 kind: libraryAdd ? 'library' : 'bean',
-                                kindLabel: libraryAdd ? 'Library' : 'New Bean',
+                                kindLabel: libraryAdd ? 'Added' : 'New coffee',
                                 actor,
                                 actorColor,
                                 date: ts,

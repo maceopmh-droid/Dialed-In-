@@ -92,3 +92,14 @@
 .crew-awards .aw-month { margin: -2px 0 12px; }
 .crew-awards .aw-month .recap-select { max-width: 100%; width: auto; }
 .crew-awards .aw-head-t .label { font-size: 1.02rem; font-weight: 750; letter-spacing: -0.01em; text-transform: none; color: var(--ink); }
+
+/* v15.1: the Roasters tab has its own sorting; the coffee filters and sort menu are for Coffees */
+body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters-mode #mobile-controls-panel .mc-sort, body.roasters-mode #mobile-controls-panel .mc-method { display: none !important; }
+
+/* v15.1: whose take on a coffee (You, a community, Friends, Everyone), at the top of its page */
+.d-lens { margin: 0 0 16px; }
+.d-lens .lens-n { margin-left: 6px; font-weight: 650; opacity: 0.7; font-variant-numeric: tabular-nums; }
+.d-lens .comm-chip.on .lens-n { opacity: 0.85; }
+/* Everyone: their stars, notes and flavor shape, and the list of what they shared; the rest is about your circle's sessions */
+#detail-view.lens-everyone .insight-tabs, #detail-view.lens-everyone #d-timeline-pane, #detail-view.lens-everyone #d-compare-pane,
+#detail-view.lens-everyone #d-side-pane, #detail-view.lens-everyone #d-sweet-pane, #detail-view.lens-everyone #d-dialin-pane { display: none !important; }

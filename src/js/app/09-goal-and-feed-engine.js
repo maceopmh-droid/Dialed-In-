@@ -536,8 +536,8 @@
                 const sg = this._crewScope && this._crewScope.id !== 'friends' && this.grState ? (this.grState().list || []).find(g => String(g.id) === this._crewScope.id) : null;
                 const invite = sg && sg.invite ? `<button type="button" class="cq-invite" data-g="${this.esc(String(sg.id))}" onclick="app.shareCommunity(this.getAttribute('data-g'), event)"><svg class="icon"><use href="#i-share-2"/></svg>Invite</button>` : '';
                 return `
-                    <section class="feed-card crew-quest${q.done ? ' done' : ''}" aria-label="Group goal">
-                        <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-target"/></svg>Group goal · this week</span><span class="cq-right"><span class="cq-left">${this.esc(left)}</span>${invite}</span></div>
+                    <section class="feed-card crew-quest${q.done ? ' done' : ''}" aria-label="${this._crewScope ? 'Community goal' : 'Group goal'}">
+                        <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-target"/></svg>${this._crewScope ? 'Community goal' : 'Group goal'} · this week</span><span class="cq-right"><span class="cq-left">${this.esc(left)}</span>${invite}</span></div>
                         <div class="cq-title">${this.esc(q.title)}</div>
                         ${bar}
                         <div class="cq-meta"><span><b>${q.progress}</b> of ${q.target} ${this.esc(q.unit)}${q.detail ? ` · ${this.esc(q.detail)}` : ''}</span></div>

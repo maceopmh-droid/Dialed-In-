@@ -341,3 +341,102 @@
                 const head = `<div class="aw-head"><div class="aw-head-t"${items.length ? ' onclick="app.toggleAwards()"' : ''}><div class="label">${this.esc(this.hlMonthLabel())} highlights</div><div class="aw-sub">Everyone · ${this.esc(sub)}</div></div>${tog}</div>`;
                 return `<div class="profile-card crew-awards ev-awards${open && items.length ? '' : ' folded'}" id="crew-awards">${head}${open && items.length ? `<div class="hl-card ev-rows">${this.hlRowsHtml()}</div>` : ''}</div>`;
             },
+
+            // ---- v15.1: the Coffees tab holds yours (Mine) and everyone's you can see (All); it remembers which
+            coffeeScopeNow() { if (!this.coffeeScope) this.coffeeScope = safeGet('dialed_coffee_scope') === 'all' ? 'all' : 'mine'; return this.coffeeScope; },
+            setCoffeeScope(v) { this.coffeeScope = v === 'all' ? 'all' : 'mine'; safeSet('dialed_coffee_scope', this.coffeeScope); this.render(); window.scrollTo(0, 0); },
+            coffeeScopeHtml() {
+                const m = this.coffeeScopeNow();
+                return `<div class="seg-control lib-switch" role="tablist" aria-label="Whose coffees">${[['mine', 'Mine'], ['all', 'All']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === m}" aria-pressed="${k === m}" onclick="app.setCoffeeScope('${k}')">${l}</button>`).join('')}</div>`;
+            },
+
+            // ---- v15.1: "shot" is espresso's word; every other method gets "brew" (a pour over isn't a shot)
+            shotWord(method) { return !method || /espresso/i.test(String(method)) ? 'shot' : 'brew'; },
+            methodWorded(o, method) {
+                if (!o || this.shotWord(method) === 'shot') return o;
+                const t = v => typeof v === 'string' ? v.replace(/\b([Ss])hot(s?)\b/g, (m, s, pl) => (s === 'S' ? 'Brew' : 'brew') + pl) : Array.isArray(v) ? v.map(t) : (v && typeof v === 'object' && typeof v.text === 'string' ? { ...v, text: t(v.text) } : v);
+                const out = { ...o };
+                ['head', 'headline', 'detail', 'note', 'conf', 'why', 'ctx', 'evidence', 'ev'].forEach(k => { if (k in out) out[k] = t(out[k]); });
+                return out;
+            },
+
+            // ---- v15.1: the recap's second card: the circle picked above the awards (a community, your friends). None for
+            // Everyone, or on someone else's recap (it would be your circle's numbers).
+            recapCircle(user, period) {
+                const acct = this.acctOn && this.acctOn();
+                if (acct && user !== this.user) return null;
+                const circle = acct && this.activeCircle ? this.activeCircle() : null;
+                if (circle && circle.id === 'everyone') return null;
+                const c = circle ? this.withCrewScope(circle.scope, () => this.monthCrewStats(period)) : this.monthCrewStats(period);
+                if (!c || c.people.length < 2) return null;
+                return { c, circle, name: circle ? circle.name : 'Together', friends: !!circle && circle.id === 'friends' };
+            },
+
+            // ---- v15.1: whose take on a coffee, on its page: You, each of your communities, Friends, Everyone (what people
+            // shared with Everyone on Dialed In). The rating, flavor shape, notes, sessions, dial-in and sweet spot all
+            // follow it. Opens on You when you've brewed it, else the first circle with sessions on it. A circle shows only
+            // when someone besides you in it has logged this coffee; All (everything you can see here) only when some
+            // sessions belong to none of them.
+            lensOptions(all) {
+                if (!(this.acctOn && this.acctOn())) return [];
+                const owner = b => this.getBrewOwner(b), out = [], covered = new Set([this.user]);
+                const mine = all.filter(b => owner(b) === this.user).length;
+                if (mine) out.push({ id: 'me', name: 'You', n: mine, names: new Set([this.user]) });
+                this.circleOptions().forEach(o => {
+                    if (o.id === 'everyone') return;
+                    const names = new Set(o.scope.members.map(m => m.name));
+                    names.forEach(x => covered.add(x));
+                    const n = all.filter(b => names.has(owner(b))).length, others = all.filter(b => names.has(owner(b)) && owner(b) !== this.user).length;
+                    if (others) out.push({ id: o.id, name: o.name, n, names });
+                });
+                if (all.some(b => !covered.has(owner(b)))) out.push({ id: 'all', name: 'All', n: all.length, names: new Set(all.map(owner)) });
+                out.push({ id: 'everyone', name: 'Everyone', n: 0 });
+                return out;
+            },
+            activeLens(all = this.detailAllBrews || []) {
+                const list = this.lensOptions(all);
+                if (!list.length) return null;
+                if (this._lensWant) {   // opened at someone's session: a view with it in
+                    const w = this._lensWant; this._lensWant = '';
+                    const cur = list.find(o => o.id === this._lens) || list[0];
+                    if (!(cur.names && cur.names.has(w))) { const hit = list.find(o => o.names && o.names.has(w)); if (hit) this._lens = hit.id; }
+                }
+                return list.find(o => o.id === this._lens) || list[0];
+            },
+            lensBrews(all) {
+                const L = this.activeLens(all);
+                if (!L) { if (this.detailTab === 'everyone') this.detailTab = 'timeline'; return all; }
+                if (L.id === 'everyone') { this.detailTab = 'everyone'; return []; }
+                if (this.detailTab === 'everyone') this.detailTab = 'timeline';
+                return all.filter(b => L.names.has(this.getBrewOwner(b)));
+            },
+            lensLabel() { const L = this.activeLens(); return L ? L.name : 'All'; },
+            setLens(id) {
+                const v = document.getElementById('detail-view'), top = v ? v.scrollTop : 0;
+                this._lens = String(id || '');
+                this._navKeep = true;
+                try { this.openDetail(this.activeGroup, this.detailAllBrews || []); } finally { this._navKeep = false; }
+                if (v) v.scrollTop = top;
+            },
+            paintLens() {
+                const box = document.getElementById('d-lens'), view = document.getElementById('detail-view');
+                if (!box) return;
+                const list = this.lensOptions(this.detailAllBrews || []), L = list.length ? this.activeLens() : null;
+                if (view) view.classList.toggle('lens-everyone', !!L && L.id === 'everyone');
+                if (list.length < 2) { box.hidden = true; box.innerHTML = ''; return; }
+                box.hidden = false;
+                box.innerHTML = `<div class="cp-lead">Sessions from</div><div class="comm-filters" role="tablist" aria-label="Sessions from">${list.map(o => `<button type="button" class="comm-chip${o.id === L.id ? ' on' : ''}" role="tab" aria-selected="${o.id === L.id}" data-l="${this.esc(o.id)}" onclick="app.setLens(this.getAttribute('data-l'))">${this.esc(o.name)}${o.n ? `<span class="lens-n">${o.n}</span>` : ''}</button>`).join('')}</div>`;
+            },
+            // Everyone came in: the page's stars, top notes and flavor shape from what people shared (never grind settings)
+            lensEveryoneLoaded(st) {
+                const L = this.activeLens();
+                if (!L || L.id !== 'everyone' || !this.isDetailActive()) return;
+                const pub = (st.events || []).filter(e => e && e.type === 'brew' && !this.reported(e.id));
+                const s = st.summary || {};
+                this._lensPublic = true;
+                try { this.renderBeanFlavor(pub); } finally { this._lensPublic = false; }
+                const rs = document.getElementById('d-rating-summary');
+                if (rs) { const html = pub.length ? this.beanStarsHtml(pub, Number(s.rating) || this.calculateAverageRating(pub), Number(s.sessions) || pub.length) : ''; rs.style.display = html ? 'inline-flex' : 'none'; rs.innerHTML = html; }
+                const tf = document.getElementById('d-top-flavors');
+                if (tf) tf.innerHTML = this.getTopFlavors(pub, 3).map(f => this.famChip(f)).join('');
+            },

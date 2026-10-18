@@ -302,7 +302,7 @@
                             <div class="cmt-compose">
                                 <div class="reply-chip"${reply ? '' : ' hidden'}>Replying to <b>${reply ? this.esc(reply.user) : ''}</b><button type="button" onclick="app.cancelReply(event)" aria-label="Cancel reply">×</button></div>
                                 <div class="cmt-input-row">
-                                    <input type="text" class="comment-input" id="${this.esc(opts.inputId)}" placeholder="${kind === 'bean' ? 'Comment on this bean…' : 'Add a comment…'}" onkeydown="${keyHandler}" maxlength="280">
+                                    <input type="text" class="comment-input" id="${this.esc(opts.inputId)}" placeholder="${kind === 'bean' ? 'Comment on this coffee…' : 'Add a comment…'}" onkeydown="${keyHandler}" maxlength="280">
                                     ${this.cmtShareHtml ? this.cmtShareHtml(kind, target, key) : ''}
                                     <button type="button" class="comment-submit" onclick="${submit}">Post</button>
                                 </div>
@@ -498,7 +498,7 @@
                 if (!bean) return '';
                 const owner = String(bean.user || bean.owner || 'Unknown');
                 const color = this.getUserColor(owner, entry.actorColor || '');
-                const beanName = `${bean.roaster || ''} ${bean.name || ''}`.trim() || 'Unnamed Bean';
+                const beanName = `${bean.roaster || ''} ${bean.name || ''}`.trim() || 'Unnamed coffee';
                 const likes = this.normalizeLikeList(bean.likes, owner);
                 const comments = this.normalizeCommentList(bean.comments, `bean-${bean.id}`, bean.date);
                 const topTags = [bean.variety, bean.origin, bean.process].filter(Boolean).slice(0, 3);

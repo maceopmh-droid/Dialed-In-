@@ -132,7 +132,7 @@
                     || beans[0];
                 if (!holder) return;
                 if (String(holder.user || holder.owner || '') === this.user) {
-                    this.showToast('This bean is already in your collection.');
+                    this.showToast('You\'ve already added this coffee.');
                     return;
                 }
                 const list = Array.isArray(holder.wantToTry) ? holder.wantToTry : [];
@@ -169,7 +169,7 @@
                 const rated = latestFirst.filter(b => this.normalizeRating(b.rating) > 0);
                 const best = rated.slice().sort((a, b) => this.normalizeRating(b.rating) - this.normalizeRating(a.rating))[0];
                 const pick = master ? this.getMasterProfile(master) : (best || latestFirst[0]);
-                const pickLabel = master ? 'Master recipe' : (best ? 'Best-rated shot' : 'Latest shot');
+                const pickLabel = master ? 'Master recipe' : `${best ? 'Best-rated' : 'Latest'} ${this.shotWord(pick && pick.method)}`;
                 const methods = [...new Set(list.map(b => b.method).filter(Boolean))];
                 const avg = key => list.reduce((s, b) => s + (b[key] === undefined || b[key] === '' ? 5 : this.num(b[key])), 0) / list.length;
                 const bars = [['Acidity', 'acidity'], ['Sweetness', 'sweetness'], ['Body', 'body'], ['Finish', 'finish'], ['Complexity', 'balance']].map(([label, key]) => {
@@ -196,7 +196,7 @@
                     let how = 'pinned as Master';
                     if (dialedAt < 0) {
                         dialedAt = shots.findIndex(b => this.normalizeRating(b.rating) >= 4.5);
-                        how = 'first 4.5★ shot';
+                        how = 'first 4.5★ session';
                     }
                     return { owner, method, shots, ratings, dialedAt, how };
                 }).sort((a, b) => a.owner.localeCompare(b.owner) || a.method.localeCompare(b.method));
@@ -206,7 +206,7 @@
                 const pane = document.getElementById('d-dialin-pane');
                 if (!pane) return;
                 const all = this.dialinSeries();
-                const head = '<div class="sw-head"><h3>Dial-in</h3><p>Each person\'s ratings, shot by shot. The star marks where they dialed it in.</p></div>';
+                const head = '<div class="sw-head"><h3>Dial-in</h3><p>Each person\'s ratings, session by session. The star marks where they dialed it in.</p></div>';
                 if (!all.length) { pane.innerHTML = `<div class="sweet-card">${head}<div class="panel-empty">No sessions on this coffee yet.</div></div>`; return; }
                 const shotsOf = m => all.filter(s => s.method === m).reduce((n, s) => n + s.shots.length, 0);
                 const methods = [...new Set(all.map(s => s.method).filter(Boolean))].sort((a, b) => shotsOf(b) - shotsOf(a));
@@ -220,9 +220,9 @@
                     const rated = s.ratings.filter(Boolean);
                     const n = s.shots.length;
                     const status = s.dialedAt >= 0
-                        ? `Dialed in on shot ${s.dialedAt + 1} · ${s.how === 'pinned as Master' ? 'Master' : 'first 4.5★'}`
+                        ? `Dialed in on session ${s.dialedAt + 1} · ${s.how === 'pinned as Master' ? 'Master' : 'first 4.5★'}`
                         : (rated.length ? `Best so far ${this.fmtNum(Math.max(...rated))}★` : 'No ratings yet');
-                    return `<div class="di-row"><i style="background:${this.esc(s.color)}"></i><b>${this.esc(s.owner)}</b><span>${this.esc(status)}</span><em>${n} shot${n === 1 ? '' : 's'}</em></div>`;
+                    return `<div class="di-row"><i style="background:${this.esc(s.color)}"></i><b>${this.esc(s.owner)}</b><span>${this.esc(status)}</span><em>${n} session${n === 1 ? '' : 's'}</em></div>`;
                 }).join('');
                 if (!anyRated) { pane.innerHTML = `<div class="sweet-card">${head}${methodRow}<div class="panel-empty">Rate shots on this coffee and each person's curve draws here.</div><div class="di-rows">${rows}</div></div>`; return; }
                 const W = 340, H = 200, L = 30, R = 14, T = 14, B = 28;
@@ -239,14 +239,14 @@
                     if (!pts.length) return '';
                     let d = `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
                     for (let i = 1; i < pts.length; i++) { const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], mx = (x0 + x1) / 2; d += ` C${mx.toFixed(1)} ${y0.toFixed(1)} ${mx.toFixed(1)} ${y1.toFixed(1)} ${x1.toFixed(1)} ${y1.toFixed(1)}`; }
-                    const dots = s.ratings.map((r, i) => r && i !== s.dialedAt ? `<circle class="di-dot" cx="${X(i).toFixed(1)}" cy="${Y(r).toFixed(1)}" r="3.6" fill="${this.esc(s.color)}"><title>${this.esc(s.owner)} · shot ${i + 1} · ${this.fmtNum(r)}★</title></circle>` : '').join('');
+                    const dots = s.ratings.map((r, i) => r && i !== s.dialedAt ? `<circle class="di-dot" cx="${X(i).toFixed(1)}" cy="${Y(r).toFixed(1)}" r="3.6" fill="${this.esc(s.color)}"><title>${this.esc(s.owner)} · session ${i + 1} · ${this.fmtNum(r)}★</title></circle>` : '').join('');
                     const mark = s.dialedAt >= 0 && s.ratings[s.dialedAt] ? star(X(s.dialedAt), Y(s.ratings[s.dialedAt]), 8.5, s.color) : '';
                     return `<path class="di-line" d="${d}" stroke="${this.esc(s.color)}"/>${dots}${mark}`;
                 }).join('');
                 pane.innerHTML = `
                     <div class="sweet-card">
                         ${head}${methodRow}
-                        <div class="sw-chart"><svg class="sweet-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Dial-in curves">${grid}<text class="sw-axis" x="${(L + W - R) / 2}" y="${H - 3}" text-anchor="middle">Shot number</text>${lines}</svg></div>
+                        <div class="sw-chart"><svg class="sweet-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Dial-in curves">${grid}<text class="sw-axis" x="${(L + W - R) / 2}" y="${H - 3}" text-anchor="middle">Session number</text>${lines}</svg></div>
                         <div class="di-rows">${rows}</div>
                     </div>`;
             },
