@@ -125,6 +125,7 @@
                 const bean = this.beans.get(String(event.beanId));
                 if (!bean) return;
                 this.originList(bean.origin).forEach(o => stats.originSet.add(o.toLowerCase()));
+                if (this.coffeeContinent && stats.continentSet) this.originList(bean.origin).forEach(o => { const c = this.coffeeContinent(o); if (c) stats.continentSet.add(c); });   // v15.1
                 const process = this.normalizeTag(bean.process);
                 if (process) stats.processSet.add(process.toLowerCase());
                 const roast = String(bean.roast || '').trim();

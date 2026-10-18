@@ -196,6 +196,40 @@ async function handle(req, res) {
     });
     return send(res, 200, gone);
   }
+  // v15.1: profile pictures (bucket "avatars"): add your own, remove your own, anyone can look by its address
+  const aup = /^\/storage\/v1\/object\/avatars\/(.+)$/.exec(url.pathname);
+  if (aup && req.method === 'POST') {
+    if (!who.sub) return send(res, 400, { statusCode: '403', error: 'Unauthorized', message: 'new row violates row-level security policy' });
+    const name = decodeURIComponent(aup[1]);
+    try {
+      asWho(who.sub, `insert into storage.objects (bucket_id, name, owner) values ('avatars', ${lit(name)}, '${who.sub}')` +
+        (req.headers['x-upsert'] === 'true' ? ` on conflict (bucket_id, name) do update set owner = excluded.owner;` : ';'));
+    } catch (e) { return send(res, 400, { statusCode: '403', error: 'Unauthorized', message: 'new row violates row-level security policy' }); }
+    const file = path.join(FILES, 'avatars', name);
+    fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, raw);
+    stats.uploads++;
+    return send(res, 200, { Key: 'avatars/' + name, Id: crypto.randomUUID() });
+  }
+  if (url.pathname === '/storage/v1/object/avatars' && req.method === 'DELETE') {
+    const b = json(), gone = [];
+    (Array.isArray(b.prefixes) ? b.prefixes : []).forEach(p => {
+      let n = ''; try { n = asWho(who.sub, `with d as (delete from storage.objects where bucket_id = 'avatars' and name = ${lit(p)} returning name) select count(*) from d;`); } catch (e) {}
+      if (n === '1') { gone.push({ name: p }); try { fs.unlinkSync(path.join(FILES, 'avatars', p)); } catch (e) {} }
+    });
+    return send(res, 200, gone);
+  }
+  if (url.pathname === '/storage/v1/object/list/avatars' && req.method === 'POST') {
+    const b = json(), prefix = String(b.prefix || '').replace(/\/$/, '');
+    let out = '';
+    try { out = asWho(who.sub, `select coalesce(string_agg(name, E'\\n' order by name), '') from storage.objects where bucket_id = 'avatars' and name like ${lit(prefix + '/%')};`); } catch (e) {}
+    return send(res, 200, (out ? out.split('\n') : []).map(n => ({ name: n.slice(prefix.length + 1), id: crypto.randomUUID() })));
+  }
+  const pub = /^\/storage\/v1\/object\/public\/avatars\/(.+)$/.exec(url.pathname);
+  if (pub && req.method === 'GET') {
+    const file = path.join(FILES, 'avatars', decodeURIComponent(pub[1]));
+    if (!fs.existsSync(file)) return send(res, 404, { statusCode: '404', error: 'not_found', message: 'Object not found' });
+    return send(res, 200, fs.readFileSync(file), file.endsWith('.png') ? 'image/png' : 'image/jpeg');
+  }
   const get = /^\/storage\/v1\/object\/sign\/photos\/(.+)$/.exec(url.pathname);
   if (get && req.method === 'GET') {
     const l = links.get(url.searchParams.get('token') || '');

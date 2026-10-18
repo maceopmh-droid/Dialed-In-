@@ -106,6 +106,16 @@
                         sentence: value => `brewed coffees from ${Math.round(value)} different origins`
                     },
                     {
+                        key: 'continents',   // v15.1 (Aidan's idea): a coffee from every continent that grows it
+                        group: 'Exploring',
+                        desc: 'A coffee from every continent that grows it: Africa, Asia, Oceania, North & Central America, South America',
+                        title: 'World Tour',
+                        thresholds: [5],
+                        metric: stats => (stats.continentSet ? stats.continentSet.size : 0),
+                        format: value => `${Math.min(5, Math.max(0, Math.round(value)))}/5 continents`,
+                        sentence: () => 'brewed coffee from every continent that grows it'
+                    },
+                    {
                         key: 'processes',
                         group: 'Exploring',
                         desc: 'Different processing methods brewed (washed, natural, honey...)',

@@ -102,6 +102,7 @@
                     commentsWritten: 0,
                     likesReceived: 0,
                     originSet: new Set(),
+                    continentSet: new Set(),   // v15.1
                     processSet: new Set(),
                     roastSet: new Set(),
                     roasterSet: new Set(),

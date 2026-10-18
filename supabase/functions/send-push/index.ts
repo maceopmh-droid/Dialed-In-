@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
         const res = await fetch(`https://${a.host || 'api.push.apple.com'}/3/device/${token}`, {
           method: 'POST',
           headers: { authorization: 'bearer ' + await apnsToken(a), 'apns-topic': a.topic, 'apns-push-type': 'alert', 'apns-priority': '10', 'apns-collapse-id': String(p.tag || '').slice(0, 64) },
-          body: JSON.stringify({ aps: { alert: { title: p.title, body: p.body }, sound: 'default', 'thread-id': 'dialed-in' }, open: 'notifications' }),
+          body: JSON.stringify({ aps: { alert: { title: p.title, body: p.body }, sound: 'default', 'thread-id': 'dialed-in' }, open: 'notifications', tag: p.tag }),   // v15.1: tag says which notification (the app opens what it's about)
         });
         if (res.ok) sent++;
         else {

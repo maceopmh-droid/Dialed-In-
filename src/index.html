@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v15.0 -->
+<!-- Dialed In v15.1 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="15.0">
+    <meta name="dialed-in-version" content="15.1">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -33,9 +33,13 @@
 @@include css/13-community.css
 @@include css/14-community-more.css
 @@include css/15-v15.css
+@@include css/16-v151.css
     </style>
 </head>
 <body>
+    <!-- v15.1: the start-up screen, while the app starts (it goes once your coffees are on screen; on its own after 9 s) -->
+    <div id="boot-screen" aria-hidden="true"><div class="bs-inner"><div class="bs-logo"></div><div class="bs-text">Starting up…</div><div class="bs-bar"><i id="boot-bar"></i></div></div></div>
+    <script id="boot-script">(function () { try { var b = document.getElementById('boot-bar'); if (b) setTimeout(function () { b.style.width = '22%'; }, 30); setTimeout(function () { var s = document.getElementById('boot-screen'); if (s && s.parentNode) s.parentNode.removeChild(s); }, 9000); } catch (e) {} })();</script>
     <!-- SVG Icon Definitions -->
     <svg><defs>
         <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4.6"/><circle cx="12" cy="12" r="1.2"/></symbol><symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 4.5h8v4.2a4 4 0 0 1-8 0Z"/><path d="M8 6H5.2a2.6 2.6 0 0 0 2.9 3.6M16 6h2.8a2.6 2.6 0 0 1-2.9 3.6"/><path d="M12 12.7v3.6M8.8 20h6.4M9.8 16.3h4.4l.6 3.7H9.2Z"/></symbol><symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.8"/><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M5.6 18.4l1.6-1.6M16.8 7.2l1.6-1.6"/></symbol><symbol id="i-moon" viewBox="0 0 24 24"><path d="M19.5 14.6A7.6 7.6 0 0 1 9.4 4.5a7.6 7.6 0 1 0 10.1 10.1Z"/></symbol><symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="m15.3 8.7-1.9 4.7-4.7 1.9 1.9-4.7Z"/></symbol><symbol id="i-star" viewBox="0 0 24 24"><path d="m12 4.2 2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 16.6l-4.8 2.5.9-5.4-3.9-3.8 5.4-.8Z"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8.6A1.6 1.6 0 0 1 5.6 7h2.2l1.4-2h5.6l1.4 2h2.2A1.6 1.6 0 0 1 20 8.6v8.8a1.6 1.6 0 0 1-1.6 1.6H5.6A1.6 1.6 0 0 1 4 17.4Z"/><circle cx="12" cy="12.6" r="3.4"/></symbol><symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 3.5 20 6.5l-3 3"/><path d="M4 11.5v-1a4 4 0 0 1 4-4h12"/><path d="m7 20.5-3-3 3-3"/><path d="M20 12.5v1a4 4 0 0 1-4 4H4"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m15.5 15.5 4.6 4.6"/></symbol><symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21Z"/><circle cx="12" cy="10" r="2.4"/></symbol><symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 21c-3.6 0-6.2-2.5-6.2-5.9 0-2.7 1.7-4.6 3.3-6.3.2 1.6 1 2.7 2.1 3.2-.3-3 1-6 3.6-8 0 2.9 1.4 4.6 2.6 6.3 1 1.4 1.8 2.9 1.8 4.8 0 3.4-3.6 5.9-7.2 5.9Z"/></symbol><symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M3.6 12h16.8M12 3.6c2.3 2.4 3.4 5.2 3.4 8.4s-1.1 6-3.4 8.4c-2.3-2.4-3.4-5.2-3.4-8.4S9.7 6 12 3.6Z"/></symbol><symbol id="i-trend" viewBox="0 0 24 24"><path d="m4 17 5.5-5.5 3.5 3.5L20 8"/><path d="M14.5 8H20v5.5"/></symbol><symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2-5 4 10 2-5h6"/></symbol><symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3 5.5 13.2H12L11 21l7.5-10.2H12Z"/></symbol><symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="2.4"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></symbol><symbol id="i-crown" viewBox="0 0 24 24"><path d="m4 8.5 3.8 3.4L12 5.5l4.2 6.4L20 8.5 18.4 18H5.6Z"/><path d="M5.8 20.5h12.4"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.4"/><path d="M8.2 10.5V8a3.8 3.8 0 0 1 7.6 0v2.5"/></symbol><symbol id="i-medal" viewBox="0 0 24 24"><circle cx="12" cy="14.5" r="5"/><path d="M8.6 10.8 6 3.5h4l2 4.2 2-4.2h4l-2.6 7.3"/></symbol><symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5Z"/></symbol><symbol id="i-coffee" viewBox="0 0 24 24"><path d="M5 9h11v4.5A5.5 5.5 0 0 1 10.5 19h0A5.5 5.5 0 0 1 5 13.5Z"/><path d="M16 10.5h1.25a2.75 2.75 0 0 1 0 5.5H15.4"/><path d="M8.5 3.5c-.6.9.6 1.6 0 2.6M12 3.5c-.6.9.6 1.6 0 2.6"/><path d="M4 21.5h14"/></symbol>
@@ -387,6 +391,12 @@
                     <span class="set-color-val"><span id="user-color-value" class="user-color-value">#586A58</span><i id="user-color-swatch" class="set-swatch"></i></span>
                     <input type="color" id="user-color-input" class="set-color-input" aria-label="Your color" onchange="app.saveUserColor(this.value)">
                 </div>
+                <div class="set-row set-avatar" id="set-avatar-row" hidden>
+                    <span class="set-main"><b>Profile picture</b><small id="set-avatar-note">Shows wherever your initial does</small></span>
+                    <i class="set-face" id="set-avatar-face"></i>
+                    <input type="file" accept="image/*" id="set-avatar-input" class="set-color-input" aria-label="Choose a profile picture" onchange="app.pickAvatar(this)">
+                </div>
+                <button type="button" class="set-row set-avatar-remove" id="set-avatar-remove" hidden onclick="app.removeAvatar()"><span class="set-main"><b>Remove profile picture</b></span></button>
             </div>
 
             <div id="settings-acct"></div>
@@ -399,7 +409,7 @@
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v15.0</div>
+            <div class="app-version">Dialed In · v15.1</div>
         </div>
     </div>
 
@@ -695,6 +705,7 @@
 @@include js/02-cloud.js
 @@include js/03-roaster-engine.js
 @@include js/04-storage.js
+@@include js/05-world-map.js
 @@include js/app/00-state.js
 @@include js/app/01-boot.js
 @@include js/app/02-helpers.js
@@ -737,6 +748,7 @@
 @@include js/app/39-highlights.js
 @@include js/app/40-scroll-bars.js
 @@include js/app/41-v15.js
+@@include js/app/42-v151.js
 @@include js/app/99-end.js
 @@include js/99-boot.js
     </script>

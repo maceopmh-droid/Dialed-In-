@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v15.0 -->
+<!-- Dialed In v15.1 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="15.0">
+    <meta name="dialed-in-version" content="15.1">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -3673,9 +3673,84 @@
         .toast { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; background: rgba(22, 30, 24, 0.96) !important; }
         /* the coach's Next line breaks between its parts (grind · recipe · aim), never inside one ("aim 28–32" / "s") */
         .coach-next .cn { font-style: normal; white-space: nowrap; }
+        /* ===================== v15.1 ===================== */
+        /* the bottom bar: the tab you're on sits in a soft pill, clear in light and dark */
+        .mob-item { isolation: isolate; }
+        .mob-item::before { content: ''; position: absolute; top: 50%; left: 50%; width: 60px; height: 50px; border-radius: 999px; z-index: -1; pointer-events: none;
+            background: rgba(var(--matcha-rgb), 0.15); box-shadow: inset 0 0 0 1px rgba(var(--matcha-rgb), 0.2);
+            opacity: 0; transform: translate(-50%, -50%) scale(0.72); transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), width 0.3s, height 0.3s; }
+        :root[data-theme="dark"] .mob-item::before { background: rgba(var(--matcha-rgb), 0.17); box-shadow: inset 0 0 0 1px rgba(var(--matcha-rgb), 0.24); }
+        .mob-item.active::before { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        .mob-item.active { color: var(--matcha-ink); }
+        .mob-item.active .icon { filter: none; }
+        body.bars-tucked .mob-item::before { width: 48px; height: 38px; }
+        @media (prefers-reduced-motion: reduce) { .mob-item::before { transition: none; } }
+
+        /* the loading animation: the Dialed In logo (a flavor shape seen from above), turning */
+        :root { --di-logo: url("data:image/webp;base64,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"); }
+        .di-loader { display: inline-flex; flex-direction: column; align-items: center; }
+        .dl-logo { display: block; width: 36px; height: 36px; background: var(--di-logo) center / contain no-repeat; animation: diTurn 2.6s linear infinite; }
+        .di-loader .dl-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+        @keyframes diTurn { to { transform: rotate(360deg); } }
+        @media (prefers-reduced-motion: reduce) { .dl-logo, .bs-logo { animation-duration: 8s; } }
+        .di-loading { display: flex; justify-content: center; align-items: center; padding: 26px 0; }
+
+        /* the start-up screen: the logo turning, "Starting up…" and a bar that fills as the app starts */
+        #boot-screen { position: fixed; inset: 0; z-index: 99990; display: flex; align-items: center; justify-content: center; background: var(--paper); transition: opacity 0.3s ease; }
+        #boot-screen.gone { opacity: 0; pointer-events: none; }
+        .bs-inner { display: flex; flex-direction: column; align-items: center; gap: 18px; transform: translateY(-3vh); }
+        .bs-logo { width: 132px; height: 132px; background: var(--di-logo) center / contain no-repeat; animation: diTurn 4.5s linear infinite; filter: drop-shadow(0 16px 30px rgba(0, 0, 0, 0.18)); }
+        .bs-text { font: 600 15px var(--font-main); color: var(--text-muted); letter-spacing: 0.01em; }
+        .bs-bar { width: 170px; height: 4px; border-radius: 999px; background: rgba(var(--hair-rgb), 0.12); overflow: hidden; }
+        .bs-bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--matcha); transition: width 0.4s ease; }
+
+        /* the coffee map on a profile */
+        .cmap .cm-sum { margin: -2px 0 10px; font-size: 0.8rem; color: var(--text-muted); }
+        .cm-svg { display: block; width: 100%; height: auto; margin: 0 -2px; }
+        .cm-land { fill: rgba(var(--hair-rgb), 0.11); stroke: var(--surface); stroke-width: 0.8; stroke-linejoin: round; }
+        .cm-belt { fill: rgba(var(--matcha-rgb), 0.26); }
+        .cm-dot { fill: rgba(var(--matcha-rgb), 0.26); stroke: var(--surface); stroke-width: 1; }
+        .cm-on { cursor: pointer; }
+        .cm-l1 { fill: rgba(var(--matcha-rgb), 0.68); } .cm-l2 { fill: rgba(var(--matcha-rgb), 0.86); } .cm-l3 { fill: var(--matcha); }
+        :root[data-theme="dark"] .cm-on { filter: drop-shadow(0 0 3px rgba(var(--matcha-rgb), 0.55)); }
+        .cm-sel { stroke: var(--ink); stroke-width: 1.8; }
+        .cm-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+        .cm-chip { display: inline-flex; align-items: center; gap: 5px; width: auto; margin: 0; padding: 5px 10px; border: 1px solid rgba(var(--hair-rgb), 0.1); border-radius: 999px; background: var(--surface-2, rgba(var(--hair-rgb), 0.04)); font: inherit; font-size: 0.76rem; font-weight: 650; color: var(--ink-2, var(--ink)); text-transform: none; letter-spacing: 0; cursor: pointer; box-shadow: none; }
+        .cm-chip b { font-weight: 750; color: var(--matcha-ink); }
+        .cm-chip.on { background: rgba(var(--matcha-rgb), 0.16); border-color: rgba(var(--matcha-rgb), 0.4); color: var(--ink); }
+        .cm-conts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+        .cm-cont { padding: 3px 9px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; color: var(--text-faint); border: 1px dashed rgba(var(--hair-rgb), 0.16); }
+        .cm-cont.on { color: var(--matcha-ink); border: 1px solid rgba(var(--matcha-rgb), 0.35); background: rgba(var(--matcha-rgb), 0.1); }
+        .cm-hint { margin: 12px 0 0; font-size: 0.78rem; color: var(--text-faint); }
+        .cm-list { margin-top: 12px; border-top: 1px solid rgba(var(--hair-rgb), 0.08); }
+        .cm-list-h { padding: 10px 0 4px; font-size: 0.78rem; font-weight: 750; color: var(--text-muted); }
+        .cm-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; margin: 0; padding: 9px 0; border: 0; border-bottom: 1px solid rgba(var(--hair-rgb), 0.06); background: none; box-shadow: none; font: inherit; text-align: left; text-transform: none; letter-spacing: 0; color: var(--ink); cursor: pointer; }
+        .cm-row span { display: grid; gap: 1px; min-width: 0; }
+        .cm-row b { font-family: var(--font-bean); font-size: 0.98rem; font-weight: 600; }
+        .cm-row small { font-size: 0.74rem; color: var(--text-muted); }
+        .cm-row em { flex: none; font-style: normal; font-size: 0.8rem; font-weight: 750; color: #D9A441; }
+
+        /* the shared coffee list under a new coffee's name and roaster */
+        .cs-list { margin: 8px 0 4px; border: 1px solid rgba(var(--hair-rgb), 0.1); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow-soft); overflow: hidden; }
+        .cs-head { padding: 9px 12px 4px; font-size: 0.68rem; font-weight: 750; color: var(--text-faint); }
+        .cs-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; margin: 0; padding: 9px 12px; border: 0; border-top: 1px solid rgba(var(--hair-rgb), 0.06); border-radius: 0; background: none; box-shadow: none; font: inherit; text-align: left; text-transform: none; letter-spacing: 0; color: var(--ink); cursor: pointer; }
+        .cs-row:first-of-type { border-top: 0; }
+        .cs-row:active { background: rgba(var(--matcha-rgb), 0.08); }
+        .cs-row span { display: grid; gap: 1px; min-width: 0; }
+        .cs-row b { font-size: 0.92rem; font-weight: 650; }
+        .cs-row small { font-size: 0.74rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .cs-row em { flex: none; font-style: normal; font-size: 0.7rem; font-weight: 700; color: var(--matcha-ink); }
+
+        /* Settings: your profile picture */
+        .set-avatar { cursor: pointer; }
+        .set-face { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 750; color: #fff; background-size: cover; background-position: center; box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px rgba(var(--hair-rgb), 0.14); }
+        .set-avatar-remove b { color: #C0392B; }
     </style>
 </head>
 <body>
+    <!-- v15.1: the start-up screen, while the app starts (it goes once your coffees are on screen; on its own after 9 s) -->
+    <div id="boot-screen" aria-hidden="true"><div class="bs-inner"><div class="bs-logo"></div><div class="bs-text">Starting up…</div><div class="bs-bar"><i id="boot-bar"></i></div></div></div>
+    <script id="boot-script">(function () { try { var b = document.getElementById('boot-bar'); if (b) setTimeout(function () { b.style.width = '22%'; }, 30); setTimeout(function () { var s = document.getElementById('boot-screen'); if (s && s.parentNode) s.parentNode.removeChild(s); }, 9000); } catch (e) {} })();</script>
     <!-- SVG Icon Definitions -->
     <svg><defs>
         <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4.6"/><circle cx="12" cy="12" r="1.2"/></symbol><symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 4.5h8v4.2a4 4 0 0 1-8 0Z"/><path d="M8 6H5.2a2.6 2.6 0 0 0 2.9 3.6M16 6h2.8a2.6 2.6 0 0 1-2.9 3.6"/><path d="M12 12.7v3.6M8.8 20h6.4M9.8 16.3h4.4l.6 3.7H9.2Z"/></symbol><symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.8"/><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M5.6 18.4l1.6-1.6M16.8 7.2l1.6-1.6"/></symbol><symbol id="i-moon" viewBox="0 0 24 24"><path d="M19.5 14.6A7.6 7.6 0 0 1 9.4 4.5a7.6 7.6 0 1 0 10.1 10.1Z"/></symbol><symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="m15.3 8.7-1.9 4.7-4.7 1.9 1.9-4.7Z"/></symbol><symbol id="i-star" viewBox="0 0 24 24"><path d="m12 4.2 2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 16.6l-4.8 2.5.9-5.4-3.9-3.8 5.4-.8Z"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8.6A1.6 1.6 0 0 1 5.6 7h2.2l1.4-2h5.6l1.4 2h2.2A1.6 1.6 0 0 1 20 8.6v8.8a1.6 1.6 0 0 1-1.6 1.6H5.6A1.6 1.6 0 0 1 4 17.4Z"/><circle cx="12" cy="12.6" r="3.4"/></symbol><symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 3.5 20 6.5l-3 3"/><path d="M4 11.5v-1a4 4 0 0 1 4-4h12"/><path d="m7 20.5-3-3 3-3"/><path d="M20 12.5v1a4 4 0 0 1-4 4H4"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m15.5 15.5 4.6 4.6"/></symbol><symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21Z"/><circle cx="12" cy="10" r="2.4"/></symbol><symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 21c-3.6 0-6.2-2.5-6.2-5.9 0-2.7 1.7-4.6 3.3-6.3.2 1.6 1 2.7 2.1 3.2-.3-3 1-6 3.6-8 0 2.9 1.4 4.6 2.6 6.3 1 1.4 1.8 2.9 1.8 4.8 0 3.4-3.6 5.9-7.2 5.9Z"/></symbol><symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M3.6 12h16.8M12 3.6c2.3 2.4 3.4 5.2 3.4 8.4s-1.1 6-3.4 8.4c-2.3-2.4-3.4-5.2-3.4-8.4S9.7 6 12 3.6Z"/></symbol><symbol id="i-trend" viewBox="0 0 24 24"><path d="m4 17 5.5-5.5 3.5 3.5L20 8"/><path d="M14.5 8H20v5.5"/></symbol><symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2-5 4 10 2-5h6"/></symbol><symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3 5.5 13.2H12L11 21l7.5-10.2H12Z"/></symbol><symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="2.4"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></symbol><symbol id="i-crown" viewBox="0 0 24 24"><path d="m4 8.5 3.8 3.4L12 5.5l4.2 6.4L20 8.5 18.4 18H5.6Z"/><path d="M5.8 20.5h12.4"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.4"/><path d="M8.2 10.5V8a3.8 3.8 0 0 1 7.6 0v2.5"/></symbol><symbol id="i-medal" viewBox="0 0 24 24"><circle cx="12" cy="14.5" r="5"/><path d="M8.6 10.8 6 3.5h4l2 4.2 2-4.2h4l-2.6 7.3"/></symbol><symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5Z"/></symbol><symbol id="i-coffee" viewBox="0 0 24 24"><path d="M5 9h11v4.5A5.5 5.5 0 0 1 10.5 19h0A5.5 5.5 0 0 1 5 13.5Z"/><path d="M16 10.5h1.25a2.75 2.75 0 0 1 0 5.5H15.4"/><path d="M8.5 3.5c-.6.9.6 1.6 0 2.6M12 3.5c-.6.9.6 1.6 0 2.6"/><path d="M4 21.5h14"/></symbol>
@@ -4027,6 +4102,12 @@
                     <span class="set-color-val"><span id="user-color-value" class="user-color-value">#586A58</span><i id="user-color-swatch" class="set-swatch"></i></span>
                     <input type="color" id="user-color-input" class="set-color-input" aria-label="Your color" onchange="app.saveUserColor(this.value)">
                 </div>
+                <div class="set-row set-avatar" id="set-avatar-row" hidden>
+                    <span class="set-main"><b>Profile picture</b><small id="set-avatar-note">Shows wherever your initial does</small></span>
+                    <i class="set-face" id="set-avatar-face"></i>
+                    <input type="file" accept="image/*" id="set-avatar-input" class="set-color-input" aria-label="Choose a profile picture" onchange="app.pickAvatar(this)">
+                </div>
+                <button type="button" class="set-row set-avatar-remove" id="set-avatar-remove" hidden onclick="app.removeAvatar()"><span class="set-main"><b>Remove profile picture</b></span></button>
             </div>
 
             <div id="settings-acct"></div>
@@ -4039,7 +4120,7 @@
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v15.0</div>
+            <div class="app-version">Dialed In · v15.1</div>
         </div>
     </div>
 
@@ -4910,6 +4991,15 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 await this.call('/storage/v1/object/photos/' + name, new Blob([bytes], { type: m[1] }), { signal, headers: { 'Content-Type': m[1], 'x-upsert': 'true' } });
                 return 'sb:' + name;
             },
+            // v15.1: your profile pictures too (the "avatars" bucket), when you delete your account
+            async removeMyAvatars() {
+                const s = this.session(); if (!s || !s.user) return 0;
+                const list = await this.call('/storage/v1/object/list/avatars', { prefix: s.user.id, limit: 100, offset: 0 });
+                const names = (Array.isArray(list) ? list : []).map(o => o && o.id !== null && o.name).filter(Boolean).map(n => `${s.user.id}/${n}`);
+                if (!names.length) return 0;
+                const out = await this.call('/storage/v1/object/avatars', { prefixes: names }, { method: 'DELETE' });
+                return Array.isArray(out) ? out.length : names.length;
+            },
             // v14.6: deleting your account: your photos go first (files in storage can't be removed from the database)
             async removeMyPhotos() {
                 const s = this.session(); if (!s || !s.user) return 0;
@@ -5284,6 +5374,186 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
         const memStore = new Map();
         function safeGet(k) { try { const v = localStorage.getItem(k); return v === null && memStore.has(k) ? memStore.get(k) : v; } catch (e) { return memStore.has(k) ? memStore.get(k) : null; } }
         function safeSet(k, v) { memStore.set(k, String(v)); try { localStorage.setItem(k, v); } catch (e) {} }
+        // v15.1: the world behind the coffee map: Natural Earth 1:110m countries (public domain), Equal Earth
+        // projection, simplified. Made by tools/world_map.py; not edited by hand.
+        const WORLD_MAP = { w: 1000, h: 444, dots: {"HI": [80, 175]}, names: {"FJI": "Fiji", "TZA": "Tanzania", "SAH": "W. Sahara", "CAN": "Canada", "USA": "United States of America", "KAZ": "Kazakhstan", "UZB": "Uzbekistan", "PNG": "Papua New Guinea", "IDN": "Indonesia", "ARG": "Argentina", "CHL": "Chile", "COD": "Dem. Rep. Congo", "SOM": "Somalia", "KEN": "Kenya", "SDN": "Sudan", "TCD": "Chad", "HTI": "Haiti", "DOM": "Dominican Rep.", "RUS": "Russia", "BHS": "Bahamas", "FLK": "Falkland Is.", "NOR": "Norway", "GRL": "Greenland", "ATF": "Fr. S. Antarctic Lands", "TLS": "Timor-Leste", "ZAF": "South Africa", "LSO": "Lesotho", "MEX": "Mexico", "URY": "Uruguay", "BRA": "Brazil", "BOL": "Bolivia", "PER": "Peru", "COL": "Colombia", "PAN": "Panama", "CRI": "Costa Rica", "NIC": "Nicaragua", "HND": "Honduras", "SLV": "El Salvador", "GTM": "Guatemala", "BLZ": "Belize", "VEN": "Venezuela", "GUY": "Guyana", "SUR": "Suriname", "FRA": "France", "ECU": "Ecuador", "PRI": "Puerto Rico", "JAM": "Jamaica", "CUB": "Cuba", "ZWE": "Zimbabwe", "BWA": "Botswana", "NAM": "Namibia", "SEN": "Senegal", "MLI": "Mali", "MRT": "Mauritania", "BEN": "Benin", "NER": "Niger", "NGA": "Nigeria", "CMR": "Cameroon", "TGO": "Togo", "GHA": "Ghana", "CIV": "Côte d'Ivoire", "GIN": "Guinea", "GNB": "Guinea-Bissau", "LBR": "Liberia", "SLE": "Sierra Leone", "BFA": "Burkina Faso", "CAF": "Central African Rep.", "COG": "Congo", "GAB": "Gabon", "GNQ": "Eq. Guinea", "ZMB": "Zambia", "MWI": "Malawi", "MOZ": "Mozambique", "SWZ": "eSwatini", "AGO": "Angola", "BDI": "Burundi", "ISR": "Israel", "LBN": "Lebanon", "MDG": "Madagascar", "PSX": "Palestine", "GMB": "Gambia", "TUN": "Tunisia", "DZA": "Algeria", "JOR": "Jordan", "ARE": "United Arab Emirates", "QAT": "Qatar", "KWT": "Kuwait", "IRQ": "Iraq", "OMN": "Oman", "VUT": "Vanuatu", "KHM": "Cambodia", "THA": "Thailand", "LAO": "Laos", "MMR": "Myanmar", "VNM": "Vietnam", "PRK": "North Korea", "KOR": "South Korea", "MNG": "Mongolia", "IND": "India", "BGD": "Bangladesh", "BTN": "Bhutan", "NPL": "Nepal", "PAK": "Pakistan", "AFG": "Afghanistan", "TJK": "Tajikistan", "KGZ": "Kyrgyzstan", "TKM": "Turkmenistan", "IRN": "Iran", "SYR": "Syria", "ARM": "Armenia", "SWE": "Sweden", "BLR": "Belarus", "UKR": "Ukraine", "POL": "Poland", "AUT": "Austria", "HUN": "Hungary", "MDA": "Moldova", "ROU": "Romania", "LTU": "Lithuania", "LVA": "Latvia", "EST": "Estonia", "DEU": "Germany", "BGR": "Bulgaria", "GRC": "Greece", "TUR": "Turkey", "ALB": "Albania", "HRV": "Croatia", "CHE": "Switzerland", "LUX": "Luxembourg", "BEL": "Belgium", "NLD": "Netherlands", "PRT": "Portugal", "ESP": "Spain", "IRL": "Ireland", "NCL": "New Caledonia", "SLB": "Solomon Is.", "NZL": "New Zealand", "AUS": "Australia", "LKA": "Sri Lanka", "CHN": "China", "TWN": "Taiwan", "ITA": "Italy", "DNK": "Denmark", "GBR": "United Kingdom", "ISL": "Iceland", "AZE": "Azerbaijan", "GEO": "Georgia", "PHL": "Philippines", "MYS": "Malaysia", "BRN": "Brunei", "SVN": "Slovenia", "FIN": "Finland", "SVK": "Slovakia", "CZE": "Czechia", "ERI": "Eritrea", "JPN": "Japan", "PRY": "Paraguay", "YEM": "Yemen", "SAU": "Saudi Arabia", "CYN": "N. Cyprus", "CYP": "Cyprus", "MAR": "Morocco", "EGY": "Egypt", "LBY": "Libya", "ETH": "Ethiopia", "DJI": "Djibouti", "SOL": "Somaliland", "UGA": "Uganda", "RWA": "Rwanda", "BIH": "Bosnia and Herz.", "MKD": "North Macedonia", "SRB": "Serbia", "MNE": "Montenegro", "KOS": "Kosovo", "TTO": "Trinidad and Tobago", "SDS": "S. Sudan"}, c: {
+            AFG: "M666 114l2 0 2 0 1 1 1 -1 1 0 1 -1 1 0 0 -1 0 -1 1 -1 2 1 0 1 1 3 1 1 1 -1 1 0 1 -2 2 0 2 0 1 1 -1 1 -1 0 -3 1 -2 0 -1 2 1 1 0 2 0 1 0 2 0 1 -3 0 2 2 -2 1 0 2 1 2 -1 1 -1 0 -2 0 0 1 -2 0 -1 2 0 3 -3 1 -1 0 -1 1 -1 -1 -3 1 -5 -2 2 -3 -1 -2 -2 -1 0 -2 -2 -3 1 -2 -2 0 1 -3 0 -4 2 1 2 0 0 -1 2 -1 1 -1 0 -3 2 0 0 -1 2 0z",
+            AGO: "M536 266l-1 1 0 1 -1 1 0 1 -1 -3 1 -2 1 0zM534 271l1 -1 1 0 1 0 8 0 1 3 1 2 0 1 1 2 2 0 1 -1 2 1 0 -1 1 -2 1 0 1 -1 1 0 0 1 3 0 0 3 1 1 -1 2 0 3 1 1 0 4 1 0 1 0 2 0 1 0 0 1 0 2 0 1 0 2 0 1 -6 0 0 12 1 3 2 2 -5 2 -7 -1 -1 -2 -11 0 -1 1 -1 -2 -2 0 -2 1 -1 0 0 -2 0 -3 1 -4 0 -1 1 -4 1 -1 2 -2 0 -2 1 -3 0 -2 -1 -1 -1 -3 0 -2 0 -1 1 -1 -1 -4 -1 -2 -1 -2z",
+            ALB: "M551 102l1 1 -1 0 0 2 -1 1 -1 0 0 -1 -1 -1 -1 -1 0 -3 1 -1 -1 0 0 -1 1 -2 0 1 1 0 1 1 0 1 0 1 0 1z",
+            ARE: "M637 159l1 0 0 1 2 -1 2 0 2 0 1 -2 2 -3 1 -2 1 1 1 3 -2 0 0 3 1 0 -1 1 0 1 0 2 0 1 -1 1 -8 -2 -2 -3z",
+            ARG: "M346 429l2 2 2 2 3 2 4 0 0 2 -3 0 -1 -1 -1 0 -3 0zM350 358l0 3 0 4 1 3 0 1 0 2 0 2 4 3 0 2 2 1 1 2 -2 4 -3 2 -5 1 -3 -1 2 2 0 3 1 1 -1 1 -3 1 -3 -1 0 1 1 3 2 1 1 -1 1 1 -2 1 -1 2 1 3 0 2 -2 0 -2 2 1 2 3 2 2 1 1 2 -3 2 0 4 -1 1 0 1 2 3 2 2 -1 0 -2 -1 -6 0 -2 -2 -1 -2 -1 0 -1 -1 -2 -3 1 -1 0 -2 -1 -2 0 -2 -1 -4 -1 -2 1 -1 -1 -1 -1 -1 0 -1 -1 -1 -2 -4 1 0 -2 -4 -1 -4 0 -2 1 -2 -2 -3 -1 -3 2 -2 -1 -3 0 -3 -1 -3 0 -1 -3 -6 1 -3 -1 -4 0 -3 1 -3 1 -2 -1 -2 0 -1 -1 -6 3 -1 0 -4 0 -1 1 -3 4 1 2 2 0 -3 4 0 0 1 6 6 2 1 4 2 3 2 0 1 -1 5 3 1 3 1 2 -1 2 -2 0 -3 1 -1 1 2 1 3 -2 2 -2 1 -2 4z",
+            ARM: "M615 109l-1 0 -1 -2 -1 0 -1 -1 -1 0 -1 -1 -2 -1 0 -1 0 -2 3 0 1 1 1 0 -1 1 2 1 -1 1 2 1 1 1z",
+            ATF: "M660 418l1 1 2 0 0 1 -2 1 -3 0 0 -1 1 -2z",
+            AUS: "M862 394l1 0 -3 4 -1 1 -2 2 -1 -1 -3 3 0 -1 -2 0 1 -2 1 -2 1 -3 1 -2 1 1 2 1 1 -1zM824 365l-3 2 -3 1 -1 1 -2 2 -2 0 -2 0 -2 0 -2 0 -1 0 -3 2 -2 1 -2 1 -2 0 -1 0 -2 -2 -1 -1 1 -2 1 -1 1 0 0 -2 2 -2 0 -2 0 -3 1 -2 1 -2 -1 -3 1 -1 -1 -1 1 -3 -1 -3 0 -1 1 1 0 -3 1 1 1 2 0 -2 0 -3 0 -1 -1 -1 1 -2 1 -1 1 -2 0 -2 2 -3 0 3 1 -2 3 -2 2 -1 2 -1 1 -1 1 1 3 -2 1 0 1 -1 1 0 1 0 3 -1 2 -2 1 -2 2 -2 1 -1 0 -2 3 -3 0 3 2 -1 -1 -1 1 -2 1 1 1 -3 2 -2 1 -1 2 -1 0 -1 1 0 0 -1 2 0 1 -1 2 2 1 2 2 0 1 1 0 -2 2 -3 1 -1 0 -1 2 -2 2 -2 1 1 2 -1 1 -2 -2 -1 1 0 2 0 1 2 2 1 1 0 2 1 2 -1 1 0 0 -1 1 2 -1 2 -1 2 -1 0 0 1 -1 2 -2 2 0 1 2 2 2 1 1 1 1 2 1 0 1 1 0 1 3 2 2 -2 1 -1 1 -2 1 -2 1 -3 0 -2 1 -1 0 -2 1 -3 0 -1 0 -1 1 -2 1 -2 0 -1 2 -1 0 2 0 2 0 2 1 2 0 2 -1 1 1 3 2 -1 0 1 1 2 0 1 -1 4 0 1 1 1 0 3 -1 2 0 2 2 2 2 2 1 1 -1 1 1 3 0 3 1 0 1 1 1 0 -1 4 1 2 0 1 1 3 0 3 -1 2 -1 2 -1 3 -1 3 -2 2 -2 3 -1 2 -2 2 -3 3 -3 2 -2 3 -2 1 -2 3 -2 2 -3 2 -1 3 -1 1 -2 1 -3 0 -3 1 -2 2 -3 1 -1 -1 -1 -1 2 -2 -2 1 -4 2 -1 -1 -1 0 -2 0 -2 -1 0 -2 1 -3 1 -2 -1 -1 -2 0 2 -2 0 -2 -2 2 -3 0 3 -1 1 -2 2 -2 1 -3 -3 3 -3 2 -2 2 -1 -1 1 -2 -1 -2 0 -2 1 0 -3 -3 -1 0 -2 -1 -5 0 -4 1 -3 1z",
+            AUT: "M539 80l0 1 -1 0 1 0 -1 2 0 1 -2 0 -2 1 -1 -1 -4 0 -1 -1 -2 0 0 1 -1 -1 -2 0 -1 0 1 -1 -1 -1 1 0 1 1 1 -1 2 0 1 0 1 0 1 1 0 -1 0 -2 1 0 0 -2 2 1 1 -1 1 0 2 1 1 0 1 0 0 1z",
+            AZE: "M613 99l1 0 2 2 1 0 0 -1 1 -1 2 2 2 2 1 0 1 1 -2 0 0 3 0 1 -1 1 1 1 -1 1 -2 -2 1 -2 -1 -1 -1 0 -3 3 0 -2 -1 -1 -2 -1 1 -1 -2 -1 1 -1 -1 0 -1 -1 0 -1 2 1 2 0 -2 -2zM614 109l-1 0 -2 -2 -1 -1 1 0 1 1 1 0z",
+            BDI: "M585 257l0 2 0 2 -1 2 -1 2 -2 0 0 -5 0 -1 1 0 1 -2z",
+            BEL: "M514 72l0 2 -1 0 0 1 -2 -1 -1 0 -2 -1 -1 -1 -1 0 0 -1 2 -1 1 0 2 0 2 1z",
+            BEN: "M507 225l-2 0 -1 -3 1 -8 -1 -1 0 -2 -1 -1 -1 -1 0 -2 1 0 1 -2 1 0 1 -2 1 -1 1 0 2 3 0 1 0 2 0 1 0 1 -1 3 -1 1 0 2 0 3z",
+            BFA: "M485 209l0 -2 1 -1 0 -2 2 -3 0 -2 1 -1 1 0 1 0 1 -1 2 -2 1 -1 2 -2 2 0 2 0 0 2 0 2 2 2 0 2 3 1 0 2 -1 2 -1 0 -1 2 -1 0 -2 0 -1 0 -1 0 -1 0 -5 0 0 2 0 3 -2 -1 -1 0 -1 1 -1 -1 -1 -1z",
+            BGD: "M748 167l1 2 -1 0 1 3 -2 -2 0 -2 -1 -2 -2 -2 -2 0 1 1 -1 2 -1 0 -1 0 -1 0 -1 -3 -2 -3 0 -2 -2 -1 0 -2 2 -1 -3 -2 1 -2 2 1 1 1 1 2 3 1 2 -1 2 1 0 3 -2 0 0 2 2 2 0 -2 1 0z",
+            BGR: "M554 91l1 2 1 0 2 0 3 0 2 -1 2 0 2 1 2 0 -1 1 -1 3 1 1 -2 0 -2 1 0 2 -2 0 -2 -1 -2 1 -2 0 0 -3 -2 -1 1 0 -1 0 1 -1 0 -1 -1 -2 0 -1z",
+            BHS: "M292 150l1 -1 2 1 -3 1zM295 149l2 1 -1 3 0 -1 0 -1zM293 155l1 0 0 3 -1 2 0 1 -1 -2 0 -1z",
+            BIH: "M545 96l-2 -1 -1 -1 -1 -1 -2 -1 0 -1 -1 -1 0 -2 1 1 0 -1 1 0 3 1 1 0 1 1 1 0 0 1 1 1 0 2 -1 0 -1 1z",
+            BLR: "M561 57l3 0 0 1 1 0 2 0 1 2 1 2 1 1 2 1 1 1 -1 0 -2 0 1 1 1 2 -2 0 -1 1 0 1 -1 0 -2 0 0 -1 -1 1 -1 0 -2 -1 -3 0 -2 0 -2 0 -1 0 -1 1 0 -2 -1 -1 1 -1 0 -1 -1 -1 0 -1 2 0 2 -1 1 -2 1 0 0 -2 1 0z",
+            BLZ: "M258 182l0 -1 1 1 1 -3 1 0 0 1 0 1 -1 2 0 1 0 1 -1 2 0 1 -1 0 -1 1 1 -4z",
+            BOL: "M309 289l2 0 1 0 1 -1 2 -2 1 -1 4 -1 0 3 0 2 0 2 3 3 3 1 2 1 2 1 1 1 2 0 1 1 1 2 0 1 0 2 1 4 5 1 0 2 1 1 1 1 1 2 0 3 -1 2 1 2 -1 1 0 -1 -3 -2 -2 0 -5 1 -1 3 1 2 -1 4 0 -1 -4 0 0 3 -2 -2 -4 -1 -1 3 -2 0 -2 -5 -2 -4 0 -3 -2 -2 0 -2 -2 -3 1 -4 -1 -3 0 -1 0 -1 0 -2 0 -3 0 -3 0 -1z",
+            BRA: "M364 370l-1 -1 1 -2 -2 -2 -3 -2 -3 -3 -1 1 -3 -3 -2 0 3 -4 2 -4 2 -1 2 -2 -1 -3 -1 -2 -1 1 0 -2 0 -3 -1 -1 -1 -1 -1 0 -1 0 0 -1 -1 -3 0 -1 -2 -1 -1 0 -3 0 -1 -5 -1 -2 1 -1 -1 -2 1 -2 0 -3 -1 -2 -1 -1 -1 -1 0 -2 -5 -1 -1 -4 0 -2 0 -1 -1 -2 -1 -1 -2 0 -1 -1 -2 -1 -2 -1 -3 -1 -3 -3 0 -2 0 -2 0 -3 -4 1 -1 1 -2 2 -1 1 -1 0 -2 0 -2 0 -1 0 -1 -6 -2 3 -2 0 -1 -2 -2 -1 0 -1 -1 -3 -2 -3 1 -1 0 -1 2 -1 -1 -2 1 -2 0 -1 3 -3 2 -1 1 0 2 0 1 -10 0 -2 0 -2 -2 -1 1 -3 1 -1 1 1 0 -2 -2 0 0 -2 6 0 0 -2 1 2 1 2 0 -1 2 2 2 0 0 -1 3 -1 1 -1 0 -1 2 -1 0 -1 -2 0 -1 -3 0 -2 -1 -1 1 -1 2 1 2 1 1 -1 2 -1 3 -1 1 -1 0 -1 1 -1 1 1 -1 2 1 0 1 2 -1 2 -1 3 1 2 0 1 2 2 1 0 1 0 1 -1 1 0 1 -1 1 0 1 0 1 0 1 -1 -1 0 1 -1 1 0 1 0 2 0 1 1 1 -1 1 1 1 0 1 -1 1 -3 2 -4 1 0 0 2 2 7 1 1 0 2 -2 3 1 1 5 1 0 4 2 -3 4 2 4 2 2 2 -1 2 3 -1 6 2 4 0 4 3 4 4 2 1 2 0 1 1 1 5 1 2 -1 7 -1 2 -4 5 -2 4 -1 4 -1 0 -1 2 1 7 0 6 -1 2 0 2 0 5 -3 4 0 4 -2 2 0 2 -3 0 -4 1 -2 2 -3 1 -2 3 -2 3 0 3 1 2 0 3 -1 2 -1 2 -2 6 -2 3 -1 1 -1 4z",
+            BRN: "M820 228l0 1 0 3 -1 0 -1 1 -1 -2 1 -1z",
+            BTN: "M741 146l1 1 0 3 -2 0 -2 -1 -2 1 -2 -1 -1 -1 1 -3 2 -1 2 1 1 0z",
+            BWA: "M579 330l-4 2 -3 3 -1 2 -1 2 -1 0 -1 2 0 1 -2 1 -2 -1 -1 -1 -1 0 -2 1 0 1 -2 2 -1 1 -2 0 0 -1 0 -2 -1 -3 -1 -1 0 -10 3 0 1 -13 2 0 4 -2 1 2 2 -2 1 0 1 0 1 0 0 3 1 0 1 2 3 4 1 1 0 1 0 2 2 1z",
+            CAF: "M576 228l-1 1 -2 0 -2 -1 -1 1 0 1 -1 0 -1 -1 -3 2 -2 -1 0 1 -1 2 -2 -1 -2 0 -2 -2 -2 -1 -1 1 -2 2 0 3 -2 0 -1 -1 -2 2 -2 4 0 -2 0 -1 -1 -1 -1 -2 -1 -2 -1 -2 0 -1 0 -1 0 -3 1 -1 1 -4 3 0 0 -1 1 0 0 1 4 -1 1 -2 1 -1 0 -2 1 0 2 0 3 -1 2 -4 1 -2 2 -1 0 2 2 2 0 2 0 1 0 2 1 1 2 1 1 2 1 1 1 2 2 2 0 2 2 1z",
+            CAN: "M216 77l-2 -3 -1 -1 -3 -1 1 -3 2 -2 -2 -1 2 -2 -1 -2 1 -1 2 -2 2 -1 -2 -2 1 -3 1 -2 -1 -1 0 -1 0 -2 -3 1 -4 2 0 -2 0 -1 -1 -1 -2 0 17 -13 10 -8 3 1 2 1 2 0 2 -1 4 0 2 0 4 -1 4 0 2 0 2 -1 1 0 1 2 4 -1 -2 1 3 0 1 -1 3 0 1 1 4 1 2 0 2 0 2 1 -4 1 3 0 5 0 2 0 1 1 3 -1 -1 -1 2 0 3 -1 1 0 1 1 1 1 2 0 3 1 3 -1 3 0 1 -1 2 0 2 0 -1 2 2 -1 2 0 3 -2 -1 -1 -2 -1 3 -2 3 -2 2 1 1 1 1 2 -3 1 3 0 -1 2 3 -2 2 2 -2 1 0 1 4 -1 3 -2 2 -2 2 0 3 1 1 1 0 1 -3 1 1 1 -1 1 -5 1 -3 0 -2 0 -1 1 -4 2 -1 1 -4 1 -3 0 -2 1 -1 2 -3 0 -4 2 -4 3 -3 2 -2 3 3 0 -1 2 -1 2 4 0 3 1 1 1 1 1 2 1 2 1 3 0 3 1 -2 2 -1 3 0 3 2 3 2 -1 3 -3 1 -5 -1 -1 5 -1 3 -2 2 -2 1 -2 0 -2 -1 -2 4 -3 0 -2 2 -4 2 0 3 0 2 1 2 -1 2 1 1 1 0 1 4 0 -1 2 -1 4 1 0 1 1 4 -1 3 -3 2 -1 1 2 1 4 1 3 -2 1 2 2 2 1 3 1 1 1 0 2 1 1 1 1 -1 3 -2 1 -2 1 -4 1 -4 2 -4 1 -5 -1 -3 0 -3 0 -3 2 -3 2 -5 4 -4 3 2 -1 6 -4 5 -2 4 -1 1 2 -3 2 0 3 0 2 2 2 4 -1 4 -3 -1 2 2 1 -4 2 -6 2 -3 1 -3 3 -2 -1 1 -2 5 -3 -4 0 -3 1 -1 -2 2 -4 -1 -1 -1 0 -1 0 -3 2 -1 2 -2 2 -1 0 -1 0 0 1 -5 0 -3 0 -2 1 -3 2 -2 1 -2 0 -2 0 -2 1 1 0 -1 1 0 1 -4 1 -2 1 -4 2 -1 -1 0 -1 1 -1 2 -2 1 -1 1 -3 1 -3 -2 -1 1 -1 -1 0 0 -1 0 -1 -1 1 0 -1 0 -1 -2 -1 -1 -1 -2 -1 -1 -1 -3 1 -1 0 -2 -1 -2 1 -2 -1 -2 -1 -1 0 -1 -1 1 -1 -1 0 -1 1 -5 0 -7 0 -8 0 -7 0 -7 0 -7 0 -7 0 -2 0 -7 0zM329 41l2 -1 3 0 -1 0 -3 2 -1 0zM354 20l-1 -1 0 -1 1 0 4 1 3 0 -1 1 -1 0 -2 0zM335 42l2 -1 1 0 0 1 -2 1 -1 0zM332 16l-1 1 -3 0 -2 0 2 -1 3 -1zM333 11l1 1 -1 0 -3 1 -1 -1 0 -1 3 0zM341 17l-3 0 -4 0 0 -1 1 -1 -1 0 -4 -1 -1 0 1 -1 4 0 1 1 4 0 1 0 -1 1 1 0 1 1 3 0 2 0 3 -1 4 0 3 0 1 1 0 1 -2 0 -3 0 -2 0 -5 0zM306 12l3 0 -1 1 -4 0 -2 0 2 -1zM308 11l2 1 -3 0 -2 0 2 -1zM374 70l-2 2 -2 3 2 -1 1 0 -1 1 1 1 2 -1 2 1 -2 2 2 0 0 2 0 1 -2 3 -1 0 -1 0 1 -3 -1 0 -3 2 -1 0 2 -1 -2 -1 -3 0 -4 0 0 -1 1 -1 0 -1 2 -1 4 -5 2 -2 3 -1 1 0zM333 35l2 1 2 0 -1 1 2 0 1 1 -3 1 -2 -1 -1 -1 -3 1 -4 2 1 -2 -3 0 3 -1 1 -1 3 -2 1 0 -1 1 2 -1zM355 21l2 -1 4 1 2 1 -1 0 4 0 1 1 4 1 1 1 1 1 -4 1 3 2 3 0 1 2 3 0 -1 2 -5 2 -2 -1 -2 -2 -2 0 -1 2 1 1 2 1 0 1 0 2 -1 1 -3 0 -4 -2 2 2 1 1 0 1 -5 -1 -3 -1 -2 -1 1 -1 -2 -1 -2 -1 -1 1 -6 0 -1 -1 3 -1 3 -1 5 0 0 -1 1 -1 4 -2 0 -1 -2 -1 -4 -1 2 0 -1 -2 -2 0 -1 0 -1 0 -4 0 -6 0 -4 -1 -2 0 -1 0 2 -1 -2 0 1 -2 3 -2 2 0 5 -1 -2 1 1 1 3 -1 5 -1 1 2 -1 1zM329 18l4 0 3 0 -4 2 -3 0 -3 1 -2 0 0 -1 1 -1 2 -1zM282 15l5 -1 5 -1 2 0 3 0 -2 1 -2 0 -1 0 -5 1 -3 0zM206 63l3 -1 -4 4 0 2 -1 0 0 -1 0 -2 0 -1 1 -1 1 -1zM318 11l3 0 5 0 0 1 -2 0 -3 0 -4 0 2 0zM214 78l-2 1 -3 -1 0 -2 -1 -1 -1 -1 0 -1 1 -1 2 0 1 1 2 0 0 1 0 2 1 1zM281 17l2 1 5 0 1 0 1 1 -3 0 -6 1 -4 2 -1 0 -6 1 0 -1 -3 0 2 -1 3 -1 3 -2zM308 15l2 0 2 0 0 1 -2 0 -7 1 -5 0 -3 0 1 0 4 -1 -8 0 -2 0 4 -1 2 -1 5 1 2 1 3 0 -1 -2 2 0 2 0zM306 19l1 1 -1 2 -1 1 2 1 3 1 -1 1 -4 0 1 1 -2 0 -3 0 -2 0 -3 0 -4 0 -5 1 -4 0 0 -1 -2 -1 -2 1 0 -2 1 0 4 -1 2 1 3 -1 -3 0 -4 0 -3 0 0 -1 5 0 -3 0 -2 -1 3 -1 2 -1 6 -1 2 0 -2 1 4 0 2 1 3 -1 1 0 0 2 1 -1 1 -2 2 0zM316 20l-1 -1 3 -1 2 1 3 -1 0 1 -2 1 2 0 -2 2 -4 1 -2 -1 -3 -2zM306 19l3 0 1 0 -3 1zM326 14l1 1 -1 0 -2 1 -3 1 -2 -1 1 -1 -3 1 2 -1 1 0 4 -1zM336 9l2 0 2 0 -1 0 4 0 2 0 2 1 3 0 2 1 -3 0 -4 1 -3 0 -3 0 -2 -1 1 0 2 0 -4 0 -1 -1 -1 0zM345 8l3 0 2 0 3 0 3 0 2 0 2 0 1 -1 3 0 3 0 5 0 1 0 5 0 3 0 4 0 4 0 4 0 3 1 -5 0 -4 0 -2 1 4 0 -5 0 -3 0 -3 1 -4 0 -1 1 -6 0 3 0 -2 0 1 1 -2 0 -3 0 -1 1 -3 0 0 1 3 0 -6 1 -4 -1 -5 1 -3 -1 -3 0 4 -1 0 -1 1 0 4 1 -1 -1 -3 0 2 -1 3 0 1 0 -2 -1 5 0 1 0 3 0 -4 -1 -6 0 -2 0 -1 0 -2 0zM354 30l-1 1 -3 0 1 -1 1 -1 2 -1 1 1 0 1zM318 26l0 1 -2 0 -2 0 -2 0 -1 -1 2 -1 2 0 2 0 0 1zM352 74l1 0 3 1 1 1 0 1 -1 0 -2 -1zM350 83l0 1 2 1 2 0 -2 1 -1 0 -2 -1 0 -1z",
+            CHE: "M522 81l1 1 -1 1 1 0 2 0 -1 2 -1 0 -1 0 -1 1 -1 0 -2 1 -1 0 -1 -1 -1 -1 -1 0 0 -1 2 -2 0 -1 1 1 0 -1 2 0 1 -1z",
+            CHL: "M346 429l3 7 3 0 1 0 0 1 -2 1 -1 0 -1 -1 -2 0 -3 -1 -3 -1 -3 -2 -5 -3 2 1 4 2 4 0 0 -1 0 -2 1 -1zM311 313l2 3 0 2 2 2 0 3 2 4 2 5 2 0 0 1 0 4 -3 1 1 6 0 1 1 2 -1 2 -1 3 0 3 1 4 -1 3 3 6 0 1 1 3 0 3 1 3 -2 2 1 3 2 3 -1 2 0 2 1 4 2 4 -1 0 2 4 1 1 0 1 1 1 1 1 -1 1 1 2 1 4 0 2 1 2 0 2 -1 1 2 3 1 1 1 0 1 2 2 2 6 0 2 1 -2 0 -1 0 -1 1 1 3 -1 0 -3 -1 -4 -2 -4 -2 -1 -1 0 -2 -2 -2 -3 -5 0 -3 1 -2 -4 -1 1 -3 -1 -5 3 1 -1 -6 -2 -1 1 4 -2 -1 -1 -4 -1 -6 0 -2 -2 -3 -1 -4 1 0 0 -6 0 -5 0 -5 -2 -5 0 -3 -2 -4 1 -5 -1 -7 -1 -7 0 -8 -1 -6 -2 -5 2 -1z",
+            CHN: "M797 181l-3 -2 0 -3 0 -1 3 -1 2 0 1 1 -1 2 0 2zM695 97l-1 -1 1 -1 -5 -6 5 -1 1 -1 -1 -5 5 1 0 -1 -1 -3 2 -1 0 -2 1 0 2 2 3 2 4 1 3 2 1 4 1 1 3 1 4 0 3 2 2 0 3 3 2 2 3 0 5 1 3 -1 3 1 4 2 3 0 2 1 2 -2 3 -1 4 0 2 -1 1 -2 1 -1 -1 -1 -2 -1 0 -2 2 0 2 1 2 -2 3 -1 0 -2 1 -1 3 0 2 0 0 -1 -4 -2 -2 -1 -1 1 -3 -1 -1 1 -1 -1 -1 -3 0 -3 3 1 2 -1 -1 -2 0 -3 0 -1 -1 -1 -2 -1 1 -1 2 -1 3 0 4 1 3 1 4 3 2 1 2 2 3 3 5 1 4 2 3 3 4 0 1 -2 3 0 1 2 0 1 2 4 1 3 -4 -1 -1 1 3 3 2 4 -1 0 1 1 -3 -2 0 2 -3 2 2 1 -2 0 -2 -1 -1 2 -1 2 -1 2 -3 1 -1 2 -2 0 1 -1 -2 -1 1 -2 -2 -2 -2 1 -1 2 -1 2 -2 0 0 2 2 2 2 1 1 1 3 1 1 -2 3 1 2 0 1 2 -3 1 0 2 -2 1 0 3 4 2 2 3 3 3 3 3 1 2 -1 1 1 2 2 1 1 3 1 3 -2 0 0 4 -1 4 -1 5 -2 3 -3 3 -3 0 -1 2 -1 -1 -1 2 -4 1 -2 1 0 4 -2 0 -1 -3 0 -1 -4 -1 -1 0 -3 -1 -2 -1 0 -2 -2 -1 -2 -1 -2 2 -2 0 -2 0 -2 1 -1 1 2 4 -2 0 0 -1 -1 -2 -1 1 -2 0 -2 -2 0 -3 -2 0 -1 -4 -3 1 -1 -4 2 -3 -1 -3 -1 -3 -1 -1 -2 -2 -1 1 -3 -1 0 -1 -2 -3 -1 2 -2 -1 -3 2 -1 3 -2 0 -2 -1 -1 0 -2 -1 -2 1 -1 3 -1 -3 -1 1 -3 0 -3 -1 -3 -2 -2 -1 -1 -1 -2 -1 -3 -2 -3 -1 0 1 -5 -3 -3 -2 -2 -4 2 1 0 -2 -2 -2 0 -2 -4 -4 -5 -2 -1 -2 -3 -2 -1 -1 -1 -2 0 -1 -2 -1 0 1 -2 -3 0 -1 0 -1 2 -1 1 -1 3 1 0 -3 3 0 0 -1 4 -2z",
+            CIV: "M478 210l1 0 2 0 1 -1 1 0 0 1 1 0 1 -1 1 1 1 1 1 1 1 -1 1 0 2 1 1 5 -1 3 -1 5 1 3 0 1 -1 0 -2 0 -2 0 -3 0 -2 1 -3 2 0 -3 0 -1 0 -1 -1 -2 -1 0 -1 -1 1 -2 0 -2 0 -1 0 -1 0 -1 0 -1 1 0 0 -3 -1 -2 0 -1z",
+            CMR: "M540 200l1 2 0 3 0 2 2 4 -2 0 -1 0 -1 0 0 1 1 3 1 0 1 2 1 2 -1 1 -1 4 -1 1 0 3 0 1 0 1 1 2 1 2 1 2 1 1 0 1 0 2 0 2 -2 -1 -2 -1 -4 0 0 -1 -2 1 -1 -1 -2 1 -4 -1 0 -2 -1 -3 -1 -1 -1 -1 0 -1 0 -1 0 -2 2 -4 2 -2 1 0 2 1 2 -1 0 -2 0 -1 1 -2 1 -2 1 -2 0 -1 1 -2 0 -2 3 -3 0 -1 0 -1 -1 -2 0 -1z",
+            COD: "M581 265l1 3 0 2 0 2 2 2 1 5 -1 0 -4 0 -1 1 0 2 0 2 -1 4 0 4 1 1 2 1 0 -1 0 4 -2 0 -1 -2 -1 -1 -2 -1 0 -2 -2 1 -2 0 -1 -2 -2 0 -1 0 0 -1 -1 0 -1 0 -2 0 -1 0 -1 0 0 -4 -1 -1 0 -3 1 -2 -1 -1 0 -3 -3 0 0 -1 -1 0 -1 1 -1 0 -1 2 0 1 -2 -1 -1 1 -2 0 -1 -2 0 -1 -1 -2 -1 -3 -8 0 -1 0 -1 0 -1 1 0 -1 0 -1 1 -1 0 -1 1 -1 1 0 1 -1 1 0 0 1 1 1 2 -3 2 -2 0 -1 0 -3 2 -3 1 -2 2 -2 0 -1 0 -2 1 -1 -1 -2 1 -4 0 -2 1 -2 0 -2 0 -3 2 -2 1 -1 2 1 2 2 2 0 2 1 1 -2 0 -1 2 1 3 -2 1 1 1 0 0 -1 1 -1 2 1 2 0 1 -1 2 4 1 0 1 -1 1 1 1 -1 1 1 3 3 -1 4 2 1 -1 1 -1 1 -1 2 -1 2 0 3 -1 1 0 3 -1 1 0 2 0 1 0 2 0 1z",
+            COG: "M551 235l0 2 -1 2 0 2 -1 4 1 2 -1 1 0 2 0 1 -2 2 -1 2 -2 3 0 3 0 1 -2 2 -2 3 -1 -1 0 -1 -1 0 -1 1 -1 0 -1 -1 -1 0 -1 2 -2 -4 2 -2 -1 -3 1 -1 2 0 0 -2 1 2 3 0 1 -2 0 -2 0 -3 -2 -2 2 -4 -1 -1 -2 0 -1 -2 0 -1 4 0 2 1 2 1 0 -2 2 -4 2 -2 1 1z",
+            COL: "M314 243l0 1 -1 -2 -1 -2 0 2 -6 0 0 2 2 0 0 2 -1 -1 -1 1 -1 3 2 1 0 2 0 2 -1 10 -1 -2 -1 0 2 -4 -3 -2 -1 1 -1 -1 -2 1 -2 0 -2 -4 -1 -1 -1 -2 -2 -2 0 1 -2 -1 -1 -2 -1 1 -2 0 -1 -2 -3 -2 0 -1 1 -1 0 -1 0 -2 2 0 1 -2 1 -2 -1 -1 1 -2 -1 -4 1 -1 -1 -3 -1 -2 1 -2 1 0 0 -1 0 -2 2 0 2 -3 1 0 0 -1 1 -4 2 -1 2 0 0 -1 2 0 2 -2 1 -1 2 -1 1 0 1 1 -1 1 -2 1 -1 2 -1 1 -1 1 0 3 -1 2 1 0 0 2 1 1 0 1 0 1 0 1 0 1 1 1 3 0 2 0 2 3 1 0 2 0 1 0 1 0 0 2 -1 1 0 3 0 3 1 1 0 1 -1 1 1 1 0 2z",
+            CRI: "M272 212l-1 1 0 1 1 1 -1 0 0 1 0 1 -2 -1 0 -1 0 -1 -1 -1 -1 0 -1 -1 0 -1 0 -1 0 1 -1 1 0 -1 -1 0 -1 -1 1 -1 0 -1 -1 -1 1 0 1 -1 1 1 1 0 1 0 0 1 1 0 1 -1 0 2 1 2z",
+            CUB: "M280 162l3 1 2 0 2 1 1 1 2 0 1 1 2 2 1 2 1 0 2 0 -1 1 2 0 2 2 0 1 -2 0 -2 0 -2 0 -4 0 2 -2 -1 0 -1 -1 -1 -1 0 -2 -2 0 -2 -1 -1 0 -3 -1 -1 -1 1 -1 -2 0 -3 2 -1 0 0 1 -2 0 -1 0 2 -1 1 -1 1 -1 2 -1 2 0z",
+            CYN: "M583 121l0 -1 2 0 2 -1 -1 2 -1 0 -1 0z",
+            CYP: "M583 121l1 0 1 0 1 0 -2 2 -2 -1 0 -1z",
+            CZE: "M534 71l1 1 2 0 0 1 1 0 1 0 1 0 0 1 2 0 1 2 -1 0 0 1 -1 0 0 1 -1 0 -1 0 -1 0 -1 0 -2 -1 -1 0 -1 1 -2 -1 -1 -1 -1 -1 -1 -1 0 -1 2 0 0 -1 2 -1 1 0z",
+            DEU: "M531 63l1 2 -1 1 1 1 1 1 0 1 1 2 -1 0 -1 0 -2 1 0 1 -2 0 0 1 1 1 1 1 1 1 0 2 -1 0 0 2 0 1 -1 -1 -1 0 -1 0 -2 0 -1 1 -1 -1 -1 0 -2 -1 -1 1 -2 0 1 -2 1 -2 -4 -1 -1 0 0 -2 0 -2 0 -3 1 0 0 -1 1 -3 -1 -1 1 0 2 -1 0 1 1 -1 0 -1 0 -2 1 0 2 0 0 1 2 1 0 1 2 -1 2 -1 2 2z",
+            DJI: "M616 201l1 1 1 -1 1 1 0 1 -2 1 2 1 -1 2 -1 0 -1 0 -1 0 0 -1 0 -1 0 -2z",
+            DNK: "M522 60l-2 0 -1 0 -1 -1 0 -3 0 -1 0 -1 2 0 1 -1 2 0 0 1 -1 1 0 1 2 0 -1 1 -2 2zM527 57l1 1 -1 3 -3 -2 0 -1z",
+            DOM: "M306 181l0 -1 -1 -1 1 -1 0 -1 0 -2 1 -1 2 0 1 1 1 0 0 2 2 -1 0 2 1 0 1 1 -1 1 -1 0 -2 0 -1 0 -1 1 0 -1 -1 0 -2 3 -1 -1z",
+            DZA: "M477 148l0 -1 0 -5 5 -2 2 -1 2 -1 1 -1 3 -2 1 -2 1 0 1 -2 4 0 0 -2 -1 0 0 -4 -1 -2 0 -2 2 -2 3 -1 1 -1 3 -1 4 -1 4 0 1 1 3 -2 2 0 1 1 2 0 0 2 0 3 0 3 -2 1 0 3 3 2 0 1 1 1 2 6 1 3 0 2 -1 3 1 2 -1 1 1 3 -1 1 1 3 0 1 1 2 2 0 2 1 1 2 -9 7 -8 7 -3 2 -3 0 -1 -2 -1 -1 -1 -1 -1 -1 -9 -8 -9 -8z",
+            ECU: "M291 249l0 2 -1 3 -3 4 -3 1 -2 3 0 3 -2 2 -1 -2 -1 -1 -1 1 0 -2 1 -1 -1 -1 2 -3 -1 -2 -1 2 -2 -2 1 -1 -1 -3 1 -1 1 -2 1 -2 0 -2 1 -1 2 -1 3 2 1 2 2 0 1 -1 1 2z",
+            EGY: "M599 167l-11 0 -10 0 -11 0 -1 -13 -1 -13 -1 -3 1 -2 -1 -1 1 -2 3 0 3 1 3 1 1 0 2 -1 1 -1 2 0 2 1 1 1 0 -1 2 1 2 0 2 -1 2 5 0 1 -1 2 0 2 0 2 -1 1 -1 -1 -1 -2 -3 -5 2 4 2 3 2 6 1 2 1 2 3 4 0 3 3 3z",
+            ERI: "M600 194l-1 -1 1 -6 0 -2 1 -1 2 -1 1 -2 2 4 1 4 2 2 4 3 1 2 2 2 1 2 1 1 -1 1 -1 -1 -1 -1 -1 -2 -1 -1 -1 -2 -3 -1 -1 0 -1 -1 -2 1 -1 -2 -1 3z",
+            ESP: "M481 114l0 -1 1 -1 0 -1 0 -1 0 -2 -1 -2 2 0 0 -2 0 -3 1 -1 0 -1 -2 0 -2 0 0 -1 -1 0 -1 1 0 -2 -1 -2 4 -2 3 1 3 0 3 0 2 0 3 0 1 1 5 2 1 -1 2 1 3 0 0 2 -2 2 -3 1 0 1 -2 2 -1 2 1 2 -1 1 -1 3 -2 0 -1 3 -4 0 -2 0 -2 1 -1 1 -1 0 -1 -1 0 -2z",
+            EST: "M559 48l0 1 -1 1 1 3 -2 0 -2 -1 -1 0 -2 1 0 -2 -1 0 -1 -1 -1 -1 3 -1 2 0 3 0z",
+            ETH: "M632 218l-7 11 -4 0 -2 3 -2 0 -1 1 -2 0 -1 -1 -2 2 -1 1 -2 0 -1 -1 0 1 -1 0 -4 -4 -2 0 -1 -1 0 -2 -1 -1 -2 -4 -1 -1 -1 -1 -1 -2 -2 0 1 -2 1 0 1 -1 0 -4 0 -4 2 -1 0 -1 1 -3 1 -2 1 -4 1 -3 3 1 1 -3 1 2 2 -1 1 1 1 0 3 1 1 2 1 1 1 2 1 1 -1 2 0 2 0 1 0 1 1 0 1 0 1 0 -1 2 1 2 1 1 2 2 9 4z",
+            FIN: "M554 27l1 1 3 1 -1 2 3 2 -1 2 2 2 0 1 3 2 0 1 -2 2 -4 3 -3 0 -4 1 -3 0 -2 -1 -2 -1 0 -2 -1 -2 1 -2 1 -1 4 -3 1 0 0 -1 -3 -1 -1 -1 -1 -3 -3 -1 -3 -1 1 -1 3 1 2 0 2 1 2 -1 0 -2 3 0 3 0z",
+            FJI: "M991 308l-1 2 -2 0 -2 1 0 -1 2 -1 1 0zM984 313l1 -1 0 1 -1 2 -2 1 -1 -1 0 -1 2 -1z",
+            FLK: "M362 427l2 -1 2 0 1 -1 2 1 0 1 -3 1 -1 -1 -1 2z",
+            FRA: "M357 232l-2 4 -1 3 -1 1 -1 0 -1 -1 -1 1 -1 -1 0 -1 1 -2 0 -2 -1 -2 0 -2 1 -4 1 1 2 1 3 3zM514 76l1 0 4 1 -1 2 -1 2 0 1 -1 -1 0 1 -2 2 0 1 1 0 1 1 0 1 1 1 -1 1 1 2 1 1 0 1 -2 2 -5 -1 -4 1 0 2 -3 0 -2 -1 -1 1 -5 -2 -1 -1 2 -2 0 -6 -2 -3 -2 -2 -3 -1 -1 -2 3 -1 4 1 0 -3 2 1 5 -2 1 -3 2 0 0 1 1 0 1 1 2 1 1 0 2 1zM521 96l2 -1 0 3 0 2 -2 0 0 -2z",
+            GAB: "M531 240l2 -1 1 1 2 -1 0 1 0 1 1 2 2 0 1 1 -2 4 2 2 0 3 0 2 -1 2 -3 0 -1 -2 0 2 -2 0 -1 1 1 3 -2 2 -3 -4 -2 -3 -2 -4 1 -1 0 -1 1 -3 0 -3 1 0 4 0z",
+            GBR: "M486 63l-1 0 -2 0 1 -2 -1 -1 2 0 3 1zM493 64l0 -1 -1 -2 -3 0 0 -1 1 -1 -1 -1 -1 1 0 -2 -1 -2 1 -3 1 -2 2 1 3 -1 -3 3 2 0 3 0 -1 2 -2 2 2 1 1 0 2 3 1 0 1 4 1 1 3 0 0 2 -2 1 1 1 -2 2 -3 0 -4 1 -1 -1 -1 1 -2 0 -2 1 -1 0 3 -3 2 -1 -3 -1 -1 -1 3 -1 -2 -1 1 -2z",
+            GEO: "M596 94l3 0 3 1 4 1 0 1 2 -1 2 1 1 1 2 1 -1 0 2 2 -2 0 -2 -1 0 1 -3 0 -3 -1 -3 0 0 -1 -1 -3 -1 -1 -2 0z",
+            GHA: "M500 207l0 1 1 2 0 3 0 3 1 1 -1 3 1 2 0 3 1 1 -4 2 -2 1 -2 1 -3 -1 0 -1 -1 -3 1 -5 1 -3 -1 -5 0 -3 0 -2 5 0 1 0 1 0z",
+            GIN: "M462 201l2 0 2 1 2 0 1 1 1 -1 0 1 1 1 1 0 1 -1 1 0 0 -1 1 0 1 1 0 1 1 2 -1 0 0 2 1 -1 0 1 0 1 1 1 -1 0 0 1 1 2 0 3 -1 0 0 1 0 1 0 1 -1 0 -1 2 -1 -1 0 -2 -1 -2 -1 1 -1 0 0 -2 0 -1 0 -1 -1 -1 -1 -1 -2 0 -1 0 -1 1 0 1 -2 2 -1 -2 -1 -2 -1 0 0 -1 0 -2 -1 -1 -1 0 2 -2 1 -1 1 0 0 -1 0 -1z",
+            GMB: "M454 197l3 0 1 -1 1 0 1 1 1 0 1 0 0 1 -1 1 -1 -1 -2 0 -1 1 -1 0 -2 0z",
+            GNB: "M454 202l2 -1 1 0 5 0 0 1 0 1 0 1 -1 0 -1 1 -2 2 -1 -2 -1 0 -1 -1 0 -1 -1 0z",
+            GNQ: "M527 239l4 1 0 4 -4 0 -1 0z",
+            GRC: "M567 120l-1 1 -3 1 0 -1 -3 -1 0 -1 1 1 2 0 2 0 0 1zM556 101l2 0 2 -1 2 1 2 0 0 -2 1 1 -1 2 -2 0 -1 0 -3 1 2 1 -1 1 -2 0 -1 -2 0 1 0 2 2 2 -1 0 1 2 2 1 0 2 -2 -1 1 1 -2 1 1 3 -1 0 -3 -2 -1 -2 0 -3 -2 -1 -1 -2 0 -1 1 -1 0 -2 1 0 -1 -1 2 0 1 -1 1 0z",
+            GRL: "M421 8l6 -1 6 0 2 0 6 0 14 0 10 1 -3 0 -7 0 -9 0 1 0 6 0 5 0 3 0 2 0 -2 1 4 0 8 -1 5 0 1 1 -7 0 -1 1 -5 0 4 0 -3 1 -1 0 0 2 2 1 -3 0 -3 0 3 1 0 1 -2 0 2 2 -4 0 2 0 -1 1 -2 0 -3 0 2 1 0 1 -4 -1 -1 1 3 0 2 1 0 2 -3 0 -1 -1 -2 -1 0 2 -3 1 5 0 3 0 -6 1 -5 2 -6 1 -2 0 -2 0 -4 3 -5 1 -1 0 -3 1 -3 0 -2 2 -1 1 -1 2 -4 1 0 2 -2 2 -2 3 -3 0 -2 -2 -4 0 -2 -1 0 -3 -2 -3 0 -1 0 -2 -1 -2 1 -2 -1 0 3 -3 4 -1 1 0 1 -2 -2 1 -2 0 -2 0 -2 0 1 -2 1 -1 2 0 4 1 -3 -1 -1 -1 -2 0 -1 0 3 -2 -1 0 -1 -1 -1 -2 -2 -1 1 0 -5 -1 -3 0 -5 0 -4 0 -2 -1 -2 0 4 -1 4 0 -7 0 -4 -1 1 0 7 -1 7 0 1 -1 -5 0 2 -1 7 0 2 0 0 -1 4 0 5 0 6 0 1 0 5 0 4 0 2 0 4 0z",
+            GTM: "M248 194l0 -1 0 -1 0 -1 2 -3 3 0 1 -1 -1 0 0 -1 -1 -1 -1 -1 2 0 0 -2 3 0 2 0 0 3 -1 4 1 1 1 -1 0 1 -1 1 -2 1 0 1 0 1 -1 1 -1 0 -1 1 0 1 -1 -1 -2 0 -1 -1z",
+            GUY: "M343 241l-1 0 -1 0 -1 1 -1 0 -1 1 -1 0 -1 0 -2 -2 0 -1 -1 -2 1 -3 1 -2 -1 -2 -1 0 1 -2 -1 -1 -1 1 -2 -3 1 -1 0 -2 1 -1 1 0 -1 -2 1 -1 2 -2 2 1 1 3 0 1 1 1 2 1 1 2 -1 3 -2 1 1 1 -1 2 1 3 1 0 0 2z",
+            HND: "M273 192l-1 0 -1 1 -1 0 -1 1 0 -1 -1 0 -1 1 0 1 -1 1 -1 0 -1 0 0 1 -1 0 -1 0 0 2 -1 0 -1 1 0 -2 -1 0 1 -1 -1 -1 -1 0 -1 -1 -1 0 0 -1 0 -1 0 -1 2 -1 1 -1 1 0 0 -1 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 1 0 1 1 0z",
+            HRV: "M539 84l1 1 2 1 2 1 1 -1 0 1 1 1 -1 2 -1 -1 -1 0 -3 -1 -1 0 0 1 -1 -1 0 2 1 1 0 1 2 1 1 1 1 1 2 1 0 1 -3 -1 -1 -1 -2 -1 -3 -3 1 0 -1 -1 -1 -1 -1 -1 -1 2 -1 -1 0 -1 1 0 1 0 1 -1 0 1 1 0 0 -1 1 0 0 -2z",
+            HTI: "M306 175l0 2 0 1 -1 1 1 1 0 1 -2 -1 -2 1 -1 -1 -2 1 -1 -1 1 -1 2 0 2 1 1 -1 -1 -2 0 -1 -1 -1 1 -1 1 0z",
+            HUN: "M551 79l2 1 -1 1 -1 2 -1 2 -2 1 -2 -1 -1 1 -1 1 -2 -1 -2 -1 -1 -1 -1 -1 1 -2 -1 0 1 0 0 -1 2 0 1 1 2 -1 1 0 1 -1 1 0 0 -1 1 0z",
+            IDN: "M891 258l0 12 -2 12 -2 -3 -2 -1 -1 1 -4 0 2 -3 2 -1 -1 -4 -1 -3 -5 -3 -2 0 -4 -4 -1 2 -1 0 -1 -1 0 -2 -2 -1 3 -2 2 0 0 -1 -4 0 -1 -2 -2 -1 -1 -1 3 -1 2 -2 4 2 1 1 0 6 3 3 2 -4 4 -3 2 0 3 2 2 1zM845 281l0 1 0 1 -2 3 -2 1 -1 -1 1 -1 1 -2zM872 274l0 -3 0 -1 1 -2 0 1 0 2zM827 233l-1 3 2 3 -1 2 4 4 -4 0 -1 3 0 3 -2 3 0 3 -2 6 0 -1 -3 1 -1 -2 -2 0 -2 -1 -3 1 -1 -2 -2 0 -2 0 0 -5 -2 -1 -1 -3 0 -4 0 -3 2 -3 0 3 2 2 2 -1 2 1 1 -2 1 -1 3 1 2 0 2 -6 1 -1 0 -4 4 0zM859 258l3 2 1 2 -2 -1 -3 0 -1 0 -2 0 1 -2zM852 262l-2 -1 0 -1 3 0 0 1zM855 240l0 2 2 0 0 2 0 3 -1 0 -1 2 2 2 -1 0 -1 -2 -1 -5 0 -3zM841 245l4 0 2 -3 1 1 -2 3 -2 1 -3 -1 -5 1 -2 0 -1 3 3 3 1 -1 6 -2 -1 2 -1 -1 -1 3 -3 1 3 5 -1 1 3 5 -1 2 -1 1 -1 -1 1 -3 -2 1 -1 -1 0 -1 -1 -3 0 -3 -2 1 0 4 0 6 -2 0 -1 -1 1 -3 0 -4 -2 0 0 -3 1 -2 0 -3 2 -6 0 -1 3 -3 2 1zM832 286l-4 -2 3 -1 1 1 1 1 0 1zM835 280l2 0 3 -2 -1 2 -4 1 -4 0 0 -1 3 -1zM827 279l2 0 0 2 -3 0 -2 1 -2 0 2 -2 1 0 1 -2zM800 272l1 1 5 1 1 -2 5 2 1 2 4 1 3 2 -4 2 -2 -2 -3 0 -3 0 -2 -1 -3 -1 -2 0 -2 0 -4 -2 -1 -1 -2 0 2 -4 3 0 2 2zM790 252l0 3 1 2 2 0 2 2 -1 5 -1 6 -3 0 -2 -3 -3 -3 -2 -2 -1 -4 -2 -2 -2 -6 -2 -3 -1 -3 -1 -3 -3 -2 -1 -3 -2 -2 -4 -5 0 -1 2 0 4 0 3 4 2 3 2 1 2 4 3 0 3 3 1 3 2 2 -1 3 2 1z",
+            IND: "M755 145l0 1 1 3 -2 -1 -3 2 0 2 0 3 0 2 0 3 -3 -1 1 4 0 1 1 2 -2 1 -2 -6 -1 0 0 2 -2 -2 0 -2 2 0 0 -3 -2 -1 -2 1 -3 -1 -1 -2 -1 -1 -2 -1 -1 2 3 2 -2 1 0 2 2 1 0 2 2 3 1 3 0 1 -2 0 -3 1 0 2 -1 2 -3 3 -2 4 -2 2 -2 3 0 1 -1 1 -3 2 -1 0 0 3 1 4 0 4 -1 3 1 6 -1 1 -1 2 1 2 -3 1 -1 2 -1 1 -2 -3 -2 -5 -2 -4 -1 -2 -1 -3 -2 -5 0 -2 -4 -5 -2 -8 -1 -4 -1 -5 -1 -3 -3 2 -2 0 -5 -5 1 -1 -1 -1 -3 -3 1 -3 6 0 -1 -3 -2 -2 -1 -2 -2 -2 2 -4 3 1 2 -4 1 -3 1 -4 0 -2 1 -2 -2 -2 -2 -2 -1 -3 0 -2 5 1 2 0 2 -3 4 4 0 2 2 2 0 2 -2 -1 2 4 3 2 5 3 -2 1 0 4 3 1 3 2 4 2 4 0 2 2 2 0 3 1 2 0 0 -1 -1 -3 0 -1 1 -1 1 3 1 1 2 1 2 -1 2 1 2 0 0 -3 -1 -1 2 0 1 -3 3 -2 2 1 1 -2 2 3 0 1z",
+            IRL: "M486 63l1 2 -2 3 -4 1 -4 0 2 -3 0 -3 3 -2 1 -1 1 1 -1 2 2 0z",
+            IRN: "M626 139l-2 -2 0 -2 -1 0 0 -2 -1 -3 -4 -2 -2 -3 0 -3 1 -1 -1 -2 -1 -1 -3 -4 -2 -2 1 -1 -2 -4 1 -1 1 1 2 2 1 0 1 0 3 -3 1 0 1 1 -1 2 2 2 1 -1 1 3 2 0 3 2 3 1 4 -1 0 -1 2 -1 1 -1 2 0 1 -1 2 0 3 2 2 0 4 3 2 0 1 3 0 4 -1 3 2 0 -1 2 2 3 0 2 2 1 1 2 -2 3 2 2 1 2 3 2 1 3 1 0 1 2 -4 2 0 4 -5 -1 -3 -1 -3 -1 -2 -4 -1 -1 -2 1 -3 2 -3 -1 -3 -3 -3 -1 -2 -3 -3 -5 -1 1 -2 -2z",
+            IRQ: "M601 131l-2 -4 5 -4 1 -4 -1 -2 1 -1 1 -2 1 -1 3 1 1 1 1 -1 3 4 1 1 1 2 -1 1 0 3 2 3 4 2 1 3 0 2 1 0 0 2 2 2 -1 0 -2 -1 -2 4 -4 -1 -9 -7 -4 -2z",
+            ISL: "M472 32l-1 1 2 2 -3 2 -6 1 -2 1 -2 -1 -6 0 2 -1 -4 -2 4 0 0 -1 -4 0 2 -2 3 0 2 2 4 -2 2 1 3 -1z",
+            ISR: "M592 129l-1 1 -1 0 0 2 1 0 -1 1 0 1 1 -1 1 2 -1 5 0 -1 -2 -5 0 -1 0 -2 1 -2 0 -1 1 0 0 -1 1 0z",
+            ITA: "M525 83l1 1 0 -1 2 0 1 1 4 0 -1 2 1 1 -2 0 -2 1 1 1 -1 1 1 2 3 1 1 3 3 3 2 0 0 1 2 1 2 1 2 2 0 2 -1 -2 -3 -1 0 3 1 1 0 1 -1 1 -1 2 -1 1 0 -1 0 -2 1 -1 -1 -2 -1 -1 -1 -1 -1 -1 -2 -1 -1 -1 -2 0 -2 -2 -2 -2 -2 -1 -1 -4 -1 0 -2 -1 -1 0 -1 2 -1 0 0 -1 -1 -1 -1 -2 1 -1 -1 -1 0 -1 1 1 1 0 2 -1 1 0 1 -1 1 0 1 0zM537 111l2 0 -1 2 0 1 0 2 -2 -1 -1 -1 -4 -1 0 -2 3 0zM521 102l2 -1 1 2 0 5 -1 -1 -1 1 -1 0 0 -4 -1 -2z",
+            JAM: "M290 179l2 1 1 1 0 1 -2 0 -1 0 -1 0 -1 -2 1 -1z",
+            JOR: "M591 130l1 -1 3 2 4 -4 2 4 -1 1 -5 1 4 4 -1 0 -1 1 -1 1 -1 1 -1 1 -3 0 0 -1 1 -5 -1 -2 1 -1z",
+            JPN: "M851 108l0 3 2 3 1 3 1 2 0 2 -2 2 -4 0 -2 4 -2 -2 -2 -2 -4 0 -2 2 -3 0 4 3 1 5 -1 2 -2 -1 -1 -4 -2 -1 -2 -2 2 -1 0 -2 2 -2 0 -2 5 -1 3 1 -1 -6 3 1 1 -3 1 -1 -1 -4 -3 -4 0 -2 2 -1 4 5zM847 92l0 -1 4 4 -3 0 0 4 -5 -3 1 4 -3 0 -2 -3 -1 -3 2 0 -2 -4 -1 -3 5 4 3 1zM838 127l1 -2 1 0 1 -1 2 0 1 1 -1 2 -1 -1 -1 1 0 2 -2 -1z",
+            KAZ: "M701 76l0 2 -2 1 1 3 0 1 -5 -1 1 5 -1 1 -5 1 5 6 -1 1 1 1 -2 0 -2 -1 -3 -1 -5 0 0 1 -4 -2 -1 1 0 2 -4 -1 -2 0 0 2 -1 0 -2 2 -1 3 -1 0 -1 -2 -3 0 -1 -2 -2 0 0 -4 -4 -2 -4 0 -3 1 -3 -3 -2 -1 -5 -2 0 -1 -6 2 4 12 -2 0 -2 -3 -2 -1 -2 1 -1 1 -1 -1 1 -1 -1 -1 -3 -1 -2 -3 -2 -1 0 -1 3 1 -1 -3 2 0 2 0 0 -3 -1 -2 -3 1 -2 -1 -2 1 -2 1 -2 -1 0 -1 -2 -2 -2 0 -2 -2 1 -2 -1 -1 1 -3 2 1 0 -2 4 -3 3 0 6 2 3 1 2 -1 4 0 3 1 4 0 0 -2 -5 -2 2 -1 -1 -1 2 0 -3 -2 1 -1 8 -1 1 -1 5 -1 1 -1 4 1 2 2 2 0 4 1 0 1 2 0 5 -3 -1 1 4 2 9 8 1 -2 4 2 2 -1 2 0 2 2 2 1 1 1 3 0z",
+            KEN: "M609 265l-4 -3 0 -2 -10 -8 -1 0 0 -4 1 -2 1 -2 1 -3 -1 -4 0 -2 -2 -3 2 -2 2 -3 1 1 0 2 1 1 2 0 4 4 1 0 0 -1 1 1 2 0 1 -1 2 -2 1 1 2 0 -2 5 0 13 1 3 -1 2 -1 1 -1 1 -1 2 -1 2 0 2z",
+            KGZ: "M672 98l0 -2 2 0 4 1 0 -2 1 -1 4 2 0 -1 5 0 3 1 2 1 2 0 0 1 -4 2 0 1 -3 0 0 3 -3 -1 -1 1 -2 1 0 1 0 1 -4 0 -4 -1 -2 0 -1 -1 3 0 1 -1 2 0 2 -2 -4 -2 -1 1 -2 -1 1 -2z",
+            KHM: "M782 203l-1 -5 1 -3 3 -1 3 1 2 1 1 -2 3 1 1 3 0 4 -4 3 2 2 -3 0 -2 2 -3 -1 -1 -2z",
+            KOR: "M815 112l1 0 0 -1 2 -1 1 0 0 -1 4 4 2 2 2 4 0 2 -2 1 -1 1 -2 0 -2 -1 0 -3 -3 -3 1 -1z",
+            KOS: "M550 99l0 -1 -1 -1 0 -1 1 0 0 -1 0 -1 1 1 0 1 1 0 1 0 -1 1 0 1 -2 0z",
+            KWT: "M625 139l0 1 0 1 2 3 -2 0 -1 -2 -3 0 2 -4z",
+            LAO: "M794 195l-3 -1 -1 2 -2 -1 1 -2 -1 -3 -3 -3 -1 -4 -2 -3 -2 0 -1 1 -1 0 -1 0 -3 2 0 -3 0 -4 -2 0 -1 -2 -1 -2 0 -1 2 -2 0 1 2 0 -2 -4 1 -1 3 3 2 3 3 0 2 3 -2 1 0 2 4 2 3 4 2 3 3 3 1 2z",
+            LBN: "M592 127l-1 0 0 1 -1 0 0 -3 1 -2 2 0 0 1 -1 1z",
+            LBR: "M477 219l0 1 0 2 -1 2 1 1 1 0 1 2 0 1 0 1 0 3 -1 0 -3 -2 -2 -3 -3 -2 -2 -2 1 -2 0 -1 1 -2 2 -1 1 -1 1 2 0 2 1 1 1 -2z",
+            LBY: "M567 167l0 7 -3 0 0 1 -11 -6 -11 -7 -2 2 -2 1 -2 -2 -4 -2 -1 -2 -2 -1 -2 0 -1 -2 0 -1 -1 -3 1 -1 -1 -3 1 -1 -1 -2 1 -3 0 -2 -1 -3 1 0 0 -2 0 -1 1 -2 1 -1 1 -1 0 -2 3 1 2 0 2 0 3 2 2 3 2 0 4 2 3 2 1 -1 1 -2 -1 -3 1 -1 1 -2 2 0 4 0 1 2 1 0 1 1 2 0 1 1 -1 2 1 1 -1 2 1 3 1 13z",
+            LKA: "M726 220l0 4 -1 1 -2 1 -2 -3 -1 -6 1 -6 2 2 2 3z",
+            LSO: "M576 354l0 1 -1 2 0 1 -2 0 0 1 -1 1 -2 -3 2 -2 1 -1 2 -1z",
+            LTU: "M558 58l0 2 -1 0 -1 2 -2 1 -2 0 -1 -1 -1 0 0 -1 0 -1 -1 0 -2 -1 -1 -2 2 -1 4 1 2 -1 0 1 1 0z",
+            LUX: "M514 74l0 2 -1 -1 0 -1z",
+            LVA: "M559 53l1 1 0 1 1 2 -2 1 -1 0 -3 -1 -1 0 0 -1 -2 1 -4 -1 -2 1 0 -2 0 -1 2 -1 2 2 2 0 0 -2 2 -1 1 0 2 1z",
+            MAR: "M495 121l0 2 1 2 0 4 1 0 0 2 -4 0 -1 2 -1 0 -1 2 -3 2 -1 1 -2 1 -2 1 -5 2 0 5 0 2 -2 0 -1 0 -1 0 -1 0 -2 0 -1 3 -1 0 -1 5 -4 4 -1 5 -1 1 -1 2 -6 0 0 -2 2 -1 1 -2 -1 -1 1 -2 2 -3 1 0 1 -2 0 -2 1 -2 2 -2 2 -3 1 -2 2 0 3 -2 1 -1 2 -3 0 -5 1 -3 0 -1 2 -3 2 -1 2 -2 2 -3 1 -2 2 0 1 1 3 0 2 1z",
+            MDA: "M562 79l2 0 2 1 1 0 1 0 0 1 1 1 0 1 1 1 1 1 -1 0 -1 0 -1 -1 0 1 0 1 0 1 -1 1 -1 -2 0 -1 0 -1 -2 -2 -1 -2z",
+            MDG: "M636 294l1 2 0 2 0 5 1 2 -1 1 0 1 -1 -2 0 1 0 3 -1 2 0 1 -1 3 -1 4 -2 5 -3 7 -1 5 -2 4 -2 1 -3 1 -1 -1 -2 -1 -1 -2 1 -3 -1 -3 0 -3 1 -2 1 -1 0 -1 2 -3 0 -2 0 -2 -1 -2 0 -3 2 -2 0 -3 1 0 2 -1 1 0 1 0 2 -2 2 -3 1 -2 0 -1 1 0 2 -2 0 -2 1 -2z",
+            MEX: "M199 130l3 -1 4 0 -1 1 3 1 5 3 5 0 3 0 0 -2 5 0 0 2 1 1 1 1 0 2 0 2 1 1 2 1 2 -3 3 0 1 2 0 2 1 2 1 2 -1 3 1 1 1 1 2 1 1 0 -2 3 -1 3 -1 4 -1 2 0 2 0 2 0 3 2 2 0 2 0 2 3 1 1 2 3 -1 2 -1 2 0 2 -1 2 -1 1 -3 1 -3 0 -1 2 -1 3 0 3 0 1 -1 1 1 -1 2 -2 2 -1 2 1 1 -1 1 -1 3 -1 -1 -1 0 -1 3 -1 -1 0 1 -2 0 -3 0 0 2 -2 0 1 1 1 1 0 1 1 0 -1 1 -3 0 -2 3 0 1 0 1 0 1 -3 -4 -1 -1 -2 -1 -2 0 -2 1 -1 1 -2 -1 -2 -1 -2 -2 -2 0 -3 -2 -2 -1 -1 -1 -1 -1 -3 -1 0 -2 -3 -2 -1 -2 0 -2 1 0 0 -1 1 -1 0 -1 0 -2 0 -1 0 -2 -2 -4 -2 -2 0 -3 -2 -1 0 -1 1 -2 -1 -1 -1 -2 0 -2 -1 0 -1 -2 -1 -2 0 -1 0 -3 0 -2 1 -2 -2 -1 -1 0 -1 -1 -1 2 0 1 -1 3 1 1 1 3 0 1 0 1 0 2 1 1 0 1 1 2 0 3 0 2 0 2 0 2 1 0 1 1 0 2 -2 2 0 -2 -1 -2 -2 -2 -1 -1 1 -3 0 -2 -1 -1 -1 -1 -1 -1 -1 -1 -1 -2 1 0 2 -1 0 -2 -1 -2 -1 -1 0 -2 0 -2 0 -3z",
+            MKD: "M554 97l2 1 0 3 -1 0 -1 0 -1 1 -2 0 -1 -1 0 -1 0 -1 0 -1 2 0 1 0z",
+            MLI: "M468 202l1 -2 -1 -1 -1 -1 0 -2 0 -2 1 -1 0 -2 1 0 2 1 1 -1 2 0 0 -1 11 0 1 -2 -1 -1 -1 -15 -1 -16 4 0 9 8 9 8 1 1 1 1 1 1 1 2 3 0 0 8 -2 3 0 2 -2 1 -4 0 -1 1 -2 0 -2 0 -2 0 -2 2 -1 1 -2 2 -1 1 -1 0 -1 0 -1 1 0 2 -2 3 0 2 -1 1 0 2 -1 1 -1 0 0 -1 -1 0 -1 1 -2 0 -1 0 -1 -1 0 -1 0 -1 -1 1 0 -2 1 0 -1 -2 0 -1 -1 -1 -1 0 0 1 -1 0 -1 1 -1 0 -1 -1 0 -1 -1 1z",
+            MMR: "M770 172l-2 1 -1 2 -2 0 0 4 -1 1 2 3 2 2 2 3 -1 3 -1 1 1 2 2 3 1 2 0 1 2 4 -1 3 -1 4 -1 -3 1 -3 -1 -2 -1 -4 -1 -2 -2 -4 -1 -5 -2 -3 -1 2 -3 3 -1 -1 -2 -1 0 -4 -1 -4 -3 -4 0 -1 -2 -1 -2 -2 -1 -3 1 0 -1 -2 2 -1 -1 -2 0 -1 -1 -4 3 1 0 -3 0 -2 0 -3 0 -2 3 -2 2 1 -1 -3 0 -1 1 -1 2 2 1 1 1 3 1 3 -2 3 1 4 3 -1 1 4 2 0 0 3 2 2 2 0 1 -1 1 2 -2 2z",
+            MNE: "M549 97l-1 0 0 -1 -1 2 0 1 -1 -1 -1 -1 0 -1 0 -1 1 -1 1 0 0 1 1 0 1 1z",
+            MNG: "M702 76l2 0 3 -3 3 -1 2 1 3 0 2 1 3 0 3 1 1 -2 -2 -2 1 -3 3 1 2 1 3 0 2 3 4 1 2 -1 3 0 2 0 4 2 2 1 2 0 3 1 2 -1 3 -1 2 -2 1 1 2 1 3 -1 0 3 1 3 1 1 1 -1 3 1 1 -1 2 1 4 2 0 1 -2 0 -3 0 -1 1 0 2 -3 1 -2 2 -2 -1 -2 0 0 2 2 1 1 1 -1 1 -1 2 -2 1 -4 0 -3 1 -2 2 -2 -1 -3 0 -4 -2 -3 -1 -3 1 -5 -1 -3 0 -2 -2 -3 -3 -2 0 -3 -2 -4 0 -3 -1 -1 -1 -1 -4 -3 -2 -4 -1 -3 -2z",
+            MOZ: "M595 291l2 0 3 1 1 -1 2 0 1 -1 2 0 3 -1 2 -2 0 1 0 4 0 3 0 6 0 2 0 2 -2 3 -2 2 -2 1 -3 2 -4 4 -1 1 -2 2 -1 1 -1 3 2 3 0 2 0 1 0 3 -1 2 1 0 -1 2 -1 1 -2 1 -4 2 -1 2 0 1 1 0 -1 2 -1 0 -1 -1 0 -2 0 -1 1 -4 -1 -3 0 -5 3 -4 1 -3 0 -2 0 -1 0 -3 1 -2 0 -5 -1 -1 -1 0 -1 -1 -1 -1 -2 0 0 -1 0 -3 8 -3 1 2 1 -1 1 1 0 2 0 2 0 2 1 2 1 -2 2 -1 0 -5 -1 -2 -1 -1 -1 0 -1 -5z",
+            MRT: "M454 170l1 -1 10 0 0 -5 1 -2 2 0 0 -9 9 0 0 -5 10 8 -4 0 1 16 1 15 1 1 -1 2 -11 0 0 1 -2 0 -1 1 -2 -1 -1 0 0 2 -1 1 -2 -3 -2 -3 -1 -1 -2 -1 -1 0 -2 1 -1 0 -1 1 0 -2 1 -2 0 -3 0 -4 0 -2 0 -1 -1 -2z",
+            MWI: "M590 282l3 1 1 1 1 2 0 5 -1 3 1 5 1 0 1 1 1 2 0 5 -2 1 -1 2 -1 -2 0 -2 0 -2 0 -2 -1 -1 -1 1 -1 -2 -1 -1 1 -3 0 -2 0 -3 1 -3 0 -1 0 -3z",
+            MYS: "M777 224l1 -1 2 2 0 2 2 -1 1 -1 1 0 1 2 2 3 0 2 0 2 0 1 0 3 1 1 2 3 -1 1 -1 0 -3 -2 -4 -3 0 -2 -2 -3 0 -3 -1 -2 0 -3zM827 233l-2 -1 -4 0 0 4 -1 1 -2 6 -2 0 -3 -1 -1 1 -1 2 -2 -1 -2 1 -2 -2 0 -3 2 2 2 -1 0 -3 1 -1 4 -1 2 -3 1 -2 1 2 1 -1 1 0 0 -3 0 -1 2 -3 1 -3 1 0 2 2 0 2 2 1 2 1 0 1 -2 0 1 2z",
+            NAM: "M553 339l-1 13 -2 2 -2 0 -1 0 -2 -1 0 -1 -1 -1 -1 2 -2 -3 -1 -3 0 -3 -1 -3 -1 -5 0 -4 0 -2 -1 -2 -1 -3 -1 -4 -1 -2 -2 -4 0 -3 1 0 2 -1 2 0 1 2 1 -1 11 0 1 2 7 1 5 -2 2 -1 2 0 1 1 0 1 -1 0 -1 0 -2 2 -1 -2 -4 2 -2 0 -1 13 -3 0z",
+            NCL: "M946 326l1 2 1 2 -2 1 -1 -1 -1 -2 -1 -2 -1 -2 0 -2 1 0 2 2 0 1z",
+            NER: "M540 164l1 5 1 1 0 1 1 2 -1 1 0 7 0 5 -4 4 -1 5 1 1 0 2 2 0 0 2 -1 0 0 1 -1 1 -1 -4 -1 -1 -2 2 -2 -1 -2 0 -1 1 -1 0 -2 1 -1 0 -4 -2 -1 1 -1 0 -1 -1 -3 -2 -3 1 -1 1 0 2 -1 1 0 4 -2 -3 -1 0 -1 1 0 -2 -3 -1 0 -2 -2 -2 0 -2 0 -2 2 0 1 -1 4 0 2 -1 0 -2 2 -3 0 -8 3 -2 8 -7 9 -7 4 2 2 2z",
+            NGA: "M507 225l1 -6 0 -3 0 -2 1 -1 1 -3 0 -1 0 -1 0 -2 0 -1 0 -4 1 -1 0 -2 1 -1 3 -1 3 2 1 1 1 0 1 -1 4 2 1 0 2 -1 1 0 1 -1 2 0 2 1 2 -2 1 1 1 4 1 -1 1 2 0 1 0 1 -3 3 0 2 -1 2 0 1 -1 2 -1 2 -1 2 0 1 0 2 -2 1 -2 -1 -1 0 -2 2 -2 4 0 2 -3 1 -1 0 -1 1 -3 0 -1 -2 -1 -3 -2 -2 -2 0z",
+            NIC: "M270 207l-1 1 -1 0 0 -1 -1 0 -1 0 -1 -1 -1 1 -1 -2 -1 -1 0 -1 -1 -1 -2 -2 1 -1 0 1 1 -1 1 0 0 -2 1 0 1 0 0 -1 1 0 1 0 1 -1 0 -1 1 -1 1 0 0 1 1 -1 1 0 1 -1 1 0 0 1 -1 0 0 2 0 1 -1 1 0 2 0 1 0 2 -1 0 0 2 0 1 -1 1 0 1z",
+            NLD: "M515 64l1 1 -1 3 0 1 -1 0 0 3 -1 -1 -2 -1 -2 0 -1 0 1 -1 2 -4 3 -1z",
+            NOR: "M526 10l1 0 2 0 2 0 6 1 -4 1 -1 1 -1 0 -1 1 -2 0 -4 -1 2 0 -3 -1 -4 -1 -1 -1 5 0 1 0zM559 26l-3 1 -2 0 1 -2 -3 0 -3 0 0 2 -2 1 -2 -1 -2 0 -3 -1 -1 1 -1 0 0 1 -4 0 0 1 -2 0 -1 1 -1 3 -3 3 1 0 -1 1 -2 0 -1 2 1 4 1 1 0 3 -2 1 -1 2 -1 -2 -4 3 -3 1 -3 -1 -1 -3 -1 -6 2 -1 5 -2 4 -3 3 -3 4 -4 3 -1 5 -3 4 -1 3 1 3 -2 3 0 3 0 7 1 -3 1zM547 10l-2 1 -5 0 -5 -1 -1 0 -2 0 -2 0 5 -1 2 1 2 -1 4 1zM543 13l-4 0 -3 0 1 -1 -1 0 4 0 1 0z",
+            NPL: "M731 146l0 1 1 3 0 1 -2 0 -3 -1 -2 0 -2 -2 -4 0 -4 -2 -3 -2 -3 -1 0 -4 2 -1 0 -1 3 1 3 2 2 1 1 1 2 1 3 2 3 1z",
+            NZL: "M935 391l-2 2 -3 2 -3 2 0 -1 -1 -1 4 -2 1 -2 -2 -1 1 -2 3 -1 2 -2 2 -2 1 -3 0 -2 0 -3 1 -2 1 0 0 2 1 0 -1 3 -1 4 2 -2 0 1 -1 2 1 1 1 0 3 -1 1 1 -3 2 -3 2 -1 0 -2 1 -1 2zM908 402l4 -1 2 -2 4 -2 1 -1 2 -2 3 -1 -1 1 0 1 3 -1 -1 1 -1 2 -2 1 -4 3 -2 1 -1 1 -1 0 -4 2 -2 2 -4 3 -4 1 -2 1 -2 0 0 -1 -3 0 1 -1 3 -3 6 -3 2 0z",
+            OMN: "M648 164l0 -1 0 -2 0 -1 1 -1 -1 0 0 -3 2 0 1 3 2 1 2 0 2 1 1 2 1 1 1 1 0 1 -1 2 0 1 -1 1 0 2 -2 0 0 1 0 2 0 2 0 1 -1 0 -2 1 0 2 0 1 -2 0 -1 1 0 1 -1 1 -2 0 -1 1 -1 0 -2 -2 -2 -6 7 -4 1 -7z",
+            PAK: "M697 120l-2 3 -2 0 -5 -1 0 2 1 3 2 2 2 2 -1 2 0 2 -1 4 -1 3 -2 4 -3 -1 -2 4 2 2 1 2 2 2 1 3 -6 0 -1 3 -2 -1 -2 -3 -2 -2 -5 0 -4 0 -4 1 0 -4 4 -2 -1 -2 -1 0 -1 -3 -3 -2 -1 -2 -2 -2 5 2 3 -1 1 1 1 -1 1 0 3 -1 0 -3 1 -2 2 0 0 -1 2 0 1 0 1 -1 -1 -2 0 -2 2 -1 -2 -2 3 0 0 -1 0 -2 0 -1 0 -2 -1 -1 1 -2 2 0 3 -1 1 0 1 -1 3 2 1 2z",
+            PAN: "M286 216l0 2 0 1 -1 0 -1 2 0 -1 -1 -2 1 -1 -1 0 0 -2 -1 -1 -2 1 0 1 -2 1 0 1 1 2 -1 0 -1 1 -1 0 0 -2 -1 0 -1 -1 -1 -1 -1 0 -1 0 0 1 0 -1 0 -1 0 -1 1 0 -1 -1 0 -1 1 -1 1 2 1 1 0 -1 1 1 1 0 2 -1 1 -1 1 -1 2 0 0 1 1 0 2 0 0 2z",
+            PER: "M306 264l-2 0 -1 0 -2 1 -3 3 0 1 -1 2 1 2 -2 1 0 1 -1 1 2 3 1 3 0 1 2 1 1 2 2 0 2 -3 1 6 1 0 2 0 2 6 0 1 0 3 0 3 0 2 0 1 0 1 1 3 -1 4 0 2 -2 1 -3 -2 0 -2 -6 -3 -5 -4 -3 -2 -1 -4 0 -1 -3 -4 -3 -7 -3 -8 -2 -1 -1 -3 -2 -3 -2 -1 1 -2 -2 -3 1 -3 2 -2 1 1 -1 1 0 2 1 -1 1 1 1 2 2 -2 0 -3 2 -3 3 -1 3 -4 1 -3 0 -2 0 -1 2 2 1 2 1 1 2 4 2 0 2 -1 1 1 1 -1 3 2 -2 4 1 0z",
+            PHL: "M832 201l-2 -3 2 0 1 1 0 4zM838 211l1 -1 0 -3 1 0 0 3 2 -4 0 4 -1 1 -1 2 0 1 -2 -2zM849 217l1 2 0 2 0 4 -2 -4 -1 2 1 2 0 2 -4 -2 -1 -3 1 -2 -2 -1 -1 1 -1 0 -2 2 -1 -1 1 -3 2 -1 1 -1 1 1 2 -1 1 -1 1 -1 0 -2 2 1 1 2zM827 213l-3 4 1 -3 2 -2 1 -3 1 -3 1 3 -2 2zM832 180l0 2 1 3 0 3 -1 1 0 3 1 3 2 0 1 0 4 2 0 2 1 1 0 1 -3 -2 -1 -1 -1 1 -2 -2 -2 0 -2 -1 0 -1 1 -1 -1 -1 0 1 -2 -2 -1 -1 0 -4 1 1 -1 -5 0 -4 2 0 2 1 0 -1zM836 205l-1 -1 2 1 2 0 0 1 -1 2 -2 1 0 -2zM845 203l1 4 -2 -1 0 1 1 2 -1 1 0 -2 -1 -1 -1 -2 2 0 -1 -1 -2 -3 3 0z",
+            PNG: "M891 258l5 2 5 2 2 2 1 2 1 2 4 3 1 2 -3 0 0 3 2 2 2 4 1 0 0 2 2 0 -1 1 3 1 -1 1 -2 1 0 -1 -3 -1 -2 0 -2 -3 -1 -2 -1 -3 -4 -1 -2 1 -2 1 0 3 -2 1 -2 -1 -3 0 2 -12zM924 262l1 1 0 2 -1 1 -1 -2 0 -2 -1 -1 -2 -2 -2 -1 1 -1 2 1 0 1 2 1zM919 270l-1 1 -2 1 -1 0 -3 -1 -1 -2 0 -1 3 1 1 0 1 -2 0 2 2 -1 1 -1 2 -1 -1 -2 2 0 1 0 -1 2 -1 2 -1 1zM929 268l1 1 1 2 1 1 0 1 -1 1 -1 -2 -1 -2 -1 -3 1 0z",
+            POL: "M552 63l0 1 1 1 0 1 -1 1 1 1 0 2 2 2 0 1 -1 0 -2 3 1 1 -1 0 -2 -1 -2 0 -1 0 -1 0 -2 -1 0 1 -1 0 -1 -2 -2 0 0 -1 -1 0 -1 0 -1 0 0 -1 -2 0 -1 -1 -1 -2 0 -1 -1 -1 -1 -1 1 -1 -1 -2 2 0 3 -2 3 -1 2 1 0 1 2 0 3 0 4 0 1 0z",
+            PRI: "M320 179l2 1 -1 1 -2 0 -1 0 0 -1 0 -1z",
+            PRK: "M817 97l0 1 -1 0 0 1 0 1 2 2 -1 1 -1 1 -1 1 -1 1 1 1 1 1 3 1 0 1 -1 0 -2 1 0 1 -1 0 -2 0 0 1 -1 -1 -1 -1 -1 -1 1 -1 -1 0 0 -2 -1 -1 -1 0 -2 -1 1 -2 1 -2 1 -2 2 1 2 0 -2 -1 3 -2 0 -2z",
+            PRT: "M478 99l1 -1 1 0 0 1 2 0 2 0 0 1 -1 1 0 3 0 2 -2 0 1 2 0 2 0 1 0 1 -1 1 0 1 -1 1 -1 0 -1 0 0 -2 0 -2 -1 -1 -1 -1 1 -2 1 -1 0 -2 1 -2 0 -1 -1 -1z",
+            PRY: "M343 323l1 2 1 5 3 0 1 0 2 1 0 1 1 3 0 1 1 0 1 0 1 1 1 1 0 3 0 2 0 3 -2 2 -2 1 -3 -1 -3 -1 1 -5 0 -1 -3 -2 -4 -2 -2 -1 -6 -6 1 -4 -1 -2 1 -3 5 -1 2 0 3 2z",
+            PSX: "M591 133l-1 1 0 -1 1 -1 -1 0 0 -2 1 0 1 2z",
+            QAT: "M635 157l-1 -3 1 -2 1 1 1 2 0 2 -1 1z",
+            ROU: "M567 88l1 0 1 0 1 0 1 1 -2 1 0 -1 0 4 -2 0 -2 -1 -2 0 -2 1 -3 0 -2 0 -1 0 -1 -2 0 -1 -1 1 -2 -1 0 -1 -1 -1 -1 -1 -1 -1 2 -1 1 -2 1 -2 1 -1 1 0 1 0 2 0 1 1 1 -1 1 0 1 -1 1 0 1 1 1 2 2 2 0 1 0 1z",
+            RUS: "M616 85l-1 2 -2 0 -2 3 3 3 1 2 3 4 -1 1 0 1 -1 0 -2 -2 -1 0 -2 -1 -1 -1 -2 -1 -2 1 0 -1 -4 -1 -3 -1 -3 0 -3 -3 -3 -1 -3 -2 2 0 1 -3 -1 -1 3 -1 0 -1 -2 1 -1 -2 1 -1 3 0 0 -1 -1 -1 0 -2 0 -1 -4 -1 -1 0 -2 -1 -1 0 -3 -1 -2 -1 -1 -1 -1 0 1 -1 -2 -2 -2 1 -1 -1 -1 1 -1 -2 -1 -1 2 0 1 0 -1 -1 -2 -1 -1 -1 -1 -2 -1 -2 -2 0 -1 0 0 -1 -3 0 -1 -2 0 -1 -1 -1 -1 -3 1 -1 0 -1 2 -1 -3 -1 4 -3 2 -2 0 -1 -3 -2 0 -1 -2 -2 1 -2 -3 -2 1 -2 -3 -1 -1 -1 2 0 3 -1 2 -1 3 1 6 1 8 2 2 1 0 1 -2 1 -3 1 -9 -2 -1 1 4 1 0 1 1 3 3 0 1 1 0 -1 -1 -1 1 -1 5 1 2 0 -2 -2 3 -2 2 0 2 1 1 -2 -2 -1 0 -1 -2 -1 6 0 1 1 -2 1 1 1 2 1 2 -1 0 -1 4 -1 5 -2 2 0 -1 1 2 1 1 -1 4 0 2 -1 3 1 1 -1 -2 -1 0 -1 6 1 3 0 9 3 0 -1 -2 -1 -1 -1 -2 0 0 -1 -2 -1 -1 -1 3 -2 0 -1 1 0 5 0 1 1 -1 1 2 1 2 1 1 3 3 1 0 1 -1 3 2 1 0 -1 2 -1 0 -1 1 -1 -2 -1 0 -1 -2 0 -2 -1 0 -2 -3 -2 2 -1 -1 -1 1 0 1 1 1 1 2 1 -2 -1 3 -1 4 0 4 1 -3 -2 -2 -1 3 -1 4 0 4 0 -2 -1 1 -1 2 0 3 -1 4 0 5 0 2 0 3 -1 3 0 1 -1 3 0 4 0 -2 0 4 1 1 0 2 0 5 0 5 1 2 0 0 1 -1 0 -4 1 0 1 2 0 3 0 1 0 3 1 3 -1 6 1 1 0 8 1 -1 -2 4 1 3 0 4 1 2 1 4 2 4 0 0 -1 4 0 2 0 5 0 4 0 -4 -1 1 -1 18 1 4 1 7 1 7 0 4 0 3 1 2 1 3 1 2 0 3 0 5 0 3 0 6 1 1 0 -3 -1 -1 -1 7 0 4 0 7 1 4 1 15 8 -1 1 -3 0 4 1 4 2 2 1 2 1 -4 0 -3 2 -2 0 0 2 -1 1 1 1 -6 -1 -2 1 -3 0 0 1 -3 -1 1 2 1 2 1 1 4 1 4 4 -2 0 2 2 2 1 -2 2 3 3 -3 1 3 2 -1 3 -3 -2 -5 -4 -8 -6 -3 -4 0 -1 -2 -2 3 0 -1 -3 1 -3 1 -2 -4 -3 -2 0 2 2 -2 3 -6 -3 -4 0 1 5 3 1 -4 1 -3 0 -2 -2 -3 0 -2 1 -7 0 -6 0 -1 5 -2 7 4 0 3 2 3 0 0 -1 2 0 7 3 2 3 1 2 3 4 3 5 0 4 1 2 -1 4 0 3 0 2 -2 2 -2 0 -2 -2 -2 3 0 1 0 -1 -1 -1 1 0 -2 -4 -3 -3 1 -1 4 1 -1 -3 -2 -4 0 -1 -1 -2 -3 0 -1 2 -4 0 -3 -3 -4 -2 -5 -1 -3 -3 -2 -2 -2 -1 -4 -3 -3 -1 -4 -1 -3 0 -2 1 -1 1 2 1 1 1 0 1 0 3 1 2 -2 1 -3 -1 -3 1 -2 -1 -1 -1 -2 2 -3 1 -2 1 -3 -1 -2 0 -2 -1 -4 -2 -2 0 -3 0 -2 1 -4 -1 -2 -3 -3 0 -2 -1 -3 -1 -1 3 2 2 -1 2 -3 -1 -3 0 -2 -1 -3 0 -2 -1 -3 1 -3 3 -2 0 -1 0 -2 -1 -3 0 -1 -1 -2 -1 -2 -2 -2 0 -2 1 -4 -2 -1 2 -9 -8 -4 -2 1 -1 -5 3 -2 0 0 -1 -4 -1 -2 0 -2 -2 -4 -1 -1 1 -5 1 -1 1 -8 1 -1 1 3 2 -2 0 1 1 -2 1 5 2 0 2 -4 0 -3 -1 -4 0 -2 1 -3 -1 -6 -2 -3 0 -4 3 0 2 -2 -1 -1 3 1 1 -1 2 2 2 2 0 2 2 0 1zM660 9l3 0 4 0 5 1 1 1 -4 0 -5 0 -3 0 -3 -1 -2 0zM677 11l5 0 1 1 -10 0 2 -1 1 0zM746 15l5 0 7 1 1 1 -7 0 -2 0 -5 -1 -1 -1zM765 16l5 0 -1 1 -3 0 -5 -1zM755 19l0 -1 2 0 4 1 1 0 -3 0zM577 9l3 0 2 0 1 0 1 0 1 0 3 0 -1 0 -2 1 -1 0 -1 0 -1 0 -2 0 0 -1zM550 62l-4 0 -3 0 1 -2 3 -1 2 1 1 0 0 1zM597 18l3 -1 0 -1 3 0 5 -1 6 -1 3 0 3 0 2 0 -1 1 -6 0 -5 1 -5 1 -1 2 -2 2 1 1 5 2 -1 0 -7 0 -1 -1 -3 -1 -1 -1 2 0 -1 -1 3 -1zM817 64l4 2 2 3 4 3 7 5 -4 -1 2 4 5 3 2 3 -3 -2 0 2 -3 -2 -2 -3 -3 -4 -1 -2 -4 -4 -4 -3 -3 -3 0 -2 -2 -1 1 0zM160 30l-2 2 2 -1 5 0 1 2 -4 1 -3 0 -4 2 -2 1 -1 0 -1 -1 -1 -1 1 -1 -1 0 -3 0 2 -1 -3 0 -1 1 -3 1 15 -8 2 1zM166 23l-2 0 2 -1 2 0 2 1 -1 0zM579 86l1 -1 1 1 1 0 1 1 1 1 3 0 -1 1 -2 0 -3 2 -1 -1 0 -1 -3 -1 0 -1z",
+            RWA: "M584 252l2 2 -1 3 -2 0 -1 2 -1 0 0 -2 0 -1 0 -2 1 -1 1 0z",
+            SAH: "M477 147l0 1 0 5 -9 0 0 9 -2 0 -1 2 0 5 -10 0 -1 1 0 -1 6 0 1 -2 1 -1 1 -5 4 -4 1 -5 1 0 1 -3 2 0 1 0 1 0 1 0 2 0z",
+            SAU: "M591 141l3 0 1 -1 1 -1 1 -1 1 -1 1 0 -4 -4 5 -1 1 -1 3 1 4 2 9 7 4 1 3 0 1 2 2 0 1 3 2 0 0 2 2 1 1 1 -1 2 1 1 1 1 0 1 1 1 1 1 1 -1 0 2 0 1 2 3 8 2 1 -1 1 3 -1 7 -7 4 -8 1 -2 2 -2 3 -1 1 -1 -1 -1 0 -3 0 0 -1 -3 0 -1 1 -1 -1 -1 2 1 1 -1 1 -1 -1 -1 -1 0 -2 -2 -1 -1 -3 -1 -3 -2 -3 -2 0 -2 -4 0 -2 0 -2 -2 -4 -2 -2 -1 0 -1 -2 0 -1 -1 -2 -1 -1 -1 -3 -2 -2 -2 -3 -1 0 0 -2 0 -1z",
+            SDN: "M568 217l-2 -1 -1 -1 0 -2 0 -1 0 -2 -2 -2 0 -2 -1 -2 0 -2 -1 -1 -1 0 0 -1 1 -2 0 -1 1 -1 -1 -1 1 -3 1 -2 2 0 -1 -15 0 -1 3 0 0 -7 11 0 10 0 11 0 1 3 -1 1 1 4 2 4 1 1 1 1 -1 2 -2 1 -1 1 0 2 -1 6 1 1 -1 3 -1 4 -1 2 -1 3 0 1 -2 1 0 4 0 4 0 -3 -1 0 0 -2 0 -2 -2 -1 0 -3 0 -2 -1 -1 0 1 -2 0 1 1 0 3 -1 2 -2 2 -1 1 -2 -2 -1 0 -1 1 -1 1 0 1 -3 0 0 -1 -2 0 -1 1 -1 -1 -1 -2 -1 -1 -2 1 -1 1 0 4 -1 0 -1 1z",
+            SDS: "M586 235l-3 -3 -1 -1 -1 1 -1 -1 -1 1 -1 0 -2 -4 -1 -1 -2 -1 0 -2 -2 -2 -1 -2 -1 -1 -1 -2 -2 -1 1 -1 1 0 0 -4 1 -1 2 -1 1 1 1 2 1 1 1 -1 2 0 0 1 3 0 0 -1 1 -1 1 -1 1 0 2 2 1 -1 2 -2 1 -2 0 -3 -1 -1 2 0 0 -1 1 1 0 2 0 3 2 1 0 2 0 2 1 0 0 3 -1 1 -1 0 -1 2 2 0 1 2 1 1 1 1 2 4 -2 3 -2 2 -1 2 -2 0 -3 1 -1 -1z",
+            SEN: "M454 197l-1 -2 -1 -2 1 -1 1 -2 1 -2 1 -1 1 0 2 -1 1 0 2 1 1 1 2 3 2 3 0 2 0 2 1 1 1 1 -1 2 -2 0 -2 -1 -2 0 -5 0 -1 0 -2 1 0 -3 2 0 1 0 1 -1 2 0 1 1 1 -1 0 -1 -1 0 -1 0 -1 -1 -1 0 -1 1z",
+            SLB: "M947 287l0 1 -2 0 0 -2 1 1zM946 284l0 1 -2 -4 0 -2 1 0 0 3zM944 285l-1 0 -2 0 -1 -1 1 -1 2 0 0 1zM941 278l1 1 0 1 -2 -2 -1 -1 -1 -1 0 -1 1 1zM935 274l1 1 -1 1 -1 -1 -1 -2z",
+            SLE: "M463 215l2 -2 0 -1 1 -1 1 0 2 0 1 1 1 1 0 1 0 1 0 2 1 0 -2 1 -1 2 0 1 -1 2 0 -1 -2 -1 -2 -2 0 -1z",
+            SLV: "M256 194l0 1 1 0 1 1 1 0 1 1 -1 1 0 1 -2 0 -1 0 -1 -1 -1 0 -1 -1 0 -1 1 -1 1 0z",
+            SOL: "M635 205l0 1 0 1 0 4 0 2 -1 2 -2 3 -2 0 -9 -4 -2 -2 -1 -1 -1 -2 1 -2 1 -2 1 1 0 1 2 2 1 0 2 -1 3 0 3 -2 1 0 1 0z",
+            SOM: "M615 254l-1 -3 0 -13 2 -5 1 -1 2 0 2 -3 4 0 7 -11 2 -3 1 -2 0 -2 0 -4 0 -1 0 -1 1 0 1 0 1 -1 1 -1 1 0 1 1 -1 2 1 2 -1 2 0 4 -2 4 -1 5 -2 5 -3 4 -3 5 -2 3 -5 4 -2 3 -3 4 -1 2z",
+            SRB: "M545 86l1 -1 2 1 1 1 1 1 1 1 0 1 2 1 1 -1 0 1 0 1 0 1 1 2 0 1 -1 1 1 0 -1 0 -1 1 -1 0 0 -1 1 -1 -1 0 -1 0 0 -1 -1 -1 0 1 0 1 -1 0 -1 -1 -1 0 0 -1 -1 0 1 0 0 -2 -1 -1 0 -1 -1 0 1 -2 -1 -1z",
+            SUR: "M349 239l-2 0 -1 0 -1 0 -1 1 1 0 -1 1 -1 0 -2 -3 0 -2 -1 0 -1 -3 1 -2 -1 -1 2 -1 1 -3 3 0 3 -1 2 1 -1 4 0 2 1 2 0 2 -1 2z",
+            SVK: "M552 77l0 1 -1 1 -3 -1 -1 0 0 1 -1 0 -1 1 -1 0 -2 1 -1 -1 -2 0 0 -1 0 -1 1 0 1 0 0 -1 1 0 0 -1 1 0 1 0 0 -1 2 1 1 0 1 0 2 0z",
+            SVN: "M533 84l1 1 2 -1 2 0 0 -1 1 1 -2 1 0 2 -1 0 0 1 -1 0 0 -1 -1 1 -1 0 0 -1 -1 -1z",
+            SWE: "M523 50l1 -2 2 -1 0 -3 -1 -1 -1 -4 1 -2 2 0 1 -1 -1 0 3 -3 1 -3 1 -1 2 0 0 -1 4 0 0 -1 1 0 3 1 3 1 1 3 1 1 -3 1 -2 1 1 2 -3 1 -4 2 -1 4 2 1 2 2 -1 3 -2 0 -1 5 0 2 -3 0 -1 2 -3 0 -1 -3 -2 -3z",
+            SWZ: "M585 346l-1 2 -2 0 -1 -2 0 -1 1 -1 0 -1 1 -1 1 1 0 2z",
+            SYR: "M592 129l0 -2 0 -2 1 -1 0 -1 -2 0 0 -3 0 -1 1 -1 0 -1 0 -2 1 1 3 -1 1 1 2 0 3 -2 1 0 3 0 -1 2 -1 1 1 2 -1 4 -5 4 -4 4z",
+            TCD: "M564 175l1 15 -2 0 -1 2 -1 3 1 1 -1 1 0 1 -1 2 0 1 1 0 1 1 0 2 1 2 -2 1 -1 2 -2 4 -3 1 -2 0 -1 0 0 2 -1 1 -1 2 -4 1 0 -1 -1 0 0 1 -3 0 1 -1 -1 -2 -1 -2 -1 0 -1 -3 0 -1 1 0 1 0 2 0 -2 -4 0 -2 0 -3 -1 -2 0 -2 -2 0 0 -2 -1 -1 1 -5 4 -4 0 -5 0 -7 1 -1 -1 -2 0 -1 -1 -1 -1 -5 2 -2 11 7z",
+            TGO: "M502 207l0 2 1 1 1 1 0 2 1 1 -1 8 1 3 -2 1 -1 -1 0 -3 -1 -2 1 -3 -1 -1 0 -3 0 -3 -1 -2 0 -1z",
+            THA: "M788 195l-3 -1 -3 1 -1 3 1 5 -3 -2 -2 0 0 -3 -3 0 1 4 -1 6 -1 3 1 3 2 0 1 3 1 3 2 2 1 1 2 2 -1 1 -2 1 0 -2 -2 -2 -1 1 -1 -2 -1 -1 -1 -3 -2 -1 0 2 -1 -2 0 -3 1 -3 1 -4 1 -3 -2 -4 0 -1 -1 -2 -2 -3 -1 -2 1 -1 1 -3 -2 -3 -2 -2 -2 -3 1 -1 0 -4 2 0 1 -2 2 -1 1 2 1 2 2 0 0 4 0 3 3 -2 1 0 1 0 1 -1 2 0 2 3 1 4 3 3 1 3z",
+            TJK: "M670 114l0 -3 -1 -3 -2 0 0 -2 2 0 1 -1 0 -2 3 -1 0 1 1 1 1 0 -1 1 -3 0 1 1 2 0 4 1 4 0 2 3 0 -1 2 1 0 1 1 2 -2 0 -2 0 -1 2 -1 0 -1 1 -1 -1 -1 -3 0 -1 -2 -1 -1 1 0 1 0 1 -1 0 -1 1 -1 0 -1 1z",
+            TKM: "M628 99l1 -1 2 -1 2 1 2 3 2 0 2 0 0 -2 1 -1 2 -2 4 2 1 2 1 1 2 0 1 0 3 4 3 2 2 2 3 1 4 2 0 2 0 -1 -2 0 0 1 -2 0 0 3 -1 1 -2 1 0 1 -2 0 -2 -1 -1 -3 -2 0 -4 -3 -2 0 -3 -2 -2 0 -1 1 -2 0 -1 1 -2 1 -1 -2 0 -4 -3 -1 0 -2 -1 0 0 -3 2 1 2 -1 -2 -2 -2 -2 -1 1 0 2z",
+            TLS: "M845 281l1 -1 2 -1 2 0 1 0 1 0 -1 1 -3 2 -3 1 0 -1z",
+            TTO: "M330 208l2 -1 0 1 0 2 -2 1 -1 -1 1 -1z",
+            TUN: "M525 137l-2 -6 -1 -1 0 -1 -3 -2 0 -3 2 -1 0 -3 0 -3 0 -2 3 -1 2 0 0 2 2 -2 0 1 -1 2 0 1 1 1 -1 3 -1 2 0 1 2 1 0 1 1 1 0 2 -1 1 -1 1 -1 2 0 1 0 2z",
+            TUR: "M612 114l-1 1 -1 -1 -3 -1 -1 1 -3 0 -1 0 -3 2 -2 0 -1 -1 -3 1 -1 -1 0 2 0 1 -1 1 -1 -2 1 -1 -2 0 -2 -1 -1 2 -4 1 -2 -2 -3 0 -1 1 -1 1 -3 -2 -3 0 -1 -3 -2 -2 0 -3 -1 -1 2 -3 4 -1 0 -2 5 0 3 -2 2 -1 4 0 5 3 4 1 3 -1 2 1 2 -2 3 0 3 1 0 2 0 1 2 1 1 1 -1 1 2 4 -1 1zM564 99l2 -1 2 0 1 2 2 1 -1 1 -2 0 -1 1 -2 1 -1 -1 0 -1 1 -2z",
+            TWN: "M824 158l0 6 0 3 -3 -3 -1 -3 1 -3 1 -3 1 1z",
+            TZA: "M594 252l1 0 10 8 0 2 4 3 -2 5 0 2 2 2 0 1 -1 2 1 1 -1 2 1 2 1 4 1 1 -2 2 -3 1 -2 0 -1 1 -2 0 -1 1 -3 -1 -2 0 0 -5 -1 -2 -1 -1 -3 -1 -1 -1 -2 0 -1 -1 -1 -1 -1 -5 -2 -2 0 -2 0 -2 -1 -3 2 0 1 -2 1 -2 0 -2 0 -2 1 -3 -2 -2 1 0 4 0z",
+            UGA: "M594 252l-5 0 -4 0 -1 0 -1 1 -1 0 0 -3 1 -1 0 -3 1 -2 1 -2 1 -1 1 -1 -2 -1 1 -4 1 -1 1 1 3 -1 2 0 1 -2 2 3 0 2 1 4 -1 3 -1 2 -1 2z",
+            UKR: "M572 68l1 -1 1 1 2 -1 2 2 -1 1 1 0 1 1 2 1 3 1 1 0 2 1 1 0 4 1 0 1 0 2 1 1 0 1 -3 0 -1 1 1 2 -2 0 -2 1 -2 0 -2 1 1 2 -1 -1 -1 0 -1 -1 -1 1 -4 -1 -1 -1 -2 0 0 2 -2 2 -1 0 -1 0 -1 0 1 -1 0 -1 0 -1 0 -1 1 1 1 0 1 0 -1 -1 -1 -1 0 -1 -1 -1 0 -1 -1 0 -1 0 -2 -1 -2 0 -1 0 -1 1 -1 0 -1 1 -1 -1 -2 0 -1 0 -1 0 -2 -1 1 -1 0 -1 1 0 -1 -1 2 -3 1 0 0 -1 -2 -2 1 -1 1 0 2 0 2 0 3 0 2 1 1 0 1 -1 0 1 2 0 1 0 0 -1 1 -1z",
+            URY: "M350 358l2 0 3 3 1 -1 3 3 3 2 2 2 -1 2 1 1 -1 3 -2 1 -2 0 -2 0 -2 -1 -2 0 -2 -2 0 -2 0 -1 -1 -3 0 -4z",
+            USA: "M216 77l7 0 7 0 2 0 7 0 7 0 7 0 7 0 8 0 7 0 5 0 1 -1 1 0 -1 1 1 1 1 0 2 1 2 1 2 -1 2 1 1 0 3 -1 1 1 2 1 1 1 2 1 0 1 0 1 1 -1 0 1 0 1 1 0 -1 1 2 1 -1 3 -1 3 -1 1 -2 2 -1 1 0 1 1 1 4 -2 2 -1 4 -1 0 -1 1 -1 -1 0 2 -1 2 0 2 0 2 -1 3 -2 2 -1 3 0 5 0 0 -1 1 0 1 0 2 -2 1 -2 3 -2 1 0 1 0 1 1 -2 4 1 2 0 1 -3 1 -3 1 -2 1 -2 2 -1 1 -1 1 0 2 1 0 1 -1 0 1 0 1 -2 0 -1 0 -2 1 -2 0 -1 0 -2 1 3 -1 1 1 -4 1 -1 0 0 -1 -1 1 0 1 -1 2 -3 2 0 -1 -1 0 0 1 1 1 -1 1 -1 1 -2 3 1 -2 -1 -2 1 -2 -1 1 0 2 -2 0 2 1 -1 3 0 1 0 4 -3 2 -3 1 -2 2 -1 0 -2 1 -1 2 -3 2 -2 1 -2 2 -1 3 0 2 0 3 0 3 0 1 0 4 0 3 -1 1 -1 2 -1 1 -1 -1 0 -1 -1 -1 -1 -3 0 -3 0 -1 1 -2 0 -2 -2 -3 0 -1 -3 2 -1 0 -1 -2 -1 -1 -3 1 -2 -1 -2 0 -2 1 1 1 -1 1 0 1 -1 0 -1 1 -2 -1 -1 -1 -3 0 -1 -1 -2 0 -3 1 -3 3 -3 1 -2 2 -1 2 -1 2 0 2 0 1 -1 0 -2 -1 -1 -1 -1 -1 1 -3 -1 -2 -1 -2 0 -2 -1 -2 -3 0 -2 3 -2 -1 -1 -1 0 -2 0 -2 -1 -1 -1 -1 0 -2 -5 0 0 2 -3 0 -5 0 -5 -3 -3 -1 1 -1 -4 0 -3 1 1 -2 -1 -2 -1 0 0 -1 -1 0 -1 -1 -2 -1 0 -2 -1 -3 1 -5 0 -1 0 -1 -1 -3 2 -2 -1 -2 2 -3 2 -3 1 -2 3 -3 2 -3 2 -3 3 -4 1 -2 0 -2 1 0 2 1 0 3 1 -1 1 -3zM81 174l1 0 0 2 -2 1 -1 0 0 1 -1 -1 1 -1 0 -1 1 -1 0 -1zM80 171l0 1 -1 0 0 -1 -1 0 1 -1zM153 46l1 0 -1 1 -2 1 0 -1 -1 -1zM173 52l1 0 0 1 -3 1 -4 1 1 -2 3 -1zM233 25l-10 8 -17 13 2 0 1 1 0 1 0 2 4 -2 3 -1 0 2 0 1 1 1 -1 2 -1 3 2 2 -2 1 -2 2 0 -2 -1 0 1 -3 0 -2 1 -2 -2 0 -3 -1 -2 0 -1 -3 -1 0 -3 -1 -3 0 -3 -1 -1 -1 -3 0 -2 2 -1 0 -3 1 -3 1 -3 0 1 -1 4 -3 4 -1 -5 1 -3 2 -5 2 0 1 -5 2 -3 1 -3 1 -2 1 -5 1 -3 1 -3 1 -2 0 -3 1 -3 1 -3 1 -5 1 1 -1 4 -1 3 -1 4 -1 3 -1 2 -1 5 -1 1 -1 3 -1 3 -2 3 -1 -4 0 -2 1 0 -1 -2 1 1 -2 -3 1 -1 0 1 -1 2 -1 0 -1 -4 0 0 -1 2 -2 0 -1 2 -1 4 -1 2 -2 2 0 1 1 3 -2 2 1 2 -1 1 -1 3 -1 -2 0 -2 0 -2 1 -1 -1 -3 0 -2 0 1 -1 -1 -1 4 -1 6 -1 2 0 -2 1 4 0 1 -2 -1 0 0 -1 0 -1 -2 -1 3 -1 3 0 4 -1 2 -1 4 -1 2 0 5 -1 2 0 4 -1 2 1 0 1 2 -1 3 0 -1 1 2 0 2 0 3 1 4 0 1 0 3 0 2 0zM154 38l1 0 1 0 1 1 2 0 -1 0 -2 1 -1 -1 -2 0z",
+            UZB: "M637 101l-4 -12 6 -2 0 1 5 2 2 1 3 3 3 -1 4 0 4 2 0 4 2 0 1 2 3 0 1 2 1 0 1 -3 2 -2 1 0 1 0 -1 2 2 1 1 -1 4 2 -2 2 -2 0 -1 0 -1 -1 0 -1 -3 1 0 2 -1 1 -2 0 0 2 2 0 1 3 0 3 -2 0 -2 0 0 -2 -4 -2 -3 -1 -2 -2 -3 -2 -3 -4 -1 0 -2 0 -1 -1 -1 -2 -4 -2 -2 2 -1 1 0 2z",
+            VEN: "M332 229l0 1 -1 1 -3 1 -2 1 -1 1 -2 -1 -2 -1 -1 1 1 1 0 2 1 3 2 0 0 1 -2 1 0 1 -1 1 -3 1 0 1 -2 0 -2 -2 -1 -3 0 -2 -1 -1 1 -1 0 -1 -1 -1 0 -3 0 -3 1 -1 0 -2 -1 0 -1 0 -2 0 -1 0 -2 -3 -2 0 -3 0 -1 -1 0 -1 0 -1 0 -1 0 -1 -1 -1 0 -2 -1 0 1 -2 0 -3 1 -1 1 -1 1 -2 2 -1 0 1 -2 0 1 2 0 2 -2 2 1 3 1 0 1 -3 -1 -1 0 -3 4 -1 0 -2 1 -1 1 2 1 0 2 2 0 2 3 0 3 -1 1 2 2 0 2 -1 0 -1 3 0 4 0 -3 1 1 2 2 0 2 2 0 3 2 0 1 1 -2 2 -1 1 1 2 -1 0 -1 1 0 2 -1 1z",
+            VNM: "M788 209l2 -2 3 0 -2 -2 4 -3 0 -4 -1 -3 0 -4 -1 -2 -3 -3 -2 -3 -3 -4 -4 -2 0 -2 2 -1 -2 -3 -3 0 -2 -3 -3 -3 2 -1 2 0 2 0 2 -2 2 1 2 1 0 2 2 1 3 1 -3 3 -1 4 0 2 3 4 3 5 3 2 2 3 3 7 0 6 -2 3 -2 2 -2 3 -3 4 -2 -3 1 -2z",
+            VUT: "M955 306l0 -1 1 -3 1 2 -1 3 0 -1z",
+            YEM: "M641 178l2 6 2 2 -2 1 -1 2 0 1 -2 2 -4 1 -3 3 -1 0 -1 0 -1 1 -2 1 -2 0 -1 0 0 1 -1 1 0 1 -2 0 -1 0 -2 0 0 -2 -1 -2 0 -1 -1 -3 -1 -2 1 0 -1 -1 1 -1 0 -2 1 -1 -1 -1 1 -2 1 1 1 -1 3 0 0 1 3 0 1 0 1 1 1 -1 2 -3 2 -2z",
+            ZAF: "M543 353l1 -2 1 1 0 1 2 1 1 0 2 0 2 -2 1 -13 1 1 1 3 0 2 0 1 2 0 1 -1 2 -2 0 -1 2 -1 1 0 1 1 2 1 2 -1 0 -1 1 -2 1 0 1 -2 1 -2 3 -3 4 -2 1 0 1 0 1 0 2 0 0 5 1 3 -1 4 0 1 -1 -1 -1 1 0 1 -1 1 0 1 1 2 2 0 1 -2 1 0 0 3 -1 3 -1 1 -2 2 -2 2 -1 2 -1 2 -4 4 -2 2 -2 2 -3 1 -1 0 0 1 -2 0 -1 0 -3 0 -1 0 -1 0 -3 1 -2 1 -2 1 -1 0 -1 -1 -1 0 -1 -2 0 1 0 -1 0 -2 -1 -2 1 -1 0 -3 -2 -3 -1 -3z",
+            ZMB: "M585 279l1 1 1 1 2 0 1 1 2 2 0 3 0 1 -1 3 0 3 0 2 -1 3 1 1 -8 3 0 3 -2 0 -2 2 0 1 -1 0 -3 3 -2 3 -1 0 0 -1 -3 0 -1 0 0 -1 -1 -1 -2 0 -2 1 -2 -2 -1 -3 0 -12 6 0 0 -1 0 -2 0 -1 0 -2 0 -1 1 0 0 1 1 0 2 0 1 2 2 0 2 -1 0 2 2 1 1 1 1 2 2 0 0 -4 0 1 -2 -1 -1 -1 0 -4 1 -4 0 -2 0 -2 1 -1 4 0z",
+            ZWE: "M584 330l-2 0 -1 0 -1 0 -1 0 -2 -2 -2 -1 0 -2 0 -1 -1 -1 -3 -4 -1 -2 -1 0 0 -3 3 0 0 1 1 0 2 -3 3 -3 1 0 0 -1 2 -2 2 0 0 1 2 0 1 1 1 1 1 0 1 1 0 5 -1 2 0 3 0 1 0 2 -1 3z"
+        } };
         const app = {
             // v14.2: on the new backend you are who you signed in as (never a name picked on this phone before), and the server sends the list
             user: Supa.on() ? Cloud.who() : safeGet('dialed_user'),
@@ -5438,7 +5708,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 // v12.2: only what was just added gets looked at
                 const roots = new Set();
                 let queued = false;
-                const run = () => { queued = false; const list = [...roots]; roots.clear(); list.forEach(r => { if (r.isConnected) this.centerInitials(r); }); };
+                // v15.1: and the profile pictures of whoever just came on screen
+                const run = () => { queued = false; const list = [...roots]; roots.clear(); list.forEach(r => { if (r.isConnected) { this.centerInitials(r); if (this.noteFaces) this.noteFaces(r); } }); if (this.paintFaceRules) this.paintFaceRules(); };
                 new MutationObserver(recs => {
                     recs.forEach(r => r.addedNodes.forEach(n => {
                         if (n.nodeType === 1) { if (!n.classList.contains('ini')) roots.add(n); }
@@ -5447,9 +5718,11 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     if (roots.size && !queued) { queued = true; requestAnimationFrame(run); }
                 }).observe(document.body, { childList: true, subtree: true });
                 this.centerInitials();
+                if (this.paintFaceRules) { this.paintFaceRules(); this.noteFaces(); }
             },
 
             init() {
+                if (this.bootStep) { this.bootStep(48); setTimeout(() => this.hideBoot(), 6000); }   // v15.1: the start-up screen
                 if (this.noteInviteLink) this.noteInviteLink();   // v14.4: ?join=CODE, offered once you're signed in
                 if (this.noteProfileLink) this.noteProfileLink();
                 if (this.noteShareLink) this.noteShareLink();   // v15.0: a shared session, coffee or roaster
@@ -5472,7 +5745,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const mobileMethod = document.getElementById('mobile-method-select');
                 if (mobileSort) mobileSort.value = this.currentSort;
                 if (mobileMethod) mobileMethod.value = this.currentMethodFilter;
-                if (!this.user) this.openWelcome();   // v14.0
+                if (!this.user) { this.openWelcome(); if (this.hideBoot) this.hideBoot(); }   // v14.0
                 else this.updateBadge('connecting');
                 this.watchInitials();
                 this.watchLikeLines();
@@ -5486,6 +5759,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 this.outboxReady = this.loadOutbox();
                 if (typeof window.addEventListener === 'function') window.addEventListener('online', () => { (this.outbox || []).forEach(x => { x.lastTry = 0; }); this.flushOutbox(); });   // (a stand-in window in some tests has none)
                 this.bootFromCache().then(() => {
+                    // v15.1: your coffees are on screen: the start-up screen goes (two frames on, once they're drawn)
+                    if (this.hideBoot) { this.bootStep(88); requestAnimationFrame(() => requestAnimationFrame(() => this.hideBoot())); }
                     if (this.user || this.welcomeOpen) this.sync();
                 });
                 this.syncTimer = setInterval(() => {
@@ -6288,6 +6563,16 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         metric: stats => (stats.originSet ? stats.originSet.size : 0),
                         format: value => `${Math.round(value)} origin${Math.round(value) === 1 ? '' : 's'}`,
                         sentence: value => `brewed coffees from ${Math.round(value)} different origins`
+                    },
+                    {
+                        key: 'continents',   // v15.1 (Aidan's idea): a coffee from every continent that grows it
+                        group: 'Exploring',
+                        desc: 'A coffee from every continent that grows it: Africa, Asia, Oceania, North & Central America, South America',
+                        title: 'World Tour',
+                        thresholds: [5],
+                        metric: stats => (stats.continentSet ? stats.continentSet.size : 0),
+                        format: value => `${Math.min(5, Math.max(0, Math.round(value)))}/5 continents`,
+                        sentence: () => 'brewed coffee from every continent that grows it'
                     },
                     {
                         key: 'processes',
@@ -9999,6 +10284,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     commentsWritten: 0,
                     likesReceived: 0,
                     originSet: new Set(),
+                    continentSet: new Set(),   // v15.1
                     processSet: new Set(),
                     roastSet: new Set(),
                     roasterSet: new Set(),
@@ -10524,7 +10810,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         <button type="button" class="thread-toggle" aria-expanded="${open}" onclick="app.toggleThread('${app.escJs(kind)}','${app.escJs(id)}',event)">
                             <svg class="icon"><use href="#i-message-square"/></svg>
                             <span class="thread-label">${comments.length ? `Comments <b>${comments.length}</b>` : 'Add a comment'}</span>
-                            ${people.length ? `<span class="thread-faces">${people.map(n => `<i style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</i>`).join('')}</span>` : ''}
+                            ${people.length ? `<span class="thread-faces">${people.map(n => `<i data-face="${this.esc(n)}" style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</i>`).join('')}</span>` : ''}
                             <svg class="icon thread-chev"><use href="#i-chevron-down"/></svg>
                         </button>`}
                         <div class="thread-body">
@@ -11128,7 +11414,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const best = r.best, bc = r.bestCoffee;
                 const bestCard = best && bc ? `<button type="button" class="profile-card ro-sec" data-bean="${esc(best.beanId)}" onclick="app.openCoffeeFromRoaster(this.getAttribute('data-bean'))"><div class="label">Best shot</div><div class="ro-best"><div class="ro-best-main"><div class="ro-best-name">${esc(bc.name)}</div><div class="ro-best-line"><span>${esc(this.getBrewOwner(best))} · ${esc(this.shortDate(best.date))}</span><span class="star-meter" style="--fill:${this.starFill(best.rating)}%;--whole:${this.starWhole(best.rating)};--frac:${this.starFrac(best.rating)}"></span><span>${esc(this.formatRating(best.rating))}</span></div>${this.recipeLine(best, false) ? `<div class="ro-best-recipe">${esc(best.method || '')}${best.method ? ' · ' : ''}${esc(this.recipeLine(best, false))}</div>` : ''}</div><svg class="icon ro-go"><use href="#i-chevron-down"/></svg></div></button>` : '';
                 const coffees = `<section class="profile-card ro-sec"><div class="label">Their coffees</div>${r.coffees.map(c => `<button type="button" class="ro-cof" data-bean="${esc(c.beanId)}" onclick="app.openCoffeeFromRoaster(this.getAttribute('data-bean'))"><span class="ro-cof-main"><span class="ro-cof-name">${esc(c.name)}</span><span class="ro-cof-sub">${c.sessions} session${c.sessions === 1 ? '' : 's'}</span></span>${c.rated ? `<span class="ro-meter"><i style="width:${(c.avg / 5) * 100}%"></i></span><span class="ro-cof-n">${RoasterEngine.f1(c.avg)}★</span>` : ''}<svg class="icon ro-go"><use href="#i-chevron-down"/></svg></button>`).join('')}</section>`;
-                const who = r.people.length ? `<section class="profile-card ro-sec"><div class="label">Who drinks it</div>${r.people.map(p => `<div class="ro-who" data-profile="${esc(p.name)}"><span class="person-dot" style="background:${esc(this.getUserColor(p.name))}">${esc(this.feedInitial(p.name))}</span><span class="ro-who-t">${esc(p.name)}<small>${p.sessions} session${p.sessions === 1 ? '' : 's'}${p.rated ? ` · ${RoasterEngine.f1(p.avg)}★ average` : ''}</small></span>${p.top ? `<span class="ro-badge">${esc(p.name)}'s top roaster</span>` : ''}</div>`).join('')}</section>` : '';
+                const who = r.people.length ? `<section class="profile-card ro-sec"><div class="label">Who drinks it</div>${r.people.map(p => `<div class="ro-who" data-profile="${esc(p.name)}"><span class="person-dot" data-face="${esc(p.name)}" style="background:${esc(this.getUserColor(p.name))}">${esc(this.feedInitial(p.name))}</span><span class="ro-who-t">${esc(p.name)}<small>${p.sessions} session${p.sessions === 1 ? '' : 's'}${p.rated ? ` · ${RoasterEngine.f1(p.avg)}★ average` : ''}</small></span>${p.top ? `<span class="ro-badge">${esc(p.name)}'s top roaster</span>` : ''}</div>`).join('')}</section>` : '';
                 const e = r.espresso;
                 const range = (a, f) => a ? (Math.abs(a[1] - a[0]) < 1e-9 ? f(a[0]) : `${f(a[0])}–${f(a[1])}`) : '';
                 const ratio = e && e.ratio ? range(e.ratio, x => `1:${x.toFixed(1)}`) : '', secs = e && e.time ? range(e.time, x => `${this.fmtNum(x, 0)}`) + ' s' : '';
@@ -12706,7 +12992,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (this.acctOn() && !people.includes(who)) people.splice(1, 0, who);   // someone opened from People or a card: their chip shows while you look
                 const chips = people.map(name => {
                     const color = this.getUserColor(name);
-                    return `<button type="button" class="person-chip${name === who ? ' active' : ''}" data-name="${this.esc(name)}" onclick="app.setProfileUser(this.getAttribute('data-name'))"><span class="person-dot" style="background:${this.esc(color)};">${this.esc(this.feedInitial(name))}</span>${this.acctOn() && name === this.user ? 'You' : `${this.esc(name)}${name === this.user ? ' <span class="you-tag">You</span>' : ''}`}</button>`;
+                    return `<button type="button" class="person-chip${name === who ? ' active' : ''}" data-name="${this.esc(name)}" onclick="app.setProfileUser(this.getAttribute('data-name'))"><span class="person-dot" data-face="${this.esc(name)}" style="background:${this.esc(color)};">${this.esc(this.feedInitial(name))}</span>${this.acctOn() && name === this.user ? 'You' : `${this.esc(name)}${name === this.user ? ' <span class="you-tag">You</span>' : ''}`}</button>`;
                 }).join('');
                 // v14.4: People (new backend): find, follow, requests. Follow requests waiting are counted inside the button
                 const asks = this.acctOn() ? this.peopleRequests().length : 0;
@@ -12720,7 +13006,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const tabs = `<div class="seg-control profile-tabs" role="tablist" aria-label="Profile sections">${[['sessions', 'Sessions'], ['overview', 'Overview'], ['taste', 'Taste'], ['activity', 'Activity']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === section}" aria-pressed="${k === section}" onclick="app.setProfileSection('${app.escJs(k)}')">${l}${k === 'activity' && freshRecap && section !== 'activity' ? '<span class="nav-dot"></span>' : ''}</button>`).join('')}</div>`;
                 const cards = section === 'sessions' ? [this.profileSessionsHtml(who)]
                     : section === 'taste'
-                    ? [this.renderPalateCard(who), who === this.user ? this.renderFriendPalates() : '', this.renderMatchesCard(who), this.renderWantCard(who)]
+                    ? [this.renderPalateCard(who), this.renderCoffeeMapCard ? this.renderCoffeeMapCard(who) : '', who === this.user ? this.renderFriendPalates() : '', this.renderMatchesCard(who), this.renderWantCard(who)]
                     : section === 'activity'
                         ? [this.renderCrewAwardsCard(), this.renderCalendarCard(who), this.renderRecapCard(who)]
                         : [who === this.user && this.renderGoalsCard ? this.renderGoalsCard() : '', this.renderFabFour(who), this.profileCoffeesHtml(who), this.renderAchievementsCard(who), who !== this.user ? this.renderGearCard(who) : ''];   // v14.6: your goals first
@@ -12809,7 +13095,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const dots = r.weeks.map((on, i) => `<span class="week-dot${on ? ' on' : ''}" title="${i === 7 ? 'This week' : `${7 - i} week${7 - i === 1 ? '' : 's'} ago`}"></span>`).join('');
                 const streak = this.streakChipHtml(r.streak);
                 const last = r.lastT ? `Last brewed ${this.formatRelativeDate(r.lastT)}` : 'No sessions yet';
-                return `<section class="profile-card profile-hero" style="--pc-rgb:${this.hexRgb(color)}"><div class="hero-row"><div class="hero-avatar" style="background:${this.esc(color)};">${this.esc(this.feedInitial(user))}</div><div class="hero-id"><div class="hero-name">${this.esc(user)}${user === this.user ? '<span class="you-tag">You</span>' : this.profileRelTagHtml(user)}</div><div class="hero-sub">${this.esc(last)}</div></div>${this.acctOn() ? `<button type="button" class="btn-clean hero-share" data-name="${this.esc(user)}" onclick="app.shareItem('profile', this.getAttribute('data-name'), event)" aria-label="Share ${this.esc(user)}'s profile"><svg class="icon"><use href="#i-share-2"/></svg></button>` : ''}</div>${this.acctOn() ? this.profileFollowHtml(user) : ''}<div class="rhythm"><div class="week-dots">${dots}</div><div class="rhythm-text">Brewed in ${r.active} of the last 8 weeks</div>${streak}</div><div class="stat-row"><div class="stat-box"><div class="stat-num">${brews.length}</div><div class="stat-cap">${brews.length === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${beans}</div><div class="stat-cap">${beans === 1 ? 'Bean' : 'Beans'}</div></div><div class="stat-box"><div class="stat-num">${methods}</div><div class="stat-cap">${methods === 1 ? 'Method' : 'Methods'}</div></div></div></section>`;
+                return `<section class="profile-card profile-hero" style="--pc-rgb:${this.hexRgb(color)}"><div class="hero-row"><div class="hero-avatar" data-face="${this.esc(user)}" style="background:${this.esc(color)};">${this.esc(this.feedInitial(user))}</div><div class="hero-id"><div class="hero-name">${this.esc(user)}${user === this.user ? '<span class="you-tag">You</span>' : this.profileRelTagHtml(user)}</div><div class="hero-sub">${this.esc(last)}</div></div>${this.acctOn() ? `<button type="button" class="btn-clean hero-share" data-name="${this.esc(user)}" onclick="app.shareItem('profile', this.getAttribute('data-name'), event)" aria-label="Share ${this.esc(user)}'s profile"><svg class="icon"><use href="#i-share-2"/></svg></button>` : ''}</div>${this.acctOn() ? this.profileFollowHtml(user) : ''}<div class="rhythm"><div class="week-dots">${dots}</div><div class="rhythm-text">Brewed in ${r.active} of the last 8 weeks</div>${streak}</div><div class="stat-row"><div class="stat-box"><div class="stat-num">${brews.length}</div><div class="stat-cap">${brews.length === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${beans}</div><div class="stat-cap">${beans === 1 ? 'Bean' : 'Beans'}</div></div><div class="stat-box"><div class="stat-num">${methods}</div><div class="stat-cap">${methods === 1 ? 'Method' : 'Methods'}</div></div></div></section>`;
             },
 
             palateFor(user) {
@@ -12881,7 +13167,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (!others.length) return '';
                 const rows = others.map(name => {
                     const color = this.getUserColor(name);
-                    return `<button type="button" class="friend-palate" data-profile="${this.esc(name)}"><span class="person-dot" style="background:${this.esc(color)};">${this.esc(this.feedInitial(name))}</span><span class="friend-palate-text"><b>${this.esc(name)}</b>${this.esc(this.palateSentence(this.palateFor(name)))}</span></button>`;
+                    return `<button type="button" class="friend-palate" data-profile="${this.esc(name)}"><span class="person-dot" data-face="${this.esc(name)}" style="background:${this.esc(color)};">${this.esc(this.feedInitial(name))}</span><span class="friend-palate-text"><b>${this.esc(name)}</b>${this.esc(this.palateSentence(this.palateFor(name)))}</span></button>`;
                 }).join('');
                 return `<section class="profile-card"><h4 class="section-label">Friends' palates</h4><div class="friend-palates">${rows}</div></section>`;
             },
@@ -14211,6 +14497,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const bean = this.beans.get(String(event.beanId));
                 if (!bean) return;
                 this.originList(bean.origin).forEach(o => stats.originSet.add(o.toLowerCase()));
+                if (this.coffeeContinent && stats.continentSet) this.originList(bean.origin).forEach(o => { const c = this.coffeeContinent(o); if (c) stats.continentSet.add(c); });   // v15.1
                 const process = this.normalizeTag(bean.process);
                 if (process) stats.processSet.add(process.toLowerCase());
                 const roast = String(bean.roast || '').trim();
@@ -15585,6 +15872,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 form.elements.id.value = '';
                 document.getElementById('bean-modal-title').innerText = 'New Coffee';
                 this.fillRoasterSuggestions();
+                if (this.bindCoffeeSuggest) { this.bindCoffeeSuggest(); const box = form.querySelector('.cs-list'); if (box) box.hidden = true; }   // v15.1
                 this.openModal('bean-modal');
             },
 
@@ -15659,6 +15947,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
             openSettings() {
                 this.renderThemeControl();
+                if (this.paintAvatarSetting) this.paintAvatarSetting();   // v15.1
                 const list = document.getElementById('user-list');
                 list.innerHTML = '';
                 // v14.2: on the new backend you are who you signed in as: your account and Sign out, then the goal switches
@@ -16493,7 +16782,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const sess = Supa.session() || {};
                 const email = sess.user && sess.user.email ? sess.user.email : '';
                 const color = this.getUserColor(this.user);
-                return `<div class="acct-row"><i class="acct-dot" style="background:${this.esc(color)}">${this.esc(this.feedInitial(this.user || '?'))}</i><span class="acct-who"><b>${this.esc(this.user || '')}</b>${email ? `<small>${this.esc(email)}</small>` : ''}</span></div>`;   // (v15.0: Sign out is at the bottom)
+                return `<div class="acct-row"><i class="acct-dot" data-face="${this.esc(this.user || '')}" style="background:${this.esc(color)}">${this.esc(this.feedInitial(this.user || '?'))}</i><span class="acct-who"><b>${this.esc(this.user || '')}</b>${email ? `<small>${this.esc(email)}</small>` : ''}</span></div>`;   // (v15.0: Sign out is at the bottom)
             },
             // ---- v14.4 (phase 3): People. Find people by name, follow them (friends = you follow each other), answer
             // follow requests when your profile is private, and block. New backend only: on the Sheet none of it shows.
@@ -16563,7 +16852,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             },
 
             personDotHtml(name, color) {
-                return `<i class="acct-dot pp-dot" style="background:${this.esc(color || this.getUserColor(name))}">${this.esc(this.feedInitial(name))}</i>`;
+                return `<i class="acct-dot pp-dot" data-face="${this.esc(name)}" style="background:${this.esc(color || this.getUserColor(name))}">${this.esc(this.feedInitial(name))}</i>`;
             },
 
             // the one button that fits where you stand with someone
@@ -16596,7 +16885,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         : `<p class="pp-empty">Nobody by that name yet.</p>`;
                     return;
                 }
-                if (!d) { body.innerHTML = '<p class="pp-empty">Loading…</p>'; return; }
+                if (!d) { body.innerHTML = this.loadingBlockHtml(); return; }
                 const following = d.following || [], followers = d.followers || [];
                 const requests = followers.filter(f => f.status === 'pending');
                 const friends = following.filter(f => f.friend && f.status === 'accepted');
@@ -16886,7 +17175,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         : f === 'new' ? 'Nobody new in the last two weeks.'
                         : f ? `No ${f.slice(2)} sessions shared with Everyone lately.`
                         : 'Nothing shared with Everyone lately. Sessions people share with Everyone show up here.';
-                    grid.innerHTML = head + `<div class="comm-empty">${this.esc(st.loading || !st.at ? 'Loading…' : st.error || none)}</div>`;
+                    grid.innerHTML = head + (st.loading || !st.at ? this.loadingBlockHtml('comm-empty') : `<div class="comm-empty">${this.esc(st.error || none)}</div>`);
                     if (!st.loading && (!st.at || Date.now() - st.at > 60000)) setTimeout(() => this.loadCommunity(false), 0);
                     return;
                 }
@@ -16925,7 +17214,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             renderGroupFeed(grid) {
                 const gr = this.grState();
                 if (!gr.list) {
-                    grid.innerHTML = this.feedModeHtml() + '<div class="comm-empty">Loading…</div>';
+                    grid.innerHTML = this.feedModeHtml() + this.loadingBlockHtml('comm-empty');
                     if (!gr.busy) { gr.busy = true; this.loadGroups(true).then(() => { gr.busy = false; if (this.tab === 'feed') this.render(); }).catch(() => { gr.busy = false; gr.list = gr.list || []; if (this.tab === 'feed') this.render(); }); }
                     return;
                 }
@@ -16945,7 +17234,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const list = st.events.filter(e => e.type === 'brew').map(e => this.brews.get(String(e.id))).filter(b => b && !seen.has(b.id) && seen.add(b.id) && b.audience !== 'only_me' && !this.reported(b.id))
                     .sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
                 const body = list.length ? list.map(b => this.streamCard(b, this.isCommunity('brew', b.id))).join('')
-                    : `<div class="comm-empty">${this.esc(st.loading || !st.at ? 'Loading…' : st.error || (g.open ? 'Nothing here yet. Members\' sessions shared with Everyone show here.' : 'Nothing here yet. Members\' sessions show here.'))}</div>`;
+                    : (st.loading || !st.at ? this.loadingBlockHtml('comm-empty') : `<div class="comm-empty">${this.esc(st.error || (g.open ? 'Nothing here yet. Members\' sessions shared with Everyone show here.' : 'Nothing here yet. Members\' sessions show here.'))}</div>`);
                 const foot = !list.length ? '' : st.error ? `<div class="comm-empty">${this.esc(st.error)}</div>`
                     : st.next ? `<button type="button" class="btn-outline comm-more" data-g="${this.esc(String(g.id))}" onclick="app.loadGroupFeed(this.getAttribute('data-g'), true)"${st.loading ? ' disabled' : ''}>${st.loading ? 'Loading…' : 'Show older sessions'}</button>`
                     : `<div class="comm-empty">You're all caught up.</div>`;
@@ -17033,7 +17322,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const body = document.getElementById('notif-body');
                 if (!body) return;
                 const st = this.notifState();
-                if (!st.items) { body.innerHTML = '<p class="pp-empty">Loading…</p>'; return; }
+                if (!st.items) { body.innerHTML = this.loadingBlockHtml(); return; }
                 if (!st.items.length) { body.innerHTML = '<p class="pp-empty">Nothing yet. When people like, comment on or follow your brewing, it shows up here.</p>'; return; }
                 body.innerHTML = `<div class="pp-list">${st.items.map(n => `<button type="button" class="nt-row${n.read ? '' : ' is-new'}" data-id="${this.esc(String(n.id))}" onclick="app.openNotification(this.getAttribute('data-id'))">${n.kind === 'report' ? this.personDotHtml('!', '#8A8F8B') : this.personDotHtml(n.who || '?', n.color)}<span class="nt-text"><span>${this.notifText(n)}</span><small>${this.esc(this.formatRelativeDate(n.at))}</small></span></button>`).join('')}</div>`;
             },
@@ -17075,7 +17364,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
             renderGroups(body) {
                 const st = this.grState();
-                if (!st.list) { body.innerHTML = '<p class="pp-empty">Loading…</p>'; if (!st.busy) { st.busy = true; this.loadGroups(true).then(() => { st.busy = false; this.renderPeople(); }).catch(e => { st.busy = false; this.peopleFailed(e); }); } return; }
+                if (!st.list) { body.innerHTML = this.loadingBlockHtml(); if (!st.busy) { st.busy = true; this.loadGroups(true).then(() => { st.busy = false; this.renderPeople(); }).catch(e => { st.busy = false; this.peopleFailed(e); }); } return; }
                 const groupRow = g => {
                     const n = (g.members || []).length, isOpen = st.open === String(g.id), id = this.esc(String(g.id));
                     const role = g.role === 'owner' ? 'You run it' : g.role === 'admin' ? 'Admin' : '';
@@ -17262,6 +17551,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     // v14.6: your photos first (storage), then everything else (the database); a photo that won't go is
                     // tried once more, then left unreadable (nothing points at it once the account is gone)
                     await Supa.removeMyPhotos().catch(() => Supa.removeMyPhotos().catch(() => 0));
+                    if (Supa.removeMyAvatars) await Supa.removeMyAvatars().catch(() => 0);   // v15.1
                     await Supa.rpc('delete_account', { confirm_name: typed });
                     this.closeModals();
                     this.showToast('Your account is deleted.');
@@ -17356,6 +17646,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     : card.locked ? `${who}'s profile is private. Follow to ask to see their sessions.`
                     : !this.brewsOf(who).length ? `${who} hasn't shared any sessions with Everyone yet.`
                     : `What ${who} shares with Everyone.`;
+                if (st.loading && !st.at) return this.loadingBlockHtml('pp-profile-note');   // v15.1
                 return `<p class="pp-profile-note">${this.esc(text)}</p>`;
             },
 
@@ -17365,7 +17656,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const list = this.brewsOf(who).slice().sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
                 if (!list.length) {
                     const st = this.profState && this.profState();
-                    if (st && st.name === who && st.loading) return '<div class="panel-empty">Loading…</div>';
+                    if (st && st.name === who && st.loading) return this.loadingBlockHtml('panel-empty');
                     return `<div class="panel-empty">${who === this.user ? 'Your sessions show here once you log one.' : `No sessions of ${this.esc(who)}'s to show yet.`}</div>`;
                 }
                 const shown = this._profShow && this._profShow.who === who ? this._profShow.n : 15;
@@ -17569,7 +17860,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const body = document.getElementById('review-body'), r = this._review || {};
                 if (!body) return;
                 if (r.error) { body.innerHTML = `<p class="pp-empty">${this.esc(r.error)}</p>`; return; }
-                if (!r.list) { body.innerHTML = '<p class="pp-empty">Loading…</p>'; return; }
+                if (!r.list) { body.innerHTML = this.loadingBlockHtml(); return; }
                 if (!r.list.length) { body.innerHTML = '<p class="pp-empty">Nothing to review. Reports show up here.</p>'; return; }
                 const what = x => x.kind === 'session' ? `${x.who || 'Someone'}'s session${x.coffee ? ` on ${x.coffee}` : ''}` : x.kind === 'comment' ? `${x.who || 'Someone'}'s comment` : x.kind === 'profile' ? `${x.who || 'Someone'}'s profile` : x.kind;
                 body.innerHTML = `<div class="pp-list">${r.list.map(x => {
@@ -17703,35 +17994,49 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 return out;
             },
 
-            // tapping a notification opens the app on the bell (sw.js adds ?notifications=1, or tells an open app)
+            // tapping a notification opens the app on what it's about (sw.js adds ?notifications=1&n=<tag>, or tells an open
+            // app); v15.1: the tag names the notification, so it goes straight there instead of the bell
             notePushOpen() {
                 try {
-                    if (new URLSearchParams(location.search).get('notifications') === '1') {
-                        this._openBellAfterSync = true;
-                        const u = new URL(location.href); u.searchParams.delete('notifications'); history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
+                    const q = new URLSearchParams(location.search);
+                    if (q.get('notifications') === '1') {
+                        this._openBellAfterSync = true; this._pushTag = q.get('n') || '';
+                        const u = new URL(location.href); u.searchParams.delete('notifications'); u.searchParams.delete('n'); history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
                     }
-                    if (this.pushSupported() && !(this.isNative && this.isNative())) navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.type === 'open-notifications') this.openBellFromPush(); });
+                    if (this.pushSupported() && !(this.isNative && this.isNative())) navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.type === 'open-notifications') this.openBellFromPush(e.data.tag || ''); });
                 } catch (e) {}
             },
 
             checkPushOpen() {
                 if (!this._openBellAfterSync || !this.acctOn() || !this.user) return;
                 this._openBellAfterSync = false;
-                this.openBellFromPush();
+                this.openBellFromPush(this._pushTag || ''); this._pushTag = '';
             },
 
             // v15.0: a tapped notification opens the bell once the app is back on screen, signed in and loaded (not in
             // the middle of waking up), and only once however many ways the tap arrives
-            openBellFromPush() {
-                if (!this.acctOn() || !this.user || !this.syncedOnce) { this._openBellAfterSync = true; return; }
+            openBellFromPush(tag = '') {
+                if (!this.acctOn() || !this.user || !this.syncedOnce) { this._openBellAfterSync = true; if (tag) this._pushTag = tag; return; }
                 if (this._bellPending) return;
                 this._bellPending = true;
-                const go = () => {
-                    this._bellPending = false;
+                const bell = () => {
                     if (this.tab !== 'feed') this.setTab('feed');
                     const m = document.getElementById('notif-modal');
                     if (m && m.classList.contains('active')) { this.loadNotifications(50).then(() => this.renderNotifications()).catch(() => {}); return; }
                     this.openNotifications();
+                };
+                const go = () => {
+                    this._bellPending = false;
+                    const id = /^n(\d+)$/.exec(String(tag || ''));
+                    if (!id) { bell(); return; }
+                    // v15.1: straight to the session, comment or profile it's about (the bell when it isn't there anymore)
+                    this.loadNotifications(50).then(st => {
+                        const n = st && (st.items || []).find(x => String(x.id) === id[1]);
+                        if (!n) { bell(); return; }
+                        const top = st.items[0];
+                        if (st.unread && top && String(top.id) === id[1]) Supa.rpc('mark_notifications_read', { up_to: top.id }).then(() => { st.unread = 0; this.paintNotifButton(); }).catch(() => {});
+                        this.openNotification(n.id);
+                    }).catch(() => bell());
                 };
                 const later = () => setTimeout(go, 250);
                 if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
@@ -17843,7 +18148,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 document.documentElement.classList.add('is-native');
                 this.nativeStatusBar();
                 const P = this.nativePlugin('PushNotifications');
-                if (P && P.addListener) P.addListener('pushNotificationActionPerformed', () => this.openBellFromPush());   // v15.0
+                if (P && P.addListener) P.addListener('pushNotificationActionPerformed', a => this.openBellFromPush(String((a && a.notification && a.notification.data && a.notification.data.tag) || '')));   // v15.0; v15.1: straight to what it's about
                 setTimeout(() => this.nativePushRefresh(), 4000);
                 const A = this.nativePlugin('App');
                 if (A && A.addListener) A.addListener('appStateChange', s => { if (s && s.isActive && this.acctOn() && this.user) this.sync({ silent: true }); });
@@ -17929,7 +18234,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const brews = st.events.filter(e => e && e.type === 'brew' && !this.reported(e.id));
                 let body;
                 if (st.error && !brews.length) body = `<p class="pp-empty">${this.esc(st.error)}</p>`;
-                else if (!st.at && st.loading) body = '<p class="pp-empty">Loading…</p>';
+                else if (!st.at && st.loading) body = this.loadingBlockHtml();
                 else if (!brews.length) body = '<p class="pp-empty">Nobody else has shared a session on this coffee yet.</p>';
                 else {
                     const notes = s && Array.isArray(s.notes) ? s.notes.map(n => String(n).replace(/^./, c => c.toUpperCase())) : [];
@@ -18338,6 +18643,305 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     if (this.roasterFind && this.roasterFind(k)) this.openRoaster(k);
                     else this.showToast(`${p.r} isn't on Dialed In yet.`);
                 }
+            },
+
+            // ---- v15.1: the loading animation, the Dialed In logo turning, wherever something has to load (the words stay
+            // for screen readers)
+            loaderHtml(label = '') {
+                return `<span class="di-loader" role="status"><i class="dl-logo" aria-hidden="true"></i><span class="dl-label">${this.esc(label || 'Loading…')}</span></span>`;
+            },
+            loadingBlockHtml(cls = 'pp-empty', label = '') { return `<div class="${cls} di-loading">${this.loaderHtml(label)}</div>`; },
+
+            // ---- v15.1: the start-up screen (in the page itself, so it shows from the first moment): the bar fills as the
+            // app starts, and it fades once your coffees are on screen
+            bootStep(pct) { const b = document.getElementById('boot-bar'); if (b) b.style.width = Math.max(parseFloat(b.style.width) || 0, pct) + '%'; },
+            hideBoot() {
+                const s = document.getElementById('boot-screen');
+                if (!s || s.classList.contains('gone')) return;
+                // at least about two thirds of a second in all, so it never just flickers past
+                const up = typeof performance !== 'undefined' && performance.now ? performance.now() : 1000;
+                if (up < 650 && !this._bootWait) { this._bootWait = true; setTimeout(() => { this._bootWait = false; this.hideBoot(); }, 650 - up); return; }
+                this.bootStep(100);
+                setTimeout(() => { s.classList.add('gone'); setTimeout(() => { if (s.parentNode) s.parentNode.removeChild(s); }, 320); }, 180);
+            },
+
+            // ---- v15.1: where a coffee comes from. Origins are free text ("Huila, Colombia", "Sumatra"): the country (and
+            // its continent) is found by name, by its coffee regions, or by the usual spellings
+            coffeeGeo() {
+                if (this._coffeeGeo) return this._coffeeGeo;
+                const T = {   // country: its names and coffee regions, as phrases ("|" between them)
+                    ETH: 'ethiopia|ethiopian|yirgacheffe|yirgachefe|sidama|sidamo|guji|harrar|harar|limu|jimma|kaffa|gedeo|gedeb|wush wush|bensa',
+                    KEN: 'kenya|kenyan|nyeri|kirinyaga|embu|kiambu|muranga', RWA: 'rwanda|rwandan', BDI: 'burundi|kayanza|ngozi', UGA: 'uganda|mt elgon|mount elgon',
+                    TZA: 'tanzania|kilimanjaro', COD: 'congo|drc|dr congo|kivu', MWI: 'malawi', ZMB: 'zambia', ZWE: 'zimbabwe', CMR: 'cameroon',
+                    CIV: "ivory coast|cote d'ivoire", MDG: 'madagascar', SLE: 'sierra leone', SDS: 'south sudan',
+                    YEM: 'yemen|yemeni|mocha|mokha', IND: 'india|indian|malabar|karnataka|chikmagalur', NPL: 'nepal',
+                    IDN: 'indonesia|indonesian|sumatra|sumatran|java|sulawesi|toraja|bali|flores|aceh|gayo|mandheling|lintong',
+                    VNM: 'vietnam|viet nam', LAO: 'laos', THA: 'thailand', MMR: 'myanmar|burma', CHN: 'china|yunnan', PHL: 'philippines',
+                    TLS: 'timor|east timor|timor-leste', TWN: 'taiwan', LKA: 'sri lanka', SAU: 'saudi arabia',
+                    PNG: 'papua new guinea|png', AUS: 'australia', HI: 'hawaii|hawaiian|kona|maui|kauai',
+                    BRA: 'brazil|brazilian|brasil|cerrado|mogiana|sul de minas', COL: 'colombia|colombian|huila|narino|cauca|tolima|antioquia|quindio',
+                    PER: 'peru|peruvian|cajamarca', ECU: 'ecuador|loja', BOL: 'bolivia|caranavi', VEN: 'venezuela',
+                    GTM: 'guatemala|huehuetenango|atitlan|antigua', HND: 'honduras|marcala', SLV: 'el salvador',
+                    NIC: 'nicaragua|jinotega|nueva segovia', CRI: 'costa rica|tarrazu|west valley', PAN: 'panama|boquete|chiriqui',
+                    MEX: 'mexico|chiapas|oaxaca|veracruz', JAM: 'jamaica|blue mountain', DOM: 'dominican republic', HTI: 'haiti', CUB: 'cuba', PRI: 'puerto rico'
+                };
+                const C = { Africa: 'ETH KEN RWA BDI UGA TZA COD MWI ZMB ZWE CMR CIV MDG SLE SDS', Asia: 'YEM IND NPL IDN VNM LAO THA MMR CHN PHL TLS TWN LKA SAU',
+                    Oceania: 'PNG AUS HI', 'South America': 'BRA COL PER ECU BOL VEN', 'North & Central America': 'GTM HND SLV NIC CRI PAN MEX JAM DOM HTI CUB PRI' };
+                const names = { HI: 'Hawaii', COD: 'DR Congo', DOM: 'Dominican Republic', CIV: 'Côte d\'Ivoire', SDS: 'South Sudan' };
+                const alias = [];
+                Object.entries(T).forEach(([code, words]) => words.split('|').forEach(w => alias.push([w, code])));
+                alias.sort((a, b) => b[0].length - a[0].length);
+                const continent = {}; Object.entries(C).forEach(([k, v]) => v.split(' ').forEach(c => { continent[c] = k; }));
+                return (this._coffeeGeo = { alias, continent, continents: Object.keys(C), names });
+            },
+            coffeeCountry(origin) {
+                const t = ' ' + String(origin || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z' -]+/g, ' ').replace(/\s+/g, ' ').trim() + ' ';
+                if (t.trim().length < 2) return '';
+                const hit = this.coffeeGeo().alias.find(([w]) => t.includes(' ' + w + ' '));
+                return hit ? hit[1] : '';
+            },
+            coffeeContinent(origin) { const c = this.coffeeCountry(origin); return c ? this.coffeeGeo().continent[c] || '' : ''; },
+            coffeeCountryName(code) { return this.coffeeGeo().names[code] || (typeof WORLD_MAP !== 'undefined' && WORLD_MAP.names[code]) || code; },
+
+            // ---- v15.1: someone's coffee map: the countries their coffees came from, shaded by how many, and the coffee
+            // continents they've covered. Tap a country (or its name under the map) for those coffees.
+            coffeeMapData(user) {
+                const byBean = new Map();
+                this.brews.forEach(b => {
+                    if (this.getBrewOwner(b) !== user) return;
+                    const bean = this.beans.get(String(b.beanId || '')); if (!bean) return;
+                    const r = this.normalizeRating(b.rating) || 0, cur = byBean.get(bean.id);
+                    byBean.set(bean.id, { bean, best: Math.max(cur ? cur.best : 0, r), n: (cur ? cur.n : 0) + 1 });
+                });
+                const by = new Map(), continents = new Set();
+                byBean.forEach(x => {
+                    const codes = [...new Set(this.originList(x.bean.origin).map(o => this.coffeeCountry(o)).filter(Boolean))];
+                    codes.forEach(c => {
+                        if (!by.has(c)) by.set(c, []);
+                        by.get(c).push(x);
+                        const k = this.coffeeGeo().continent[c]; if (k) continents.add(k);
+                    });
+                });
+                by.forEach(list => list.sort((a, b) => b.best - a.best || b.n - a.n));
+                return { by, continents, coffees: [...by.values()].reduce((s, l) => s + l.length, 0) };
+            },
+            renderCoffeeMapCard(user) {
+                if (typeof WORLD_MAP === 'undefined' || !user) return '';
+                const D = this.coffeeMapData(user), esc = s => this.esc(s);
+                if (!D.by.size) return '';
+                const sel = (this._mapSel || {})[user] && D.by.has(this._mapSel[user]) ? this._mapSel[user] : '';
+                const geo = this.coffeeGeo(), belt = new Set(Object.keys(geo.continent));
+                const level = n => n >= 4 ? 3 : n >= 2 ? 2 : 1;
+                const paths = Object.entries(WORLD_MAP.c).map(([c, d]) => {
+                    const list = D.by.get(c);
+                    const cls = `cm-land${belt.has(c) ? ' cm-belt' : ''}${list ? ` cm-on cm-l${level(list.length)}` : ''}${c === sel ? ' cm-sel' : ''}`;
+                    return `<path class="${cls}" d="${d}"${list ? ` data-c="${c}"` : ''}/>`;
+                }).join('');
+                const hi = WORLD_MAP.dots.HI, hl = D.by.get('HI');
+                const dot = `<circle class="cm-dot${hl ? ` cm-on cm-l${level(hl.length)}` : ''}${sel === 'HI' ? ' cm-sel' : ''}" cx="${hi[0]}" cy="${hi[1]}" r="5"${hl ? ' data-c="HI"' : ''}/>`;
+                const order = [...D.by.entries()].sort((a, b) => b[1].length - a[1].length || this.coffeeCountryName(a[0]).localeCompare(this.coffeeCountryName(b[0])));
+                const chips = order.map(([c, l]) => `<button type="button" class="cm-chip${c === sel ? ' on' : ''}" data-c="${c}">${esc(this.coffeeCountryName(c))} <b>${l.length}</b></button>`).join('');
+                const conts = geo.continents.map(k => `<span class="cm-cont${D.continents.has(k) ? ' on' : ''}">${esc(k)}</span>`).join('');
+                const list = sel ? `<div class="cm-list"><div class="cm-list-h">${esc(this.coffeeCountryName(sel))} · ${D.by.get(sel).length} coffee${D.by.get(sel).length === 1 ? '' : 's'}</div>${D.by.get(sel).map(x => `<button type="button" class="cm-row" data-bean="${esc(x.bean.id)}"><span><b>${esc(x.bean.name || 'Coffee')}</b><small>${esc(x.bean.roaster || '')}</small></span>${x.best ? `<em>${this.formatRating(x.best)}★</em>` : ''}</button>`).join('')}</div>`
+                    : `<p class="cm-hint">Tap a country to see ${user === this.user ? 'your' : 'their'} coffees from there.</p>`;
+                const own = user === this.user;
+                return `<section class="profile-card cmap" data-cmap="${esc(user)}" onclick="app.coffeeMapTap(event)"><h4 class="section-label">${own ? 'Your coffee map' : `${esc(user)}'s coffee map`}</h4>`
+                    + `<div class="cm-sum">${D.coffees} coffee${D.coffees === 1 ? '' : 's'} from ${D.by.size} countr${D.by.size === 1 ? 'y' : 'ies'} · ${D.continents.size} of ${geo.continents.length} coffee continents</div>`
+                    + `<svg class="cm-svg" viewBox="0 34 ${WORLD_MAP.w} ${WORLD_MAP.h - 70}" role="img" aria-label="Map of the countries ${own ? 'your' : 'their'} coffees came from">${paths}${dot}</svg>`
+                    + `<div class="cm-chips">${chips}</div><div class="cm-conts">${conts}</div>${list}</section>`;
+            },
+            coffeeMapTap(event) {
+                const t = event && event.target && event.target.closest ? event.target : null; if (!t) return;
+                const card = t.closest('[data-cmap]'); if (!card) return;
+                const row = t.closest('[data-bean]');
+                if (row) { this.openFeedTarget(row.getAttribute('data-bean'), '', false); return; }
+                const hit = t.closest('[data-c]'); if (!hit) return;
+                const user = card.getAttribute('data-cmap'), c = hit.getAttribute('data-c');
+                this._mapSel = this._mapSel || {};
+                this._mapSel[user] = this._mapSel[user] === c ? '' : c;
+                const html = this.renderCoffeeMapCard(user);
+                if (html) { const w = document.createElement('div'); w.innerHTML = html; card.replaceWith(w.firstElementChild); }
+            },
+
+            // ---- v15.1: the shared coffee list. Typing a new coffee's name or roaster suggests coffees people have logged
+            // (yours and the ones you can see right away, everyone's public ones from the server); picking one fills in
+            // the rest of the form
+            bindCoffeeSuggest() {
+                const form = this.getBeanForm(); if (!form || form._suggestBound) return;
+                form._suggestBound = true;
+                const row = form.elements.name.closest('div[style*="grid"]') || form.elements.name.parentElement;
+                let box = form.querySelector('.cs-list');
+                if (!box) { box = document.createElement('div'); box.className = 'cs-list'; box.hidden = true; row.after(box); }
+                let timer = 0, seq = 0;
+                const run = (q) => {
+                    const my = ++seq;
+                    const local = this.localCoffeeMatches(q);
+                    this.paintCoffeeSuggest(box, local, q);
+                    if (!(this.acctOn && this.acctOn()) || !Supa.ready() || q.length < 2) return;
+                    this._catCache = this._catCache || new Map();
+                    const hit = this._catCache.get(q.toLowerCase());
+                    const use = list => { if (my !== seq) return; this.paintCoffeeSuggest(box, this.mergeCoffeeMatches(local, list), q); };
+                    if (hit) { use(hit); return; }
+                    Supa.rpc('coffee_catalog', { q, max_items: 8 }).then(list => { const l = Array.isArray(list) ? list : []; this._catCache.set(q.toLowerCase(), l); use(l); }).catch(() => {});
+                };
+                const onInput = e => {
+                    if (form.elements.id.value) { box.hidden = true; return; }   // (editing a coffee: no suggestions)
+                    const q = String(e.target.value || '').trim();
+                    clearTimeout(timer);
+                    if (q.length < 2) { box.hidden = true; return; }
+                    timer = setTimeout(() => run(q), 180);
+                };
+                ['name', 'roaster'].forEach(k => {
+                    form.elements[k].addEventListener('input', onInput);
+                    form.elements[k].addEventListener('blur', () => setTimeout(() => { box.hidden = true; }, 220));
+                });
+                box.addEventListener('mousedown', e => e.preventDefault());   // (a tap on a suggestion doesn't blur the field first)
+                box.addEventListener('click', e => {
+                    const b = e.target.closest('[data-i]'); if (!b) return;
+                    const x = (box._items || [])[Number(b.getAttribute('data-i'))]; if (!x) return;
+                    const set = (k, v) => { if (v && form.elements[k]) form.elements[k].value = v; };
+                    set('name', x.name); set('roaster', x.roaster); set('origin', x.origin); set('process', x.process); set('variety', x.variety);
+                    if (x.roast && [...form.elements.roast.options].some(o => o.value === x.roast)) form.elements.roast.value = x.roast;
+                    box.hidden = true;
+                    if (this.haptic) this.haptic('light');
+                });
+            },
+            localCoffeeMatches(q) {
+                const s = q.toLowerCase(), seen = new Map();
+                this.beans.forEach(b => {
+                    const name = String(b.name || '').trim(), roaster = String(b.roaster || '').trim();
+                    if (!name || !(name.toLowerCase().includes(s) || roaster.toLowerCase().includes(s))) return;
+                    const k = (name + '|' + roaster).toLowerCase();
+                    const cur = seen.get(k) || { name, roaster, origin: b.origin || '', process: b.process || '', variety: b.variety || '', roast: b.roast || '', who: new Set() };
+                    cur.who.add(String(b.user || b.owner || ''));
+                    seen.set(k, cur);
+                });
+                return [...seen.values()].map(x => ({ ...x, people: x.who.size })).sort((a, b) => b.people - a.people || a.name.localeCompare(b.name)).slice(0, 6);
+            },
+            mergeCoffeeMatches(local, remote) {
+                const out = new Map();
+                [...(remote || []), ...local].forEach(x => {
+                    const k = (String(x.name || '') + '|' + String(x.roaster || '')).toLowerCase();
+                    const cur = out.get(k);
+                    if (!cur) out.set(k, x); else out.set(k, { ...x, ...cur, people: Math.max(Number(cur.people) || 0, Number(x.people) || 0) });
+                });
+                return [...out.values()].sort((a, b) => (Number(b.people) || 0) - (Number(a.people) || 0) || String(a.name).localeCompare(String(b.name))).slice(0, 6);
+            },
+            paintCoffeeSuggest(box, items, q) {
+                box._items = items;
+                if (!items.length) { box.hidden = true; return; }
+                const bits = x => [x.roaster, x.origin, x.process].map(v => String(v || '').trim()).filter(Boolean).map(v => this.esc(v)).join(' · ');
+                box.innerHTML = `<div class="cs-head">Coffees people have logged</div>` + items.map((x, i) => `<button type="button" class="cs-row" data-i="${i}"><span><b>${this.esc(x.name)}</b><small>${bits(x)}</small></span>${Number(x.people) > 1 ? `<em>${Number(x.people)} people</em>` : ''}</button>`).join('');
+                box.hidden = false;
+            },
+
+            // ---- v15.1: profile pictures. Yours is set in Settings (a square photo, made small on the phone before it goes
+            // up); everyone's shows wherever their initial does, looked up by name and drawn by a style rule, so a redraw
+            // of the screen never loses it
+            faceStore() {
+                if (!this._faces) {
+                    let saved = {}; try { saved = JSON.parse(safeGet('dialed_faces') || '{}') || {}; } catch (e) { saved = {}; }
+                    this._faces = new Map(Object.entries(saved));
+                }
+                return this._faces;
+            },
+            faceUrl(path) { return path ? `${Supa.base()}/storage/v1/object/public/avatars/${String(path).split('/').map(encodeURIComponent).join('/')}` : ''; },
+            noteFaces(root) {
+                if (!(this.acctOn && this.acctOn()) || !Supa.ready()) return;
+                const scope = root && root.querySelectorAll ? root : document;
+                const els = [...scope.querySelectorAll('[data-face], .feed-avatar[data-profile], .cmt-avatar[data-profile]')];
+                if (root && root.matches && root.matches('[data-face], [data-profile]')) els.push(root);
+                const store = this.faceStore(), now = Date.now();
+                const want = this._faceWant || (this._faceWant = new Set());
+                els.forEach(el => {
+                    const n = String(el.getAttribute('data-face') || el.getAttribute('data-profile') || '').trim();
+                    const k = n.toLowerCase(), have = store.get(k);
+                    if (n && (!have || now - have[1] > 6 * 3600000)) want.add(n);
+                });
+                if (!want.size || this._faceTimer) return;
+                this._faceTimer = setTimeout(() => this.loadFaces(), 350);
+            },
+            async loadFaces() {
+                this._faceTimer = 0;
+                const names = [...(this._faceWant || [])].slice(0, 200); if (!names.length) return;
+                names.forEach(n => this._faceWant.delete(n));
+                let list = [];
+                try { list = await Supa.rpc('faces', { names }); } catch (e) { return; }
+                const store = this.faceStore(), now = Date.now(), got = new Map((Array.isArray(list) ? list : []).map(x => [String(x.name || '').toLowerCase(), x.avatar || '']));
+                names.forEach(n => store.set(n.toLowerCase(), [got.get(n.toLowerCase()) || '', now]));
+                this.saveFaces();
+                this.paintFaceRules();
+            },
+            saveFaces() { try { safeSet('dialed_faces', JSON.stringify(Object.fromEntries([...this.faceStore().entries()].slice(-400)))); } catch (e) { /* full */ } },
+            paintFaceRules() {
+                if (typeof document === 'undefined' || !Supa.on()) return;
+                let st = document.getElementById('face-rules');
+                if (!st) { st = document.createElement('style'); st.id = 'face-rules'; document.head.appendChild(st); }
+                const q = s => '"' + String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+                const rules = [];
+                const names = new Map();
+                document.querySelectorAll('[data-face], [data-profile]').forEach(el => { const n = String(el.getAttribute('data-face') || el.getAttribute('data-profile') || '').trim(); if (n) names.set(n.toLowerCase(), n); });
+                if (this.user) names.set(String(this.user).toLowerCase(), this.user);
+                this.faceStore().forEach((v, k) => {
+                    if (!v || !v[0]) return;
+                    const n = names.get(k); if (!n) return;
+                    const sel = `[data-face=${q(n)}], .feed-avatar[data-profile=${q(n)}], .cmt-avatar[data-profile=${q(n)}]`;
+                    rules.push(`${sel} { background-image: url(${q(this.faceUrl(v[0]))}) !important; background-size: cover !important; background-position: center !important; color: transparent !important; }`);
+                    rules.push(`${sel.split(', ').map(s => s + ' .ini').join(', ')} { opacity: 0; }`);
+                });
+                const css = rules.join('\n');
+                if (st.textContent !== css) st.textContent = css;
+            },
+            myFacePath() { const v = this.faceStore().get(String(this.user || '').toLowerCase()); return v ? v[0] : ''; },
+            paintAvatarSetting() {
+                const row = document.getElementById('set-avatar-row'), rm = document.getElementById('set-avatar-remove');
+                const on = Boolean(this.acctOn && this.acctOn() && Supa.ready());
+                if (row) row.hidden = !on;
+                if (!on) { if (rm) rm.hidden = true; return; }
+                const face = document.getElementById('set-avatar-face'), path = this.myFacePath();
+                if (face) { face.setAttribute('data-face', this.user || ''); face.style.background = this.getUserColor(this.user); face.textContent = this.feedInitial(this.user || '?'); }
+                if (rm) rm.hidden = !path;
+                const note = document.getElementById('set-avatar-note'); if (note) note.textContent = path ? 'Tap to change it' : 'Shows wherever your initial does';
+                if (!this.faceStore().has(String(this.user || '').toLowerCase())) { (this._faceWant || (this._faceWant = new Set())).add(this.user); this.loadFaces(); }
+                this.paintFaceRules();
+            },
+            // a picked photo: the middle square, 320 px, as a JPEG, into your folder; then the old one goes
+            async pickAvatar(input) {
+                const file = input && input.files && input.files[0];
+                if (input) input.value = '';
+                if (!file) return;
+                const s = Supa.session();
+                if (!s || !s.user) { this.showToast('Sign in first.'); return; }
+                const note = document.getElementById('set-avatar-note'); if (note) note.textContent = 'Uploading…';
+                try {
+                    const img = await new Promise((ok, no) => { const u = URL.createObjectURL(file); const i = new Image(); i.onload = () => { URL.revokeObjectURL(u); ok(i); }; i.onerror = () => { URL.revokeObjectURL(u); no(new Error('not a picture')); }; i.src = u; });
+                    const side = Math.min(img.naturalWidth, img.naturalHeight), N = 320;
+                    const c = document.createElement('canvas'); c.width = N; c.height = N;
+                    c.getContext('2d').drawImage(img, (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side, 0, 0, N, N);
+                    const blob = await new Promise(ok => c.toBlob(ok, 'image/jpeg', 0.86));
+                    if (!blob) throw new Error('no picture');
+                    const rand = Array.from(crypto.getRandomValues(new Uint8Array(9)), b => b.toString(16).padStart(2, '0')).join('');
+                    const path = `${s.user.id}/${rand}.jpg`, old = this.myFacePath();
+                    await Supa.call('/storage/v1/object/avatars/' + path, blob, { headers: { 'Content-Type': 'image/jpeg' } });
+                    await Supa.rpc('set_avatar', { path });
+                    if (old && old !== path) Supa.call('/storage/v1/object/avatars', { prefixes: [old] }, { method: 'DELETE' }).catch(() => {});
+                    this.faceStore().set(String(this.user).toLowerCase(), [path, Date.now()]); this.saveFaces();
+                    this.paintAvatarSetting();
+                    this.showToast('Profile picture saved.');
+                } catch (e) {
+                    this.paintAvatarSetting();
+                    this.showToast(/not a picture|no picture/.test(String(e && e.message)) ? 'That file isn\'t a picture.' : 'Couldn\'t save the picture. Check your connection.');
+                }
+            },
+            async removeAvatar() {
+                const old = this.myFacePath(); if (!old) return;
+                try {
+                    await Supa.rpc('set_avatar', { path: null });
+                    Supa.call('/storage/v1/object/avatars', { prefixes: [old] }, { method: 'DELETE' }).catch(() => {});
+                    this.faceStore().set(String(this.user).toLowerCase(), ['', Date.now()]); this.saveFaces();
+                    this.paintAvatarSetting();
+                    this.showToast('Profile picture removed.');
+                } catch (e) { this.showToast('Couldn\'t remove it. Check your connection.'); }
             },
 
         };

@@ -167,7 +167,7 @@
                         : f === 'new' ? 'Nobody new in the last two weeks.'
                         : f ? `No ${f.slice(2)} sessions shared with Everyone lately.`
                         : 'Nothing shared with Everyone lately. Sessions people share with Everyone show up here.';
-                    grid.innerHTML = head + `<div class="comm-empty">${this.esc(st.loading || !st.at ? 'Loading…' : st.error || none)}</div>`;
+                    grid.innerHTML = head + (st.loading || !st.at ? this.loadingBlockHtml('comm-empty') : `<div class="comm-empty">${this.esc(st.error || none)}</div>`);
                     if (!st.loading && (!st.at || Date.now() - st.at > 60000)) setTimeout(() => this.loadCommunity(false), 0);
                     return;
                 }
@@ -206,7 +206,7 @@
             renderGroupFeed(grid) {
                 const gr = this.grState();
                 if (!gr.list) {
-                    grid.innerHTML = this.feedModeHtml() + '<div class="comm-empty">Loading…</div>';
+                    grid.innerHTML = this.feedModeHtml() + this.loadingBlockHtml('comm-empty');
                     if (!gr.busy) { gr.busy = true; this.loadGroups(true).then(() => { gr.busy = false; if (this.tab === 'feed') this.render(); }).catch(() => { gr.busy = false; gr.list = gr.list || []; if (this.tab === 'feed') this.render(); }); }
                     return;
                 }
@@ -226,7 +226,7 @@
                 const list = st.events.filter(e => e.type === 'brew').map(e => this.brews.get(String(e.id))).filter(b => b && !seen.has(b.id) && seen.add(b.id) && b.audience !== 'only_me' && !this.reported(b.id))
                     .sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
                 const body = list.length ? list.map(b => this.streamCard(b, this.isCommunity('brew', b.id))).join('')
-                    : `<div class="comm-empty">${this.esc(st.loading || !st.at ? 'Loading…' : st.error || (g.open ? 'Nothing here yet. Members\' sessions shared with Everyone show here.' : 'Nothing here yet. Members\' sessions show here.'))}</div>`;
+                    : (st.loading || !st.at ? this.loadingBlockHtml('comm-empty') : `<div class="comm-empty">${this.esc(st.error || (g.open ? 'Nothing here yet. Members\' sessions shared with Everyone show here.' : 'Nothing here yet. Members\' sessions show here.'))}</div>`);
                 const foot = !list.length ? '' : st.error ? `<div class="comm-empty">${this.esc(st.error)}</div>`
                     : st.next ? `<button type="button" class="btn-outline comm-more" data-g="${this.esc(String(g.id))}" onclick="app.loadGroupFeed(this.getAttribute('data-g'), true)"${st.loading ? ' disabled' : ''}>${st.loading ? 'Loading…' : 'Show older sessions'}</button>`
                     : `<div class="comm-empty">You're all caught up.</div>`;

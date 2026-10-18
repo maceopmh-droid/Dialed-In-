@@ -79,7 +79,7 @@
                 const brews = st.events.filter(e => e && e.type === 'brew' && !this.reported(e.id));
                 let body;
                 if (st.error && !brews.length) body = `<p class="pp-empty">${this.esc(st.error)}</p>`;
-                else if (!st.at && st.loading) body = '<p class="pp-empty">Loading…</p>';
+                else if (!st.at && st.loading) body = this.loadingBlockHtml();
                 else if (!brews.length) body = '<p class="pp-empty">Nobody else has shared a session on this coffee yet.</p>';
                 else {
                     const notes = s && Array.isArray(s.notes) ? s.notes.map(n => String(n).replace(/^./, c => c.toUpperCase())) : [];

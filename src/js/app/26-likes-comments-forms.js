@@ -611,6 +611,7 @@
                 form.elements.id.value = '';
                 document.getElementById('bean-modal-title').innerText = 'New Coffee';
                 this.fillRoasterSuggestions();
+                if (this.bindCoffeeSuggest) { this.bindCoffeeSuggest(); const box = form.querySelector('.cs-list'); if (box) box.hidden = true; }   // v15.1
                 this.openModal('bean-modal');
             },
 

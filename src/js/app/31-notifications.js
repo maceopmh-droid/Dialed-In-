@@ -72,7 +72,7 @@
                 const body = document.getElementById('notif-body');
                 if (!body) return;
                 const st = this.notifState();
-                if (!st.items) { body.innerHTML = '<p class="pp-empty">Loading…</p>'; return; }
+                if (!st.items) { body.innerHTML = this.loadingBlockHtml(); return; }
                 if (!st.items.length) { body.innerHTML = '<p class="pp-empty">Nothing yet. When people like, comment on or follow your brewing, it shows up here.</p>'; return; }
                 body.innerHTML = `<div class="pp-list">${st.items.map(n => `<button type="button" class="nt-row${n.read ? '' : ' is-new'}" data-id="${this.esc(String(n.id))}" onclick="app.openNotification(this.getAttribute('data-id'))">${n.kind === 'report' ? this.personDotHtml('!', '#8A8F8B') : this.personDotHtml(n.who || '?', n.color)}<span class="nt-text"><span>${this.notifText(n)}</span><small>${this.esc(this.formatRelativeDate(n.at))}</small></span></button>`).join('')}</div>`;
             },

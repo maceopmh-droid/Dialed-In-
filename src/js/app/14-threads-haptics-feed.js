@@ -294,7 +294,7 @@
                         <button type="button" class="thread-toggle" aria-expanded="${open}" onclick="app.toggleThread('${app.escJs(kind)}','${app.escJs(id)}',event)">
                             <svg class="icon"><use href="#i-message-square"/></svg>
                             <span class="thread-label">${comments.length ? `Comments <b>${comments.length}</b>` : 'Add a comment'}</span>
-                            ${people.length ? `<span class="thread-faces">${people.map(n => `<i style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</i>`).join('')}</span>` : ''}
+                            ${people.length ? `<span class="thread-faces">${people.map(n => `<i data-face="${this.esc(n)}" style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</i>`).join('')}</span>` : ''}
                             <svg class="icon thread-chev"><use href="#i-chevron-down"/></svg>
                         </button>`}
                         <div class="thread-body">

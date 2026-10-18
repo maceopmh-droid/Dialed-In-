@@ -111,35 +111,49 @@
                 return out;
             },
 
-            // tapping a notification opens the app on the bell (sw.js adds ?notifications=1, or tells an open app)
+            // tapping a notification opens the app on what it's about (sw.js adds ?notifications=1&n=<tag>, or tells an open
+            // app); v15.1: the tag names the notification, so it goes straight there instead of the bell
             notePushOpen() {
                 try {
-                    if (new URLSearchParams(location.search).get('notifications') === '1') {
-                        this._openBellAfterSync = true;
-                        const u = new URL(location.href); u.searchParams.delete('notifications'); history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
+                    const q = new URLSearchParams(location.search);
+                    if (q.get('notifications') === '1') {
+                        this._openBellAfterSync = true; this._pushTag = q.get('n') || '';
+                        const u = new URL(location.href); u.searchParams.delete('notifications'); u.searchParams.delete('n'); history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
                     }
-                    if (this.pushSupported() && !(this.isNative && this.isNative())) navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.type === 'open-notifications') this.openBellFromPush(); });
+                    if (this.pushSupported() && !(this.isNative && this.isNative())) navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.type === 'open-notifications') this.openBellFromPush(e.data.tag || ''); });
                 } catch (e) {}
             },
 
             checkPushOpen() {
                 if (!this._openBellAfterSync || !this.acctOn() || !this.user) return;
                 this._openBellAfterSync = false;
-                this.openBellFromPush();
+                this.openBellFromPush(this._pushTag || ''); this._pushTag = '';
             },
 
             // v15.0: a tapped notification opens the bell once the app is back on screen, signed in and loaded (not in
             // the middle of waking up), and only once however many ways the tap arrives
-            openBellFromPush() {
-                if (!this.acctOn() || !this.user || !this.syncedOnce) { this._openBellAfterSync = true; return; }
+            openBellFromPush(tag = '') {
+                if (!this.acctOn() || !this.user || !this.syncedOnce) { this._openBellAfterSync = true; if (tag) this._pushTag = tag; return; }
                 if (this._bellPending) return;
                 this._bellPending = true;
-                const go = () => {
-                    this._bellPending = false;
+                const bell = () => {
                     if (this.tab !== 'feed') this.setTab('feed');
                     const m = document.getElementById('notif-modal');
                     if (m && m.classList.contains('active')) { this.loadNotifications(50).then(() => this.renderNotifications()).catch(() => {}); return; }
                     this.openNotifications();
+                };
+                const go = () => {
+                    this._bellPending = false;
+                    const id = /^n(\d+)$/.exec(String(tag || ''));
+                    if (!id) { bell(); return; }
+                    // v15.1: straight to the session, comment or profile it's about (the bell when it isn't there anymore)
+                    this.loadNotifications(50).then(st => {
+                        const n = st && (st.items || []).find(x => String(x.id) === id[1]);
+                        if (!n) { bell(); return; }
+                        const top = st.items[0];
+                        if (st.unread && top && String(top.id) === id[1]) Supa.rpc('mark_notifications_read', { up_to: top.id }).then(() => { st.unread = 0; this.paintNotifButton(); }).catch(() => {});
+                        this.openNotification(n.id);
+                    }).catch(() => bell());
                 };
                 const later = () => setTimeout(go, 250);
                 if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {

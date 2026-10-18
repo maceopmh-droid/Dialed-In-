@@ -66,7 +66,7 @@
             },
 
             personDotHtml(name, color) {
-                return `<i class="acct-dot pp-dot" style="background:${this.esc(color || this.getUserColor(name))}">${this.esc(this.feedInitial(name))}</i>`;
+                return `<i class="acct-dot pp-dot" data-face="${this.esc(name)}" style="background:${this.esc(color || this.getUserColor(name))}">${this.esc(this.feedInitial(name))}</i>`;
             },
 
             // the one button that fits where you stand with someone
@@ -99,7 +99,7 @@
                         : `<p class="pp-empty">Nobody by that name yet.</p>`;
                     return;
                 }
-                if (!d) { body.innerHTML = '<p class="pp-empty">Loading…</p>'; return; }
+                if (!d) { body.innerHTML = this.loadingBlockHtml(); return; }
                 const following = d.following || [], followers = d.followers || [];
                 const requests = followers.filter(f => f.status === 'pending');
                 const friends = following.filter(f => f.friend && f.status === 'accepted');

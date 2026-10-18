@@ -140,6 +140,15 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 await this.call('/storage/v1/object/photos/' + name, new Blob([bytes], { type: m[1] }), { signal, headers: { 'Content-Type': m[1], 'x-upsert': 'true' } });
                 return 'sb:' + name;
             },
+            // v15.1: your profile pictures too (the "avatars" bucket), when you delete your account
+            async removeMyAvatars() {
+                const s = this.session(); if (!s || !s.user) return 0;
+                const list = await this.call('/storage/v1/object/list/avatars', { prefix: s.user.id, limit: 100, offset: 0 });
+                const names = (Array.isArray(list) ? list : []).map(o => o && o.id !== null && o.name).filter(Boolean).map(n => `${s.user.id}/${n}`);
+                if (!names.length) return 0;
+                const out = await this.call('/storage/v1/object/avatars', { prefixes: names }, { method: 'DELETE' });
+                return Array.isArray(out) ? out.length : names.length;
+            },
             // v14.6: deleting your account: your photos go first (files in storage can't be removed from the database)
             async removeMyPhotos() {
                 const s = this.session(); if (!s || !s.user) return 0;

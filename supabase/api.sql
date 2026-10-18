@@ -1568,6 +1568,78 @@ begin
   return 'deleted';
 end $$;
 
+-- ---------------------------------------------------------------- v15.1: the shared coffee list and profile pictures
+-- Typing a coffee's name or roaster: the coffees people have logged that match, one row per coffee (same name and
+-- roaster, ignoring capitals), with its most common origin, process, variety and roast and how many people logged it.
+-- Never who: only coffees of public profiles (and your own), never anyone you've blocked or who blocked you.
+create or replace function coffee_catalog(q text, max_items int default 8) returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare me_id uuid := me(); s text := lower(btrim(coalesce(q, ''))); pat text;
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  if char_length(s) < 2 then return '[]'::jsonb; end if;
+  pat := '%' || replace(replace(replace(s, '\', '\\'), '%', '\%'), '_', '\_') || '%';
+  return coalesce((select jsonb_agg(row_to_json(t)::jsonb order by t.people desc, t.name) from (
+    select mode() within group (order by btrim(c.name)) as name,
+           mode() within group (order by btrim(coalesce(r.name, c.roaster_text))) as roaster,
+           mode() within group (order by nullif(btrim(c.origin), '')) as origin,
+           mode() within group (order by nullif(btrim(c.process), '')) as process,
+           mode() within group (order by nullif(btrim(c.variety), '')) as variety,
+           mode() within group (order by nullif(btrim(c.roast), '')) as roast,
+           count(distinct c.owner_id) as people
+    from coffees c join profiles p on p.id = c.owner_id left join roasters r on r.id = c.roaster_id
+    where c.deleted_at is null and btrim(c.name) <> ''
+      and (c.owner_id = me_id or not p.is_private)
+      and not exists (select 1 from blocks b where (b.blocker = me_id and b.blocked = c.owner_id) or (b.blocker = c.owner_id and b.blocked = me_id))
+      and (lower(c.name) like pat or lower(coalesce(r.name, c.roaster_text, '')) like pat)
+    group by lower(btrim(c.name)), lower(btrim(coalesce(r.name, c.roaster_text, '')))
+    order by count(distinct c.owner_id) desc, lower(btrim(c.name))
+    limit greatest(1, least(coalesce(max_items, 8), 12))) t), '[]'::jsonb);
+end $$;
+
+-- your profile picture: a file in your own folder of the "avatars" storage bucket (or none)
+create or replace function set_avatar(path text) returns text
+language plpgsql security definer set search_path = public as $$
+declare me_id uuid := me(); p text := nullif(btrim(coalesce(path, '')), '');
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  if p is not null and (split_part(p, '/', 1) <> auth.uid()::text or p !~ '^[0-9a-f-]{36}/[A-Za-z0-9_-]{6,64}\.(jpg|png)$') then
+    raise exception 'That picture can''t be used.' using errcode = '22023';
+  end if;
+  update profiles set avatar_path = p where id = me_id;
+  return coalesce(p, '');
+end $$;
+
+-- the profile pictures of the people the app is showing (by the names it knows them by)
+drop function if exists faces(text[]);
+create or replace function faces(names jsonb) returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare me_id uuid := me();
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  return coalesce((select jsonb_agg(jsonb_build_object('name', coalesce(p.legacy_name, p.display_name), 'avatar', p.avatar_path))
+    from profiles p
+    where lower(coalesce(p.legacy_name, p.display_name)) in (select lower(btrim(n)) from jsonb_array_elements_text(case when jsonb_typeof(names) = 'array' then names else '[]'::jsonb end) with ordinality as x(n, i) where i <= 200)
+      and not exists (select 1 from blocks b where (b.blocker = me_id and b.blocked = p.id) or (b.blocker = p.id and b.blocked = me_id))), '[]'::jsonb);
+end $$;
+
+-- the "avatars" bucket: anyone can look at a picture (its address has the account's id and a random name in it);
+-- only you can add, replace or remove the ones in your own folder. (Here so it reaches the live project: storage.sql
+-- only ever runs on an empty one.)
+do $$ begin
+  if exists (select 1 from information_schema.tables where table_schema = 'storage' and table_name = 'buckets') then
+    insert into storage.buckets (id, name, public) values ('avatars', 'avatars', true) on conflict (id) do update set public = true;
+    drop policy if exists avatars_add on storage.objects;
+    drop policy if exists avatars_replace on storage.objects;
+    drop policy if exists avatars_remove on storage.objects;
+    drop policy if exists avatars_read on storage.objects;
+    create policy avatars_add on storage.objects for insert to authenticated with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+    create policy avatars_replace on storage.objects for update to authenticated using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+    create policy avatars_remove on storage.objects for delete to authenticated using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+    create policy avatars_read on storage.objects for select to authenticated using (bucket_id = 'avatars');
+  end if;
+end $$;
+
 -- push_event and friends run as the signed-in person (so the row rules apply to every write) and use the helpers in
 -- "internal", so signed-in people need them; the app's web address doesn't serve that schema, so they can't be called
 -- directly.
@@ -1579,12 +1651,14 @@ revoke execute on function pull_events(), push_event(jsonb), claim_name(text), c
   push_key(), push_ready(), save_push(jsonb), remove_push(text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
-  my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version() from public, anon;
+  my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version(),
+  coffee_catalog(text, int), set_avatar(text), faces(jsonb) from public, anon;
 grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text, boolean), coffee_community(text, text, timestamptz, int), monthly_highlights(date), report_item(text, text, text),
   profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
   push_key(), push_ready(), save_push(jsonb), remove_push(text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
-  my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version() to authenticated;
+  my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version(),
+  coffee_catalog(text, int), set_avatar(text), faces(jsonb) to authenticated;
 revoke execute on all functions in schema internal from public, anon;
 revoke execute on function internal.push_payload(bigint, text), internal.push_text(notifications) from authenticated;   -- the sender's alone (it has the phones' addresses and the VAPID key)

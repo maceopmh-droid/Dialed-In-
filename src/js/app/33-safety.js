@@ -78,6 +78,7 @@
                     // v14.6: your photos first (storage), then everything else (the database); a photo that won't go is
                     // tried once more, then left unreadable (nothing points at it once the account is gone)
                     await Supa.removeMyPhotos().catch(() => Supa.removeMyPhotos().catch(() => 0));
+                    if (Supa.removeMyAvatars) await Supa.removeMyAvatars().catch(() => 0);   // v15.1
                     await Supa.rpc('delete_account', { confirm_name: typed });
                     this.closeModals();
                     this.showToast('Your account is deleted.');
