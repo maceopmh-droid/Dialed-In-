@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v15.1 -->
+<!-- Dialed In v15.2 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="15.1">
+    <meta name="dialed-in-version" content="15.2">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F7F6F2">
     <script id="theme-boot">
@@ -35,6 +35,7 @@
 @@include css/15-v15.css
 @@include css/16-v151.css
 @@include css/17-levels.css
+@@include css/18-shotcard.css
     </style>
 </head>
 <body>
@@ -352,6 +353,13 @@
             <div id="level-body"></div>
         </div>
     </div>
+    <!-- v15.2: the shot card (your session as a Story picture) -->
+    <div id="shot-modal" class="modal" onclick="if(event.target===this) app.closeShotCard()">
+        <div class="modal-card people-card shot-sheet">
+            <div class="set-top"><h2>Share</h2><button type="button" class="set-done" onclick="app.closeShotCard()">Done</button></div>
+            <div id="shot-body"></div>
+        </div>
+    </div>
     <div id="bug-modal" class="modal" onclick="if(event.target===this) app.closeBugReport()">
         <div class="modal-card people-card">
             <div class="set-top"><h2>Report a bug</h2><button type="button" class="set-done" onclick="app.closeBugReport()">Cancel</button></div>
@@ -434,7 +442,7 @@
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v15.1</div>
+            <div class="app-version">Dialed In · v15.2</div>
         </div>
     </div>
 
@@ -777,6 +785,7 @@
 @@include js/app/41-v15.js
 @@include js/app/42-v151.js
 @@include js/app/43-levels.js
+@@include js/app/44-shotcard.js
 @@include js/app/99-end.js
 @@include js/99-boot.js
     </script>
