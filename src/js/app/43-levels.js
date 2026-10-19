@@ -70,7 +70,7 @@
             // app can only be sure of those for you)
             cremaFor(name, full = false) {
                 const circles = full && this.acctOn && this.acctOn() ? `${(this.grState().list || []).map(g => `${g.id}:${(g.members || []).length}`).join(',')}|${this.ppState().data ? this.friendNames().length : -1}|${safeGet('dialed_awards_revealed') || ''}`.length + ':' + ((this.grState().list || []).length) : '';
-                const ver = `${name}|${full}|${this.eventLog ? this.eventLog.length : 0}|${this.brews.size}|${this.beans.size}|${JSON.stringify(this.achievementLevelsByUser[name] || {}).length}|${circles}`;
+                const ver = `${name}|${full}|${this._dataRev || 0}|${this.eventLog ? this.eventLog.length : 0}|${this.brews.size}|${this.beans.size}|${JSON.stringify(this.achievementLevelsByUser[name] || {}).length}|${circles}`;
                 this._cremaMemo = this._cremaMemo || new Map();
                 if (this._cremaMemo.has(ver)) return this._cremaMemo.get(ver);
                 const n = {}; Object.keys(Object.fromEntries(this.cremaRules().map(r => [r[0], 0]))).forEach(k => { n[k] = 0; });
@@ -271,7 +271,7 @@
             roastDays(roastDate, when) {
                 const r = this.parseLocalDate(String(roastDate || '').slice(0, 10)); if (!r) return null;
                 const d = this.parseLocalDate(this.dayKey(when ? this.localTime(when) : Date.now()));
-                const n = Math.floor((d - r) / 864e5);
+                const n = Math.round((d - r) / 864e5);   // (round: across the spring clock change two midnights are 23 hours apart)
                 return n >= 0 && n < 400 ? n : null;
             },
             roastDayLabel(brew) {
@@ -281,6 +281,6 @@
             paintRoastDays(when) {
                 const f = this.getBrewForm(), el = document.getElementById('roast-days');
                 if (!el || !f || !f.roastDate) return;
-                const n = this.roastDays(f.roastDate.value, when);
+                const n = this.roastDays(f.roastDate.value, when !== undefined ? when : this._roastWhen);   // (editing an old session: counted to that session's day)
                 el.textContent = n === null ? '' : n === 0 ? '· roasted today' : `· day ${n} off roast`;
             },

@@ -349,7 +349,7 @@
             setCoffeeScope(v) { this.coffeeScope = v === 'all' ? 'all' : 'mine'; safeSet('dialed_coffee_scope', this.coffeeScope); this.render(); window.scrollTo(0, 0); },
             coffeeScopeHtml() {
                 const m = this.coffeeScopeNow();
-                return `<div class="seg-control lib-switch" role="tablist" aria-label="Whose coffees">${[['mine', 'Mine'], ['all', 'All']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === m}" aria-pressed="${k === m}" onclick="app.setCoffeeScope('${k}')">${l}</button>`).join('')}</div>`;
+                return `<div class="seg-control lib-switch" role="tablist" aria-label="Whose coffees">${[['mine', 'Mine'], ['all', 'All']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === m}" aria-pressed="${k === m}" onclick="app.setCoffeeScope('${app.escJs(k)}')">${l}</button>`).join('')}</div>`;
             },
 
             // ---- v15.1: "shot" is espresso's word; every other method gets "brew" (a pour over isn't a shot)
@@ -419,7 +419,7 @@
                 const L = this.activeLens(all);
                 if (!L) return all;
                 if (L.id === 'everyone') {
-                    setTimeout(() => { const st = this.coffeeCommState ? this.coffeeCommState() : null; if (st && st.key && !st.loading && (!st.at || Date.now() - st.at > 5 * 60000)) this.loadCoffeeCommunity(false); }, 0);
+                    setTimeout(() => { const st = this.coffeeCommState ? this.coffeeCommState() : null; if (st && st.key && !st.loading && !(st.failedAt && Date.now() - st.failedAt < 30000) && (!st.at || Date.now() - st.at > 5 * 60000)) this.loadCoffeeCommunity(false); }, 0);   // (after a failed try: not again for 30 s)
                     return this.everyoneBrews(all);
                 }
                 return all.filter(b => L.names.has(this.getBrewOwner(b)));
@@ -540,6 +540,18 @@
                 return `<section class="profile-card more-hub">${parts.join('')}</section>`;
             },
             toggleRecapRow() { this._recapOpen = !this._recapOpen; this.render(); },
+            // v15.1: tapping the tab you're already on goes back to its top, like Instagram: a coffee or roaster page open over it
+            // closes first (on a Mac the sidebar stays reachable), and Profile comes back to yours
+            tabTap(tab) {
+                if (tab !== this.tab) { this.setTab(tab); return; }
+                if (this.roasterViewActive && this.roasterViewActive()) { this.navStack = []; this.hideRoasterView(); }
+                if (this.isDetailActive && this.isDetailActive()) { this.navStack = []; this.closeDetail(); }
+                if (tab === 'profile' && this.profileUser && this.profileUser !== this.user) this.setProfileUser(this.user);
+                if (this.setBarsTucked) this.setBarsTucked(false);
+                let calm = false; try { calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { /* older browsers */ }
+                const sc = document.getElementById('main-content'), to = { top: 0, behavior: calm ? 'auto' : 'smooth' };   // (the page scrolls inside main-content)
+                try { if (sc) sc.scrollTo(to); window.scrollTo(to); } catch (e) { if (sc) sc.scrollTop = 0; window.scrollTo(0, 0); }
+            },
             // the awards row's line: whose, which month, and where it stands
             awardsLine() {
                 const c = this.activeCircle ? this.activeCircle() : null;

@@ -550,7 +550,7 @@
                 form.balance.value = this.asNumber(brew.balance, 5);
                 document.getElementById('isMasterInput').checked = (brew.isMaster === true || brew.isMaster === 'true');
                 form.notes.value = this.getBrewNotes(brew);
-                if (form.roastDate) { form.roastDate.value = String(brew.roastDate || '').slice(0, 10); this.paintRoastDays(brew.date); }   // v15.1
+                if (form.roastDate) { form.roastDate.value = String(brew.roastDate || '').slice(0, 10); this._roastWhen = brew.date; this.paintRoastDays(brew.date); }   // v15.1
                 const verdictInput = document.getElementById('verdict-input');
                 if (verdictInput) verdictInput.value = brew.verdict || '';
                 this.renderVerdict();
@@ -669,7 +669,7 @@
                 }
 
                 if (form.roastDate) form.roastDate.value = (prefill && prefill.roastDate && (!prefill.owner || prefill.owner === this.user || prefill.user === this.user)) ? String(prefill.roastDate).slice(0, 10) : this.bagRoastDate();   // v15.1: your bag's, from your last session
-                this.paintRoastDays();
+                this._roastWhen = null; this.paintRoastDays();
                 this.openModal('brew-modal');
                 this.applyMethodProfile(this.getBrewForm() && this.getBrewForm().method ? this.getBrewForm().method.value : '');
                 this.bindTasteSliders();

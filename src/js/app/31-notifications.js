@@ -64,7 +64,7 @@
                     case 'joined_group': return `${who} joined ${this.esc(n.group || 'your group')}`;
                     case 'helpful': return `${who} marked your answer most helpful${said}`;   // v14.5
                     case 'report': return 'Something was reported. Review it within a day.';
-                    case 'bug': return 'Reported a bug. Read it in Settings.';   // v15.1: reviewers only   // v14.6: reviewers only (who reported it isn't shown)
+                    case 'bug': return `${who} reported a bug. Read it in Settings.`;   // v15.1: reviewers only
                     default: return who;
                 }
             },

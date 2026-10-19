@@ -1625,7 +1625,7 @@ begin
 end $$;
 
 -- the "avatars" bucket: anyone can look at a picture (its address has the account's id and a random name in it);
--- only you can add, replace or remove the ones in your own folder. (Here so it reaches the live project: storage.sql
+-- only you can list, add, replace or remove the ones in your own folder. (Here so it reaches the live project: storage.sql
 -- only ever runs on an empty one.)
 do $$ begin
   if exists (select 1 from information_schema.tables where table_schema = 'storage' and table_name = 'buckets') then
@@ -1637,7 +1637,13 @@ do $$ begin
     create policy avatars_add on storage.objects for insert to authenticated with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
     create policy avatars_replace on storage.objects for update to authenticated using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
     create policy avatars_remove on storage.objects for delete to authenticated using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
-    create policy avatars_read on storage.objects for select to authenticated using (bucket_id = 'avatars');
+    -- you list only your own folder (the pictures themselves are public links; listing everyone's showed every account's id)
+    create policy avatars_read on storage.objects for select to authenticated using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+    -- pictures only, up to 2 MB (the app sends a small JPEG)
+    if exists (select 1 from information_schema.columns where table_schema = 'storage' and table_name = 'buckets' and column_name = 'allowed_mime_types')
+       and exists (select 1 from information_schema.columns where table_schema = 'storage' and table_name = 'buckets' and column_name = 'file_size_limit') then
+      update storage.buckets set file_size_limit = 2097152, allowed_mime_types = array['image/jpeg', 'image/png', 'image/webp'] where id = 'avatars';
+    end if;
   end if;
 end $$;
 

@@ -279,14 +279,14 @@
             wlPickBean(id) {
                 const s = this.wl; if (!s) return;
                 s.pick = s.pick === id ? '' : id;
-                if (s.pick) s.bean = { roaster: '', name: '', origin: '', roast: 'Light', process: '' };
+                if (s.pick) s.bean = { roaster: '', name: '', origin: '', roast: 'Light', process: '', roastDate: s.bean.roastDate || '' };   // (the roast date stays: it's your bag's either way)
                 this.renderWelcome();
             },
 
             wlBean(field, value) {
                 const s = this.wl; if (!s) return;
                 s.bean[field] = String(value || '');
-                if (s.pick && String(value || '').trim()) { s.pick = ''; document.querySelectorAll('.wl-bean.on').forEach(b => b.classList.remove('on')); }
+                if (s.pick && field !== 'roastDate' && String(value || '').trim()) { s.pick = ''; document.querySelectorAll('.wl-bean.on').forEach(b => b.classList.remove('on')); }
             },
 
             wlBeanChip(field, value) {
@@ -337,6 +337,7 @@
                     if (payload) { this.push(payload); firstBean = id; }
                 }
                 this.wlFirstBean = firstBean;
+                this.wlFirstRoast = firstBean && firstBean === s.pick ? String(b.roastDate || '').slice(0, 10) : '';   // a picked coffee: the roast date goes on your first session
                 this.closeWelcome();
                 this.setTab('feed');
                 this.render();
@@ -377,7 +378,7 @@
             tourFirstSession() {
                 const id = this.wlFirstBean;
                 this.endTour();
-                if (id && this.beans.has(String(id))) { this.openFeedTarget(id, '', false); setTimeout(() => this.openBrewModal(), 250); }
+                if (id && this.beans.has(String(id))) { const rd = this.wlFirstRoast || ''; this.openFeedTarget(id, '', false); setTimeout(() => { this.openBrewModal(); const f = this.getBrewForm(); if (rd && f && f.roastDate && !f.roastDate.value) { f.roastDate.value = rd; this.paintRoastDays(); } }, 250); }
                 else { this.coffeeScope = 'all'; this.setTab('my'); this.showToast('Open any coffee and tap Log a session.'); }
             },
 

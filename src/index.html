@@ -79,19 +79,19 @@
     <!-- Desktop Sidebar -->
     <div id="sidebar">
         <h1>Dialed In</h1>
-        <button class="nav-btn active" data-tab="my" onclick="app.setTab('my')">
+        <button class="nav-btn active" data-tab="my" onclick="app.tabTap('my')">
             <svg class="icon"><use href="#i-bean"/></svg>
             Coffees
         </button>
-        <button class="nav-btn" data-tab="roasters" onclick="app.setTab('roasters')">
+        <button class="nav-btn" data-tab="roasters" onclick="app.tabTap('roasters')">
             <svg class="icon"><use href="#i-roaster"/></svg>
             Roasters
         </button>
-        <button class="nav-btn" data-tab="feed" onclick="app.setTab('feed')">
+        <button class="nav-btn" data-tab="feed" onclick="app.tabTap('feed')">
             <svg class="icon"><use href="#i-feed"/></svg>
             Feed
         </button>
-        <button class="nav-btn" data-tab="profile" onclick="app.setTab('profile')">
+        <button class="nav-btn" data-tab="profile" onclick="app.tabTap('profile')">
             <svg class="icon"><use href="#i-user"/></svg>
             Profile
         </button>
@@ -196,22 +196,22 @@
 
     <!-- Mobile Navigation -->
     <div id="mobile-nav">
-        <div class="mob-item active" data-tab="my" onclick="app.setTab('my')">
+        <div class="mob-item active" data-tab="my" onclick="app.tabTap('my')">
             <svg class="icon" style="width:20px;height:20px;"><use href="#i-bean"/></svg>
             Coffees
         </div>
-        <div class="mob-item" data-tab="roasters" onclick="app.setTab('roasters')">
+        <div class="mob-item" data-tab="roasters" onclick="app.tabTap('roasters')">
             <svg class="icon" style="width:20px;height:20px;"><use href="#i-roaster"/></svg>
             Roasters
         </div>
         <div class="mob-fab" onclick="app.openBeanModal()">
             <svg class="icon" style="width:24px;height:24px;"><use href="#i-plus"/></svg>
         </div>
-        <div class="mob-item" data-tab="feed" onclick="app.setTab('feed')">
+        <div class="mob-item" data-tab="feed" onclick="app.tabTap('feed')">
             <svg class="icon" style="width:20px;height:20px;"><use href="#i-feed"/></svg>
             Feed
         </div>
-        <div class="mob-item" data-tab="profile" onclick="app.setTab('profile')">
+        <div class="mob-item" data-tab="profile" onclick="app.tabTap('profile')">
             <svg class="icon" style="width:20px;height:20px;"><use href="#i-user"/></svg>
             Profile
         </div>

@@ -103,7 +103,7 @@
                 const roastLine = document.getElementById('d-roast-date');
                 if (roastLine) {   // v15.1: your bag (others' bags are on their sessions: day N off roast)
                     const rd = this.bagRoastDate(this.beanGroupKey(meta)), t = this.parseLocalDate(rd);
-                    const days = t ? Math.floor((this.parseLocalDate(this.dayKey(Date.now())) - t) / 864e5) : -1;
+                    const days = t ? Math.round((this.parseLocalDate(this.dayKey(Date.now())) - t) / 864e5) : -1;
                     roastLine.innerText = t ? `Your bag: roasted ${new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}${days >= 0 ? ` · ${days === 0 ? 'today' : days === 1 ? '1 day ago' : `${days} days ago`}` : ''}` : '';
                     roastLine.style.display = t ? 'block' : 'none';
                 }

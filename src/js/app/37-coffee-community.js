@@ -13,7 +13,7 @@
                 if (tab) tab.hidden = !on;
                 if (!on) { if (this.detailTab === 'everyone') this.detailTab = 'timeline'; return; }
                 const meta = group.meta, key = this.coffeeCommKey(meta.roaster, meta.name), st = this.coffeeCommState();
-                if (st.key !== key) Object.assign(st, { key, roaster: meta.roaster || '', name: meta.name || '', events: [], summary: null, next: null, error: '', at: 0, loading: false });
+                if (st.key !== key) Object.assign(st, { key, roaster: meta.roaster || '', name: meta.name || '', events: [], summary: null, next: null, error: '', at: 0, failedAt: 0, loading: false });
             },
 
             async loadCoffeeCommunity(more) {
@@ -30,8 +30,9 @@
                     st.events = more ? st.events.concat(events) : events;
                     if (!more) st.summary = out && out.summary ? out.summary : null;
                     st.next = out && out.next ? out.next : null;
-                    st.at = Date.now();
+                    st.at = Date.now(); st.failedAt = 0;
                 } catch (e) {
+                    if (st.key === key) st.failedAt = Date.now();   // v15.1: the coffee page waits a while before asking again (it asked again at once, forever)
                     if (st.key === key) st.error = /fetch|network|load failed/i.test(String(e && e.message)) ? 'Couldn\'t load. Check your connection.' : 'Couldn\'t load this. Try again in a moment.';
                 } finally {
                     if (st.key === key) st.loading = false;
