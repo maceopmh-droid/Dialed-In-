@@ -62,3 +62,5 @@
     .top-search-x { flex: none; width: 30px !important; height: 30px; min-height: 30px !important; margin: 0 !important; padding: 0 !important; display: grid; place-items: center; border: 0 !important; border-radius: 999px !important; background: rgba(var(--hair-rgb), 0.08) !important; color: var(--ink) !important; box-shadow: none !important; cursor: pointer; }
     .top-search-x .icon { width: 14px; height: 14px; }
 }
+/* these open from Settings (and the bell): above the Settings sheet, like Reports */
+#bug-modal, #bugs-modal, #level-modal { z-index: 6100; }
