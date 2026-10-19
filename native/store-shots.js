@@ -69,7 +69,7 @@
         }],
         // a roaster's page (Maya notes where it's from, as anyone can)
         ['06_roaster', async () => {
-            closeAll();
+            closeAll(); app.setTab('roasters'); await sleep(300);   // (from the Roasters tab, so Back says Roasters)
             const info = (app.roasterPrefsOf(app.user) || {}).info || {};
             if (!(info['Field Lantern Coffee'] || {}).location) { app.saveRoasterPrefs(p => { p.info['Field Lantern Coffee'] = { location: 'Denver, CO', website: '', note: '', at: new Date().toISOString() }; }); await sleep(2500); }
             app.openRoaster(app.roasterKey('Field Lantern Coffee')); await sleep(1500);
