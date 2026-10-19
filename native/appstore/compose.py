@@ -22,7 +22,7 @@ SET = [
     ('01_coffee', 'See how your\ncoffee tastes', 'Every cup becomes a flavor shape\nyou can spin and compare.', -5),
     ('02_next_shot', 'Know what to\nchange next', 'A coach reads your notes and numbers\nand says what to try on the next shot.', 5),
     ('03_feed', 'Brew with\nyour friends', 'Photos, likes and comments\non every cup.', -5),
-    ('04_community', 'Join a coffee\ncommunity', 'A weekly goal you fill together,\nand monthly awards.', 5),
+    ('04_community', 'Join a coffee\ncommunity', 'A weekly goal you fill together,\nand everyone\'s sessions in one place.', 5),
     ('05_help', 'Stuck? Ask\nfor help', 'Ask about any session,\nand anyone can answer.', -5),
     ('06_roaster', 'Every roaster\ngets a page', 'Their coffees, the best shot on them,\nand who drinks them.', 5),
     ('07_dialin', 'Watch yourself\ndial in', 'Your ratings shot by shot,\nright up to the one that clicks.', -5),
