@@ -73,7 +73,9 @@
                 if (photo) {
                     ctx.fillStyle = '#0C100D'; ctx.fillRect(0, 0, W, H);
                     const PH = 1140, k = Math.max(W / photo.naturalWidth, PH / photo.naturalHeight), pw = photo.naturalWidth * k, ph = photo.naturalHeight * k;
+                    ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, PH); ctx.clip();   // (a tall photo stays inside its frame: it spilled out under the fade)
                     ctx.drawImage(photo, (W - pw) / 2, (PH - ph) / 2, pw, ph);
+                    ctx.restore();
                     const g = ctx.createLinearGradient(0, 0, 0, PH);
                     g.addColorStop(0, 'rgba(0,0,0,0.55)'); g.addColorStop(0.28, 'rgba(0,0,0,0.15)'); g.addColorStop(0.55, 'rgba(12,16,13,0)'); g.addColorStop(1, 'rgba(12,16,13,1)');
                     ctx.fillStyle = g; ctx.fillRect(0, 0, W, PH + 2);
