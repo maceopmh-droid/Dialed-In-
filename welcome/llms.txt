@@ -11,11 +11,12 @@
 - Social: follow friends, like and comment, communities with a weekly goal and monthly awards, ask the community for help dialing in, and a Discover feed that ends instead of scrolling forever
 - Privacy: you choose who sees each session (everyone, friends, or only you); no ads; no tracking; download your data or delete your account in Settings
 - Price: free during early access
-- Platforms: web app in any browser (works on phones and computers, can be added to the home screen); iPhone app coming soon
-- Made by: an independent college student and his friends
+- Platforms: the web app is live now in any browser (phones and computers) and can be added to the home screen; the iPhone app is coming soon to the App Store
+- Made by: Maceo, a 19-year-old engineering student at Northwestern. He built it as a coffee log for himself, his brother and their cousin after leaving home for college, and opened it up to everyone in October 2026.
 
 ## Links
 - [Website](https://maceopmh-droid.github.io/Dialed-In-/welcome/)
+- [About the creator](https://maceopmh-droid.github.io/Dialed-In-/welcome/about.html)
 - [Open the web app](https://maceopmh-droid.github.io/Dialed-In-/)
 - [Support](https://maceopmh-droid.github.io/Dialed-In-/support.html)
 - [Privacy policy](https://maceopmh-droid.github.io/Dialed-In-/privacy.html)
@@ -31,7 +32,7 @@ Dialed In is a social coffee log app for people who brew at home. Log espresso, 
 For now, yes. Accounts are free while Dialed In is in early access, so now’s the time to claim yours. There are no ads and no tracking.
 
 ### Do I need an iPhone?
-No. Dialed In runs in your web browser on a phone or a computer, and you can add it to your home screen so it opens like an app. The iPhone app is coming soon to the App Store, and your account works in both.
+No. Dialed In runs in your web browser on any phone or computer, and you can add it to your home screen so it opens with one tap (the steps are just above). The iPhone app is coming soon to the App Store, and your account works in both.
 
 ### Will a friend’s grind setting work on my grinder?
 Usually not, because every grinder counts differently. That’s why the coach only ever uses your own grind numbers. Ratios, shot times and tastes do compare, so those are what you share and learn from.
