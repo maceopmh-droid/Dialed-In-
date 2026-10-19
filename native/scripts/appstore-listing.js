@@ -67,6 +67,13 @@ const must = (r, what) => { if (!r.ok) throw new Error(`${what} (${why(r)})`); r
   // ---- the version: number, copyright, text
   const vs = must(await api('GET', `/v1/apps/${appId}/appStoreVersions?filter[platform]=IOS&limit=20`), 'versions');
   let ver = (vs.j.data || []).find(v => /PREPARE_FOR_SUBMISSION|DEVELOPER_REJECTED|REJECTED|METADATA_REJECTED|INVALID_BINARY/.test(v.attributes.appStoreState || v.attributes.appVersionState || ''));
+  const stateOf = v => v.attributes.appVersionState || v.attributes.appStoreState || '';
+  say('App Store versions', (vs.j.data || []).map(v => `${v.attributes.versionString}: ${stateOf(v)}`).join(' | ') || 'none yet');
+  const busy = !ver && (vs.j.data || []).find(v => /WAITING_FOR_REVIEW|IN_REVIEW|READY_FOR_REVIEW|PENDING_DEVELOPER_RELEASE|PENDING_APPLE_RELEASE|PROCESSING_FOR_APP_STORE|ACCEPTED|WAITING_FOR_EXPORT_COMPLIANCE/.test(stateOf(v)));
+  if (busy) {   // Apple allows no new version while one is with App Review (or waiting to be released): say so and stop, nothing changed
+    say('Nothing to change yet', `version ${busy.attributes.versionString} is ${stateOf(busy).toLowerCase().replace(/_/g, ' ')}, and Apple allows no new version until it's out of review. The ${VERSION} build is in TestFlight; run this again after ${busy.attributes.versionString} is approved (or rejected) to make ${VERSION} and attach it.`);
+    process.exit(0);
+  }
   if (!ver) {
     const r = must(await api('POST', '/v1/appStoreVersions', { data: { type: 'appStoreVersions', attributes: { platform: 'IOS', versionString: VERSION }, relationships: { app: { data: { type: 'apps', id: appId } } } } }), 'making the version');
     ver = r.j.data;
