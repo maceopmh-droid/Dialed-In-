@@ -3921,19 +3921,19 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
     <!-- Desktop Sidebar -->
     <div id="sidebar">
         <h1>Dialed In</h1>
-        <button class="nav-btn active" data-tab="my" onclick="app.setTab('my')">
+        <button class="nav-btn active" data-tab="my" onclick="app.tabTap('my')">
             <svg class="icon"><use href="#i-bean"/></svg>
             Coffees
         </button>
-        <button class="nav-btn" data-tab="roasters" onclick="app.setTab('roasters')">
+        <button class="nav-btn" data-tab="roasters" onclick="app.tabTap('roasters')">
             <svg class="icon"><use href="#i-roaster"/></svg>
             Roasters
         </button>
-        <button class="nav-btn" data-tab="feed" onclick="app.setTab('feed')">
+        <button class="nav-btn" data-tab="feed" onclick="app.tabTap('feed')">
             <svg class="icon"><use href="#i-feed"/></svg>
             Feed
         </button>
-        <button class="nav-btn" data-tab="profile" onclick="app.setTab('profile')">
+        <button class="nav-btn" data-tab="profile" onclick="app.tabTap('profile')">
             <svg class="icon"><use href="#i-user"/></svg>
             Profile
         </button>
@@ -4038,22 +4038,22 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
 
     <!-- Mobile Navigation -->
     <div id="mobile-nav">
-        <div class="mob-item active" data-tab="my" onclick="app.setTab('my')">
+        <div class="mob-item active" data-tab="my" onclick="app.tabTap('my')">
             <svg class="icon" style="width:20px;height:20px;"><use href="#i-bean"/></svg>
             Coffees
         </div>
-        <div class="mob-item" data-tab="roasters" onclick="app.setTab('roasters')">
+        <div class="mob-item" data-tab="roasters" onclick="app.tabTap('roasters')">
             <svg class="icon" style="width:20px;height:20px;"><use href="#i-roaster"/></svg>
             Roasters
         </div>
         <div class="mob-fab" onclick="app.openBeanModal()">
             <svg class="icon" style="width:24px;height:24px;"><use href="#i-plus"/></svg>
         </div>
-        <div class="mob-item" data-tab="feed" onclick="app.setTab('feed')">
+        <div class="mob-item" data-tab="feed" onclick="app.tabTap('feed')">
             <svg class="icon" style="width:20px;height:20px;"><use href="#i-feed"/></svg>
             Feed
         </div>
-        <div class="mob-item" data-tab="profile" onclick="app.setTab('profile')">
+        <div class="mob-item" data-tab="profile" onclick="app.tabTap('profile')">
             <svg class="icon" style="width:20px;height:20px;"><use href="#i-user"/></svg>
             Profile
         </div>
@@ -7115,6 +7115,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
             applyEvent(event) {
                 if (!event) return;
+                this._dataRev = (this._dataRev || 0) + 1;   // v15.1: anything that changed the data (crema's memo goes by it: a like inside a session changes no count)
                 // v13.4: something deleted stays deleted; a later like / comment / edit from a phone that hadn't seen the delete is ignored
                 if ((event.type === 'brew' || event.type === 'bean') && this.tombs && this.tombs.size) {
                     const at = this.toTime(event.eventAt);
@@ -12159,14 +12160,14 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             wlPickBean(id) {
                 const s = this.wl; if (!s) return;
                 s.pick = s.pick === id ? '' : id;
-                if (s.pick) s.bean = { roaster: '', name: '', origin: '', roast: 'Light', process: '' };
+                if (s.pick) s.bean = { roaster: '', name: '', origin: '', roast: 'Light', process: '', roastDate: s.bean.roastDate || '' };   // (the roast date stays: it's your bag's either way)
                 this.renderWelcome();
             },
 
             wlBean(field, value) {
                 const s = this.wl; if (!s) return;
                 s.bean[field] = String(value || '');
-                if (s.pick && String(value || '').trim()) { s.pick = ''; document.querySelectorAll('.wl-bean.on').forEach(b => b.classList.remove('on')); }
+                if (s.pick && field !== 'roastDate' && String(value || '').trim()) { s.pick = ''; document.querySelectorAll('.wl-bean.on').forEach(b => b.classList.remove('on')); }
             },
 
             wlBeanChip(field, value) {
@@ -12217,6 +12218,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     if (payload) { this.push(payload); firstBean = id; }
                 }
                 this.wlFirstBean = firstBean;
+                this.wlFirstRoast = firstBean && firstBean === s.pick ? String(b.roastDate || '').slice(0, 10) : '';   // a picked coffee: the roast date goes on your first session
                 this.closeWelcome();
                 this.setTab('feed');
                 this.render();
@@ -12257,7 +12259,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             tourFirstSession() {
                 const id = this.wlFirstBean;
                 this.endTour();
-                if (id && this.beans.has(String(id))) { this.openFeedTarget(id, '', false); setTimeout(() => this.openBrewModal(), 250); }
+                if (id && this.beans.has(String(id))) { const rd = this.wlFirstRoast || ''; this.openFeedTarget(id, '', false); setTimeout(() => { this.openBrewModal(); const f = this.getBrewForm(); if (rd && f && f.roastDate && !f.roastDate.value) { f.roastDate.value = rd; this.paintRoastDays(); } }, 250); }
                 else { this.coffeeScope = 'all'; this.setTab('my'); this.showToast('Open any coffee and tap Log a session.'); }
             },
 
@@ -12982,7 +12984,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const roastLine = document.getElementById('d-roast-date');
                 if (roastLine) {   // v15.1: your bag (others' bags are on their sessions: day N off roast)
                     const rd = this.bagRoastDate(this.beanGroupKey(meta)), t = this.parseLocalDate(rd);
-                    const days = t ? Math.floor((this.parseLocalDate(this.dayKey(Date.now())) - t) / 864e5) : -1;
+                    const days = t ? Math.round((this.parseLocalDate(this.dayKey(Date.now())) - t) / 864e5) : -1;
                     roastLine.innerText = t ? `Your bag: roasted ${new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}${days >= 0 ? ` · ${days === 0 ? 'today' : days === 1 ? '1 day ago' : `${days} days ago`}` : ''}` : '';
                     roastLine.style.display = t ? 'block' : 'none';
                 }
@@ -15997,7 +15999,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 form.balance.value = this.asNumber(brew.balance, 5);
                 document.getElementById('isMasterInput').checked = (brew.isMaster === true || brew.isMaster === 'true');
                 form.notes.value = this.getBrewNotes(brew);
-                if (form.roastDate) { form.roastDate.value = String(brew.roastDate || '').slice(0, 10); this.paintRoastDays(brew.date); }   // v15.1
+                if (form.roastDate) { form.roastDate.value = String(brew.roastDate || '').slice(0, 10); this._roastWhen = brew.date; this.paintRoastDays(brew.date); }   // v15.1
                 const verdictInput = document.getElementById('verdict-input');
                 if (verdictInput) verdictInput.value = brew.verdict || '';
                 this.renderVerdict();
@@ -16116,7 +16118,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 }
 
                 if (form.roastDate) form.roastDate.value = (prefill && prefill.roastDate && (!prefill.owner || prefill.owner === this.user || prefill.user === this.user)) ? String(prefill.roastDate).slice(0, 10) : this.bagRoastDate();   // v15.1: your bag's, from your last session
-                this.paintRoastDays();
+                this._roastWhen = null; this.paintRoastDays();
                 this.openModal('brew-modal');
                 this.applyMethodProfile(this.getBrewForm() && this.getBrewForm().method ? this.getBrewForm().method.value : '');
                 this.bindTasteSliders();
@@ -17505,7 +17507,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     case 'joined_group': return `${who} joined ${this.esc(n.group || 'your group')}`;
                     case 'helpful': return `${who} marked your answer most helpful${said}`;   // v14.5
                     case 'report': return 'Something was reported. Review it within a day.';
-                    case 'bug': return 'Reported a bug. Read it in Settings.';   // v15.1: reviewers only   // v14.6: reviewers only (who reported it isn't shown)
+                    case 'bug': return `${who} reported a bug. Read it in Settings.`;   // v15.1: reviewers only
                     default: return who;
                 }
             },
@@ -18362,7 +18364,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (tab) tab.hidden = !on;
                 if (!on) { if (this.detailTab === 'everyone') this.detailTab = 'timeline'; return; }
                 const meta = group.meta, key = this.coffeeCommKey(meta.roaster, meta.name), st = this.coffeeCommState();
-                if (st.key !== key) Object.assign(st, { key, roaster: meta.roaster || '', name: meta.name || '', events: [], summary: null, next: null, error: '', at: 0, loading: false });
+                if (st.key !== key) Object.assign(st, { key, roaster: meta.roaster || '', name: meta.name || '', events: [], summary: null, next: null, error: '', at: 0, failedAt: 0, loading: false });
             },
 
             async loadCoffeeCommunity(more) {
@@ -18379,8 +18381,9 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     st.events = more ? st.events.concat(events) : events;
                     if (!more) st.summary = out && out.summary ? out.summary : null;
                     st.next = out && out.next ? out.next : null;
-                    st.at = Date.now();
+                    st.at = Date.now(); st.failedAt = 0;
                 } catch (e) {
+                    if (st.key === key) st.failedAt = Date.now();   // v15.1: the coffee page waits a while before asking again (it asked again at once, forever)
                     if (st.key === key) st.error = /fetch|network|load failed/i.test(String(e && e.message)) ? 'Couldn\'t load. Check your connection.' : 'Couldn\'t load this. Try again in a moment.';
                 } finally {
                     if (st.key === key) st.loading = false;
@@ -19198,7 +19201,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             setCoffeeScope(v) { this.coffeeScope = v === 'all' ? 'all' : 'mine'; safeSet('dialed_coffee_scope', this.coffeeScope); this.render(); window.scrollTo(0, 0); },
             coffeeScopeHtml() {
                 const m = this.coffeeScopeNow();
-                return `<div class="seg-control lib-switch" role="tablist" aria-label="Whose coffees">${[['mine', 'Mine'], ['all', 'All']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === m}" aria-pressed="${k === m}" onclick="app.setCoffeeScope('${k}')">${l}</button>`).join('')}</div>`;
+                return `<div class="seg-control lib-switch" role="tablist" aria-label="Whose coffees">${[['mine', 'Mine'], ['all', 'All']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === m}" aria-pressed="${k === m}" onclick="app.setCoffeeScope('${app.escJs(k)}')">${l}</button>`).join('')}</div>`;
             },
 
             // ---- v15.1: "shot" is espresso's word; every other method gets "brew" (a pour over isn't a shot)
@@ -19268,7 +19271,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const L = this.activeLens(all);
                 if (!L) return all;
                 if (L.id === 'everyone') {
-                    setTimeout(() => { const st = this.coffeeCommState ? this.coffeeCommState() : null; if (st && st.key && !st.loading && (!st.at || Date.now() - st.at > 5 * 60000)) this.loadCoffeeCommunity(false); }, 0);
+                    setTimeout(() => { const st = this.coffeeCommState ? this.coffeeCommState() : null; if (st && st.key && !st.loading && !(st.failedAt && Date.now() - st.failedAt < 30000) && (!st.at || Date.now() - st.at > 5 * 60000)) this.loadCoffeeCommunity(false); }, 0);   // (after a failed try: not again for 30 s)
                     return this.everyoneBrews(all);
                 }
                 return all.filter(b => L.names.has(this.getBrewOwner(b)));
@@ -19389,6 +19392,18 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 return `<section class="profile-card more-hub">${parts.join('')}</section>`;
             },
             toggleRecapRow() { this._recapOpen = !this._recapOpen; this.render(); },
+            // v15.1: tapping the tab you're already on goes back to its top, like Instagram: a coffee or roaster page open over it
+            // closes first (on a Mac the sidebar stays reachable), and Profile comes back to yours
+            tabTap(tab) {
+                if (tab !== this.tab) { this.setTab(tab); return; }
+                if (this.roasterViewActive && this.roasterViewActive()) { this.navStack = []; this.hideRoasterView(); }
+                if (this.isDetailActive && this.isDetailActive()) { this.navStack = []; this.closeDetail(); }
+                if (tab === 'profile' && this.profileUser && this.profileUser !== this.user) this.setProfileUser(this.user);
+                if (this.setBarsTucked) this.setBarsTucked(false);
+                let calm = false; try { calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { /* older browsers */ }
+                const sc = document.getElementById('main-content'), to = { top: 0, behavior: calm ? 'auto' : 'smooth' };   // (the page scrolls inside main-content)
+                try { if (sc) sc.scrollTo(to); window.scrollTo(to); } catch (e) { if (sc) sc.scrollTop = 0; window.scrollTo(0, 0); }
+            },
             // the awards row's line: whose, which month, and where it stands
             awardsLine() {
                 const c = this.activeCircle ? this.activeCircle() : null;
@@ -19481,7 +19496,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             // app can only be sure of those for you)
             cremaFor(name, full = false) {
                 const circles = full && this.acctOn && this.acctOn() ? `${(this.grState().list || []).map(g => `${g.id}:${(g.members || []).length}`).join(',')}|${this.ppState().data ? this.friendNames().length : -1}|${safeGet('dialed_awards_revealed') || ''}`.length + ':' + ((this.grState().list || []).length) : '';
-                const ver = `${name}|${full}|${this.eventLog ? this.eventLog.length : 0}|${this.brews.size}|${this.beans.size}|${JSON.stringify(this.achievementLevelsByUser[name] || {}).length}|${circles}`;
+                const ver = `${name}|${full}|${this._dataRev || 0}|${this.eventLog ? this.eventLog.length : 0}|${this.brews.size}|${this.beans.size}|${JSON.stringify(this.achievementLevelsByUser[name] || {}).length}|${circles}`;
                 this._cremaMemo = this._cremaMemo || new Map();
                 if (this._cremaMemo.has(ver)) return this._cremaMemo.get(ver);
                 const n = {}; Object.keys(Object.fromEntries(this.cremaRules().map(r => [r[0], 0]))).forEach(k => { n[k] = 0; });
@@ -19682,7 +19697,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             roastDays(roastDate, when) {
                 const r = this.parseLocalDate(String(roastDate || '').slice(0, 10)); if (!r) return null;
                 const d = this.parseLocalDate(this.dayKey(when ? this.localTime(when) : Date.now()));
-                const n = Math.floor((d - r) / 864e5);
+                const n = Math.round((d - r) / 864e5);   // (round: across the spring clock change two midnights are 23 hours apart)
                 return n >= 0 && n < 400 ? n : null;
             },
             roastDayLabel(brew) {
@@ -19692,7 +19707,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             paintRoastDays(when) {
                 const f = this.getBrewForm(), el = document.getElementById('roast-days');
                 if (!el || !f || !f.roastDate) return;
-                const n = this.roastDays(f.roastDate.value, when);
+                const n = this.roastDays(f.roastDate.value, when !== undefined ? when : this._roastWhen);   // (editing an old session: counted to that session's day)
                 el.textContent = n === null ? '' : n === 0 ? '· roasted today' : `· day ${n} off roast`;
             },
         };
