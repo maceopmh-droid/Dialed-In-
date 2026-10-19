@@ -99,10 +99,8 @@
                 const id = String(ref || '');
                 if (kind === 'session') {
                     const b = this.brews.get(id); if (!b) return;
-                    const owner = this.getBrewOwner(b), bean = this.beans.get(String(b.beanId || ''));
-                    const coffee = bean && bean.name ? `${bean.name}${bean.roaster ? ` (${bean.roaster})` : ''}` : 'a coffee';
-                    const line = this.shareSessionLine(b);
-                    return this.shareLink(this.shareUrl({ s: id, by: owner }), `${owner === this.user ? 'My' : `${owner}'s`} ${String(b.method || 'session').toLowerCase()} of ${coffee}${line ? `: ${line}` : ''}. On Dialed In:`);
+                    if (this.getBrewOwner(b) === this.user && this.openShotCard) return this.openShotCard(id);   // v15.2: your own: the shot card (a link from there too)
+                    return this.shareSessionLink(id);
                 }
                 if (kind === 'coffee') {
                     const bean = this.beans.get(id); if (!bean) return;
@@ -115,6 +113,13 @@
                     return this.shareLink(this.shareUrl({ r: id }), `${id}, the roaster${n ? `: ${n} coffee${n === 1 ? '' : 's'} logged` : ''}. On Dialed In:`);
                 }
                 if (kind === 'profile') return this.shareLink(this.shareUrl({ u: id }), id === this.user ? `Follow me on Dialed In (${id}):` : `${id}'s coffee log on Dialed In:`);
+            },
+            shareSessionLink(ref) {
+                const id = String(ref || ''), b = this.brews.get(id); if (!b) return;
+                const owner = this.getBrewOwner(b), bean = this.beans.get(String(b.beanId || ''));
+                const coffee = bean && bean.name ? `${bean.name}${bean.roaster ? ` (${bean.roaster})` : ''}` : 'a coffee';
+                const line = this.shareSessionLine(b);
+                return this.shareLink(this.shareUrl({ s: id, by: owner }), `${owner === this.user ? 'My' : `${owner}'s`} ${String(b.method || 'session').toLowerCase()} of ${coffee}${line ? `: ${line}` : ''}. On Dialed In:`);
             },
             shareCurrentCoffee() { return this.shareItem('coffee', this.activeId); },
             // a community: its invite link (the same one People has)

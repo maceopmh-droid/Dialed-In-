@@ -347,11 +347,11 @@
             // ---- still images for cards (one shared offscreen renderer)
             let shared = null; const cache = new Map();
             function snapshot(vals, ghost, opts = {}) {
-                const W = opts.width || 300, H = opts.height || 220, dpr = Math.min(2, window.devicePixelRatio || 1);
+                const W = opts.width || 300, H = opts.height || 220, dpr = opts.dpr || Math.min(2, window.devicePixelRatio || 1);   // (v15.2: a sharper one for the shot card)
                 const probe = document.createElement('canvas');
                 if (!probe || typeof probe.getContext !== 'function') return '';
-                const th = themeColors();
-                const key = [W, H, th.dark ? 'd' : 'l', FLOOR.concat(TOPK).map(k => val(vals, k)).join(','), ghost ? FLOOR.concat(TOPK).map(k => val(ghost, k)).join(',') : '-', opts.labels === false ? 'n' : 'y', opts.setKey || '', prefs.smooth ? 's' : 'f'].join('|');
+                const th = opts.theme || themeColors();   // (v15.2: the shot card is always dark)
+                const key = [W, H, dpr, th.dark ? 'd' : 'l', FLOOR.concat(TOPK).map(k => val(vals, k)).join(','), ghost ? FLOOR.concat(TOPK).map(k => val(ghost, k)).join(',') : '-', opts.labels === false ? 'n' : 'y', opts.setKey || '', prefs.smooth ? 's' : 'f'].join('|');
                 if (cache.has(key)) return cache.get(key);
                 try {
                     if (!shared) { const under = document.createElement('canvas'), glc = document.createElement('canvas'), over = document.createElement('canvas'), out = document.createElement('canvas'); shared = { under, glc, over, out, gl: makeGL(glc) }; }

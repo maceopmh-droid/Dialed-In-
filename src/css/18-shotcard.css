@@ -1,0 +1,9 @@
+        /* ---- v15.2: the shot card sheet: the Story picture, then Share image / Share link */
+        #shot-modal { z-index: 6100; }
+        .shot-sheet .shot-prev { display: flex; justify-content: center; align-items: center; min-height: 200px; padding: 4px 0 2px; }
+        .shot-sheet .shot-prev img { display: block; height: min(58vh, 560px); width: auto; max-width: 100%; aspect-ratio: 9 / 16; object-fit: contain; border-radius: 18px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(0, 0, 0, 0.06); background: #0C100D; }
+        .shot-sheet .shot-prev.is-loading { height: min(58vh, 560px); }
+        .shot-sheet .shot-prev.is-empty p { color: var(--text-muted); text-align: center; margin: 0; padding: 40px 12px; }
+        .shot-sheet .shot-acts { display: grid; gap: 10px; margin-top: 16px; }
+        .shot-sheet .shot-acts button { width: 100%; min-height: 46px; justify-content: center; }
+        .shot-sheet .shot-acts button[disabled] { opacity: 0.55; }
