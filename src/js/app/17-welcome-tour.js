@@ -74,10 +74,12 @@
                         <p class="wl-lead">Log every cup, see what your friends and communities are brewing, and get a coach that tells you exactly what to change next. Earn crema as you go, from Seed to Dialed In.</p>
                         ${G.rows.length && !(this.acctOn() && !G.sessions) ? `<div class="wl-proof">${this.wlFaces(G.rows)}<span>${esc(this.wlNames(G.rows))} · ${esc(G.sessions.toLocaleString())} sessions logged</span></div>` : ''}
                         <div class="wl-actions">
-                            <button type="button" class="btn-primary wl-main" onclick="${this.acctOn() ? "app.wlStart('new')" : "app.wlGo('name')"}">I'm new to Dialed In</button>
-                            <button type="button" class="btn-outline wl-second" onclick="${this.acctOn() ? "app.wlStart('back')" : "app.wlGo('returning')"}">I've been here before</button>
+                            <button type="button" class="btn-primary wl-main" onclick="app.wlIntro('new')">I'm new to Dialed In</button>
+                            <button type="button" class="btn-outline wl-second" onclick="app.wlIntro('back')">I've been here before</button>
                         </div>
                     </div>`;
+                } else if (s.step === 'home') {   // v15.4: a phone's browser: the Home Screen first, so you sign in once
+                    html = this.wlHomeHtml();
                 } else if (s.step === 'returning') {
                     const rows = G.rows;
                     html = `<div class="wl-step">
@@ -399,14 +401,14 @@
                 }
                 const st = t.steps[t.i];
                 if (st.tab && this.tab !== st.tab) this.setTab(st.tab);
-                const target = document.querySelector(st.sel);
+                const target = st.sel ? document.querySelector(st.sel) : null;
                 const r = target ? target.getBoundingClientRect() : null;
                 const pad = 6;
                 el.innerHTML = `${r && r.width ? `<div class="wl-spot" style="left:${r.left - pad}px;top:${r.top - pad}px;width:${r.width + pad * 2}px;height:${r.height + pad * 2}px"></div>` : '<div class="wl-dim"></div>'}
                     <div class="wl-bubble" role="dialog" aria-label="${this.esc(st.title)}">
                         <div class="wl-bub-count">${t.i + 1} of ${n}</div>
                         <h4>${this.esc(st.title)}</h4>
-                        <p>${this.esc(st.text)}</p>
+                        ${st.html ? st.html : `<p>${this.esc(st.text)}</p>`}
                         <div class="wl-bub-foot"><button type="button" class="wl-link" onclick="app.endTour()">Skip tour</button><button type="button" class="btn-primary" onclick="app.tourNext()">${t.i === n - 1 ? 'Finish' : 'Next'}</button></div>
                     </div>`;
                 const bub = el.querySelector('.wl-bubble');

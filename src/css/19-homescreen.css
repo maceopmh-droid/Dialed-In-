@@ -1,0 +1,6 @@
+        /* ---- v15.4: the walkthrough's Home Screen steps (a phone's browser only) */
+        .wl-hs { margin: 10px 0 0; padding: 0; list-style: none; counter-reset: hs; display: grid; gap: 8px; }
+        .wl-hs li { counter-increment: hs; position: relative; padding-left: 30px; color: var(--ink-2); font-size: 0.92rem; line-height: 1.45; }
+        .wl-hs li::before { content: counter(hs); position: absolute; left: 0; top: 0.05em; width: 21px; height: 21px; border-radius: 50%; display: grid; place-items: center; background: rgba(120, 160, 124, 0.18); background: color-mix(in srgb, var(--matcha) 18%, transparent); color: var(--matcha); font-size: 0.75rem; font-weight: 700; }
+        .wl-hs b { color: var(--ink); font-weight: 650; }
+        .hs-glyph { display: inline-block; width: 17px; height: 17px; vertical-align: -3px; fill: none; stroke: var(--ink); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
