@@ -74,10 +74,12 @@
                         <p class="wl-lead">Log every cup, see what your friends and communities are brewing, and get a coach that tells you exactly what to change next. Earn crema as you go, from Seed to Dialed In.</p>
                         ${G.rows.length && !(this.acctOn() && !G.sessions) ? `<div class="wl-proof">${this.wlFaces(G.rows)}<span>${esc(this.wlNames(G.rows))} · ${esc(G.sessions.toLocaleString())} sessions logged</span></div>` : ''}
                         <div class="wl-actions">
-                            <button type="button" class="btn-primary wl-main" onclick="${this.acctOn() ? "app.wlStart('new')" : "app.wlGo('name')"}">I'm new to Dialed In</button>
-                            <button type="button" class="btn-outline wl-second" onclick="${this.acctOn() ? "app.wlStart('back')" : "app.wlGo('returning')"}">I've been here before</button>
+                            <button type="button" class="btn-primary wl-main" onclick="app.wlIntro('new')">I'm new to Dialed In</button>
+                            <button type="button" class="btn-outline wl-second" onclick="app.wlIntro('back')">I've been here before</button>
                         </div>
                     </div>`;
+                } else if (s.step === 'home') {   // v15.4: a phone's browser: the Home Screen first, so you sign in once
+                    html = this.wlHomeHtml();
                 } else if (s.step === 'returning') {
                     const rows = G.rows;
                     html = `<div class="wl-step">
@@ -356,7 +358,7 @@
                     { sel: desk ? '#sidebar .nav-btn:not([data-tab]):not(.settings-nav-btn)' : '#mobile-nav .mob-fab', tab: 'my', title: 'Add a coffee', text: 'New bag? Add it here, then log sessions on it. Each session keeps its bag\'s roast date.' },
                     { sel: nav('profile'), tab: 'profile', title: 'Profile', text: 'Your level and crema, your stats and taste, and More: achievements, monthly awards and recaps. Anyone else\'s is a tap away.' },
                     { sel: desk ? '#sidebar .settings-nav-btn' : '#mobile-controls-btn', tab: 'feed', title: 'Settings', text: desk ? 'Light or dark, your profile picture, notifications and privacy. Something broken? Report a bug here.' : 'Sorting, filters and Settings: light or dark, your profile picture, notifications and privacy. Something broken? Report a bug here.' }
-                ].concat((() => { const hs = this.homeScreenTip ? this.homeScreenTip() : null; return hs ? [{ sel: '', tab: '', title: hs.title, html: hs.html }] : []; })());   // v15.4: on a phone's browser, the Home Screen last
+                ];
             },
 
             startTour() {
