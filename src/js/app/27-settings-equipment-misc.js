@@ -1,5 +1,6 @@
             openSettings() {
                 this.renderThemeControl();
+                if (this.paintAvatarSetting) this.paintAvatarSetting();   // v15.1
                 const list = document.getElementById('user-list');
                 list.innerHTML = '';
                 // v14.2: on the new backend you are who you signed in as: your account and Sign out, then the goal switches

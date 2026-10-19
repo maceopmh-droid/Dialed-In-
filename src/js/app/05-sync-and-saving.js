@@ -107,6 +107,7 @@
 
             applyEvent(event) {
                 if (!event) return;
+                this._dataRev = (this._dataRev || 0) + 1;   // v15.1: anything that changed the data (crema's memo goes by it: a like inside a session changes no count)
                 // v13.4: something deleted stays deleted; a later like / comment / edit from a phone that hadn't seen the delete is ignored
                 if ((event.type === 'brew' || event.type === 'bean') && this.tombs && this.tombs.size) {
                     const at = this.toTime(event.eventAt);

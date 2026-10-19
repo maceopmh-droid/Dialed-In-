@@ -122,7 +122,7 @@
             applyCommunity() {
                 this.communityIds = new Set();
                 if (!this.acctOn()) return;
-                const all = [...Object.values(this._streams || {}).flatMap(st => st.events), ...(this.profState ? this.profState().events : [])];
+                const all = [...Object.values(this._streams || {}).flatMap(st => st.events), ...(this.profState ? this.profState().events : []), ...(this._coffeeComm ? this._coffeeComm.events : [])];   // v15.1: a coffee page's Everyone too
                 all.forEach(ev => {
                     if (ev.type === 'gear') { const o = String(ev.owner || ''); if (o && o !== this.user && !o.startsWith('__') && !this.gearByUser.has(o)) this.gearByUser.set(o, ev); return; }
                     if (ev.type !== 'bean' && ev.type !== 'brew') return;
@@ -141,6 +141,7 @@
                 if (!event || !this.isCommunity(event.type, event.id)) return;
                 Object.values(this._streams || {}).forEach(st => { st.events = st.events.map(e => (e.type === event.type && String(e.id) === String(event.id) ? event : e)); });
                 if (this.profState) { const p = this.profState(); p.events = p.events.map(e => (e.type === event.type && String(e.id) === String(event.id) ? event : e)); }
+                if (this._coffeeComm) this._coffeeComm.events = this._coffeeComm.events.map(e => (e.type === event.type && String(e.id) === String(event.id) ? event : e));
             },
 
             streamCard(b, community) { return this.renderFeedSessionCard({ kind: 'session', brewId: b.id, date: b.date, actorColor: b.actorColor || '', community }); },
@@ -167,7 +168,7 @@
                         : f === 'new' ? 'Nobody new in the last two weeks.'
                         : f ? `No ${f.slice(2)} sessions shared with Everyone lately.`
                         : 'Nothing shared with Everyone lately. Sessions people share with Everyone show up here.';
-                    grid.innerHTML = head + `<div class="comm-empty">${this.esc(st.loading || !st.at ? 'Loading…' : st.error || none)}</div>`;
+                    grid.innerHTML = head + (st.loading || !st.at ? this.loadingBlockHtml('comm-empty') : `<div class="comm-empty">${this.esc(st.error || none)}</div>`);
                     if (!st.loading && (!st.at || Date.now() - st.at > 60000)) setTimeout(() => this.loadCommunity(false), 0);
                     return;
                 }
@@ -206,7 +207,7 @@
             renderGroupFeed(grid) {
                 const gr = this.grState();
                 if (!gr.list) {
-                    grid.innerHTML = this.feedModeHtml() + '<div class="comm-empty">Loading…</div>';
+                    grid.innerHTML = this.feedModeHtml() + this.loadingBlockHtml('comm-empty');
                     if (!gr.busy) { gr.busy = true; this.loadGroups(true).then(() => { gr.busy = false; if (this.tab === 'feed') this.render(); }).catch(() => { gr.busy = false; gr.list = gr.list || []; if (this.tab === 'feed') this.render(); }); }
                     return;
                 }
@@ -221,12 +222,12 @@
                 const menu = this._groupMenu ? `<div class="pp-menu grp-menu">${gr.list.map(x => `<button type="button" class="${String(x.id) === String(g.id) ? 'on' : ''}" data-g="${this.esc(String(x.id))}" onclick="app.pickFeedGroup(this.getAttribute('data-g'))"><b>${this.esc(x.name)}</b><small>${(x.members || []).length} ${(x.members || []).length === 1 ? 'person' : 'people'} · ${x.open ? 'open' : 'private'}</small></button>`).join('')}<i class="grp-sep"></i><button type="button" onclick="app.openPeople('groups'); app.groupForm('find')">Find communities</button><button type="button" onclick="app.openPeople('groups'); app.groupForm('create')">Start a community</button></div>` : '';
                 const pick = `<div class="grp-pick"><button type="button" class="grp-pick-btn" aria-expanded="${this._groupMenu ? 'true' : 'false'}" onclick="app.toggleGroupMenu(event)"><span class="grp-name">${this.esc(g.name)}</span><svg class="icon"><use href="#i-chevron-down"/></svg></button><span class="grp-meta">${n} ${n === 1 ? 'person' : 'people'} · ${g.open ? 'open' : 'private'}</span>${menu}</div>`;
                 // a private community is the people who share the group goal and monthly awards (the crew's)
-                const tops = g.open ? '' : this.withCrewScope(g, () => [this.renderCrewQuest(), this.renderAwardsTeaser()].join(''));   // v14.6: this community's own
+                const tops = g.open ? '' : this.withCrewScope(g, () => this.renderCrewQuest());   // v14.6: this community's own goal (v15.1: its awards live on your profile's Activity tab only)
                 const seen = new Set();
                 const list = st.events.filter(e => e.type === 'brew').map(e => this.brews.get(String(e.id))).filter(b => b && !seen.has(b.id) && seen.add(b.id) && b.audience !== 'only_me' && !this.reported(b.id))
                     .sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
                 const body = list.length ? list.map(b => this.streamCard(b, this.isCommunity('brew', b.id))).join('')
-                    : `<div class="comm-empty">${this.esc(st.loading || !st.at ? 'Loading…' : st.error || (g.open ? 'Nothing here yet. Members\' sessions shared with Everyone show here.' : 'Nothing here yet. Members\' sessions show here.'))}</div>`;
+                    : (st.loading || !st.at ? this.loadingBlockHtml('comm-empty') : `<div class="comm-empty">${this.esc(st.error || (g.open ? 'Nothing here yet. Members\' sessions shared with Everyone show here.' : 'Nothing here yet. Members\' sessions show here.'))}</div>`);
                 const foot = !list.length ? '' : st.error ? `<div class="comm-empty">${this.esc(st.error)}</div>`
                     : st.next ? `<button type="button" class="btn-outline comm-more" data-g="${this.esc(String(g.id))}" onclick="app.loadGroupFeed(this.getAttribute('data-g'), true)"${st.loading ? ' disabled' : ''}>${st.loading ? 'Loading…' : 'Show older sessions'}</button>`
                     : `<div class="comm-empty">You're all caught up.</div>`;

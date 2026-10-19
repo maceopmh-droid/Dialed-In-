@@ -258,7 +258,7 @@
                     <div class="aw-tile${compact ? ' compact' : ''}${opts.sealed ? ' sealed' : ''}" style="--ac:${this.esc(aw.color)};--ac-rgb:${this.hexRgb(aw.color)};--i:${i}">
                         <span class="aw-icon"><svg class="icon"><use href="#${this.esc(aw.icon)}"/></svg></span>
                         <div class="aw-body"><div class="aw-title">${this.esc(aw.title)}</div>
-                        <div class="aw-win">${opts.sealed ? '<b class="aw-face" style="background:var(--text-faint)">?</b>Sealed' : aw.winners.map(n => `<b class="aw-face" style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</b>${this.esc(n)}`).join('<span class="aw-amp">&amp;</span>')}</div>
+                        <div class="aw-win">${opts.sealed ? '<b class="aw-face" style="background:var(--text-faint)">?</b>Sealed' : aw.winners.map(n => `<b class="aw-face" data-face="${this.esc(n)}" style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</b>${this.esc(n)}`).join('<span class="aw-amp">&amp;</span>')}</div>
                         ${compact ? '' : `<div class="aw-stat">${opts.sealed ? 'Revealed when you tap below' : this.esc(aw.stat)}</div>`}
                         ${rival && !opts.sealed ? `<div class="aw-rival">${this.esc(rival)}</div>` : ''}</div>
                     </div>`;
@@ -269,13 +269,13 @@
                 // v14.6: awards belong to a private community (the one picked in Community); on your own there's no one
                 // to win against (Discover has the monthly highlights for everyone)
                 if (this.acctOn && this.acctOn() && !this._crewScope) {
-                    const fr = this.tab === 'profile' ? this.friendsCrew() : null;   // v15.0: your profile: you and your friends, every month
-                    if (fr) return this.withCrewScope(fr, () => this.renderCrewAwardsCard());
                     const gr = this.grState ? this.grState() : null;
                     if (gr && !gr.list && !this._grLoading) { this._grLoading = true; this.loadGroups().catch(() => null).finally(() => { this._grLoading = false; if (this.tab === 'profile') this.render(); }); }
-                    const g = this.activeCrewGroup();
-                    if (!g || g.members.length < 2) return '';
-                    return this.withCrewScope(g, () => this.renderCrewAwardsCard());
+                    // v15.1: the circle picked above the card (a community first, if you're in one; then Friends; then Everyone)
+                    const c = this.activeCircle ? this.activeCircle() : null;
+                    if (!c) return '';
+                    if (c.id === 'everyone') return this.renderEveryoneAwardsCard();
+                    return this.withCrewScope(c.scope, () => this.renderCrewAwardsCard());
                 }
                 const months = this.awardMonths();
                 if (!this.brews.size) return '';
@@ -287,13 +287,18 @@
                 const [y, m] = key.split('-').map(Number);
                 const name = this.monthName(key, false);
                 const picker = `<select class="recap-select" aria-label="Award month" onchange="app.setAwardsMonth(this.value)">${months.map(k => `<option value="${k}"${k === key ? ' selected' : ''}>${this.esc(this.monthName(k))}${this.monthLocked(k) ? ' (locked)' : ''}</option>`).join('')}</select>`;
-                const named = this._crewScope && this._crewScope.id !== 'friends' && this.crewGroups().length > 1 ? this._crewScope.name : '';   // v14.6: which community, when you're in more than one
-                const head = sub => `<div class="aw-head"><div><div class="label">Monthly awards${named ? ` · ${this.esc(named)}` : ''}</div><div class="aw-sub">${sub}</div></div>${picker}</div>`;
+                const named = this._crewScope && this.tab === 'profile' ? (this._crewScope.id === 'friends' ? 'Friends' : this._crewScope.name) : '';   // v15.1: whose awards (a community's own tab already says)
+                // v15.1: the card folds up (just who won); the arrow opens it
+                const open = this._awInRow ? true : this.awardsOpen();
+                const tog = this._awInRow ? '' : `<button type="button" class="aw-toggle${open ? ' open' : ''}" aria-expanded="${open}" aria-label="${open ? 'Show less' : 'Show all the awards'}" onclick="app.toggleAwards()"><svg class="icon"><use href="#i-chevron-down"/></svg></button>`;
+                // the title on one line, whose and how far along under it; the month picker only once it's open
+                const head = sub => this._awInRow ? `<div class="aw-month">${picker}</div>` : `<div class="aw-head"><div class="aw-head-t" onclick="app.toggleAwards()"><div class="label">Monthly awards</div><div class="aw-sub">${named ? `${this.esc(named)} · ` : ''}${sub}</div></div>${tog}</div>${open ? `<div class="aw-month">${picker}</div>` : ''}`;
                 if (this.monthLocked(key)) {
                     const unlock = new Date(y, m, 1);
                     const days = this.daysUntil(unlock);
                     const ghosts = [['i-sun', '#E3AE45'], ['i-medal', '#C49A2C'], ['i-moon', '#6A7FC1'], ['i-flame', '#E0663A'], ['i-compass', '#5F8FDB'], ['i-star', '#36A57F']]
                         .map(([icon, c]) => `<div class="aw-tile" style="--ac:${c};--ac-rgb:${this.hexRgb(c)}"><span class="aw-icon"><svg class="icon"><use href="#${icon}"/></svg></span><div class="aw-body" style="flex:1"><span class="aw-ghost-bar" style="width:70%"></span><span class="aw-ghost-bar" style="width:45%"></span></div></div>`).join('');
+                    if (!open) return `<div class="profile-card crew-awards folded" id="crew-awards">${head(`In progress · unlocks ${this.esc(this.unlockLabel(unlock))}`)}</div>`;
                     return `
                     <div class="profile-card crew-awards" id="crew-awards">
                         ${head(`In progress · unlocks ${this.esc(this.unlockLabel(unlock))}`)}
@@ -314,7 +319,7 @@
                     return `
                     <div class="profile-card crew-awards" id="crew-awards">
                         ${head('Final · ready to reveal')}
-                        <div class="aw-grid">${this.awardTilesHtml(awards, false, { sealed: true })}</div>
+                        ${open ? `<div class="aw-grid">${this.awardTilesHtml(awards, false, { sealed: true })}</div>` : ''}
                         <button type="button" class="btn-primary aw-reveal-btn" onclick="app.revealAwards('${app.escJs(key)}', '${app.escJs(this._crewScope ? this._crewScope.id : '')}')">Reveal ${this.esc(name)}'s awards</button>
                     </div>`;
                 }
@@ -324,7 +329,7 @@
                 const standings = this.awardStandings(awards);
                 const topN = standings.length ? standings[0][1] : 0;
                 const champs = standings.filter(r => r[1] === topN).map(r => r[0]);
-                const face = n => `<b class="aw-face" style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</b>`;
+                const face = n => `<b class="aw-face" data-face="${this.esc(n)}" style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</b>`;
                 const champ = standings.length ? `
                         <div class="aw-champ">
                             <span class="aw-crown"><svg class="icon"><use href="#i-crown"/></svg></span>
@@ -337,11 +342,10 @@
                 const revealT = R && R.key === key ? Date.now() - R.at : -1;
                 const revealing = revealT >= 0 && revealT < awards.length * 150 + 1200 && this.motionOK();
                 return `
-                    <div class="profile-card crew-awards${revealing ? ' revealing' : ''}" id="crew-awards" style="--n:${awards.length}${revealing ? `;--aw-at:${-revealT}ms` : ''}">
-                        ${head('Final · from everyone\'s sessions')}
+                    <div class="profile-card crew-awards${revealing ? ' revealing' : ''}${open ? '' : ' folded'}" id="crew-awards" style="--n:${awards.length}${revealing ? `;--aw-at:${-revealT}ms` : ''}">
+                        ${head(`Final · ${awards.length} award${awards.length === 1 ? '' : 's'}`)}
                         ${champ}
-                        <div class="aw-grid">${this.awardTilesHtml(awards, false, { rivalry: aw => this.awardRivalry(aw, prevBy.get(aw.key)) })}</div>
-                        ${raceHtml}
+                        ${open ? `<div class="aw-grid">${this.awardTilesHtml(awards, false, { rivalry: aw => this.awardRivalry(aw, prevBy.get(aw.key)) })}</div>${raceHtml}` : ''}
                     </div>`;
             },
 
@@ -351,6 +355,7 @@
                 const g = gid ? null : this.activeCrewGroup && this.activeCrewGroup();
                 this.markSeen('dialed_awards_revealed', this.awardSeenKey(key, gid || (g ? String(g.id) : '')));
                 this.awardsMonth = key;
+                this._awOpen = true; safeSet('dialed_awards_open', '1');   // v15.1: the reveal opens the card
                 this._awReveal = { key, at: Date.now() };
                 this.render();
             },
@@ -380,6 +385,8 @@
 
             openAwards(key, reveal = false, gid = '') {
                 if (gid && gid !== 'friends') { this._feedGroup = String(gid); safeSet('dialed_feed_group', this._feedGroup); }   // v14.6: that community's awards (v15.0: not your friends' ones)
+                if (gid && this.setCircle) { this._circle = gid === 'friends' ? 'friends' : 'g:' + gid; safeSet('dialed_circle', this._circle); }   // v15.1
+                this._awOpen = true; safeSet('dialed_awards_open', '1');
                 this.awardsMonth = key;
                 this.profileSection = 'activity';
                 this._noRecapJump = true;

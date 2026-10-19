@@ -86,6 +86,7 @@
                     : card.locked ? `${who}'s profile is private. Follow to ask to see their sessions.`
                     : !this.brewsOf(who).length ? `${who} hasn't shared any sessions with Everyone yet.`
                     : `What ${who} shares with Everyone.`;
+                if (st.loading && !st.at) return this.loadingBlockHtml('pp-profile-note');   // v15.1
                 return `<p class="pp-profile-note">${this.esc(text)}</p>`;
             },
 
@@ -95,7 +96,7 @@
                 const list = this.brewsOf(who).slice().sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
                 if (!list.length) {
                     const st = this.profState && this.profState();
-                    if (st && st.name === who && st.loading) return '<div class="panel-empty">Loading…</div>';
+                    if (st && st.name === who && st.loading) return this.loadingBlockHtml('panel-empty');
                     return `<div class="panel-empty">${who === this.user ? 'Your sessions show here once you log one.' : `No sessions of ${this.esc(who)}'s to show yet.`}</div>`;
                 }
                 const shown = this._profShow && this._profShow.who === who ? this._profShow.n : 15;
@@ -125,7 +126,7 @@
                 this.beans.forEach(bean => { if (bean.user === who && !seen.has(this.beanGroupKey(bean))) seen.set(this.beanGroupKey(bean), bean.id); });
                 if (!seen.size) return '';
                 const ids = [...seen.values()];
-                return `<div class="profile-card prof-coffees"><div class="label">Coffees <span class="prof-count">${ids.length}</span></div><div class="fab-row small prof-coffee-grid">${ids.map(id => this.fabTileHtml(id, { user: who, small: true })).join('')}</div></div>`;
+                return `<div class="profile-card prof-coffees"><div class="label">Coffees <span class="prof-count">${ids.length}</span></div><div class="fab-row small prof-coffee-grid">${this.moreHtml(ids.map(id => this.fabTileHtml(id, { user: who, small: true })), 8, 'coffees')}</div></div>`;
             },
 
             // ---- suggested people (People tab): who brews the same coffees, roasters, grinder or methods as you
@@ -299,7 +300,7 @@
                 const body = document.getElementById('review-body'), r = this._review || {};
                 if (!body) return;
                 if (r.error) { body.innerHTML = `<p class="pp-empty">${this.esc(r.error)}</p>`; return; }
-                if (!r.list) { body.innerHTML = '<p class="pp-empty">Loading…</p>'; return; }
+                if (!r.list) { body.innerHTML = this.loadingBlockHtml(); return; }
                 if (!r.list.length) { body.innerHTML = '<p class="pp-empty">Nothing to review. Reports show up here.</p>'; return; }
                 const what = x => x.kind === 'session' ? `${x.who || 'Someone'}'s session${x.coffee ? ` on ${x.coffee}` : ''}` : x.kind === 'comment' ? `${x.who || 'Someone'}'s comment` : x.kind === 'profile' ? `${x.who || 'Someone'}'s profile` : x.kind;
                 body.innerHTML = `<div class="pp-list">${r.list.map(x => {

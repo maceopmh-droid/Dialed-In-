@@ -35,7 +35,7 @@
                 const people = [...tally.entries()].sort((a, b) => (b[1] - a[1]) || a[0].localeCompare(b[0])).map(e => e[0]);
                 if (!(avg > 0) && !people.length) return '';
                 const shown = people.slice(0, 4);
-                const faces = shown.map((p, i) => `<i style="background:${this.esc(this.getUserColor(p))};z-index:${9 - i}" title="${this.esc(p)}">${this.esc(this.feedInitial(p))}</i>`).join('')
+                const faces = shown.map((p, i) => `<i data-face="${this.esc(p)}" style="background:${this.esc(this.getUserColor(p))};z-index:${9 - i}" title="${this.esc(p)}">${this.esc(this.feedInitial(p))}</i>`).join('')
                     + (people.length > shown.length ? `<i class="more" style="z-index:1">+${people.length - shown.length}</i>` : '');
                 const stars = avg > 0 ? `<span class="star-meter" style="--fill:${this.starFill(avg)}%;--whole:${this.starWhole(avg)};--frac:${this.starFrac(avg)}"></span><b class="dh-avg">${this.esc(this.formatRating(avg).replace('/5', ''))}</b><span class="dh-n" title="${rated} rated session${rated === 1 ? '' : 's'}">${rated}</span>` : '';
                 return `${stars}${people.length ? `<span class="dh-faces" aria-label="Brewed by ${this.esc(people.join(', '))}">${faces}</span>` : ''}`;
@@ -47,7 +47,7 @@
                 const color = this.getUserColor(owner, log.actorColor || '');
                 const rating = this.normalizeRating(log.rating);
                 const flavors = this.extractFlavors(log).slice(0, 4);
-                const gear = [...this.resolveEquipmentNames(log), ...this.sessionExtras(log)];
+                const gear = [...this.resolveEquipmentNames(log), ...this.sessionExtras(log), ...(this.roastDayLabel ? this.roastDayLabel(log) : [])];   // v15.1: day N off roast
                 const likes = this.normalizeLikeList(log.likes, owner);
                 const unlocks = this.achievementUnlockByBrew.get(String(log.id)) || [];
                 const notes = this.getBrewNotes(log);
@@ -61,7 +61,7 @@
                             <div class="feed-head">
                                 <div class="feed-avatar" style="background:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(this.feedInitial(owner))}</div>
                                 <div class="feed-meta">
-                                    <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}</div>
+                                    <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}${this.levelDotHtml ? this.levelDotHtml(owner) : ''}</div>
                                     <div class="feed-time">${this.esc(this.formatRelativeDate(log.date))}</div>
                                 </div>
                                 <div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(log.method)}"/></svg>${this.esc(log.method || 'Espresso')}</div><button type="button" class="feed-share" onclick="app.shareItem('session', '${app.escJs(id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>
@@ -101,9 +101,10 @@
             renderDetailExtras(group, brews) {
                 const meta = group.meta || {};
                 const roastLine = document.getElementById('d-roast-date');
-                if (roastLine) {
-                    const t = this.parseLocalDate(meta.roastDate);
-                    roastLine.innerText = t ? `Roasted ${new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}` : '';
+                if (roastLine) {   // v15.1: your bag (others' bags are on their sessions: day N off roast)
+                    const rd = this.bagRoastDate(this.beanGroupKey(meta)), t = this.parseLocalDate(rd);
+                    const days = t ? Math.round((this.parseLocalDate(this.dayKey(Date.now())) - t) / 864e5) : -1;
+                    roastLine.innerText = t ? `Your bag: roasted ${new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}${days >= 0 ? ` · ${days === 0 ? 'today' : days === 1 ? '1 day ago' : `${days} days ago`}` : ''}` : '';
                     roastLine.style.display = t ? 'block' : 'none';
                 }
                 const btn = document.getElementById('d-want-btn');
@@ -132,7 +133,7 @@
                     || beans[0];
                 if (!holder) return;
                 if (String(holder.user || holder.owner || '') === this.user) {
-                    this.showToast('This bean is already in your collection.');
+                    this.showToast('You\'ve already added this coffee.');
                     return;
                 }
                 const list = Array.isArray(holder.wantToTry) ? holder.wantToTry : [];
@@ -169,7 +170,7 @@
                 const rated = latestFirst.filter(b => this.normalizeRating(b.rating) > 0);
                 const best = rated.slice().sort((a, b) => this.normalizeRating(b.rating) - this.normalizeRating(a.rating))[0];
                 const pick = master ? this.getMasterProfile(master) : (best || latestFirst[0]);
-                const pickLabel = master ? 'Master recipe' : (best ? 'Best-rated shot' : 'Latest shot');
+                const pickLabel = master ? 'Master recipe' : `${best ? 'Best-rated' : 'Latest'} ${this.shotWord(pick && pick.method)}`;
                 const methods = [...new Set(list.map(b => b.method).filter(Boolean))];
                 const avg = key => list.reduce((s, b) => s + (b[key] === undefined || b[key] === '' ? 5 : this.num(b[key])), 0) / list.length;
                 const bars = [['Acidity', 'acidity'], ['Sweetness', 'sweetness'], ['Body', 'body'], ['Finish', 'finish'], ['Complexity', 'balance']].map(([label, key]) => {
@@ -196,7 +197,7 @@
                     let how = 'pinned as Master';
                     if (dialedAt < 0) {
                         dialedAt = shots.findIndex(b => this.normalizeRating(b.rating) >= 4.5);
-                        how = 'first 4.5★ shot';
+                        how = 'first 4.5★ session';
                     }
                     return { owner, method, shots, ratings, dialedAt, how };
                 }).sort((a, b) => a.owner.localeCompare(b.owner) || a.method.localeCompare(b.method));
@@ -206,7 +207,7 @@
                 const pane = document.getElementById('d-dialin-pane');
                 if (!pane) return;
                 const all = this.dialinSeries();
-                const head = '<div class="sw-head"><h3>Dial-in</h3><p>Each person\'s ratings, shot by shot. The star marks where they dialed it in.</p></div>';
+                const head = '<div class="sw-head"><h3>Dial-in</h3><p>Each person\'s ratings, session by session. The star marks where they dialed it in.</p></div>';
                 if (!all.length) { pane.innerHTML = `<div class="sweet-card">${head}<div class="panel-empty">No sessions on this coffee yet.</div></div>`; return; }
                 const shotsOf = m => all.filter(s => s.method === m).reduce((n, s) => n + s.shots.length, 0);
                 const methods = [...new Set(all.map(s => s.method).filter(Boolean))].sort((a, b) => shotsOf(b) - shotsOf(a));
@@ -220,9 +221,9 @@
                     const rated = s.ratings.filter(Boolean);
                     const n = s.shots.length;
                     const status = s.dialedAt >= 0
-                        ? `Dialed in on shot ${s.dialedAt + 1} · ${s.how === 'pinned as Master' ? 'Master' : 'first 4.5★'}`
+                        ? `Dialed in on session ${s.dialedAt + 1} · ${s.how === 'pinned as Master' ? 'Master' : 'first 4.5★'}`
                         : (rated.length ? `Best so far ${this.fmtNum(Math.max(...rated))}★` : 'No ratings yet');
-                    return `<div class="di-row"><i style="background:${this.esc(s.color)}"></i><b>${this.esc(s.owner)}</b><span>${this.esc(status)}</span><em>${n} shot${n === 1 ? '' : 's'}</em></div>`;
+                    return `<div class="di-row"><i style="background:${this.esc(s.color)}"></i><b>${this.esc(s.owner)}</b><span>${this.esc(status)}</span><em>${n} session${n === 1 ? '' : 's'}</em></div>`;
                 }).join('');
                 if (!anyRated) { pane.innerHTML = `<div class="sweet-card">${head}${methodRow}<div class="panel-empty">Rate shots on this coffee and each person's curve draws here.</div><div class="di-rows">${rows}</div></div>`; return; }
                 const W = 340, H = 200, L = 30, R = 14, T = 14, B = 28;
@@ -239,14 +240,14 @@
                     if (!pts.length) return '';
                     let d = `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
                     for (let i = 1; i < pts.length; i++) { const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], mx = (x0 + x1) / 2; d += ` C${mx.toFixed(1)} ${y0.toFixed(1)} ${mx.toFixed(1)} ${y1.toFixed(1)} ${x1.toFixed(1)} ${y1.toFixed(1)}`; }
-                    const dots = s.ratings.map((r, i) => r && i !== s.dialedAt ? `<circle class="di-dot" cx="${X(i).toFixed(1)}" cy="${Y(r).toFixed(1)}" r="3.6" fill="${this.esc(s.color)}"><title>${this.esc(s.owner)} · shot ${i + 1} · ${this.fmtNum(r)}★</title></circle>` : '').join('');
+                    const dots = s.ratings.map((r, i) => r && i !== s.dialedAt ? `<circle class="di-dot" cx="${X(i).toFixed(1)}" cy="${Y(r).toFixed(1)}" r="3.6" fill="${this.esc(s.color)}"><title>${this.esc(s.owner)} · session ${i + 1} · ${this.fmtNum(r)}★</title></circle>` : '').join('');
                     const mark = s.dialedAt >= 0 && s.ratings[s.dialedAt] ? star(X(s.dialedAt), Y(s.ratings[s.dialedAt]), 8.5, s.color) : '';
                     return `<path class="di-line" d="${d}" stroke="${this.esc(s.color)}"/>${dots}${mark}`;
                 }).join('');
                 pane.innerHTML = `
                     <div class="sweet-card">
                         ${head}${methodRow}
-                        <div class="sw-chart"><svg class="sweet-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Dial-in curves">${grid}<text class="sw-axis" x="${(L + W - R) / 2}" y="${H - 3}" text-anchor="middle">Shot number</text>${lines}</svg></div>
+                        <div class="sw-chart"><svg class="sweet-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Dial-in curves">${grid}<text class="sw-axis" x="${(L + W - R) / 2}" y="${H - 3}" text-anchor="middle">Session number</text>${lines}</svg></div>
                         <div class="di-rows">${rows}</div>
                     </div>`;
             },

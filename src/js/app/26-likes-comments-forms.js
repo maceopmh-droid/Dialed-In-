@@ -367,6 +367,7 @@
                     isMaster,
                     masterProfile: seedMaster,
                     notes: form.notes.value.trim(),
+                    roastDate: form.roastDate ? String(form.roastDate.value || '').slice(0, 10) : (existing ? String(existing.roastDate || '') : ''),   // v15.1: the bag's
                     verdict: form.verdict ? form.verdict.value : (existing ? String(existing.verdict || '') : ''),
                     flavors,
                     rating: this.normalizeRating(form.rating.value),
@@ -392,7 +393,7 @@
                 const brew = this.brews.get(id);
                 if (!brew) return;
                 if (this.getBrewOwner(brew) !== this.user) {
-                    this.showToast('Only the owner can edit this master profile.');
+                    this.showToast('Only the owner can edit this master recipe.');
                     return;
                 }
 
@@ -453,7 +454,7 @@
                 const brew = this.brews.get(id);
                 if (!brew) return;
                 if (this.getBrewOwner(brew) !== this.user) {
-                    this.showToast('Only the owner can save this master profile.');
+                    this.showToast('Only the owner can save this master recipe.');
                     return;
                 }
 
@@ -484,24 +485,24 @@
                 }, brew);
                 this.push({ type: 'brew', ...updated });
                 this.closeModals();
-                this.showToast('Master profile saved.');
+                this.showToast('Master recipe saved.');
             },
 
             unpinMaster(id) {
                 const brew = this.brews.get(id);
                 if (!brew) return;
                 if (this.getBrewOwner(brew) !== this.user) {
-                    this.showToast('Only the owner can remove this master profile.');
+                    this.showToast('Only the owner can remove this master recipe.');
                     return;
                 }
-                if (!confirm('Remove this master profile? The session will stay in history.')) return;
+                if (!confirm('Remove this master recipe? The session will stay in history.')) return;
                 const updated = this.withBrewOwner({
                     ...brew,
                     isMaster: false,
                     masterProfile: null
                 }, brew);
                 this.push({ type: 'brew', ...updated });
-                this.showToast('Master profile removed.');
+                this.showToast('Master recipe removed.');
             },
 
             editBean() {
@@ -549,6 +550,7 @@
                 form.balance.value = this.asNumber(brew.balance, 5);
                 document.getElementById('isMasterInput').checked = (brew.isMaster === true || brew.isMaster === 'true');
                 form.notes.value = this.getBrewNotes(brew);
+                if (form.roastDate) { form.roastDate.value = String(brew.roastDate || '').slice(0, 10); this._roastWhen = brew.date; this.paintRoastDays(brew.date); }   // v15.1
                 const verdictInput = document.getElementById('verdict-input');
                 if (verdictInput) verdictInput.value = brew.verdict || '';
                 this.renderVerdict();
@@ -611,6 +613,7 @@
                 form.elements.id.value = '';
                 document.getElementById('bean-modal-title').innerText = 'New Coffee';
                 this.fillRoasterSuggestions();
+                if (this.bindCoffeeSuggest) { this.bindCoffeeSuggest(); const box = form.querySelector('.cs-list'); if (box) box.hidden = true; }   // v15.1
                 this.openModal('bean-modal');
             },
 
@@ -633,7 +636,7 @@
                 this.draftPhoto = null;
                 this.shareOpen(null);   // v14.2
                 this.renderDraftPhoto();
-                document.getElementById('brew-modal-title').innerText = 'Brewing Log';
+                document.getElementById('brew-modal-title').innerText = 'Log a session';
                 const verdictReset = document.getElementById('verdict-input');
                 if (verdictReset) verdictReset.value = '';
                 this.renderVerdict();
@@ -665,6 +668,8 @@
                     this.renderDraftPhoto();
                 }
 
+                if (form.roastDate) form.roastDate.value = (prefill && prefill.roastDate && (!prefill.owner || prefill.owner === this.user || prefill.user === this.user)) ? String(prefill.roastDate).slice(0, 10) : this.bagRoastDate();   // v15.1: your bag's, from your last session
+                this._roastWhen = null; this.paintRoastDays();
                 this.openModal('brew-modal');
                 this.applyMethodProfile(this.getBrewForm() && this.getBrewForm().method ? this.getBrewForm().method.value : '');
                 this.bindTasteSliders();

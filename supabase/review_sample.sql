@@ -42,6 +42,8 @@ insert into review_sessions values
      'Chocolate and cherry, much rounder.', '{}', 2.4),
   ('review-s9',  'review-c2', 'French Press', '30', 30, 500, 240, 3.5, '{4,6,8,6,4,5}', '{"Milk chocolate": 2, "Hazelnut": 1}',
      'Heavy and cozy.', '{}', 1.6),
+  ('review-s12', 'review-c2', 'Espresso',     '11', 18, 38, 23,  3.5, '{7,5,5,5,3,5}', '{"Sour": 2, "Cherry": 2, "Milk chocolate": 1}',
+     'Ran quick today, and it''s a little sour.', '{}', 0.6),
   ('review-s10', 'review-c3', 'AeroPress',    '16', 15, 230, 120, 4,  '{7,6,5,6,3,6}', '{"Grapefruit": 2, "Brown sugar": 2}',
      'Bright and sweet.', '{"inverted": true}', 1.4),
   ('review-s11', 'review-c3', 'Pour Over',    '22', 20, 320, 210, 4.5, '{8,8,5,8,2,9}', '{"Blackcurrant": 3, "Grapefruit": 2, "Brown sugar": 1}',

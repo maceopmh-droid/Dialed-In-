@@ -1,7 +1,9 @@
-# App Store screenshots from the real iPhone app in the simulator (iPhone Pro Max, 1320 x 2868, light and dark), signed in
-# as the App Review account so they show only its own sample coffees (supabase/review_sample.sql), never a real person's.
-# The simulator copy gets native/store-shots.js and the account's password added; that copy is never uploaded anywhere.
-# Screenshots go to the app-store-shots branch. Runs when pushed to the `store-shots` branch.
+# App Store screenshots from the real iPhone app in the simulator (iPhone Pro Max, 1320 x 2868), every screen in dark and
+# the coffee page also in light. The app there talks to a stand-in backend on this runner (supabase/dev_server.js on
+# its own Postgres), filled with the review account's sample coffees and a made-up circle of friends and a community
+# (native/appstore/seed-world.js, store_world.sql): never the live backend, never a real person's data. The simulator
+# copy gets native/store-shots.js and the stand-in's address; that copy is never uploaded anywhere. Screenshots, raw and
+# finished (native/appstore/compose.py), go to the app-store-shots branch. Runs when pushed to the `store-shots` branch.
 name: store screenshots
 on:
   push:
@@ -10,12 +12,12 @@ on:
 jobs:
   shots:
     runs-on: macos-26   # Apple takes only apps built with Xcode 26 or later
-    timeout-minutes: 45
+    timeout-minutes: 60
     permissions:
       contents: write   # (only to put the screenshots on the app-store-shots branch)
     env:
       BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID || 'com.dialedincoffeeapp.ios' }}
-      REVIEW_PASSWORD: ${{ secrets.REVIEW_PASSWORD }}
+      STAND_IN_PW: store-shots-stand-in   # the review account's password on the throwaway stand-in only
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -31,7 +33,6 @@ jobs:
         working-directory: native
         run: |
           set -e
-          [ -n "$REVIEW_PASSWORD" ] || { echo "::error title=Screenshots::No REVIEW_PASSWORD secret."; exit 1; }
           sed -i '' "s/\"appId\": \"[^\"]*\"/\"appId\": \"$BUNDLE_ID\"/" capacitor.config.json
           npm install --no-audit --no-fund
           node scripts/www.js
@@ -46,11 +47,22 @@ jobs:
           set -o pipefail
           xcodebuild $XC -scheme App -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath build/dd TARGETED_DEVICE_FAMILY=1 CODE_SIGNING_ALLOWED=NO MARKETING_VERSION="$VERSION" build | tail -5
-      - name: Take the screenshots
-        working-directory: native
+      - name: Start the stand-in backend with the sample account and the made-up friends (thrown away with the runner)
         run: |
           set -e
-          echo "::add-mask::$REVIEW_PASSWORD"
+          brew list postgresql@16 >/dev/null 2>&1 || brew install -q postgresql@16
+          PG="$(brew --prefix postgresql@16)/bin"; echo "$PG" >> "$GITHUB_PATH"; export PATH="$PG:$PATH"
+          D="$RUNNER_TEMP/pg"; K="$RUNNER_TEMP/pgsock"; mkdir -p "$K"
+          initdb -D "$D" -U postgres -A trust >/dev/null
+          pg_ctl -D "$D" -o "-k $K -c listen_addresses=''" -l "$RUNNER_TEMP/pg.log" -w start
+          nohup node supabase/dev_server.js --host "$K" --db dialed_world --port 54321 --fresh --allow-sql --quiet > "$RUNNER_TEMP/stand-in.log" 2>&1 &
+          echo "::notice title=Stand-in::$(node native/appstore/seed-world.js http://127.0.0.1:54321 dialed_world "$STAND_IN_PW")"
+      - name: Take the screenshots
+        working-directory: native
+        timeout-minutes: 22   # (so the report below still runs if something hangs)
+        run: |
+          set -e
+          t() { perl -e 'alarm shift; exec @ARGV' "$@"; }   # a command that may hang gets a time limit
           dev=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; xs=[x for k in sorted(d, reverse=True) if 'iOS' in k for x in d[k] if 'Pro Max' in x['name']]; print(xs[0]['udid'] if xs else '')")
           [ -n "$dev" ] || { echo "::error title=Screenshots::No iPhone Pro Max simulator on this runner."; exit 1; }
           echo "simulator: $(xcrun simctl list devices -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['name'] + ' (' + k.split('.')[-1] + ')' for k in d for x in d[k] if x['udid'] == '$dev'))")"
@@ -65,10 +77,12 @@ jobs:
           python3 - "$app/public/index.html" <<'PY'
           import json, os, sys
           p = sys.argv[1]; s = open(p).read()
-          cfg = {'email': 'appreview@dialed-in.app', 'pw': os.environ['REVIEW_PASSWORD'], 'shotUrl': 'http://127.0.0.1:8765', 'settle': 1800}
+          cfg = {'email': 'appreview@dialed-in.app', 'pw': os.environ['STAND_IN_PW'], 'shotUrl': 'http://127.0.0.1:8765', 'settle': 1800}
+          backend = {'url': 'http://127.0.0.1:54321', 'anonKey': 'dev'}   # the stand-in on this runner, not the live backend
+          first = '<script>try { localStorage.setItem("dialed_supabase", ' + json.dumps(json.dumps(backend)) + '); } catch (e) {}</script>'
           tag = '<script>window.__storeShots = ' + json.dumps(cfg) + ';</script><script src="store-shots.js"></script>'
-          assert '</head>' in s
-          open(p, 'w').write(s.replace('</head>', tag + '</head>', 1))
+          assert '<head>' in s and '</head>' in s
+          open(p, 'w').write(s.replace('<head>', '<head>' + first, 1).replace('</head>', tag + '</head>', 1))
           PY
           xcrun simctl install "$dev" "$app"
           mkdir -p build/shots
@@ -77,7 +91,14 @@ jobs:
           import http.server, os, subprocess, sys, time, urllib.parse
           from PIL import Image, ImageChops
           dev, out = sys.argv[1], sys.argv[2]
-          def grab(path): subprocess.run(['xcrun', 'simctl', 'io', dev, 'screenshot', path], capture_output=True)
+          def run(cmd, limit):
+              try: subprocess.run(cmd, capture_output=True, timeout=limit)
+              except subprocess.TimeoutExpired: print('(timed out: ' + ' '.join(cmd[2:4]) + ')', flush=True)
+          def grab(path): run(['xcrun', 'simctl', 'io', dev, 'screenshot', path], 60)
+          def status_bar():   # 9:41, full signal and battery, set again before every screenshot (the simulator can drop it)
+              run(['xcrun', 'simctl', 'status_bar', dev, 'override', '--time', '9:41', '--dataNetwork', 'wifi', '--wifiMode', 'active', '--wifiBars', '3',
+                   '--cellularMode', 'active', '--cellularBars', '4', '--batteryState', 'discharging', '--batteryLevel', '100'], 30)
+              time.sleep(1.2)
           def changed(a, b):   # pixels that differ in the top band, where iOS shows notification banners
               box = (0, 110, 1320, 480)
               d = ImageChops.difference(Image.open(a).convert('L').crop(box), Image.open(b).convert('L').crop(box))
@@ -95,7 +116,7 @@ jobs:
                       try:
                           # one screenshot, and a second 1.5 s later: if the top of the screen differs (a notification banner
                           # passing), wait and take it again
-                          grab(final); tries = 0
+                          status_bar(); grab(final); tries = 0
                           while tries < (1 if q.get('check', ['1'])[0] != '0' else 0):
                               time.sleep(1.5); grab(b)
                               if changed(final, b) < 400: break
@@ -114,33 +135,47 @@ jobs:
           PY
           echo light > build/shots/.look
           python3 -W ignore build/server.py "$dev" build/shots > build/server.log 2>&1 &
+          # a look at the machine every 15 s (load, the busiest processes, free memory, the app's log size), for the report
+          ( while true; do { date -u +%H:%M:%S; uptime | sed 's/.*load/load/'; ps -Ao pcpu=,rss=,comm= -r | head -5 | awk '{n=split($3,a,"/"); printf "%s%% %dMB %s; ", $1, $2/1024, a[n]}'; echo; vm_stat | awk '/Pages free/ {printf "free %d MB; ", $3*16/1024}'; ls -la build/console_*.log 2>/dev/null | awk '{printf "%s %s; ", $9, $5}'; echo; } >> build/mon.log; sleep 15; done ) &
+          s0=$(date +%s); t 60 xcrun simctl io "$dev" screenshot /tmp/health.png >/dev/null 2>&1 && echo "simulator answers: a screenshot took $(( $(date +%s) - s0 )) s" >> build/server.log || echo "simulator didn't answer a screenshot in 60 s, before the app opened" >> build/server.log
           # a first pass that's thrown away: the app's first launch (signing in, first drawing) is slow and can lag behind
-          for look in warm light dark; do
-            echo $look > build/shots/.look
-            xcrun simctl ui "$dev" appearance $([ $look = dark ] && echo dark || echo light)
-            xcrun simctl terminate "$dev" "$BUNDLE_ID" 2>/dev/null || true
+          for look in warm dark light; do   # (the light pass takes only the coffee page)
+            echo $look > build/shots/.look; echo "pass $look starts $(date -u +%H:%M:%S)" >> build/server.log
+            t 60 xcrun simctl ui "$dev" appearance $([ $look = dark ] && echo dark || echo light) || echo "(appearance timed out)" >> build/server.log
+            sleep 2; t 60 xcrun simctl status_bar "$dev" override --time "9:41" --dataNetwork wifi --wifiMode active --wifiBars 3 --cellularMode active --cellularBars 4 --batteryState discharging --batteryLevel 100 || true   # (switching the look can drop it)
+            t 60 xcrun simctl terminate "$dev" "$BUNDLE_ID" 2>/dev/null || true
             xcrun simctl launch --console-pty "$dev" "$BUNDLE_ID" > "build/console_$look.log" 2>&1 &
             # if the app can't reach the runner, it says so in its log and holds each screen 8 s: take it from there
             ( tail -n +1 -f "build/console_$look.log" | while IFS= read -r l; do case "$l" in *DIALED-SHOT-FAIL*/shot?name=*) n=${l##*name=}; n=${n%% *}; [ -f "build/shots/${n}_$look.png" ] || { sleep 2; xcrun simctl io "$dev" screenshot "build/shots/${n}_$look.png" >/dev/null 2>&1; echo "shot (fallback) ${n}_$look" >> build/server.log; };; esac; done ) &
             watcher=$!
-            for i in $(seq 1 120); do [ -f "build/shots/.done_$look" ] && break; sleep 3; done
+            for i in $(seq 1 100); do [ -f "build/shots/.done_$look" ] && break; sleep 3; done
             kill $watcher 2>/dev/null || true
             grep -o 'DIALED-[A-Z-]*[^"]*' "build/console_$look.log" | grep -v '^DIALED-SHOT ' | head -10 || true
-            [ -f "build/shots/.done_$look" ] || echo "::warning title=Screenshots::the $look run didn't finish in 6 minutes"
+            [ -f "build/shots/.done_$look" ] || echo "::warning title=Screenshots::the $look run didn't finish in 5 minutes"
           done
-          cat build/server.log
-          echo "::notice title=Screenshot log::$(tr '\n' ' ' < build/server.log | cut -c1-900)"
-          rm -f build/shots/00_*.png build/shots/*_warm.png build/shots/*'&'*.png   # the throwaway screenshots
-          rm -f "$app/public/index.html"   # (the copy with the password; the runner is thrown away anyway)
-          n=$(ls build/shots/*.png 2>/dev/null | wc -l | tr -d ' ')
-          echo "::notice title=Screenshots::$n screenshots ($(ls build/shots/*.png 2>/dev/null | xargs -n1 basename | tr '\n' ' '))"
-          [ "$n" -gt 0 ]
-      - name: Finish them (each screen in a phone frame under a headline, light and dark)
+          rm -f "$app/public/index.html"   # (the copy pointed at the stand-in; the runner is thrown away anyway)
+      - name: Report what happened
+        if: always()
         working-directory: native
         run: |
+          echo "::notice title=Screenshot log::$(tr '\n' ' ' < build/server.log 2>/dev/null | tail -c 1500)"
+          for look in warm dark light; do [ -f "build/console_$look.log" ] && echo "::notice title=App ($look)::$(grep -o 'DIALED-[A-Z-]*[^"]*' "build/console_$look.log" | grep -v '^DIALED-SHOT ' | head -12 | tr '\n' ' ' | cut -c1-900)"; done
+          echo "::notice title=Stand-in::$(tail -c 700 "$RUNNER_TEMP/stand-in.log" 2>/dev/null | tr '\n' ' ') (calls: $(curl -s -m 5 http://127.0.0.1:54321/__dev/stats))"
+          echo "::notice title=Machine (start)::$(head -c 1200 build/mon.log 2>/dev/null | tr '\n' ' ')"
+          echo "::notice title=Machine (end)::$(tail -c 1500 build/mon.log 2>/dev/null | tr '\n' ' ')"
+          for look in warm dark light; do [ -f "build/console_$look.log" ] && echo "::notice title=App log ($look)::$(wc -c < "build/console_$look.log") bytes; most repeated: $(head -c 4000000 "build/console_$look.log" | cut -c1-140 | sort | uniq -c | sort -rn | head -3 | tr '\n' ' ' | cut -c1-700)"; done
+          rm -f build/shots/00_*.png build/shots/*_warm.png build/shots/*'&'*.png   # the throwaway screenshots
+          echo "::notice title=Screenshots::$(ls build/shots/*.png 2>/dev/null | wc -l | tr -d ' ') screenshots ($(ls build/shots/*.png 2>/dev/null | xargs -n1 basename | tr '\n' ' '))"
+      - name: Finish them (each screen in a tilted phone under a headline)
+        id: finish
+        if: always()
+        working-directory: native
+        run: |
+          ls build/shots/*_dark.png >/dev/null 2>&1 || { echo "::error title=Screenshots::no screenshots to finish"; exit 1; }
           python3 appstore/compose.py build/shots build/shots
           echo "::notice title=Finished screenshots::$(ls build/shots/store_*.png | xargs -n1 basename | tr '\n' ' ')"
       - name: Put the screenshots on the app-store-shots branch
+        if: always() && steps.finish.outcome == 'success'
         working-directory: native
         run: |
           d="$RUNNER_TEMP/shots"; rm -rf "$d"; mkdir -p "$d"; cp build/shots/*.png "$d/"

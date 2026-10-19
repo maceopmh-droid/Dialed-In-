@@ -17,7 +17,7 @@
             openWelcome(step = 'intro') {
                 const view = document.getElementById('welcome-view');
                 if (!view) return;
-                this.wl = { step, name: '', color: '', gear: [], gearOpen: '', pick: '', bean: { roaster: '', name: '', origin: '', roast: 'Light', process: '' } };
+                this.wl = { step, name: '', color: '', gear: [], gearOpen: '', pick: '', bean: { roaster: '', name: '', origin: '', roast: 'Light', process: '', roastDate: '' } };
                 this.welcomeOpen = true;
                 view.classList.add('active'); view.setAttribute('aria-hidden', 'false');
                 document.body.classList.add('wl-open');
@@ -44,7 +44,7 @@
             },
 
             wlFaces(rows, max = 5) {
-                return `<span class="wl-faces">${rows.slice(0, max).map(r => `<i style="background:${this.esc(this.getUserColor(r.name))}">${this.esc(this.feedInitial(r.name))}</i>`).join('')}</span>`;
+                return `<span class="wl-faces">${rows.slice(0, max).map(r => `<i data-face="${this.esc(r.name)}" style="background:${this.esc(this.getUserColor(r.name))}">${this.esc(this.feedInitial(r.name))}</i>`).join('')}</span>`;
             },
 
             wlNames(rows) {
@@ -71,7 +71,7 @@
                         <div class="wl-mark">Dialed In</div>
                         <div class="wl-hero"><div class="wl-glow"></div><div class="wl-shape" id="wl-shape"></div></div>
                         <h1 class="wl-h1">Dial in every cup.</h1>
-                        <p class="wl-lead">Log your brews, see what your friends are pulling, and get a coach that tells you exactly what to change next.</p>
+                        <p class="wl-lead">Log every cup, see what your friends and communities are brewing, and get a coach that tells you exactly what to change next. Earn crema as you go, from Seed to Dialed In.</p>
                         ${G.rows.length && !(this.acctOn() && !G.sessions) ? `<div class="wl-proof">${this.wlFaces(G.rows)}<span>${esc(this.wlNames(G.rows))} · ${esc(G.sessions.toLocaleString())} sessions logged</span></div>` : ''}
                         <div class="wl-actions">
                             <button type="button" class="btn-primary wl-main" onclick="${this.acctOn() ? "app.wlStart('new')" : "app.wlGo('name')"}">I'm new to Dialed In</button>
@@ -85,9 +85,9 @@
                         <h2 class="wl-h2">Welcome back.</h2>
                         <p class="wl-sub">Who's brewing?</p>
                         <div class="wl-people">${rows.length ? rows.map(r => `<button type="button" class="wl-person" data-person="${esc(r.name)}" onclick="app.wlPick(this.getAttribute('data-person'))">
-                            <i style="background:${esc(this.getUserColor(r.name))}">${esc(this.feedInitial(r.name))}</i>
+                            <i data-face="${esc(r.name)}" style="background:${esc(this.getUserColor(r.name))}">${esc(this.feedInitial(r.name))}</i>
                             <span class="wl-pn"><b>${esc(r.name)}</b><small>${r.c ? `${r.c} session${r.c === 1 ? '' : 's'} · last brewed ${esc(this.formatRelativeDate(new Date(r.last).toISOString()).toLowerCase())}` : 'No sessions yet'}</small></span>
-                            <svg class="icon wl-chev"><use href="#i-chevron-down"/></svg></button>`).join('') : '<div class="wl-empty">Loading the group…</div>'}</div>
+                            <svg class="icon wl-chev"><use href="#i-chevron-down"/></svg></button>`).join('') : '<div class="wl-empty">Loading…</div>'}</div>
                         <button type="button" class="wl-link" onclick="app.wlGo('name')">Not on the list? Set up a new profile</button>
                     </div>`;
                 } else if (s.step === 'name') {
@@ -135,8 +135,8 @@
                     html = `<div class="wl-step">
                         ${this.wlTop(3, 'gear')}
                         <h2 class="wl-h2">What's in your hopper?</h2>
-                        <p class="wl-sub">Pick a coffee the group is brewing, or add the bag you've got.</p>
-                        ${pop.length ? `<div class="wl-label">Popular with the group</div>
+                        <p class="wl-sub">Pick a coffee people are brewing, or add the bag you've got.</p>
+                        ${pop.length ? `<div class="wl-label">Popular right now</div>
                         <div class="wl-beans">${pop.map(c => `<button type="button" class="wl-bean${s.pick === c.id ? ' on' : ''}" data-id="${esc(c.id)}" onclick="app.wlPickBean(this.getAttribute('data-id'))">
                             <b>${esc(c.name)}</b><span>${esc(c.roaster)}</span>
                             <em>${c.avg ? `<span class="star-meter" style="--fill:${this.starFill(c.avg)}%;--whole:${this.starWhole(c.avg)};--frac:${this.starFrac(c.avg)}"></span> ${esc(this.fmtNum(c.avg))}` : ''}<small>${c.n} session${c.n === 1 ? '' : 's'}</small></em>
@@ -150,6 +150,7 @@
                             <input class="wl-input" id="wl-b-origin" maxlength="60" placeholder="Origin (optional)" value="${esc(b.origin)}" oninput="app.wlBean('origin', this.value)">
                             <div class="wl-pills"><span>Roast</span>${chips('roast', ['Light', 'Medium', 'Dark'])}</div>
                             <div class="wl-pills"><span>Process</span>${chips('process', ['Washed', 'Natural', 'Honey', 'Anaerobic'])}</div>
+                            <label class="wl-date"><span>Roast date on the bag (optional)</span><input class="wl-input" id="wl-b-roastdate" type="date" value="${esc(b.roastDate || '')}" oninput="app.wlBean('roastDate', this.value)"></label>
                         </div>
                         <div class="wl-actions">
                             <button type="button" class="btn-primary wl-main" id="wl-finish" onclick="app.wlFinish()">Finish setup</button>
@@ -217,7 +218,7 @@
                 if (prev) {
                     const name = n || 'You', c = s.color;
                     const best = this.wlGroup().best, bean = best ? this.beans.get(String(best.beanId)) : null;
-                    prev.innerHTML = `<div class="wl-pv-head"><i style="background:${this.esc(c)}">${this.esc(this.feedInitial(name))}</i><span><b style="color:${this.esc(c)}">${this.esc(name)}</b><small>Just now</small></span><em>Espresso</em></div>
+                    prev.innerHTML = `<div class="wl-pv-head"><i data-face="${this.esc(name)}" style="background:${this.esc(c)}">${this.esc(this.feedInitial(name))}</i><span><b style="color:${this.esc(c)}">${this.esc(name)}</b><small>Just now</small></span><em>Espresso</em></div>
                         <div class="wl-pv-title">${this.esc(bean ? (bean.name || 'Your first coffee') : 'Your first coffee')}</div>
                         <div class="wl-pv-strip"><span><b>18</b>g<small>Dose</small></span><span><b>40</b>g<small>Pull · 1:2.2</small></span><span><b>29</b>s<small>Time</small></span></div>`;
                 }
@@ -278,14 +279,14 @@
             wlPickBean(id) {
                 const s = this.wl; if (!s) return;
                 s.pick = s.pick === id ? '' : id;
-                if (s.pick) s.bean = { roaster: '', name: '', origin: '', roast: 'Light', process: '' };
+                if (s.pick) s.bean = { roaster: '', name: '', origin: '', roast: 'Light', process: '', roastDate: s.bean.roastDate || '' };   // (the roast date stays: it's your bag's either way)
                 this.renderWelcome();
             },
 
             wlBean(field, value) {
                 const s = this.wl; if (!s) return;
                 s.bean[field] = String(value || '');
-                if (s.pick && String(value || '').trim()) { s.pick = ''; document.querySelectorAll('.wl-bean.on').forEach(b => b.classList.remove('on')); }
+                if (s.pick && field !== 'roastDate' && String(value || '').trim()) { s.pick = ''; document.querySelectorAll('.wl-bean.on').forEach(b => b.classList.remove('on')); }
             },
 
             wlBeanChip(field, value) {
@@ -332,10 +333,11 @@
                 let firstBean = skipCoffee ? '' : s.pick;
                 if (!skipCoffee && !firstBean && b.roaster.trim() && b.name.trim()) {
                     const id = `${Date.now() + 50}`, bdate = new Date(Date.now() - 1000).toISOString();   // a moment before you joined, so the join post is on top
-                    const payload = this.buildBeanPayload({ id, user: name, owner: name, date: bdate, roaster: '', name: '', variety: '', origin: '', process: '', roast: 'Light', likes: [], comments: [] }, { id, date: bdate, roaster: b.roaster.trim(), name: b.name.trim(), variety: '', origin: b.origin.trim(), process: b.process, roast: b.roast || 'Light', roastDate: '' });
+                    const payload = this.buildBeanPayload({ id, user: name, owner: name, date: bdate, roaster: '', name: '', variety: '', origin: '', process: '', roast: 'Light', likes: [], comments: [] }, { id, date: bdate, roaster: b.roaster.trim(), name: b.name.trim(), variety: '', origin: b.origin.trim(), process: b.process, roast: b.roast || 'Light', roastDate: String(b.roastDate || '').slice(0, 10) });
                     if (payload) { this.push(payload); firstBean = id; }
                 }
                 this.wlFirstBean = firstBean;
+                this.wlFirstRoast = firstBean && firstBean === s.pick ? String(b.roastDate || '').slice(0, 10) : '';   // a picked coffee: the roast date goes on your first session
                 this.closeWelcome();
                 this.setTab('feed');
                 this.render();
@@ -347,12 +349,13 @@
                 const desk = window.matchMedia && window.matchMedia('(min-width: 769px)').matches;
                 const nav = tab => desk ? `#sidebar .nav-btn[data-tab="${tab}"]` : `#mobile-nav .mob-item[data-tab="${tab}"]`;
                 return [
-                    { sel: nav('feed'), tab: 'feed', title: "Your friends' brews", text: 'Every session the group logs shows up here. Like it, comment, and chase the weekly group goal together. Your welcome post is already up.' },
-                    { sel: nav('shared'), tab: 'shared', title: 'The shared library', text: 'Every coffee anyone has brewed, with ratings, flavor shapes and the roasters they came from.' },
-                    { sel: nav('my'), tab: 'my', title: 'Your collection', text: 'Your coffees. Open one to log a session, see your dial-in curve, and get the next-shot coach.' },
-                    { sel: desk ? '#sidebar .nav-btn:not([data-tab]):not(.settings-nav-btn)' : '#mobile-nav .mob-fab', tab: 'my', title: 'Add a coffee', text: 'New bag? Add it here, then log sessions on it.' },
-                    { sel: nav('profile'), tab: 'profile', title: 'Profiles', text: 'Your stats, favorites, gear and achievements, and everyone else’s.' },
-                    { sel: desk ? '#sidebar .settings-nav-btn' : '#mobile-controls-btn', tab: 'feed', title: 'Settings', text: desk ? 'Light or dark, your color, and who’s in the group.' : 'Filters and Settings live here: light or dark, your color, and who’s in the group.' }
+                    { sel: nav('feed'), tab: 'feed', title: 'Feed', text: 'Following is the people you follow, Community is your groups (with a weekly goal), and Discover is everyone. Like, comment, or ask for help dialing in. Your welcome post is already up.' },
+                    { sel: nav('my'), tab: 'my', title: 'Coffees', text: 'Yours under Mine, everyone\'s under All. Open one to log a session and get the next-shot coach, and switch between your take, your friends\' and everyone\'s.' },
+                    { sel: desk ? '#search-input' : '#top-search-btn', tab: 'my', title: 'Search', text: 'Find any coffee by name, roaster or origin. It searches roasters on the Roasters tab.' },
+                    { sel: nav('roasters'), tab: 'roasters', title: 'Roasters', text: 'Every roaster you and your people have brewed, with their coffees, ratings and how their espresso runs.' },
+                    { sel: desk ? '#sidebar .nav-btn:not([data-tab]):not(.settings-nav-btn)' : '#mobile-nav .mob-fab', tab: 'my', title: 'Add a coffee', text: 'New bag? Add it here, then log sessions on it. Each session keeps its bag\'s roast date.' },
+                    { sel: nav('profile'), tab: 'profile', title: 'Profile', text: 'Your level and crema, your stats and taste, and More: achievements, monthly awards and recaps. Anyone else\'s is a tap away.' },
+                    { sel: desk ? '#sidebar .settings-nav-btn' : '#mobile-controls-btn', tab: 'feed', title: 'Settings', text: desk ? 'Light or dark, your profile picture, notifications and privacy. Something broken? Report a bug here.' : 'Sorting, filters and Settings: light or dark, your profile picture, notifications and privacy. Something broken? Report a bug here.' }
                 ];
             },
 
@@ -375,8 +378,8 @@
             tourFirstSession() {
                 const id = this.wlFirstBean;
                 this.endTour();
-                if (id && this.beans.has(String(id))) { this.openFeedTarget(id, '', false); setTimeout(() => this.openBrewModal(), 250); }
-                else { this.setTab('shared'); this.showToast('Open any coffee and tap Log New Session.'); }
+                if (id && this.beans.has(String(id))) { const rd = this.wlFirstRoast || ''; this.openFeedTarget(id, '', false); setTimeout(() => { this.openBrewModal(); const f = this.getBrewForm(); if (rd && f && f.roastDate && !f.roastDate.value) { f.roastDate.value = rd; this.paintRoastDays(); } }, 250); }
+                else { this.coffeeScope = 'all'; this.setTab('my'); this.showToast('Open any coffee and tap Log a session.'); }
             },
 
             renderTour() {
@@ -385,7 +388,7 @@
                 if (t.i >= n) {
                     const bean = this.wlFirstBean ? this.beans.get(String(this.wlFirstBean)) : null;
                     el.innerHTML = `<div class="wl-dim"></div><div class="wl-bubble wl-final" role="dialog" aria-label="All set">
-                        <div class="wl-final-face" style="background:${this.esc(this.getUserColor(this.user))}">${this.esc(this.feedInitial(this.user))}</div>
+                        <div class="wl-final-face" data-face="${this.esc(this.user || '')}" style="background:${this.esc(this.getUserColor(this.user))}">${this.esc(this.feedInitial(this.user))}</div>
                         <h4>You're dialed in, ${this.esc(this.user)}.</h4>
                         <p>${bean ? `Your first coffee is ready: <b>${this.esc(bean.name || 'Coffee')}</b>. Log a session and the coach starts learning your taste.` : 'Pick any coffee, log a session, and the coach starts learning your taste.'}</p>
                         <div class="wl-final-actions"><button type="button" class="btn-primary" onclick="app.tourFirstSession()">Log your first session</button><button type="button" class="wl-link" onclick="app.endTour()">Look around first</button></div>

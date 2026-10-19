@@ -274,7 +274,7 @@
                 const y = you ? 'you' : D.user;
                 const your = you ? 'Your' : `${D.user}'s`;
                 const yourL = you ? 'your' : `${D.user}'s`;
-                const face = n => `<span class="wr-face" style="background:${esc(this.getUserColor(n))}">${esc(this.feedInitial(n))}</span>`;
+                const face = n => `<span class="wr-face" data-face="${esc(n)}" style="background:${esc(this.getUserColor(n))}">${esc(this.feedInitial(n))}</span>`;
                 const monthL = i => new Date(D.year, i, 1).toLocaleDateString(undefined, { month: 'long' });
                 const dayL = i => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][i];
                 const hourL = h => { const d = new Date(2020, 0, 1, h); return d.toLocaleTimeString(undefined, { hour: 'numeric' }).replace(':00', ''); };
@@ -388,13 +388,13 @@
 
                     if (C.topCoffees.length) {
                         const list = C.topCoffees.map((c, i) => `<li class="wr-in" style="--d:${i + 1}"><span class="n">${i + 1}</span><span class="t">${esc(c.name)}<span class="s">${c.roaster ? `${esc(c.roaster)} · ` : ''}${c.count} sessions · ${c.who.map(n => esc(n)).join(', ')}</span></span></li>`).join('');
-                        add('espresso', `<div class="wr-k wr-in" style="--d:0">The crew's top coffees</div><ol class="wr-rank">${list}</ol>`, 8000);
+                        add('espresso', `<div class="wr-k wr-in" style="--d:0">Your top coffees together</div><ol class="wr-rank">${list}</ol>`, 8000);
                     }
 
                     if (C.methods.length) {
                         const mmax = C.methods[0][1];
                         const mrows = C.methods.slice(0, 6).map(([m, n], i) => `<div class="wr-bar-row wr-in" style="--d:${i + 1}"><span>${esc(m)}</span><span class="v">${n} · ${n / C.sessions < 0.01 ? '<1' : Math.round(n / C.sessions * 100)}%</span><span class="track"><span class="fill" style="width:${(n / mmax * 100).toFixed(1)}%;--d:${i}"></span></span></div>`).join('');
-                        add('cherry', `<div class="wr-k wr-in" style="--d:0">The crew's go-to method</div><div class="wr-big word wr-in" style="--d:1">${esc(C.methods[0][0])}</div><div class="wr-p wr-in" style="--d:2">${C.methods.length === 1 ? 'Every single session.' : `${C.methods.length} methods in all.`}${C.shots ? ` <b>${C.shots}</b> espresso shot${C.shots === 1 ? '' : 's'} pulled.` : ''}</div>${C.methods.length > 1 ? `<div class="wr-bars-h">${mrows}</div>` : ''}`, 7500);
+                        add('cherry', `<div class="wr-k wr-in" style="--d:0">Your go-to method together</div><div class="wr-big word wr-in" style="--d:1">${esc(C.methods[0][0])}</div><div class="wr-p wr-in" style="--d:2">${C.methods.length === 1 ? 'Every single session.' : `${C.methods.length} methods in all.`}${C.shots ? ` <b>${C.shots}</b> espresso shot${C.shots === 1 ? '' : 's'} pulled.` : ''}</div>${C.methods.length > 1 ? `<div class="wr-bars-h">${mrows}</div>` : ''}`, 7500);
                     }
 
                     if (C.originList.length) {
@@ -408,7 +408,7 @@
                         const bars = C.months.map((n, i) => `<span class="${i === C.peakMonth ? 'peak' : ''}" style="height:${Math.max(3, n / cmax * 100)}%;--d:${i}" title="${esc(monthL(i))}: ${n}"></span>`).join('');
                         const labels = C.months.map((_, i) => `<span>${esc(monthL(i).charAt(0))}</span>`).join('');
                         const bd = C.busiest ? new Date(this.parseLocalDate(C.busiest.key)).toLocaleDateString(undefined, { month: 'long', day: 'numeric' }) : '';
-                        add('night', `<div class="wr-k wr-in" style="--d:0">The crew's busiest month</div><div class="wr-big word wr-in" style="--d:1">${esc(monthL(C.peakMonth))}</div><div class="wr-p wr-in" style="--d:2"><b>${C.months[C.peakMonth]}</b> sessions.${C.busiest && C.busiest.n > 1 ? ` Busiest single day: <b>${esc(bd)}</b>, ${C.busiest.n} sessions${C.busiest.who.length > 1 ? ` from ${who(C.busiest.who)}` : ''}.` : ''}${C.weekday !== null ? ` Favorite day: <b>${dayL(C.weekday)}</b>.` : ''}${C.hour !== null ? ` Peak hour: <b>${hourL(C.hour)}</b>.` : ''}</div><div class="wr-months wr-in" style="--d:3">${bars}</div><div class="wr-months-l">${labels}</div>`, 8000);
+                        add('night', `<div class="wr-k wr-in" style="--d:0">Your busiest month together</div><div class="wr-big word wr-in" style="--d:1">${esc(monthL(C.peakMonth))}</div><div class="wr-p wr-in" style="--d:2"><b>${C.months[C.peakMonth]}</b> sessions.${C.busiest && C.busiest.n > 1 ? ` Busiest single day: <b>${esc(bd)}</b>, ${C.busiest.n} sessions${C.busiest.who.length > 1 ? ` from ${who(C.busiest.who)}` : ''}.` : ''}${C.weekday !== null ? ` Favorite day: <b>${dayL(C.weekday)}</b>.` : ''}${C.hour !== null ? ` Peak hour: <b>${hourL(C.hour)}</b>.` : ''}</div><div class="wr-months wr-in" style="--d:3">${bars}</div><div class="wr-months-l">${labels}</div>`, 8000);
                     }
 
                     if (C.streak.days >= 3) {
@@ -424,17 +424,17 @@
                     if (C.taste || C.notes.length >= 3) {
                         const img = C.taste && typeof FlavorShape !== 'undefined' ? (() => { try { return FlavorShape.snapshot(C.taste.vals, null, { width: 330, height: 248, zoom: 1.1, labels: false }); } catch (e) { return ''; } })() : '';
                         const chips = C.notes.slice(0, 8).map(([n, c], i) => `<span class="wr-chip wr-in" style="--d:${i + 3}">${esc(n)}<em>${c}</em></span>`).join('');
-                        add('crema', `<div class="wr-k wr-in" style="--d:0">The crew's flavor shape</div>${img ? `<img class="wr-shape wr-in" style="--d:1" src="${img}" alt="">` : ''}${C.taste && C.taste.top ? `<div class="wr-p wr-in" style="--d:2">Together you chase <b>${esc(C.taste.top.label.toLowerCase())}</b>: ${this.fmtNum(C.taste.top.v, 1)} out of 10 across ${C.taste.n} tasted sessions.</div>` : ''}${chips ? `<div class="wr-small wr-in" style="--d:2">Notes the crew found most</div><div class="wr-chips">${chips}</div>` : ''}`, 8000);
+                        add('crema', `<div class="wr-k wr-in" style="--d:0">Your flavor shape together</div>${img ? `<img class="wr-shape wr-in" style="--d:1" src="${img}" alt="">` : ''}${C.taste && C.taste.top ? `<div class="wr-p wr-in" style="--d:2">Together you chase <b>${esc(C.taste.top.label.toLowerCase())}</b>: ${this.fmtNum(C.taste.top.v, 1)} out of 10 across ${C.taste.n} tasted sessions.</div>` : ''}${chips ? `<div class="wr-small wr-in" style="--d:2">Notes the crew found most</div><div class="wr-chips">${chips}</div>` : ''}`, 8000);
                     }
 
                     if (C.likes + C.comments > 0) {
                         const ml = C.mostLiked;
-                        add('espresso', `<div class="wr-k wr-in" style="--d:0">The crew handed out</div><div class="wr-big wr-in" style="--d:1" data-count="${C.likes}">${C.likes}</div><div class="wr-unit wr-in" style="--d:2">like${C.likes === 1 ? '' : 's'}</div><div class="wr-p wr-in" style="--d:3">and wrote <b>${C.comments}</b> comment${C.comments === 1 ? '' : 's'}.${C.allLiked > 1 ? `<br><b>${C.allLiked}</b> sessions got a like from everyone else.` : ml ? `<br>Most-liked session: <b>${esc(ml.owner)}'s ${esc(beanName(ml.bean))}</b>, ${this.shortDate(ml.date)}, with ${ml.n} like${ml.n === 1 ? '' : 's'}.` : ''}${C.fan ? `<br>Biggest fan: <b>${esc(C.fan.from)}</b>, who liked ${esc(C.fan.to)}'s sessions ${C.fan.n} times.` : ''}</div>`, 7500);
+                        add('espresso', `<div class="wr-k wr-in" style="--d:0">Together you handed out</div><div class="wr-big wr-in" style="--d:1" data-count="${C.likes}">${C.likes}</div><div class="wr-unit wr-in" style="--d:2">like${C.likes === 1 ? '' : 's'}</div><div class="wr-p wr-in" style="--d:3">and wrote <b>${C.comments}</b> comment${C.comments === 1 ? '' : 's'}.${C.allLiked > 1 ? `<br><b>${C.allLiked}</b> sessions got a like from everyone else.` : ml ? `<br>Most-liked session: <b>${esc(ml.owner)}'s ${esc(beanName(ml.bean))}</b>, ${this.shortDate(ml.date)}, with ${ml.n} like${ml.n === 1 ? '' : 's'}.` : ''}${C.fan ? `<br>Biggest fan: <b>${esc(C.fan.from)}</b>, who liked ${esc(C.fan.to)}'s sessions ${C.fan.n} times.` : ''}</div>`, 7500);
                     }
 
                     if (C.coffee) {
                         const shared = C.coffee.who.length > 1;
-                        add('crema', `<div class="wr-k wr-in" style="--d:0">The crew's coffee of the year</div><div class="wr-big word wr-in wr-bean" style="--d:1">${esc(beanName(C.coffee.bean))}</div><div class="wr-p wr-in" style="--d:2">${C.coffee.bean && C.coffee.bean.roaster ? `${esc(C.coffee.bean.roaster)}. ` : ''}Brewed <b>${C.coffee.n}</b> times${shared ? ` by ${who(C.coffee.who)}` : ` by ${esc(C.coffee.who[0])}`}.</div>${C.loved && C.loved.bean && this.beanGroupKey(C.loved.bean) !== this.beanGroupKey(C.coffee.bean) ? `<div class="wr-p wr-in" style="--d:3">Most loved: <b>${esc(beanName(C.loved.bean))}</b>, ${this.fmtNum(C.loved.avg, 1)}★ across ${C.loved.n} rated sessions.</div>` : ''}`);
+                        add('crema', `<div class="wr-k wr-in" style="--d:0">Your coffee of the year together</div><div class="wr-big word wr-in wr-bean" style="--d:1">${esc(beanName(C.coffee.bean))}</div><div class="wr-p wr-in" style="--d:2">${C.coffee.bean && C.coffee.bean.roaster ? `${esc(C.coffee.bean.roaster)}. ` : ''}Brewed <b>${C.coffee.n}</b> times${shared ? ` by ${who(C.coffee.who)}` : ` by ${esc(C.coffee.who[0])}`}.</div>${C.loved && C.loved.bean && this.beanGroupKey(C.loved.bean) !== this.beanGroupKey(C.coffee.bean) ? `<div class="wr-p wr-in" style="--d:3">Most loved: <b>${esc(beanName(C.loved.bean))}</b>, ${this.fmtNum(C.loved.avg, 1)}★ across ${C.loved.n} rated sessions.</div>` : ''}`);
                     }
                     if (C.yearly.length) {
                         const badges = C.yearly.map((x, i) => `<div class="wr-badge" style="--d:${i};--ac:${esc(x.color)}"><span class="ic"><svg class="icon"><use href="#${esc(x.icon)}"/></svg></span><div style="min-width:0"><div class="bt">${esc(x.title)}</div><div class="bw">${esc(x.winners.join(' & '))}</div></div></div>`).join('');
@@ -448,7 +448,7 @@
                     <div><div class="l">Coffee</div><div class="v">${kg}</div></div>
                     ${D.topCoffees[0] ? `<div class="wide"><div class="l">Top coffee</div><div class="v">${esc(D.topCoffees[0].name)}</div></div>` : ''}
                     <div><div class="l">Personality</div><div class="v">${esc(D.persona.title.replace(/^The /, ''))}</div></div>
-                    <div><div class="l">${D.awardCount ? 'Awards' : 'Best shot'}</div><div class="v">${D.awardCount ? D.awardCount : D.best ? `${this.fmtNum(D.best.rating)}★` : '—'}</div></div>
+                    <div><div class="l">${D.awardCount ? 'Awards' : 'Top rated'}</div><div class="v">${D.awardCount ? D.awardCount : D.best ? `${this.fmtNum(D.best.rating)}★` : '—'}</div></div>
                 </div><div class="wr-actions wr-in" style="--d:2"><button type="button" onclick="app.shareWrapped()">Share</button><button type="button" class="ghost" onclick="app.wrappedGo(0)">Replay</button><button type="button" class="ghost" onclick="app.closeWrapped()">Done</button></div>`, 60000);
                 return S;
             },
@@ -464,7 +464,7 @@
                 el.setAttribute('aria-label', `${D.user}'s ${D.year} Year in Coffee`);
                 el.style.setProperty('--uc', D.color);
                 el.innerHTML = `<div class="wr-bars">${slides.map(() => '<i><b></b></i>').join('')}</div>
-                    <div class="wr-top"><span class="wr-who"><b style="background:${this.esc(D.color)}">${this.esc(this.feedInitial(D.user))}</b>${this.esc(D.user)} · ${D.year}</span><button type="button" class="wr-close" aria-label="Close" onclick="app.closeWrapped()"><svg class="icon"><use href="#i-x"/></svg></button></div>
+                    <div class="wr-top"><span class="wr-who"><b data-face="${this.esc(D.user)}" style="background:${this.esc(D.color)}">${this.esc(this.feedInitial(D.user))}</b>${this.esc(D.user)} · ${D.year}</span><button type="button" class="wr-close" aria-label="Close" onclick="app.closeWrapped()"><svg class="icon"><use href="#i-x"/></svg></button></div>
                     <div class="wr-stage"></div>`;
                 document.body.appendChild(el);
                 this._wr = { D, slides, i: 0, el, prevOverflow: document.body.style.overflow };

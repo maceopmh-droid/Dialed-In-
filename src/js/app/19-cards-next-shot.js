@@ -141,7 +141,7 @@
                 const active = this.cardTab(brew);
                 const id = this.esc(brew.id);
                 const tab = (key, label) => `<button type="button" class="card-tab${active === key ? ' active' : ''}" data-tab-key="${key}" onclick="app.setCardTab('${app.escJs(id)}','${app.escJs(key)}',event)">${label}</button>`;
-                return `<div class="card-tabs">${tab('session', 'Session')}${tab('flavor', 'Flavor')}${tab('vs', 'Vs. Last Time')}${tab('next', 'Next Shot')}</div>`;
+                return `<div class="card-tabs">${tab('session', 'Session')}${tab('flavor', 'Flavor')}${tab('vs', 'Vs. last time')}${tab('next', `Next ${this.shotWord(brew.method)}`)}</div>`;
             },
 
             setCardTab(brewId, tab, event) {
@@ -321,7 +321,7 @@
                     detail.push('Body read light on the taste sliders.');
                 } else if (signal.kind === 'balanced') {
                     headline = 'Keep this recipe.';
-                    detail.push(this.isMasterBrew(brew) ? 'It\'s already pinned as a Master profile.' : 'It\'s worth pinning as a Master profile.');
+                    detail.push(this.isMasterBrew(brew) ? 'It\'s already pinned as a master recipe.' : 'It\'s worth pinning as a master recipe.');
                 } else if (signal.kind === 'off') {
                     headline = 'Low rating, but no taste clue to act on.';
                     detail.push('Add a quick verdict, taste sliders or a note next time, and a specific change will show here.');
@@ -343,13 +343,14 @@
             renderNextPane(brew) {
                 const active = this.cardTab(brew) === 'next' ? ' active' : '';
                 const owner = this.getBrewOwner(brew);
-                const advice = this.nextShotAdvice(brew);
-                const title = owner === this.user ? 'Your next shot' : `${this.esc(owner)}'s next shot`;
-                if (advice.coach) return `<div class="card-pane pane-block log-wide${active}" data-pane="next">${this.coachHtml(advice.coach, owner === this.user ? 'Your next shot' : `${owner}'s next shot`)}</div>`;
+                const advice = this.methodWorded(this.nextShotAdvice(brew), brew.method);
+                const w = this.shotWord(brew.method);
+                const title = owner === this.user ? `Your next ${w}` : `${this.esc(owner)}'s next ${w}`;
+                if (advice.coach) return `<div class="card-pane pane-block log-wide${active}" data-pane="next">${this.coachHtml(advice.coach, owner === this.user ? `Your next ${w}` : `${owner}'s next ${w}`)}</div>`;
                 let bestLine = '';
                 if (advice.best) {
                     const isThis = String(advice.best.id) === String(brew.id);
-                    const label = isThis ? 'This is the best-rated shot of this bean so far' : `Best so far · ${this.esc(this.shortDate(advice.best.date))}`;
+                    const label = isThis ? `This is the best-rated ${w} of this coffee so far` : `Best so far · ${this.esc(this.shortDate(advice.best.date))}`;
                     bestLine = `<div class="next-best">${label}: ${this.esc(this.recipeLine(advice.best, true))} · ${this.esc(this.fmtNum(this.normalizeRating(advice.best.rating)))}★</div>`;
                 }
                 return `<div class="card-pane pane-block log-wide${active}" data-pane="next"><div class="next-card"><div class="next-title">${title}${advice.conf ? ` · ${this.esc(advice.conf)}` : ''}</div><div class="next-headline">${this.esc(advice.headline)}</div>${advice.detail.map(d => `<div class="next-detail">${this.esc(d)}</div>`).join('')}${(advice.evidence || []).length ? `<div class="ev">${advice.evidence.map(e => `<span class="evc ${e.side}">${this.esc(e.text)}</span>`).join('')}</div>` : ''}${bestLine}</div></div>`;

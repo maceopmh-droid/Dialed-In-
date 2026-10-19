@@ -16,7 +16,7 @@
                 const people = this.commentPeople(comments);
                 if (!people.length) return '';
                 const shown = people.slice(0, 3);
-                return `<span class="thread-faces" aria-hidden="true">${shown.map((p, i) => `<i style="background:${this.esc(this.getUserColor(p))};z-index:${9 - i}">${this.esc(this.feedInitial(p))}</i>`).join('')}${people.length > shown.length ? `<i class="more" style="z-index:1">+${people.length - shown.length}</i>` : ''}</span>`;
+                return `<span class="thread-faces" aria-hidden="true">${shown.map((p, i) => `<i data-face="${this.esc(p)}" style="background:${this.esc(this.getUserColor(p))};z-index:${9 - i}">${this.esc(this.feedInitial(p))}</i>`).join('')}${people.length > shown.length ? `<i class="more" style="z-index:1">+${people.length - shown.length}</i>` : ''}</span>`;
             },
 
             commentButtonLabel(comments) {
@@ -282,7 +282,9 @@
                             </div>
                         </div>`;
                 };
-                const list = tops.map(c => one(c, false) + kids(c).map(r => one(r, true)).join('')).join('');
+                const cutN = tops.length > 6 ? tops.length - 5 : 0;   // v15.1: a long thread opens on its newest five
+                const rowOf = c => one(c, false) + kids(c).map(r => one(r, true)).join('');
+                const list = (cutN ? `<button type="button" class="more-toggle cmt-earlier" onclick="event.stopPropagation(); this.nextElementSibling.hidden = false; this.remove();">Show ${cutN} earlier comments<svg class="icon"><use href="#i-chevron-down"/></svg></button><div class="more-rest" hidden>${tops.slice(0, cutN).map(rowOf).join('')}</div>` : '') + tops.slice(cutN).map(rowOf).join('');
                 const reply = this.replyTo && this.replyTo.key === key ? this.replyTo : null;
                 const submit = kind === 'bean' ? `app.addBeanComment('${app.escJs(id)}', event)` : `app.addComment('${app.escJs(id)}', event)`;
                 const keyHandler = opts.inputId && opts.inputId.startsWith('comment-input-')
@@ -294,7 +296,7 @@
                         <button type="button" class="thread-toggle" aria-expanded="${open}" onclick="app.toggleThread('${app.escJs(kind)}','${app.escJs(id)}',event)">
                             <svg class="icon"><use href="#i-message-square"/></svg>
                             <span class="thread-label">${comments.length ? `Comments <b>${comments.length}</b>` : 'Add a comment'}</span>
-                            ${people.length ? `<span class="thread-faces">${people.map(n => `<i style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</i>`).join('')}</span>` : ''}
+                            ${people.length ? `<span class="thread-faces">${people.map(n => `<i data-face="${this.esc(n)}" style="background:${this.esc(this.getUserColor(n))}">${this.esc(this.feedInitial(n))}</i>`).join('')}</span>` : ''}
                             <svg class="icon thread-chev"><use href="#i-chevron-down"/></svg>
                         </button>`}
                         <div class="thread-body">
@@ -302,7 +304,7 @@
                             <div class="cmt-compose">
                                 <div class="reply-chip"${reply ? '' : ' hidden'}>Replying to <b>${reply ? this.esc(reply.user) : ''}</b><button type="button" onclick="app.cancelReply(event)" aria-label="Cancel reply">×</button></div>
                                 <div class="cmt-input-row">
-                                    <input type="text" class="comment-input" id="${this.esc(opts.inputId)}" placeholder="${kind === 'bean' ? 'Comment on this bean…' : 'Add a comment…'}" onkeydown="${keyHandler}" maxlength="280">
+                                    <input type="text" class="comment-input" id="${this.esc(opts.inputId)}" placeholder="${kind === 'bean' ? 'Comment on this coffee…' : 'Add a comment…'}" onkeydown="${keyHandler}" maxlength="280">
                                     ${this.cmtShareHtml ? this.cmtShareHtml(kind, target, key) : ''}
                                     <button type="button" class="comment-submit" onclick="${submit}">Post</button>
                                 </div>
@@ -433,7 +435,7 @@
                 const coffeeName = (bean ? String(bean.name || '').trim() : String(entry.beanName || '')) || 'Coffee';
                 const rating = this.normalizeRating(brew.rating);
                 const flavors = this.extractFlavors(brew).slice(0, 4);
-                const gear = [...this.resolveEquipmentNames(brew), ...this.sessionExtras(brew)];
+                const gear = [...this.resolveEquipmentNames(brew), ...this.sessionExtras(brew), ...(this.roastDayLabel ? this.roastDayLabel(brew) : [])];   // v15.1: day N off roast
                 const likes = this.normalizeLikeList(brew.likes, owner);
                 const unlocks = this.achievementUnlockByBrew.get(String(brew.id)) || [];
                 const notes = this.getBrewNotes(brew);
@@ -443,7 +445,7 @@
                             <div class="feed-head">
                                 <div class="feed-avatar" style="background:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(this.feedInitial(owner))}</div>
                                 <div class="feed-meta">
-                                    <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}</div>
+                                    <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}${this.levelDotHtml ? this.levelDotHtml(owner) : ''}</div>
                                     <div class="feed-time" data-time="${this.esc(String(entry.date || brew.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || brew.date))}</div>
                                 </div>
                                 ${entry.community ? this.communityFollowHtml(owner) : ''}<div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(brew.method)}"/></svg>${this.esc(brew.method || 'Espresso')}</div><button type="button" class="feed-share" onclick="app.shareItem('session', '${app.escJs(brew.id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>
@@ -498,7 +500,7 @@
                 if (!bean) return '';
                 const owner = String(bean.user || bean.owner || 'Unknown');
                 const color = this.getUserColor(owner, entry.actorColor || '');
-                const beanName = `${bean.roaster || ''} ${bean.name || ''}`.trim() || 'Unnamed Bean';
+                const beanName = `${bean.roaster || ''} ${bean.name || ''}`.trim() || 'Unnamed coffee';
                 const likes = this.normalizeLikeList(bean.likes, owner);
                 const comments = this.normalizeCommentList(bean.comments, `bean-${bean.id}`, bean.date);
                 const topTags = [bean.variety, bean.origin, bean.process].filter(Boolean).slice(0, 3);

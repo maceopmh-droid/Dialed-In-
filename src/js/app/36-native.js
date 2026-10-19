@@ -102,7 +102,7 @@
                 document.documentElement.classList.add('is-native');
                 this.nativeStatusBar();
                 const P = this.nativePlugin('PushNotifications');
-                if (P && P.addListener) P.addListener('pushNotificationActionPerformed', () => this.openBellFromPush());   // v15.0
+                if (P && P.addListener) P.addListener('pushNotificationActionPerformed', a => this.openBellFromPush(String((a && a.notification && a.notification.data && a.notification.data.tag) || '')));   // v15.0; v15.1: straight to what it's about
                 setTimeout(() => this.nativePushRefresh(), 4000);
                 const A = this.nativePlugin('App');
                 if (A && A.addListener) A.addListener('appStateChange', s => { if (s && s.isActive && this.acctOn() && this.user) this.sync({ silent: true }); });

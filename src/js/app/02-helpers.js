@@ -204,6 +204,8 @@
                 const query = String(value || '');
                 const desktop = document.getElementById('search-input');
                 const mobile = document.getElementById('search-input-mobile');
+                const top = document.getElementById('search-input-top');   // v15.1: the header's search on a phone
+                if (source !== 'top' && top) top.value = query;
                 if (source !== 'desktop' && desktop) desktop.value = query;
                 if (source !== 'mobile' && mobile) mobile.value = query;
                 this.render();

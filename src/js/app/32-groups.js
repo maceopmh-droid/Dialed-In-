@@ -18,7 +18,7 @@
 
             renderGroups(body) {
                 const st = this.grState();
-                if (!st.list) { body.innerHTML = '<p class="pp-empty">Loading…</p>'; if (!st.busy) { st.busy = true; this.loadGroups(true).then(() => { st.busy = false; this.renderPeople(); }).catch(e => { st.busy = false; this.peopleFailed(e); }); } return; }
+                if (!st.list) { body.innerHTML = this.loadingBlockHtml(); if (!st.busy) { st.busy = true; this.loadGroups(true).then(() => { st.busy = false; this.renderPeople(); }).catch(e => { st.busy = false; this.peopleFailed(e); }); } return; }
                 const groupRow = g => {
                     const n = (g.members || []).length, isOpen = st.open === String(g.id), id = this.esc(String(g.id));
                     const role = g.role === 'owner' ? 'You run it' : g.role === 'admin' ? 'Admin' : '';

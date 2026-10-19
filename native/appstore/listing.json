@@ -1,6 +1,7 @@
 {
   "locale": "en-US",
-  "subtitle": "Coffee log for dialing in",
+  "name": "Dialed In: Social Coffee Log",
+  "subtitle": "Log, share & dial in together",
   "promotionalText": "Log every cup, see what changed, and get a next-shot suggestion from your own best brews. Share with friends, or ask the community for help dialing in.",
   "keywords": "coffee,espresso,pour over,brew,log,grind,recipe,barista,aeropress,beans,roaster,tasting,journal",
   "supportUrl": "https://maceopmh-droid.github.io/Dialed-In-/support.html",
@@ -12,5 +13,16 @@
     "contactEmail": "dialedincoffeeapp@gmail.com",
     "notes": "Dialed In normally signs people in with a 6-digit code emailed to them. For review, enter appreview@dialed-in.app on the email screen and the app asks for the password instead. The account has its own sample coffees and sessions.\n\nUser-generated content safeguards (guideline 1.2):\n- Offensive words are filtered in names, comments and public notes, and links from accounts younger than 3 days are held.\n- Any session can be reported with the flag button on it (open it from the feed), any comment with Report under it, and any profile from the ••• on the profile. Reported items disappear for the reporter at once, and items reported by 3 people are hidden from everyone until reviewed.\n- Reviewers get an alert and act within 24 hours.\n- Users can block anyone from their profile.\n- Terms (with zero tolerance for objectionable content) are agreed at sign-up.\n- Contact: dialedincoffeeapp@gmail.com.\n\nAccount deletion (5.1.1(v)): the menu button at the top right, then Settings; Delete account is at the bottom.\n\nNative features: notifications through Apple's push service, haptics, offline use with the bundled app files, and the share sheet for exports."
   },
-  "screenshots": ["store_01.png", "store_02.png", "store_03.png", "store_04.png", "store_05.png", "store_06.png", "store_07.png", "store_08.png"]
+  "screenshots": [
+    "store_01.png",
+    "store_02.png",
+    "store_03.png",
+    "store_04.png",
+    "store_05.png",
+    "store_06.png",
+    "store_07.png",
+    "store_08.png",
+    "store_09.png",
+    "store_10.png"
+  ]
 }

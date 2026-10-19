@@ -37,6 +37,13 @@ const must = (r, what) => { if (!r.ok) throw new Error(`${what} (${why(r)})`); r
   const infos = must(await api('GET', `/v1/apps/${appId}/appInfos?limit=10`), 'app info');
   const info = (infos.j.data || []).find(i => !/READY_FOR_DISTRIBUTION|REPLACED_WITH_NEW_INFO/.test(i.attributes.state || i.attributes.appStoreState || '')) || (infos.j.data || [])[0];
   await step('category: Food & Drink', async () => must(await api('PATCH', `/v1/appInfos/${info.id}`, { data: { type: 'appInfos', id: info.id, relationships: { primaryCategory: { data: { type: 'appCategories', id: L.primaryCategory } } } } }), 'category'));
+  // the name shown beside the icon (its own step: a name someone else already uses is refused without holding up the rest)
+  if (L.name) await step(`name: ${L.name}`, async () => {
+    const locs = must(await api('GET', `/v1/appInfos/${info.id}/appInfoLocalizations?limit=50`), 'app info languages');
+    const loc = (locs.j.data || []).find(x => x.attributes.locale === L.locale);
+    if (!loc) throw new Error(`no ${L.locale} app info`);
+    must(await api('PATCH', `/v1/appInfoLocalizations/${loc.id}`, { data: { type: 'appInfoLocalizations', id: loc.id, attributes: { name: L.name } } }), 'name');
+  });
   await step('subtitle and privacy policy link', async () => {
     const locs = must(await api('GET', `/v1/appInfos/${info.id}/appInfoLocalizations?limit=50`), 'app info languages');
     const loc = (locs.j.data || []).find(x => x.attributes.locale === L.locale);
@@ -60,6 +67,13 @@ const must = (r, what) => { if (!r.ok) throw new Error(`${what} (${why(r)})`); r
   // ---- the version: number, copyright, text
   const vs = must(await api('GET', `/v1/apps/${appId}/appStoreVersions?filter[platform]=IOS&limit=20`), 'versions');
   let ver = (vs.j.data || []).find(v => /PREPARE_FOR_SUBMISSION|DEVELOPER_REJECTED|REJECTED|METADATA_REJECTED|INVALID_BINARY/.test(v.attributes.appStoreState || v.attributes.appVersionState || ''));
+  const stateOf = v => v.attributes.appVersionState || v.attributes.appStoreState || '';
+  say('App Store versions', (vs.j.data || []).map(v => `${v.attributes.versionString}: ${stateOf(v)}`).join(' | ') || 'none yet');
+  const busy = !ver && (vs.j.data || []).find(v => /WAITING_FOR_REVIEW|IN_REVIEW|READY_FOR_REVIEW|PENDING_DEVELOPER_RELEASE|PENDING_APPLE_RELEASE|PROCESSING_FOR_APP_STORE|ACCEPTED|WAITING_FOR_EXPORT_COMPLIANCE/.test(stateOf(v)));
+  if (busy) {   // Apple allows no new version while one is with App Review (or waiting to be released): say so and stop, nothing changed
+    say('Nothing to change yet', `version ${busy.attributes.versionString} is ${stateOf(busy).toLowerCase().replace(/_/g, ' ')}, and Apple allows no new version until it's out of review. The ${VERSION} build is in TestFlight; run this again after ${busy.attributes.versionString} is approved (or rejected) to make ${VERSION} and attach it.`);
+    process.exit(0);
+  }
   if (!ver) {
     const r = must(await api('POST', '/v1/appStoreVersions', { data: { type: 'appStoreVersions', attributes: { platform: 'IOS', versionString: VERSION }, relationships: { app: { data: { type: 'apps', id: appId } } } } }), 'making the version');
     ver = r.j.data;
@@ -78,6 +92,9 @@ const must = (r, what) => { if (!r.ok) throw new Error(`${what} (${why(r)})`); r
   await step('App Review sign-in and notes', async () => {
     const attributes = { demoAccountRequired: true, demoAccountName: L.review.demoAccountName, demoAccountPassword: process.env.REVIEW_PASSWORD || '', notes: L.review.notes, contactEmail: L.review.contactEmail };
     const cur = await api('GET', `/v1/appStoreVersions/${ver.id}/appStoreReviewDetail`);
+    // what Apple has saved for this version's review contact, as yes/no only (Actions logs are public: never the values)
+    { const a = (cur.ok && cur.j && cur.j.data && cur.j.data.attributes) || null;
+      console.log(`::notice title=App Review contact on Apple's side::version ${ver.attributes ? ver.attributes.versionString : '?'}: ${a ? `review details saved; first name ${a.contactFirstName ? 'yes' : 'no'}, last name ${a.contactLastName ? 'yes' : 'no'}, phone ${a.contactPhone ? 'yes' : 'no'}, email ${a.contactEmail ? 'yes' : 'no'}` : `no review details saved yet (${cur.status || '?'})`}`); }
     if (cur.ok && cur.j && cur.j.data) {
       const a = cur.j.data.attributes || {};
       if (!a.contactFirstName || !a.contactLastName || !a.contactPhone) todo.push('App Review contact: your first name, last name and phone (App Store Connect, the version page, App Review Information); Apple needs them and they are not stored anywhere here');

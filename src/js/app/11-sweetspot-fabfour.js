@@ -62,14 +62,14 @@
                 const points = byMethod.filter(p => this.sweetWho === 'all' || p.who === this.sweetWho);
                 const chip = (label, active, fn) => `<button type="button" class="chip-btn" aria-pressed="${active}" onclick="${fn}">${this.esc(label)}</button>`;
                 const methodRow = methods.length > 1 ? `<div class="sw-chips">${methods.map(m => chip(m, m === this.sweetMethod, `app.setSweet('method', '${app.escJs(m)}')`)).join('')}</div>` : '';
-                const peopleRow = people.length > 1 ? `<div class="sw-chips">${['all', ...people].map(p => chip(p === 'all' ? 'Everyone' : p, p === this.sweetWho, `app.setSweet('who', '${app.escJs(p)}')`)).join('')}</div>` : '';
+                const peopleRow = people.length > 1 ? `<div class="sw-chips">${['all', ...people].map(p => chip(p === 'all' ? 'All' : p, p === this.sweetWho, `app.setSweet('who', '${app.escJs(p)}')`)).join('')}</div>` : '';
                 if (points.length < 3) {
-                    pane.innerHTML = `<div class="sweet-card"><div class="sw-head"><h3>Sweet spot</h3><p>Where your best shots land: ratio against time, colored by rating.</p></div>${methodRow}${peopleRow}<div class="panel-empty">Log a few rated sessions with dose, yield and time${this.sweetMethod ? ` for ${this.esc(this.sweetMethod)}` : ''} to see your sweet spot.</div></div>`;
+                    pane.innerHTML = `<div class="sweet-card"><div class="sw-head"><h3>Sweet spot</h3><p>Where your best ${this.esc(this.shotWord(this.sweetMethod))}s land: ratio against time, colored by rating.</p></div>${methodRow}${peopleRow}<div class="panel-empty">Log a few rated sessions with dose, yield and time${this.sweetMethod ? ` for ${this.esc(this.sweetMethod)}` : ''} to see your sweet spot.</div></div>`;
                     return;
                 }
                 const zone = this.sweetZone(points);
                 const summary = zone
-                    ? `Best shots${this.sweetWho === 'all' ? '' : ` for ${this.esc(this.sweetWho)}`} cluster at <b>1:${this.fmtNum(zone.r0, 1)}${zone.r1 - zone.r0 >= 0.05 ? `–${this.fmtNum(zone.r1, 1)}` : ''}</b> in <b>${zone.t1 - zone.t0 < 1 ? this.esc(this.fmtSeconds(zone.t0)) : (zone.t1 < 90 ? `${Math.round(zone.t0)}–${Math.round(zone.t1)} s` : `${this.esc(this.fmtSeconds(zone.t0))}–${this.esc(this.fmtSeconds(zone.t1))}`)}</b> (${zone.n} shots at ${this.fmtNum(zone.cut)}★+).`
+                    ? `Best ${this.esc(this.shotWord(this.sweetMethod))}s${this.sweetWho === 'all' ? '' : ` for ${this.esc(this.sweetWho)}`} cluster at <b>1:${this.fmtNum(zone.r0, 1)}${zone.r1 - zone.r0 >= 0.05 ? `–${this.fmtNum(zone.r1, 1)}` : ''}</b> in <b>${zone.t1 - zone.t0 < 1 ? this.esc(this.fmtSeconds(zone.t0)) : (zone.t1 < 90 ? `${Math.round(zone.t0)}–${Math.round(zone.t1)} s` : `${this.esc(this.fmtSeconds(zone.t0))}–${this.esc(this.fmtSeconds(zone.t1))}`)}</b> (${zone.n} ${this.esc(this.shotWord(this.sweetMethod))}s at ${this.fmtNum(zone.cut)}★+).`
                     : 'Rate a few more sessions to find the cluster.';
                 pane.innerHTML = `
                     <div class="sweet-card">

@@ -125,6 +125,7 @@
                 const bean = this.beans.get(String(event.beanId));
                 if (!bean) return;
                 this.originList(bean.origin).forEach(o => stats.originSet.add(o.toLowerCase()));
+                if (this.coffeeContinent && stats.continentSet) this.originList(bean.origin).forEach(o => { const c = this.coffeeContinent(o); if (c) stats.continentSet.add(c); });   // v15.1
                 const process = this.normalizeTag(bean.process);
                 if (process) stats.processSet.add(process.toLowerCase());
                 const roast = String(bean.roast || '').trim();
@@ -162,7 +163,7 @@
                     const missing = all.filter(x => !used.has(x.toLowerCase()));
                     return `<div class="achievement-hint">${this.esc(have.length ? `Done: ${have.join(' · ')}` : 'None yet')}${missing.length ? `<br>${this.esc(`To go: ${missing.join(' · ')}`)}` : ''}</div>`;
                 };
-                if (def.key === 'brew_master') hint = listHint(['Espresso', 'Pour Over', 'French Press', 'Moka Pot', 'Aeropress', 'Cold Brew'], stats.methodSet);
+                if (def.key === 'brew_master') hint = listHint(['Espresso', 'Pour Over', 'French Press', 'Moka Pot', 'AeroPress', 'Cold Brew'], stats.methodSet);
                 if (def.key === 'roast_spectrum') hint = listHint(['Light', 'Medium-Light', 'Medium', 'Medium-Dark', 'Dark'], stats.roastSet);
                 return `<div class="ach-card${done ? ' complete' : ''}"><div class="ach-top"><div class="ach-name">${this.esc(def.title)}</div><div class="ach-level">${levelText}</div></div><div class="ach-desc">${this.esc(def.desc || '')}</div>${pips}<div class="achievement-track"><div class="achievement-fill" style="width:${progress}%;"></div></div><div class="achievement-meta"><span>${this.esc(def.format(value))}</span><span>${this.esc(right)}</span></div>${hint}</div>`;
             },

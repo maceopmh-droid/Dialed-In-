@@ -58,7 +58,7 @@
                     {
                         key: 'beans_used',
                         group: 'Exploring',
-                        desc: 'Different beans brewed',
+                        desc: 'Different coffees brewed',
                         title: 'Bean Explorer',
                         thresholds: [5, 10, 20, 35, 50, 75, 100, 150, 200, 300],
                         metric: stats => (stats.beanIds ? stats.beanIds.size : 0),
@@ -67,8 +67,8 @@
                     },
                     {
                         key: 'comments_written',
-                        group: 'Community',
-                        desc: 'Comments left on sessions and beans',
+                        group: 'Social',
+                        desc: 'Comments left on sessions and coffees',
                         title: 'Community Voice',
                         thresholds: [5, 15, 30, 50, 80, 120, 180, 260, 360, 500],
                         metric: stats => stats.commentsWritten,
@@ -77,13 +77,13 @@
                     },
                     {
                         key: 'likes_received',
-                        group: 'Community',
+                        group: 'Social',
                         desc: 'Likes received from friends',
                         title: 'Crowd Favorite',
                         thresholds: [5, 15, 30, 60, 100, 160, 240, 360, 520, 720],
                         metric: stats => stats.likesReceived,
                         format: value => `${Math.round(value)}`,
-                        sentence: value => `earned ${Math.round(value)} likes from the community`
+                        sentence: value => `earned ${Math.round(value)} likes`
                     },
                     {
                         key: 'brew_master',
@@ -106,6 +106,16 @@
                         sentence: value => `brewed coffees from ${Math.round(value)} different origins`
                     },
                     {
+                        key: 'continents',   // v15.1 (Aidan's idea): a coffee from every continent that grows it
+                        group: 'Exploring',
+                        desc: 'A coffee from every continent that grows it: Africa, Asia, Oceania, North & Central America, South America',
+                        title: 'World Tour',
+                        thresholds: [5],
+                        metric: stats => (stats.continentSet ? stats.continentSet.size : 0),
+                        format: value => `${Math.min(5, Math.max(0, Math.round(value)))}/5 continents`,
+                        sentence: () => 'brewed coffee from every continent that grows it'
+                    },
+                    {
                         key: 'processes',
                         group: 'Exploring',
                         desc: 'Different processing methods brewed (washed, natural, honey...)',
@@ -123,7 +133,7 @@
                         thresholds: [2, 3, 5, 8, 12, 16, 20, 25, 30, 40],
                         metric: stats => (stats.roasterSet ? stats.roasterSet.size : 0),
                         format: value => `${Math.round(value)} roaster${Math.round(value) === 1 ? '' : 's'}`,
-                        sentence: value => `brewed beans from ${Math.round(value)} different roasters`
+                        sentence: value => `brewed coffees from ${Math.round(value)} different roasters`
                     },
                     {
                         key: 'roast_spectrum',
@@ -199,7 +209,7 @@
                 [this.achievementUnlockByBrew, this.achievementUnlockByBean].forEach(map => map.forEach(list => list.forEach(u => { if (u.user === user) recent.push(u); })));
                 recent.sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
                 const recentHtml = recent.slice(0, 3).map(u => `<div>${this.esc(u.definition.title)}${u.definition.thresholds.length > 1 ? ` Lv ${u.level}` : ''} · ${this.esc(this.shortDate(u.date))}</div>`).join('');
-                const groups = ['Brewing', 'Exploring', 'Community'].map(groupName => {
+                const groups = ['Brewing', 'Exploring', 'Social'].map(groupName => {
                     const defs = catalog.filter(d => (d.group || 'Brewing') === groupName);
                     return `<div class="ach-group"><div class="ach-group-title">${groupName}</div><div class="ach-cards">${defs.map(d => this.renderAchievementCard(d, stats, levels)).join('')}</div></div>`;
                 }).join('');

@@ -57,7 +57,8 @@
                 // v12.2: only what was just added gets looked at
                 const roots = new Set();
                 let queued = false;
-                const run = () => { queued = false; const list = [...roots]; roots.clear(); list.forEach(r => { if (r.isConnected) this.centerInitials(r); }); };
+                // v15.1: and the profile pictures of whoever just came on screen
+                const run = () => { queued = false; const list = [...roots]; roots.clear(); list.forEach(r => { if (r.isConnected) { this.centerInitials(r); if (this.noteFaces) this.noteFaces(r); } }); if (this.paintFaceRules) this.paintFaceRules(); };
                 new MutationObserver(recs => {
                     recs.forEach(r => r.addedNodes.forEach(n => {
                         if (n.nodeType === 1) { if (!n.classList.contains('ini')) roots.add(n); }
@@ -66,9 +67,11 @@
                     if (roots.size && !queued) { queued = true; requestAnimationFrame(run); }
                 }).observe(document.body, { childList: true, subtree: true });
                 this.centerInitials();
+                if (this.paintFaceRules) { this.paintFaceRules(); this.noteFaces(); }
             },
 
             init() {
+                if (this.bootStep) { this.bootStep(48); setTimeout(() => this.hideBoot(), 6000); }   // v15.1: the start-up screen
                 if (this.noteInviteLink) this.noteInviteLink();   // v14.4: ?join=CODE, offered once you're signed in
                 if (this.noteProfileLink) this.noteProfileLink();
                 if (this.noteShareLink) this.noteShareLink();   // v15.0: a shared session, coffee or roaster
@@ -91,7 +94,7 @@
                 const mobileMethod = document.getElementById('mobile-method-select');
                 if (mobileSort) mobileSort.value = this.currentSort;
                 if (mobileMethod) mobileMethod.value = this.currentMethodFilter;
-                if (!this.user) this.openWelcome();   // v14.0
+                if (!this.user) { this.openWelcome(); if (this.hideBoot) this.hideBoot(); }   // v14.0
                 else this.updateBadge('connecting');
                 this.watchInitials();
                 this.watchLikeLines();
@@ -105,6 +108,8 @@
                 this.outboxReady = this.loadOutbox();
                 if (typeof window.addEventListener === 'function') window.addEventListener('online', () => { (this.outbox || []).forEach(x => { x.lastTry = 0; }); this.flushOutbox(); });   // (a stand-in window in some tests has none)
                 this.bootFromCache().then(() => {
+                    // v15.1: your coffees are on screen: the start-up screen goes (two frames on, once they're drawn)
+                    if (this.hideBoot) { this.bootStep(88); requestAnimationFrame(() => requestAnimationFrame(() => this.hideBoot())); }
                     if (this.user || this.welcomeOpen) this.sync();
                 });
                 this.syncTimer = setInterval(() => {
@@ -156,9 +161,9 @@
                 try {
                     const params = new URLSearchParams(window.location.search || '');
                     const view = String(params.get('view') || '').toLowerCase();
-                    if (view === 'feed' || view === 'shared' || view === 'my' || view === 'profile') {
+                    if (view === 'feed' || view === 'roasters' || view === 'my' || view === 'profile') {
                         this.tab = view;
-                    }
+                    } else if (view === 'shared') { this.tab = 'my'; this.coffeeScope = 'all'; }   // v15.1: old links
                 } catch (err) {
                     this.tab = this.tab || 'my';
                 }

@@ -13,7 +13,7 @@
                 if (tab) tab.hidden = !on;
                 if (!on) { if (this.detailTab === 'everyone') this.detailTab = 'timeline'; return; }
                 const meta = group.meta, key = this.coffeeCommKey(meta.roaster, meta.name), st = this.coffeeCommState();
-                if (st.key !== key) Object.assign(st, { key, roaster: meta.roaster || '', name: meta.name || '', events: [], summary: null, next: null, error: '', at: 0, loading: false });
+                if (st.key !== key) Object.assign(st, { key, roaster: meta.roaster || '', name: meta.name || '', events: [], summary: null, next: null, error: '', at: 0, failedAt: 0, loading: false });
             },
 
             async loadCoffeeCommunity(more) {
@@ -24,18 +24,22 @@
                 st.loading = true; st.error = '';
                 this.renderCoffeeCommunity();
                 try {
-                    const out = await Supa.rpc('coffee_community', { coffee_roaster: st.roaster, coffee_name: st.name, before: more ? st.next : null, max_items: 10 });
+                    const out = await Supa.rpc('coffee_community', { coffee_roaster: st.roaster, coffee_name: st.name, before: more ? st.next : null, max_items: more ? 10 : 30 });   // v15.1: enough for a flavor shape
                     if (st.key !== key) return;   // they moved on to another coffee
                     const events = Array.isArray(out && out.events) ? out.events : [];
                     st.events = more ? st.events.concat(events) : events;
                     if (!more) st.summary = out && out.summary ? out.summary : null;
                     st.next = out && out.next ? out.next : null;
-                    st.at = Date.now();
+                    st.at = Date.now(); st.failedAt = 0;
                 } catch (e) {
+                    if (st.key === key) st.failedAt = Date.now();   // v15.1: the coffee page waits a while before asking again (it asked again at once, forever)
                     if (st.key === key) st.error = /fetch|network|load failed/i.test(String(e && e.message)) ? 'Couldn\'t load. Check your connection.' : 'Couldn\'t load this. Try again in a moment.';
                 } finally {
                     if (st.key === key) st.loading = false;
+                    // v15.1: they join the app beside your circle's (likes and comments work; never your library or goals)
+                    if (st.key === key && st.at) { try { this.process(this.cloud.events); } catch (e) { /* drawn from the list then */ } }
                     this.renderCoffeeCommunity();
+                    if (st.key === key && this.lensEveryoneLoaded) this.lensEveryoneLoaded(st);
                 }
             },
 
@@ -79,7 +83,7 @@
                 const brews = st.events.filter(e => e && e.type === 'brew' && !this.reported(e.id));
                 let body;
                 if (st.error && !brews.length) body = `<p class="pp-empty">${this.esc(st.error)}</p>`;
-                else if (!st.at && st.loading) body = '<p class="pp-empty">Loading…</p>';
+                else if (!st.at && st.loading) body = this.loadingBlockHtml();
                 else if (!brews.length) body = '<p class="pp-empty">Nobody else has shared a session on this coffee yet.</p>';
                 else {
                     const notes = s && Array.isArray(s.notes) ? s.notes.map(n => String(n).replace(/^./, c => c.toUpperCase())) : [];

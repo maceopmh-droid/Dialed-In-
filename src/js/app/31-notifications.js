@@ -63,7 +63,8 @@
                     case 'follow_accepted': return `${who} approved your follow request`;
                     case 'joined_group': return `${who} joined ${this.esc(n.group || 'your group')}`;
                     case 'helpful': return `${who} marked your answer most helpful${said}`;   // v14.5
-                    case 'report': return 'Something was reported. Review it within a day.';   // v14.6: reviewers only (who reported it isn't shown)
+                    case 'report': return 'Something was reported. Review it within a day.';
+                    case 'bug': return `${who} reported a bug. Read it in Settings.`;   // v15.1: reviewers only
                     default: return who;
                 }
             },
@@ -72,7 +73,7 @@
                 const body = document.getElementById('notif-body');
                 if (!body) return;
                 const st = this.notifState();
-                if (!st.items) { body.innerHTML = '<p class="pp-empty">Loading…</p>'; return; }
+                if (!st.items) { body.innerHTML = this.loadingBlockHtml(); return; }
                 if (!st.items.length) { body.innerHTML = '<p class="pp-empty">Nothing yet. When people like, comment on or follow your brewing, it shows up here.</p>'; return; }
                 body.innerHTML = `<div class="pp-list">${st.items.map(n => `<button type="button" class="nt-row${n.read ? '' : ' is-new'}" data-id="${this.esc(String(n.id))}" onclick="app.openNotification(this.getAttribute('data-id'))">${n.kind === 'report' ? this.personDotHtml('!', '#8A8F8B') : this.personDotHtml(n.who || '?', n.color)}<span class="nt-text"><span>${this.notifText(n)}</span><small>${this.esc(this.formatRelativeDate(n.at))}</small></span></button>`).join('')}</div>`;
             },
@@ -82,7 +83,8 @@
                 const n = (this.notifState().items || []).find(x => String(x.id) === String(id));
                 if (!n) return;
                 if (n.kind === 'follow_request') { this.closeNotifications(); this.openPeople(); return; }
-                if (n.kind === 'report') { this.closeNotifications(); if (this.openReview) this.openReview(); return; }   // v14.6
+                if (n.kind === 'report') { this.closeNotifications(); if (this.openReview) this.openReview(); return; }
+                if (n.kind === 'bug') { this.closeNotifications(); if (this.openBugReports) this.openBugReports(); return; }   // v15.1   // v14.6
                 if ((n.kind === 'follow' || n.kind === 'follow_accepted') && this.openAnyProfile) { this.closeNotifications(); this.openAnyProfile(n.who); return; }   // v14.5: their profile
                 if (n.kind === 'follow' || n.kind === 'follow_accepted') { this.closeNotifications(); this.openPeople(); return; }
                 if (n.kind === 'joined_group') { this.closeNotifications(); this.openPeople(); return; }
