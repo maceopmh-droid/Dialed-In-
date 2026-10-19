@@ -1,0 +1,46 @@
+# Dialed In: Social Coffee Log
+
+> Dialed In is a social coffee log app for people who brew coffee at home. You log each cup (espresso, pour over, French press, AeroPress, moka pot or cold brew), see it as a 3D flavor shape, get a next-shot suggestion based on your own best brews, and share sessions with friends. It runs in any web browser today; an iPhone app is coming to the App Store. Accounts are free during early access, with no ads and no tracking.
+
+## Key facts
+- Name: Dialed In (App Store name: "Dialed In: Social Coffee Log")
+- What it is: a coffee log / coffee journal app with a social feed, for home baristas
+- Brew methods: espresso, pour over, French press, AeroPress, moka pot, cold brew
+- Next-shot coach: reads your notes and numbers, compares each brew with your best one on that coffee, and suggests one change (for example grind finer, shorten the ratio, or repeat it exactly). It only uses your own grinder's numbers.
+- Flavor shape: five tastes (acidity, sweetness, body, finish, bitterness) form the base of a 3D shape and complexity sets its height
+- Social: follow friends, like and comment, communities with a weekly goal and monthly awards, ask the community for help dialing in, and a Discover feed that ends instead of scrolling forever
+- Privacy: you choose who sees each session (everyone, friends, or only you); no ads; no tracking; download your data or delete your account in Settings
+- Price: free during early access
+- Platforms: web app in any browser (works on phones and computers, can be added to the home screen); iPhone app coming soon
+- Made by: an independent college student and his friends
+
+## Links
+- [Website](https://maceopmh-droid.github.io/Dialed-In-/welcome/)
+- [Open the web app](https://maceopmh-droid.github.io/Dialed-In-/)
+- [Support](https://maceopmh-droid.github.io/Dialed-In-/support.html)
+- [Privacy policy](https://maceopmh-droid.github.io/Dialed-In-/privacy.html)
+- [Terms](https://maceopmh-droid.github.io/Dialed-In-/terms.html)
+- Contact: dialedincoffeeapp@gmail.com
+
+## Questions
+
+### What is Dialed In?
+Dialed In is a social coffee log app for people who brew at home. Log espresso, pour over, French press, AeroPress, moka pot and cold brew, see every cup as a 3D flavor shape, get a next-shot tip based on your own best brews, and share it all with your friends.
+
+### Is it free?
+For now, yes. Accounts are free while Dialed In is in early access, so now’s the time to claim yours. There are no ads and no tracking.
+
+### Do I need an iPhone?
+No. Dialed In runs in your web browser on a phone or a computer, and you can add it to your home screen so it opens like an app. The iPhone app is coming soon to the App Store, and your account works in both.
+
+### Will a friend’s grind setting work on my grinder?
+Usually not, because every grinder counts differently. That’s why the coach only ever uses your own grind numbers. Ratios, shot times and tastes do compare, so those are what you share and learn from.
+
+### Who can see what I log?
+You pick for each session: everyone, your friends, or only you. You can also make your profile private and block anyone.
+
+### I’m new to brewing. Is it for me?
+Yes. Log what you brewed and how it tasted, and the coach tells you what to try next in plain words. If you get stuck, ask the community.
+
+### How do I get help or report a problem?
+Email dialedincoffeeapp@gmail.com or visit the support page. Sessions, comments and profiles can each be reported from inside the app.
