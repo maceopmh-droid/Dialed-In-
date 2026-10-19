@@ -435,7 +435,7 @@
                 const coffeeName = (bean ? String(bean.name || '').trim() : String(entry.beanName || '')) || 'Coffee';
                 const rating = this.normalizeRating(brew.rating);
                 const flavors = this.extractFlavors(brew).slice(0, 4);
-                const gear = [...this.resolveEquipmentNames(brew), ...this.sessionExtras(brew)];
+                const gear = [...this.resolveEquipmentNames(brew), ...this.sessionExtras(brew), ...(this.roastDayLabel ? this.roastDayLabel(brew) : [])];   // v15.1: day N off roast
                 const likes = this.normalizeLikeList(brew.likes, owner);
                 const unlocks = this.achievementUnlockByBrew.get(String(brew.id)) || [];
                 const notes = this.getBrewNotes(brew);

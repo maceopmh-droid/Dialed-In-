@@ -47,7 +47,7 @@
                 const color = this.getUserColor(owner, log.actorColor || '');
                 const rating = this.normalizeRating(log.rating);
                 const flavors = this.extractFlavors(log).slice(0, 4);
-                const gear = [...this.resolveEquipmentNames(log), ...this.sessionExtras(log)];
+                const gear = [...this.resolveEquipmentNames(log), ...this.sessionExtras(log), ...(this.roastDayLabel ? this.roastDayLabel(log) : [])];   // v15.1: day N off roast
                 const likes = this.normalizeLikeList(log.likes, owner);
                 const unlocks = this.achievementUnlockByBrew.get(String(log.id)) || [];
                 const notes = this.getBrewNotes(log);
@@ -101,9 +101,10 @@
             renderDetailExtras(group, brews) {
                 const meta = group.meta || {};
                 const roastLine = document.getElementById('d-roast-date');
-                if (roastLine) {
-                    const t = this.parseLocalDate(meta.roastDate);
-                    roastLine.innerText = t ? `Roasted ${new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}` : '';
+                if (roastLine) {   // v15.1: your bag (others' bags are on their sessions: day N off roast)
+                    const rd = this.bagRoastDate(this.beanGroupKey(meta)), t = this.parseLocalDate(rd);
+                    const days = t ? Math.floor((this.parseLocalDate(this.dayKey(Date.now())) - t) / 864e5) : -1;
+                    roastLine.innerText = t ? `Your bag: roasted ${new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}${days >= 0 ? ` · ${days === 0 ? 'today' : days === 1 ? '1 day ago' : `${days} days ago`}` : ''}` : '';
                     roastLine.style.display = t ? 'block' : 'none';
                 }
                 const btn = document.getElementById('d-want-btn');

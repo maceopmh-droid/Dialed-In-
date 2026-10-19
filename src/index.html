@@ -467,7 +467,7 @@
                     <option value="Dark">Dark</option>
                 </select>
                 
-                <label>Roast Date (Optional)</label>
+                <label>Roast date on your bag (optional)</label>
                 <input type="date" name="roastDate">
                 
                 <button type="submit" class="btn-primary" style="margin-top: 2rem;">Save Coffee</button>
@@ -509,6 +509,8 @@
                     </div>
                     <div><label>Grind</label><input type="text" name="grind" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="24" placeholder="10.4 or 3B" required></div>
                 </div>
+                <!-- v15.1: the roast date of the bag you're brewing from (filled in from your last session on this coffee) -->
+                <div class="roast-row"><label for="brew-roast-date">Roast date on the bag <span id="roast-days"></span></label><input type="date" name="roastDate" id="brew-roast-date" oninput="app.paintRoastDays()"></div>
 
                 <div id="next-shot-hint" class="next-shot-hint" style="display:none;"></div>
 

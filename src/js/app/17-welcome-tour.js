@@ -17,7 +17,7 @@
             openWelcome(step = 'intro') {
                 const view = document.getElementById('welcome-view');
                 if (!view) return;
-                this.wl = { step, name: '', color: '', gear: [], gearOpen: '', pick: '', bean: { roaster: '', name: '', origin: '', roast: 'Light', process: '' } };
+                this.wl = { step, name: '', color: '', gear: [], gearOpen: '', pick: '', bean: { roaster: '', name: '', origin: '', roast: 'Light', process: '', roastDate: '' } };
                 this.welcomeOpen = true;
                 view.classList.add('active'); view.setAttribute('aria-hidden', 'false');
                 document.body.classList.add('wl-open');
@@ -71,7 +71,7 @@
                         <div class="wl-mark">Dialed In</div>
                         <div class="wl-hero"><div class="wl-glow"></div><div class="wl-shape" id="wl-shape"></div></div>
                         <h1 class="wl-h1">Dial in every cup.</h1>
-                        <p class="wl-lead">Log your brews, see what your friends are pulling, and get a coach that tells you exactly what to change next.</p>
+                        <p class="wl-lead">Log every cup, see what your friends and communities are brewing, and get a coach that tells you exactly what to change next. Earn crema as you go, from Seed to Dialed In.</p>
                         ${G.rows.length && !(this.acctOn() && !G.sessions) ? `<div class="wl-proof">${this.wlFaces(G.rows)}<span>${esc(this.wlNames(G.rows))} · ${esc(G.sessions.toLocaleString())} sessions logged</span></div>` : ''}
                         <div class="wl-actions">
                             <button type="button" class="btn-primary wl-main" onclick="${this.acctOn() ? "app.wlStart('new')" : "app.wlGo('name')"}">I'm new to Dialed In</button>
@@ -150,6 +150,7 @@
                             <input class="wl-input" id="wl-b-origin" maxlength="60" placeholder="Origin (optional)" value="${esc(b.origin)}" oninput="app.wlBean('origin', this.value)">
                             <div class="wl-pills"><span>Roast</span>${chips('roast', ['Light', 'Medium', 'Dark'])}</div>
                             <div class="wl-pills"><span>Process</span>${chips('process', ['Washed', 'Natural', 'Honey', 'Anaerobic'])}</div>
+                            <label class="wl-date"><span>Roast date on the bag (optional)</span><input class="wl-input" id="wl-b-roastdate" type="date" value="${esc(b.roastDate || '')}" oninput="app.wlBean('roastDate', this.value)"></label>
                         </div>
                         <div class="wl-actions">
                             <button type="button" class="btn-primary wl-main" id="wl-finish" onclick="app.wlFinish()">Finish setup</button>
@@ -332,7 +333,7 @@
                 let firstBean = skipCoffee ? '' : s.pick;
                 if (!skipCoffee && !firstBean && b.roaster.trim() && b.name.trim()) {
                     const id = `${Date.now() + 50}`, bdate = new Date(Date.now() - 1000).toISOString();   // a moment before you joined, so the join post is on top
-                    const payload = this.buildBeanPayload({ id, user: name, owner: name, date: bdate, roaster: '', name: '', variety: '', origin: '', process: '', roast: 'Light', likes: [], comments: [] }, { id, date: bdate, roaster: b.roaster.trim(), name: b.name.trim(), variety: '', origin: b.origin.trim(), process: b.process, roast: b.roast || 'Light', roastDate: '' });
+                    const payload = this.buildBeanPayload({ id, user: name, owner: name, date: bdate, roaster: '', name: '', variety: '', origin: '', process: '', roast: 'Light', likes: [], comments: [] }, { id, date: bdate, roaster: b.roaster.trim(), name: b.name.trim(), variety: '', origin: b.origin.trim(), process: b.process, roast: b.roast || 'Light', roastDate: String(b.roastDate || '').slice(0, 10) });
                     if (payload) { this.push(payload); firstBean = id; }
                 }
                 this.wlFirstBean = firstBean;
@@ -347,12 +348,13 @@
                 const desk = window.matchMedia && window.matchMedia('(min-width: 769px)').matches;
                 const nav = tab => desk ? `#sidebar .nav-btn[data-tab="${tab}"]` : `#mobile-nav .mob-item[data-tab="${tab}"]`;
                 return [
-                    { sel: nav('feed'), tab: 'feed', title: 'Feed', text: 'Sessions from the people you follow show up here. Like them, comment, and brew toward your community\'s weekly goal. Your welcome post is already up.' },
-                    { sel: nav('my'), tab: 'my', title: 'Coffees', text: 'Yours under Mine, everyone\'s under All. Open one to log a session, see your dial-in curve, and get the next-shot coach.' },
+                    { sel: nav('feed'), tab: 'feed', title: 'Feed', text: 'Following is the people you follow, Community is your groups (with a weekly goal), and Discover is everyone. Like, comment, or ask for help dialing in. Your welcome post is already up.' },
+                    { sel: nav('my'), tab: 'my', title: 'Coffees', text: 'Yours under Mine, everyone\'s under All. Open one to log a session and get the next-shot coach, and switch between your take, your friends\' and everyone\'s.' },
+                    { sel: desk ? '#search-input' : '#top-search-btn', tab: 'my', title: 'Search', text: 'Find any coffee by name, roaster or origin. It searches roasters on the Roasters tab.' },
                     { sel: nav('roasters'), tab: 'roasters', title: 'Roasters', text: 'Every roaster you and your people have brewed, with their coffees, ratings and how their espresso runs.' },
-                    { sel: desk ? '#sidebar .nav-btn:not([data-tab]):not(.settings-nav-btn)' : '#mobile-nav .mob-fab', tab: 'my', title: 'Add a coffee', text: 'New bag? Add it here, then log sessions on it.' },
-                    { sel: nav('profile'), tab: 'profile', title: 'Profile', text: 'Your stats, favorites, gear and achievements. Anyone else’s is a tap away.' },
-                    { sel: desk ? '#sidebar .settings-nav-btn' : '#mobile-controls-btn', tab: 'feed', title: 'Settings', text: desk ? 'Light or dark, your profile picture, notifications and privacy.' : 'Filters and Settings live here: light or dark, your profile picture, notifications and privacy.' }
+                    { sel: desk ? '#sidebar .nav-btn:not([data-tab]):not(.settings-nav-btn)' : '#mobile-nav .mob-fab', tab: 'my', title: 'Add a coffee', text: 'New bag? Add it here, then log sessions on it. Each session keeps its bag\'s roast date.' },
+                    { sel: nav('profile'), tab: 'profile', title: 'Profile', text: 'Your level and crema, your stats and taste, and More: achievements, monthly awards and recaps. Anyone else\'s is a tap away.' },
+                    { sel: desk ? '#sidebar .settings-nav-btn' : '#mobile-controls-btn', tab: 'feed', title: 'Settings', text: desk ? 'Light or dark, your profile picture, notifications and privacy. Something broken? Report a bug here.' : 'Sorting, filters and Settings: light or dark, your profile picture, notifications and privacy. Something broken? Report a bug here.' }
                 ];
             },
 

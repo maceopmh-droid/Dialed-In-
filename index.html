@@ -3872,6 +3872,11 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
 }
 /* these open from Settings (and the bell): above the Settings sheet, like Reports */
 #bug-modal, #bugs-modal, #level-modal { z-index: 6100; }
+
+/* v15.1: the bag's roast date in the log form, and on the welcome's first coffee */
+.roast-row { margin-top: 1.1rem; }
+.roast-row label #roast-days { font-weight: 600; color: var(--matcha); text-transform: none; letter-spacing: 0; }
+.wl-date { display: flex; flex-direction: column; gap: 6px; font-size: 0.8rem; color: var(--text-muted); }
     </style>
 </head>
 <body>
@@ -4304,7 +4309,7 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
                     <option value="Dark">Dark</option>
                 </select>
                 
-                <label>Roast Date (Optional)</label>
+                <label>Roast date on your bag (optional)</label>
                 <input type="date" name="roastDate">
                 
                 <button type="submit" class="btn-primary" style="margin-top: 2rem;">Save Coffee</button>
@@ -4346,6 +4351,8 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
                     </div>
                     <div><label>Grind</label><input type="text" name="grind" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="24" placeholder="10.4 or 3B" required></div>
                 </div>
+                <!-- v15.1: the roast date of the bag you're brewing from (filled in from your last session on this coffee) -->
+                <div class="roast-row"><label for="brew-roast-date">Roast date on the bag <span id="roast-days"></span></label><input type="date" name="roastDate" id="brew-roast-date" oninput="app.paintRoastDays()"></div>
 
                 <div id="next-shot-hint" class="next-shot-hint" style="display:none;"></div>
 
@@ -11116,7 +11123,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const coffeeName = (bean ? String(bean.name || '').trim() : String(entry.beanName || '')) || 'Coffee';
                 const rating = this.normalizeRating(brew.rating);
                 const flavors = this.extractFlavors(brew).slice(0, 4);
-                const gear = [...this.resolveEquipmentNames(brew), ...this.sessionExtras(brew)];
+                const gear = [...this.resolveEquipmentNames(brew), ...this.sessionExtras(brew), ...(this.roastDayLabel ? this.roastDayLabel(brew) : [])];   // v15.1: day N off roast
                 const likes = this.normalizeLikeList(brew.likes, owner);
                 const unlocks = this.achievementUnlockByBrew.get(String(brew.id)) || [];
                 const notes = this.getBrewNotes(brew);
@@ -11890,7 +11897,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             openWelcome(step = 'intro') {
                 const view = document.getElementById('welcome-view');
                 if (!view) return;
-                this.wl = { step, name: '', color: '', gear: [], gearOpen: '', pick: '', bean: { roaster: '', name: '', origin: '', roast: 'Light', process: '' } };
+                this.wl = { step, name: '', color: '', gear: [], gearOpen: '', pick: '', bean: { roaster: '', name: '', origin: '', roast: 'Light', process: '', roastDate: '' } };
                 this.welcomeOpen = true;
                 view.classList.add('active'); view.setAttribute('aria-hidden', 'false');
                 document.body.classList.add('wl-open');
@@ -11944,7 +11951,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         <div class="wl-mark">Dialed In</div>
                         <div class="wl-hero"><div class="wl-glow"></div><div class="wl-shape" id="wl-shape"></div></div>
                         <h1 class="wl-h1">Dial in every cup.</h1>
-                        <p class="wl-lead">Log your brews, see what your friends are pulling, and get a coach that tells you exactly what to change next.</p>
+                        <p class="wl-lead">Log every cup, see what your friends and communities are brewing, and get a coach that tells you exactly what to change next. Earn crema as you go, from Seed to Dialed In.</p>
                         ${G.rows.length && !(this.acctOn() && !G.sessions) ? `<div class="wl-proof">${this.wlFaces(G.rows)}<span>${esc(this.wlNames(G.rows))} · ${esc(G.sessions.toLocaleString())} sessions logged</span></div>` : ''}
                         <div class="wl-actions">
                             <button type="button" class="btn-primary wl-main" onclick="${this.acctOn() ? "app.wlStart('new')" : "app.wlGo('name')"}">I'm new to Dialed In</button>
@@ -12023,6 +12030,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                             <input class="wl-input" id="wl-b-origin" maxlength="60" placeholder="Origin (optional)" value="${esc(b.origin)}" oninput="app.wlBean('origin', this.value)">
                             <div class="wl-pills"><span>Roast</span>${chips('roast', ['Light', 'Medium', 'Dark'])}</div>
                             <div class="wl-pills"><span>Process</span>${chips('process', ['Washed', 'Natural', 'Honey', 'Anaerobic'])}</div>
+                            <label class="wl-date"><span>Roast date on the bag (optional)</span><input class="wl-input" id="wl-b-roastdate" type="date" value="${esc(b.roastDate || '')}" oninput="app.wlBean('roastDate', this.value)"></label>
                         </div>
                         <div class="wl-actions">
                             <button type="button" class="btn-primary wl-main" id="wl-finish" onclick="app.wlFinish()">Finish setup</button>
@@ -12205,7 +12213,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 let firstBean = skipCoffee ? '' : s.pick;
                 if (!skipCoffee && !firstBean && b.roaster.trim() && b.name.trim()) {
                     const id = `${Date.now() + 50}`, bdate = new Date(Date.now() - 1000).toISOString();   // a moment before you joined, so the join post is on top
-                    const payload = this.buildBeanPayload({ id, user: name, owner: name, date: bdate, roaster: '', name: '', variety: '', origin: '', process: '', roast: 'Light', likes: [], comments: [] }, { id, date: bdate, roaster: b.roaster.trim(), name: b.name.trim(), variety: '', origin: b.origin.trim(), process: b.process, roast: b.roast || 'Light', roastDate: '' });
+                    const payload = this.buildBeanPayload({ id, user: name, owner: name, date: bdate, roaster: '', name: '', variety: '', origin: '', process: '', roast: 'Light', likes: [], comments: [] }, { id, date: bdate, roaster: b.roaster.trim(), name: b.name.trim(), variety: '', origin: b.origin.trim(), process: b.process, roast: b.roast || 'Light', roastDate: String(b.roastDate || '').slice(0, 10) });
                     if (payload) { this.push(payload); firstBean = id; }
                 }
                 this.wlFirstBean = firstBean;
@@ -12220,12 +12228,13 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const desk = window.matchMedia && window.matchMedia('(min-width: 769px)').matches;
                 const nav = tab => desk ? `#sidebar .nav-btn[data-tab="${tab}"]` : `#mobile-nav .mob-item[data-tab="${tab}"]`;
                 return [
-                    { sel: nav('feed'), tab: 'feed', title: 'Feed', text: 'Sessions from the people you follow show up here. Like them, comment, and brew toward your community\'s weekly goal. Your welcome post is already up.' },
-                    { sel: nav('my'), tab: 'my', title: 'Coffees', text: 'Yours under Mine, everyone\'s under All. Open one to log a session, see your dial-in curve, and get the next-shot coach.' },
+                    { sel: nav('feed'), tab: 'feed', title: 'Feed', text: 'Following is the people you follow, Community is your groups (with a weekly goal), and Discover is everyone. Like, comment, or ask for help dialing in. Your welcome post is already up.' },
+                    { sel: nav('my'), tab: 'my', title: 'Coffees', text: 'Yours under Mine, everyone\'s under All. Open one to log a session and get the next-shot coach, and switch between your take, your friends\' and everyone\'s.' },
+                    { sel: desk ? '#search-input' : '#top-search-btn', tab: 'my', title: 'Search', text: 'Find any coffee by name, roaster or origin. It searches roasters on the Roasters tab.' },
                     { sel: nav('roasters'), tab: 'roasters', title: 'Roasters', text: 'Every roaster you and your people have brewed, with their coffees, ratings and how their espresso runs.' },
-                    { sel: desk ? '#sidebar .nav-btn:not([data-tab]):not(.settings-nav-btn)' : '#mobile-nav .mob-fab', tab: 'my', title: 'Add a coffee', text: 'New bag? Add it here, then log sessions on it.' },
-                    { sel: nav('profile'), tab: 'profile', title: 'Profile', text: 'Your stats, favorites, gear and achievements. Anyone else’s is a tap away.' },
-                    { sel: desk ? '#sidebar .settings-nav-btn' : '#mobile-controls-btn', tab: 'feed', title: 'Settings', text: desk ? 'Light or dark, your profile picture, notifications and privacy.' : 'Filters and Settings live here: light or dark, your profile picture, notifications and privacy.' }
+                    { sel: desk ? '#sidebar .nav-btn:not([data-tab]):not(.settings-nav-btn)' : '#mobile-nav .mob-fab', tab: 'my', title: 'Add a coffee', text: 'New bag? Add it here, then log sessions on it. Each session keeps its bag\'s roast date.' },
+                    { sel: nav('profile'), tab: 'profile', title: 'Profile', text: 'Your level and crema, your stats and taste, and More: achievements, monthly awards and recaps. Anyone else\'s is a tap away.' },
+                    { sel: desk ? '#sidebar .settings-nav-btn' : '#mobile-controls-btn', tab: 'feed', title: 'Settings', text: desk ? 'Light or dark, your profile picture, notifications and privacy. Something broken? Report a bug here.' : 'Sorting, filters and Settings: light or dark, your profile picture, notifications and privacy. Something broken? Report a bug here.' }
                 ];
             },
 
@@ -12917,7 +12926,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const color = this.getUserColor(owner, log.actorColor || '');
                 const rating = this.normalizeRating(log.rating);
                 const flavors = this.extractFlavors(log).slice(0, 4);
-                const gear = [...this.resolveEquipmentNames(log), ...this.sessionExtras(log)];
+                const gear = [...this.resolveEquipmentNames(log), ...this.sessionExtras(log), ...(this.roastDayLabel ? this.roastDayLabel(log) : [])];   // v15.1: day N off roast
                 const likes = this.normalizeLikeList(log.likes, owner);
                 const unlocks = this.achievementUnlockByBrew.get(String(log.id)) || [];
                 const notes = this.getBrewNotes(log);
@@ -12971,9 +12980,10 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             renderDetailExtras(group, brews) {
                 const meta = group.meta || {};
                 const roastLine = document.getElementById('d-roast-date');
-                if (roastLine) {
-                    const t = this.parseLocalDate(meta.roastDate);
-                    roastLine.innerText = t ? `Roasted ${new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}` : '';
+                if (roastLine) {   // v15.1: your bag (others' bags are on their sessions: day N off roast)
+                    const rd = this.bagRoastDate(this.beanGroupKey(meta)), t = this.parseLocalDate(rd);
+                    const days = t ? Math.floor((this.parseLocalDate(this.dayKey(Date.now())) - t) / 864e5) : -1;
+                    roastLine.innerText = t ? `Your bag: roasted ${new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}${days >= 0 ? ` · ${days === 0 ? 'today' : days === 1 ? '1 day ago' : `${days} days ago`}` : ''}` : '';
                     roastLine.style.display = t ? 'block' : 'none';
                 }
                 const btn = document.getElementById('d-want-btn');
@@ -15804,6 +15814,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     isMaster,
                     masterProfile: seedMaster,
                     notes: form.notes.value.trim(),
+                    roastDate: form.roastDate ? String(form.roastDate.value || '').slice(0, 10) : (existing ? String(existing.roastDate || '') : ''),   // v15.1: the bag's
                     verdict: form.verdict ? form.verdict.value : (existing ? String(existing.verdict || '') : ''),
                     flavors,
                     rating: this.normalizeRating(form.rating.value),
@@ -15986,6 +15997,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 form.balance.value = this.asNumber(brew.balance, 5);
                 document.getElementById('isMasterInput').checked = (brew.isMaster === true || brew.isMaster === 'true');
                 form.notes.value = this.getBrewNotes(brew);
+                if (form.roastDate) { form.roastDate.value = String(brew.roastDate || '').slice(0, 10); this.paintRoastDays(brew.date); }   // v15.1
                 const verdictInput = document.getElementById('verdict-input');
                 if (verdictInput) verdictInput.value = brew.verdict || '';
                 this.renderVerdict();
@@ -16103,6 +16115,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     this.renderDraftPhoto();
                 }
 
+                if (form.roastDate) form.roastDate.value = (prefill && prefill.roastDate && (!prefill.owner || prefill.owner === this.user || prefill.user === this.user)) ? String(prefill.roastDate).slice(0, 10) : this.bagRoastDate();   // v15.1: your bag's, from your last session
+                this.paintRoastDays();
                 this.openModal('brew-modal');
                 this.applyMethodProfile(this.getBrewForm() && this.getBrewForm().method ? this.getBrewForm().method.value : '');
                 this.bindTasteSliders();
@@ -19654,6 +19668,32 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 document.body.classList.remove('search-open');
                 const t = document.getElementById('search-input-top'); if (t) { t.value = ''; t.blur(); }
                 this.syncSearch('', 'top');
+            },
+
+            // ---- v15.1: roast dates belong to bags, so to sessions: each one keeps the roast date of the bag it came from
+            // (the log form fills in your last one on that coffee; change it when you open a new bag)
+            bagRoastDate(key = this.activeGroup ? this.beanGroupKey(this.activeGroup.meta) : '', user = this.user) {
+                if (!key) return '';
+                const mine = this.brewsOf(user).filter(b => b.roastDate && this.groupKeyOfBrew(b) === key).sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
+                if (mine.length) return String(mine[0].roastDate).slice(0, 10);
+                const bean = [...this.beans.values()].find(b => b.user === user && b.roastDate && this.beanGroupKey(b) === key);
+                return bean ? String(bean.roastDate).slice(0, 10) : '';
+            },
+            roastDays(roastDate, when) {
+                const r = this.parseLocalDate(String(roastDate || '').slice(0, 10)); if (!r) return null;
+                const d = this.parseLocalDate(this.dayKey(when ? this.localTime(when) : Date.now()));
+                const n = Math.floor((d - r) / 864e5);
+                return n >= 0 && n < 400 ? n : null;
+            },
+            roastDayLabel(brew) {
+                const n = brew ? this.roastDays(brew.roastDate, brew.date) : null;
+                return n === null ? [] : [n === 0 ? 'Roasted that day' : `Day ${n} off roast`];
+            },
+            paintRoastDays(when) {
+                const f = this.getBrewForm(), el = document.getElementById('roast-days');
+                if (!el || !f || !f.roastDate) return;
+                const n = this.roastDays(f.roastDate.value, when);
+                el.textContent = n === null ? '' : n === 0 ? '· roasted today' : `· day ${n} off roast`;
             },
         };
         window.onload = () => app.init();

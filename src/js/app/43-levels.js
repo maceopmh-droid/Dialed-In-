@@ -258,3 +258,29 @@
                 const t = document.getElementById('search-input-top'); if (t) { t.value = ''; t.blur(); }
                 this.syncSearch('', 'top');
             },
+
+            // ---- v15.1: roast dates belong to bags, so to sessions: each one keeps the roast date of the bag it came from
+            // (the log form fills in your last one on that coffee; change it when you open a new bag)
+            bagRoastDate(key = this.activeGroup ? this.beanGroupKey(this.activeGroup.meta) : '', user = this.user) {
+                if (!key) return '';
+                const mine = this.brewsOf(user).filter(b => b.roastDate && this.groupKeyOfBrew(b) === key).sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
+                if (mine.length) return String(mine[0].roastDate).slice(0, 10);
+                const bean = [...this.beans.values()].find(b => b.user === user && b.roastDate && this.beanGroupKey(b) === key);
+                return bean ? String(bean.roastDate).slice(0, 10) : '';
+            },
+            roastDays(roastDate, when) {
+                const r = this.parseLocalDate(String(roastDate || '').slice(0, 10)); if (!r) return null;
+                const d = this.parseLocalDate(this.dayKey(when ? this.localTime(when) : Date.now()));
+                const n = Math.floor((d - r) / 864e5);
+                return n >= 0 && n < 400 ? n : null;
+            },
+            roastDayLabel(brew) {
+                const n = brew ? this.roastDays(brew.roastDate, brew.date) : null;
+                return n === null ? [] : [n === 0 ? 'Roasted that day' : `Day ${n} off roast`];
+            },
+            paintRoastDays(when) {
+                const f = this.getBrewForm(), el = document.getElementById('roast-days');
+                if (!el || !f || !f.roastDate) return;
+                const n = this.roastDays(f.roastDate.value, when);
+                el.textContent = n === null ? '' : n === 0 ? '· roasted today' : `· day ${n} off roast`;
+            },

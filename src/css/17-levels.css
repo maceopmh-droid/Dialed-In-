@@ -64,3 +64,8 @@
 }
 /* these open from Settings (and the bell): above the Settings sheet, like Reports */
 #bug-modal, #bugs-modal, #level-modal { z-index: 6100; }
+
+/* v15.1: the bag's roast date in the log form, and on the welcome's first coffee */
+.roast-row { margin-top: 1.1rem; }
+.roast-row label #roast-days { font-weight: 600; color: var(--matcha); text-transform: none; letter-spacing: 0; }
+.wl-date { display: flex; flex-direction: column; gap: 6px; font-size: 0.8rem; color: var(--text-muted); }
