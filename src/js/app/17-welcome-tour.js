@@ -356,7 +356,7 @@
                     { sel: desk ? '#sidebar .nav-btn:not([data-tab]):not(.settings-nav-btn)' : '#mobile-nav .mob-fab', tab: 'my', title: 'Add a coffee', text: 'New bag? Add it here, then log sessions on it. Each session keeps its bag\'s roast date.' },
                     { sel: nav('profile'), tab: 'profile', title: 'Profile', text: 'Your level and crema, your stats and taste, and More: achievements, monthly awards and recaps. Anyone else\'s is a tap away.' },
                     { sel: desk ? '#sidebar .settings-nav-btn' : '#mobile-controls-btn', tab: 'feed', title: 'Settings', text: desk ? 'Light or dark, your profile picture, notifications and privacy. Something broken? Report a bug here.' : 'Sorting, filters and Settings: light or dark, your profile picture, notifications and privacy. Something broken? Report a bug here.' }
-                ];
+                ].concat((() => { const hs = this.homeScreenTip ? this.homeScreenTip() : null; return hs ? [{ sel: '', tab: '', title: hs.title, html: hs.html }] : []; })());   // v15.4: on a phone's browser, the Home Screen last
             },
 
             startTour() {
@@ -399,14 +399,14 @@
                 }
                 const st = t.steps[t.i];
                 if (st.tab && this.tab !== st.tab) this.setTab(st.tab);
-                const target = document.querySelector(st.sel);
+                const target = st.sel ? document.querySelector(st.sel) : null;
                 const r = target ? target.getBoundingClientRect() : null;
                 const pad = 6;
                 el.innerHTML = `${r && r.width ? `<div class="wl-spot" style="left:${r.left - pad}px;top:${r.top - pad}px;width:${r.width + pad * 2}px;height:${r.height + pad * 2}px"></div>` : '<div class="wl-dim"></div>'}
                     <div class="wl-bubble" role="dialog" aria-label="${this.esc(st.title)}">
                         <div class="wl-bub-count">${t.i + 1} of ${n}</div>
                         <h4>${this.esc(st.title)}</h4>
-                        <p>${this.esc(st.text)}</p>
+                        ${st.html ? st.html : `<p>${this.esc(st.text)}</p>`}
                         <div class="wl-bub-foot"><button type="button" class="wl-link" onclick="app.endTour()">Skip tour</button><button type="button" class="btn-primary" onclick="app.tourNext()">${t.i === n - 1 ? 'Finish' : 'Next'}</button></div>
                     </div>`;
                 const bub = el.querySelector('.wl-bubble');
