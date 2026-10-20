@@ -193,7 +193,12 @@
                     recipe.push(row(label, a > 0 ? val(fa) : '–', b > 0 ? val(fb) : '–', unit, cls, dt));
                 };
                 const esp = !brew.method || brew.method === 'Espresso';
-                if (this.grindNum(prev.grind) !== null && this.grindNum(brew.grind) !== null) num('Grind', this.grindNum(prev.grind), this.grindNum(brew.grind), '', null);
+                const gPrev = this.grinderFor(prev), gNow = this.grinderFor(brew);
+                if (!this.sameGrinder(gPrev, gNow)) {   // v15.7: numbers from two grinders don't compare, so no grind change is worked out
+                    recipe.push(row('Grinder', this.esc(gPrev.name), this.esc(gNow.name), '', 'neutral', 'new'));
+                    if (this.grindText(prev.grind) || this.grindText(brew.grind)) recipe.push(row('Grind', this.esc(this.grindText(prev.grind) || '–'), this.esc(this.grindText(brew.grind) || '–'), '', 'neutral', ''));
+                }
+                else if (this.grindNum(prev.grind) !== null && this.grindNum(brew.grind) !== null) num('Grind', this.grindNum(prev.grind), this.grindNum(brew.grind), '', null);
                 else if ((this.grindText(prev.grind) || this.grindText(brew.grind)) && !this.sameGrind(prev.grind, brew.grind)) recipe.push(row('Grind', this.esc(this.grindText(prev.grind) || '–'), this.esc(this.grindText(brew.grind) || '–'), '', 'neutral', 'changed'));
                 else if (this.grindText(brew.grind)) same.push(`grind ${this.esc(this.grindText(brew.grind))}`);
                 num('Dose', this.num(prev.dose), this.num(brew.dose), 'g', null, { deltaUnit: 'g' });

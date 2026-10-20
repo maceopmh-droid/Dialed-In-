@@ -62,7 +62,7 @@
             coachFromBrew(brew) {
                 return { id: String(brew.id), owner: this.getBrewOwner(brew), beanKey: this.groupKeyOfBrew(brew), beanId: String(brew.beanId || ''), method: brew.method || '', date: brew.date,
                     grind: brew.grind, dose: this.num(brew.dose), yield: this.num(brew.yield), time: this.num(brew.time), rating: this.normalizeRating(brew.rating),
-                    text: this.getBrewNotes(brew), flavors: this.extractFlavors(brew), values: this.shapeValues(brew), tasted: this.tastedKeys(brew), tastedExplicit: Array.isArray(brew.tasted), verdict: String(brew.verdict || '') };
+                    text: this.getBrewNotes(brew), flavors: this.extractFlavors(brew), values: this.shapeValues(brew), tasted: this.tastedKeys(brew), tastedExplicit: Array.isArray(brew.tasted), verdict: String(brew.verdict || ''), grinder: this.grinderFor(brew) };
             },
 
             coachFromForm() {
@@ -73,7 +73,7 @@
                 return { id: editing, owner: this.user, beanKey: this.activeGroup ? this.beanGroupKey(this.activeGroup.meta) : '', beanId: String(this.activeId || ''), method: r.method,
                     date: existing ? existing.date : new Date().toISOString(), grind: form && form.grind ? form.grind.value : '', dose: this.num(r.dose), yield: this.num(r.yield), time: this.num(r.time),
                     rating: form && form.rating ? this.normalizeRating(form.rating.value) : 0, text: form && form.notes ? form.notes.value : '', flavors: [...this.selFlavors],
-                    values: this.formTasteValues(), tasted: [...this.tasteTouched], tastedExplicit: true };
+                    values: this.formTasteValues(), tasted: [...this.tasteTouched], tastedExplicit: true, grinder: this.formGrinder(r.method) };
             },
 
             // shots on this coffee by this person and method, up to this one (older cards never see the future)
@@ -94,10 +94,14 @@
 
             // v11.6: which way is finer, and the usual step, from this person's own shots up to this one.
             // Whole steps vs decimals and step size: this coffee first, then the last 30 days, then all-time.
+            // v15.7: only shots on the same grinder as this one (each grinder has its own memory)
             grindModel(owner, method, c) {
                 const t = c ? this.localTime(c.date) : NaN;
-                const all = this.brewsOf(owner).filter(b => (b.method || '') === method && this.grindOrd(b.grind) !== null && this.num(b.time) > 0 && (!Number.isFinite(t) || !(this.localTime(b.date) > t)))
+                const gr = c ? c.grinder || null : null;
+                const mine = this.brewsOf(owner).filter(b => (b.method || '') === method && this.grindOrd(b.grind) !== null && this.num(b.time) > 0 && (!Number.isFinite(t) || !(this.localTime(b.date) > t)));
+                const all = mine.filter(b => this.sameGrinder(this.grinderFor(b), gr))
                     .sort((a, b) => this.localTime(a.date) - this.localTime(b.date));
+                const otherGrinder = !!gr && mine.some(b => !this.sameGrinder(this.grinderFor(b), gr));
                 const key = c ? c.beanKey : null;
                 // direction: consecutive shots on the same coffee, written the same way (numbers vs letters); changes under 4 s are noise
                 const dirOf = list => {
@@ -133,7 +137,7 @@
                 let step = steps.length ? [...freq.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0][0] : (ints ? 1 : 0.1);
                 const curDecimal = !!c && /^\s*\d+[.,]\d*[1-9]/.test(String(c.grind === null || c.grind === undefined ? '' : c.grind));
                 step = Math.min(step, curDecimal ? 0.3 : 2);
-                return { lowerFiner: s <= 0, step, learned: steps.length >= 2, ints, stepFrom, dirSure: Math.abs(s) >= 0.8, dirEv };
+                return { lowerFiner: s <= 0, step, learned: steps.length >= 2, ints, stepFrom, dirSure: Math.abs(s) >= 0.8, dirEv, grinder: gr, fresh: otherGrinder && steps.length < 2 };
             },
 
             nextGrind(g, dir, gm) {
@@ -217,7 +221,8 @@
                 const dR = ratio && refRatio ? ratio - refRatio : 0;
                 let dT = c.time > 0 && refT > 0 ? c.time - refT : null;
                 const gm = this.grindModel(c.owner, c.method, c);
-                const drift = this.coachDrift(c, past);
+                const drift = this.coachDrift(c, past.filter(b => this.sameGrinder(this.grinderFor(b), c.grinder)));   // v15.7: same grind on the same grinder
+                const refG = ref ? this.grinderFor(ref) : null, refSameG = this.sameGrinder(refG, c.grinder);
                 const pal = this.coachPalate(c.owner, c.method, c.id);
                 const bean = this.coachBean(c);
                 // v11.6: time baseline = your best shot's time, unless it's an outlier; then your usual on this coffee, then your usual overall
@@ -351,8 +356,8 @@
                     head = diffs.length ? `${!(c.rating > 0) || refR - c.rating <= 1 ? 'Close. ' : ''}Head back to your ${this.fmtNum(refR)}\u2605 recipe.` : 'Same recipe as your best. Repeat it and focus on prep.';
                     next = recipe(keepG, this.num(ref.dose), this.num(ref.yield));
                     const prev = past[past.length - 1];
-                    if (prev && this.grindText(prev.grind) && !this.sameGrind(prev.grind, c.grind) && c.rating > rate(prev) && rate(prev) > 0) why.push(`Your move from grind ${this.grindText(prev.grind)} to ${this.grindText(c.grind)} worked (${this.fmtNum(rate(prev))}\u2605 \u2192 ${this.fmtNum(c.rating)}\u2605): keep it.`);
-                    else if (keepG && this.grindText(ref.grind) && !this.sameGrind(ref.grind, c.grind)) why.push(`Stay at ${keepG}: grind follows the coffee as it ages, so steer with dose and ratio.`);
+                    if (prev && this.sameGrinder(this.grinderFor(prev), c.grinder) && this.grindText(prev.grind) && !this.sameGrind(prev.grind, c.grind) && c.rating > rate(prev) && rate(prev) > 0) why.push(`Your move from grind ${this.grindText(prev.grind)} to ${this.grindText(c.grind)} worked (${this.fmtNum(rate(prev))}\u2605 \u2192 ${this.fmtNum(c.rating)}\u2605): keep it.`);
+                    else if (keepG && refSameG && this.grindText(ref.grind) && !this.sameGrind(ref.grind, c.grind)) why.push(`Stay at ${keepG}: grind follows the coffee as it ages, so steer with dose and ratio.`);
                     why.unshift(diffs.length ? `The biggest difference from your ${this.shortDate(ref.date)} shot is the ${diffs[0][1]}.` : 'Nothing in your notes points to a change, so consistency is the lever: same dose, same prep, same timing.');
                 } else if (!c.text && !(c.tasted || []).length && !tags.length && !c.verdict) {
                     mode = 'ask'; conf = '';
@@ -365,10 +370,12 @@
                     why.push('One shot can be noise; if it tastes the same twice, the notes will tell us which way to go.');
                 }
                 if (next && finer !== coarser && this.grindNum(c.grind) === null && this.grindOrd(c.grind) !== null && gm.dirSure && gm.dirEv && (next.startsWith(finer) || next.startsWith(coarser)))
-                    why.push(`On your grinder, ${gm.lowerFiner ? 'higher' : 'lower'} settings are coarser: going from ${this.grindText(gm.dirEv.from.grind)} to ${this.grindText(gm.dirEv.to.grind)} took your shot from ${this.fmtNum(this.num(gm.dirEv.from.time))} s to ${this.fmtNum(this.num(gm.dirEv.to.time))} s.`);
+                    why.push(`On your ${gm.grinder ? gm.grinder.name : 'grinder'}, ${gm.lowerFiner ? 'higher' : 'lower'} settings are coarser: going from ${this.grindText(gm.dirEv.from.grind)} to ${this.grindText(gm.dirEv.to.grind)} took your shot from ${this.fmtNum(this.num(gm.dirEv.from.time))} s to ${this.fmtNum(this.num(gm.dirEv.to.time))} s.`);
+                if (gm.fresh && next && finer !== coarser && (next.startsWith(finer) || next.startsWith(coarser)))
+                    why.push(`Your ${gm.grinder.name} has its own memory, so that step is a starting guess until you've changed its grind a couple of times.`);
                 if (mode === 'refine') for (let i = ev.length - 1; i >= 0; i--) if (!/^\u201c/.test(ev[i].text)) ev.splice(i, 1);
                 const ctx = [];
-                if (ref) ctx.push([mode === 'refine' ? 'Your previous best' : 'Your best on this coffee', `${this.shortDate(ref.date)} \u00b7 ${this.fmtNum(refR)}\u2605 \u00b7 ${this.recipeLine(ref, true)}`]);
+                if (ref) ctx.push([mode === 'refine' ? 'Your previous best' : 'Your best on this coffee', `${this.shortDate(ref.date)} \u00b7 ${this.fmtNum(refR)}\u2605 \u00b7 ${this.recipeLine(ref, refSameG)}${refSameG ? '' : ` \u00b7 on your ${refG.name}`}`]);
                 if (bean.notes.length || bean.facts.length) ctx.push(['This coffee', `${[bean.name, ...bean.facts].join(' \u00b7 ')}${bean.notes.length ? `. At its best: ${bean.notes.join(', ')}` : ''}`]);
                 if (pal) { const rr = this.fmtNum(pal.r0, 1) === this.fmtNum(pal.r1, 1) ? `1:${this.fmtNum(pal.r0, 1)}` : `1:${this.fmtNum(pal.r0, 1)}\u20131:${this.fmtNum(pal.r1, 1)}`; const tt = Math.round(pal.t0) === Math.round(pal.t1) ? `${Math.round(pal.t0)} s` : `${Math.round(pal.t0)}\u2013${Math.round(pal.t1)} s`; ctx.push(['Your palate', `your 4\u2605+ ${esp ? 'espressos' : 'brews'} sit around ${rr}${esp ? ` in ${tt}` : ''} (${pal.n} shots)`]); }
                 if (!ref) {
