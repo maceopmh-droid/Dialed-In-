@@ -1,6 +1,6 @@
 # Dialed In: Social Coffee Log
 
-> Dialed In is a social coffee log app for people who brew coffee at home. You log each cup (espresso, pour over, French press, AeroPress, moka pot or cold brew), see it as a 3D flavor shape, get a next-shot suggestion based on your own best brews, and share sessions with friends. It runs in any web browser today; an iPhone app is coming to the App Store. Accounts are free during early access, with no ads and no tracking.
+> Dialed In is a social coffee log app for people who brew coffee at home. You log each cup (espresso, pour over, French press, AeroPress, moka pot or cold brew), see it as a 3D flavor shape, get a next-shot suggestion based on your own best brews, and share sessions with friends. It runs in any web browser today; an iPhone app is coming to the App Store. Accounts are free; everyone who joins during early access keeps every feature that exists today free for good, and there are no ads and no tracking.
 
 ## Key facts
 - Name: Dialed In (App Store name: "Dialed In: Social Coffee Log")
@@ -10,7 +10,7 @@
 - Flavor shape: five tastes (acidity, sweetness, body, finish, bitterness) form the base of a 3D shape and complexity sets its height
 - Social: follow friends, like and comment, communities with a weekly goal and monthly awards, ask the community for help dialing in, and a Discover feed that ends instead of scrolling forever
 - Privacy: you choose who sees each session (everyone, friends, or only you); no ads; no tracking; download your data or delete your account in Settings
-- Price: free during early access
+- Price: free. Early adopters (everyone who joins during early access) keep every feature that exists today free for good, even if paid plans come later; only new features that cost money to run might be paid.
 - Platforms: the web app is live now in any browser (phones and computers) and can be added to the home screen; the iPhone app is coming soon to the App Store
 - Made by: Maceo, a 19-year-old engineering student at Northwestern. He built it as a coffee log for himself, his brother and their cousin after leaving home for college, and opened it up to everyone in October 2026.
 
@@ -29,7 +29,7 @@
 Dialed In is a social coffee log app for people who brew at home. Log espresso, pour over, French press, AeroPress, moka pot and cold brew, see every cup as a 3D flavor shape, get a next-shot tip based on your own best brews, and share it all with your friends.
 
 ### Is it free?
-For now, yes. Accounts are free while Dialed In is in early access, so now’s the time to claim yours. There are no ads and no tracking.
+Yes. Everyone who joins during early access is an early adopter, and every feature Dialed In has today stays free for you for good, even if paid plans come along later. The only thing that could ever cost extra is a brand-new feature down the road that costs real money to run. There are no ads and no tracking.
 
 ### Do I need an iPhone?
 No. Dialed In runs in your web browser on any phone or computer, and you can add it to your home screen so it opens with one tap (the steps are just above). The iPhone app is coming soon to the App Store, and your account works in both.
