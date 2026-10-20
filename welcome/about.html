@@ -7,7 +7,7 @@
 <meta name="description" content="Dialed In was built by Maceo, a 19-year-old engineering student at Northwestern, as a coffee log to stay close to his brother and cousin. Here is why, and how it grew.">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="https://maceopmh-droid.github.io/Dialed-In-/welcome/about.html">
-<meta name="theme-color" content="#F7F6F2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#F3EEE4" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0C100D" media="(prefers-color-scheme: dark)">
 <meta name="color-scheme" content="light dark">
 <meta property="og:type" content="website">
@@ -51,8 +51,8 @@
 .chip:hover{border-color:var(--line-4)}
 .chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--on-accent);font-weight:700}
 .chip:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-:root{--bg:#F7F6F2;--bg-alt:#EFECE5;--card:#FFFFFF;--chip:#FFFFFF;--tint:#E8EFE6;--rule:#E4E0D7;--hover:#ECE9E2;--well:#F2F0EA;--line:#E2DDD3;--line-2:#D9D3C8;--line-3:#C9C2B5;--line-4:#A9A294;--text-strong:#141914;--text:#1E2420;--text-2:#333B35;--text-3:#3F4741;--text-4:#4F5751;--muted:#5F6761;--faint:#616963;--accent:#4E6B52;--on-accent:#FFFFFF;--link:#3A5440;--link-hover:#1F3325;--gold:#92670F;--coral:#B24A35;--btn-grad:linear-gradient(135deg, #557A5B 0%, #3B5A41 100%);--glass:rgba(255, 255, 255, 0.97);--sh:0.3;color-scheme:light}
-@media (prefers-color-scheme:dark){:root{--bg:#0C100D;--bg-alt:#0F1410;--card:#141915;--chip:#161C17;--tint:#172019;--rule:#1A201B;--hover:#1B211C;--well:#1F2620;--line:#232B24;--line-2:#263027;--line-3:#3A453B;--line-4:#3A4A3C;--text-strong:#F2F5F1;--text:#E8EEE8;--text-2:#C2CBC3;--text-3:#B9C3BA;--text-4:#A9B3AA;--muted:#8D978E;--faint:#79837A;--accent:#8DB791;--on-accent:#0B160D;--link:#AFD3B1;--link-hover:#D3EBD2;--gold:#EBBE5C;--coral:#EE7A62;--btn-grad:linear-gradient(135deg, #9CC6A0 0%, #6E9C74 100%);--glass:rgba(20, 25, 21, 0.95);--sh:1;color-scheme:dark}}
+:root{--bg:#F3EEE4;--bg-alt:#F1EBDF;--card:rgba(252, 249, 243, 0.70);--card-solid:#FCF9F3;--chip:#FCF9F3;--tint:#F1EBDF;--rule:#E4DBCB;--hover:#F1EBDF;--well:#F1EBDF;--line:#E4DBCB;--line-2:#E4DBCB;--line-3:#D3C9B6;--line-4:#BAAF9B;--text-strong:#1E2420;--text:#1E2420;--text-2:#3B433D;--text-3:#3B433D;--text-4:#4A4F48;--muted:#6E6A61;--faint:#6E6A61;--accent:#4E6B52;--accent-soft:#86AC88;--on-accent:#FCF9F3;--link:#4E6B52;--link-hover:#3A5440;--gold:#E3AE45;--coral:#D9534F;--btn-grad:linear-gradient(135deg, #4E6B52 0%, #4E6B52 100%);--glass:rgba(252, 249, 243, 0.95);--sh:0.35;--sh-rgb:70, 55, 35;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#0C100D;--bg-alt:#0F1410;--card:#141915;--chip:#161C17;--tint:#172019;--rule:#1A201B;--hover:#1B211C;--well:#1F2620;--line:#232B24;--line-2:#263027;--line-3:#3A453B;--line-4:#3A4A3C;--text-strong:#F2F5F1;--text:#E8EEE8;--text-2:#C2CBC3;--text-3:#B9C3BA;--text-4:#A9B3AA;--muted:#8D978E;--faint:#79837A;--accent:#8DB791;--on-accent:#0B160D;--link:#AFD3B1;--link-hover:#D3EBD2;--gold:#EBBE5C;--coral:#EE7A62;--btn-grad:linear-gradient(135deg, #9CC6A0 0%, #6E9C74 100%);--glass:rgba(20, 25, 21, 0.95);--sh:1;--card-solid:#141915;--accent-soft:#8DB791;--sh-rgb:0, 0, 0;color-scheme:dark}}
 html{background:var(--bg);scroll-behavior:smooth}
 body{margin:0;background:var(--bg)}
 a{color:var(--link)}a:hover{color:var(--link-hover)}
@@ -126,7 +126,7 @@ a{color:var(--link)}a:hover{color:var(--link-hover)}
 </head>
 <body>
 <div style="background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif; font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased; overflow-x: clip">
-<div class="progress-bar" aria-hidden="true" style="position: fixed; left: 0; right: 0; top: 0; z-index: 50; height: 3px; background: var(--accent); transform-origin: 0 50%; transform: scaleX(0)"></div>
+<div class="progress-bar" aria-hidden="true" style="position: fixed; left: 0; right: 0; top: 0; z-index: 50; height: 3px; background: var(--accent-soft); transform-origin: 0 50%; transform: scaleX(0)"></div>
 
 <!-- ============ Nav ============ -->
 <header style="position: relative; z-index: 55; max-width: 1200px; margin: 0 auto; padding: 22px clamp(20px, 5vw, 48px); display: flex; align-items: center; justify-content: space-between; gap: 20px">
@@ -144,7 +144,7 @@ a{color:var(--link)}a:hover{color:var(--link-hover)}
 <a class="btn-ghost hdr-cta" href="https://maceopmh-droid.github.io/Dialed-In-/" style="display: inline-flex; flex: none; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--line-3); color: var(--text); font-size: 15px; font-weight: 600; text-decoration: none; white-space: nowrap">Open the web app</a>
 <button type="button" class="mnav-btn" aria-label="Menu" aria-expanded="false" aria-controls="mnav" data-menu-btn style="align-items: center; gap: 8px; min-height: 44px; padding: 0 16px 0 14px; border-radius: 999px; border: 1px solid var(--line-3); background: transparent; color: var(--text); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>Menu</button>
 </nav>
-<div class="mnav-panel" id="mnav" hidden style="position: absolute; left: clamp(12px, 4vw, 24px); right: clamp(12px, 4vw, 24px); top: calc(100% - 8px); padding: 8px; border-radius: 22px; background: var(--card); border: 1px solid var(--line-2); box-shadow: 0 24px 60px rgba(0, 0, 0, calc(0.6 * var(--sh))); display: flex; flex-direction: column; gap: 2px">
+<div class="mnav-panel" id="mnav" hidden style="position: absolute; left: clamp(12px, 4vw, 24px); right: clamp(12px, 4vw, 24px); top: calc(100% - 8px); padding: 8px; border-radius: 22px; background: var(--card-solid); border: 1px solid var(--line-2); box-shadow: 0 24px 60px rgba(var(--sh-rgb), calc(0.6 * var(--sh))); display: flex; flex-direction: column; gap: 2px">
 <a class="mnav-link" href="./#taste" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: var(--text); font-size: 18px; font-weight: 600; text-decoration: none">How it works</a>
 <a class="mnav-link" href="./#friends" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: var(--text); font-size: 18px; font-weight: 600; text-decoration: none">Friends</a>
 <a class="mnav-link" href="./#faq" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: var(--text); font-size: 18px; font-weight: 600; text-decoration: none">FAQ</a>
@@ -162,7 +162,7 @@ a{color:var(--link)}a:hover{color:var(--link-hover)}
 <p class="a-up d3" style="margin: 24px 0 0; max-width: 540px; font-size: clamp(19px, 1.7vw, 21px); line-height: 1.55; color: var(--text-2)">I’m Maceo, a 19-year-old engineering student at Northwestern. I built Dialed In so my brother, our cousin and I could keep chasing a better cup together after I left home for college.</p>
 </div>
 <div class="a-up d3" style="flex: 0 1 400px; min-width: 0; margin: 0 auto">
-<div style="width: min(100%, 380px); aspect-ratio: 825 / 1000; border-radius: 28px; overflow: hidden; box-shadow: 0 34px 80px rgba(0, 0, 0, calc(0.6 * var(--sh))), 0 0 0 1px var(--line-2)">
+<div style="width: min(100%, 380px); aspect-ratio: 825 / 1000; border-radius: 28px; overflow: hidden; box-shadow: 0 34px 80px rgba(var(--sh-rgb), calc(0.6 * var(--sh))), 0 0 0 1px var(--line-2)">
 <img src="assets/maceo.webp" width="825" height="1000" alt="Maceo, who made Dialed In" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </div>
 </div>
@@ -206,7 +206,7 @@ a{color:var(--link)}a:hover{color:var(--link-hover)}
 <p class="reveal r3" style="margin: 32px 0 0; font-family: Lora, ui-serif, Georgia, serif; font-size: clamp(24px, 2.6vw, 30px); font-weight: 600; line-height: 1.25; color: var(--text-strong)">Stop guessing. Start dialing in.</p>
 </div>
 <figure class="reveal r2" style="flex: 0 1 420px; min-width: 0; margin: 0 auto">
-<div style="width: min(100%, 420px); aspect-ratio: 1 / 1; border-radius: 24px; overflow: hidden; box-shadow: 0 30px 70px rgba(0, 0, 0, calc(0.55 * var(--sh))), 0 0 0 1px var(--line-2)">
+<div style="width: min(100%, 420px); aspect-ratio: 1 / 1; border-radius: 24px; overflow: hidden; box-shadow: 0 30px 70px rgba(var(--sh-rgb), calc(0.55 * var(--sh))), 0 0 0 1px var(--line-2)">
 <img src="assets/maceo-and-julian-saint-drogo.webp" width="1000" height="1000" alt="Maceo and his brother Julian beside a painting of Saint Drogo, the patron saint of coffee" loading="lazy" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </div>
 <figcaption style="margin-top: 14px; font-size: 15px; color: var(--muted)">My brother Julian and me with Saint Drogo, the patron saint of coffee.</figcaption>
@@ -236,7 +236,7 @@ a{color:var(--link)}a:hover{color:var(--link-hover)}
 <p style="margin: 18px 0 0; max-width: 520px; font-size: 18px; color: var(--text-3)">Ideas, bugs, or a coffee I should try: email <a href="mailto:dialedincoffeeapp@gmail.com">dialedincoffeeapp@gmail.com</a>.</p>
 </div>
 <div style="flex: 0 1 auto; display: flex; flex-wrap: wrap; gap: 14px">
-<a class="btn-primary btn-sheen" href="https://maceopmh-droid.github.io/Dialed-In-/" style="display: inline-flex; align-items: center; gap: 10px; min-height: 54px; max-width: 100%; box-sizing: border-box; padding: 12px 24px; line-height: 1.25; border-radius: 999px; background: var(--btn-grad); color: var(--on-accent); font-size: 17px; font-weight: 700; text-decoration: none; box-shadow: 0 10px 28px rgba(0, 0, 0, calc(0.4 * var(--sh)))">
+<a class="btn-primary btn-sheen" href="https://maceopmh-droid.github.io/Dialed-In-/" style="display: inline-flex; align-items: center; gap: 10px; min-height: 54px; max-width: 100%; box-sizing: border-box; padding: 12px 24px; line-height: 1.25; border-radius: 999px; background: var(--btn-grad); color: var(--on-accent); font-size: 17px; font-weight: 700; text-decoration: none; box-shadow: 0 10px 28px rgba(var(--sh-rgb), calc(0.4 * var(--sh)))">
 <span style="text-wrap: balance">Claim your free <span style="white-space: nowrap">early-adopter</span> account</span>
 <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>
 </a>
