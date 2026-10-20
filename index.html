@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v15.8 -->
+<!-- Dialed In v15.9 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="15.8">
+    <meta name="dialed-in-version" content="15.9">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -3368,6 +3368,7 @@
         /* v15.8: Settings, Notifications */
         .nset-row small { max-width: 34ch; }
         .nset-foot { margin: 12px 6px 4px; font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
+        #notif-set-modal { z-index: 6100; }   /* v15.9: it opens from Settings, so it sits above it (it opened behind) */
         /* v14.4: the community feed (new backend only) */
         .feed-top { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; }
         .feed-top .feed-mode { flex: 1; margin: 0; grid-template-columns: repeat(3, 1fr); }   /* v14.5: Following, Community, Discover */
@@ -4346,7 +4347,7 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v15.8</div>
+            <div class="app-version">Dialed In · v15.9</div>
         </div>
     </div>
 
