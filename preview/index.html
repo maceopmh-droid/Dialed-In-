@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v15.7 -->
+<!-- Dialed In v15.8 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="15.7">
+    <meta name="dialed-in-version" content="15.8">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -29,6 +29,34 @@
         } catch (e) {}
     })();
     </script>
+    <!-- v15.8: no flash on opening. The page's own colors before anything else draws (iPhone showed its white for a
+         frame), and the Home Screen app's launch picture in the paper color instead of black -->
+    <meta name="color-scheme" content="light dark">
+    <style>html { background: #F3EEE4; } html[data-theme="dark"] { background: #0C100D; color-scheme: dark; } html[data-theme="light"] { color-scheme: light; }</style>
+    <link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/1320x2868-light.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/1290x2796-light.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 420px) and (device-height: 912px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/1260x2736-light.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/1206x2622-light.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/1179x2556-light.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/1170x2532-light.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/1284x2778-light.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/1125x2436-light.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/1242x2688-light.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash/828x1792-light.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/1242x2208-light.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash/750x1334-light.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/1320x2868-dark.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/1290x2796-dark.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 420px) and (device-height: 912px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/1260x2736-dark.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/1206x2622-dark.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/1179x2556-dark.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/1170x2532-dark.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/1284x2778-dark.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/1125x2436-dark.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/1242x2688-dark.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/828x1792-dark.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/1242x2208-dark.png">
+    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/750x1334-dark.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -36,7 +64,7 @@
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
     <link rel="preconnect" href="https://lh3.googleusercontent.com">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>   <!-- v15.8: deferred, so opening the app doesn't wait on it (only the old taste radar uses it) -->
     <style>
         :root {
             /* --- Dialed In v10 palette: Japandi / Nordic, matcha green --- */
@@ -3068,6 +3096,13 @@
         #detail-view .dh-back .dh-back-t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .dh-pill { white-space: nowrap; }
 
+        /* v15.8: "Local to me", each person's own tick on a roaster */
+        .ro-local { display: inline-flex; align-items: center; gap: 6px; margin-top: 9px; padding: 6px 12px 6px 10px; border-radius: 999px; border: 1px solid rgba(var(--hair-rgb), 0.14); background: rgba(var(--hair-rgb), 0.04); color: var(--ink-2); font: inherit; font-size: 0.8rem; font-weight: 650; cursor: pointer; }
+        .ro-local .icon { display: inline-block; width: 14px; height: 14px; }
+        .ro-local[aria-pressed="true"] { border-color: rgba(var(--matcha-rgb), 0.35); background: rgba(var(--matcha-rgb), 0.14); color: var(--matcha-ink); }
+        .ro-local[aria-pressed="true"] .icon { fill: currentColor; }
+        .ro-local-tag { display: inline-flex; align-items: center; gap: 3px; margin-left: 8px; font-size: 0.72rem; font-weight: 700; color: var(--matcha-ink); }
+        .ro-local-tag .icon { display: inline-block; width: 11px; height: 11px; fill: currentColor; }
         /* ===== v14.0: someone joined (feed) ===== */
         .join-card .feed-card-body { padding-bottom: 18px; }
         .join-row { display: flex; align-items: center; gap: 12px; }
@@ -3330,6 +3365,9 @@
         /* Settings: your account's tools */
         .acct-tools { display: flex; gap: 8px; flex-wrap: wrap; padding: 2px 0 12px; margin-bottom: 4px; border-bottom: 1px solid var(--line); }
         .acct-tools .acct-delete { color: #C0392B; }
+        /* v15.8: Settings, Notifications */
+        .nset-row small { max-width: 34ch; }
+        .nset-foot { margin: 12px 6px 4px; font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
         /* v14.4: the community feed (new backend only) */
         .feed-top { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; }
         .feed-top .feed-mode { flex: 1; margin: 0; grid-template-columns: repeat(3, 1fr); }   /* v14.5: Following, Community, Discover */
@@ -3566,6 +3604,10 @@
             .header-sticky button, .header-sticky a, .header-sticky input, .header-sticky select, .header-sticky label, .header-sticky [onclick],
             .header-sticky .header-controls, .header-sticky .mobile-controls-panel, .header-sticky .status-badge { pointer-events: auto; }
         }
+        /* v15.8: a ring in each person's color around their face in the goal, so a profile photo still matches their part of the bar */
+        .crew-quest .cq-face b { box-shadow: 0 0 0 1.5px rgba(var(--glass-rgb), 1), 0 0 0 3px var(--ring, transparent); }
+        .crew-quest .cq-face { gap: 7px; }
+        .crew-quest .cq-face + .cq-face { margin-left: 3px; }
         /* ===================== v15.0 ===================== */
         /* the bottom bar: each item is as tall as the bar, so a tap anywhere on it counts (also when it's compact) */
         .mob-item { align-self: stretch; justify-content: center; -webkit-tap-highlight-color: transparent; }
@@ -4208,6 +4250,13 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
             <div id="level-body"></div>
         </div>
     </div>
+    <!-- v15.8: choose your notifications -->
+    <div id="notif-set-modal" class="modal" onclick="if(event.target===this) app.closeNotifSettings()">
+        <div class="modal-card people-card">
+            <div class="set-top"><h2>Notifications</h2><button type="button" class="set-done" onclick="app.closeNotifSettings()">Done</button></div>
+            <div id="notif-set-body"></div>
+        </div>
+    </div>
     <!-- v15.2: the shot card (your session as a Story picture) -->
     <div id="shot-modal" class="modal" onclick="if(event.target===this) app.closeShotCard()">
         <div class="modal-card people-card shot-sheet">
@@ -4297,7 +4346,7 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v15.7</div>
+            <div class="app-version">Dialed In · v15.8</div>
         </div>
     </div>
 
@@ -5348,8 +5397,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             const numWord = n => ['No', 'One', 'Two', 'Three', 'Four'][n] || String(n);
             const hashHue = s => { let h = 0; for (const ch of String(s)) h = (h * 31 + ch.codePointAt(0)) >>> 0; return [28, 18, 42, 8, 150, 168, 200, 330, 270, 95, 120, 352][h % 12]; };
 
-            // ---- saved roaster records live in each person's gear record: { merged: [[a, b, at]], notSame: [[a, b, at]], fav: [key], info: { key: { location, website, note, at } } }
-            const prefsOf = (ctx, user) => { const g = ctx.gearByUser && ctx.gearByUser.get(String(user || '')); const r = g && g.roasters && typeof g.roasters === 'object' ? g.roasters : {}; return { merged: Array.isArray(r.merged) ? r.merged : [], notSame: Array.isArray(r.notSame) ? r.notSame : [], fav: Array.isArray(r.fav) ? r.fav : [], info: r.info && typeof r.info === 'object' ? r.info : {} }; };
+            // ---- saved roaster records live in each person's gear record: { merged: [[a, b, at]], notSame: [[a, b, at]], fav: [key], local: [[key, at]], info: { key: { location, website, note, at } } }
+            const prefsOf = (ctx, user) => { const g = ctx.gearByUser && ctx.gearByUser.get(String(user || '')); const r = g && g.roasters && typeof g.roasters === 'object' ? g.roasters : {}; return { merged: Array.isArray(r.merged) ? r.merged : [], notSame: Array.isArray(r.notSame) ? r.notSame : [], fav: Array.isArray(r.fav) ? r.fav : [], local: Array.isArray(r.local) ? r.local : [], info: r.info && typeof r.info === 'object' ? r.info : {} }; };
             const allPrefs = ctx => [...(ctx.gearByUser ? ctx.gearByUser.keys() : [])].map(u => ({ user: u, ...prefsOf(ctx, u) }));
 
             function build(ctx) {
@@ -5377,8 +5426,10 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 roasters.forEach(r => r.people.forEach(p => { p.top = !!(top[p.name] && top[p.name].key === r.key); }));
                 // favorites and details
                 const favBy = {}; prefs.forEach(p => { favBy[p.user] = new Set(p.fav.map(clusterOf)); });
+                // v15.8: each person's own "Local to me", with when they ticked it ([name, at]; a bare name counts from the start)
+                const localSince = {}; prefs.forEach(p => { const m = new Map(); p.local.forEach(e => { const nm = Array.isArray(e) ? e[0] : e; if (!nm) return; const c = clusterOf(nm), at = Array.isArray(e) ? (Date.parse(e[1] || 0) || 0) : 0; m.set(c, m.has(c) ? Math.min(m.get(c), at) : at); }); localSince[p.user] = m; });
                 const info = {}; prefs.forEach(p => Object.entries(p.info).forEach(([k, v]) => { if (!v || typeof v !== 'object') return; const c = clusterOf(k); const at = Date.parse(v.at || 0) || 0; if (!info[c] || at >= info[c].atMs) info[c] = { location: tidy(v.location), website: tidy(v.website), note: tidy(v.note), atMs: at }; }));
-                roasters.forEach(r => { r.info = info[r.key] || null; r.favBy = Object.keys(favBy).filter(u => favBy[u].has(r.key)); });
+                roasters.forEach(r => { r.info = info[r.key] || null; r.favBy = Object.keys(favBy).filter(u => favBy[u].has(r.key)); r.localBy = Object.keys(localSince).filter(u => localSince[u].has(r.key)); r.localSince = Object.fromEntries(r.localBy.map(u => [u, localSince[u].get(r.key)])); });
                 const byKey = new Map(roasters.map(r => [r.key, r]));
                 // look-alike names that nobody has merged or said aren't the same
                 const notSame = new Set(); prefs.forEach(p => p.notSame.forEach(m => { if (Array.isArray(m) && m[0] && m[1]) { const a = clusterOf(m[0]), b = clusterOf(m[1]); notSame.add(a < b ? `${a}|${b}` : `${b}|${a}`); } }));
@@ -6784,6 +6835,16 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         metric: stats => (stats.roastSet ? stats.roastSet.size : 0),
                         format: value => `${Math.min(5, Math.round(value))}/5 roast levels`,
                         sentence: value => `brewed ${Math.round(value)} different roast levels`
+                    },
+                    {
+                        key: 'local',
+                        group: 'Exploring',
+                        desc: 'Sessions of coffee from roasters you marked local',
+                        title: 'Local Regular',
+                        thresholds: [1, 3, 5, 10, 20, 35, 50, 75, 100],
+                        metric: stats => stats.localCount || 0,
+                        format: value => `${Math.round(value)} local session${Math.round(value) === 1 ? '' : 's'}`,
+                        sentence: value => `brewed ${Math.round(value)} session${Math.round(value) === 1 ? '' : 's'} from local roasters`
                     },
                     {
                         key: 'sampler',
@@ -8708,7 +8769,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         const q = safe('quest', () => this.crewQuest(Date.now() - i * W7));
                         check(q && !bad(q.title) && Number.isInteger(q.target) && q.target >= 1 && q.progress >= 0 && q.progress <= q.target && q.done === (q.raw >= q.target) && !bad(q.detail || ''), `quest ${i} weeks ago`);
                     }
-                    ['sessions', 'origins', 'rated', 'notes', 'everyone', 'methods'].forEach(t => {
+                    ['sessions', 'origins', 'rated', 'notes', 'everyone', 'methods', 'days', 'high', 'levelup', 'roasters', 'newcoffee', 'comments', 'photos', 'early', 'fresh', 'swap', 'local'].forEach(t => {
                         const q = safe('quest type', () => this.crewQuest(Date.now(), t));
                         check(q && q.type === t && !bad(q.title) && q.target >= 1, `quest type ${t}`);
                     });
@@ -8954,7 +9015,72 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             // Saturday midday (day 5.5 of 7) over the last six weeks, the most recent counting most, scaled to how many
             // people are brewing now. Kept at its usual pace, the group finishes around Friday or Saturday, so it's a
             // challenge most weeks without being out of reach.
-            crewQuest(now = Date.now(), forceType = '') {
+            // v15.8: a much bigger set of goals (see goalSpecs / goalPlan in 47-goals.js), paced the same way: each target
+            // is what the group usually has by Saturday midday, so at its usual pace it finishes on day 5 or 6.
+            crewQuest(now = Date.now(), forceType = '', opts = {}) {
+                const start = this.weekStartOf(now), plan = this.goalPlan(start) || (opts.v2 ? { type: 'sessions', prev: '', next: '', idx: 0 } : null), specs = this.goalSpecs();
+                const v1 = ['sessions', 'origins', 'rated', 'notes', 'everyone', 'methods'];
+                if (!plan && !opts.v2 && !(specs[forceType] && !v1.includes(forceType))) return this.crewQuestV1(now, forceType);   // (opts.v2: tests play the new goals back on old weeks)
+                const W = 7 * 864e5, PACE = 5.5 * 864e5;
+                const end = this.weekStartOf(start + W + 3 * 3600e3);
+                const people = this.crewPeople(now);
+                const inGoal = b => !this.goalExcluded(this.getBrewOwner(b));
+                const weights = [0.30, 0.22, 0.16, 0.13, 0.10, 0.09];
+                const past = [];
+                for (let i = 1; i <= 6; i++) {
+                    const ws = this.weekStartOf(start - i * W + 3 * 3600e3), all = this.crewSessionsBetween(ws, this.weekStartOf(ws + W + 3 * 3600e3)).filter(inGoal);
+                    past.push({ w: weights[i - 1], ws, all, early: all.filter(b => this.localTime(b.date) < ws + PACE).sort((a, b) => this.localTime(a.date) - this.localTime(b.date)), active: new Set(all.map(b => this.getBrewOwner(b))).size });
+                }
+                const recent = new Set([...past[0].all, ...past[1].all].map(b => this.getBrewOwner(b))).size;
+                const activeNow = Math.max(1, recent || people.length);
+                // weeks with under 40% of the busiest recent week (a trip, a holiday) don't set the pace; then half the
+                // six-week pace and half the last two of those weeks, so a group that's picking up isn't done by Wednesday
+                const most = Math.max(0, ...past.map(x => x.all.length));
+                const busy = past.filter(x => x.all.length && x.all.length >= 0.4 * most);
+                const pace = (fn, additive, fallback) => {
+                    if (!busy.length) return fallback;
+                    const avg = list => { let sum = 0, wsum = 0; list.forEach(x => { const r = Math.max(0.5, Math.min(2, activeNow / Math.max(1, x.active))); sum += x.w * fn(x.early, x.ws, x.ws + PACE) * (additive ? r : Math.sqrt(r)); wsum += x.w; }); return sum / wsum; };
+                    return 0.5 * avg(busy) + 0.5 * avg(busy.slice(0, 2));
+                };
+                const clampInt = (v, a, b) => Math.max(a, Math.min(b, Math.round(v)));
+                const methodsSeen = new Set(past.flatMap(x => x.all).map(b => b.method).filter(Boolean)).size;
+                // a goal's target, and whether the group has been doing that kind of thing lately
+                const targetOf = k => {
+                    if (k === 'everyone') return { ok: true, target: 0 };
+                    const sp = specs[k];
+                    const raw = pace((l, a, b) => sp.count(l, a, b).n, sp.add, sp.fb(Math.max(1, people.length)));
+                    const max = k === 'methods' ? Math.max(2, Math.min(4, methodsSeen)) : sp.max;
+                    const ok = sp.core ? true : k === 'methods' ? methodsSeen >= 2 && raw >= 1.5 : sp.local ? this.anyLocal(people) : raw >= 1.5;
+                    return { ok, target: clampInt(raw, sp.min, max) };
+                };
+                let type = specs[forceType] ? forceType : plan.type, tg = targetOf(type);
+                if (!specs[forceType] && !tg.ok) {
+                    const core = ['sessions', 'days', 'everyone', 'rated', 'notes'];
+                    let i = plan.idx % core.length;
+                    for (let n = 0; n < core.length && (core[i] === plan.prev || core[i] === plan.next); n++) i = (i + 1) % core.length;
+                    type = core[i]; tg = targetOf(type);
+                }
+                const cur = this.crewSessionsBetween(start, end).filter(inGoal).sort((a, b) => this.localTime(a.date) - this.localTime(b.date));
+                const by = new Map(people.map(p => [p, 0]));
+                const credit = name => by.set(name, (by.get(name) || 0) + 1);
+                let target = 1, progress = 0, title = '', detail = '', unit = '', per = 0;
+                if (type === 'everyone') {
+                    per = clampInt(busy.length ? busy.reduce((t, x) => t + x.w * x.early.length / Math.max(1, x.active), 0) / busy.reduce((t, x) => t + x.w, 0) : 1, 1, 5);
+                    cur.forEach(b => credit(this.getBrewOwner(b)));
+                    target = Math.max(1, people.length); progress = people.filter(p => (by.get(p) || 0) >= per).length;
+                    title = per === 1 ? 'Everyone brews at least once' : `Everyone brews ${per}+ times`; unit = 'people there';
+                    detail = people.map(p => `${p} ${Math.min(by.get(p) || 0, per)}/${per}`).join(' · ');
+                } else {
+                    const sp = specs[type], r = sp.count(cur, start, end);
+                    target = tg.target; progress = r.n; r.give.forEach(credit);
+                    title = sp.title(target); unit = sp.unit; detail = r.labels ? r.labels.join(', ') : '';
+                }
+                const daysLeft = end > now ? Math.max(0, this.dayNum(end - 1) - this.dayNum(now) + 1) : 0;
+                return { type, title, target, progress: Math.min(progress, target), raw: progress, done: progress >= target, unit, detail, start, end, daysLeft, people, per, counts: Object.fromEntries(by), by: [...by.entries()].filter(([, n]) => n > 0) };
+            },
+
+            // the goals as they were up to Oct 25, 2026 (six types in turn); past weeks keep these results
+            crewQuestV1(now = Date.now(), forceType = '') {
                 const W = 7 * 864e5, PACE = 5.5 * 864e5;
                 const start = this.weekStartOf(now);
                 const end = this.weekStartOf(start + W + 3 * 3600e3);
@@ -9348,7 +9474,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     ? q.people.filter(p => (q.counts[p] || 0) >= q.per).map(p => ({ p, w: 1 / q.target }))
                     : q.by.map(([p, n]) => ({ p, w: Math.min(n, q.target) / q.target }));
                 const bar = this.crewBarHtml(q, segs);
-                const faces = q.by.map(([p, n]) => `<span class="cq-face" data-profile="${this.esc(p)}"><b data-face="${this.esc(p)}" style="background:${this.esc(this.getUserColor(p))}">${this.esc(this.feedInitial(p))}</b>${n}</span>`).join('');
+                const faces = q.by.map(([p, n]) => `<span class="cq-face" data-profile="${this.esc(p)}"><b data-face="${this.esc(p)}" style="background:${this.esc(this.getUserColor(p))};--ring:${this.esc(this.getUserColor(p))}">${this.esc(this.feedInitial(p))}</b>${n}</span>`).join('');   // v15.8: a ring in their color (a photo hides it), to match their part of the bar
                 const left = q.done ? 'Done together' : (q.daysLeft <= 1 ? 'Last day' : `${q.daysLeft} days left`);
                 // v15.0: invite people to this community from its goal (its invite link, as in People)
                 const sg = this._crewScope && this._crewScope.id !== 'friends' && this.grState ? (this.grState().list || []).find(g => String(g.id) === this._crewScope.id) : null;
@@ -9418,6 +9544,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     add('loyal', 'The Loyalist', 'i-repeat', '#B4664F', loyalRes, v => `${v} sessions of ${bean ? this.beanLabel(bean) : 'one coffee'}`);
                 }
                 add('explorer', 'The Explorer', 'i-compass', '#5F8FDB', top(explore, 2), v => `${v} different coffees`);
+                if (y * 12 + m >= 2026 * 12 + 9) add('local', 'Local Legend', 'i-pin', '#6E9C4F', top(tally(x => this.isLocalBrew(x) ? 1 : 0), 2), v => `${v} sessions from local roasters`);   // v15.8: from October 2026 (earlier months keep their awards)
                 add('dialed', 'Dialed In', 'i-star', '#36A57F', top(tally(x => this.normalizeRating(x.rating) >= 4.5 ? 1 : 0), 1), v => `${v} shot${v === 1 ? '' : 's'} at 4.5★ or better`);
                 const avg = new Map();
                 byPerson.forEach((rows, p) => { const r = rows.map(x => this.normalizeRating(x.rating)).filter(v => v > 0); if (r.length >= 3) avg.set(p, r.reduce((s, v) => s + v, 0) / r.length); });
@@ -11324,7 +11451,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 return `<span class="ro-tile${big ? ' big' : ''}" aria-hidden="true" style="background:${this.roasterPaint(r).bg}">${this.esc(this.roasterInitials(r.name))}</span>`;
             },
 
-            // ---- saved choices: each person's gear record carries { merged, notSame, fav, info }
+            // ---- saved choices: each person's gear record carries { merged, notSame, fav, local, info }
             roasterPrefsOf(user) {
                 const rec = this.gearByUser.get(String(user || ''));
                 return rec && rec.roasters && typeof rec.roasters === 'object' ? rec.roasters : null;
@@ -11338,7 +11465,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             saveRoasterPrefs(change) {
                 if (!this.user) { this.showToast('Pick who you are in Settings first.'); return false; }
                 const cur = RoasterEngine.prefsOf(this, this.user);
-                const next = { merged: [...cur.merged], notSame: [...cur.notSame], fav: [...cur.fav], info: { ...cur.info } };
+                const next = { merged: [...cur.merged], notSame: [...cur.notSame], fav: [...cur.fav], local: [...cur.local], info: { ...cur.info } };
                 change(next);
                 this.pushGearWith({ roasters: next });
                 return true;
@@ -11363,6 +11490,17 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const on = r.favBy.includes(this.user);
                 const keys = new Set([r.key, ...r.spellings.map(n => RoasterEngine.keyOf(n))]);
                 this.saveRoasterPrefs(p => { p.fav = p.fav.filter(k => !keys.has(this.roasterKey(k))); if (!on) p.fav.push(r.name); });
+                this.renderRoasterPage();
+            },
+
+            // v15.8: "Local to me" is each person's own tick; their sessions of this roaster's coffees count as local
+            toggleRoasterLocal(key) {
+                const r = this.roasterData().byKey.get(key);
+                if (!r) return;
+                const on = (r.localBy || []).includes(this.user);
+                const keys = new Set([r.key, ...r.spellings.map(n => RoasterEngine.keyOf(n))]);
+                if (this.saveRoasterPrefs(p => { p.local = p.local.filter(e => !keys.has(this.roasterKey(Array.isArray(e) ? e[0] : e))); if (!on) p.local.push([r.name, new Date().toISOString()]); }))
+                    this.showToast(on ? `${r.name} isn't marked local anymore.` : 'Marked local. From today, its coffees count for local goals and awards.');
                 this.renderRoasterPage();
             },
 
@@ -11442,12 +11580,12 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             },
 
             roasterCardHtml(r) {
-                const fav = this.user && r.favBy.includes(this.user);
+                const fav = this.user && r.favBy.includes(this.user), local = !!(this.user && (r.localBy || []).includes(this.user));   // v15.8
                 const faces = r.people.slice(0, 3).map((p, i) => `<i data-face="${this.esc(p.name)}" style="background:${this.esc(this.getUserColor(p.name))};z-index:${9 - i}">${this.esc(this.feedInitial(p.name))}</i>`).join('') + (r.people.length > 3 ? `<i class="more">+${r.people.length - 3}</i>` : '');
                 const n = r.coffees.length;
                 return `<div class="card ro-card" role="button" tabindex="0" data-roaster-key="${this.esc(r.key)}" onclick="app.openRoaster(this.getAttribute('data-roaster-key'))">
                     <div class="ro-head">${this.roasterTileHtml(r)}<div class="ro-main"><span class="ro-name">${this.esc(r.name)}</span>${r.rated ? `<div class="ro-rate"><span class="star-meter" style="--fill:${this.starFill(r.avg)}%;--whole:${this.starWhole(r.avg)};--frac:${this.starFrac(r.avg)}"></span><span>${this.esc(RoasterEngine.f1(r.avg))}</span></div>` : ''}</div></div>
-                    <div class="ro-meta"><span>${n} coffee${n === 1 ? '' : 's'} · ${r.sessions} session${r.sessions === 1 ? '' : 's'}</span>${fav ? '<svg class="icon ro-heart" aria-label="Favorite"><use href="#i-heart"/></svg>' : ''}${faces ? `<span class="dh-faces" aria-label="${this.esc(r.people.map(p => p.name).join(', '))}">${faces}</span>` : ''}</div>
+                    <div class="ro-meta"><span>${n} coffee${n === 1 ? '' : 's'} · ${r.sessions} session${r.sessions === 1 ? '' : 's'}</span>${fav ? '<svg class="icon ro-heart" aria-label="Favorite"><use href="#i-heart"/></svg>' : ''}${local ? '<span class="ro-local-tag"><svg class="icon"><use href="#i-pin"/></svg>Local</span>' : ''}${faces ? `<span class="dh-faces" aria-label="${this.esc(r.people.map(p => p.name).join(', '))}">${faces}</span>` : ''}</div>
                     <div class="ro-beans" data-total="${n}">${r.coffees.map(c => `<button type="button" class="ro-bean" data-bean="${this.esc(c.beanId)}" onclick="event.stopPropagation(); app.openCoffeeFromRoaster(this.getAttribute('data-bean'))">${this.esc(c.name)}</button>`).join('')}<span class="ro-more" hidden></span></div>
                 </div>`;
             },
@@ -11593,7 +11731,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (!r) { this.goBackPage(); return; }
                 this.roasterOpen = r.key;
                 const esc = s => this.esc(s);
-                const fav = this.user && r.favBy.includes(this.user);
+                const fav = this.user && r.favBy.includes(this.user), local = !!(this.user && (r.localBy || []).includes(this.user));   // v15.8
                 const info = r.info || {};
                 const site = info.website ? info.website.replace(/^https?:\/\//i, '').replace(/\/$/, '') : '';
                 const href = info.website ? (/^https?:\/\//i.test(info.website) ? info.website : `https://${info.website}`) : '';
@@ -11613,7 +11751,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 page.innerHTML = `
                     <div class="dh-top ro-top"><button type="button" class="dh-pill dh-back" onclick="app.goBackPage()"><svg class="icon"><use href="#i-arrow-left"/></svg><span>${esc(this.backLabel())}</span></button><div class="dh-actions"><button type="button" class="btn-clean ro-fav" aria-pressed="${fav}" aria-label="${fav ? 'Remove from favorites' : 'Favorite this roaster'}" onclick="app.toggleRoasterFav('${app.escJs(r.key)}')"><svg class="icon"><use href="#i-heart"/></svg></button><button type="button" class="btn-clean" aria-label="Share this roaster" data-roaster="${esc(r.name)}" onclick="app.shareItem('roaster', this.getAttribute('data-roaster'), event)"><svg class="icon"><use href="#i-share-2"/></svg></button><button type="button" class="btn-clean" aria-label="Edit roaster details" onclick="app.openRoasterEdit('${app.escJs(r.key)}')"><svg class="icon"><use href="#i-edit-2"/></svg></button></div></div>
                     <section class="profile-card profile-hero ro-hero" style="--pc-rgb:${rgb}">
-                        <div class="ro-hero-row">${this.roasterTileHtml(r, true)}<div style="min-width:0"><h2>${esc(r.name)}</h2>${where ? `<div class="ro-where">${where}</div>` : `<button type="button" class="ro-add" onclick="app.openRoasterEdit('${app.escJs(r.key)}')">+ Add location &amp; website</button>`}</div></div>
+                        <div class="ro-hero-row">${this.roasterTileHtml(r, true)}<div style="min-width:0"><h2>${esc(r.name)}</h2>${where ? `<div class="ro-where">${where}</div>` : `<button type="button" class="ro-add" onclick="app.openRoasterEdit('${app.escJs(r.key)}')">+ Add location &amp; website</button>`}${this.user ? `<button type="button" class="ro-local" aria-pressed="${local}" onclick="app.toggleRoasterLocal('${app.escJs(r.key)}')"><svg class="icon"><use href="#i-pin"/></svg>Local to me</button>` : ''}</div></div>
                         ${info.note ? `<p class="ro-note">${esc(info.note)}</p>` : ''}
                         <p class="ro-style">${esc(r.style)}</p>
                         <div class="stat-row"><div class="stat-box"><div class="stat-num">${n}</div><div class="stat-cap">${n === 1 ? 'Coffee' : 'Coffees'}</div></div><div class="stat-box"><div class="stat-num">${r.sessions}</div><div class="stat-cap">${r.sessions === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${r.rated ? `${RoasterEngine.f1(r.avg)}<small>★</small>` : '–'}</div><div class="stat-cap">${r.rated} rated</div></div><div class="stat-box"><div class="stat-num word">${esc(this.roasterLastLabel(r.last))}</div><div class="stat-cap">Last brewed</div></div></div>
@@ -14707,6 +14845,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             trackExploration(stats, event) {
                 const bean = this.beans.get(String(event.beanId));
                 if (!bean) return;
+                if (this.isLocalBrew && this.isLocalBrew(event)) stats.localCount = (stats.localCount || 0) + 1;   // v15.8
                 this.originList(bean.origin).forEach(o => stats.originSet.add(o.toLowerCase()));
                 if (this.coffeeContinent && stats.continentSet) this.originList(bean.origin).forEach(o => { const c = this.coffeeContinent(o); if (c) stats.continentSet.add(c); });   // v15.1
                 const process = this.normalizeTag(bean.process);
@@ -16611,6 +16750,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             },
 
             drawRadar(stats) {
+                if (typeof Chart === 'undefined') { setTimeout(() => { if (typeof Chart !== 'undefined' && document.getElementById('radar-chart')) this.drawRadar(stats); }, 400); return; }   // v15.8: the chart library loads after the page now
                 const existing = window.myChart;
                 if (this.refreshingDetail && existing && existing.data && Array.isArray(existing.data.datasets) &&
                     existing.data.datasets[0] && typeof existing.update === 'function') {
@@ -17547,6 +17687,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     case 'follow_accepted': return `${who} approved your follow request`;
                     case 'joined_group': return `${who} joined ${this.esc(n.group || 'your group')}`;
                     case 'helpful': return `${who} marked your answer most helpful${said}`;   // v14.5
+                    case 'friend_session': { const b = n.sessionCoffee ? this.beans.get(String(n.sessionCoffee)) : null; return `${who} logged a session${b && b.name ? ` of <b>${this.esc(b.name)}</b>` : ''}`; }   // v15.8
                     case 'report': return 'Something was reported. Review it within a day.';
                     case 'bug': return `${who} reported a bug. Read it in Settings.`;   // v15.1: reviewers only
                     default: return who;
@@ -17761,7 +17902,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const link = (page, title) => `<a class="set-row set-link" href="${this.legalUrl(page)}" target="_blank" rel="noopener" onclick="app.openLegal('${app.escJs(page)}'); return false;"><span class="set-main"><b>${title}</b></span><svg class="icon set-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></a>`;
                 const group = (label, rows, cls = '') => rows ? `<div class="set-label">${label}</div><div class="set-group${cls ? ` ${cls}` : ''}">${rows}</div>` : '';
                 return [
-                    group('Privacy and notifications', `${priv}${pushRow}`),
+                    group('Privacy and notifications', `${priv}${row('app.openNotifSettings()', 'Notifications', 'Choose what you hear about, on this phone and in the app')}`),   // v15.8: the phone switch moved into Notifications
                     group('Community', `${row('app.openGuidelines()', 'Community guidelines', 'What\'s welcome here, and how reporting works')}${this.isReviewer && this.isReviewer() ? row('app.openReview()', 'Review reports', 'Reports waiting for a reviewer') : ''}`),
                     group('Help', `${row('app.openBugReport()', 'Report a bug', 'Something broken or confusing? Tell us')}${this.isReviewer && this.isReviewer() ? row('app.openBugReports()', 'Bug reports', 'What people have reported') : ''}`),   // v15.1
                     group('Your data', `${row('app.downloadMyData()', 'Download my data', 'Everything on your account, in one file')}${row('app.exportData(\'csv\')', 'Export sessions', 'A spreadsheet (CSV) of your sessions')}`),
@@ -18161,6 +18302,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 finally { st.loading = false; }
                 const m = document.getElementById('settings-modal');
                 if (m && m.classList.contains('active')) this.openSettings();
+                const ns = document.getElementById('notif-set-modal');   // v15.8: the switch lives in Notifications now
+                if (ns && ns.classList.contains('active') && this.renderNotifSettings) this.renderNotifSettings();
             },
 
             pushRowHtml() {
@@ -18210,6 +18353,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     st.busy = false;
                     const m = document.getElementById('settings-modal');
                     if (m && m.classList.contains('active')) this.openSettings();
+                    const ns = document.getElementById('notif-set-modal');
+                    if (ns && ns.classList.contains('active') && this.renderNotifSettings) this.renderNotifSettings();
                 }
             },
 
@@ -19525,6 +19670,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     ['complete', 'Rating it, with its taste or notes', 5],
                     ['coffee', 'A coffee you hadn’t brewed before', 25],
                     ['roaster', 'A new roaster', 15],
+                    ['local', 'A session from a roaster you marked local', 5, 'up to 5 a day'],
                     ['origin', 'A new origin country', 20],
                     ['method', 'A new brew method', 30],
                     ['master', 'Pinning a master recipe', 10],
@@ -19563,6 +19709,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     n.likeGot += (Array.isArray(b.likes) ? b.likes.filter(x => String(x || '').trim() && x !== name).length : 0);
                 });
                 perDay.forEach(c => { n.session += Math.min(c, 5); });
+                const localDay = new Map(); mine.forEach(b => { if (this.isLocalBrew && this.isLocalBrew(b)) { const d = this.dayKey(this.localTime(b.date)); localDay.set(d, (localDay.get(d) || 0) + 1); } });
+                localDay.forEach(c => { n.local += Math.min(c, 5); });   // v15.8
                 n.coffee = coffees.size; n.roaster = roasters.size; n.origin = origins.size; n.method = methods.size;
                 const cmtDay = new Map();
                 this.brews.forEach(b => {
@@ -20084,6 +20232,170 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
             // unknown on either side counts as the same grinder (one memory, as before grinders were told apart)
             sameGrinder(a, b) { return !a || !b || a.key === b.key; },
+            // ===================== v15.8: local roasters and a bigger set of group goals =====================
+            // A session is local when the person who brewed it ticked "Local to me" on that coffee's roaster, from the day
+            // they ticked it on (so it rewards buying local from then, not a big jump for the past). It counts toward the
+            // Go local goal, the Local Legend award, the Local Regular achievement and a little crema.
+            isLocalBrew(b) {
+                if (!b || !this.roasterData) return false;
+                const bean = this.beans.get(String(b.beanId || ''));
+                if (!bean || !String(bean.roaster || '').trim()) return false;
+                const D = this.roasterData(), r = D.byKey.get(D.keyOfBean(bean));
+                const since = r && r.localSince ? r.localSince[this.getBrewOwner(b)] : undefined;
+                if (since === undefined) return false;
+                const day = new Date(since); day.setHours(0, 0, 0, 0);
+                return !(this.localTime(b.date) < day.getTime());
+            },
+
+            anyLocal(people) {
+                if (!this.roasterData) return false;
+                return this.roasterData().roasters.some(r => (r.localBy || []).some(u => !people || people.includes(u)));
+            },
+
+            // each person's sessions in order, for "beat your last rating" and "a coffee you hadn't brewed"
+            goalHist() {
+                const sig = `${this._dataRev || 0}|${this.brews.size}`;
+                if (this._goalHist && this._goalHistSig === sig) return this._goalHist;
+                const byOwner = new Map();
+                this.brews.forEach(b => { const o = this.getBrewOwner(b); if (!byOwner.has(o)) byOwner.set(o, []); byOwner.get(o).push(b); });
+                const prevRated = new Map(), first = new Set();
+                byOwner.forEach(list => {
+                    list.sort((a, b) => this.localTime(a.date) - this.localTime(b.date) || (String(a.id) < String(b.id) ? -1 : 1));
+                    const lastRated = new Map(), seenCoffee = new Set();
+                    list.forEach(b => {
+                        const k = `${this.groupKeyOfBrew(b)}|${b.method || ''}`, ck = this.groupKeyOfBrew(b);
+                        if (lastRated.has(k)) prevRated.set(String(b.id), lastRated.get(k));
+                        if (this.normalizeRating(b.rating) > 0) lastRated.set(k, b);
+                        if (!seenCoffee.has(ck)) { seenCoffee.add(ck); first.add(String(b.id)); }
+                    });
+                });
+                this._goalHistSig = sig; this._goalHist = { prevRated, first };
+                return this._goalHist;
+            },
+
+            // every goal: how it counts (sessions in a window -> a number and who brewed toward it), its range and words.
+            // core goals can always run; the others only when the group did that kind of thing in recent weeks.
+            goalSpecs() {
+                const rate = b => this.normalizeRating(b.rating), own = b => this.getBrewOwner(b);
+                const each = test => list => { const give = []; list.forEach(b => { if (test(b)) give.push(own(b)); }); return { n: give.length, give }; };
+                const distinct = keyOf => list => { const seen = new Map(), give = []; list.forEach(b => { const k = keyOf(b); if (k && !seen.has(k[0])) { seen.set(k[0], k[1]); give.push(own(b)); } }); return { n: seen.size, give, labels: [...seen.values()] }; };
+                const D = () => this.roasterData();
+                const hist = () => this.goalHist();
+                return {
+                    sessions: { core: true, add: true, min: 3, max: 60, fb: p => 2 * p, title: t => `Brew ${t} sessions together`, unit: 'sessions', count: each(() => true) },
+                    days: { core: true, add: true, min: 3, max: 49, fb: p => 2 * p, title: t => `${t} brewing days between you`, unit: 'brewing days',
+                        count: list => { const seen = new Set(), give = []; list.forEach(b => { const k = `${own(b)}|${this.dayNum(this.localTime(b.date))}`; if (!seen.has(k)) { seen.add(k); give.push(own(b)); } }); return { n: seen.size, give }; } },
+                    everyone: { core: true },
+                    rated: { core: true, add: true, min: 2, max: 50, fb: p => p + 1, title: t => `Rate ${t} sessions`, unit: 'rated', count: each(b => rate(b) > 0) },
+                    notes: { core: true, add: true, min: 2, max: 40, fb: p => p, title: t => `Log tasting notes on ${t} sessions`, unit: 'with notes', count: each(b => this.extractFlavors(b).length > 0) },
+                    high: { add: true, min: 2, max: 20, fb: () => 2, title: t => `Chase the 4.5★: ${t} sessions at 4.5★ or better`, unit: 'at 4.5★+', count: each(b => rate(b) >= 4.5) },
+                    levelup: { add: true, min: 2, max: 15, fb: () => 2, title: t => `Level up: beat your last rating on a coffee ${t} times`, unit: 'better than last time',
+                        count: each(b => { const p = hist().prevRated.get(String(b.id)); return !!p && rate(b) > rate(p); }) },
+                    origins: { add: false, min: 2, max: 8, fb: () => 2, title: t => `Taste ${t} different origins`, unit: 'origins', count: distinct(b => { const o = this.originOf(b); return o ? [o.toLowerCase(), o] : null; }) },
+                    roasters: { add: false, min: 2, max: 8, fb: () => 2, title: t => `Roaster tour: ${t} different roasters`, unit: 'roasters',
+                        count: distinct(b => { const bean = this.beans.get(String(b.beanId || '')); if (!bean || !String(bean.roaster || '').trim()) return null; const d = D(), k = d.keyOfBean(bean), r = d.byKey.get(k); return [k, r ? r.name : String(bean.roaster).trim()]; }) },
+                    methods: { add: false, min: 2, max: 4, fb: () => 2, title: t => `Brew with ${t} different methods`, unit: 'methods', count: distinct(b => b.method ? [b.method, b.method] : null) },
+                    newcoffee: { add: true, min: 2, max: 12, fb: () => 2, title: t => `Open something new: ${t} coffees you haven't brewed before`, unit: 'new coffees', count: each(b => hist().first.has(String(b.id))) },
+                    comments: { add: true, min: 3, max: 60, fb: p => 2 * p, title: t => `Hype squad: ${t} comments on each other's sessions`, unit: 'comments', window: true,
+                        count: (list, a, b) => {
+                            const inCrew = this.crewFilter(), give = [];
+                            this.brews.forEach(x => {
+                                if (!inCrew(x)) return;
+                                (Array.isArray(x.comments) ? x.comments : []).forEach(c => {
+                                    const who = c && String(c.user || ''), t = c ? this.toTime(c.timestamp) : 0;
+                                    if (!who || who === own(x) || this.goalExcluded(who) || !(t >= a && t < b)) return;
+                                    give.push(who);
+                                });
+                            });
+                            return { n: give.length, give };
+                        } },
+                    photos: { add: true, min: 2, max: 30, fb: () => 2, title: t => `Show the cup: ${t} sessions with a photo`, unit: 'with a photo', count: each(b => !!String(b.photo || '').trim()) },
+                    early: { add: true, min: 2, max: 30, fb: () => 2, title: t => `Early birds: ${t} sessions before 9 am`, unit: 'before 9 am', count: each(b => { const h = this.sessionHour(b); return h !== null && h >= 4 && h < 9; }) },
+                    fresh: { add: true, min: 2, max: 40, fb: () => 2, title: t => `Fresh roast: ${t} sessions within 3 weeks of roasting`, unit: 'fresh',
+                        count: each(b => { const bean = this.beans.get(String(b.beanId || '')); const r = bean && bean.roastDate ? this.localTime(bean.roastDate) : NaN; if (!Number.isFinite(r)) return false; const d = (this.localTime(b.date) - r) / 864e5; return d >= -0.5 && d <= 21; }) },
+                    swap: { add: true, min: 2, max: 30, fb: () => 2, title: t => `Brew what your friends brew: ${t} sessions of a coffee someone else had this week`, unit: 'shared coffees',
+                        count: list => { const by = new Map(); list.forEach(b => { const k = this.groupKeyOfBrew(b); if (!by.has(k)) by.set(k, new Set()); by.get(k).add(own(b)); }); return each(b => by.get(this.groupKeyOfBrew(b)).size > 1)(list); } },
+                    local: { add: true, min: 2, max: 30, fb: p => Math.max(2, p), title: t => `Go local: ${t} sessions from your local roasters`, unit: 'local', local: true, count: each(b => this.isLocalBrew(b)) },
+                };
+            },
+
+            // v15.8: from the week of Oct 26, 2026 every week draws its goal from the whole set: each run through the set is
+            // shuffled (the same order on every phone), and a goal the group hasn't done lately is swapped for a core one.
+            // Weeks before keep the six goals they had, so past results don't change.
+            goalPlan(start) {
+                const W = 7 * 864e5, from = this.weekStartOf(new Date(2026, 9, 26, 12).getTime());
+                if (start < from) return null;
+                const keys = ['sessions', 'local', 'roasters', 'high', 'days', 'comments', 'origins', 'levelup', 'everyone', 'photos', 'newcoffee', 'early', 'rated', 'swap', 'methods', 'fresh', 'notes'];
+                const L = keys.length, idx = Math.round((start - from) / W), cyc = Math.floor(idx / L), pos = idx % L;
+                let salt = 0; String(this._crewScope ? this._crewScope.id : '').split('').forEach(ch => { salt = (salt * 31 + ch.charCodeAt(0)) >>> 0; });
+                const order = c => {
+                    let x = ((c + 1) * 2654435761 ^ salt) >>> 0;
+                    const rnd = () => { x = (x + 0x6D2B79F5) >>> 0; let t = x; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+                    const a = keys.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+                    if (c === 0) { ['local', 'roasters'].forEach(k => { a.splice(a.indexOf(k), 1); a.unshift(k); }); }   // the first two weeks: a roaster tour, then Go local
+                    return a;
+                };
+                const seq = order(cyc), before = cyc > 0 ? order(cyc - 1) : null, after = order(cyc + 1);
+                if (before && seq[0] === before[L - 1]) [seq[0], seq[1]] = [seq[1], seq[0]];   // a new run never repeats last week's goal
+                const prev = pos ? seq[pos - 1] : (before ? before[L - 1] : ''), next = pos < L - 1 ? seq[pos + 1] : after[0];
+                return { type: seq[pos], prev, next, idx };
+            },
+            // ===================== v15.8: choose your notifications =====================
+            // Settings, Notifications: the phone switch, then one switch per kind. Off means it isn't sent at all (not in
+            // the bell, not on the phone). New: a friend's new session (people you follow or share a community with, at
+            // most once per friend every three hours). Saved on your account, so every phone you sign in on follows it.
+            notifKinds() {
+                return [
+                    ['friend_sessions', 'Friends\' new sessions', 'When someone you follow or share a community with logs a session (once every few hours at most)'],
+                    ['likes', 'Likes', 'On your sessions and coffees'],
+                    ['comments', 'Comments', 'On your sessions and coffees'],
+                    ['replies', 'Replies', 'When someone answers your comment'],
+                    ['comment_likes', 'Likes on your comments', ''],
+                    ['follows', 'Followers', 'New followers, follow requests and approvals'],
+                    ['groups', 'Your communities', 'When someone joins a community you run'],
+                    ['helpful', 'Most helpful', 'When your answer is marked most helpful'],
+                ];
+            },
+
+            notifPrefState() { return this._nprefs || (this._nprefs = { prefs: null, loading: false, busy: {} }); },
+
+            openNotifSettings() {
+                if (!this.acctOn()) return;
+                document.getElementById('notif-set-modal').classList.add('active');
+                this.renderNotifSettings();
+                const st = this.notifPrefState();
+                if (st.loading) return;
+                st.loading = true;
+                Supa.rpc('my_notification_prefs', {}).then(p => { st.prefs = p && typeof p === 'object' ? p : {}; })
+                    .catch(() => { if (!st.prefs) st.failed = true; })
+                    .finally(() => { st.loading = false; this.renderNotifSettings(); });
+            },
+
+            closeNotifSettings() { const m = document.getElementById('notif-set-modal'); if (m) m.classList.remove('active'); },
+
+            renderNotifSettings() {
+                const body = document.getElementById('notif-set-body');
+                if (!body) return;
+                const st = this.notifPrefState(), push = this.pushRowHtml ? this.pushRowHtml() : '';
+                const sw = ([key, title, sub]) => {
+                    const on = !st.prefs || st.prefs[key] !== false;
+                    return `<div class="pp-private nset-row"><span><b>${this.esc(title)}</b>${sub ? `<small>${this.esc(sub)}</small>` : ''}</span><button type="button" class="goal-sw" role="switch" aria-checked="${on}" aria-label="${this.esc(title)}"${st.prefs && !st.busy[key] ? '' : ' disabled'} onclick="app.setNotifPref('${app.escJs(key)}', this.getAttribute('aria-checked') !== 'true')"></button></div>`;
+                };
+                body.innerHTML = `${push ? `<div class="set-label">This phone</div><div class="set-group">${push}</div>` : ''}
+                    <div class="set-label">What you hear about</div>
+                    ${st.failed && !st.prefs ? '<p class="pp-empty">Couldn\'t load your choices. Check your connection and try again.</p>' : `<div class="set-group">${this.notifKinds().map(sw).join('')}</div>`}
+                    <p class="nset-foot">Off means it isn't sent at all: not in your notifications, not on your phone. Your choices follow you to every phone you sign in on.</p>`;
+            },
+
+            async setNotifPref(key, on) {
+                const st = this.notifPrefState();
+                if (!st.prefs || st.busy[key]) return;
+                const was = st.prefs[key] !== false;
+                st.prefs[key] = on; st.busy[key] = true; this.renderNotifSettings();
+                try { const p = await Supa.rpc('set_notification_pref', { pref: key, turn_on: on }); if (p && typeof p === 'object') st.prefs = p; }
+                catch (e) { st.prefs[key] = was; this.showToast(e && e.message ? e.message : 'That didn\'t save. Try again.'); }
+                finally { st.busy[key] = false; this.renderNotifSettings(); }
+            },
         };
         window.onload = () => app.init();
     </script>
