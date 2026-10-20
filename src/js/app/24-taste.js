@@ -148,11 +148,17 @@
                 const target = document.getElementById('taste-target');
                 if (target) {
                     target.hidden = !ref;
-                    if (ref) target.innerHTML = `<span>Target</span><b>Your best ${this.shotWord(this.readFormRecipe().method)} · ${this.esc(this.shortDate(ref.date))} · ${this.esc(this.fmtNum(this.normalizeRating(ref.rating)))}★ · ${this.esc(this.recipeLine(ref, true))}</b>`;
+                    if (ref) target.innerHTML = this.tasteTargetHtml(ref);
                 }
                 this.paintTasteSliders();
                 this.renderTasteTip();
                 this.renderCupWords();
+            },
+
+            // v15.7: the best shot's grind only shows when it was on the grinder you're logging with
+            tasteTargetHtml(ref) {
+                const method = this.readFormRecipe().method, rg = this.grinderFor(ref), cg = this.formGrinder(method), same = this.sameGrinder(rg, cg);
+                return `<span>Target</span><b>Your best ${this.shotWord(method)} · ${this.esc(this.shortDate(ref.date))} · ${this.esc(this.fmtNum(this.normalizeRating(ref.rating)))}★ · ${this.esc(this.recipeLine(ref, same))}${same ? '' : ` · on your ${this.esc(rg.name)}`}</b>`;
             },
 
             readFormRecipe() {
@@ -188,7 +194,7 @@
                 const conf = s => s >= 3 ? 'strong read' : s >= 2 ? 'likely' : 'possible';
                 const base = { ok: true, ref: R, evidence: ev };
                 if (!tasted.length && dT === null && !ev.length) return { ok: false, ref: R, head: 'Move the sliders that felt different from your best shot, and your tip appears here.', evidence: [] };
-                const grindLine = dir => (this.grindText(cur.grind) && this.grindText(R.grind) && !this.sameGrind(cur.grind, R.grind))
+                const grindLine = dir => (this.grindText(cur.grind) && this.grindText(R.grind) && !this.sameGrind(cur.grind, R.grind) && this.sameGrinder(this.grinderFor(R), this.formGrinder(cur.method)))
                     ? `Your best shot used ${this.grindText(R.grind)}; this one was ${this.grindText(cur.grind)}. Head back toward it.`
                     : `Go a little ${dir}${this.grindText(cur.grind) ? ` than ${this.grindText(cur.grind)}` : ''}.`;
                 if ((dA !== null && dA >= 2 && dX !== null && dX >= 2) || (under >= 1 && over >= 1 && under === over))
@@ -250,7 +256,7 @@
                 this.renderTasteTip();
                 const target = document.getElementById('taste-target');
                 const ref = this.tasteReference();
-                if (target) { target.hidden = !ref; if (ref) target.innerHTML = `<span>Target</span><b>Your best ${this.shotWord(this.readFormRecipe().method)} · ${this.esc(this.shortDate(ref.date))} · ${this.esc(this.fmtNum(this.normalizeRating(ref.rating)))}★ · ${this.esc(this.recipeLine(ref, true))}</b>`; }
+                if (target) { target.hidden = !ref; if (ref) target.innerHTML = this.tasteTargetHtml(ref); }
             },
 
             // ---- notes wheel in the log form
