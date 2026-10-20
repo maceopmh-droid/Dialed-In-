@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<!-- Dialed In v15.4 -->
+<!-- Dialed In v15.5 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="15.4">
+    <meta name="dialed-in-version" content="15.5">
     <meta charset="UTF-8">
-    <meta name="theme-color" content="#F7F6F2">
+    <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
     (function () {
         try {
@@ -16,7 +16,7 @@
                 var dark = pref === 'dark' || (pref === 'system' && !!(mq && mq.matches));
                 document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
                 var meta = document.querySelector('meta[name="theme-color"]');
-                if (meta) meta.setAttribute('content', dark ? '#0C100D' : '#F7F6F2');
+                if (meta) meta.setAttribute('content', dark ? '#0C100D' : '#F3EEE4');
             };
             window.__dialedTheme = {
                 get pref() { return pref; },
@@ -40,31 +40,31 @@
     <style>
         :root {
             /* --- Dialed In v10 palette: Japandi / Nordic, matcha green --- */
-            --paper: #F7F6F2;
-            --paper-rgb: 247, 246, 242;
-            --surface: #FFFFFF;
-            --surface-2: #F3F1EC;
-            --line: #E6E2DA;
-            --linen: #EEEBE5;
+            --paper: #F3EEE4;   /* v15.5: soft warm paper (was #F7F6F2) */
+            --paper-rgb: 243, 238, 228;
+            --surface: #FCF9F3;
+            --surface-2: #F1EBDF;
+            --line: #E4DBCB;
+            --linen: #ECE5D8;
             --ink: #1E2420;
             --ink-2: #3B433D;
-            --text-muted: #747C76;
-            --text-faint: #A3AAA4;
+            --text-muted: #77736A;
+            --text-faint: #ACA698;
             --matcha: #4E6B52;
             --matcha-2: #86AC88;
             --matcha-rgb: 78, 107, 82;
             --matcha-ink: #3A5440;
             --matcha-dim: rgba(78, 107, 82, 0.1);
             --on-matcha: #FFFFFF;
-            --glass-rgb: 255, 255, 255;
-            --hair-rgb: 22, 32, 24;
+            --glass-rgb: 252, 249, 243;   /* the cards: see-through paper, the way dark mode's are see-through green */
+            --hair-rgb: 58, 44, 26;
             --danger: #C96B66;
             --gold: #E3AE45;
             --heart: #D9534F;
             --heart-rgb: 217, 83, 79;
-            --glass: rgba(255, 255, 255, 0.68);
-            --glass-strong: rgba(255, 255, 255, 0.86);
-            --glass-border: rgba(255, 255, 255, 0.7);
+            --glass: rgba(252, 249, 243, 0.70);
+            --glass-strong: rgba(252, 249, 243, 0.88);
+            --glass-border: rgba(255, 253, 248, 0.70);
             --grad-matcha: linear-gradient(135deg, #5C7C60 0%, #43604A 100%);
             --grad-sheen: linear-gradient(135deg, rgba(255,255,255,0.75), rgba(255,255,255,0.35));
             --shadow-soft: 0 1px 2px rgba(22, 32, 24, 0.04), 0 8px 24px rgba(22, 32, 24, 0.06);
@@ -82,10 +82,10 @@
             --surface-2: #1B211C;
             --line: #283029;
             --linen: #111612;
-            --ink: #E8EEE8;
-            --ink-2: #C2CBC3;
-            --text-muted: #8D978E;
-            --text-faint: #5E685F;
+            --ink: #EEEAE2;   /* v15.5: warm white (was #E8EEE8, a cool green-white) */
+            --ink-2: #CBC6BB;
+            --text-muted: #959287;
+            --text-faint: #646559;
             --matcha: #8DB791;
             --matcha-2: #BFDDBB;
             --matcha-rgb: 141, 183, 145;
@@ -93,14 +93,14 @@
             --matcha-dim: rgba(141, 183, 145, 0.12);
             --on-matcha: #0B160D;
             --glass-rgb: 22, 28, 23;
-            --hair-rgb: 210, 230, 212;
+            --hair-rgb: 232, 224, 210;
             --danger: #E08A84;
             --gold: #EBBE5C;
             --heart: #EE6B67;
             --heart-rgb: 238, 107, 103;
             --glass: rgba(22, 28, 23, 0.62);
             --glass-strong: rgba(22, 28, 23, 0.86);
-            --glass-border: rgba(210, 230, 212, 0.10);
+            --glass-border: rgba(232, 224, 210, 0.10);
             --grad-matcha: linear-gradient(135deg, #9CC6A0 0%, #6E9C74 100%);
             --grad-sheen: linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.02));
             --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.35);
@@ -4298,7 +4298,7 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v15.4</div>
+            <div class="app-version">Dialed In · v15.5</div>
         </div>
     </div>
 
@@ -4828,10 +4828,10 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
                 };
             }
             const themeColors = () => {
-                if (typeof getComputedStyle !== 'function') return { line: '#E6E2DA', muted: '#747C76', ink: '#1E2420', surface: '#fff', dark: false };
+                if (typeof getComputedStyle !== 'function') return { line: '#E4DBCB', muted: '#77736A', ink: '#1E2420', surface: '#FCF9F3', dark: false };
                 const css = getComputedStyle(document.documentElement);
                 const v = n => css.getPropertyValue(n).trim();
-                return { line: v('--line') || '#E6E2DA', muted: v('--text-muted') || '#747C76', ink: v('--ink') || '#1E2420', surface: v('--surface') || '#fff', dark: document.documentElement.getAttribute('data-theme') === 'dark' };
+                return { line: v('--line') || '#E4DBCB', muted: v('--text-muted') || '#77736A', ink: v('--ink') || '#1E2420', surface: v('--surface') || '#FCF9F3', dark: document.documentElement.getAttribute('data-theme') === 'dark' };
             };
             function matrices(W, H, yaw, pitch, zoom = 1, lookY = 1) {   // v14.0: lookY = the height the camera aims at
                 const P = M.persp(34 * Math.PI / 180, W / H, 0.1, 50);
