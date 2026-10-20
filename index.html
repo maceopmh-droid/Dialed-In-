@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v15.5 -->
+<!-- Dialed In v15.6 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="15.5">
+    <meta name="dialed-in-version" content="15.6">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -2766,14 +2766,13 @@
         .sc-rate { flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; margin-top: 2px; }
         .sc-rate .star-meter { font-size: 0.8rem; --ls: 1px; --s: 12px; }
         .sc-rate b { font-size: 0.86rem; font-weight: 800; color: var(--gold); }
-        .sc-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; padding: 0; font-size: inherit; font-weight: inherit; border-radius: 14px; background: linear-gradient(180deg, rgba(var(--matcha-rgb), 0.085), rgba(var(--matcha-rgb), 0.035)); border: 1px solid rgba(var(--matcha-rgb), 0.13); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 4px 14px rgba(var(--matcha-rgb), 0.06); overflow: hidden; }
-        :root[data-theme="dark"] .sc-strip { background: linear-gradient(180deg, rgba(var(--matcha-rgb), 0.16), rgba(var(--matcha-rgb), 0.07)); border-color: rgba(var(--matcha-rgb), 0.22); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 14px rgba(0, 0, 0, 0.16); }
+        .sc-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; padding: 0; font-size: inherit; font-weight: inherit; border-radius: 14px; background: rgba(var(--hair-rgb), 0.035); border: 1px solid rgba(var(--hair-rgb), 0.08); box-shadow: none; overflow: hidden; }   /* v15.6: calmer, a faint outline (was a green-tinted box with a shadow) */
         .sc-cell { min-width: 0; padding: 9px 10px 8px; display: flex; flex-direction: column; gap: 2px; }
-        .sc-cell + .sc-cell { box-shadow: inset 1px 0 0 rgba(var(--matcha-rgb), 0.14); }
-        .sc-cell b { font-size: 1.06rem; font-weight: 800; color: var(--ink); letter-spacing: -0.01em; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .sc-cell b small { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); margin-left: 1px; }
-        .sc-cell span { font-size: 0.66rem; font-weight: 650; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .sc-cell span em { font-style: normal; font-weight: 750; color: var(--matcha-ink); }
+        .sc-cell + .sc-cell { box-shadow: inset 1px 0 0 rgba(var(--hair-rgb), 0.08); }
+        .sc-cell b { font-size: 1.06rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sc-cell b small { font-size: 0.7rem; font-weight: 500; color: var(--text-muted); margin-left: 1px; }
+        .sc-cell span { font-size: 0.66rem; font-weight: 500; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sc-cell span em { font-style: normal; font-weight: 600; color: var(--ink-2); }
         .sc-notes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
         .sc-gear { margin-top: 9px; font-size: 0.74rem; font-weight: 600; color: var(--text-muted); line-height: 1.35; }
         .sc-gear i { display: inline-block; width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: 0.55; vertical-align: middle; margin: 0 7px; }
@@ -2807,9 +2806,9 @@
         .wr-bean { font-weight: 700; letter-spacing: -0.02em; }
 
         /* ===== v12.3: recipe band, favorites initials ===== */
-        .sc-recipe { grid-column: 1 / -1; display: flex; align-items: center; gap: 7px; min-width: 0; padding: 8px 10px 7px; font-size: 0.76rem; color: var(--ink-2); box-shadow: inset 0 -1px 0 rgba(var(--matcha-rgb), 0.14); }
+        .sc-recipe { grid-column: 1 / -1; display: flex; align-items: center; gap: 7px; min-width: 0; padding: 8px 10px 7px; font-size: 0.76rem; color: var(--ink-2); box-shadow: inset 0 -1px 0 rgba(var(--hair-rgb), 0.08); }
         .sc-recipe .icon { width: 14px; height: 14px; flex-shrink: 0; color: var(--matcha); }
-        .sc-recipe b { font-weight: 750; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+        .sc-recipe b { font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         .sc-recipe em { margin-left: auto; flex-shrink: 0; font-style: normal; font-size: 0.64rem; font-weight: 750; letter-spacing: 0.02em; color: var(--matcha-ink); background: rgba(var(--matcha-rgb), 0.13); border: 1px solid rgba(var(--matcha-rgb), 0.16); padding: 2px 8px; border-radius: 999px; }
         .fab-art b { font-family: var(--font-bean); font-weight: 600; letter-spacing: 0.02em; }
 
@@ -4298,7 +4297,7 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v15.5</div>
+            <div class="app-version">Dialed In · v15.6</div>
         </div>
     </div>
 
