@@ -7,8 +7,9 @@
 <meta name="description" content="Dialed In was built by Maceo, a 19-year-old engineering student at Northwestern, as a coffee log to stay close to his brother and cousin. Here is why, and how it grew.">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="https://maceopmh-droid.github.io/Dialed-In-/welcome/about.html">
-<meta name="theme-color" content="#0C100D">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#F7F6F2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0C100D" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Dialed In">
 <meta property="og:title" content="About Dialed In">
@@ -42,20 +43,22 @@
 <style>
 [hidden]{display:none !important}
 @font-face{font-family:Lora;src:url(assets/lora-latin.woff) format("woff");font-weight:400 700;font-style:normal;font-display:swap}
-.os-tab{min-height:44px;padding:0 22px;border-radius:999px;border:0;background:transparent;color:#C2CBC3;font:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:background .25s ease,color .25s ease}
-.os-tab[aria-pressed="true"]{background:#8DB791;color:#0B160D;font-weight:700}
-.os-tab:focus-visible{outline:2px solid #BFDDBB;outline-offset:3px}
+.os-tab{min-height:44px;padding:0 22px;border-radius:999px;border:0;background:transparent;color:var(--text-2);font:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:background .25s ease,color .25s ease}
+.os-tab[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);font-weight:700}
+.os-tab:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-.chip{min-height:46px;padding:0 18px;border-radius:999px;border:1px solid #2F3830;background:#161C17;color:#C2CBC3;font:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:background .25s ease,color .25s ease,border-color .25s ease}
-.chip:hover{border-color:#4A5A4C}
-.chip[aria-pressed="true"]{border-color:#8DB791;background:#8DB791;color:#0B160D;font-weight:700}
-.chip:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid #BFDDBB;outline-offset:3px}
-html{background:#0C100D;scroll-behavior:smooth}
-body{margin:0;background:#0C100D}
-a{color:#AFD3B1}a:hover{color:#D3EBD2}
+.chip{min-height:46px;padding:0 18px;border-radius:999px;border:1px solid var(--line-3);background:var(--chip);color:var(--text-2);font:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:background .25s ease,color .25s ease,border-color .25s ease}
+.chip:hover{border-color:var(--line-4)}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--on-accent);font-weight:700}
+.chip:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+:root{--bg:#F7F6F2;--bg-alt:#EFECE5;--card:#FFFFFF;--chip:#FFFFFF;--tint:#E8EFE6;--rule:#E4E0D7;--hover:#ECE9E2;--well:#F2F0EA;--line:#E2DDD3;--line-2:#D9D3C8;--line-3:#C9C2B5;--line-4:#A9A294;--text-strong:#141914;--text:#1E2420;--text-2:#333B35;--text-3:#3F4741;--text-4:#4F5751;--muted:#5F6761;--faint:#616963;--accent:#4E6B52;--on-accent:#FFFFFF;--link:#3A5440;--link-hover:#1F3325;--gold:#92670F;--coral:#B24A35;--btn-grad:linear-gradient(135deg, #557A5B 0%, #3B5A41 100%);--glass:rgba(255, 255, 255, 0.97);--sh:0.3;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#0C100D;--bg-alt:#0F1410;--card:#141915;--chip:#161C17;--tint:#172019;--rule:#1A201B;--hover:#1B211C;--well:#1F2620;--line:#232B24;--line-2:#263027;--line-3:#3A453B;--line-4:#3A4A3C;--text-strong:#F2F5F1;--text:#E8EEE8;--text-2:#C2CBC3;--text-3:#B9C3BA;--text-4:#A9B3AA;--muted:#8D978E;--faint:#79837A;--accent:#8DB791;--on-accent:#0B160D;--link:#AFD3B1;--link-hover:#D3EBD2;--gold:#EBBE5C;--coral:#EE7A62;--btn-grad:linear-gradient(135deg, #9CC6A0 0%, #6E9C74 100%);--glass:rgba(20, 25, 21, 0.95);--sh:1;color-scheme:dark}}
+html{background:var(--bg);scroll-behavior:smooth}
+body{margin:0;background:var(--bg)}
+a{color:var(--link)}a:hover{color:var(--link-hover)}
 .btn-primary:hover{filter:brightness(1.07)}
-.btn-ghost:hover{background:#1B211C}
-.navlink:hover{color:#E8EEE8}
+.btn-ghost:hover{background:var(--hover)}
+.navlink:hover{color:var(--text)}
 .faq summary{list-style:none;cursor:pointer}
 .faq summary::-webkit-details-marker{display:none}
 .faq[open] .chev{transform:rotate(180deg)}
@@ -63,8 +66,8 @@ a{color:#AFD3B1}a:hover{color:#D3EBD2}
 .snap-row::-webkit-scrollbar{display:none}
 @media (max-width:760px){.navlinks{display:none !important}}
 .mnav-btn{display:none}
-.mnav-btn:hover{background:#1B211C}
-.mnav-link:hover{background:#1B211C}
+.mnav-btn:hover{background:var(--hover)}
+.mnav-link:hover{background:var(--hover)}
 @media (max-width:760px){.mnav-btn{display:inline-flex !important}.hdr-cta{display:none !important}}
 @media (min-width:761px){.mnav-panel{display:none !important}}
 .progress-bar{display:none}
@@ -75,7 +78,7 @@ a{color:#AFD3B1}a:hover{color:#D3EBD2}
 .lift{transition:translate .45s cubic-bezier(.2,.8,.2,1), box-shadow .45s ease}
 .lift:hover{translate:0 -8px}
 .tile{transition:border-color .3s ease, translate .35s ease}
-.tile:hover{border-color:#3A4A3C;translate:0 -4px}
+.tile:hover{border-color:var(--line-4);translate:0 -4px}
 @keyframes di-up{from{opacity:0;translate:0 28px}to{opacity:1;translate:0 0}}
 @keyframes di-float{0%,100%{translate:0 0}50%{translate:0 -12px}}
 @keyframes di-float2{0%,100%{translate:0 0}50%{translate:0 10px}}
@@ -114,126 +117,126 @@ a{color:#AFD3B1}a:hover{color:#D3EBD2}
 }
 }
 .tl{list-style:none;margin:44px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 24px;position:relative}
-.tl::before{content:"";position:absolute;left:7px;right:7px;top:6px;height:2px;background:linear-gradient(90deg,#8DB791 0%,#8DB791 70%,#3A453B 100%)}
+.tl::before{content:"";position:absolute;left:7px;right:7px;top:6px;height:2px;background:linear-gradient(90deg,var(--accent) 0%,var(--accent) 70%,var(--line-3) 100%)}
 .tl li{position:relative;padding-top:34px}
-.tl-dot{position:absolute;left:0;top:0;width:14px;height:14px;border-radius:50%;background:#8DB791;box-shadow:0 0 0 5px #0C100D}
-.tl li:last-child .tl-dot{background:#0C100D;box-shadow:0 0 0 5px #0C100D,inset 0 0 0 2px #8DB791}
-@media (max-width:700px){.tl{grid-template-columns:minmax(0,1fr);gap:26px}.tl::before{display:none}.tl li{padding:0 0 0 36px}.tl li:not(:last-child)::after{content:"";position:absolute;left:6px;top:14px;bottom:-26px;width:2px;background:#8DB791}.tl li:nth-last-child(2)::after{background:linear-gradient(180deg,#8DB791,#3A453B)}}
+.tl-dot{position:absolute;left:0;top:0;width:14px;height:14px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 5px var(--bg)}
+.tl li:last-child .tl-dot{background:var(--bg);box-shadow:0 0 0 5px var(--bg),inset 0 0 0 2px var(--accent)}
+@media (max-width:700px){.tl{grid-template-columns:minmax(0,1fr);gap:26px}.tl::before{display:none}.tl li{padding:0 0 0 36px}.tl li:not(:last-child)::after{content:"";position:absolute;left:6px;top:14px;bottom:-26px;width:2px;background:var(--accent)}.tl li:nth-last-child(2)::after{background:linear-gradient(180deg,var(--accent),var(--line-3))}}
 </style>
 </head>
 <body>
-<div style="background: #0C100D; color: #E8EEE8; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif; font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased; overflow-x: clip">
-<div class="progress-bar" aria-hidden="true" style="position: fixed; left: 0; right: 0; top: 0; z-index: 50; height: 3px; background: #8DB791; transform-origin: 0 50%; transform: scaleX(0)"></div>
+<div style="background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif; font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased; overflow-x: clip">
+<div class="progress-bar" aria-hidden="true" style="position: fixed; left: 0; right: 0; top: 0; z-index: 50; height: 3px; background: var(--accent); transform-origin: 0 50%; transform: scaleX(0)"></div>
 
 <!-- ============ Nav ============ -->
 <header style="position: relative; z-index: 55; max-width: 1200px; margin: 0 auto; padding: 22px clamp(20px, 5vw, 48px); display: flex; align-items: center; justify-content: space-between; gap: 20px">
-<a href="./" aria-label="Dialed In home" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #E8EEE8">
-<img src="assets/icon.webp" alt="" width="40" height="40" style="display: block; width: 40px; height: 40px; border-radius: 10px; box-shadow: inset 0 0 0 1px #283029">
+<a href="./" aria-label="Dialed In home" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text)">
+<img src="assets/icon.webp" alt="" width="40" height="40" style="display: block; width: 40px; height: 40px; border-radius: 10px; box-shadow: inset 0 0 0 1px var(--line-2)">
 <span style="font-family: Lora, ui-serif, Georgia, serif; font-size: 23px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap">Dialed In</span>
 </a>
 <nav aria-label="Main" style="display: flex; align-items: center; gap: 28px">
 <div class="navlinks" style="display: flex; align-items: center; gap: 28px; font-size: 15px; font-weight: 500">
-<a class="navlink" href="./#taste" style="display: inline-flex; align-items: center; min-height: 44px; color: #A9B3AA; text-decoration: none">How it works</a>
-<a class="navlink" href="./#friends" style="display: inline-flex; align-items: center; min-height: 44px; color: #A9B3AA; text-decoration: none">Friends</a>
-<a class="navlink" href="./#faq" style="display: inline-flex; align-items: center; min-height: 44px; color: #A9B3AA; text-decoration: none">FAQ</a>
-<a class="navlink" href="about.html" aria-current="page" style="display: inline-flex; align-items: center; min-height: 44px; color: #E8EEE8; text-decoration: none">About</a>
+<a class="navlink" href="./#taste" style="display: inline-flex; align-items: center; min-height: 44px; color: var(--text-4); text-decoration: none">How it works</a>
+<a class="navlink" href="./#friends" style="display: inline-flex; align-items: center; min-height: 44px; color: var(--text-4); text-decoration: none">Friends</a>
+<a class="navlink" href="./#faq" style="display: inline-flex; align-items: center; min-height: 44px; color: var(--text-4); text-decoration: none">FAQ</a>
+<a class="navlink" href="about.html" aria-current="page" style="display: inline-flex; align-items: center; min-height: 44px; color: var(--text); text-decoration: none">About</a>
 </div>
-<a class="btn-ghost hdr-cta" href="https://maceopmh-droid.github.io/Dialed-In-/" style="display: inline-flex; flex: none; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 1px solid #2F3830; color: #E8EEE8; font-size: 15px; font-weight: 600; text-decoration: none; white-space: nowrap">Open the web app</a>
-<button type="button" class="mnav-btn" aria-label="Menu" aria-expanded="false" aria-controls="mnav" data-menu-btn style="align-items: center; gap: 8px; min-height: 44px; padding: 0 16px 0 14px; border-radius: 999px; border: 1px solid #2F3830; background: transparent; color: #E8EEE8; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>Menu</button>
+<a class="btn-ghost hdr-cta" href="https://maceopmh-droid.github.io/Dialed-In-/" style="display: inline-flex; flex: none; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--line-3); color: var(--text); font-size: 15px; font-weight: 600; text-decoration: none; white-space: nowrap">Open the web app</a>
+<button type="button" class="mnav-btn" aria-label="Menu" aria-expanded="false" aria-controls="mnav" data-menu-btn style="align-items: center; gap: 8px; min-height: 44px; padding: 0 16px 0 14px; border-radius: 999px; border: 1px solid var(--line-3); background: transparent; color: var(--text); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>Menu</button>
 </nav>
-<div class="mnav-panel" id="mnav" hidden style="position: absolute; left: clamp(12px, 4vw, 24px); right: clamp(12px, 4vw, 24px); top: calc(100% - 8px); padding: 8px; border-radius: 22px; background: #141915; border: 1px solid #2A322B; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6); display: flex; flex-direction: column; gap: 2px">
-<a class="mnav-link" href="./#taste" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: #E8EEE8; font-size: 18px; font-weight: 600; text-decoration: none">How it works</a>
-<a class="mnav-link" href="./#friends" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: #E8EEE8; font-size: 18px; font-weight: 600; text-decoration: none">Friends</a>
-<a class="mnav-link" href="./#faq" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: #E8EEE8; font-size: 18px; font-weight: 600; text-decoration: none">FAQ</a>
-<a class="mnav-link" href="./#install" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: #E8EEE8; font-size: 18px; font-weight: 600; text-decoration: none">Add to your home screen</a>
-<a class="mnav-link" href="about.html" aria-current="page" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: #E8EEE8; font-size: 18px; font-weight: 600; text-decoration: none">About</a>
-<a class="btn-primary" href="https://maceopmh-droid.github.io/Dialed-In-/" style="margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 54px; border-radius: 999px; background: linear-gradient(135deg, #9CC6A0 0%, #6E9C74 100%); color: #0B160D; font-size: 17px; font-weight: 700; text-decoration: none">Open the web app</a>
+<div class="mnav-panel" id="mnav" hidden style="position: absolute; left: clamp(12px, 4vw, 24px); right: clamp(12px, 4vw, 24px); top: calc(100% - 8px); padding: 8px; border-radius: 22px; background: var(--card); border: 1px solid var(--line-2); box-shadow: 0 24px 60px rgba(0, 0, 0, calc(0.6 * var(--sh))); display: flex; flex-direction: column; gap: 2px">
+<a class="mnav-link" href="./#taste" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: var(--text); font-size: 18px; font-weight: 600; text-decoration: none">How it works</a>
+<a class="mnav-link" href="./#friends" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: var(--text); font-size: 18px; font-weight: 600; text-decoration: none">Friends</a>
+<a class="mnav-link" href="./#faq" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: var(--text); font-size: 18px; font-weight: 600; text-decoration: none">FAQ</a>
+<a class="mnav-link" href="./#install" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: var(--text); font-size: 18px; font-weight: 600; text-decoration: none">Add to your home screen</a>
+<a class="mnav-link" href="about.html" aria-current="page" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: var(--text); font-size: 18px; font-weight: 600; text-decoration: none">About</a>
+<a class="btn-primary" href="https://maceopmh-droid.github.io/Dialed-In-/" style="margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 54px; border-radius: 999px; background: var(--btn-grad); color: var(--on-accent); font-size: 17px; font-weight: 700; text-decoration: none">Open the web app</a>
 </div>
 </header>
 
 <!-- ============ Intro ============ -->
 <section id="top" style="max-width: 1200px; margin: 0 auto; padding: clamp(28px, 5vw, 64px) clamp(20px, 5vw, 48px) clamp(64px, 8vw, 104px); display: flex; flex-wrap: wrap; align-items: center; gap: clamp(40px, 6vw, 80px)">
 <div style="flex: 1 1 480px; min-width: 0">
-<p class="a-up d1" style="margin: 0 0 16px; font-size: 15px; font-weight: 700; color: #8DB791">About</p>
-<h1 class="a-up d2" style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(44px, 6.2vw, 78px); line-height: 1.02; letter-spacing: -0.025em; color: #F2F5F1; text-wrap: balance">Coffee runs in my family.</h1>
-<p class="a-up d3" style="margin: 24px 0 0; max-width: 540px; font-size: clamp(19px, 1.7vw, 21px); line-height: 1.55; color: #C2CBC3">I’m Maceo, a 19-year-old engineering student at Northwestern. I built Dialed In so my brother, our cousin and I could keep chasing a better cup together after I left home for college.</p>
+<p class="a-up d1" style="margin: 0 0 16px; font-size: 15px; font-weight: 700; color: var(--accent)">About</p>
+<h1 class="a-up d2" style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(44px, 6.2vw, 78px); line-height: 1.02; letter-spacing: -0.025em; color: var(--text-strong); text-wrap: balance">Coffee runs in my family.</h1>
+<p class="a-up d3" style="margin: 24px 0 0; max-width: 540px; font-size: clamp(19px, 1.7vw, 21px); line-height: 1.55; color: var(--text-2)">I’m Maceo, a 19-year-old engineering student at Northwestern. I built Dialed In so my brother, our cousin and I could keep chasing a better cup together after I left home for college.</p>
 </div>
 <div class="a-up d3" style="flex: 0 1 400px; min-width: 0; margin: 0 auto">
-<div style="width: min(100%, 380px); aspect-ratio: 825 / 1000; border-radius: 28px; overflow: hidden; box-shadow: 0 34px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px #2A322B">
+<div style="width: min(100%, 380px); aspect-ratio: 825 / 1000; border-radius: 28px; overflow: hidden; box-shadow: 0 34px 80px rgba(0, 0, 0, calc(0.6 * var(--sh))), 0 0 0 1px var(--line-2)">
 <img src="assets/maceo.webp" width="825" height="1000" alt="Maceo, who made Dialed In" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </div>
 </div>
 </section>
 
 <!-- ============ Why coffee ============ -->
-<section style="border-top: 1px solid #1A201B; background: #0F1410">
+<section style="border-top: 1px solid var(--rule); background: var(--bg-alt)">
 <div style="max-width: 1200px; margin: 0 auto; padding: clamp(72px, 9vw, 112px) clamp(20px, 5vw, 48px)">
-<h2 class="reveal" style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(32px, 4vw, 48px); line-height: 1.08; letter-spacing: -0.02em; color: #F2F5F1; text-wrap: balance">What I love about coffee</h2>
+<h2 class="reveal" style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(32px, 4vw, 48px); line-height: 1.08; letter-spacing: -0.02em; color: var(--text-strong); text-wrap: balance">What I love about coffee</h2>
 <div style="margin-top: 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px">
-<div class="reveal" style="padding: 26px; border-radius: 22px; background: #141915; border: 1px solid #232B24">
-<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8DB791" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z"></path><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"></path><path d="M8 3.5c0 1 1 1.5 1 2.5M11.5 3.5c0 1 1 1.5 1 2.5"></path></svg>
-<h3 style="margin: 14px 0 6px; font-size: 19px; font-weight: 700; color: #F2F5F1">The ritual</h3>
-<p style="margin: 0; font-size: 16px; line-height: 1.55; color: #A9B3AA">Weighing, grinding, pulling a shot and tasting what changed. For me it’s part science, part meditation.</p>
+<div class="reveal" style="padding: 26px; border-radius: 22px; background: var(--card); border: 1px solid var(--line)">
+<svg style="color: var(--accent)" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z"></path><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"></path><path d="M8 3.5c0 1 1 1.5 1 2.5M11.5 3.5c0 1 1 1.5 1 2.5"></path></svg>
+<h3 style="margin: 14px 0 6px; font-size: 19px; font-weight: 700; color: var(--text-strong)">The ritual</h3>
+<p style="margin: 0; font-size: 16px; line-height: 1.55; color: var(--text-4)">Weighing, grinding, pulling a shot and tasting what changed. For me it’s part science, part meditation.</p>
 </div>
-<div class="reveal r2" style="padding: 26px; border-radius: 22px; background: #141915; border: 1px solid #232B24">
-<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8DB791" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-9.5A3.8 3.8 0 0 1 12 8a3.8 3.8 0 0 1 7 2.5C19 15.6 12 20 12 20z"></path></svg>
-<h3 style="margin: 14px 0 6px; font-size: 19px; font-weight: 700; color: #F2F5F1">The craft</h3>
-<p style="margin: 0; font-size: 16px; line-height: 1.55; color: #A9B3AA">Dialing in a stubborn new bag, and practicing latte art until the pour finally looks right.</p>
+<div class="reveal r2" style="padding: 26px; border-radius: 22px; background: var(--card); border: 1px solid var(--line)">
+<svg style="color: var(--accent)" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-9.5A3.8 3.8 0 0 1 12 8a3.8 3.8 0 0 1 7 2.5C19 15.6 12 20 12 20z"></path></svg>
+<h3 style="margin: 14px 0 6px; font-size: 19px; font-weight: 700; color: var(--text-strong)">The craft</h3>
+<p style="margin: 0; font-size: 16px; line-height: 1.55; color: var(--text-4)">Dialing in a stubborn new bag, and practicing latte art until the pour finally looks right.</p>
 </div>
-<div class="reveal r3" style="padding: 26px; border-radius: 22px; background: #141915; border: 1px solid #232B24">
-<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8DB791" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0"></path><circle cx="17" cy="9" r="2.8"></circle><path d="M17.5 14.2A5.5 5.5 0 0 1 21.5 20"></path></svg>
-<h3 style="margin: 14px 0 6px; font-size: 19px; font-weight: 700; color: #F2F5F1">The people</h3>
-<p style="margin: 0; font-size: 16px; line-height: 1.55; color: #A9B3AA">Trading brew methods and recipes, and sharing a cappuccino with friends while the world goes by.</p>
+<div class="reveal r3" style="padding: 26px; border-radius: 22px; background: var(--card); border: 1px solid var(--line)">
+<svg style="color: var(--accent)" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0"></path><circle cx="17" cy="9" r="2.8"></circle><path d="M17.5 14.2A5.5 5.5 0 0 1 21.5 20"></path></svg>
+<h3 style="margin: 14px 0 6px; font-size: 19px; font-weight: 700; color: var(--text-strong)">The people</h3>
+<p style="margin: 0; font-size: 16px; line-height: 1.55; color: var(--text-4)">Trading brew methods and recipes, and sharing a cappuccino with friends while the world goes by.</p>
 </div>
 </div>
 </div>
 </section>
 
 <!-- ============ Story ============ -->
-<section style="border-top: 1px solid #1A201B">
+<section style="border-top: 1px solid var(--rule)">
 <div style="max-width: 1200px; margin: 0 auto; padding: clamp(72px, 9vw, 112px) clamp(20px, 5vw, 48px); display: flex; flex-wrap: wrap; align-items: center; gap: clamp(40px, 6vw, 80px)">
 <div style="flex: 1 1 480px; min-width: 0; max-width: 640px">
-<h2 class="reveal" style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(32px, 4vw, 48px); line-height: 1.08; letter-spacing: -0.02em; color: #F2F5F1; text-wrap: balance">Why I built Dialed In</h2>
+<h2 class="reveal" style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(32px, 4vw, 48px); line-height: 1.08; letter-spacing: -0.02em; color: var(--text-strong); text-wrap: balance">Why I built Dialed In</h2>
 <div class="reveal r2" style="margin-top: 26px; display: flex; flex-direction: column; gap: 18px">
-<p style="margin: 0; font-size: 18px; line-height: 1.65; color: #C2CBC3">My dad loved coffee, and I grew up watching him make it every morning. My brother Julian, our cousin and I were hooked as soon as we were old enough to drink it. Years later I inherited his espresso machine, and a habit turned into an obsession.</p>
-<p style="margin: 0; font-size: 18px; line-height: 1.65; color: #C2CBC3">The three of us talked coffee constantly: beans, ratios, pour overs, the shot that finally tasted right. Then I left Cincinnati for Northwestern, and those conversations mostly went quiet. I missed them more than I expected.</p>
-<p style="margin: 0; font-size: 18px; line-height: 1.65; color: #C2CBC3">So I built a coffee log for the three of us. It was basic and janky at first, but data-driven from day one: every dose, yield, time and grind, every tasting note. It quickly became our daily touch point. We’d log our shots, compare notes, and text each other about what to try next, and about what the app should do next. Photos, comments, likes and graphs followed.</p>
-<p style="margin: 0; font-size: 18px; line-height: 1.65; color: #C2CBC3">It kept us close while I was far from home. Now I want to share it with anyone who loves coffee: a better cup, and people to chase it with.</p>
+<p style="margin: 0; font-size: 18px; line-height: 1.65; color: var(--text-2)">My dad loved coffee, and I grew up watching him make it every morning. My brother Julian, our cousin and I were hooked as soon as we were old enough to drink it. Years later I inherited his espresso machine, and a habit turned into an obsession.</p>
+<p style="margin: 0; font-size: 18px; line-height: 1.65; color: var(--text-2)">The three of us talked coffee constantly: beans, ratios, pour overs, the shot that finally tasted right. Then I left Cincinnati for Northwestern, and those conversations mostly went quiet. I missed them more than I expected.</p>
+<p style="margin: 0; font-size: 18px; line-height: 1.65; color: var(--text-2)">So I built a coffee log for the three of us. It was basic and janky at first, but data-driven from day one: every dose, yield, time and grind, every tasting note. It quickly became our daily touch point. We’d log our shots, compare notes, and text each other about what to try next, and about what the app should do next. Photos, comments, likes and graphs followed.</p>
+<p style="margin: 0; font-size: 18px; line-height: 1.65; color: var(--text-2)">It kept us close while I was far from home. Now I want to share it with anyone who loves coffee: a better cup, and people to chase it with.</p>
 </div>
-<p class="reveal r3" style="margin: 32px 0 0; font-family: Lora, ui-serif, Georgia, serif; font-size: clamp(24px, 2.6vw, 30px); font-weight: 600; line-height: 1.25; color: #F2F5F1">Stop guessing. Start dialing in.</p>
+<p class="reveal r3" style="margin: 32px 0 0; font-family: Lora, ui-serif, Georgia, serif; font-size: clamp(24px, 2.6vw, 30px); font-weight: 600; line-height: 1.25; color: var(--text-strong)">Stop guessing. Start dialing in.</p>
 </div>
 <figure class="reveal r2" style="flex: 0 1 420px; min-width: 0; margin: 0 auto">
-<div style="width: min(100%, 420px); aspect-ratio: 1 / 1; border-radius: 24px; overflow: hidden; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55), 0 0 0 1px #2A322B">
+<div style="width: min(100%, 420px); aspect-ratio: 1 / 1; border-radius: 24px; overflow: hidden; box-shadow: 0 30px 70px rgba(0, 0, 0, calc(0.55 * var(--sh))), 0 0 0 1px var(--line-2)">
 <img src="assets/maceo-and-julian-saint-drogo.webp" width="1000" height="1000" alt="Maceo and his brother Julian beside a painting of Saint Drogo, the patron saint of coffee" loading="lazy" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </div>
-<figcaption style="margin-top: 14px; font-size: 15px; color: #8D978E">My brother Julian and me with Saint Drogo, the patron saint of coffee.</figcaption>
+<figcaption style="margin-top: 14px; font-size: 15px; color: var(--muted)">My brother Julian and me with Saint Drogo, the patron saint of coffee.</figcaption>
 </figure>
 </div>
 </section>
 
 <!-- ============ How it grew ============ -->
-<section style="border-top: 1px solid #1A201B">
+<section style="border-top: 1px solid var(--rule)">
 <div style="max-width: 1200px; margin: 0 auto; padding: clamp(72px, 9vw, 112px) clamp(20px, 5vw, 48px)">
-<h2 class="reveal" style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(32px, 4vw, 48px); line-height: 1.08; letter-spacing: -0.02em; color: #F2F5F1; text-wrap: balance">How it grew</h2>
+<h2 class="reveal" style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(32px, 4vw, 48px); line-height: 1.08; letter-spacing: -0.02em; color: var(--text-strong); text-wrap: balance">How it grew</h2>
 <ol class="tl reveal r2" aria-label="How Dialed In grew">
-<li><span class="tl-dot" aria-hidden="true"></span><span style="display: block; font-size: 14px; font-weight: 700; color: #8DB791">Feb 2026</span><span style="display: block; margin-top: 6px; font-size: 18px; font-weight: 650; line-height: 1.35; color: #F2F5F1">A log for the three of us</span></li>
-<li><span class="tl-dot" aria-hidden="true"></span><span style="display: block; font-size: 14px; font-weight: 700; color: #8DB791">Sep 2026</span><span style="display: block; margin-top: 6px; font-size: 18px; font-weight: 650; line-height: 1.35; color: #F2F5F1">800+ entries</span></li>
-<li><span class="tl-dot" aria-hidden="true"></span><span style="display: block; font-size: 14px; font-weight: 700; color: #8DB791">Oct 2026</span><span style="display: block; margin-top: 6px; font-size: 18px; font-weight: 650; line-height: 1.35; color: #F2F5F1">Open to everyone</span></li>
-<li><span class="tl-dot" aria-hidden="true"></span><span style="display: block; font-size: 14px; font-weight: 700; color: #8DB791">Next</span><span style="display: block; margin-top: 6px; font-size: 18px; font-weight: 650; line-height: 1.35; color: #F2F5F1">The App Store, and a growing community</span></li>
+<li><span class="tl-dot" aria-hidden="true"></span><span style="display: block; font-size: 14px; font-weight: 700; color: var(--accent)">Feb 2026</span><span style="display: block; margin-top: 6px; font-size: 18px; font-weight: 650; line-height: 1.35; color: var(--text-strong)">A log for the three of us</span></li>
+<li><span class="tl-dot" aria-hidden="true"></span><span style="display: block; font-size: 14px; font-weight: 700; color: var(--accent)">Sep 2026</span><span style="display: block; margin-top: 6px; font-size: 18px; font-weight: 650; line-height: 1.35; color: var(--text-strong)">800+ entries</span></li>
+<li><span class="tl-dot" aria-hidden="true"></span><span style="display: block; font-size: 14px; font-weight: 700; color: var(--accent)">Oct 2026</span><span style="display: block; margin-top: 6px; font-size: 18px; font-weight: 650; line-height: 1.35; color: var(--text-strong)">Open to everyone</span></li>
+<li><span class="tl-dot" aria-hidden="true"></span><span style="display: block; font-size: 14px; font-weight: 700; color: var(--accent)">Next</span><span style="display: block; margin-top: 6px; font-size: 18px; font-weight: 650; line-height: 1.35; color: var(--text-strong)">The App Store, and a growing community</span></li>
 </ol>
 </div>
 </section>
 
 <!-- ============ Say hi ============ -->
-<section style="border-top: 1px solid #1A201B; background: #0F1410">
+<section style="border-top: 1px solid var(--rule); background: var(--bg-alt)">
 <div style="max-width: 1200px; margin: 0 auto; padding: clamp(72px, 9vw, 112px) clamp(20px, 5vw, 48px)">
-<div class="reveal" style="border-radius: 36px; background: #141915; border: 1px solid #232B24; padding: clamp(36px, 6vw, 64px) clamp(24px, 5vw, 64px); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 32px">
+<div class="reveal" style="border-radius: 36px; background: var(--card); border: 1px solid var(--line); padding: clamp(36px, 6vw, 64px) clamp(24px, 5vw, 64px); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 32px">
 <div style="flex: 1 1 420px; min-width: 0">
-<h2 style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(32px, 4vw, 48px); line-height: 1.08; letter-spacing: -0.02em; color: #F2F5F1; text-wrap: balance">Say hi.</h2>
-<p style="margin: 18px 0 0; max-width: 520px; font-size: 18px; color: #B9C3BA">Ideas, bugs, or a coffee I should try: email <a href="mailto:dialedincoffeeapp@gmail.com">dialedincoffeeapp@gmail.com</a>.</p>
+<h2 style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(32px, 4vw, 48px); line-height: 1.08; letter-spacing: -0.02em; color: var(--text-strong); text-wrap: balance">Say hi.</h2>
+<p style="margin: 18px 0 0; max-width: 520px; font-size: 18px; color: var(--text-3)">Ideas, bugs, or a coffee I should try: email <a href="mailto:dialedincoffeeapp@gmail.com">dialedincoffeeapp@gmail.com</a>.</p>
 </div>
 <div style="flex: 0 1 auto; display: flex; flex-wrap: wrap; gap: 14px">
-<a class="btn-primary btn-sheen" href="https://maceopmh-droid.github.io/Dialed-In-/" style="display: inline-flex; align-items: center; gap: 10px; min-height: 54px; max-width: 100%; box-sizing: border-box; padding: 12px 24px; line-height: 1.25; border-radius: 999px; background: linear-gradient(135deg, #9CC6A0 0%, #6E9C74 100%); color: #0B160D; font-size: 17px; font-weight: 700; text-decoration: none; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4)">
+<a class="btn-primary btn-sheen" href="https://maceopmh-droid.github.io/Dialed-In-/" style="display: inline-flex; align-items: center; gap: 10px; min-height: 54px; max-width: 100%; box-sizing: border-box; padding: 12px 24px; line-height: 1.25; border-radius: 999px; background: var(--btn-grad); color: var(--on-accent); font-size: 17px; font-weight: 700; text-decoration: none; box-shadow: 0 10px 28px rgba(0, 0, 0, calc(0.4 * var(--sh)))">
 <span style="text-wrap: balance">Claim your free <span style="white-space: nowrap">early-adopter</span> account</span>
 <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>
 </a>
@@ -243,21 +246,21 @@ a{color:#AFD3B1}a:hover{color:#D3EBD2}
 </section>
 
 <!-- ============ Footer ============ -->
-<footer style="border-top: 1px solid #1A201B">
+<footer style="border-top: 1px solid var(--rule)">
 <div style="max-width: 1200px; margin: 0 auto; padding: 40px clamp(20px, 5vw, 48px) 56px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px">
 <div style="display: flex; align-items: center; gap: 12px">
 <img src="assets/icon.webp" alt="" width="32" height="32" style="display: block; width: 32px; height: 32px; border-radius: 8px">
 <div>
-<div style="font-family: Lora, ui-serif, Georgia, serif; font-size: 18px; font-weight: 600; color: #E8EEE8">Dialed In</div>
-<div style="font-size: 13px; color: #79837A">Made by Maceo and the people he brews with. © 2026</div>
+<div style="font-family: Lora, ui-serif, Georgia, serif; font-size: 18px; font-weight: 600; color: var(--text)">Dialed In</div>
+<div style="font-size: 13px; color: var(--faint)">Made by Maceo and the people he brews with. © 2026</div>
 </div>
 </div>
 <nav aria-label="Footer" style="display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: 15px">
-<a href="about.html" style="display: inline-flex; align-items: center; min-height: 44px; color: #A9B3AA; text-decoration: none">About</a>
-<a href="https://maceopmh-droid.github.io/Dialed-In-/support.html" style="display: inline-flex; align-items: center; min-height: 44px; color: #A9B3AA; text-decoration: none">Support</a>
-<a href="https://maceopmh-droid.github.io/Dialed-In-/privacy.html" style="display: inline-flex; align-items: center; min-height: 44px; color: #A9B3AA; text-decoration: none">Privacy</a>
-<a href="https://maceopmh-droid.github.io/Dialed-In-/terms.html" style="display: inline-flex; align-items: center; min-height: 44px; color: #A9B3AA; text-decoration: none">Terms</a>
-<a href="mailto:dialedincoffeeapp@gmail.com" style="display: inline-flex; align-items: center; min-height: 44px; color: #A9B3AA; text-decoration: none">Contact</a>
+<a href="about.html" style="display: inline-flex; align-items: center; min-height: 44px; color: var(--text-4); text-decoration: none">About</a>
+<a href="https://maceopmh-droid.github.io/Dialed-In-/support.html" style="display: inline-flex; align-items: center; min-height: 44px; color: var(--text-4); text-decoration: none">Support</a>
+<a href="https://maceopmh-droid.github.io/Dialed-In-/privacy.html" style="display: inline-flex; align-items: center; min-height: 44px; color: var(--text-4); text-decoration: none">Privacy</a>
+<a href="https://maceopmh-droid.github.io/Dialed-In-/terms.html" style="display: inline-flex; align-items: center; min-height: 44px; color: var(--text-4); text-decoration: none">Terms</a>
+<a href="mailto:dialedincoffeeapp@gmail.com" style="display: inline-flex; align-items: center; min-height: 44px; color: var(--text-4); text-decoration: none">Contact</a>
 </nav>
 </div>
 </footer>

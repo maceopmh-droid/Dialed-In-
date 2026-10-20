@@ -8,8 +8,9 @@
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="google-site-verification" content="uhm93-3XJgR9IrIgzp9W1V5Zz8pmxhX1acmw7QwG33Q">
 <link rel="canonical" href="https://maceopmh-droid.github.io/Dialed-In-/welcome/">
-<meta name="theme-color" content="#0C100D">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#F7F6F2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0C100D" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Dialed In">
 <meta property="og:title" content="Dialed In: the social coffee log you share with friends">
@@ -159,20 +160,22 @@
 <style>
 [hidden]{display:none !important}
 @font-face{font-family:Lora;src:url(assets/lora-latin.woff) format("woff");font-weight:400 700;font-style:normal;font-display:swap}
-.os-tab{min-height:44px;padding:0 22px;border-radius:999px;border:0;background:transparent;color:#C2CBC3;font:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:background .25s ease,color .25s ease}
-.os-tab[aria-pressed="true"]{background:#8DB791;color:#0B160D;font-weight:700}
-.os-tab:focus-visible{outline:2px solid #BFDDBB;outline-offset:3px}
+.os-tab{min-height:44px;padding:0 22px;border-radius:999px;border:0;background:transparent;color:var(--text-2);font:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:background .25s ease,color .25s ease}
+.os-tab[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);font-weight:700}
+.os-tab:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-.chip{min-height:46px;padding:0 18px;border-radius:999px;border:1px solid #2F3830;background:#161C17;color:#C2CBC3;font:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:background .25s ease,color .25s ease,border-color .25s ease}
-.chip:hover{border-color:#4A5A4C}
-.chip[aria-pressed="true"]{border-color:#8DB791;background:#8DB791;color:#0B160D;font-weight:700}
-.chip:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid #BFDDBB;outline-offset:3px}
-html{background:#0C100D;scroll-behavior:smooth}
-body{margin:0;background:#0C100D}
-a{color:#AFD3B1}a:hover{color:#D3EBD2}
+.chip{min-height:46px;padding:0 18px;border-radius:999px;border:1px solid var(--line-3);background:var(--chip);color:var(--text-2);font:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:background .25s ease,color .25s ease,border-color .25s ease}
+.chip:hover{border-color:var(--line-4)}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--on-accent);font-weight:700}
+.chip:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+:root{--bg:#F7F6F2;--bg-alt:#EFECE5;--card:#FFFFFF;--chip:#FFFFFF;--tint:#E8EFE6;--rule:#E4E0D7;--hover:#ECE9E2;--well:#F2F0EA;--line:#E2DDD3;--line-2:#D9D3C8;--line-3:#C9C2B5;--line-4:#A9A294;--text-strong:#141914;--text:#1E2420;--text-2:#333B35;--text-3:#3F4741;--text-4:#4F5751;--muted:#5F6761;--faint:#616963;--accent:#4E6B52;--on-accent:#FFFFFF;--link:#3A5440;--link-hover:#1F3325;--gold:#92670F;--coral:#B24A35;--btn-grad:linear-gradient(135deg, #557A5B 0%, #3B5A41 100%);--glass:rgba(255, 255, 255, 0.97);--sh:0.3;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#0C100D;--bg-alt:#0F1410;--card:#141915;--chip:#161C17;--tint:#172019;--rule:#1A201B;--hover:#1B211C;--well:#1F2620;--line:#232B24;--line-2:#263027;--line-3:#3A453B;--line-4:#3A4A3C;--text-strong:#F2F5F1;--text:#E8EEE8;--text-2:#C2CBC3;--text-3:#B9C3BA;--text-4:#A9B3AA;--muted:#8D978E;--faint:#79837A;--accent:#8DB791;--on-accent:#0B160D;--link:#AFD3B1;--link-hover:#D3EBD2;--gold:#EBBE5C;--coral:#EE7A62;--btn-grad:linear-gradient(135deg, #9CC6A0 0%, #6E9C74 100%);--glass:rgba(20, 25, 21, 0.95);--sh:1;color-scheme:dark}}
+html{background:var(--bg);scroll-behavior:smooth}
+body{margin:0;background:var(--bg)}
+a{color:var(--link)}a:hover{color:var(--link-hover)}
 .btn-primary:hover{filter:brightness(1.07)}
-.btn-ghost:hover{background:#1B211C}
-.navlink:hover{color:#E8EEE8}
+.btn-ghost:hover{background:var(--hover)}
+.navlink:hover{color:var(--text)}
 .faq summary{list-style:none;cursor:pointer}
 .faq summary::-webkit-details-marker{display:none}
 .faq[open] .chev{transform:rotate(180deg)}
@@ -180,8 +183,8 @@ a{color:#AFD3B1}a:hover{color:#D3EBD2}
 .snap-row::-webkit-scrollbar{display:none}
 @media (max-width:760px){.navlinks{display:none !important}}
 .mnav-btn{display:none}
-.mnav-btn:hover{background:#1B211C}
-.mnav-link:hover{background:#1B211C}
+.mnav-btn:hover{background:var(--hover)}
+.mnav-link:hover{background:var(--hover)}
 @media (max-width:760px){.mnav-btn{display:inline-flex !important}.hdr-cta{display:none !important}}
 @media (min-width:761px){.mnav-panel{display:none !important}}
 .progress-bar{display:none}
@@ -192,7 +195,7 @@ a{color:#AFD3B1}a:hover{color:#D3EBD2}
 .lift{transition:translate .45s cubic-bezier(.2,.8,.2,1), box-shadow .45s ease}
 .lift:hover{translate:0 -8px}
 .tile{transition:border-color .3s ease, translate .35s ease}
-.tile:hover{border-color:#3A4A3C;translate:0 -4px}
+.tile:hover{border-color:var(--line-4);translate:0 -4px}
 @keyframes di-up{from{opacity:0;translate:0 28px}to{opacity:1;translate:0 0}}
 @keyframes di-float{0%,100%{translate:0 0}50%{translate:0 -12px}}
 @keyframes di-float2{0%,100%{translate:0 0}50%{translate:0 10px}}
@@ -233,158 +236,158 @@ a{color:#AFD3B1}a:hover{color:#D3EBD2}
 </style>
 </head>
 <body>
-<div style="background: #0C100D; color: #E8EEE8; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif; font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased; overflow-x: clip">
-<div class="progress-bar" aria-hidden="true" style="position: fixed; left: 0; right: 0; top: 0; z-index: 50; height: 3px; background: #8DB791; transform-origin: 0 50%; transform: scaleX(0)"></div>
+<div style="background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif; font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased; overflow-x: clip">
+<div class="progress-bar" aria-hidden="true" style="position: fixed; left: 0; right: 0; top: 0; z-index: 50; height: 3px; background: var(--accent); transform-origin: 0 50%; transform: scaleX(0)"></div>
 
 <!-- ============ Nav ============ -->
 <header style="position: relative; z-index: 55; max-width: 1200px; margin: 0 auto; padding: 22px clamp(20px, 5vw, 48px); display: flex; align-items: center; justify-content: space-between; gap: 20px">
-<a href="#top" aria-label="Dialed In home" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #E8EEE8">
-<img src="assets/icon.webp" alt="" width="40" height="40" style="display: block; width: 40px; height: 40px; border-radius: 10px; box-shadow: inset 0 0 0 1px #283029">
+<a href="#top" aria-label="Dialed In home" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text)">
+<img src="assets/icon.webp" alt="" width="40" height="40" style="display: block; width: 40px; height: 40px; border-radius: 10px; box-shadow: inset 0 0 0 1px var(--line-2)">
 <span style="font-family: Lora, ui-serif, Georgia, serif; font-size: 23px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap">Dialed In</span>
 </a>
 <nav aria-label="Main" style="display: flex; align-items: center; gap: 28px">
 <div class="navlinks" style="display: flex; align-items: center; gap: 28px; font-size: 15px; font-weight: 500">
-<a class="navlink" href="#taste" style="display: inline-flex; align-items: center; min-height: 44px; color: #A9B3AA; text-decoration: none">How it works</a>
-<a class="navlink" href="#friends" style="display: inline-flex; align-items: center; min-height: 44px; color: #A9B3AA; text-decoration: none">Friends</a>
-<a class="navlink" href="#faq" style="display: inline-flex; align-items: center; min-height: 44px; color: #A9B3AA; text-decoration: none">FAQ</a>
-<a class="navlink" href="about.html" style="display: inline-flex; align-items: center; min-height: 44px; color: #A9B3AA; text-decoration: none">About</a>
+<a class="navlink" href="#taste" style="display: inline-flex; align-items: center; min-height: 44px; color: var(--text-4); text-decoration: none">How it works</a>
+<a class="navlink" href="#friends" style="display: inline-flex; align-items: center; min-height: 44px; color: var(--text-4); text-decoration: none">Friends</a>
+<a class="navlink" href="#faq" style="display: inline-flex; align-items: center; min-height: 44px; color: var(--text-4); text-decoration: none">FAQ</a>
+<a class="navlink" href="about.html" style="display: inline-flex; align-items: center; min-height: 44px; color: var(--text-4); text-decoration: none">About</a>
 </div>
-<a class="btn-ghost hdr-cta" href="https://maceopmh-droid.github.io/Dialed-In-/" style="display: inline-flex; flex: none; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 1px solid #2F3830; color: #E8EEE8; font-size: 15px; font-weight: 600; text-decoration: none; white-space: nowrap">Open the web app</a>
-<button type="button" class="mnav-btn" aria-label="Menu" aria-expanded="false" aria-controls="mnav" data-menu-btn style="align-items: center; gap: 8px; min-height: 44px; padding: 0 16px 0 14px; border-radius: 999px; border: 1px solid #2F3830; background: transparent; color: #E8EEE8; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>Menu</button>
+<a class="btn-ghost hdr-cta" href="https://maceopmh-droid.github.io/Dialed-In-/" style="display: inline-flex; flex: none; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--line-3); color: var(--text); font-size: 15px; font-weight: 600; text-decoration: none; white-space: nowrap">Open the web app</a>
+<button type="button" class="mnav-btn" aria-label="Menu" aria-expanded="false" aria-controls="mnav" data-menu-btn style="align-items: center; gap: 8px; min-height: 44px; padding: 0 16px 0 14px; border-radius: 999px; border: 1px solid var(--line-3); background: transparent; color: var(--text); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>Menu</button>
 </nav>
-<div class="mnav-panel" id="mnav" hidden style="position: absolute; left: clamp(12px, 4vw, 24px); right: clamp(12px, 4vw, 24px); top: calc(100% - 8px); padding: 8px; border-radius: 22px; background: #141915; border: 1px solid #2A322B; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6); display: flex; flex-direction: column; gap: 2px">
-<a class="mnav-link" href="#taste" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: #E8EEE8; font-size: 18px; font-weight: 600; text-decoration: none">How it works</a>
-<a class="mnav-link" href="#friends" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: #E8EEE8; font-size: 18px; font-weight: 600; text-decoration: none">Friends</a>
-<a class="mnav-link" href="#faq" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: #E8EEE8; font-size: 18px; font-weight: 600; text-decoration: none">FAQ</a>
-<a class="mnav-link" href="#install" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: #E8EEE8; font-size: 18px; font-weight: 600; text-decoration: none">Add to your home screen</a>
-<a class="mnav-link" href="about.html" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: #E8EEE8; font-size: 18px; font-weight: 600; text-decoration: none">About</a>
-<a class="btn-primary" href="https://maceopmh-droid.github.io/Dialed-In-/" style="margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 54px; border-radius: 999px; background: linear-gradient(135deg, #9CC6A0 0%, #6E9C74 100%); color: #0B160D; font-size: 17px; font-weight: 700; text-decoration: none">Open the web app</a>
+<div class="mnav-panel" id="mnav" hidden style="position: absolute; left: clamp(12px, 4vw, 24px); right: clamp(12px, 4vw, 24px); top: calc(100% - 8px); padding: 8px; border-radius: 22px; background: var(--card); border: 1px solid var(--line-2); box-shadow: 0 24px 60px rgba(0, 0, 0, calc(0.6 * var(--sh))); display: flex; flex-direction: column; gap: 2px">
+<a class="mnav-link" href="#taste" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: var(--text); font-size: 18px; font-weight: 600; text-decoration: none">How it works</a>
+<a class="mnav-link" href="#friends" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: var(--text); font-size: 18px; font-weight: 600; text-decoration: none">Friends</a>
+<a class="mnav-link" href="#faq" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: var(--text); font-size: 18px; font-weight: 600; text-decoration: none">FAQ</a>
+<a class="mnav-link" href="#install" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: var(--text); font-size: 18px; font-weight: 600; text-decoration: none">Add to your home screen</a>
+<a class="mnav-link" href="about.html" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: var(--text); font-size: 18px; font-weight: 600; text-decoration: none">About</a>
+<a class="btn-primary" href="https://maceopmh-droid.github.io/Dialed-In-/" style="margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 54px; border-radius: 999px; background: var(--btn-grad); color: var(--on-accent); font-size: 17px; font-weight: 700; text-decoration: none">Open the web app</a>
 </div>
 </header>
 
 <!-- ============ Hero ============ -->
 <section id="top" style="max-width: 1200px; margin: 0 auto; padding: clamp(28px, 5vw, 64px) clamp(20px, 5vw, 48px) clamp(64px, 8vw, 112px); display: flex; flex-wrap: wrap; align-items: center; gap: clamp(40px, 5vw, 64px)">
 <div style="flex: 1 1 460px; min-width: 0">
-<p class="a-up d1" style="margin: 0 0 22px; display: inline-flex; align-items: center; gap: 10px; padding: 7px 14px 7px 8px; border-radius: 999px; background: #141915; border: 1px solid #232B24; font-size: 14px; font-weight: 600; color: #C2CBC3">
-<span style="display: inline-flex; align-items: center; justify-content: center; height: 22px; padding: 0 9px; border-radius: 999px; background: #8DB791; color: #0B160D; font-size: 12px; font-weight: 700">Early access</span>
+<p class="a-up d1" style="margin: 0 0 22px; display: inline-flex; align-items: center; gap: 10px; padding: 7px 14px 7px 8px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); font-size: 14px; font-weight: 600; color: var(--text-2)">
+<span style="display: inline-flex; align-items: center; justify-content: center; height: 22px; padding: 0 9px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-size: 12px; font-weight: 700">Early access</span>
 Espresso, pour over and more
 </p>
-<h1 class="a-up d2" style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(44px, 6.4vw, 80px); line-height: 1.02; letter-spacing: -0.025em; color: #F2F5F1; text-wrap: balance">The coffee log you share with <span style="position: relative; display: inline-block; white-space: nowrap">friends.<svg class="a-draw" aria-hidden="true" viewBox="0 0 300 24" preserveAspectRatio="none" style="position: absolute; left: 0.02em; bottom: -0.1em; width: calc(100% - 0.3em); height: 0.2em; overflow: visible"><path d="M4 15 C 70 5, 140 3, 200 9 S 272 19, 296 9" pathLength="1" fill="none" stroke="#8DB791" stroke-width="6" stroke-linecap="round"></path></svg></span></h1>
-<p class="a-up d3" style="margin: 24px 0 0; max-width: 540px; font-size: clamp(18px, 1.6vw, 20px); line-height: 1.55; color: #B9C3BA">Log every cup, see exactly what to change on your next one, and dial in new bags together. Every coffee you brew becomes a flavor shape you can spin and compare.</p>
+<h1 class="a-up d2" style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(44px, 6.4vw, 80px); line-height: 1.02; letter-spacing: -0.025em; color: var(--text-strong); text-wrap: balance">The coffee log you share with <span style="position: relative; display: inline-block; white-space: nowrap">friends.<svg class="a-draw" aria-hidden="true" viewBox="0 0 300 24" preserveAspectRatio="none" style="position: absolute; left: 0.02em; bottom: -0.1em; width: calc(100% - 0.3em); height: 0.2em; overflow: visible"><path d="M4 15 C 70 5, 140 3, 200 9 S 272 19, 296 9" pathLength="1" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round"></path></svg></span></h1>
+<p class="a-up d3" style="margin: 24px 0 0; max-width: 540px; font-size: clamp(18px, 1.6vw, 20px); line-height: 1.55; color: var(--text-3)">Log every cup, see exactly what to change on your next one, and dial in new bags together. Every coffee you brew becomes a flavor shape you can spin and compare.</p>
 <div class="a-up d4" style="margin-top: 34px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px">
-<a class="btn-primary btn-sheen" href="https://maceopmh-droid.github.io/Dialed-In-/" style="display: inline-flex; align-items: center; gap: 10px; min-height: 54px; max-width: 100%; box-sizing: border-box; padding: 12px 24px; line-height: 1.25; border-radius: 999px; background: linear-gradient(135deg, #9CC6A0 0%, #6E9C74 100%); color: #0B160D; font-size: 17px; font-weight: 700; text-decoration: none; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4)">
+<a class="btn-primary btn-sheen" href="https://maceopmh-droid.github.io/Dialed-In-/" style="display: inline-flex; align-items: center; gap: 10px; min-height: 54px; max-width: 100%; box-sizing: border-box; padding: 12px 24px; line-height: 1.25; border-radius: 999px; background: var(--btn-grad); color: var(--on-accent); font-size: 17px; font-weight: 700; text-decoration: none; box-shadow: 0 10px 28px rgba(0, 0, 0, calc(0.4 * var(--sh)))">
 <span style="text-wrap: balance">Claim your free <span style="white-space: nowrap">early-adopter</span> account</span>
 <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>
 </a>
-<a data-store-live hidden class="btn-ghost" href="#" data-store-link style="display: inline-flex; align-items: center; gap: 10px; min-height: 54px; padding: 0 22px; border-radius: 999px; border: 1px solid #3A453B; color: #E8EEE8; font-size: 16px; font-weight: 600; text-decoration: none">
+<a data-store-live hidden class="btn-ghost" href="#" data-store-link style="display: inline-flex; align-items: center; gap: 10px; min-height: 54px; padding: 0 22px; border-radius: 999px; border: 1px solid var(--line-3); color: var(--text); font-size: 16px; font-weight: 600; text-decoration: none">
 <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="3"></rect><path d="M10.5 18.5h3"></path></svg>
 Download on the App Store
 </a>
-<a data-store-soon class="btn-ghost" href="#install" style="display: inline-flex; align-items: center; gap: 10px; min-height: 54px; padding: 0 22px; border-radius: 999px; border: 1px solid #3A453B; color: #E8EEE8; font-size: 16px; font-weight: 600; text-decoration: none">
+<a data-store-soon class="btn-ghost" href="#install" style="display: inline-flex; align-items: center; gap: 10px; min-height: 54px; padding: 0 22px; border-radius: 999px; border: 1px solid var(--line-3); color: var(--text); font-size: 16px; font-weight: 600; text-decoration: none">
 <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="3"></rect><path d="M10.5 18.5h3"></path></svg>
 Add it to your home screen
 </a>
 </div>
-<ul class="a-up d5" aria-label="Where you can use Dialed In" style="list-style: none; margin: 28px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; font-size: 16px; line-height: 1.45; color: #A9B3AA">
-<li style="display: flex; align-items: baseline; gap: 12px"><span class="live-dot" aria-hidden="true" style="flex: none; width: 10px; height: 10px; border-radius: 50%; background: #8DB791"></span><span><strong style="color: #F2F5F1; font-weight: 650">Web app: live now.</strong> Works in any browser, on your phone or computer.</span></li>
-<li data-store-soon style="display: flex; align-items: baseline; gap: 12px"><span aria-hidden="true" style="flex: none; box-sizing: border-box; width: 10px; height: 10px; border-radius: 50%; border: 2px solid #6B756C"></span><span><strong style="color: #DDE5DD; font-weight: 650">iPhone app: coming soon</strong> to the App Store.</span></li>
-<li data-store-live hidden style="display: flex; align-items: baseline; gap: 12px"><span class="live-dot" aria-hidden="true" style="flex: none; width: 10px; height: 10px; border-radius: 50%; background: #8DB791"></span><span><strong style="color: #F2F5F1; font-weight: 650">iPhone app: out now</strong> on the App Store.</span></li>
+<ul class="a-up d5" aria-label="Where you can use Dialed In" style="list-style: none; margin: 28px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; font-size: 16px; line-height: 1.45; color: var(--text-4)">
+<li style="display: flex; align-items: baseline; gap: 12px"><span class="live-dot" aria-hidden="true" style="flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--accent)"></span><span><strong style="color: var(--text-strong); font-weight: 650">Web app: live now.</strong> Works in any browser, on your phone or computer.</span></li>
+<li data-store-soon style="display: flex; align-items: baseline; gap: 12px"><span aria-hidden="true" style="flex: none; box-sizing: border-box; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--muted)"></span><span><strong style="color: var(--text-2); font-weight: 650">iPhone app: coming soon</strong> to the App Store.</span></li>
+<li data-store-live hidden style="display: flex; align-items: baseline; gap: 12px"><span class="live-dot" aria-hidden="true" style="flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--accent)"></span><span><strong style="color: var(--text-strong); font-weight: 650">iPhone app: out now</strong> on the App Store.</span></li>
 </ul>
-<p class="a-up d6" style="margin: 16px 0 0; font-size: 14px; color: #79837A">Free during early access. No ads, no tracking.</p>
+<p class="a-up d6" style="margin: 16px 0 0; font-size: 14px; color: var(--faint)">Free during early access. No ads, no tracking.</p>
 </div>
 
 <div style="flex: 1 1 440px; min-width: 0; display: flex; justify-content: center">
 <div style="position: relative; width: 100%; max-width: 560px; aspect-ratio: 560 / 700; container-type: inline-size">
 <div class="a-up d3" style="position: absolute; right: 1%; top: 2%; width: 50%">
-<div class="a-float" style="transform: rotate(5deg); background: #040504; border-radius: 13% / 6%; padding: 6%; box-shadow: 0 34px 80px rgba(0, 0, 0, 0.65), inset 0 0 0 1px #2A322B">
-<img src="assets/screen-coffee.webp" width="660" height="1434" alt="A coffee page in Dialed In with its 3D flavor shape" style="display: block; width: 100%; height: auto; border-radius: 10.5% / 4.8%">
+<div class="a-float" style="transform: rotate(5deg); background: #040504; border-radius: 13% / 6%; padding: 6%; box-shadow: 0 34px 80px rgba(0, 0, 0, calc(0.65 * var(--sh))), inset 0 0 0 1px var(--line-2)">
+<picture><source srcset="assets/screen-coffee-light.webp" media="(prefers-color-scheme: light)"><img src="assets/screen-coffee.webp" width="660" height="1434" alt="A coffee page in Dialed In with its 3D flavor shape" style="display: block; width: 100%; height: auto; border-radius: 10.5% / 4.8%"></picture>
 </div>
 </div>
 <div class="a-up d2" style="position: absolute; left: -2%; top: 1%; width: 57%">
 <img class="a-float2" src="assets/flavor-shape-spin.webp" width="520" height="606" alt="A flavor shape spinning as it changes between four coffee styles" style="display: block; width: 100%; height: auto">
 </div>
-<div class="a-pop" style="position: absolute; left: 1%; bottom: 0; width: 57%; box-sizing: border-box; padding: 4cqw 4.4cqw; border-radius: 3.6cqw; background: rgba(20, 25, 21, 0.95); border: 1px solid #34403A; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55)">
-<div style="font-size: clamp(9px, 2cqw, 12px); font-weight: 700; letter-spacing: 0.08em; color: #8DB791">YOUR NEXT SHOT · STRONG READ</div>
-<div style="margin-top: 1cqw; font-size: clamp(13px, 3.3cqw, 19px); font-weight: 700; line-height: 1.25; color: #F2F5F1">Under-extracted: grind finer, to 10.</div>
-<div style="margin-top: 2.4cqw; padding: 2.2cqw 2.8cqw; border-radius: 2.2cqw; background: #1F2620; font-size: clamp(11px, 2.6cqw, 15px); font-weight: 600; line-height: 1.35; color: #E8EEE8"><span style="color: #8DB791; font-weight: 700; letter-spacing: 0.06em">NEXT</span>  grind 10 · 18 g → 38 g (1:2.1) · aim 28–32 s</div>
-<div style="margin-top: 2.2cqw; font-size: clamp(11px, 2.5cqw, 14px); line-height: 1.4; color: #9BA59C">Your notes say “little sour”. It ran 5 s faster than your best shot.</div>
+<div class="a-pop" style="position: absolute; left: 1%; bottom: 0; width: 57%; box-sizing: border-box; padding: 4cqw 4.4cqw; border-radius: 3.6cqw; background: var(--glass); border: 1px solid var(--line-3); box-shadow: 0 24px 60px rgba(0, 0, 0, calc(0.55 * var(--sh)))">
+<div style="font-size: clamp(9px, 2cqw, 12px); font-weight: 700; letter-spacing: 0.08em; color: var(--accent)">YOUR NEXT SHOT · STRONG READ</div>
+<div style="margin-top: 1cqw; font-size: clamp(13px, 3.3cqw, 19px); font-weight: 700; line-height: 1.25; color: var(--text-strong)">Under-extracted: grind finer, to 10.</div>
+<div style="margin-top: 2.4cqw; padding: 2.2cqw 2.8cqw; border-radius: 2.2cqw; background: var(--well); font-size: clamp(11px, 2.6cqw, 15px); font-weight: 600; line-height: 1.35; color: var(--text)"><span style="color: var(--accent); font-weight: 700; letter-spacing: 0.06em">NEXT</span>  grind 10 · 18 g → 38 g (1:2.1) · aim 28–32 s</div>
+<div style="margin-top: 2.2cqw; font-size: clamp(11px, 2.5cqw, 14px); line-height: 1.4; color: var(--text-4)">Your notes say “little sour”. It ran 5 s faster than your best shot.</div>
 </div>
 </div>
 </div>
 </section>
 
 <!-- ============ Real cups ============ -->
-<section id="cups" aria-label="Real cups" style="border-top: 1px solid #1A201B; padding: clamp(64px, 8vw, 104px) 0; overflow: clip">
+<section id="cups" aria-label="Real cups" style="border-top: 1px solid var(--rule); padding: clamp(64px, 8vw, 104px) 0; overflow: clip">
 <div style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(20px, 5vw, 48px); display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 18px 48px">
-<h2 class="reveal" style="margin: 0; max-width: 560px; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(32px, 4vw, 50px); line-height: 1.08; letter-spacing: -0.02em; color: #F2F5F1; text-wrap: balance">Every cup is worth remembering.</h2>
-<p class="reveal r2" style="margin: 0; max-width: 430px; font-size: 18px; color: #B9C3BA">The shot that finally clicked, the café you’ll go back to, the bag you’ll buy again. Add a photo to any session and keep them all.</p>
+<h2 class="reveal" style="margin: 0; max-width: 560px; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(32px, 4vw, 50px); line-height: 1.08; letter-spacing: -0.02em; color: var(--text-strong); text-wrap: balance">Every cup is worth remembering.</h2>
+<p class="reveal r2" style="margin: 0; max-width: 430px; font-size: 18px; color: var(--text-3)">The shot that finally clicked, the café you’ll go back to, the bag you’ll buy again. Add a photo to any session and keep them all.</p>
 </div>
 <div class="marquee" style="margin-top: 48px; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent)">
 <div class="marquee-track" style="display: flex; gap: 22px; width: max-content; padding: 18px 11px">
-<figure style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: #141915; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #232B24">
+<figure style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.5 * var(--sh))), inset 0 0 0 1px var(--line)">
 <img src="assets/photo-saucer.webp" alt="An espresso on a hand-painted saucer, seen from above on a wooden desk" width="600" height="800" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </figure>
-<figure style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: #141915; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #232B24">
+<figure style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.5 * var(--sh))), inset 0 0 0 1px var(--line)">
 <img src="assets/photo-latte.webp" alt="A rosetta latte on top of a home espresso machine" width="600" height="800" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </figure>
-<figure style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: #141915; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #232B24">
+<figure style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.5 * var(--sh))), inset 0 0 0 1px var(--line)">
 <img src="assets/photo-cortado.webp" alt="A hand holding a cortado with a tulip in a blue ceramic cup" width="600" height="800" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </figure>
-<figure style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: #141915; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #232B24">
+<figure style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.5 * var(--sh))), inset 0 0 0 1px var(--line)">
 <img src="assets/photo-glasspour.webp" alt="Espresso pouring from a portafilter into a glass" width="600" height="800" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </figure>
-<figure style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: #141915; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #232B24">
+<figure style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.5 * var(--sh))), inset 0 0 0 1px var(--line)">
 <img src="assets/photo-counter.webp" alt="An espresso in a hand-painted cup on a dark counter" width="600" height="800" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </figure>
-<figure style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: #141915; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #232B24">
+<figure style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.5 * var(--sh))), inset 0 0 0 1px var(--line)">
 <img src="assets/photo-press.webp" alt="A French press in morning sun between house plants" width="600" height="800" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </figure>
-<figure style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: #141915; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #232B24">
+<figure style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.5 * var(--sh))), inset 0 0 0 1px var(--line)">
 <img src="assets/photo-cafe.webp" alt="A cortado and an espresso in amber glasses on a wooden café table" width="600" height="800" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </figure>
-<figure style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: #141915; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #232B24">
+<figure style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.5 * var(--sh))), inset 0 0 0 1px var(--line)">
 <img src="assets/photo-pour.webp" alt="An espresso shot pouring into a speckled cup" width="600" height="800" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </figure>
-<figure style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: #141915; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #232B24">
+<figure style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.5 * var(--sh))), inset 0 0 0 1px var(--line)">
 <img src="assets/photo-window.webp" alt="An espresso held up by a window with the lake behind it" width="600" height="800" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </figure>
-<figure style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: #141915; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #232B24">
+<figure style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.5 * var(--sh))), inset 0 0 0 1px var(--line)">
 <img src="assets/photo-bagel.webp" alt="An espresso next to a bagel on brown paper" width="600" height="800" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </figure>
-<figure style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: #141915; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #232B24">
+<figure style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.5 * var(--sh))), inset 0 0 0 1px var(--line)">
 <img src="assets/photo-flowers.webp" alt="A small espresso cup beside a jar of toy flowers" width="600" height="800" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </figure>
-<figure aria-hidden="true" style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: #141915; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #232B24">
+<figure aria-hidden="true" style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.5 * var(--sh))), inset 0 0 0 1px var(--line)">
 <img src="assets/photo-saucer.webp" alt="" width="600" height="800" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </figure>
-<figure aria-hidden="true" style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: #141915; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #232B24">
+<figure aria-hidden="true" style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.5 * var(--sh))), inset 0 0 0 1px var(--line)">
 <img src="assets/photo-latte.webp" alt="" width="600" height="800" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </figure>
-<figure aria-hidden="true" style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: #141915; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #232B24">
+<figure aria-hidden="true" style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.5 * var(--sh))), inset 0 0 0 1px var(--line)">
 <img src="assets/photo-cortado.webp" alt="" width="600" height="800" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </figure>
-<figure aria-hidden="true" style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: #141915; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #232B24">
+<figure aria-hidden="true" style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.5 * var(--sh))), inset 0 0 0 1px var(--line)">
 <img src="assets/photo-glasspour.webp" alt="" width="600" height="800" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </figure>
-<figure aria-hidden="true" style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: #141915; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #232B24">
+<figure aria-hidden="true" style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.5 * var(--sh))), inset 0 0 0 1px var(--line)">
 <img src="assets/photo-counter.webp" alt="" width="600" height="800" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </figure>
-<figure aria-hidden="true" style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: #141915; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #232B24">
+<figure aria-hidden="true" style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.5 * var(--sh))), inset 0 0 0 1px var(--line)">
 <img src="assets/photo-press.webp" alt="" width="600" height="800" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </figure>
-<figure aria-hidden="true" style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: #141915; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #232B24">
+<figure aria-hidden="true" style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.5 * var(--sh))), inset 0 0 0 1px var(--line)">
 <img src="assets/photo-cafe.webp" alt="" width="600" height="800" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </figure>
-<figure aria-hidden="true" style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: #141915; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #232B24">
+<figure aria-hidden="true" style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.5 * var(--sh))), inset 0 0 0 1px var(--line)">
 <img src="assets/photo-pour.webp" alt="" width="600" height="800" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </figure>
-<figure aria-hidden="true" style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: #141915; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #232B24">
+<figure aria-hidden="true" style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.5 * var(--sh))), inset 0 0 0 1px var(--line)">
 <img src="assets/photo-window.webp" alt="" width="600" height="800" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </figure>
-<figure aria-hidden="true" style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: #141915; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #232B24">
+<figure aria-hidden="true" style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.5 * var(--sh))), inset 0 0 0 1px var(--line)">
 <img src="assets/photo-bagel.webp" alt="" width="600" height="800" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </figure>
-<figure aria-hidden="true" style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: #141915; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #232B24">
+<figure aria-hidden="true" style="margin: 0; flex: none; width: clamp(170px, 20vw, 250px); aspect-ratio: 3 / 4; border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.5 * var(--sh))), inset 0 0 0 1px var(--line)">
 <img src="assets/photo-flowers.webp" alt="" width="600" height="800" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </figure>
 </div>
@@ -392,13 +395,13 @@ Add it to your home screen
 </section>
 
 <!-- ============ Every cup gets a shape ============ -->
-<section id="taste" style="border-top: 1px solid #1A201B; background: #0F1410">
+<section id="taste" style="border-top: 1px solid var(--rule); background: var(--bg-alt)">
 <div style="max-width: 1200px; margin: 0 auto; padding: clamp(72px, 9vw, 120px) clamp(20px, 5vw, 48px); display: flex; flex-wrap: wrap; align-items: center; gap: clamp(36px, 5vw, 72px)">
 <div class="reveal" style="flex: 1 1 420px; min-width: 0">
-<p style="margin: 0 0 14px; font-size: 15px; font-weight: 700; color: #8DB791">Every cup gets a shape</p>
-<h2 style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(34px, 4.4vw, 54px); line-height: 1.08; letter-spacing: -0.02em; color: #F2F5F1; text-wrap: balance">See how your coffee tastes.</h2>
-<p style="margin: 20px 0 0; max-width: 520px; font-size: 18px; color: #B9C3BA">After each cup, slide five tastes. They become the floor of a 3D shape, and complexity sets its height. Bright coffees grow tall and narrow; chocolatey ones sit low and wide. Spin it, compare it with your best shot, or lay two sessions on top of each other.</p>
-<ul aria-label="The six tastes" style="list-style: none; padding: 0; margin: 26px 0 0; display: flex; flex-wrap: wrap; gap: 10px 20px; font-size: 15px; font-weight: 600; color: #C2CBC3">
+<p style="margin: 0 0 14px; font-size: 15px; font-weight: 700; color: var(--accent)">Every cup gets a shape</p>
+<h2 style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(34px, 4.4vw, 54px); line-height: 1.08; letter-spacing: -0.02em; color: var(--text-strong); text-wrap: balance">See how your coffee tastes.</h2>
+<p style="margin: 20px 0 0; max-width: 520px; font-size: 18px; color: var(--text-3)">After each cup, slide five tastes. They become the floor of a 3D shape, and complexity sets its height. Bright coffees grow tall and narrow; chocolatey ones sit low and wide. Spin it, compare it with your best shot, or lay two sessions on top of each other.</p>
+<ul aria-label="The six tastes" style="list-style: none; padding: 0; margin: 26px 0 0; display: flex; flex-wrap: wrap; gap: 10px 20px; font-size: 15px; font-weight: 600; color: var(--text-2)">
 <li style="display: flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; background: #EDB92E"></span>Acidity</li>
 <li style="display: flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; background: #EE7A62"></span>Sweetness</li>
 <li style="display: flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; background: #A0663F"></span>Body</li>
@@ -406,7 +409,7 @@ Add it to your home screen
 <li style="display: flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; background: #8A63C4"></span>Bitterness</li>
 <li style="display: flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; background: #36B38C"></span>Complexity, the height</li>
 </ul>
-<p style="margin: 34px 0 12px; font-size: 15px; color: #8D978E">Try a few:</p>
+<p style="margin: 34px 0 12px; font-size: 15px; color: var(--muted)">Try a few:</p>
 <div role="group" aria-label="Example coffees" style="display: flex; flex-wrap: wrap; gap: 10px">
 <button type="button" class="chip" data-style="bright" aria-pressed="true">Bright &amp; floral</button>
 <button type="button" class="chip" data-style="chocolate" aria-pressed="false">Chocolate &amp; nutty</button>
@@ -415,46 +418,46 @@ Add it to your home screen
 </div>
 </div>
 <div class="reveal r2" style="flex: 1 1 440px; min-width: 0">
-<figure aria-live="polite" style="margin: 0; background: #141915; border: 1px solid #232B24; border-radius: 28px; padding: clamp(18px, 3vw, 30px)">
+<figure aria-live="polite" style="margin: 0; background: var(--card); border: 1px solid var(--line); border-radius: 28px; padding: clamp(18px, 3vw, 30px)">
 <div class="shape-pane shape-in" data-shape="bright">
-<img src="assets/shape-bright.webp" alt="Flavor shape: acidity 8.6, sweetness 6, body 3.4, finish 7.4, bitterness 1.8, complexity 8.2" width="729" height="836" style="display: block; width: 100%; max-width: 500px; height: auto; margin: 0 auto">
+<picture><source srcset="assets/shape-bright-light.webp" media="(prefers-color-scheme: light)"><img src="assets/shape-bright.webp" alt="Flavor shape: acidity 8.6, sweetness 6, body 3.4, finish 7.4, bitterness 1.8, complexity 8.2" width="729" height="836" style="display: block; width: 100%; max-width: 500px; height: auto; margin: 0 auto"></picture>
 <div style="margin-top: 10px; padding-top: 18px; border-top: 1px solid #232B24">
 <div style="font-family: Lora, ui-serif, Georgia, serif; font-size: 24px; font-weight: 600; color: #F2F5F1">Bright &amp; floral</div>
 <div style="margin-top: 4px; font-size: 16px; color: #A9B3AA">Tall and narrow, leaning into acidity. Think a washed Ethiopian.</div>
 </div>
 </div>
 <div class="shape-pane" data-shape="chocolate" hidden>
-<img src="assets/shape-chocolate.webp" alt="Flavor shape: acidity 2.8, sweetness 6.8, body 8.8, finish 6, bitterness 5.2, complexity 4.2" width="729" height="836" loading="lazy" style="display: block; width: 100%; max-width: 500px; height: auto; margin: 0 auto">
+<picture><source srcset="assets/shape-chocolate-light.webp" media="(prefers-color-scheme: light)"><img src="assets/shape-chocolate.webp" alt="Flavor shape: acidity 2.8, sweetness 6.8, body 8.8, finish 6, bitterness 5.2, complexity 4.2" width="729" height="836" loading="lazy" style="display: block; width: 100%; max-width: 500px; height: auto; margin: 0 auto"></picture>
 <div style="margin-top: 10px; padding-top: 18px; border-top: 1px solid #232B24">
 <div style="font-family: Lora, ui-serif, Georgia, serif; font-size: 24px; font-weight: 600; color: #F2F5F1">Chocolate &amp; nutty</div>
 <div style="margin-top: 4px; font-size: 16px; color: #A9B3AA">Low and wide, heavy on body. Think a classic Brazil.</div>
 </div>
 </div>
 <div class="shape-pane" data-shape="fruity" hidden>
-<img src="assets/shape-fruity.webp" alt="Flavor shape: acidity 6.6, sweetness 9.2, body 6.2, finish 8.6, bitterness 2.4, complexity 7" width="729" height="836" loading="lazy" style="display: block; width: 100%; max-width: 500px; height: auto; margin: 0 auto">
+<picture><source srcset="assets/shape-fruity-light.webp" media="(prefers-color-scheme: light)"><img src="assets/shape-fruity.webp" alt="Flavor shape: acidity 6.6, sweetness 9.2, body 6.2, finish 8.6, bitterness 2.4, complexity 7" width="729" height="836" loading="lazy" style="display: block; width: 100%; max-width: 500px; height: auto; margin: 0 auto"></picture>
 <div style="margin-top: 10px; padding-top: 18px; border-top: 1px solid #232B24">
 <div style="font-family: Lora, ui-serif, Georgia, serif; font-size: 24px; font-weight: 600; color: #F2F5F1">Fruity &amp; sweet</div>
 <div style="margin-top: 4px; font-size: 16px; color: #A9B3AA">Big sweetness and a long finish. Think a natural-process coffee.</div>
 </div>
 </div>
 <div class="shape-pane" data-shape="balanced" hidden>
-<img src="assets/shape-balanced.webp" alt="Flavor shape: acidity 6.2, sweetness 7, body 6.4, finish 6.6, bitterness 3.6, complexity 5.8" width="729" height="836" loading="lazy" style="display: block; width: 100%; max-width: 500px; height: auto; margin: 0 auto">
+<picture><source srcset="assets/shape-balanced-light.webp" media="(prefers-color-scheme: light)"><img src="assets/shape-balanced.webp" alt="Flavor shape: acidity 6.2, sweetness 7, body 6.4, finish 6.6, bitterness 3.6, complexity 5.8" width="729" height="836" loading="lazy" style="display: block; width: 100%; max-width: 500px; height: auto; margin: 0 auto"></picture>
 <div style="margin-top: 10px; padding-top: 18px; border-top: 1px solid #232B24">
 <div style="font-family: Lora, ui-serif, Georgia, serif; font-size: 24px; font-weight: 600; color: #F2F5F1">Sweet &amp; balanced</div>
 <div style="margin-top: 4px; font-size: 16px; color: #A9B3AA">Round and even, easy to love. The cup most of us are chasing.</div>
 </div>
 </div>
 </figure>
-<p style="margin: 14px 4px 0; font-size: 13px; color: #79837A">Example shapes, drawn by the same engine the app uses.</p>
+<p style="margin: 14px 4px 0; font-size: 13px; color: var(--faint)">Example shapes, drawn by the same engine the app uses.</p>
 </div>
 </div>
 </section>
 
 <!-- ============ Coach ============ -->
-<section id="coach" style="border-top: 1px solid #1A201B">
+<section id="coach" style="border-top: 1px solid var(--rule)">
 <div style="max-width: 1200px; margin: 0 auto; padding: clamp(72px, 9vw, 120px) clamp(20px, 5vw, 48px); display: flex; flex-wrap: wrap-reverse; align-items: center; gap: clamp(40px, 6vw, 88px)">
 <div class="reveal" style="flex: 0 1 360px; min-width: 0; margin: 0 auto">
-<div style="width: min(100%, 330px); margin: 0 auto; background: #040504; border-radius: 13% / 6%; padding: 10px; box-shadow: 0 34px 80px rgba(0, 0, 0, 0.6), inset 0 0 0 1px #2A322B">
+<div style="width: min(100%, 330px); margin: 0 auto; background: #040504; border-radius: 13% / 6%; padding: 10px; box-shadow: 0 34px 80px rgba(0, 0, 0, calc(0.6 * var(--sh))), inset 0 0 0 1px var(--line-2)">
 <div style="position: relative">
 <img src="assets/screen-coach.webp" width="660" height="1434" alt="The next-shot coach in Dialed In: under-extracted, grind finer, to 10" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 10.5% / 4.8%">
 <div class="ring" aria-hidden="true" style="position: absolute; left: 6.6%; top: 33.1%; width: 86.8%; height: 39.2%; border-radius: 12px; outline: 1.5px solid rgba(141, 183, 145, 0.75); outline-offset: 2px"></div>
@@ -462,29 +465,29 @@ Add it to your home screen
 </div>
 </div>
 <div class="reveal r2" style="flex: 1 1 480px; min-width: 0">
-<p style="margin: 0 0 14px; font-size: 15px; font-weight: 700; color: #8DB791">Your next-shot coach</p>
-<h2 style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(34px, 4.4vw, 54px); line-height: 1.08; letter-spacing: -0.02em; color: #F2F5F1; text-wrap: balance">Know exactly what to change next.</h2>
-<p style="margin: 20px 0 0; max-width: 560px; font-size: 18px; color: #B9C3BA">After every session, the coach reads your notes and numbers, holds them up against your best shot on that coffee, and gives you one clear move: grind finer, shorten the ratio, or repeat it exactly.</p>
+<p style="margin: 0 0 14px; font-size: 15px; font-weight: 700; color: var(--accent)">Your next-shot coach</p>
+<h2 style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(34px, 4.4vw, 54px); line-height: 1.08; letter-spacing: -0.02em; color: var(--text-strong); text-wrap: balance">Know exactly what to change next.</h2>
+<p style="margin: 20px 0 0; max-width: 560px; font-size: 18px; color: var(--text-3)">After every session, the coach reads your notes and numbers, holds them up against your best shot on that coffee, and gives you one clear move: grind finer, shorten the ratio, or repeat it exactly.</p>
 <div style="margin-top: 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 30px 34px">
 <div>
-<div aria-hidden="true" style="width: 44px; height: 44px; border-radius: 12px; background: #172019; border: 1px solid #263027; display: flex; align-items: center; justify-content: center; color: #8DB791"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"></path><path d="M13.5 6.5l4 4"></path></svg></div>
-<h3 style="margin: 14px 0 6px; font-size: 18px; font-weight: 700; color: #F2F5F1">Reads what you wrote</h3>
-<p style="margin: 0; font-size: 16px; color: #A9B3AA">Type “a little sour at times” or “less bitter than yesterday” and it gets it, hedges and all.</p>
+<div aria-hidden="true" style="width: 44px; height: 44px; border-radius: 12px; background: var(--tint); border: 1px solid var(--line-2); display: flex; align-items: center; justify-content: center; color: var(--accent)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"></path><path d="M13.5 6.5l4 4"></path></svg></div>
+<h3 style="margin: 14px 0 6px; font-size: 18px; font-weight: 700; color: var(--text-strong)">Reads what you wrote</h3>
+<p style="margin: 0; font-size: 16px; color: var(--text-4)">Type “a little sour at times” or “less bitter than yesterday” and it gets it, hedges and all.</p>
 </div>
 <div>
-<div aria-hidden="true" style="width: 44px; height: 44px; border-radius: 12px; background: #172019; border: 1px solid #263027; display: flex; align-items: center; justify-content: center; color: #EBBE5C"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"></path></svg></div>
-<h3 style="margin: 14px 0 6px; font-size: 18px; font-weight: 700; color: #F2F5F1">Aims for your best cup</h3>
-<p style="margin: 0; font-size: 16px; color: #A9B3AA">Each shot is compared with your best one on that coffee, so every tip moves you toward a cup you already loved.</p>
+<div aria-hidden="true" style="width: 44px; height: 44px; border-radius: 12px; background: var(--tint); border: 1px solid var(--line-2); display: flex; align-items: center; justify-content: center; color: var(--gold)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"></path></svg></div>
+<h3 style="margin: 14px 0 6px; font-size: 18px; font-weight: 700; color: var(--text-strong)">Aims for your best cup</h3>
+<p style="margin: 0; font-size: 16px; color: var(--text-4)">Each shot is compared with your best one on that coffee, so every tip moves you toward a cup you already loved.</p>
 </div>
 <div>
-<div aria-hidden="true" style="width: 44px; height: 44px; border-radius: 12px; background: #172019; border: 1px solid #263027; display: flex; align-items: center; justify-content: center; color: #8DB791"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 12l4-4"></path><path d="M12 3.5v2M20.5 12h-2M3.5 12h2"></path></svg></div>
-<h3 style="margin: 14px 0 6px; font-size: 18px; font-weight: 700; color: #F2F5F1">Speaks your grinder</h3>
-<p style="margin: 0; font-size: 16px; color: #A9B3AA">It learns which way your grinder turns and how big one step is. It never borrows someone else’s grind number.</p>
+<div aria-hidden="true" style="width: 44px; height: 44px; border-radius: 12px; background: var(--tint); border: 1px solid var(--line-2); display: flex; align-items: center; justify-content: center; color: var(--accent)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 12l4-4"></path><path d="M12 3.5v2M20.5 12h-2M3.5 12h2"></path></svg></div>
+<h3 style="margin: 14px 0 6px; font-size: 18px; font-weight: 700; color: var(--text-strong)">Speaks your grinder</h3>
+<p style="margin: 0; font-size: 16px; color: var(--text-4)">It learns which way your grinder turns and how big one step is. It never borrows someone else’s grind number.</p>
 </div>
 <div>
-<div aria-hidden="true" style="width: 44px; height: 44px; border-radius: 12px; background: #172019; border: 1px solid #263027; display: flex; align-items: center; justify-content: center; color: #EE7A62"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l9 16H3z"></path><path d="M12 10v4"></path><path d="M12 17h.01"></path></svg></div>
-<h3 style="margin: 14px 0 6px; font-size: 18px; font-weight: 700; color: #F2F5F1">Catches the classic traps</h3>
-<p style="margin: 0; font-size: 16px; color: #A9B3AA">A long ratio hiding sourness, a fast bitter shot that channeled (water rushing through cracks in the coffee), or beans speeding up as they age.</p>
+<div aria-hidden="true" style="width: 44px; height: 44px; border-radius: 12px; background: var(--tint); border: 1px solid var(--line-2); display: flex; align-items: center; justify-content: center; color: var(--coral)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l9 16H3z"></path><path d="M12 10v4"></path><path d="M12 17h.01"></path></svg></div>
+<h3 style="margin: 14px 0 6px; font-size: 18px; font-weight: 700; color: var(--text-strong)">Catches the classic traps</h3>
+<p style="margin: 0; font-size: 16px; color: var(--text-4)">A long ratio hiding sourness, a fast bitter shot that channeled (water rushing through cracks in the coffee), or beans speeding up as they age.</p>
 </div>
 </div>
 </div>
@@ -501,21 +504,21 @@ Add it to your home screen
 </div>
 <div class="snap-row reveal r2" style="margin: 52px calc(-1 * clamp(20px, 5vw, 48px)) 0; padding: 0 clamp(20px, 5vw, 48px) 8px; display: flex; gap: 28px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: clamp(20px, 5vw, 48px)">
 <div style="flex: 1 0 280px; max-width: 360px; scroll-snap-align: start">
-<div class="lift" style="width: min(100%, 290px); background: #040504; border-radius: 13% / 6%; padding: 9px; box-shadow: 0 28px 60px rgba(10, 20, 12, 0.45), inset 0 0 0 1px #2A322B">
+<div class="lift" style="width: min(100%, 290px); background: #040504; border-radius: 13% / 6%; padding: 9px; box-shadow: 0 28px 60px rgba(10, 20, 12, 0.45), inset 0 0 0 1px var(--line-2)">
 <img src="assets/screen-feed.webp" width="660" height="1434" alt="Feed with a friend's espresso, likes and comments" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 10.5% / 4.8%">
 </div>
 <h3 style="margin: 24px 0 6px; font-size: 20px; font-weight: 700; color: #FBF8F0">Follow friends</h3>
 <p style="margin: 0; max-width: 300px; font-size: 16px; color: #E0E9DB">See what they’re brewing, like it, and leave a comment.</p>
 </div>
 <div style="flex: 1 0 280px; max-width: 360px; scroll-snap-align: start">
-<div class="lift" style="width: min(100%, 290px); background: #040504; border-radius: 13% / 6%; padding: 9px; box-shadow: 0 28px 60px rgba(10, 20, 12, 0.45), inset 0 0 0 1px #2A322B">
+<div class="lift" style="width: min(100%, 290px); background: #040504; border-radius: 13% / 6%; padding: 9px; box-shadow: 0 28px 60px rgba(10, 20, 12, 0.45), inset 0 0 0 1px var(--line-2)">
 <img src="assets/screen-community.webp" width="660" height="1434" alt="A private coffee club with its weekly goal" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 10.5% / 4.8%">
 </div>
 <h3 style="margin: 24px 0 6px; font-size: 20px; font-weight: 700; color: #FBF8F0">Start a community</h3>
 <p style="margin: 0; max-width: 300px; font-size: 16px; color: #E0E9DB">Your own club with its own feed, monthly awards, and a weekly goal sized to how much everyone usually brews.</p>
 </div>
 <div style="flex: 1 0 280px; max-width: 360px; scroll-snap-align: start">
-<div class="lift" style="width: min(100%, 290px); background: #040504; border-radius: 13% / 6%; padding: 9px; box-shadow: 0 28px 60px rgba(10, 20, 12, 0.45), inset 0 0 0 1px #2A322B">
+<div class="lift" style="width: min(100%, 290px); background: #040504; border-radius: 13% / 6%; padding: 9px; box-shadow: 0 28px 60px rgba(10, 20, 12, 0.45), inset 0 0 0 1px var(--line-2)">
 <img src="assets/screen-help.webp" width="660" height="1434" alt="A help request with answers from the community" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 10.5% / 4.8%">
 </div>
 <h3 style="margin: 24px 0 6px; font-size: 20px; font-weight: 700; color: #FBF8F0">Ask for help</h3>
@@ -536,76 +539,76 @@ Add it to your home screen
 </section>
 
 <!-- ============ Get better ============ -->
-<section id="progress" style="background: #0F1410">
+<section id="progress" style="background: var(--bg-alt)">
 <div style="max-width: 1200px; margin: 0 auto; padding: clamp(72px, 9vw, 120px) clamp(20px, 5vw, 48px)">
 <div class="reveal" style="max-width: 680px">
-<p style="margin: 0 0 14px; font-size: 15px; font-weight: 700; color: #8DB791">Everything in one place</p>
-<h2 style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(34px, 4.4vw, 54px); line-height: 1.08; letter-spacing: -0.02em; color: #F2F5F1; text-wrap: balance">Watch yourself get better.</h2>
-<p style="margin: 20px 0 0; font-size: 18px; color: #B9C3BA">Every coffee and every roaster gets its own page, so you can see what worked, what didn’t, and what you keep coming back to.</p>
+<p style="margin: 0 0 14px; font-size: 15px; font-weight: 700; color: var(--accent)">Everything in one place</p>
+<h2 style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(34px, 4.4vw, 54px); line-height: 1.08; letter-spacing: -0.02em; color: var(--text-strong); text-wrap: balance">Watch yourself get better.</h2>
+<p style="margin: 20px 0 0; font-size: 18px; color: var(--text-3)">Every coffee and every roaster gets its own page, so you can see what worked, what didn’t, and what you keep coming back to.</p>
 </div>
 <div class="snap-row reveal r2" style="margin: 52px calc(-1 * clamp(20px, 5vw, 48px)) 0; padding: 0 clamp(20px, 5vw, 48px) 8px; display: flex; gap: 28px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: clamp(20px, 5vw, 48px)">
 <div style="flex: 1 0 280px; max-width: 360px; scroll-snap-align: start">
-<div class="lift" style="width: min(100%, 290px); background: #040504; border-radius: 13% / 6%; padding: 9px; box-shadow: 0 28px 60px rgba(0, 0, 0, 0.55), inset 0 0 0 1px #2A322B">
+<div class="lift" style="width: min(100%, 290px); background: #040504; border-radius: 13% / 6%; padding: 9px; box-shadow: 0 28px 60px rgba(0, 0, 0, calc(0.55 * var(--sh))), inset 0 0 0 1px var(--line-2)">
 <img src="assets/screen-dial-in.webp" width="660" height="1434" alt="Dial-in chart: each shot's rating on one coffee" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 10.5% / 4.8%">
 </div>
-<h3 style="margin: 24px 0 6px; font-size: 20px; font-weight: 700; color: #F2F5F1">See yourself dial in</h3>
-<p style="margin: 0; max-width: 300px; font-size: 16px; color: #A9B3AA">A timeline, dial-in curves and two sessions side by side for every coffee.</p>
+<h3 style="margin: 24px 0 6px; font-size: 20px; font-weight: 700; color: var(--text-strong)">See yourself dial in</h3>
+<p style="margin: 0; max-width: 300px; font-size: 16px; color: var(--text-4)">A timeline, dial-in curves and two sessions side by side for every coffee.</p>
 </div>
 <div style="flex: 1 0 280px; max-width: 360px; scroll-snap-align: start">
-<div class="lift" style="width: min(100%, 290px); background: #040504; border-radius: 13% / 6%; padding: 9px; box-shadow: 0 28px 60px rgba(0, 0, 0, 0.55), inset 0 0 0 1px #2A322B">
+<div class="lift" style="width: min(100%, 290px); background: #040504; border-radius: 13% / 6%; padding: 9px; box-shadow: 0 28px 60px rgba(0, 0, 0, calc(0.55 * var(--sh))), inset 0 0 0 1px var(--line-2)">
 <img src="assets/screen-roaster.webp" width="660" height="1434" alt="A roaster page with its coffees, roast levels and best shot" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 10.5% / 4.8%">
 </div>
-<h3 style="margin: 24px 0 6px; font-size: 20px; font-weight: 700; color: #F2F5F1">Every roaster gets a page</h3>
-<p style="margin: 0; max-width: 300px; font-size: 16px; color: #A9B3AA">Their coffees, roasts and processes, and the best shot on any of them.</p>
+<h3 style="margin: 24px 0 6px; font-size: 20px; font-weight: 700; color: var(--text-strong)">Every roaster gets a page</h3>
+<p style="margin: 0; max-width: 300px; font-size: 16px; color: var(--text-4)">Their coffees, roasts and processes, and the best shot on any of them.</p>
 </div>
 <div style="flex: 1 0 280px; max-width: 360px; scroll-snap-align: start">
-<div class="lift" style="width: min(100%, 290px); background: #040504; border-radius: 13% / 6%; padding: 9px; box-shadow: 0 28px 60px rgba(0, 0, 0, 0.55), inset 0 0 0 1px #2A322B">
+<div class="lift" style="width: min(100%, 290px); background: #040504; border-radius: 13% / 6%; padding: 9px; box-shadow: 0 28px 60px rgba(0, 0, 0, calc(0.55 * var(--sh))), inset 0 0 0 1px var(--line-2)">
 <img src="assets/screen-palate.webp" width="660" height="1434" alt="Your palate: favorite origins, processes and tasting notes" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 10.5% / 4.8%">
 </div>
-<h3 style="margin: 24px 0 6px; font-size: 20px; font-weight: 700; color: #F2F5F1">Learn what you like</h3>
-<p style="margin: 0; max-width: 300px; font-size: 16px; color: #A9B3AA">Your palate: the origins, processes and notes you keep coming back to.</p>
+<h3 style="margin: 24px 0 6px; font-size: 20px; font-weight: 700; color: var(--text-strong)">Learn what you like</h3>
+<p style="margin: 0; max-width: 300px; font-size: 16px; color: var(--text-4)">Your palate: the origins, processes and notes you keep coming back to.</p>
 </div>
 </div>
 </div>
 </section>
 
 <!-- ============ Log ============ -->
-<section id="log" style="border-top: 1px solid #1A201B">
+<section id="log" style="border-top: 1px solid var(--rule)">
 <div style="max-width: 1200px; margin: 0 auto; padding: clamp(72px, 9vw, 120px) clamp(20px, 5vw, 48px); display: flex; flex-wrap: wrap; align-items: center; gap: clamp(40px, 6vw, 88px)">
 <div class="reveal" style="flex: 1 1 480px; min-width: 0">
-<p style="margin: 0 0 14px; font-size: 15px; font-weight: 700; color: #8DB791">Made for how you brew</p>
-<h2 style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(34px, 4.4vw, 54px); line-height: 1.08; letter-spacing: -0.02em; color: #F2F5F1; text-wrap: balance">Log a cup in seconds.</h2>
-<p style="margin: 20px 0 0; max-width: 540px; font-size: 18px; color: #B9C3BA">One form for every brewer, showing just the fields that matter for it. Rate it, slide the taste, tap notes from the flavor wheel, add a photo, done.</p>
+<p style="margin: 0 0 14px; font-size: 15px; font-weight: 700; color: var(--accent)">Made for how you brew</p>
+<h2 style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(34px, 4.4vw, 54px); line-height: 1.08; letter-spacing: -0.02em; color: var(--text-strong); text-wrap: balance">Log a cup in seconds.</h2>
+<p style="margin: 20px 0 0; max-width: 540px; font-size: 18px; color: var(--text-3)">One form for every brewer, showing just the fields that matter for it. Rate it, slide the taste, tap notes from the flavor wheel, add a photo, done.</p>
 <ul aria-label="Brew methods" style="list-style: none; padding: 0; margin: 28px 0 0; display: flex; flex-wrap: wrap; gap: 10px">
-<li style="padding: 10px 16px; border-radius: 999px; background: #141915; border: 1px solid #263027; font-size: 15px; font-weight: 600; color: #DDE5DD">Espresso</li>
-<li style="padding: 10px 16px; border-radius: 999px; background: #141915; border: 1px solid #263027; font-size: 15px; font-weight: 600; color: #DDE5DD">Pour over</li>
-<li style="padding: 10px 16px; border-radius: 999px; background: #141915; border: 1px solid #263027; font-size: 15px; font-weight: 600; color: #DDE5DD">French press</li>
-<li style="padding: 10px 16px; border-radius: 999px; background: #141915; border: 1px solid #263027; font-size: 15px; font-weight: 600; color: #DDE5DD">AeroPress</li>
-<li style="padding: 10px 16px; border-radius: 999px; background: #141915; border: 1px solid #263027; font-size: 15px; font-weight: 600; color: #DDE5DD">Moka pot</li>
-<li style="padding: 10px 16px; border-radius: 999px; background: #141915; border: 1px solid #263027; font-size: 15px; font-weight: 600; color: #DDE5DD">Cold brew</li>
+<li style="padding: 10px 16px; border-radius: 999px; background: var(--card); border: 1px solid var(--line-2); font-size: 15px; font-weight: 600; color: var(--text-2)">Espresso</li>
+<li style="padding: 10px 16px; border-radius: 999px; background: var(--card); border: 1px solid var(--line-2); font-size: 15px; font-weight: 600; color: var(--text-2)">Pour over</li>
+<li style="padding: 10px 16px; border-radius: 999px; background: var(--card); border: 1px solid var(--line-2); font-size: 15px; font-weight: 600; color: var(--text-2)">French press</li>
+<li style="padding: 10px 16px; border-radius: 999px; background: var(--card); border: 1px solid var(--line-2); font-size: 15px; font-weight: 600; color: var(--text-2)">AeroPress</li>
+<li style="padding: 10px 16px; border-radius: 999px; background: var(--card); border: 1px solid var(--line-2); font-size: 15px; font-weight: 600; color: var(--text-2)">Moka pot</li>
+<li style="padding: 10px 16px; border-radius: 999px; background: var(--card); border: 1px solid var(--line-2); font-size: 15px; font-weight: 600; color: var(--text-2)">Cold brew</li>
 </ul>
 <div style="margin-top: 36px; display: flex; flex-direction: column; gap: 18px">
 <div style="display: flex; gap: 14px; align-items: flex-start">
-<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8DB791" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 3px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
-<p style="margin: 0; font-size: 17px; color: #C2CBC3"><strong style="color: #F2F5F1">Recipes that stay in proportion.</strong> Save your favorites, with a coffee, water and ratio lock.</p>
+<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent); flex: none; margin-top: 3px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+<p style="margin: 0; font-size: 17px; color: var(--text-2)"><strong style="color: var(--text-strong)">Recipes that stay in proportion.</strong> Save your favorites, with a coffee, water and ratio lock.</p>
 </div>
 <div style="display: flex; gap: 14px; align-items: flex-start">
-<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8DB791" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 3px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
-<p style="margin: 0; font-size: 17px; color: #C2CBC3"><strong style="color: #F2F5F1">Brew along.</strong> A guided pour on the timer tells you when and how much to pour.</p>
+<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent); flex: none; margin-top: 3px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+<p style="margin: 0; font-size: 17px; color: var(--text-2)"><strong style="color: var(--text-strong)">Brew along.</strong> A guided pour on the timer tells you when and how much to pour.</p>
 </div>
 <div style="display: flex; gap: 14px; align-items: flex-start">
-<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8DB791" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 3px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
-<p style="margin: 0; font-size: 17px; color: #C2CBC3"><strong style="color: #F2F5F1">Your grinder, your way.</strong> Numbers or letters like “3B”, whatever your dial says.</p>
+<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent); flex: none; margin-top: 3px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+<p style="margin: 0; font-size: 17px; color: var(--text-2)"><strong style="color: var(--text-strong)">Your grinder, your way.</strong> Numbers or letters like “3B”, whatever your dial says.</p>
 </div>
 </div>
 </div>
 <div class="reveal r2" style="flex: 0 1 380px; min-width: 0; margin: 0 auto">
 <div style="position: relative; width: min(100%, 330px); margin: 0 auto 0 auto; padding-left: 0">
-<div style="width: 100%; background: #040504; border-radius: 13% / 6%; padding: 10px; box-sizing: border-box; box-shadow: 0 34px 80px rgba(0, 0, 0, 0.6), inset 0 0 0 1px #2A322B">
+<div style="width: 100%; background: #040504; border-radius: 13% / 6%; padding: 10px; box-sizing: border-box; box-shadow: 0 34px 80px rgba(0, 0, 0, calc(0.6 * var(--sh))), inset 0 0 0 1px var(--line-2)">
 <img src="assets/screen-log.webp" width="660" height="1434" alt="Logging taste: sliders for acidity, sweetness, body and finish next to the flavor shape" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 10.5% / 4.8%">
 </div>
 <div class="a-float2" style="position: absolute; left: -9%; bottom: 7%; width: 44%">
-<div style="rotate: -7deg; aspect-ratio: 3 / 4; border-radius: 18px; overflow: hidden; border: 4px solid #0C100D; box-shadow: 0 22px 50px rgba(0, 0, 0, 0.6)">
+<div style="rotate: -7deg; aspect-ratio: 3 / 4; border-radius: 18px; overflow: hidden; border: 4px solid var(--bg); box-shadow: 0 22px 50px rgba(0, 0, 0, calc(0.6 * var(--sh)))">
 <img src="assets/photo-pour.webp" alt="An espresso shot pouring from the portafilter into a speckled cup" loading="lazy" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </div>
 </div>
@@ -615,99 +618,99 @@ Add it to your home screen
 </section>
 
 <!-- ============ Share it ============ -->
-<section id="share" style="border-top: 1px solid #1A201B">
+<section id="share" style="border-top: 1px solid var(--rule)">
 <div style="max-width: 1200px; margin: 0 auto; padding: clamp(72px, 9vw, 120px) clamp(20px, 5vw, 48px); display: flex; flex-wrap: wrap-reverse; align-items: center; gap: clamp(40px, 6vw, 88px)">
 <div class="reveal" style="flex: 1 1 420px; min-width: 0; display: flex; justify-content: center">
 <div style="position: relative; width: min(100%, 470px); aspect-ratio: 470 / 450">
-<div style="position: absolute; left: 0; top: 22%; width: 70%; aspect-ratio: 4 / 3; rotate: -5deg; border-radius: 18px; overflow: hidden; border: 4px solid #1B211C; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55)">
+<div style="position: absolute; left: 0; top: 22%; width: 70%; aspect-ratio: 4 / 3; rotate: -5deg; border-radius: 18px; overflow: hidden; border: 4px solid var(--hover); box-shadow: 0 24px 60px rgba(0, 0, 0, calc(0.55 * var(--sh)))">
 <img src="assets/photo-saucer-wide.webp" width="1200" height="900" alt="The photo: an espresso on a hand-painted saucer" loading="lazy" style="display: block; width: 100%; height: 100%; object-fit: cover">
 </div>
 <div class="a-float" style="position: absolute; right: 0; top: 0; width: 47%">
-<img src="assets/story-card.webp" width="720" height="1280" alt="The Story card Dialed In made from it: Java from Urbana Roasters, 19.5 g in, 46 g out, 22 seconds, 3.5 stars, with its flavor shape and tasting notes" loading="lazy" style="display: block; width: 100%; height: auto; rotate: 4deg; border-radius: 16px; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.65), 0 0 0 1px #2A322B">
+<img src="assets/story-card.webp" width="720" height="1280" alt="The Story card Dialed In made from it: Java from Urbana Roasters, 19.5 g in, 46 g out, 22 seconds, 3.5 stars, with its flavor shape and tasting notes" loading="lazy" style="display: block; width: 100%; height: auto; rotate: 4deg; border-radius: 16px; box-shadow: 0 30px 70px rgba(0, 0, 0, calc(0.65 * var(--sh))), 0 0 0 1px var(--line-2)">
 </div>
 </div>
 </div>
 <div class="reveal r2" style="flex: 1 1 440px; min-width: 0">
-<p style="margin: 0 0 14px; font-size: 15px; font-weight: 700; color: #8DB791">Share it</p>
-<h2 style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(34px, 4.4vw, 54px); line-height: 1.08; letter-spacing: -0.02em; color: #F2F5F1; text-wrap: balance">Turn any cup into a Story.</h2>
-<p style="margin: 20px 0 0; max-width: 520px; font-size: 18px; color: #B9C3BA">Tap Share on one of your sessions and Dialed In makes a picture for your Instagram Story: your photo, the coffee, dose and yield, time, rating, the flavor shape and your cup in words.</p>
-<p style="margin: 22px 0 0; font-size: 14px; color: #79837A">A real one: Maceo’s Java from Urbana Roasters, Oct 19.</p>
+<p style="margin: 0 0 14px; font-size: 15px; font-weight: 700; color: var(--accent)">Share it</p>
+<h2 style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(34px, 4.4vw, 54px); line-height: 1.08; letter-spacing: -0.02em; color: var(--text-strong); text-wrap: balance">Turn any cup into a Story.</h2>
+<p style="margin: 20px 0 0; max-width: 520px; font-size: 18px; color: var(--text-3)">Tap Share on one of your sessions and Dialed In makes a picture for your Instagram Story: your photo, the coffee, dose and yield, time, rating, the flavor shape and your cup in words.</p>
+<p style="margin: 22px 0 0; font-size: 14px; color: var(--faint)">A real one: Maceo’s Java from Urbana Roasters, Oct 19.</p>
 </div>
 </div>
 </section>
 
 <!-- ============ More ============ -->
-<section id="more" style="background: #0F1410; border-top: 1px solid #1A201B">
+<section id="more" style="background: var(--bg-alt); border-top: 1px solid var(--rule)">
 <div style="max-width: 1200px; margin: 0 auto; padding: clamp(72px, 9vw, 112px) clamp(20px, 5vw, 48px)">
-<h2 class="reveal" style="margin: 0; max-width: 640px; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(30px, 3.6vw, 44px); line-height: 1.1; letter-spacing: -0.02em; color: #F2F5F1; text-wrap: balance">And plenty of little things that make it yours.</h2>
+<h2 class="reveal" style="margin: 0; max-width: 640px; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(30px, 3.6vw, 44px); line-height: 1.1; letter-spacing: -0.02em; color: var(--text-strong); text-wrap: balance">And plenty of little things that make it yours.</h2>
 <div style="margin-top: 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px">
-<div class="tile reveal" style="padding: 24px; border-radius: 20px; background: #141915; border: 1px solid #222A23">
-<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8DB791" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><circle cx="12" cy="12" r="4.5"></circle><circle cx="12" cy="12" r="0.8"></circle></svg>
-<h3 style="margin: 14px 0 6px; font-size: 18px; font-weight: 700; color: #F2F5F1">Personal goals</h3>
-<p style="margin: 0; font-size: 15px; color: #A9B3AA">Sessions a week, new coffees a month, or a rating to beat on one bag.</p>
+<div class="tile reveal" style="padding: 24px; border-radius: 20px; background: var(--card); border: 1px solid var(--line)">
+<svg style="color: var(--accent)" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><circle cx="12" cy="12" r="4.5"></circle><circle cx="12" cy="12" r="0.8"></circle></svg>
+<h3 style="margin: 14px 0 6px; font-size: 18px; font-weight: 700; color: var(--text-strong)">Personal goals</h3>
+<p style="margin: 0; font-size: 15px; color: var(--text-4)">Sessions a week, new coffees a month, or a rating to beat on one bag.</p>
 </div>
-<div class="tile reveal r2" style="padding: 24px; border-radius: 20px; background: #141915; border: 1px solid #222A23">
-<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#EBBE5C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0z"></path><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4"></path><path d="M12 13v4M8.5 20.5h7"></path></svg>
-<h3 style="margin: 14px 0 6px; font-size: 18px; font-weight: 700; color: #F2F5F1">Achievements and streaks</h3>
-<p style="margin: 0; font-size: 15px; color: #A9B3AA">Levels to earn as you brew, and a streak to keep alive.</p>
+<div class="tile reveal r2" style="padding: 24px; border-radius: 20px; background: var(--card); border: 1px solid var(--line)">
+<svg style="color: var(--gold)" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0z"></path><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4"></path><path d="M12 13v4M8.5 20.5h7"></path></svg>
+<h3 style="margin: 14px 0 6px; font-size: 18px; font-weight: 700; color: var(--text-strong)">Achievements and streaks</h3>
+<p style="margin: 0; font-size: 15px; color: var(--text-4)">Levels to earn as you brew, and a streak to keep alive.</p>
 </div>
-<div class="tile reveal r3" style="padding: 24px; border-radius: 20px; background: #141915; border: 1px solid #222A23">
-<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8DB791" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path></svg>
-<h3 style="margin: 14px 0 6px; font-size: 18px; font-weight: 700; color: #F2F5F1">Your Year in Coffee</h3>
-<p style="margin: 0; font-size: 15px; color: #A9B3AA">A recap of everything you brewed, plus a coffee calendar and monthly recaps.</p>
+<div class="tile reveal r3" style="padding: 24px; border-radius: 20px; background: var(--card); border: 1px solid var(--line)">
+<svg style="color: var(--accent)" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path></svg>
+<h3 style="margin: 14px 0 6px; font-size: 18px; font-weight: 700; color: var(--text-strong)">Your Year in Coffee</h3>
+<p style="margin: 0; font-size: 15px; color: var(--text-4)">A recap of everything you brewed, plus a coffee calendar and monthly recaps.</p>
 </div>
-<div class="tile reveal r4" style="padding: 24px; border-radius: 20px; background: #141915; border: 1px solid #222A23">
-<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8DB791" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"></path></svg>
-<h3 style="margin: 14px 0 6px; font-size: 18px; font-weight: 700; color: #F2F5F1">Light or dark</h3>
-<p style="margin: 0; font-size: 15px; color: #A9B3AA">Pick one, or let it follow your phone.</p>
+<div class="tile reveal r4" style="padding: 24px; border-radius: 20px; background: var(--card); border: 1px solid var(--line)">
+<svg style="color: var(--accent)" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"></path></svg>
+<h3 style="margin: 14px 0 6px; font-size: 18px; font-weight: 700; color: var(--text-strong)">Light or dark</h3>
+<p style="margin: 0; font-size: 15px; color: var(--text-4)">Pick one, or let it follow your phone.</p>
 </div>
 </div>
 </div>
 </section>
 
 <!-- ============ Promise ============ -->
-<section id="promise" style="border-top: 1px solid #1A201B">
+<section id="promise" style="border-top: 1px solid var(--rule)">
 <div style="max-width: 1200px; margin: 0 auto; padding: clamp(80px, 10vw, 128px) clamp(20px, 5vw, 48px); text-align: center">
-<h2 class="reveal" style="margin: 0 auto; max-width: 820px; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(36px, 5vw, 60px); line-height: 1.06; letter-spacing: -0.02em; color: #F2F5F1; text-wrap: balance">No ads. No tracking.</h2>
-<p class="reveal r2" style="margin: 22px auto 0; max-width: 600px; font-size: 18px; color: #B9C3BA">Your coffee notes are yours. Dialed In doesn’t sell them, show you ads, or follow you around the internet.</p>
+<h2 class="reveal" style="margin: 0 auto; max-width: 820px; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(36px, 5vw, 60px); line-height: 1.06; letter-spacing: -0.02em; color: var(--text-strong); text-wrap: balance">No ads. No tracking.</h2>
+<p class="reveal r2" style="margin: 22px auto 0; max-width: 600px; font-size: 18px; color: var(--text-3)">Your coffee notes are yours. Dialed In doesn’t sell them, show you ads, or follow you around the internet.</p>
 <div class="reveal r3" style="margin: 52px auto 0; max-width: 980px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 32px; text-align: left">
 <div>
-<svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8DB791" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"></rect><path d="M4 7l8 6 8-6"></path></svg>
-<h3 style="margin: 12px 0 6px; font-size: 18px; font-weight: 700; color: #F2F5F1">No password to forget</h3>
-<p style="margin: 0; font-size: 16px; color: #A9B3AA">Sign in with a 6-digit code sent to your email.</p>
+<svg style="color: var(--accent)" aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"></rect><path d="M4 7l8 6 8-6"></path></svg>
+<h3 style="margin: 12px 0 6px; font-size: 18px; font-weight: 700; color: var(--text-strong)">No password to forget</h3>
+<p style="margin: 0; font-size: 16px; color: var(--text-4)">Sign in with a 6-digit code sent to your email.</p>
 </div>
 <div>
-<svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8DB791" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"></path><path d="M7.5 10.5L12 15l4.5-4.5"></path><path d="M4.5 19.5h15"></path></svg>
-<h3 style="margin: 12px 0 6px; font-size: 18px; font-weight: 700; color: #F2F5F1">Take your data with you</h3>
-<p style="margin: 0; font-size: 16px; color: #A9B3AA">Download everything you’ve logged any time in Settings.</p>
+<svg style="color: var(--accent)" aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"></path><path d="M7.5 10.5L12 15l4.5-4.5"></path><path d="M4.5 19.5h15"></path></svg>
+<h3 style="margin: 12px 0 6px; font-size: 18px; font-weight: 700; color: var(--text-strong)">Take your data with you</h3>
+<p style="margin: 0; font-size: 16px; color: var(--text-4)">Download everything you’ve logged any time in Settings.</p>
 </div>
 <div>
-<svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8DB791" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7h15"></path><path d="M9.5 7V4.5h5V7"></path><path d="M6.5 7l1 13h9l1-13"></path></svg>
-<h3 style="margin: 12px 0 6px; font-size: 18px; font-weight: 700; color: #F2F5F1">Leave whenever you like</h3>
-<p style="margin: 0; font-size: 16px; color: #A9B3AA">Delete your account in Settings, and your photos go with it.</p>
+<svg style="color: var(--accent)" aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7h15"></path><path d="M9.5 7V4.5h5V7"></path><path d="M6.5 7l1 13h9l1-13"></path></svg>
+<h3 style="margin: 12px 0 6px; font-size: 18px; font-weight: 700; color: var(--text-strong)">Leave whenever you like</h3>
+<p style="margin: 0; font-size: 16px; color: var(--text-4)">Delete your account in Settings, and your photos go with it.</p>
 </div>
 </div>
 </div>
 </section>
 
 <!-- ============ Add to Home Screen ============ -->
-<section id="install" style="border-top: 1px solid #1A201B; background: #0F1410">
+<section id="install" style="border-top: 1px solid var(--rule); background: var(--bg-alt)">
 <div style="max-width: 1200px; margin: 0 auto; padding: clamp(72px, 9vw, 120px) clamp(20px, 5vw, 48px)">
 <div class="reveal" style="max-width: 720px">
-<p style="margin: 0 0 14px; font-size: 15px; font-weight: 700; color: #8DB791">Get it on your phone</p>
-<h2 style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(34px, 4.4vw, 54px); line-height: 1.08; letter-spacing: -0.02em; color: #F2F5F1; text-wrap: balance">Put Dialed In on your home screen.</h2>
-<p style="margin: 20px 0 0; font-size: 18px; color: #B9C3BA">The iPhone app is on its way to the App Store. Until then, the web app works like one: add it to your home screen and it gets its own icon and opens with one tap.</p>
+<p style="margin: 0 0 14px; font-size: 15px; font-weight: 700; color: var(--accent)">Get it on your phone</p>
+<h2 style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(34px, 4.4vw, 54px); line-height: 1.08; letter-spacing: -0.02em; color: var(--text-strong); text-wrap: balance">Put Dialed In on your home screen.</h2>
+<p style="margin: 20px 0 0; font-size: 18px; color: var(--text-3)">The iPhone app is on its way to the App Store. Until then, the web app works like one: add it to your home screen and it gets its own icon and opens with one tap.</p>
 </div>
 <div class="reveal r2" style="margin-top: 36px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px">
-<div role="group" aria-label="Your phone" style="display: inline-flex; gap: 4px; padding: 5px; border-radius: 999px; background: #141915; border: 1px solid #232B24">
+<div role="group" aria-label="Your phone" style="display: inline-flex; gap: 4px; padding: 5px; border-radius: 999px; background: var(--card); border: 1px solid var(--line)">
 <button type="button" class="os-tab" data-os-tab="ios" aria-pressed="true">iPhone</button>
 <button type="button" class="os-tab" data-os-tab="android" aria-pressed="false">Android</button>
 </div>
-<p style="margin: 0; max-width: 560px; font-size: 15px; color: #8D978E">Do this from the web app, not from this page, or your phone will save this page instead.</p>
+<p style="margin: 0; max-width: 560px; font-size: 15px; color: var(--muted)">Do this from the web app, not from this page, or your phone will save this page instead.</p>
 </div>
 <div data-os="ios">
 <ol aria-label="Add Dialed In to an iPhone home screen" style="list-style: none; margin: 28px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 16px">
-<li style="display: flex; flex-direction: column; gap: 16px; padding: 14px 14px 20px; border-radius: 22px; background: #141915; border: 1px solid #232B24">
+<li style="display: flex; flex-direction: column; gap: 16px; padding: 14px 14px 20px; border-radius: 22px; background: var(--card); border: 1px solid var(--line)">
 <div aria-hidden="true" style="position: relative; height: 200px; border-radius: 16px; overflow: hidden; background: #0C100D; border: 1px solid #262B27">
 <div style="position: absolute; left: 14px; right: 14px; top: 16px; display: flex; align-items: center; gap: 8px"><img src="assets/icon.webp" alt="" width="24" height="24" style="display: block; width: 24px; height: 24px; border-radius: 6px"><span style="font-family: Lora, ui-serif, Georgia, serif; font-size: 15px; font-weight: 600; color: #E8EEE8">Dialed In</span></div>
 <div style="position: absolute; left: 14px; right: 14px; top: 56px; display: flex; flex-direction: column; gap: 8px"><div style="height: 30px; border-radius: 10px; background: #161C17"></div><div style="width: 72%; height: 8px; border-radius: 4px; background: #1E251F"></div><div style="width: 54%; height: 8px; border-radius: 4px; background: #1E251F"></div></div><div style="position: absolute; left: 10px; right: 10px; bottom: 10px; display: flex; gap: 8px; align-items: center">
@@ -717,11 +720,11 @@ Add it to your home screen
 </div>
 </div>
 <div style="display: flex; gap: 12px; align-items: flex-start; padding: 0 4px">
-<span aria-hidden="true" style="flex: none; width: 28px; height: 28px; border-radius: 50%; background: #8DB791; color: #0B160D; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center">1</span>
-<div style="min-width: 0"><h3 style="margin: 3px 0 4px; font-size: 17px; font-weight: 700; color: #F2F5F1">Open the web app in Safari</h3><p style="margin: 0; font-size: 15px; line-height: 1.45; color: #A9B3AA; overflow-wrap: anywhere">Tap “Open the web app” below. Inside Instagram or another app? Open the page in Safari first.</p></div>
+<span aria-hidden="true" style="flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center">1</span>
+<div style="min-width: 0"><h3 style="margin: 3px 0 4px; font-size: 17px; font-weight: 700; color: var(--text-strong)">Open the web app in Safari</h3><p style="margin: 0; font-size: 15px; line-height: 1.45; color: var(--text-4); overflow-wrap: anywhere">Tap “Open the web app” below. Inside Instagram or another app? Open the page in Safari first.</p></div>
 </div>
 </li>
-<li style="display: flex; flex-direction: column; gap: 16px; padding: 14px 14px 20px; border-radius: 22px; background: #141915; border: 1px solid #232B24">
+<li style="display: flex; flex-direction: column; gap: 16px; padding: 14px 14px 20px; border-radius: 22px; background: var(--card); border: 1px solid var(--line)">
 <div aria-hidden="true" style="position: relative; height: 200px; border-radius: 16px; overflow: hidden; background: #0C100D; border: 1px solid #262B27">
 <div style="position: absolute; left: 14px; right: 14px; top: 16px; display: flex; align-items: center; gap: 8px"><img src="assets/icon.webp" alt="" width="24" height="24" style="display: block; width: 24px; height: 24px; border-radius: 6px"><span style="font-family: Lora, ui-serif, Georgia, serif; font-size: 15px; font-weight: 600; color: #E8EEE8">Dialed In</span></div>
 <div style="position: absolute; left: 14px; right: 14px; top: 56px; display: flex; flex-direction: column; gap: 8px"><div style="height: 30px; border-radius: 10px; background: #161C17"></div><div style="width: 72%; height: 8px; border-radius: 4px; background: #1E251F"></div><div style="width: 54%; height: 8px; border-radius: 4px; background: #1E251F"></div></div><div style="position: absolute; inset: 0; background: rgba(0,0,0,.35)"></div>
@@ -735,11 +738,11 @@ Add it to your home screen
 </div>
 </div>
 <div style="display: flex; gap: 12px; align-items: flex-start; padding: 0 4px">
-<span aria-hidden="true" style="flex: none; width: 28px; height: 28px; border-radius: 50%; background: #8DB791; color: #0B160D; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center">2</span>
-<div style="min-width: 0"><h3 style="margin: 3px 0 4px; font-size: 17px; font-weight: 700; color: #F2F5F1">Tap •••, then Share</h3><p style="margin: 0; font-size: 15px; line-height: 1.45; color: #A9B3AA; overflow-wrap: anywhere">The ••• button is next to the address. On some iPhones the Share button is right in the toolbar.</p></div>
+<span aria-hidden="true" style="flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center">2</span>
+<div style="min-width: 0"><h3 style="margin: 3px 0 4px; font-size: 17px; font-weight: 700; color: var(--text-strong)">Tap •••, then Share</h3><p style="margin: 0; font-size: 15px; line-height: 1.45; color: var(--text-4); overflow-wrap: anywhere">The ••• button is next to the address. On some iPhones the Share button is right in the toolbar.</p></div>
 </div>
 </li>
-<li style="display: flex; flex-direction: column; gap: 16px; padding: 14px 14px 20px; border-radius: 22px; background: #141915; border: 1px solid #232B24">
+<li style="display: flex; flex-direction: column; gap: 16px; padding: 14px 14px 20px; border-radius: 22px; background: var(--card); border: 1px solid var(--line)">
 <div aria-hidden="true" style="position: relative; height: 200px; border-radius: 16px; overflow: hidden; background: #0C100D; border: 1px solid #262B27">
 <div style="position: absolute; left: 14px; right: 14px; top: 16px; display: flex; align-items: center; gap: 8px"><img src="assets/icon.webp" alt="" width="24" height="24" style="display: block; width: 24px; height: 24px; border-radius: 6px"><span style="font-family: Lora, ui-serif, Georgia, serif; font-size: 15px; font-weight: 600; color: #E8EEE8">Dialed In</span></div>
 <div style="position: absolute; left: 14px; right: 14px; top: 56px; display: flex; flex-direction: column; gap: 8px"><div style="height: 30px; border-radius: 10px; background: #161C17"></div><div style="width: 72%; height: 8px; border-radius: 4px; background: #1E251F"></div><div style="width: 54%; height: 8px; border-radius: 4px; background: #1E251F"></div></div><div style="position: absolute; inset: 0; background: rgba(0,0,0,.45)"></div>
@@ -752,11 +755,11 @@ Add it to your home screen
 </div>
 </div>
 <div style="display: flex; gap: 12px; align-items: flex-start; padding: 0 4px">
-<span aria-hidden="true" style="flex: none; width: 28px; height: 28px; border-radius: 50%; background: #8DB791; color: #0B160D; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center">3</span>
-<div style="min-width: 0"><h3 style="margin: 3px 0 4px; font-size: 17px; font-weight: 700; color: #F2F5F1">Tap Add to Home Screen</h3><p style="margin: 0; font-size: 15px; line-height: 1.45; color: #A9B3AA; overflow-wrap: anywhere">Scroll down the list that opens until you see it.</p></div>
+<span aria-hidden="true" style="flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center">3</span>
+<div style="min-width: 0"><h3 style="margin: 3px 0 4px; font-size: 17px; font-weight: 700; color: var(--text-strong)">Tap Add to Home Screen</h3><p style="margin: 0; font-size: 15px; line-height: 1.45; color: var(--text-4); overflow-wrap: anywhere">Scroll down the list that opens until you see it.</p></div>
 </div>
 </li>
-<li style="display: flex; flex-direction: column; gap: 16px; padding: 14px 14px 20px; border-radius: 22px; background: #141915; border: 1px solid #232B24">
+<li style="display: flex; flex-direction: column; gap: 16px; padding: 14px 14px 20px; border-radius: 22px; background: var(--card); border: 1px solid var(--line)">
 <div aria-hidden="true" style="position: relative; height: 200px; border-radius: 16px; overflow: hidden; background: #0C100D; border: 1px solid #262B27">
 <div style="position: absolute; inset: 0; background: #1C1C1E; padding: 12px 12px 0; display: flex; flex-direction: column; gap: 12px">
 <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12px"><span style="color: #8E8E93">Cancel</span><span style="font-weight: 700; color: #F2F2F7">Add to Home Screen</span><span class="tap" style="padding: 3px 8px; border-radius: 8px; color: #0A84FF; font-weight: 700">Add</span></div>
@@ -765,15 +768,15 @@ Add it to your home screen
 </div>
 </div>
 <div style="display: flex; gap: 12px; align-items: flex-start; padding: 0 4px">
-<span aria-hidden="true" style="flex: none; width: 28px; height: 28px; border-radius: 50%; background: #8DB791; color: #0B160D; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center">4</span>
-<div style="min-width: 0"><h3 style="margin: 3px 0 4px; font-size: 17px; font-weight: 700; color: #F2F5F1">Keep “Open as Web App” on, then tap Add</h3><p style="margin: 0; font-size: 15px; line-height: 1.45; color: #A9B3AA; overflow-wrap: anywhere">Dialed In lands on your home screen and opens full screen, like any app.</p></div>
+<span aria-hidden="true" style="flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center">4</span>
+<div style="min-width: 0"><h3 style="margin: 3px 0 4px; font-size: 17px; font-weight: 700; color: var(--text-strong)">Keep “Open as Web App” on, then tap Add</h3><p style="margin: 0; font-size: 15px; line-height: 1.45; color: var(--text-4); overflow-wrap: anywhere">Dialed In lands on your home screen and opens full screen, like any app.</p></div>
 </div>
 </li>
 </ol>
 </div>
 <div data-os="android" hidden>
 <ol aria-label="Add Dialed In to an Android home screen" style="list-style: none; margin: 28px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 16px">
-<li style="display: flex; flex-direction: column; gap: 16px; padding: 14px 14px 20px; border-radius: 22px; background: #141915; border: 1px solid #232B24">
+<li style="display: flex; flex-direction: column; gap: 16px; padding: 14px 14px 20px; border-radius: 22px; background: var(--card); border: 1px solid var(--line)">
 <div aria-hidden="true" style="position: relative; height: 200px; border-radius: 16px; overflow: hidden; background: #0C100D; border: 1px solid #262B27">
 <div style="position: absolute; left: 14px; right: 14px; top: 58px; display: flex; align-items: center; gap: 8px"><img src="assets/icon.webp" alt="" width="24" height="24" style="display: block; width: 24px; height: 24px; border-radius: 6px"><span style="font-family: Lora, ui-serif, Georgia, serif; font-size: 15px; font-weight: 600; color: #E8EEE8">Dialed In</span></div>
 <div style="position: absolute; left: 14px; right: 14px; top: 98px; display: flex; flex-direction: column; gap: 8px"><div style="height: 30px; border-radius: 10px; background: #161C17"></div><div style="width: 72%; height: 8px; border-radius: 4px; background: #1E251F"></div><div style="width: 54%; height: 8px; border-radius: 4px; background: #1E251F"></div></div><div style="position: absolute; left: 8px; right: 8px; top: 8px; display: flex; gap: 6px; align-items: center">
@@ -783,11 +786,11 @@ Add it to your home screen
 </div>
 </div>
 <div style="display: flex; gap: 12px; align-items: flex-start; padding: 0 4px">
-<span aria-hidden="true" style="flex: none; width: 28px; height: 28px; border-radius: 50%; background: #8DB791; color: #0B160D; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center">1</span>
-<div style="min-width: 0"><h3 style="margin: 3px 0 4px; font-size: 17px; font-weight: 700; color: #F2F5F1">Open the web app in Chrome</h3><p style="margin: 0; font-size: 15px; line-height: 1.45; color: #A9B3AA; overflow-wrap: anywhere">Tap “Open the web app” below. Inside Instagram or another app? Open the page in Chrome first.</p></div>
+<span aria-hidden="true" style="flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center">1</span>
+<div style="min-width: 0"><h3 style="margin: 3px 0 4px; font-size: 17px; font-weight: 700; color: var(--text-strong)">Open the web app in Chrome</h3><p style="margin: 0; font-size: 15px; line-height: 1.45; color: var(--text-4); overflow-wrap: anywhere">Tap “Open the web app” below. Inside Instagram or another app? Open the page in Chrome first.</p></div>
 </div>
 </li>
-<li style="display: flex; flex-direction: column; gap: 16px; padding: 14px 14px 20px; border-radius: 22px; background: #141915; border: 1px solid #232B24">
+<li style="display: flex; flex-direction: column; gap: 16px; padding: 14px 14px 20px; border-radius: 22px; background: var(--card); border: 1px solid var(--line)">
 <div aria-hidden="true" style="position: relative; height: 200px; border-radius: 16px; overflow: hidden; background: #0C100D; border: 1px solid #262B27">
 <div style="position: absolute; left: 14px; right: 14px; top: 58px; display: flex; align-items: center; gap: 8px"><img src="assets/icon.webp" alt="" width="24" height="24" style="display: block; width: 24px; height: 24px; border-radius: 6px"><span style="font-family: Lora, ui-serif, Georgia, serif; font-size: 15px; font-weight: 600; color: #E8EEE8">Dialed In</span></div>
 <div style="position: absolute; left: 14px; right: 14px; top: 98px; display: flex; flex-direction: column; gap: 8px"><div style="height: 30px; border-radius: 10px; background: #161C17"></div><div style="width: 72%; height: 8px; border-radius: 4px; background: #1E251F"></div><div style="width: 54%; height: 8px; border-radius: 4px; background: #1E251F"></div></div><div style="position: absolute; inset: 0; background: rgba(0,0,0,.35)"></div><div style="position: absolute; left: 8px; right: 8px; top: 8px; display: flex; gap: 6px; align-items: center">
@@ -802,11 +805,11 @@ Add it to your home screen
 </div>
 </div>
 <div style="display: flex; gap: 12px; align-items: flex-start; padding: 0 4px">
-<span aria-hidden="true" style="flex: none; width: 28px; height: 28px; border-radius: 50%; background: #8DB791; color: #0B160D; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center">2</span>
-<div style="min-width: 0"><h3 style="margin: 3px 0 4px; font-size: 17px; font-weight: 700; color: #F2F5F1">Tap ⋮, then Add to Home screen</h3><p style="margin: 0; font-size: 15px; line-height: 1.45; color: #A9B3AA; overflow-wrap: anywhere">The ⋮ menu is at the top right. On some phones the option says Install app.</p></div>
+<span aria-hidden="true" style="flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center">2</span>
+<div style="min-width: 0"><h3 style="margin: 3px 0 4px; font-size: 17px; font-weight: 700; color: var(--text-strong)">Tap ⋮, then Add to Home screen</h3><p style="margin: 0; font-size: 15px; line-height: 1.45; color: var(--text-4); overflow-wrap: anywhere">The ⋮ menu is at the top right. On some phones the option says Install app.</p></div>
 </div>
 </li>
-<li style="display: flex; flex-direction: column; gap: 16px; padding: 14px 14px 20px; border-radius: 22px; background: #141915; border: 1px solid #232B24">
+<li style="display: flex; flex-direction: column; gap: 16px; padding: 14px 14px 20px; border-radius: 22px; background: var(--card); border: 1px solid var(--line)">
 <div aria-hidden="true" style="position: relative; height: 200px; border-radius: 16px; overflow: hidden; background: #0C100D; border: 1px solid #262B27">
 <div style="position: absolute; left: 14px; right: 14px; top: 58px; display: flex; align-items: center; gap: 8px"><img src="assets/icon.webp" alt="" width="24" height="24" style="display: block; width: 24px; height: 24px; border-radius: 6px"><span style="font-family: Lora, ui-serif, Georgia, serif; font-size: 15px; font-weight: 600; color: #E8EEE8">Dialed In</span></div>
 <div style="position: absolute; left: 14px; right: 14px; top: 98px; display: flex; flex-direction: column; gap: 8px"><div style="height: 30px; border-radius: 10px; background: #161C17"></div><div style="width: 72%; height: 8px; border-radius: 4px; background: #1E251F"></div><div style="width: 54%; height: 8px; border-radius: 4px; background: #1E251F"></div></div><div style="position: absolute; inset: 0; background: rgba(0,0,0,.55)"></div>
@@ -817,70 +820,70 @@ Add it to your home screen
 </div>
 </div>
 <div style="display: flex; gap: 12px; align-items: flex-start; padding: 0 4px">
-<span aria-hidden="true" style="flex: none; width: 28px; height: 28px; border-radius: 50%; background: #8DB791; color: #0B160D; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center">3</span>
-<div style="min-width: 0"><h3 style="margin: 3px 0 4px; font-size: 17px; font-weight: 700; color: #F2F5F1">Tap Add</h3><p style="margin: 0; font-size: 15px; line-height: 1.45; color: #A9B3AA; overflow-wrap: anywhere">Dialed In lands on your home screen and opens with one tap.</p></div>
+<span aria-hidden="true" style="flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center">3</span>
+<div style="min-width: 0"><h3 style="margin: 3px 0 4px; font-size: 17px; font-weight: 700; color: var(--text-strong)">Tap Add</h3><p style="margin: 0; font-size: 15px; line-height: 1.45; color: var(--text-4); overflow-wrap: anywhere">Dialed In lands on your home screen and opens with one tap.</p></div>
 </div>
 </li>
 </ol>
 </div>
 <div style="margin-top: 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px">
-<a class="btn-primary" href="https://maceopmh-droid.github.io/Dialed-In-/" style="display: inline-flex; align-items: center; gap: 10px; min-height: 54px; padding: 0 26px; border-radius: 999px; background: linear-gradient(135deg, #9CC6A0 0%, #6E9C74 100%); color: #0B160D; font-size: 17px; font-weight: 700; text-decoration: none; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4)">Open the web app<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></a>
-<p style="margin: 0; max-width: 520px; font-size: 15px; color: #8D978E">Your account works everywhere: sign in with the same email on any phone or computer, and in the iPhone app when it arrives.</p>
+<a class="btn-primary" href="https://maceopmh-droid.github.io/Dialed-In-/" style="display: inline-flex; align-items: center; gap: 10px; min-height: 54px; padding: 0 26px; border-radius: 999px; background: var(--btn-grad); color: var(--on-accent); font-size: 17px; font-weight: 700; text-decoration: none; box-shadow: 0 10px 28px rgba(0, 0, 0, calc(0.4 * var(--sh)))">Open the web app<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></a>
+<p style="margin: 0; max-width: 520px; font-size: 15px; color: var(--muted)">Your account works everywhere: sign in with the same email on any phone or computer, and in the iPhone app when it arrives.</p>
 </div>
 </div>
 </section>
 
 <!-- ============ FAQ ============ -->
-<section id="faq" style="background: #0F1410; border-top: 1px solid #1A201B">
+<section id="faq" style="background: var(--bg-alt); border-top: 1px solid var(--rule)">
 <div style="max-width: 820px; margin: 0 auto; padding: clamp(72px, 9vw, 112px) clamp(20px, 5vw, 48px)">
-<h2 class="reveal" style="margin: 0 0 32px; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(32px, 4vw, 48px); line-height: 1.1; letter-spacing: -0.02em; color: #F2F5F1; text-wrap: balance">Questions</h2>
-<details class="faq" style="border-top: 1px solid #263027">
-<summary style="display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; font-size: 18px; font-weight: 650; color: #F2F5F1">What is Dialed In?<svg class="chev" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8D978E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; transition: transform 0.2s"><path d="M6 9l6 6 6-6"></path></svg></summary>
-<p style="margin: 0 0 22px; font-size: 17px; color: #A9B3AA">Dialed In is a social coffee log app for people who brew at home. Log espresso, pour over, French press, AeroPress, moka pot and cold brew, see every cup as a 3D flavor shape, get a next-shot tip based on your own best brews, and share it all with your friends.</p>
+<h2 class="reveal" style="margin: 0 0 32px; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(32px, 4vw, 48px); line-height: 1.1; letter-spacing: -0.02em; color: var(--text-strong); text-wrap: balance">Questions</h2>
+<details class="faq" style="border-top: 1px solid var(--line-2)">
+<summary style="display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; font-size: 18px; font-weight: 650; color: var(--text-strong)">What is Dialed In?<svg class="chev" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--muted); flex: none; transition: transform 0.2s"><path d="M6 9l6 6 6-6"></path></svg></summary>
+<p style="margin: 0 0 22px; font-size: 17px; color: var(--text-4)">Dialed In is a social coffee log app for people who brew at home. Log espresso, pour over, French press, AeroPress, moka pot and cold brew, see every cup as a 3D flavor shape, get a next-shot tip based on your own best brews, and share it all with your friends.</p>
 </details>
-<details class="faq" style="border-top: 1px solid #263027">
-<summary style="display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; font-size: 18px; font-weight: 650; color: #F2F5F1">Is it free?<svg class="chev" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8D978E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; transition: transform 0.2s"><path d="M6 9l6 6 6-6"></path></svg></summary>
-<p style="margin: 0 0 22px; font-size: 17px; color: #A9B3AA">For now, yes. Accounts are free while Dialed In is in early access, so now’s the time to claim yours. There are no ads and no tracking.</p>
+<details class="faq" style="border-top: 1px solid var(--line-2)">
+<summary style="display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; font-size: 18px; font-weight: 650; color: var(--text-strong)">Is it free?<svg class="chev" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--muted); flex: none; transition: transform 0.2s"><path d="M6 9l6 6 6-6"></path></svg></summary>
+<p style="margin: 0 0 22px; font-size: 17px; color: var(--text-4)">For now, yes. Accounts are free while Dialed In is in early access, so now’s the time to claim yours. There are no ads and no tracking.</p>
 </details>
-<details class="faq" style="border-top: 1px solid #263027">
-<summary style="display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; font-size: 18px; font-weight: 650; color: #F2F5F1">Do I need an iPhone?<svg class="chev" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8D978E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; transition: transform 0.2s"><path d="M6 9l6 6 6-6"></path></svg></summary>
-<p style="margin: 0 0 22px; font-size: 17px; color: #A9B3AA">No. Dialed In runs in your web browser on any phone or computer, and you can add it to your home screen so it opens with one tap (the steps are just above). The iPhone app is coming soon to the App Store, and your account works in both.</p>
+<details class="faq" style="border-top: 1px solid var(--line-2)">
+<summary style="display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; font-size: 18px; font-weight: 650; color: var(--text-strong)">Do I need an iPhone?<svg class="chev" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--muted); flex: none; transition: transform 0.2s"><path d="M6 9l6 6 6-6"></path></svg></summary>
+<p style="margin: 0 0 22px; font-size: 17px; color: var(--text-4)">No. Dialed In runs in your web browser on any phone or computer, and you can add it to your home screen so it opens with one tap (the steps are just above). The iPhone app is coming soon to the App Store, and your account works in both.</p>
 </details>
-<details class="faq" style="border-top: 1px solid #263027">
-<summary style="display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; font-size: 18px; font-weight: 650; color: #F2F5F1">Will a friend’s grind setting work on my grinder?<svg class="chev" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8D978E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; transition: transform 0.2s"><path d="M6 9l6 6 6-6"></path></svg></summary>
-<p style="margin: 0 0 22px; font-size: 17px; color: #A9B3AA">Usually not, because every grinder counts differently. That’s why the coach only ever uses your own grind numbers. Ratios, shot times and tastes do compare, so those are what you share and learn from.</p>
+<details class="faq" style="border-top: 1px solid var(--line-2)">
+<summary style="display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; font-size: 18px; font-weight: 650; color: var(--text-strong)">Will a friend’s grind setting work on my grinder?<svg class="chev" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--muted); flex: none; transition: transform 0.2s"><path d="M6 9l6 6 6-6"></path></svg></summary>
+<p style="margin: 0 0 22px; font-size: 17px; color: var(--text-4)">Usually not, because every grinder counts differently. That’s why the coach only ever uses your own grind numbers. Ratios, shot times and tastes do compare, so those are what you share and learn from.</p>
 </details>
-<details class="faq" style="border-top: 1px solid #263027">
-<summary style="display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; font-size: 18px; font-weight: 650; color: #F2F5F1">Who can see what I log?<svg class="chev" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8D978E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; transition: transform 0.2s"><path d="M6 9l6 6 6-6"></path></svg></summary>
-<p style="margin: 0 0 22px; font-size: 17px; color: #A9B3AA">You pick for each session: everyone, your friends, or only you. You can also make your profile private and block anyone.</p>
+<details class="faq" style="border-top: 1px solid var(--line-2)">
+<summary style="display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; font-size: 18px; font-weight: 650; color: var(--text-strong)">Who can see what I log?<svg class="chev" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--muted); flex: none; transition: transform 0.2s"><path d="M6 9l6 6 6-6"></path></svg></summary>
+<p style="margin: 0 0 22px; font-size: 17px; color: var(--text-4)">You pick for each session: everyone, your friends, or only you. You can also make your profile private and block anyone.</p>
 </details>
-<details class="faq" style="border-top: 1px solid #263027">
-<summary style="display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; font-size: 18px; font-weight: 650; color: #F2F5F1">I’m new to brewing. Is it for me?<svg class="chev" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8D978E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; transition: transform 0.2s"><path d="M6 9l6 6 6-6"></path></svg></summary>
-<p style="margin: 0 0 22px; font-size: 17px; color: #A9B3AA">Yes. Log what you brewed and how it tasted, and the coach tells you what to try next in plain words. If you get stuck, ask the community.</p>
+<details class="faq" style="border-top: 1px solid var(--line-2)">
+<summary style="display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; font-size: 18px; font-weight: 650; color: var(--text-strong)">I’m new to brewing. Is it for me?<svg class="chev" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--muted); flex: none; transition: transform 0.2s"><path d="M6 9l6 6 6-6"></path></svg></summary>
+<p style="margin: 0 0 22px; font-size: 17px; color: var(--text-4)">Yes. Log what you brewed and how it tasted, and the coach tells you what to try next in plain words. If you get stuck, ask the community.</p>
 </details>
-<details class="faq" style="border-top: 1px solid #263027; border-bottom: 1px solid #263027">
-<summary style="display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; font-size: 18px; font-weight: 650; color: #F2F5F1">How do I get help or report a problem?<svg class="chev" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8D978E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; transition: transform 0.2s"><path d="M6 9l6 6 6-6"></path></svg></summary>
-<p style="margin: 0 0 22px; font-size: 17px; color: #A9B3AA">Email <a href="mailto:dialedincoffeeapp@gmail.com">dialedincoffeeapp@gmail.com</a> or visit the <a href="https://maceopmh-droid.github.io/Dialed-In-/support.html">support page</a>. Sessions, comments and profiles can each be reported from inside the app.</p>
+<details class="faq" style="border-top: 1px solid var(--line-2); border-bottom: 1px solid var(--line-2)">
+<summary style="display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; font-size: 18px; font-weight: 650; color: var(--text-strong)">How do I get help or report a problem?<svg class="chev" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--muted); flex: none; transition: transform 0.2s"><path d="M6 9l6 6 6-6"></path></svg></summary>
+<p style="margin: 0 0 22px; font-size: 17px; color: var(--text-4)">Email <a href="mailto:dialedincoffeeapp@gmail.com">dialedincoffeeapp@gmail.com</a> or visit the <a href="https://maceopmh-droid.github.io/Dialed-In-/support.html">support page</a>. Sessions, comments and profiles can each be reported from inside the app.</p>
 </details>
 </div>
 </section>
 
 <!-- ============ Final CTA ============ -->
-<section id="start" style="border-top: 1px solid #1A201B">
+<section id="start" style="border-top: 1px solid var(--rule)">
 <div style="max-width: 1200px; margin: 0 auto; padding: clamp(72px, 9vw, 120px) clamp(20px, 5vw, 48px)">
-<div class="reveal" style="border-radius: 36px; background: #141915; border: 1px solid #232B24; padding: clamp(40px, 6vw, 72px) clamp(24px, 5vw, 64px); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 40px">
+<div class="reveal" style="border-radius: 36px; background: var(--card); border: 1px solid var(--line); padding: clamp(40px, 6vw, 72px) clamp(24px, 5vw, 64px); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 40px">
 <div style="flex: 1 1 420px; min-width: 0">
-<h2 style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(36px, 4.8vw, 58px); line-height: 1.05; letter-spacing: -0.02em; color: #F2F5F1; text-wrap: balance">Your next cup could be your best one.</h2>
-<p style="margin: 20px 0 0; max-width: 480px; font-size: 18px; color: #B9C3BA">Accounts are free during early access. Start on the web in a minute, add it to your home screen, and your friends can join with a link.</p>
+<h2 style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(36px, 4.8vw, 58px); line-height: 1.05; letter-spacing: -0.02em; color: var(--text-strong); text-wrap: balance">Your next cup could be your best one.</h2>
+<p style="margin: 20px 0 0; max-width: 480px; font-size: 18px; color: var(--text-3)">Accounts are free during early access. Start on the web in a minute, add it to your home screen, and your friends can join with a link.</p>
 <div style="margin-top: 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px">
-<a class="btn-primary btn-sheen" href="https://maceopmh-droid.github.io/Dialed-In-/" style="display: inline-flex; align-items: center; gap: 10px; min-height: 54px; max-width: 100%; box-sizing: border-box; padding: 12px 24px; line-height: 1.25; border-radius: 999px; background: linear-gradient(135deg, #9CC6A0 0%, #6E9C74 100%); color: #0B160D; font-size: 17px; font-weight: 700; text-decoration: none; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4)">
+<a class="btn-primary btn-sheen" href="https://maceopmh-droid.github.io/Dialed-In-/" style="display: inline-flex; align-items: center; gap: 10px; min-height: 54px; max-width: 100%; box-sizing: border-box; padding: 12px 24px; line-height: 1.25; border-radius: 999px; background: var(--btn-grad); color: var(--on-accent); font-size: 17px; font-weight: 700; text-decoration: none; box-shadow: 0 10px 28px rgba(0, 0, 0, calc(0.4 * var(--sh)))">
 <span style="text-wrap: balance">Claim your free <span style="white-space: nowrap">early-adopter</span> account</span>
 <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>
 </a>
-<a data-store-live hidden class="btn-ghost" href="#" data-store-link style="display: inline-flex; align-items: center; gap: 10px; min-height: 54px; padding: 0 22px; border-radius: 999px; border: 1px solid #3A453B; color: #E8EEE8; font-size: 16px; font-weight: 600; text-decoration: none">Download on the App Store</a>
-<a data-store-soon class="btn-ghost" href="#install" style="display: inline-flex; align-items: center; gap: 10px; min-height: 54px; padding: 0 22px; border-radius: 999px; border: 1px solid #3A453B; color: #E8EEE8; font-size: 16px; font-weight: 600; text-decoration: none">Add it to your home screen</a>
+<a data-store-live hidden class="btn-ghost" href="#" data-store-link style="display: inline-flex; align-items: center; gap: 10px; min-height: 54px; padding: 0 22px; border-radius: 999px; border: 1px solid var(--line-3); color: var(--text); font-size: 16px; font-weight: 600; text-decoration: none">Download on the App Store</a>
+<a data-store-soon class="btn-ghost" href="#install" style="display: inline-flex; align-items: center; gap: 10px; min-height: 54px; padding: 0 22px; border-radius: 999px; border: 1px solid var(--line-3); color: var(--text); font-size: 16px; font-weight: 600; text-decoration: none">Add it to your home screen</a>
 </div>
-<p data-store-soon style="margin: 18px 0 0; font-size: 14px; color: #79837A">Live now on the web. iPhone app coming soon.</p>
+<p data-store-soon style="margin: 18px 0 0; font-size: 14px; color: var(--faint)">Live now on the web. iPhone app coming soon.</p>
 </div>
 <div style="flex: 0 1 320px; min-width: 0; margin: 0 auto">
 <img class="a-float" src="assets/flavor-shape-spin.webp" width="520" height="606" alt="" loading="lazy" style="display: block; width: min(100%, 300px); height: auto; margin: 0 auto">
@@ -890,21 +893,21 @@ Add it to your home screen
 </section>
 
 <!-- ============ Footer ============ -->
-<footer style="border-top: 1px solid #1A201B">
+<footer style="border-top: 1px solid var(--rule)">
 <div style="max-width: 1200px; margin: 0 auto; padding: 40px clamp(20px, 5vw, 48px) 56px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px">
 <div style="display: flex; align-items: center; gap: 12px">
 <img src="assets/icon.webp" alt="" width="32" height="32" style="display: block; width: 32px; height: 32px; border-radius: 8px">
 <div>
-<div style="font-family: Lora, ui-serif, Georgia, serif; font-size: 18px; font-weight: 600; color: #E8EEE8">Dialed In</div>
-<div style="font-size: 13px; color: #79837A">Made by Maceo and the people he brews with. © 2026</div>
+<div style="font-family: Lora, ui-serif, Georgia, serif; font-size: 18px; font-weight: 600; color: var(--text)">Dialed In</div>
+<div style="font-size: 13px; color: var(--faint)">Made by Maceo and the people he brews with. © 2026</div>
 </div>
 </div>
 <nav aria-label="Footer" style="display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: 15px">
-<a href="about.html" style="display: inline-flex; align-items: center; min-height: 44px; color: #A9B3AA; text-decoration: none">About</a>
-<a href="https://maceopmh-droid.github.io/Dialed-In-/support.html" style="display: inline-flex; align-items: center; min-height: 44px; color: #A9B3AA; text-decoration: none">Support</a>
-<a href="https://maceopmh-droid.github.io/Dialed-In-/privacy.html" style="display: inline-flex; align-items: center; min-height: 44px; color: #A9B3AA; text-decoration: none">Privacy</a>
-<a href="https://maceopmh-droid.github.io/Dialed-In-/terms.html" style="display: inline-flex; align-items: center; min-height: 44px; color: #A9B3AA; text-decoration: none">Terms</a>
-<a href="mailto:dialedincoffeeapp@gmail.com" style="display: inline-flex; align-items: center; min-height: 44px; color: #A9B3AA; text-decoration: none">Contact</a>
+<a href="about.html" style="display: inline-flex; align-items: center; min-height: 44px; color: var(--text-4); text-decoration: none">About</a>
+<a href="https://maceopmh-droid.github.io/Dialed-In-/support.html" style="display: inline-flex; align-items: center; min-height: 44px; color: var(--text-4); text-decoration: none">Support</a>
+<a href="https://maceopmh-droid.github.io/Dialed-In-/privacy.html" style="display: inline-flex; align-items: center; min-height: 44px; color: var(--text-4); text-decoration: none">Privacy</a>
+<a href="https://maceopmh-droid.github.io/Dialed-In-/terms.html" style="display: inline-flex; align-items: center; min-height: 44px; color: var(--text-4); text-decoration: none">Terms</a>
+<a href="mailto:dialedincoffeeapp@gmail.com" style="display: inline-flex; align-items: center; min-height: 44px; color: var(--text-4); text-decoration: none">Contact</a>
 </nav>
 </div>
 </footer>
