@@ -41,6 +41,8 @@
                 finally { st.loading = false; }
                 const m = document.getElementById('settings-modal');
                 if (m && m.classList.contains('active')) this.openSettings();
+                const ns = document.getElementById('notif-set-modal');   // v15.8: the switch lives in Notifications now
+                if (ns && ns.classList.contains('active') && this.renderNotifSettings) this.renderNotifSettings();
             },
 
             pushRowHtml() {
@@ -90,6 +92,8 @@
                     st.busy = false;
                     const m = document.getElementById('settings-modal');
                     if (m && m.classList.contains('active')) this.openSettings();
+                    const ns = document.getElementById('notif-set-modal');
+                    if (ns && ns.classList.contains('active') && this.renderNotifSettings) this.renderNotifSettings();
                 }
             },
 

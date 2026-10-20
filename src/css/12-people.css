@@ -66,3 +66,6 @@
         /* Settings: your account's tools */
         .acct-tools { display: flex; gap: 8px; flex-wrap: wrap; padding: 2px 0 12px; margin-bottom: 4px; border-bottom: 1px solid var(--line); }
         .acct-tools .acct-delete { color: #C0392B; }
+        /* v15.8: Settings, Notifications */
+        .nset-row small { max-width: 34ch; }
+        .nset-foot { margin: 12px 6px 4px; font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }

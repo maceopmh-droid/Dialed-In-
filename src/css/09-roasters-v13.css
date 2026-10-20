@@ -129,3 +129,10 @@
         #detail-view .dh-back .dh-back-t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .dh-pill { white-space: nowrap; }
 
+        /* v15.8: "Local to me", each person's own tick on a roaster */
+        .ro-local { display: inline-flex; align-items: center; gap: 6px; margin-top: 9px; padding: 6px 12px 6px 10px; border-radius: 999px; border: 1px solid rgba(var(--hair-rgb), 0.14); background: rgba(var(--hair-rgb), 0.04); color: var(--ink-2); font: inherit; font-size: 0.8rem; font-weight: 650; cursor: pointer; }
+        .ro-local .icon { display: inline-block; width: 14px; height: 14px; }
+        .ro-local[aria-pressed="true"] { border-color: rgba(var(--matcha-rgb), 0.35); background: rgba(var(--matcha-rgb), 0.14); color: var(--matcha-ink); }
+        .ro-local[aria-pressed="true"] .icon { fill: currentColor; }
+        .ro-local-tag { display: inline-flex; align-items: center; gap: 3px; margin-left: 8px; font-size: 0.72rem; font-weight: 700; color: var(--matcha-ink); }
+        .ro-local-tag .icon { display: inline-block; width: 11px; height: 11px; fill: currentColor; }

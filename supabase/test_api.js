@@ -466,6 +466,51 @@ ok(fx('maceo', `select resolve_report('comment', '${r1.target}', 'remove');`) ==
 ok(!JSON.parse(fx('maceo', 'select review_reports();')).some(r => r.ref === 'bb1' || r.kind === 'comment'), '...and both leave the review list');
 ok(/Only reviewers/.test(fx('aidan', `select resolve_report('session', '${bbRow.target}', 'remove');`)), 'nobody else can resolve a report');
 
+// --- v15.8: choose your notifications; a friend's new session; local roaster ticks survive an older phone
+{
+  psql(`delete from notifications;`);
+  const prefs = who => JSON.parse(fx(who, 'select my_notification_prefs();'));
+  const kinds = who => notes(who).items.map(i => i.kind + ':' + i.who).sort().join();
+  ok(Object.keys(prefs('julian')).length === 8 && Object.values(prefs('julian')).every(v => v === true), 'every kind of notification starts on (8 switches)');
+  ok(/isn.t a notification/.test(fx('julian', `select set_notification_pref('report', false);`)) && /isn.t a notification/.test(fx('julian', `select set_notification_pref('made_up', true);`)),
+     "reviewers' report alerts can't be switched off, and made-up kinds are refused");
+  ok(/permission denied/.test(fx('anon', `select set_notification_pref('likes', false);`)) && /permission denied/.test(fx('julian', `select * from notification_prefs;`)), 'signed out you can\'t set any; nobody reads the table directly');
+  // a friend's new session: the crew shares a private group, so Julian's new session is news for Maceo and Aidan
+  const NOW = new Date().toISOString();
+  const S = (id, who, extra = {}) => ({ type: 'brew', id, beanId: 'b1', user: who, owner: who, method: 'Espresso', dose: 18, yield: 36, time: 28, date: NOW, likes: [], comments: [], ...extra });
+  push('julian', S('nj1', 'Julian'));
+  ok(kinds('maceo') === 'friend_session:Julian' && kinds('aidan') === 'friend_session:Julian' && notes('maceo').items[0].session === 'nj1', "Julian logs a session: Maceo and Aidan each hear about it");
+  ok(/^Logged a session: /.test(one(`select internal.push_text(n)->>'body' from notifications n where kind = 'friend_session' limit 1;`)), 'the lock screen says "Logged a session: <coffee>"');
+  push('julian', S('nj2', 'Julian'));
+  ok(notes('maceo').items.filter(i => i.kind === 'friend_session').length === 1, 'a second session within three hours doesn\'t notify again (dialing in can be five shots in a row)');
+  push('julian', S('nj1', 'Julian', { dose: 18.5 }));
+  ok(notes('aidan').items.filter(i => i.kind === 'friend_session').length === 1, 'editing a session isn\'t news');
+  push('julian', S('nj3', 'Julian', { audience: 'only_me' }));
+  psql(`delete from notifications where kind = 'friend_session';`);
+  push('julian', S('nj4', 'Julian', { audience: 'only_me' }));
+  ok(notes('maceo').items.filter(i => i.kind === 'friend_session').length === 0, 'an Only me session notifies nobody');
+  push('julian', S('nj5', 'Julian', { date: new Date(Date.now() - 5 * 864e5).toISOString() }));
+  ok(notes('maceo').items.filter(i => i.kind === 'friend_session').length === 0, 'logging a session brewed five days ago isn\'t news');
+  // switching a kind off: nothing is written for it
+  ok(JSON.parse(fx('maceo', `select set_notification_pref('friend_sessions', false);`)).friend_sessions === false && prefs('maceo').likes === true, 'Maceo turns friends\' sessions off (the rest stay on)');
+  push('aidan', S('na1', 'Aidan'));
+  ok(notes('maceo').items.filter(i => i.kind === 'friend_session').length === 0 && notes('julian').items.some(i => i.kind === 'friend_session' && i.who === 'Aidan'), "Aidan's new session: Julian hears about it, Maceo doesn't");
+  ok(JSON.parse(fx('julian', `select set_notification_pref('likes', false);`)).likes === false, 'Julian turns likes off');
+  push('maceo', S('nj1', 'Julian', { dose: 18.5, likes: ['Maceo'] }));
+  ok(!notes('julian').items.some(i => i.kind === 'like'), "with likes off, Maceo's like on Julian's session doesn't reach him (not in the bell, so not on his phone)");
+  fx('julian', `select set_notification_pref('likes', true);`); fx('maceo', `select set_notification_pref('friend_sessions', true);`);
+  // local roaster ticks: an older phone saving roaster choices without "local" keeps them; a new phone can clear them
+  const rp = () => one(`select roaster_prefs::text from profile_gear g join profiles p on p.id = g.profile_id where p.legacy_name = 'Maceo';`);
+  const G = roasters => ({ type: 'gear', id: 'gear-Maceo', user: 'Maceo', owner: 'Maceo', items: [{ id: 'e1', name: 'Niche Zero', type: 'Grinder' }, { id: 'e2', name: 'Decent', type: 'Machine' }], recipes: [{ id: 'r1', name: 'Turbo' }], lastByMethod: { Espresso: { dose: 18 } }, fabFour: ['b1'], roasters });
+  push('maceo', G({ fav: ['onyx'], local: [['Onyx Coffee Lab', '2026-10-20T15:00:00.000Z']] }));
+  ok(/"local": \[\["Onyx Coffee Lab"/.test(rp()), 'Maceo ticks Onyx as local (with when)');
+  push('maceo', G({ merged: [], notSame: [], fav: ['onyx', 'quills'], info: {} }));
+  ok(/"local": \[\["Onyx Coffee Lab"/.test(rp()) && /quills/.test(rp()), "his iPhone on the older version saves a new favorite without \"local\": the local tick stays");
+  push('maceo', G({ merged: [], notSame: [], fav: ['onyx', 'quills'], local: [], info: {} }));
+  ok(/"local": \[\]/.test(rp()), 'unticking on the new version clears it');
+  psql(`delete from notifications;`);
+}
+
 // phone notifications: nothing until the sender is set up; then a phone saves its subscription, and the sender reads
 // one notification's text and the phones to send it to (only with the shared secret)
 ok(fx('maceo', 'select push_key();') === '', 'push_key() is empty until the sender is set up (so the app shows no switch)');

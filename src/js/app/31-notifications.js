@@ -63,6 +63,7 @@
                     case 'follow_accepted': return `${who} approved your follow request`;
                     case 'joined_group': return `${who} joined ${this.esc(n.group || 'your group')}`;
                     case 'helpful': return `${who} marked your answer most helpful${said}`;   // v14.5
+                    case 'friend_session': { const b = n.sessionCoffee ? this.beans.get(String(n.sessionCoffee)) : null; return `${who} logged a session${b && b.name ? ` of <b>${this.esc(b.name)}</b>` : ''}`; }   // v15.8
                     case 'report': return 'Something was reported. Review it within a day.';
                     case 'bug': return `${who} reported a bug. Read it in Settings.`;   // v15.1: reviewers only
                     default: return who;

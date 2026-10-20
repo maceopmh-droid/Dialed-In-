@@ -216,7 +216,7 @@
                         const q = safe('quest', () => this.crewQuest(Date.now() - i * W7));
                         check(q && !bad(q.title) && Number.isInteger(q.target) && q.target >= 1 && q.progress >= 0 && q.progress <= q.target && q.done === (q.raw >= q.target) && !bad(q.detail || ''), `quest ${i} weeks ago`);
                     }
-                    ['sessions', 'origins', 'rated', 'notes', 'everyone', 'methods'].forEach(t => {
+                    ['sessions', 'origins', 'rated', 'notes', 'everyone', 'methods', 'days', 'high', 'levelup', 'roasters', 'newcoffee', 'comments', 'photos', 'early', 'fresh', 'swap', 'local'].forEach(t => {
                         const q = safe('quest type', () => this.crewQuest(Date.now(), t));
                         check(q && q.type === t && !bad(q.title) && q.target >= 1, `quest type ${t}`);
                     });

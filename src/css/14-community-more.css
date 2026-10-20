@@ -215,3 +215,7 @@
             .header-sticky button, .header-sticky a, .header-sticky input, .header-sticky select, .header-sticky label, .header-sticky [onclick],
             .header-sticky .header-controls, .header-sticky .mobile-controls-panel, .header-sticky .status-badge { pointer-events: auto; }
         }
+        /* v15.8: a ring in each person's color around their face in the goal, so a profile photo still matches their part of the bar */
+        .crew-quest .cq-face b { box-shadow: 0 0 0 1.5px rgba(var(--glass-rgb), 1), 0 0 0 3px var(--ring, transparent); }
+        .crew-quest .cq-face { gap: 7px; }
+        .crew-quest .cq-face + .cq-face { margin-left: 3px; }

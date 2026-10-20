@@ -146,6 +146,16 @@
                         sentence: value => `brewed ${Math.round(value)} different roast levels`
                     },
                     {
+                        key: 'local',
+                        group: 'Exploring',
+                        desc: 'Sessions of coffee from roasters you marked local',
+                        title: 'Local Regular',
+                        thresholds: [1, 3, 5, 10, 20, 35, 50, 75, 100],
+                        metric: stats => stats.localCount || 0,
+                        format: value => `${Math.round(value)} local session${Math.round(value) === 1 ? '' : 's'}`,
+                        sentence: value => `brewed ${Math.round(value)} session${Math.round(value) === 1 ? '' : 's'} from local roasters`
+                    },
+                    {
                         key: 'sampler',
                         group: 'Exploring',
                         desc: 'Most different roasters brewed within any 30 days',

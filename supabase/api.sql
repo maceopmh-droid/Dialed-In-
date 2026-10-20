@@ -841,7 +841,7 @@ begin
   insert into profile_gear (profile_id, recipes, last_by_method, roaster_prefs, favorites, updated_at)
   values (me_id, coalesce(case when jsonb_typeof(ev->'recipes') = 'array' then ev->'recipes' end, '[]'::jsonb),
           coalesce(case when jsonb_typeof(ev->'lastByMethod') = 'object' then ev->'lastByMethod' end, '{}'::jsonb),
-          coalesce(case when jsonb_typeof(ev->'roasters') = 'object' then ev->'roasters' end, '{}'::jsonb),
+          internal.keep_local(coalesce(case when jsonb_typeof(ev->'roasters') = 'object' then ev->'roasters' end, '{}'::jsonb), me_id),   -- v15.8
           jsonb_build_object('fabFour', coalesce(case when jsonb_typeof(ev->'fabFour') = 'array' then ev->'fabFour' end, '[]'::jsonb),
                              'goals', case when ev ? 'goals' then coalesce((select jsonb_agg(x.g) from (select g from jsonb_array_elements(case when jsonb_typeof(ev->'goals') = 'array' then ev->'goals' else '[]'::jsonb end) g
                                                                             where jsonb_typeof(g) = 'object' and char_length(g::text) < 500 limit 3) x), '[]'::jsonb)
@@ -1113,6 +1113,7 @@ create or replace function internal.notify(for_id uuid, by_id uuid, what text, s
 language plpgsql security definer set search_path = public as $$
 begin
   if for_id is null or by_id is null or for_id = by_id or coalesce(current_setting('dialed.importing', true), '') = 'on' or private.blocked_either(for_id, by_id) then return; end if;
+  if not internal.wants(for_id, what) then return; end if;   -- v15.8: they turned this kind off (Settings, Notifications)
   insert into notifications (user_id, actor_id, kind, session_id, coffee_id, comment_id, group_id) values (for_id, by_id, what, ses, cof, cmt, grp);
 end $$;
 
@@ -1325,7 +1326,7 @@ end $$;
 -- fields), and its author hears about it
 alter table notifications drop constraint if exists notifications_kind_check;
 alter table notifications add constraint notifications_kind_check
-  check (kind in ('like', 'comment', 'reply', 'comment_like', 'follow', 'follow_request', 'follow_accepted', 'joined_group', 'helpful', 'report', 'bug'));   -- v15.1: bug
+  check (kind in ('like', 'comment', 'reply', 'comment_like', 'follow', 'follow_request', 'follow_accepted', 'joined_group', 'helpful', 'report', 'bug', 'friend_session'));   -- v15.1: bug; v15.8: friend_session
 create or replace function internal.on_helpful() returns trigger language plpgsql security definer set search_path = public as $$
 declare cid text := nullif(btrim(coalesce(new.extras->>'helpfulAnswer', '')), ''); c comments;
 begin
@@ -1466,6 +1467,7 @@ language sql stable security definer set search_path = public as $$
       when 'follow_accepted' then 'Approved your follow request'
       when 'joined_group' then 'Joined ' || coalesce((select name from groups where id = n.group_id), 'your group')
       when 'helpful' then 'Marked your answer most helpful'
+      when 'friend_session' then 'Logged a session' || coalesce(': ' || (select k.name from sessions x join coffees k on k.id = x.coffee_id where x.id = n.session_id), '')   -- v15.8
       else 'Did something' end end);
 $$;
 
@@ -1715,6 +1717,80 @@ begin
   update bug_reports set status = case when done then 'done' else 'open' end where id = bug_id;
 end $$;
 
+-- ---------------------------------------------------------------- v15.8: choose your notifications; friends' new sessions
+-- Each person picks the kinds they hear about in Settings, Notifications. Off means nothing is written for that kind:
+-- not in the bell, not on the phone. Everything starts on. A friend's new session is news for the people who follow
+-- them (approved) or share a private community with them and are allowed to see it, at most once per friend every
+-- three hours (dialing in can mean five shots in a row).
+create table if not exists notification_prefs (
+  profile_id  uuid primary key references profiles (id) on delete cascade,
+  prefs       jsonb not null default '{}'::jsonb,
+  updated_at  timestamptz not null default now()
+);
+alter table notification_prefs enable row level security;   -- no rules: only the calls below touch it
+revoke all on notification_prefs from authenticated, anon;
+
+-- which switch a kind belongs to (reports and bug reports for reviewers always come through)
+create or replace function internal.notif_pref_key(what text) returns text
+language sql immutable as $$
+  select case what when 'like' then 'likes' when 'comment' then 'comments' when 'reply' then 'replies' when 'comment_like' then 'comment_likes'
+    when 'follow' then 'follows' when 'follow_request' then 'follows' when 'follow_accepted' then 'follows' when 'joined_group' then 'groups'
+    when 'helpful' then 'helpful' when 'friend_session' then 'friend_sessions' else null end;
+$$;
+
+create or replace function internal.wants(for_id uuid, what text) returns boolean
+language sql stable security definer set search_path = public as $$
+  select coalesce((select case when jsonb_typeof(p.prefs -> internal.notif_pref_key(what)) = 'boolean' then (p.prefs ->> internal.notif_pref_key(what))::boolean end
+                   from notification_prefs p where p.profile_id = for_id), true);
+$$;
+
+-- a phone on an older version saves roaster choices without "local": keep the local ticks it didn't know about
+create or replace function internal.keep_local(r jsonb, me_id uuid) returns jsonb
+language sql stable security definer set search_path = public as $$
+  select case when r ? 'local' then r
+              else r || coalesce((select jsonb_build_object('local', pg.roaster_prefs -> 'local') from profile_gear pg where pg.profile_id = me_id and pg.roaster_prefs ? 'local'), '{}'::jsonb) end;
+$$;
+
+create or replace function my_notification_prefs() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object('likes', true, 'comments', true, 'replies', true, 'comment_likes', true, 'follows', true, 'groups', true, 'helpful', true, 'friend_sessions', true)
+         || coalesce((select prefs from notification_prefs where profile_id = me()), '{}'::jsonb);
+$$;
+
+create or replace function set_notification_pref(pref text, turn_on boolean) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare me_id uuid := me();
+begin
+  if me_id is null then raise exception 'Sign in first.' using errcode = '28000'; end if;
+  if pref is null or pref not in ('likes', 'comments', 'replies', 'comment_likes', 'follows', 'groups', 'helpful', 'friend_sessions') or turn_on is null then
+    raise exception 'That isn''t a notification you can choose.' using errcode = '22023';
+  end if;
+  insert into notification_prefs (profile_id, prefs) values (me_id, jsonb_build_object(pref, turn_on))
+  on conflict (profile_id) do update set prefs = notification_prefs.prefs || jsonb_build_object(pref, turn_on), updated_at = now();
+  return my_notification_prefs();
+end $$;
+
+create or replace function internal.on_session() returns trigger language plpgsql security definer set search_path = public as $$
+declare v uuid;
+begin
+  -- history isn't news: an import, a replay of old saves, or a session brewed more than two days ago
+  if coalesce(current_setting('dialed.importing', true), '') = 'on' or coalesce(current_setting('dialed.replay', true), '') = 'on'
+     or new.brewed_at < now() - interval '2 days' then return null; end if;
+  for v in
+    select x.id from profiles x
+    where x.id <> new.owner_id
+      and (exists (select 1 from follows f where f.follower = x.id and f.followee = new.owner_id and f.status = 'accepted')
+           or private.shares_private_group(x.id, new.owner_id))
+      and private.can_see_session(x.id, new)
+      and not exists (select 1 from notifications n where n.user_id = x.id and n.actor_id = new.owner_id and n.kind = 'friend_session' and n.created_at > now() - interval '3 hours')
+  loop
+    perform internal.notify(v, new.owner_id, 'friend_session', new.id, new.coffee_id);
+  end loop;
+  return null;
+end $$;
+drop trigger if exists notify_friend_session on sessions;
+create trigger notify_friend_session after insert on sessions for each row execute function internal.on_session();
+
 -- push_event and friends run as the signed-in person (so the row rules apply to every write) and use the helpers in
 -- "internal", so signed-in people need them; the app's web address doesn't serve that schema, so they can't be called
 -- directly.
@@ -1727,13 +1803,13 @@ revoke execute on function pull_events(), push_event(jsonb), claim_name(text), c
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version(),
-  coffee_catalog(text, int), set_avatar(text), faces(jsonb), set_crema(int), report_bug(text, jsonb), review_bugs(int), close_bug(uuid, boolean) from public, anon;
+  coffee_catalog(text, int), set_avatar(text), faces(jsonb), set_crema(int), report_bug(text, jsonb), review_bugs(int), close_bug(uuid, boolean), my_notification_prefs(), set_notification_pref(text, boolean) from public, anon;
 grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text, boolean), coffee_community(text, text, timestamptz, int), monthly_highlights(date), report_item(text, text, text),
   profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
   push_key(), push_ready(), save_push(jsonb), remove_push(text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version(),
-  coffee_catalog(text, int), set_avatar(text), faces(jsonb), set_crema(int), report_bug(text, jsonb), review_bugs(int), close_bug(uuid, boolean) to authenticated;
+  coffee_catalog(text, int), set_avatar(text), faces(jsonb), set_crema(int), report_bug(text, jsonb), review_bugs(int), close_bug(uuid, boolean), my_notification_prefs(), set_notification_pref(text, boolean) to authenticated;
 revoke execute on all functions in schema internal from public, anon;
 revoke execute on function internal.push_payload(bigint, text), internal.push_text(notifications) from authenticated;   -- the sender's alone (it has the phones' addresses and the VAPID key)

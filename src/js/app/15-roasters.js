@@ -40,7 +40,7 @@
                 return `<span class="ro-tile${big ? ' big' : ''}" aria-hidden="true" style="background:${this.roasterPaint(r).bg}">${this.esc(this.roasterInitials(r.name))}</span>`;
             },
 
-            // ---- saved choices: each person's gear record carries { merged, notSame, fav, info }
+            // ---- saved choices: each person's gear record carries { merged, notSame, fav, local, info }
             roasterPrefsOf(user) {
                 const rec = this.gearByUser.get(String(user || ''));
                 return rec && rec.roasters && typeof rec.roasters === 'object' ? rec.roasters : null;
@@ -54,7 +54,7 @@
             saveRoasterPrefs(change) {
                 if (!this.user) { this.showToast('Pick who you are in Settings first.'); return false; }
                 const cur = RoasterEngine.prefsOf(this, this.user);
-                const next = { merged: [...cur.merged], notSame: [...cur.notSame], fav: [...cur.fav], info: { ...cur.info } };
+                const next = { merged: [...cur.merged], notSame: [...cur.notSame], fav: [...cur.fav], local: [...cur.local], info: { ...cur.info } };
                 change(next);
                 this.pushGearWith({ roasters: next });
                 return true;
@@ -79,6 +79,17 @@
                 const on = r.favBy.includes(this.user);
                 const keys = new Set([r.key, ...r.spellings.map(n => RoasterEngine.keyOf(n))]);
                 this.saveRoasterPrefs(p => { p.fav = p.fav.filter(k => !keys.has(this.roasterKey(k))); if (!on) p.fav.push(r.name); });
+                this.renderRoasterPage();
+            },
+
+            // v15.8: "Local to me" is each person's own tick; their sessions of this roaster's coffees count as local
+            toggleRoasterLocal(key) {
+                const r = this.roasterData().byKey.get(key);
+                if (!r) return;
+                const on = (r.localBy || []).includes(this.user);
+                const keys = new Set([r.key, ...r.spellings.map(n => RoasterEngine.keyOf(n))]);
+                if (this.saveRoasterPrefs(p => { p.local = p.local.filter(e => !keys.has(this.roasterKey(Array.isArray(e) ? e[0] : e))); if (!on) p.local.push([r.name, new Date().toISOString()]); }))
+                    this.showToast(on ? `${r.name} isn't marked local anymore.` : 'Marked local. From today, its coffees count for local goals and awards.');
                 this.renderRoasterPage();
             },
 
@@ -158,12 +169,12 @@
             },
 
             roasterCardHtml(r) {
-                const fav = this.user && r.favBy.includes(this.user);
+                const fav = this.user && r.favBy.includes(this.user), local = !!(this.user && (r.localBy || []).includes(this.user));   // v15.8
                 const faces = r.people.slice(0, 3).map((p, i) => `<i data-face="${this.esc(p.name)}" style="background:${this.esc(this.getUserColor(p.name))};z-index:${9 - i}">${this.esc(this.feedInitial(p.name))}</i>`).join('') + (r.people.length > 3 ? `<i class="more">+${r.people.length - 3}</i>` : '');
                 const n = r.coffees.length;
                 return `<div class="card ro-card" role="button" tabindex="0" data-roaster-key="${this.esc(r.key)}" onclick="app.openRoaster(this.getAttribute('data-roaster-key'))">
                     <div class="ro-head">${this.roasterTileHtml(r)}<div class="ro-main"><span class="ro-name">${this.esc(r.name)}</span>${r.rated ? `<div class="ro-rate"><span class="star-meter" style="--fill:${this.starFill(r.avg)}%;--whole:${this.starWhole(r.avg)};--frac:${this.starFrac(r.avg)}"></span><span>${this.esc(RoasterEngine.f1(r.avg))}</span></div>` : ''}</div></div>
-                    <div class="ro-meta"><span>${n} coffee${n === 1 ? '' : 's'} · ${r.sessions} session${r.sessions === 1 ? '' : 's'}</span>${fav ? '<svg class="icon ro-heart" aria-label="Favorite"><use href="#i-heart"/></svg>' : ''}${faces ? `<span class="dh-faces" aria-label="${this.esc(r.people.map(p => p.name).join(', '))}">${faces}</span>` : ''}</div>
+                    <div class="ro-meta"><span>${n} coffee${n === 1 ? '' : 's'} · ${r.sessions} session${r.sessions === 1 ? '' : 's'}</span>${fav ? '<svg class="icon ro-heart" aria-label="Favorite"><use href="#i-heart"/></svg>' : ''}${local ? '<span class="ro-local-tag"><svg class="icon"><use href="#i-pin"/></svg>Local</span>' : ''}${faces ? `<span class="dh-faces" aria-label="${this.esc(r.people.map(p => p.name).join(', '))}">${faces}</span>` : ''}</div>
                     <div class="ro-beans" data-total="${n}">${r.coffees.map(c => `<button type="button" class="ro-bean" data-bean="${this.esc(c.beanId)}" onclick="event.stopPropagation(); app.openCoffeeFromRoaster(this.getAttribute('data-bean'))">${this.esc(c.name)}</button>`).join('')}<span class="ro-more" hidden></span></div>
                 </div>`;
             },
@@ -309,7 +320,7 @@
                 if (!r) { this.goBackPage(); return; }
                 this.roasterOpen = r.key;
                 const esc = s => this.esc(s);
-                const fav = this.user && r.favBy.includes(this.user);
+                const fav = this.user && r.favBy.includes(this.user), local = !!(this.user && (r.localBy || []).includes(this.user));   // v15.8
                 const info = r.info || {};
                 const site = info.website ? info.website.replace(/^https?:\/\//i, '').replace(/\/$/, '') : '';
                 const href = info.website ? (/^https?:\/\//i.test(info.website) ? info.website : `https://${info.website}`) : '';
@@ -329,7 +340,7 @@
                 page.innerHTML = `
                     <div class="dh-top ro-top"><button type="button" class="dh-pill dh-back" onclick="app.goBackPage()"><svg class="icon"><use href="#i-arrow-left"/></svg><span>${esc(this.backLabel())}</span></button><div class="dh-actions"><button type="button" class="btn-clean ro-fav" aria-pressed="${fav}" aria-label="${fav ? 'Remove from favorites' : 'Favorite this roaster'}" onclick="app.toggleRoasterFav('${app.escJs(r.key)}')"><svg class="icon"><use href="#i-heart"/></svg></button><button type="button" class="btn-clean" aria-label="Share this roaster" data-roaster="${esc(r.name)}" onclick="app.shareItem('roaster', this.getAttribute('data-roaster'), event)"><svg class="icon"><use href="#i-share-2"/></svg></button><button type="button" class="btn-clean" aria-label="Edit roaster details" onclick="app.openRoasterEdit('${app.escJs(r.key)}')"><svg class="icon"><use href="#i-edit-2"/></svg></button></div></div>
                     <section class="profile-card profile-hero ro-hero" style="--pc-rgb:${rgb}">
-                        <div class="ro-hero-row">${this.roasterTileHtml(r, true)}<div style="min-width:0"><h2>${esc(r.name)}</h2>${where ? `<div class="ro-where">${where}</div>` : `<button type="button" class="ro-add" onclick="app.openRoasterEdit('${app.escJs(r.key)}')">+ Add location &amp; website</button>`}</div></div>
+                        <div class="ro-hero-row">${this.roasterTileHtml(r, true)}<div style="min-width:0"><h2>${esc(r.name)}</h2>${where ? `<div class="ro-where">${where}</div>` : `<button type="button" class="ro-add" onclick="app.openRoasterEdit('${app.escJs(r.key)}')">+ Add location &amp; website</button>`}${this.user ? `<button type="button" class="ro-local" aria-pressed="${local}" onclick="app.toggleRoasterLocal('${app.escJs(r.key)}')"><svg class="icon"><use href="#i-pin"/></svg>Local to me</button>` : ''}</div></div>
                         ${info.note ? `<p class="ro-note">${esc(info.note)}</p>` : ''}
                         <p class="ro-style">${esc(r.style)}</p>
                         <div class="stat-row"><div class="stat-box"><div class="stat-num">${n}</div><div class="stat-cap">${n === 1 ? 'Coffee' : 'Coffees'}</div></div><div class="stat-box"><div class="stat-num">${r.sessions}</div><div class="stat-cap">${r.sessions === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${r.rated ? `${RoasterEngine.f1(r.avg)}<small>★</small>` : '–'}</div><div class="stat-cap">${r.rated} rated</div></div><div class="stat-box"><div class="stat-num word">${esc(this.roasterLastLabel(r.last))}</div><div class="stat-cap">Last brewed</div></div></div>
