@@ -69,3 +69,4 @@
         /* v15.8: Settings, Notifications */
         .nset-row small { max-width: 34ch; }
         .nset-foot { margin: 12px 6px 4px; font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
+        #notif-set-modal { z-index: 6100; }   /* v15.9: it opens from Settings, so it sits above it (it opened behind) */
