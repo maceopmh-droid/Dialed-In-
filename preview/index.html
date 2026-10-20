@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v15.6 -->
+<!-- Dialed In v15.7 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="15.6">
+    <meta name="dialed-in-version" content="15.7">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -4297,7 +4297,7 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v15.6</div>
+            <div class="app-version">Dialed In · v15.7</div>
         </div>
     </div>
 
@@ -8158,7 +8158,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             coachFromBrew(brew) {
                 return { id: String(brew.id), owner: this.getBrewOwner(brew), beanKey: this.groupKeyOfBrew(brew), beanId: String(brew.beanId || ''), method: brew.method || '', date: brew.date,
                     grind: brew.grind, dose: this.num(brew.dose), yield: this.num(brew.yield), time: this.num(brew.time), rating: this.normalizeRating(brew.rating),
-                    text: this.getBrewNotes(brew), flavors: this.extractFlavors(brew), values: this.shapeValues(brew), tasted: this.tastedKeys(brew), tastedExplicit: Array.isArray(brew.tasted), verdict: String(brew.verdict || '') };
+                    text: this.getBrewNotes(brew), flavors: this.extractFlavors(brew), values: this.shapeValues(brew), tasted: this.tastedKeys(brew), tastedExplicit: Array.isArray(brew.tasted), verdict: String(brew.verdict || ''), grinder: this.grinderFor(brew) };
             },
 
             coachFromForm() {
@@ -8169,7 +8169,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 return { id: editing, owner: this.user, beanKey: this.activeGroup ? this.beanGroupKey(this.activeGroup.meta) : '', beanId: String(this.activeId || ''), method: r.method,
                     date: existing ? existing.date : new Date().toISOString(), grind: form && form.grind ? form.grind.value : '', dose: this.num(r.dose), yield: this.num(r.yield), time: this.num(r.time),
                     rating: form && form.rating ? this.normalizeRating(form.rating.value) : 0, text: form && form.notes ? form.notes.value : '', flavors: [...this.selFlavors],
-                    values: this.formTasteValues(), tasted: [...this.tasteTouched], tastedExplicit: true };
+                    values: this.formTasteValues(), tasted: [...this.tasteTouched], tastedExplicit: true, grinder: this.formGrinder(r.method) };
             },
 
             // shots on this coffee by this person and method, up to this one (older cards never see the future)
@@ -8190,10 +8190,14 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
             // v11.6: which way is finer, and the usual step, from this person's own shots up to this one.
             // Whole steps vs decimals and step size: this coffee first, then the last 30 days, then all-time.
+            // v15.7: only shots on the same grinder as this one (each grinder has its own memory)
             grindModel(owner, method, c) {
                 const t = c ? this.localTime(c.date) : NaN;
-                const all = this.brewsOf(owner).filter(b => (b.method || '') === method && this.grindOrd(b.grind) !== null && this.num(b.time) > 0 && (!Number.isFinite(t) || !(this.localTime(b.date) > t)))
+                const gr = c ? c.grinder || null : null;
+                const mine = this.brewsOf(owner).filter(b => (b.method || '') === method && this.grindOrd(b.grind) !== null && this.num(b.time) > 0 && (!Number.isFinite(t) || !(this.localTime(b.date) > t)));
+                const all = mine.filter(b => this.sameGrinder(this.grinderFor(b), gr))
                     .sort((a, b) => this.localTime(a.date) - this.localTime(b.date));
+                const otherGrinder = !!gr && mine.some(b => !this.sameGrinder(this.grinderFor(b), gr));
                 const key = c ? c.beanKey : null;
                 // direction: consecutive shots on the same coffee, written the same way (numbers vs letters); changes under 4 s are noise
                 const dirOf = list => {
@@ -8229,7 +8233,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 let step = steps.length ? [...freq.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0][0] : (ints ? 1 : 0.1);
                 const curDecimal = !!c && /^\s*\d+[.,]\d*[1-9]/.test(String(c.grind === null || c.grind === undefined ? '' : c.grind));
                 step = Math.min(step, curDecimal ? 0.3 : 2);
-                return { lowerFiner: s <= 0, step, learned: steps.length >= 2, ints, stepFrom, dirSure: Math.abs(s) >= 0.8, dirEv };
+                return { lowerFiner: s <= 0, step, learned: steps.length >= 2, ints, stepFrom, dirSure: Math.abs(s) >= 0.8, dirEv, grinder: gr, fresh: otherGrinder && steps.length < 2 };
             },
 
             nextGrind(g, dir, gm) {
@@ -8313,7 +8317,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const dR = ratio && refRatio ? ratio - refRatio : 0;
                 let dT = c.time > 0 && refT > 0 ? c.time - refT : null;
                 const gm = this.grindModel(c.owner, c.method, c);
-                const drift = this.coachDrift(c, past);
+                const drift = this.coachDrift(c, past.filter(b => this.sameGrinder(this.grinderFor(b), c.grinder)));   // v15.7: same grind on the same grinder
+                const refG = ref ? this.grinderFor(ref) : null, refSameG = this.sameGrinder(refG, c.grinder);
                 const pal = this.coachPalate(c.owner, c.method, c.id);
                 const bean = this.coachBean(c);
                 // v11.6: time baseline = your best shot's time, unless it's an outlier; then your usual on this coffee, then your usual overall
@@ -8447,8 +8452,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     head = diffs.length ? `${!(c.rating > 0) || refR - c.rating <= 1 ? 'Close. ' : ''}Head back to your ${this.fmtNum(refR)}\u2605 recipe.` : 'Same recipe as your best. Repeat it and focus on prep.';
                     next = recipe(keepG, this.num(ref.dose), this.num(ref.yield));
                     const prev = past[past.length - 1];
-                    if (prev && this.grindText(prev.grind) && !this.sameGrind(prev.grind, c.grind) && c.rating > rate(prev) && rate(prev) > 0) why.push(`Your move from grind ${this.grindText(prev.grind)} to ${this.grindText(c.grind)} worked (${this.fmtNum(rate(prev))}\u2605 \u2192 ${this.fmtNum(c.rating)}\u2605): keep it.`);
-                    else if (keepG && this.grindText(ref.grind) && !this.sameGrind(ref.grind, c.grind)) why.push(`Stay at ${keepG}: grind follows the coffee as it ages, so steer with dose and ratio.`);
+                    if (prev && this.sameGrinder(this.grinderFor(prev), c.grinder) && this.grindText(prev.grind) && !this.sameGrind(prev.grind, c.grind) && c.rating > rate(prev) && rate(prev) > 0) why.push(`Your move from grind ${this.grindText(prev.grind)} to ${this.grindText(c.grind)} worked (${this.fmtNum(rate(prev))}\u2605 \u2192 ${this.fmtNum(c.rating)}\u2605): keep it.`);
+                    else if (keepG && refSameG && this.grindText(ref.grind) && !this.sameGrind(ref.grind, c.grind)) why.push(`Stay at ${keepG}: grind follows the coffee as it ages, so steer with dose and ratio.`);
                     why.unshift(diffs.length ? `The biggest difference from your ${this.shortDate(ref.date)} shot is the ${diffs[0][1]}.` : 'Nothing in your notes points to a change, so consistency is the lever: same dose, same prep, same timing.');
                 } else if (!c.text && !(c.tasted || []).length && !tags.length && !c.verdict) {
                     mode = 'ask'; conf = '';
@@ -8461,10 +8466,12 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     why.push('One shot can be noise; if it tastes the same twice, the notes will tell us which way to go.');
                 }
                 if (next && finer !== coarser && this.grindNum(c.grind) === null && this.grindOrd(c.grind) !== null && gm.dirSure && gm.dirEv && (next.startsWith(finer) || next.startsWith(coarser)))
-                    why.push(`On your grinder, ${gm.lowerFiner ? 'higher' : 'lower'} settings are coarser: going from ${this.grindText(gm.dirEv.from.grind)} to ${this.grindText(gm.dirEv.to.grind)} took your shot from ${this.fmtNum(this.num(gm.dirEv.from.time))} s to ${this.fmtNum(this.num(gm.dirEv.to.time))} s.`);
+                    why.push(`On your ${gm.grinder ? gm.grinder.name : 'grinder'}, ${gm.lowerFiner ? 'higher' : 'lower'} settings are coarser: going from ${this.grindText(gm.dirEv.from.grind)} to ${this.grindText(gm.dirEv.to.grind)} took your shot from ${this.fmtNum(this.num(gm.dirEv.from.time))} s to ${this.fmtNum(this.num(gm.dirEv.to.time))} s.`);
+                if (gm.fresh && next && finer !== coarser && (next.startsWith(finer) || next.startsWith(coarser)))
+                    why.push(`Your ${gm.grinder.name} has its own memory, so that step is a starting guess until you've changed its grind a couple of times.`);
                 if (mode === 'refine') for (let i = ev.length - 1; i >= 0; i--) if (!/^\u201c/.test(ev[i].text)) ev.splice(i, 1);
                 const ctx = [];
-                if (ref) ctx.push([mode === 'refine' ? 'Your previous best' : 'Your best on this coffee', `${this.shortDate(ref.date)} \u00b7 ${this.fmtNum(refR)}\u2605 \u00b7 ${this.recipeLine(ref, true)}`]);
+                if (ref) ctx.push([mode === 'refine' ? 'Your previous best' : 'Your best on this coffee', `${this.shortDate(ref.date)} \u00b7 ${this.fmtNum(refR)}\u2605 \u00b7 ${this.recipeLine(ref, refSameG)}${refSameG ? '' : ` \u00b7 on your ${refG.name}`}`]);
                 if (bean.notes.length || bean.facts.length) ctx.push(['This coffee', `${[bean.name, ...bean.facts].join(' \u00b7 ')}${bean.notes.length ? `. At its best: ${bean.notes.join(', ')}` : ''}`]);
                 if (pal) { const rr = this.fmtNum(pal.r0, 1) === this.fmtNum(pal.r1, 1) ? `1:${this.fmtNum(pal.r0, 1)}` : `1:${this.fmtNum(pal.r0, 1)}\u20131:${this.fmtNum(pal.r1, 1)}`; const tt = Math.round(pal.t0) === Math.round(pal.t1) ? `${Math.round(pal.t0)} s` : `${Math.round(pal.t0)}\u2013${Math.round(pal.t1)} s`; ctx.push(['Your palate', `your 4\u2605+ ${esp ? 'espressos' : 'brews'} sit around ${rr}${esp ? ` in ${tt}` : ''} (${pal.n} shots)`]); }
                 if (!ref) {
@@ -12726,7 +12733,12 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     recipe.push(row(label, a > 0 ? val(fa) : '–', b > 0 ? val(fb) : '–', unit, cls, dt));
                 };
                 const esp = !brew.method || brew.method === 'Espresso';
-                if (this.grindNum(prev.grind) !== null && this.grindNum(brew.grind) !== null) num('Grind', this.grindNum(prev.grind), this.grindNum(brew.grind), '', null);
+                const gPrev = this.grinderFor(prev), gNow = this.grinderFor(brew);
+                if (!this.sameGrinder(gPrev, gNow)) {   // v15.7: numbers from two grinders don't compare, so no grind change is worked out
+                    recipe.push(row('Grinder', this.esc(gPrev.name), this.esc(gNow.name), '', 'neutral', 'new'));
+                    if (this.grindText(prev.grind) || this.grindText(brew.grind)) recipe.push(row('Grind', this.esc(this.grindText(prev.grind) || '–'), this.esc(this.grindText(brew.grind) || '–'), '', 'neutral', ''));
+                }
+                else if (this.grindNum(prev.grind) !== null && this.grindNum(brew.grind) !== null) num('Grind', this.grindNum(prev.grind), this.grindNum(brew.grind), '', null);
                 else if ((this.grindText(prev.grind) || this.grindText(brew.grind)) && !this.sameGrind(prev.grind, brew.grind)) recipe.push(row('Grind', this.esc(this.grindText(prev.grind) || '–'), this.esc(this.grindText(brew.grind) || '–'), '', 'neutral', 'changed'));
                 else if (this.grindText(brew.grind)) same.push(`grind ${this.esc(this.grindText(brew.grind))}`);
                 num('Dose', this.num(prev.dose), this.num(brew.dose), 'g', null, { deltaUnit: 'g' });
@@ -14889,11 +14901,17 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const target = document.getElementById('taste-target');
                 if (target) {
                     target.hidden = !ref;
-                    if (ref) target.innerHTML = `<span>Target</span><b>Your best ${this.shotWord(this.readFormRecipe().method)} · ${this.esc(this.shortDate(ref.date))} · ${this.esc(this.fmtNum(this.normalizeRating(ref.rating)))}★ · ${this.esc(this.recipeLine(ref, true))}</b>`;
+                    if (ref) target.innerHTML = this.tasteTargetHtml(ref);
                 }
                 this.paintTasteSliders();
                 this.renderTasteTip();
                 this.renderCupWords();
+            },
+
+            // v15.7: the best shot's grind only shows when it was on the grinder you're logging with
+            tasteTargetHtml(ref) {
+                const method = this.readFormRecipe().method, rg = this.grinderFor(ref), cg = this.formGrinder(method), same = this.sameGrinder(rg, cg);
+                return `<span>Target</span><b>Your best ${this.shotWord(method)} · ${this.esc(this.shortDate(ref.date))} · ${this.esc(this.fmtNum(this.normalizeRating(ref.rating)))}★ · ${this.esc(this.recipeLine(ref, same))}${same ? '' : ` · on your ${this.esc(rg.name)}`}</b>`;
             },
 
             readFormRecipe() {
@@ -14929,7 +14947,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const conf = s => s >= 3 ? 'strong read' : s >= 2 ? 'likely' : 'possible';
                 const base = { ok: true, ref: R, evidence: ev };
                 if (!tasted.length && dT === null && !ev.length) return { ok: false, ref: R, head: 'Move the sliders that felt different from your best shot, and your tip appears here.', evidence: [] };
-                const grindLine = dir => (this.grindText(cur.grind) && this.grindText(R.grind) && !this.sameGrind(cur.grind, R.grind))
+                const grindLine = dir => (this.grindText(cur.grind) && this.grindText(R.grind) && !this.sameGrind(cur.grind, R.grind) && this.sameGrinder(this.grinderFor(R), this.formGrinder(cur.method)))
                     ? `Your best shot used ${this.grindText(R.grind)}; this one was ${this.grindText(cur.grind)}. Head back toward it.`
                     : `Go a little ${dir}${this.grindText(cur.grind) ? ` than ${this.grindText(cur.grind)}` : ''}.`;
                 if ((dA !== null && dA >= 2 && dX !== null && dX >= 2) || (under >= 1 && over >= 1 && under === over))
@@ -14991,7 +15009,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 this.renderTasteTip();
                 const target = document.getElementById('taste-target');
                 const ref = this.tasteReference();
-                if (target) { target.hidden = !ref; if (ref) target.innerHTML = `<span>Target</span><b>Your best ${this.shotWord(this.readFormRecipe().method)} · ${this.esc(this.shortDate(ref.date))} · ${this.esc(this.fmtNum(this.normalizeRating(ref.rating)))}★ · ${this.esc(this.recipeLine(ref, true))}</b>`; }
+                if (target) { target.hidden = !ref; if (ref) target.innerHTML = this.tasteTargetHtml(ref); }
             },
 
             // ---- notes wheel in the log form
@@ -19974,6 +19992,98 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         <div class="wl-actions"><button type="button" class="btn-outline wl-second" onclick="app.wlHomeContinue()">Continue in ${this.esc(t.browser)} instead</button></div>
                     </div>`;
             },
+            // ===================== v15.7: each grinder has its own memory =====================
+            // A grind number only means something on the grinder that made it. A shot's grinder is the one ticked in its
+            // gear when it was logged (by id, or by the saved name if that gear was deleted); a shot logged with no grinder
+            // ticked belongs to the last grinder used for that method before it (the first shots: the first one used after).
+            // The coach learns which way is finer and the usual step, spots an aging coffee and quotes grind numbers only
+            // within one grinder; a person with no grinder ticked anywhere keeps one memory, as before.
+            grinderLooksLike(name) {
+                return /grinder|baratza|sette|encore|virtuoso|vario\b|forte|niche|varia|\bdf ?(54|64|83)\b|turin|eureka|mignon|urbanic|comandante|1zpresso|timemore|kingrinder|fellow ode|\bode\b|opus|lagom|option[- ]?o|mazzer|rancilio rocky|wilfa|skerton|porlex|zassenhaus|ceado|mahlk|\bek ?43\b|zerno|\bkinu\b|\bj-?max\b|\bk-?ultra\b|\bzp6\b|\bx-?ultra\b|sculptor|\bp(64|100)\b|lido|weber key/i.test(String(name || ''));
+            },
+
+            grinderKey(name) { return String(name || '').toLowerCase().replace(/[^a-z0-9]+/g, ''); },
+
+            // this person's grinders from their gear (typed Grinder, or named like one: some are saved as Machine or Other)
+            gearOfPerson(owner) {
+                const own = String(owner || '') === String(this.user || '') && Array.isArray(this.equipment) && this.equipment.length ? this.equipment : null;
+                const rec = !own && this.gearByUser ? this.gearByUser.get(String(owner || '')) : null;
+                return this.gearItemsFor(own || (rec && rec.items) || []);
+            },
+
+            grinderItems(owner) {
+                const all = this.gearOfPerson(owner);
+                const items = all.filter(i => /grinder/i.test(i.type) || this.grinderLooksLike(i.name));
+                items.other = all.filter(i => !items.includes(i)).map(i => this.grinderKey(i.name));   // the machine, a kettle...
+                return items;
+            },
+
+            // a name saved on an older shot, matched to a grinder in the gear: the same name, a longer or shorter one
+            // ("Baratza Sette" / "Baratza Sette 720"), or a word only one of the grinders has ("Sette", "Barraza sette")
+            grinderMatch(nm, items) {
+                const k = this.grinderKey(nm);
+                if (!k) return null;
+                const exact = items.find(i => this.grinderKey(i.name) === k);
+                if (exact) return exact;
+                const pre = items.filter(i => { const ik = this.grinderKey(i.name); return Math.min(ik.length, k.length) >= 5 && (ik.startsWith(k) || k.startsWith(ik)); });
+                if (pre.length === 1) return pre[0];
+                const plain = /^(grinder|burrs?|coffee|espresso|electric|manual|hand|the|my|new|old|and|with|pro|plus|mini|max|series|edition|black|white|matte|gen)$/;
+                const words = x => String(x || '').toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length >= 3 && !plain.test(w));
+                const mine = words(nm);
+                const hits = items.filter(i => words(i.name).some(w => mine.includes(w) && items.filter(j => words(j.name).includes(w)).length === 1));
+                return hits.length === 1 ? hits[0] : null;
+            },
+
+            // the grinder ticked on a shot (null when none was)
+            grinderTicked(b, items) {
+                const ids = Array.isArray(b && b.equipment) ? b.equipment.map(String) : [];
+                for (const id of ids) { const it = items.find(i => i.id === id); if (it) return { key: this.grinderKey(it.name), name: it.name }; }
+                const snap = Array.isArray(b && b.equipmentSnapshot) ? b.equipmentSnapshot : [];
+                for (const n of snap) {
+                    const nm = String(n || '').trim(); if (!nm) continue;
+                    if ((items.other || []).includes(this.grinderKey(nm))) continue;   // the machine, a kettle...
+                    const it = this.grinderMatch(nm, items);
+                    if (it || this.grinderLooksLike(nm)) return { key: this.grinderKey(it ? it.name : nm), name: it ? it.name : nm };
+                }
+                return null;
+            },
+
+            // every shot's grinder for one person and method, oldest first, with the gaps filled in
+            grinderMap(owner, method) {
+                const items = this.grinderItems(owner);
+                const sig = `${owner}|${method}|${this._dataRev || 0}|${this.brews.size}|${items.map(i => `${i.id}:${i.name}`).join(',')}`;
+                this._grMemo = this._grMemo || new Map();
+                if (this._grMemo.has(sig)) return this._grMemo.get(sig);
+                const when = b => { const t = this.localTime(b.date); return Number.isFinite(t) ? t : 0; };
+                const list = this.brewsOf(owner).filter(b => (b.method || '') === method).sort((a, b) => when(a) - when(b) || (String(a.id) < String(b.id) ? -1 : 1));
+                const map = new Map(); let last = null; const lead = [];
+                list.forEach(b => {
+                    const id = String(b.id), g = this.grinderTicked(b, items);
+                    if (g) { last = g; lead.splice(0).forEach(x => map.set(x, g)); map.set(id, g); }
+                    else if (last) map.set(id, last);
+                    else lead.push(id);
+                });
+                map.latest = last;
+                if (this._grMemo.size > 300) this._grMemo.clear();
+                this._grMemo.set(sig, map);
+                return map;
+            },
+
+            grinderFor(b) { return b ? (this.grinderMap(this.getBrewOwner(b), b.method || '').get(String(b.id)) || null) : null; },
+
+            // the shot being logged: the grinder ticked in the form's gear, else the last one used for this method
+            formGrinder(method) {
+                if (!method) return null;
+                const boxes = typeof document !== 'undefined' ? Array.from(document.querySelectorAll('#equipment-selector .equipment-checkbox:checked')) : [];
+                const g = this.grinderTicked({ equipment: boxes.map(cb => cb.value) }, this.grinderItems(this.user));
+                if (g) return g;
+                const form = this.getBrewForm && this.getBrewForm();
+                const editing = form && form.elements && form.elements.id ? this.brews.get(String(form.elements.id.value || '')) : null;
+                return (editing && this.grinderFor(editing)) || this.grinderMap(this.user, method).latest || null;
+            },
+
+            // unknown on either side counts as the same grinder (one memory, as before grinders were told apart)
+            sameGrinder(a, b) { return !a || !b || a.key === b.key; },
         };
         window.onload = () => app.init();
     </script>
