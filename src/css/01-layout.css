@@ -1,30 +1,30 @@
         :root {
             /* --- Dialed In v10 palette: Japandi / Nordic, matcha green --- */
-            --paper: #F7F6F2;
-            --paper-rgb: 247, 246, 242;
-            --surface: #FFFFFF;
-            --surface-2: #F3F1EC;
-            --line: #E6E2DA;
-            --linen: #EEEBE5;
+            --paper: #F3EEE4;   /* v15.5: soft warm paper (was #F7F6F2) */
+            --paper-rgb: 243, 238, 228;
+            --surface: #FCF9F3;
+            --surface-2: #F1EBDF;
+            --line: #E4DBCB;
+            --linen: #ECE5D8;
             --ink: #1E2420;
             --ink-2: #3B433D;
-            --text-muted: #747C76;
-            --text-faint: #A3AAA4;
+            --text-muted: #77736A;
+            --text-faint: #ACA698;
             --matcha: #4E6B52;
             --matcha-2: #86AC88;
             --matcha-rgb: 78, 107, 82;
             --matcha-ink: #3A5440;
             --matcha-dim: rgba(78, 107, 82, 0.1);
             --on-matcha: #FFFFFF;
-            --glass-rgb: 255, 255, 255;
-            --hair-rgb: 22, 32, 24;
+            --glass-rgb: 252, 249, 243;   /* the cards: see-through paper, the way dark mode's are see-through green */
+            --hair-rgb: 58, 44, 26;
             --danger: #C96B66;
             --gold: #E3AE45;
             --heart: #D9534F;
             --heart-rgb: 217, 83, 79;
-            --glass: rgba(255, 255, 255, 0.68);
-            --glass-strong: rgba(255, 255, 255, 0.86);
-            --glass-border: rgba(255, 255, 255, 0.7);
+            --glass: rgba(252, 249, 243, 0.70);
+            --glass-strong: rgba(252, 249, 243, 0.88);
+            --glass-border: rgba(255, 253, 248, 0.70);
             --grad-matcha: linear-gradient(135deg, #5C7C60 0%, #43604A 100%);
             --grad-sheen: linear-gradient(135deg, rgba(255,255,255,0.75), rgba(255,255,255,0.35));
             --shadow-soft: 0 1px 2px rgba(22, 32, 24, 0.04), 0 8px 24px rgba(22, 32, 24, 0.06);
@@ -42,10 +42,10 @@
             --surface-2: #1B211C;
             --line: #283029;
             --linen: #111612;
-            --ink: #E8EEE8;
-            --ink-2: #C2CBC3;
-            --text-muted: #8D978E;
-            --text-faint: #5E685F;
+            --ink: #EEEAE2;   /* v15.5: warm white (was #E8EEE8, a cool green-white) */
+            --ink-2: #CBC6BB;
+            --text-muted: #959287;
+            --text-faint: #646559;
             --matcha: #8DB791;
             --matcha-2: #BFDDBB;
             --matcha-rgb: 141, 183, 145;
@@ -53,14 +53,14 @@
             --matcha-dim: rgba(141, 183, 145, 0.12);
             --on-matcha: #0B160D;
             --glass-rgb: 22, 28, 23;
-            --hair-rgb: 210, 230, 212;
+            --hair-rgb: 232, 224, 210;
             --danger: #E08A84;
             --gold: #EBBE5C;
             --heart: #EE6B67;
             --heart-rgb: 238, 107, 103;
             --glass: rgba(22, 28, 23, 0.62);
             --glass-strong: rgba(22, 28, 23, 0.86);
-            --glass-border: rgba(210, 230, 212, 0.10);
+            --glass-border: rgba(232, 224, 210, 0.10);
             --grad-matcha: linear-gradient(135deg, #9CC6A0 0%, #6E9C74 100%);
             --grad-sheen: linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.02));
             --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.35);

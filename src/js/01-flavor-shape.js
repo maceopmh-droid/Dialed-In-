@@ -176,10 +176,10 @@
                 };
             }
             const themeColors = () => {
-                if (typeof getComputedStyle !== 'function') return { line: '#E6E2DA', muted: '#747C76', ink: '#1E2420', surface: '#fff', dark: false };
+                if (typeof getComputedStyle !== 'function') return { line: '#E4DBCB', muted: '#77736A', ink: '#1E2420', surface: '#FCF9F3', dark: false };
                 const css = getComputedStyle(document.documentElement);
                 const v = n => css.getPropertyValue(n).trim();
-                return { line: v('--line') || '#E6E2DA', muted: v('--text-muted') || '#747C76', ink: v('--ink') || '#1E2420', surface: v('--surface') || '#fff', dark: document.documentElement.getAttribute('data-theme') === 'dark' };
+                return { line: v('--line') || '#E4DBCB', muted: v('--text-muted') || '#77736A', ink: v('--ink') || '#1E2420', surface: v('--surface') || '#FCF9F3', dark: document.documentElement.getAttribute('data-theme') === 'dark' };
             };
             function matrices(W, H, yaw, pitch, zoom = 1, lookY = 1) {   // v14.0: lookY = the height the camera aims at
                 const P = M.persp(34 * Math.PI / 180, W / H, 0.1, 50);
