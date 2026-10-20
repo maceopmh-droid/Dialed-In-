@@ -7,7 +7,7 @@
                 var dark = pref === 'dark' || (pref === 'system' && !!(mq && mq.matches));
                 document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
                 var meta = document.querySelector('meta[name="theme-color"]');
-                if (meta) meta.setAttribute('content', dark ? '#0C100D' : '#F7F6F2');
+                if (meta) meta.setAttribute('content', dark ? '#0C100D' : '#F3EEE4');
             };
             window.__dialedTheme = {
                 get pref() { return pref; },
