@@ -136,7 +136,72 @@
             // Saturday midday (day 5.5 of 7) over the last six weeks, the most recent counting most, scaled to how many
             // people are brewing now. Kept at its usual pace, the group finishes around Friday or Saturday, so it's a
             // challenge most weeks without being out of reach.
-            crewQuest(now = Date.now(), forceType = '') {
+            // v15.8: a much bigger set of goals (see goalSpecs / goalPlan in 47-goals.js), paced the same way: each target
+            // is what the group usually has by Saturday midday, so at its usual pace it finishes on day 5 or 6.
+            crewQuest(now = Date.now(), forceType = '', opts = {}) {
+                const start = this.weekStartOf(now), plan = this.goalPlan(start) || (opts.v2 ? { type: 'sessions', prev: '', next: '', idx: 0 } : null), specs = this.goalSpecs();
+                const v1 = ['sessions', 'origins', 'rated', 'notes', 'everyone', 'methods'];
+                if (!plan && !opts.v2 && !(specs[forceType] && !v1.includes(forceType))) return this.crewQuestV1(now, forceType);   // (opts.v2: tests play the new goals back on old weeks)
+                const W = 7 * 864e5, PACE = 5.5 * 864e5;
+                const end = this.weekStartOf(start + W + 3 * 3600e3);
+                const people = this.crewPeople(now);
+                const inGoal = b => !this.goalExcluded(this.getBrewOwner(b));
+                const weights = [0.30, 0.22, 0.16, 0.13, 0.10, 0.09];
+                const past = [];
+                for (let i = 1; i <= 6; i++) {
+                    const ws = this.weekStartOf(start - i * W + 3 * 3600e3), all = this.crewSessionsBetween(ws, this.weekStartOf(ws + W + 3 * 3600e3)).filter(inGoal);
+                    past.push({ w: weights[i - 1], ws, all, early: all.filter(b => this.localTime(b.date) < ws + PACE).sort((a, b) => this.localTime(a.date) - this.localTime(b.date)), active: new Set(all.map(b => this.getBrewOwner(b))).size });
+                }
+                const recent = new Set([...past[0].all, ...past[1].all].map(b => this.getBrewOwner(b))).size;
+                const activeNow = Math.max(1, recent || people.length);
+                // weeks with under 40% of the busiest recent week (a trip, a holiday) don't set the pace; then half the
+                // six-week pace and half the last two of those weeks, so a group that's picking up isn't done by Wednesday
+                const most = Math.max(0, ...past.map(x => x.all.length));
+                const busy = past.filter(x => x.all.length && x.all.length >= 0.4 * most);
+                const pace = (fn, additive, fallback) => {
+                    if (!busy.length) return fallback;
+                    const avg = list => { let sum = 0, wsum = 0; list.forEach(x => { const r = Math.max(0.5, Math.min(2, activeNow / Math.max(1, x.active))); sum += x.w * fn(x.early, x.ws, x.ws + PACE) * (additive ? r : Math.sqrt(r)); wsum += x.w; }); return sum / wsum; };
+                    return 0.5 * avg(busy) + 0.5 * avg(busy.slice(0, 2));
+                };
+                const clampInt = (v, a, b) => Math.max(a, Math.min(b, Math.round(v)));
+                const methodsSeen = new Set(past.flatMap(x => x.all).map(b => b.method).filter(Boolean)).size;
+                // a goal's target, and whether the group has been doing that kind of thing lately
+                const targetOf = k => {
+                    if (k === 'everyone') return { ok: true, target: 0 };
+                    const sp = specs[k];
+                    const raw = pace((l, a, b) => sp.count(l, a, b).n, sp.add, sp.fb(Math.max(1, people.length)));
+                    const max = k === 'methods' ? Math.max(2, Math.min(4, methodsSeen)) : sp.max;
+                    const ok = sp.core ? true : k === 'methods' ? methodsSeen >= 2 && raw >= 1.5 : sp.local ? this.anyLocal(people) : raw >= 1.5;
+                    return { ok, target: clampInt(raw, sp.min, max) };
+                };
+                let type = specs[forceType] ? forceType : plan.type, tg = targetOf(type);
+                if (!specs[forceType] && !tg.ok) {
+                    const core = ['sessions', 'days', 'everyone', 'rated', 'notes'];
+                    let i = plan.idx % core.length;
+                    for (let n = 0; n < core.length && (core[i] === plan.prev || core[i] === plan.next); n++) i = (i + 1) % core.length;
+                    type = core[i]; tg = targetOf(type);
+                }
+                const cur = this.crewSessionsBetween(start, end).filter(inGoal).sort((a, b) => this.localTime(a.date) - this.localTime(b.date));
+                const by = new Map(people.map(p => [p, 0]));
+                const credit = name => by.set(name, (by.get(name) || 0) + 1);
+                let target = 1, progress = 0, title = '', detail = '', unit = '', per = 0;
+                if (type === 'everyone') {
+                    per = clampInt(busy.length ? busy.reduce((t, x) => t + x.w * x.early.length / Math.max(1, x.active), 0) / busy.reduce((t, x) => t + x.w, 0) : 1, 1, 5);
+                    cur.forEach(b => credit(this.getBrewOwner(b)));
+                    target = Math.max(1, people.length); progress = people.filter(p => (by.get(p) || 0) >= per).length;
+                    title = per === 1 ? 'Everyone brews at least once' : `Everyone brews ${per}+ times`; unit = 'people there';
+                    detail = people.map(p => `${p} ${Math.min(by.get(p) || 0, per)}/${per}`).join(' · ');
+                } else {
+                    const sp = specs[type], r = sp.count(cur, start, end);
+                    target = tg.target; progress = r.n; r.give.forEach(credit);
+                    title = sp.title(target); unit = sp.unit; detail = r.labels ? r.labels.join(', ') : '';
+                }
+                const daysLeft = end > now ? Math.max(0, this.dayNum(end - 1) - this.dayNum(now) + 1) : 0;
+                return { type, title, target, progress: Math.min(progress, target), raw: progress, done: progress >= target, unit, detail, start, end, daysLeft, people, per, counts: Object.fromEntries(by), by: [...by.entries()].filter(([, n]) => n > 0) };
+            },
+
+            // the goals as they were up to Oct 25, 2026 (six types in turn); past weeks keep these results
+            crewQuestV1(now = Date.now(), forceType = '') {
                 const W = 7 * 864e5, PACE = 5.5 * 864e5;
                 const start = this.weekStartOf(now);
                 const end = this.weekStartOf(start + W + 3 * 3600e3);
@@ -530,7 +595,7 @@
                     ? q.people.filter(p => (q.counts[p] || 0) >= q.per).map(p => ({ p, w: 1 / q.target }))
                     : q.by.map(([p, n]) => ({ p, w: Math.min(n, q.target) / q.target }));
                 const bar = this.crewBarHtml(q, segs);
-                const faces = q.by.map(([p, n]) => `<span class="cq-face" data-profile="${this.esc(p)}"><b data-face="${this.esc(p)}" style="background:${this.esc(this.getUserColor(p))}">${this.esc(this.feedInitial(p))}</b>${n}</span>`).join('');
+                const faces = q.by.map(([p, n]) => `<span class="cq-face" data-profile="${this.esc(p)}"><b data-face="${this.esc(p)}" style="background:${this.esc(this.getUserColor(p))};--ring:${this.esc(this.getUserColor(p))}">${this.esc(this.feedInitial(p))}</b>${n}</span>`).join('');   // v15.8: a ring in their color (a photo hides it), to match their part of the bar
                 const left = q.done ? 'Done together' : (q.daysLeft <= 1 ? 'Last day' : `${q.daysLeft} days left`);
                 // v15.0: invite people to this community from its goal (its invite link, as in People)
                 const sg = this._crewScope && this._crewScope.id !== 'friends' && this.grState ? (this.grState().list || []).find(g => String(g.id) === this._crewScope.id) : null;

@@ -53,6 +53,7 @@
                     ['complete', 'Rating it, with its taste or notes', 5],
                     ['coffee', 'A coffee you hadn’t brewed before', 25],
                     ['roaster', 'A new roaster', 15],
+                    ['local', 'A session from a roaster you marked local', 5, 'up to 5 a day'],
                     ['origin', 'A new origin country', 20],
                     ['method', 'A new brew method', 30],
                     ['master', 'Pinning a master recipe', 10],
@@ -91,6 +92,8 @@
                     n.likeGot += (Array.isArray(b.likes) ? b.likes.filter(x => String(x || '').trim() && x !== name).length : 0);
                 });
                 perDay.forEach(c => { n.session += Math.min(c, 5); });
+                const localDay = new Map(); mine.forEach(b => { if (this.isLocalBrew && this.isLocalBrew(b)) { const d = this.dayKey(this.localTime(b.date)); localDay.set(d, (localDay.get(d) || 0) + 1); } });
+                localDay.forEach(c => { n.local += Math.min(c, 5); });   // v15.8
                 n.coffee = coffees.size; n.roaster = roasters.size; n.origin = origins.size; n.method = methods.size;
                 const cmtDay = new Map();
                 this.brews.forEach(b => {

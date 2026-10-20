@@ -27,6 +27,7 @@ jobs:
           set -e
           mkdir -p site/preview
           cp src/index.html src/icon.png src/terms.html src/privacy.html src/support.html src/sw.js site/preview/
+          if [ -d src/splash ]; then rm -rf site/preview/splash && cp -r src/splash site/preview/splash; fi   # v15.8: the Home Screen launch pictures
           v=$(grep -o '<meta name="dialed-in-version" content="[0-9.]*"' src/index.html | grep -o '[0-9][0-9.]*' | head -1)
           # its own home-screen name, and kept out of search engines
           sed -i 's|<title>Dialed In</title>|<title>Dialed In Preview</title><meta name="robots" content="noindex">|' site/preview/index.html

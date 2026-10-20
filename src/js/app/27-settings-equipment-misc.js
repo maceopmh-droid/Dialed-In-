@@ -431,6 +431,7 @@
             },
 
             drawRadar(stats) {
+                if (typeof Chart === 'undefined') { setTimeout(() => { if (typeof Chart !== 'undefined' && document.getElementById('radar-chart')) this.drawRadar(stats); }, 400); return; }   // v15.8: the chart library loads after the page now
                 const existing = window.myChart;
                 if (this.refreshingDetail && existing && existing.data && Array.isArray(existing.data.datasets) &&
                     existing.data.datasets[0] && typeof existing.update === 'function') {

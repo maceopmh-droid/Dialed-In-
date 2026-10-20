@@ -53,6 +53,7 @@
                     add('loyal', 'The Loyalist', 'i-repeat', '#B4664F', loyalRes, v => `${v} sessions of ${bean ? this.beanLabel(bean) : 'one coffee'}`);
                 }
                 add('explorer', 'The Explorer', 'i-compass', '#5F8FDB', top(explore, 2), v => `${v} different coffees`);
+                if (y * 12 + m >= 2026 * 12 + 9) add('local', 'Local Legend', 'i-pin', '#6E9C4F', top(tally(x => this.isLocalBrew(x) ? 1 : 0), 2), v => `${v} sessions from local roasters`);   // v15.8: from October 2026 (earlier months keep their awards)
                 add('dialed', 'Dialed In', 'i-star', '#36A57F', top(tally(x => this.normalizeRating(x.rating) >= 4.5 ? 1 : 0), 1), v => `${v} shot${v === 1 ? '' : 's'} at 4.5★ or better`);
                 const avg = new Map();
                 byPerson.forEach((rows, p) => { const r = rows.map(x => this.normalizeRating(x.rating)).filter(v => v > 0); if (r.length >= 3) avg.set(p, r.reduce((s, v) => s + v, 0) / r.length); });

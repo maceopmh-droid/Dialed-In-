@@ -52,7 +52,7 @@
                 const link = (page, title) => `<a class="set-row set-link" href="${this.legalUrl(page)}" target="_blank" rel="noopener" onclick="app.openLegal('${app.escJs(page)}'); return false;"><span class="set-main"><b>${title}</b></span><svg class="icon set-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></a>`;
                 const group = (label, rows, cls = '') => rows ? `<div class="set-label">${label}</div><div class="set-group${cls ? ` ${cls}` : ''}">${rows}</div>` : '';
                 return [
-                    group('Privacy and notifications', `${priv}${pushRow}`),
+                    group('Privacy and notifications', `${priv}${row('app.openNotifSettings()', 'Notifications', 'Choose what you hear about, on this phone and in the app')}`),   // v15.8: the phone switch moved into Notifications
                     group('Community', `${row('app.openGuidelines()', 'Community guidelines', 'What\'s welcome here, and how reporting works')}${this.isReviewer && this.isReviewer() ? row('app.openReview()', 'Review reports', 'Reports waiting for a reviewer') : ''}`),
                     group('Help', `${row('app.openBugReport()', 'Report a bug', 'Something broken or confusing? Tell us')}${this.isReviewer && this.isReviewer() ? row('app.openBugReports()', 'Bug reports', 'What people have reported') : ''}`),   // v15.1
                     group('Your data', `${row('app.downloadMyData()', 'Download my data', 'Everything on your account, in one file')}${row('app.exportData(\'csv\')', 'Export sessions', 'A spreadsheet (CSV) of your sessions')}`),

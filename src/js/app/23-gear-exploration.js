@@ -124,6 +124,7 @@
             trackExploration(stats, event) {
                 const bean = this.beans.get(String(event.beanId));
                 if (!bean) return;
+                if (this.isLocalBrew && this.isLocalBrew(event)) stats.localCount = (stats.localCount || 0) + 1;   // v15.8
                 this.originList(bean.origin).forEach(o => stats.originSet.add(o.toLowerCase()));
                 if (this.coffeeContinent && stats.continentSet) this.originList(bean.origin).forEach(o => { const c = this.coffeeContinent(o); if (c) stats.continentSet.add(c); });   // v15.1
                 const process = this.normalizeTag(bean.process);

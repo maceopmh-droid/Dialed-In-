@@ -89,8 +89,8 @@
             const numWord = n => ['No', 'One', 'Two', 'Three', 'Four'][n] || String(n);
             const hashHue = s => { let h = 0; for (const ch of String(s)) h = (h * 31 + ch.codePointAt(0)) >>> 0; return [28, 18, 42, 8, 150, 168, 200, 330, 270, 95, 120, 352][h % 12]; };
 
-            // ---- saved roaster records live in each person's gear record: { merged: [[a, b, at]], notSame: [[a, b, at]], fav: [key], info: { key: { location, website, note, at } } }
-            const prefsOf = (ctx, user) => { const g = ctx.gearByUser && ctx.gearByUser.get(String(user || '')); const r = g && g.roasters && typeof g.roasters === 'object' ? g.roasters : {}; return { merged: Array.isArray(r.merged) ? r.merged : [], notSame: Array.isArray(r.notSame) ? r.notSame : [], fav: Array.isArray(r.fav) ? r.fav : [], info: r.info && typeof r.info === 'object' ? r.info : {} }; };
+            // ---- saved roaster records live in each person's gear record: { merged: [[a, b, at]], notSame: [[a, b, at]], fav: [key], local: [[key, at]], info: { key: { location, website, note, at } } }
+            const prefsOf = (ctx, user) => { const g = ctx.gearByUser && ctx.gearByUser.get(String(user || '')); const r = g && g.roasters && typeof g.roasters === 'object' ? g.roasters : {}; return { merged: Array.isArray(r.merged) ? r.merged : [], notSame: Array.isArray(r.notSame) ? r.notSame : [], fav: Array.isArray(r.fav) ? r.fav : [], local: Array.isArray(r.local) ? r.local : [], info: r.info && typeof r.info === 'object' ? r.info : {} }; };
             const allPrefs = ctx => [...(ctx.gearByUser ? ctx.gearByUser.keys() : [])].map(u => ({ user: u, ...prefsOf(ctx, u) }));
 
             function build(ctx) {
@@ -118,8 +118,10 @@
                 roasters.forEach(r => r.people.forEach(p => { p.top = !!(top[p.name] && top[p.name].key === r.key); }));
                 // favorites and details
                 const favBy = {}; prefs.forEach(p => { favBy[p.user] = new Set(p.fav.map(clusterOf)); });
+                // v15.8: each person's own "Local to me", with when they ticked it ([name, at]; a bare name counts from the start)
+                const localSince = {}; prefs.forEach(p => { const m = new Map(); p.local.forEach(e => { const nm = Array.isArray(e) ? e[0] : e; if (!nm) return; const c = clusterOf(nm), at = Array.isArray(e) ? (Date.parse(e[1] || 0) || 0) : 0; m.set(c, m.has(c) ? Math.min(m.get(c), at) : at); }); localSince[p.user] = m; });
                 const info = {}; prefs.forEach(p => Object.entries(p.info).forEach(([k, v]) => { if (!v || typeof v !== 'object') return; const c = clusterOf(k); const at = Date.parse(v.at || 0) || 0; if (!info[c] || at >= info[c].atMs) info[c] = { location: tidy(v.location), website: tidy(v.website), note: tidy(v.note), atMs: at }; }));
-                roasters.forEach(r => { r.info = info[r.key] || null; r.favBy = Object.keys(favBy).filter(u => favBy[u].has(r.key)); });
+                roasters.forEach(r => { r.info = info[r.key] || null; r.favBy = Object.keys(favBy).filter(u => favBy[u].has(r.key)); r.localBy = Object.keys(localSince).filter(u => localSince[u].has(r.key)); r.localSince = Object.fromEntries(r.localBy.map(u => [u, localSince[u].get(r.key)])); });
                 const byKey = new Map(roasters.map(r => [r.key, r]));
                 // look-alike names that nobody has merged or said aren't the same
                 const notSame = new Set(); prefs.forEach(p => p.notSame.forEach(m => { if (Array.isArray(m) && m[0] && m[1]) { const a = clusterOf(m[0]), b = clusterOf(m[1]); notSame.add(a < b ? `${a}|${b}` : `${b}|${a}`); } }));
