@@ -1785,6 +1785,9 @@ begin
       'local', coalesce((select jsonb_agg(case when jsonb_typeof(e) = arr then e else jsonb_build_array(e #>> '{}') end order by at) from last where on_), '[]'::jsonb),
       'localOff', coalesce((select jsonb_agg(e order by at) from (select e, at from last where not on_ and jsonb_typeof(e) = arr order by at desc limit 100) z), '[]'::jsonb))
     into res;
+  -- (someone who never ticked one keeps roaster choices exactly as sent: no empty lists added)
+  if res->'local' = '[]'::jsonb and not (r ? 'local') and not (old ? 'local') then res := res - 'local'; end if;
+  if res->'localOff' = '[]'::jsonb and not (r ? 'localOff') and not (old ? 'localOff') then res := res - 'localOff'; end if;
   return r || res;
 end $$;
 

@@ -64,7 +64,7 @@
                 const row = t && t.closest ? t.closest('.cmt-input-row') : null;
                 const own = row && row.querySelector('.comment-input');
                 if (own) return own;
-                const all = ids.flatMap(id => [...document.querySelectorAll('.comment-input')].filter(i => i.id === id));
+                const boxes = [...document.querySelectorAll('input, textarea')], all = ids.flatMap(id => boxes.filter(i => i.id === id));
                 const seen = i => i.getClientRects().length > 0;
                 return all.find(i => i.value.trim() && seen(i)) || all.find(i => i.value.trim()) || all.find(seen) || all[0] || null;
             },
