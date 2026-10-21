@@ -1,0 +1,23 @@
+# Read-only check (Oct 21): sessions whose taste sliders differ from what the V9 Sheet had. Prints only counts, first
+# names and session ids. Runs when pushed to the taste-check branch.
+name: taste check
+on:
+  push:
+    branches: [taste-check]
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_REF: glombusdjwlrgjihnylk
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Find the database
+        run: bash supabase/find_db.sh
+      - name: Compare taste with the Sheet archive
+        run: |
+          set +e
+          psql "$DB_URL" -Atq -v ON_ERROR_STOP=1 -f supabase/taste_check.sql > "$RUNNER_TEMP/taste.txt" 2>&1; rc=$?
+          cat "$RUNNER_TEMP/taste.txt"; bash supabase/report.sh "Taste check" "$RUNNER_TEMP/taste.txt"; exit $rc
