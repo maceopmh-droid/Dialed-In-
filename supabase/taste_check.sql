@@ -32,3 +32,9 @@ from sessions s where s.deleted_at is null and not exists (select 1 from arch a 
   and exists (select 1 from k where internal.try_num(s.taste->>k.key) is not null and internal.try_num(s.taste->>k.key) <> 5)
 union all
 select 'moved to accounts: ' || coalesce((select value from backend_state where key = 'cutover_at'), 'not yet');
+-- after v16.2: what the app is sent for those sessions
+select 'sessions sent to the app with an empty slider list (should be 0): ' || count(*) from sessions s
+  where s.deleted_at is null and internal.session_json(s) ? 'tasted' and jsonb_array_length(internal.session_json(s)->'tasted') = 0;
+select 'sessions sent with no list but slider values (now shown the pre-v10 way): ' || count(*) from sessions s
+  where s.deleted_at is null and not (internal.session_json(s) ? 'tasted')
+  and exists (select 1 from (values ('acidity'), ('sweetness'), ('body'), ('finish'), ('bitterness'), ('balance')) k(key) where internal.try_num(internal.session_json(s)->>k.key) is not null and internal.try_num(internal.session_json(s)->>k.key) <> 5);
