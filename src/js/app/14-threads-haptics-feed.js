@@ -343,7 +343,8 @@
                 this.openThreads.add(key);
                 this.setThreadDom(key, true);
                 if (!focus) return;
-                const thread = [...document.querySelectorAll('[data-thread]')].find(el => el.getAttribute('data-thread') === key);
+                const threads = [...document.querySelectorAll('[data-thread]')].filter(el => el.getAttribute('data-thread') === key);
+                const thread = threads.find(el => el.getClientRects().length > 0) || threads[0];   // v16.0: the one on screen, not a hidden copy
                 const input = thread && thread.querySelector('.comment-input');
                 if (input) setTimeout(() => input.focus(), 30);
             },

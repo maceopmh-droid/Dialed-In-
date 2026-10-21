@@ -342,9 +342,9 @@
             },
 
             restoreDrafts(drafts) {
+                const boxes = [...document.querySelectorAll('.comment-input')];
                 drafts.forEach(draft => {
-                    const input = document.getElementById(draft.id);
-                    if (input && input.classList.contains('comment-input') && !input.value) input.value = draft.value;
+                    boxes.forEach(input => { if (input.id === draft.id && !input.value) input.value = draft.value; });   // v16.0: every copy of that box
                 });
             },
 
@@ -812,7 +812,26 @@
                 const list = name => { const bk = new Set((b[name] || []).map(pairKey)), mk = new Set((m[name] || []).map(pairKey)); const out = (t[name] || []).filter(x => !(bk.has(pairKey(x)) && !mk.has(pairKey(x)))); const have = new Set(out.map(pairKey)); (m[name] || []).forEach(x => { const k = pairKey(x); if (!bk.has(k) && !have.has(k)) { out.push(x); have.add(k); } }); return out; };
                 const info = { ...P(t.info) };
                 Object.keys(P(m.info)).forEach(k => { if (!this.sameValue(P(m.info)[k], P(b.info)[k])) info[k] = m.info[k]; });
-                return { merged: list('merged'), notSame: list('notSame'), fav: this.mergeLikeLists(b.fav, m.fav, t.fav), info };
+                // v16.0: "Local to me" came along too (it was dropped here, so a tick made while another save of your gear was on
+                // its way didn't stick), and anything newer this phone doesn't know stays as it was
+                return { ...t, merged: list('merged'), notSame: list('notSame'), fav: this.mergeLikeLists(b.fav, m.fav, t.fav), ...this.mergeLocalTicks([t, m]), info };
+            },
+
+            // v16.0: ticks [name, when] and ones taken off (localOff) from every copy: per roaster the newest wins (the
+            // server does the same, so a phone that hadn't caught up can neither wipe a tick nor bring one back)
+            mergeLocalTicks(copies) {
+                const last = new Map(), at = e => Array.isArray(e) ? (Date.parse(e[1] || '') || -Infinity) : -Infinity;
+                const key = e => String(Array.isArray(e) ? e[0] || '' : e || '').trim().toLowerCase();
+                copies.forEach(c => {
+                    const P = c && typeof c === 'object' ? c : {};
+                    [[P.local, true], [P.localOff, false]].forEach(([list, on]) => (Array.isArray(list) ? list : []).forEach(e => {
+                        const k = key(e); if (!k) return;
+                        const cur = last.get(k), t = at(e);
+                        if (!cur || t > cur.t || (t === cur.t && !on)) last.set(k, { e, t, on });
+                    }));
+                });
+                const all = [...last.values()].sort((a, b) => a.t - b.t);
+                return { local: all.filter(x => x.on).map(x => x.e), localOff: all.filter(x => !x.on && Array.isArray(x.e)).slice(-100).map(x => x.e) };
             },
 
             outboxDue(x) {

@@ -54,7 +54,7 @@
             saveRoasterPrefs(change) {
                 if (!this.user) { this.showToast('Pick who you are in Settings first.'); return false; }
                 const cur = RoasterEngine.prefsOf(this, this.user);
-                const next = { merged: [...cur.merged], notSame: [...cur.notSame], fav: [...cur.fav], local: [...cur.local], info: { ...cur.info } };
+                const next = { merged: [...cur.merged], notSame: [...cur.notSame], fav: [...cur.fav], local: [...cur.local], localOff: [...cur.localOff], info: { ...cur.info } };
                 change(next);
                 this.pushGearWith({ roasters: next });
                 return true;
@@ -88,7 +88,14 @@
                 if (!r) return;
                 const on = (r.localBy || []).includes(this.user);
                 const keys = new Set([r.key, ...r.spellings.map(n => RoasterEngine.keyOf(n))]);
-                if (this.saveRoasterPrefs(p => { p.local = p.local.filter(e => !keys.has(this.roasterKey(Array.isArray(e) ? e[0] : e))); if (!on) p.local.push([r.name, new Date().toISOString()]); }))
+                const nm = e => Array.isArray(e) ? e[0] : e, mine = e => keys.has(this.roasterKey(nm(e)));
+                // v16.0: taking it off leaves [name, when] behind, so a phone that hadn't caught up can't bring it back (and a
+                // tick isn't lost to one that hadn't seen it: see mergeLocalTicks)
+                if (this.saveRoasterPrefs(p => {
+                    const at = new Date().toISOString(), was = p.local.filter(mine);
+                    p.local = p.local.filter(e => !mine(e)); p.localOff = p.localOff.filter(e => !mine(e));
+                    if (on) p.localOff.push(...[...new Set([r.name, ...was.map(nm)].filter(Boolean))].map(n => [n, at])); else p.local.push([r.name, at]);
+                }))
                     this.showToast(on ? `${r.name} isn't marked local anymore.` : 'Marked local. From today, its coffees count for local goals and awards.');
                 this.renderRoasterPage();
             },
