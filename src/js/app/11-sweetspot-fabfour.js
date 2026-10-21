@@ -16,15 +16,38 @@
                 }).filter(Boolean);
             },
 
+            // v16.0: the sweet spot is the tightest area where your shots average the most stars, not a box around every good
+            // one (one 4.5★ shot far off stretched it across the chart). Every group of nearby shots (ratio and time each
+            // measured against how spread out this coffee's shots are) is scored by the average rating of every shot inside
+            // its box, pulled toward this coffee's overall average by three shots' worth, so two lucky shots don't beat five
+            // great ones. A box can't stretch past 1.5 times the usual spread, and it has to beat the overall average and
+            // reach 3.5★ to count.
             sweetZone(points) {
                 const rated = points.filter(p => p.rating > 0);
                 if (rated.length < 3) return null;
-                const best = Math.max(...rated.map(p => p.rating));
-                const cut = Math.max(Math.min(4, best), best - 0.5);
-                const top = rated.filter(p => p.rating >= cut);
-                if (top.length < 2) return null;
-                const rs = top.map(p => p.ratio), ts = top.map(p => p.time);
-                return { r0: Math.min(...rs), r1: Math.max(...rs), t0: Math.min(...ts), t1: Math.max(...ts), n: top.length, cut };
+                const med = a => { const s = [...a].sort((x, y) => x - y); return s[Math.floor(s.length / 2)]; };
+                const sd = a => { const m = a.reduce((s, v) => s + v, 0) / a.length; return Math.sqrt(a.reduce((s, v) => s + (v - m) ** 2, 0) / a.length); };
+                const rs = rated.map(p => p.ratio), ts = rated.map(p => p.time);
+                const sx = Math.max(sd(rs), med(rs) * 0.04, 0.05), sy = Math.max(sd(ts), med(ts) * 0.06, 1);
+                const mean = rated.reduce((s, p) => s + p.rating, 0) / rated.length, K = 3, MIN = rated.length >= 8 ? 3 : 2;
+                const dist = (a, b) => Math.hypot((a.ratio - b.ratio) / sx, (a.time - b.time) / sy);
+                let best = null;
+                rated.forEach(seed => {
+                    const near = rated.slice().sort((a, b) => dist(seed, a) - dist(seed, b));
+                    for (let k = MIN; k <= Math.min(near.length, 12); k++) {
+                        const g = near.slice(0, k);
+                        const r0 = Math.min(...g.map(p => p.ratio)), r1 = Math.max(...g.map(p => p.ratio)), t0 = Math.min(...g.map(p => p.time)), t1 = Math.max(...g.map(p => p.time));
+                        if ((r1 - r0) / sx > 1.5 || (t1 - t0) / sy > 1.5) break;   // a zone, not a blanket
+                        const inside = rated.filter(p => p.ratio >= r0 - 1e-9 && p.ratio <= r1 + 1e-9 && p.time >= t0 - 1e-9 && p.time <= t1 + 1e-9);
+                        const score = (inside.reduce((s, p) => s + p.rating, 0) + mean * K) / (inside.length + K);
+                        const area = ((r1 - r0) / sx + 0.05) * ((t1 - t0) / sy + 0.05);
+                        if (!best || score > best.score + 1e-9 || (Math.abs(score - best.score) <= 1e-9 && area < best.area)) best = { score, area, r0, r1, t0, t1, inside };
+                    }
+                });
+                if (!best) return null;
+                const avg = best.inside.reduce((s, p) => s + p.rating, 0) / best.inside.length;
+                if (avg < mean + 0.1 || avg < 3.5) return null;
+                return { r0: best.r0, r1: best.r1, t0: best.t0, t1: best.t1, n: best.inside.length, avg, mean, of: rated.length };
             },
 
             fmtSeconds(s) { return s >= 90 ? `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}` : `${Math.round(s)} s`; },
@@ -39,13 +62,24 @@
                 const ticks = (a, b, n) => { const step = (b - a) / n; const mag = Math.pow(10, Math.floor(Math.log10(step))); const nice = [1, 2, 2.5, 5, 10].map(k => k * mag).find(k => k >= step) || step; const out = []; for (let v = Math.ceil(a / nice) * nice; v <= b + 1e-9; v += nice) out.push(+v.toFixed(6)); return out; };
                 const grid = ticks(x0, x1, 4).map(v => `<line class="sw-grid" x1="${X(v)}" x2="${X(v)}" y1="${T}" y2="${H - B}"/><text class="sw-tick" x="${X(v)}" y="${H - B + 14}" text-anchor="middle">1:${this.fmtNum(v, 1)}</text>`).join('')
                     + ticks(y0, y1, 4).map(v => `<line class="sw-grid" x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}"/><text class="sw-tick" x="${L - 6}" y="${Y(v) + 3}" text-anchor="end">${this.esc(this.fmtSeconds(v))}</text>`).join('');
-                const z = zone ? `<rect class="sw-zone" x="${X(zone.r0) - 9}" y="${Y(zone.t1) - 9}" width="${Math.max(18, X(zone.r1) - X(zone.r0) + 18)}" height="${Math.max(18, Y(zone.t0) - Y(zone.t1) + 18)}" rx="12"/><text class="sw-zlabel" x="${X(zone.r0) - 6}" y="${Y(zone.t1) - 13}">Sweet spot</text>` : '';
+                // v16.0: the zone is small now, so it gets room around its dots, and its label goes where it covers the fewest dots
+                let z = '';
+                if (zone) {
+                    const pad = 11, min = 30, cx = (X(zone.r0) + X(zone.r1)) / 2, cy = (Y(zone.t0) + Y(zone.t1)) / 2;
+                    const w = Math.max(min, X(zone.r1) - X(zone.r0) + pad * 2), h = Math.max(min, Y(zone.t0) - Y(zone.t1) + pad * 2), zx = cx - w / 2, zy = cy - h / 2;
+                    const lw = 50, lh = 11, spots = [[cx - lw / 2, zy - 5 - lh], [cx - lw / 2, zy + h + 4], [zx + w + 5, cy - lh / 2], [zx - 5 - lw, cy - lh / 2]];
+                    const px = points.map(p => [X(p.ratio), Y(p.time)]);
+                    const cost = ([x, y]) => (x < L || x + lw > W - R || y < T - 4 || y + lh > H - B ? 100 : 0) + px.filter(([a, b]) => a > x - 7 && a < x + lw + 7 && b > y - 7 && b < y + lh + 7).length;
+                    const [lx, ly] = spots.reduce((a, b) => cost(b) < cost(a) ? b : a);
+                    z = `<rect class="sw-zone" x="${zx.toFixed(1)}" y="${zy.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="${Math.min(14, w / 2, h / 2).toFixed(1)}"/>`;
+                    zone.label = `<text class="sw-zlabel" x="${(lx + lw / 2).toFixed(1)}" y="${(ly + lh - 2).toFixed(1)}" text-anchor="middle">Sweet spot</text>`;
+                }
                 const dots = points.slice().sort((p, q) => p.rating - q.rating).map(p => {
                     const id = this.esc(p.b.id);
                     const rated = p.rating > 0;
                     return `<circle class="sw-dot${rated ? '' : ' unrated'}" data-sw="${id}" cx="${X(p.ratio).toFixed(1)}" cy="${Y(p.time).toFixed(1)}" r="${p.rating >= 4.5 ? 7 : 5.5}" fill="${rated ? this.ratingColor(p.rating) : 'none'}" stroke="${rated ? 'var(--surface)' : 'var(--text-faint)'}" onclick="app.showSweetDot('${app.escJs(id)}', event)"><title>${this.esc(this.shortDate(p.b.date))} · ${this.esc(p.who)} · ${rated ? `${this.fmtNum(p.rating)}★` : 'unrated'}</title></circle>`;
                 }).join('');
-                return `<svg class="sweet-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Ratio against shot time for ${points.length} sessions">${grid}<text class="sw-axis" x="${(L + W - R) / 2}" y="${H - 4}" text-anchor="middle">Ratio (out ÷ in)</text><text class="sw-axis" transform="translate(11 ${(T + H - B) / 2}) rotate(-90)" text-anchor="middle">Time</text>${z}${dots}</svg>`;
+                return `<svg class="sweet-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Ratio against shot time for ${points.length} sessions">${grid}<text class="sw-axis" x="${(L + W - R) / 2}" y="${H - 4}" text-anchor="middle">Ratio (out ÷ in)</text><text class="sw-axis" transform="translate(11 ${(T + H - B) / 2}) rotate(-90)" text-anchor="middle">Time</text>${z}${dots}${zone && zone.label ? zone.label : ''}</svg>`;
             },
 
             renderSweetSpot() {
@@ -69,8 +103,8 @@
                 }
                 const zone = this.sweetZone(points);
                 const summary = zone
-                    ? `Best ${this.esc(this.shotWord(this.sweetMethod))}s${this.sweetWho === 'all' ? '' : ` for ${this.esc(this.sweetWho)}`} cluster at <b>1:${this.fmtNum(zone.r0, 1)}${zone.r1 - zone.r0 >= 0.05 ? `–${this.fmtNum(zone.r1, 1)}` : ''}</b> in <b>${zone.t1 - zone.t0 < 1 ? this.esc(this.fmtSeconds(zone.t0)) : (zone.t1 < 90 ? `${Math.round(zone.t0)}–${Math.round(zone.t1)} s` : `${this.esc(this.fmtSeconds(zone.t0))}–${this.esc(this.fmtSeconds(zone.t1))}`)}</b> (${zone.n} ${this.esc(this.shotWord(this.sweetMethod))}s at ${this.fmtNum(zone.cut)}★+).`
-                    : 'Rate a few more sessions to find the cluster.';
+                    ? `Best ${this.esc(this.shotWord(this.sweetMethod))}s${this.sweetWho === 'all' ? '' : ` for ${this.esc(this.sweetWho)}`} cluster at <b>1:${this.fmtNum(zone.r0, 1)}${this.fmtNum(zone.r1, 1) !== this.fmtNum(zone.r0, 1) ? `–${this.fmtNum(zone.r1, 1)}` : ''}</b> in <b>${Math.round(zone.t1) === Math.round(zone.t0) ? this.esc(this.fmtSeconds(zone.t0)) : (zone.t1 < 90 ? `${Math.round(zone.t0)}–${Math.round(zone.t1)} s` : `${this.esc(this.fmtSeconds(zone.t0))}–${this.esc(this.fmtSeconds(zone.t1))}`)}</b>: those ${zone.n} average <b>${this.fmtNum(Math.round(zone.avg * 10) / 10)}★</b> (${this.fmtNum(Math.round(zone.mean * 10) / 10)}★ across all ${zone.of}).`
+                    : (points.filter(p => p.rating > 0).length < 3 ? 'Rate a few more sessions to find the cluster.' : 'No clear sweet spot yet: no area stands out above the rest. Keep rating.');
                 pane.innerHTML = `
                     <div class="sweet-card">
                         <div class="sw-head"><h3>Sweet spot</h3><p>Ratio against time, colored by rating. Ratios and times compare across people; grind doesn't.</p></div>

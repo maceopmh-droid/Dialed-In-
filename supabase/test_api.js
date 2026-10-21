@@ -506,8 +506,36 @@ ok(/Only reviewers/.test(fx('aidan', `select resolve_report('session', '${bbRow.
   ok(/"local": \[\["Onyx Coffee Lab"/.test(rp()), 'Maceo ticks Onyx as local (with when)');
   push('maceo', G({ merged: [], notSame: [], fav: ['onyx', 'quills'], info: {} }));
   ok(/"local": \[\["Onyx Coffee Lab"/.test(rp()) && /quills/.test(rp()), "his iPhone on the older version saves a new favorite without \"local\": the local tick stays");
-  push('maceo', G({ merged: [], notSame: [], fav: ['onyx', 'quills'], local: [], info: {} }));
-  ok(/"local": \[\]/.test(rp()), 'unticking on the new version clears it');
+  // (a phone sends baseAt: the version of the record its copy came from)
+  const ver = () => one(`select to_char(updated_at at time zone 'utc', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') from profile_gear g join profiles p on p.id = g.profile_id where p.legacy_name = 'Maceo';`);
+  const Gb = (roasters, baseAt) => ({ ...G(roasters), baseAt });
+  push('maceo', Gb({ merged: [], notSame: [], fav: ['onyx', 'quills'], local: [], info: {} }, ver()));
+  ok(/"local": \[\]/.test(rp()), 'unticking on v15.9 (its copy had the tick, and it left it out) clears it');
+
+  // v16.0: a phone that hadn't caught up can't wipe a tick (it showed, then went grey), nor bring back one taken off
+  const L = () => JSON.parse(rp()).local.map(e => e[0]).sort().join(', ') || '(none)';
+  const t0 = new Date().toISOString(), stale = ver();
+  push('maceo', Gb({ merged: [], notSame: [], fav: ['onyx'], local: [['Onyx Coffee Lab', t0]], localOff: [], info: {} }, stale));
+  const v1 = ver();
+  push('maceo', Gb({ merged: [], notSame: [], fav: ['onyx'], local: [['Onyx Coffee Lab', t0], ['Quills', new Date().toISOString()]], localOff: [], info: {} }, v1));
+  ok(L() === 'Onyx Coffee Lab, Quills', `two ticks (${L()})`);
+  push('maceo', Gb({ merged: [], notSame: [], fav: ['onyx'], local: [['Onyx Coffee Lab', t0]], localOff: [], info: {} }, v1));
+  ok(L() === 'Onyx Coffee Lab, Quills', `his laptop, whose copy is from before Quills, saves his gear: Quills stays (${L()})`);
+  push('maceo', Gb({ merged: [], notSame: [], fav: ['onyx'], local: [], info: {} }, stale));
+  ok(L() === 'Onyx Coffee Lab, Quills', `...and on v15.9, from before both: both stay (${L()})`);
+  push('maceo', Gb({ merged: [], notSame: [], fav: ['onyx'], info: {} }, stale));
+  ok(L() === 'Onyx Coffee Lab, Quills', `...and on a version older than v15.8 (no "local" at all): both stay (${L()})`);
+  push('maceo', Gb({ merged: [], notSame: [], fav: ['onyx'], local: [['Quills', new Date().toISOString()]], localOff: [['Onyx Coffee Lab', new Date().toISOString()]], info: {} }, ver()));
+  ok(L() === 'Quills' && /"localOff": \[\["Onyx Coffee Lab"/.test(rp()), `taking Onyx off on v16.0 leaves a note that it's off (${L()})`);
+  push('maceo', Gb({ merged: [], notSame: [], fav: ['onyx'], local: [['Onyx Coffee Lab', t0], ['Quills', new Date().toISOString()]], localOff: [], info: {} }, v1));
+  ok(L() === 'Quills', `the laptop, which still has Onyx ticked, saves: Onyx stays off (${L()})`);
+  push('maceo', Gb({ merged: [], notSame: [], fav: ['onyx'], local: [['Onyx Coffee Lab', t0]], info: {} }, stale));
+  ok(L() === 'Quills', `...and the same from a phone on v15.9 (${L()})`);
+  const t2 = new Date(Date.now() + 1000).toISOString();
+  push('maceo', Gb({ merged: [], notSame: [], fav: ['onyx'], local: [['Quills', t0], ['Onyx Coffee Lab', t2]], localOff: [], info: {} }, ver()));
+  ok(L() === 'Onyx Coffee Lab, Quills' && !/"localOff": \[\["Onyx/.test(rp()), `ticking Onyx again later turns it back on (${L()})`);
+  ok(JSON.parse(rp()).local.find(e => e[0] === 'Onyx Coffee Lab')[1] === t2, 'and it counts from the new tick');
+  ok(JSON.parse(rp()).fav.join() === 'onyx' && /Niche Zero/.test(JSON.stringify(pull('maceo').find(e => e.type === 'gear' && e.owner === 'Maceo').items)), 'the rest of his gear saves as usual');
   psql(`delete from notifications;`);
 }
 

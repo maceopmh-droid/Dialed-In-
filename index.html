@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v15.9 -->
+<!-- Dialed In v16.0 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="15.9">
+    <meta name="dialed-in-version" content="16.0">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -2240,7 +2240,7 @@
         .sweet-svg .sw-tick { font-size: 9.5px; fill: var(--text-muted); font-variant-numeric: tabular-nums; }
         .sweet-svg .sw-axis { font-size: 9.5px; font-weight: 700; fill: var(--text-faint); letter-spacing: 0.04em; }
         .sweet-svg .sw-zone { fill: rgba(var(--matcha-rgb), 0.14); stroke: rgba(var(--matcha-rgb), 0.55); stroke-width: 1.4; stroke-dasharray: 4 4; }
-        .sweet-svg .sw-zlabel { font-size: 9.5px; font-weight: 800; fill: var(--matcha-ink); }
+        .sweet-svg .sw-zlabel { font-size: 9.5px; font-weight: 800; fill: var(--matcha-ink); paint-order: stroke; stroke: var(--surface-2); stroke-width: 3px; stroke-linejoin: round; }
         .sweet-svg .sw-dot { stroke-width: 2; cursor: pointer; transition: r 0.15s; }
         .sweet-svg .sw-dot.unrated { stroke-width: 1.5; }
         .sweet-svg .sw-dot.picked { stroke: var(--ink); stroke-width: 2.5; }
@@ -4347,7 +4347,7 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v15.9</div>
+            <div class="app-version">Dialed In · v16.0</div>
         </div>
     </div>
 
@@ -5399,7 +5399,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             const hashHue = s => { let h = 0; for (const ch of String(s)) h = (h * 31 + ch.codePointAt(0)) >>> 0; return [28, 18, 42, 8, 150, 168, 200, 330, 270, 95, 120, 352][h % 12]; };
 
             // ---- saved roaster records live in each person's gear record: { merged: [[a, b, at]], notSame: [[a, b, at]], fav: [key], local: [[key, at]], info: { key: { location, website, note, at } } }
-            const prefsOf = (ctx, user) => { const g = ctx.gearByUser && ctx.gearByUser.get(String(user || '')); const r = g && g.roasters && typeof g.roasters === 'object' ? g.roasters : {}; return { merged: Array.isArray(r.merged) ? r.merged : [], notSame: Array.isArray(r.notSame) ? r.notSame : [], fav: Array.isArray(r.fav) ? r.fav : [], local: Array.isArray(r.local) ? r.local : [], info: r.info && typeof r.info === 'object' ? r.info : {} }; };
+            const prefsOf = (ctx, user) => { const g = ctx.gearByUser && ctx.gearByUser.get(String(user || '')); const r = g && g.roasters && typeof g.roasters === 'object' ? g.roasters : {}; return { merged: Array.isArray(r.merged) ? r.merged : [], notSame: Array.isArray(r.notSame) ? r.notSame : [], fav: Array.isArray(r.fav) ? r.fav : [], local: Array.isArray(r.local) ? r.local : [], localOff: Array.isArray(r.localOff) ? r.localOff : [], info: r.info && typeof r.info === 'object' ? r.info : {} }; };
             const allPrefs = ctx => [...(ctx.gearByUser ? ctx.gearByUser.keys() : [])].map(u => ({ user: u, ...prefsOf(ctx, u) }));
 
             function build(ctx) {
@@ -6990,6 +6990,9 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 [['Dose', 'dose', 'g'], [(() => { const e = x => !x.method || x.method === 'Espresso'; return e(A) && e(Bv) ? 'Pull' : !e(A) && !e(Bv) ? 'Pour' : 'Pull / water'; })(), 'yield', 'g'], ['Time', 'time', 's']].forEach(([lbl, k, kind]) => { const av = num(A[k]), bv = num(Bv[k]); if (av !== null || bv !== null) rows.push([lbl, fmt(av, kind), fmt(bv, kind), chip(av, bv, null)]); });
                 const ra = this.ratioOf(A) || null, rb = this.ratioOf(Bv) || null;
                 if (ra || rb) rows.push(['Ratio', fmt(ra, 'ratio'), fmt(rb, 'ratio'), chip(ra, rb, null)]);
+                // v16.0: how old the beans were (the bag's roast date on each session); the same grind runs faster as they age
+                const age = x => this.roastDays ? this.roastDays(x.roastDate, x.date) : null, da = age(A), db = age(Bv), day = n => n === null ? '–' : n === 0 ? 'Roast day' : `Day ${n}`;
+                if (da !== null || db !== null) rows.push(['Off roast', day(da), day(db), chip(da, db, null)]);
                 const rta = this.normalizeRating(A.rating) || null, rtb = this.normalizeRating(Bv.rating) || null;
                 rows.push(['Rating', fmt(rta, 'r'), fmt(rtb, 'r'), chip(rta, rtb, true)]);
                 const taste = TASTE_META.map(([k, lbl]) => { const av = this.tasteValue(A, k), bv = this.tasteValue(Bv, k); return (av === null && bv === null) ? null : [lbl, av === null ? '–' : String(av), bv === null ? '–' : String(bv), chip(av, bv, null), FlavorShape ? FlavorShape.COLORS[k] : '']; }).filter(Boolean);
@@ -7433,9 +7436,9 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             },
 
             restoreDrafts(drafts) {
+                const boxes = [...document.querySelectorAll('.comment-input')];
                 drafts.forEach(draft => {
-                    const input = document.getElementById(draft.id);
-                    if (input && input.classList.contains('comment-input') && !input.value) input.value = draft.value;
+                    boxes.forEach(input => { if (input.id === draft.id && !input.value) input.value = draft.value; });   // v16.0: every copy of that box
                 });
             },
 
@@ -7903,7 +7906,26 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const list = name => { const bk = new Set((b[name] || []).map(pairKey)), mk = new Set((m[name] || []).map(pairKey)); const out = (t[name] || []).filter(x => !(bk.has(pairKey(x)) && !mk.has(pairKey(x)))); const have = new Set(out.map(pairKey)); (m[name] || []).forEach(x => { const k = pairKey(x); if (!bk.has(k) && !have.has(k)) { out.push(x); have.add(k); } }); return out; };
                 const info = { ...P(t.info) };
                 Object.keys(P(m.info)).forEach(k => { if (!this.sameValue(P(m.info)[k], P(b.info)[k])) info[k] = m.info[k]; });
-                return { merged: list('merged'), notSame: list('notSame'), fav: this.mergeLikeLists(b.fav, m.fav, t.fav), info };
+                // v16.0: "Local to me" came along too (it was dropped here, so a tick made while another save of your gear was on
+                // its way didn't stick), and anything newer this phone doesn't know stays as it was
+                return { ...t, merged: list('merged'), notSame: list('notSame'), fav: this.mergeLikeLists(b.fav, m.fav, t.fav), ...this.mergeLocalTicks([t, m]), info };
+            },
+
+            // v16.0: ticks [name, when] and ones taken off (localOff) from every copy: per roaster the newest wins (the
+            // server does the same, so a phone that hadn't caught up can neither wipe a tick nor bring one back)
+            mergeLocalTicks(copies) {
+                const last = new Map(), at = e => Array.isArray(e) ? (Date.parse(e[1] || '') || -Infinity) : -Infinity;
+                const key = e => String(Array.isArray(e) ? e[0] || '' : e || '').trim().toLowerCase();
+                copies.forEach(c => {
+                    const P = c && typeof c === 'object' ? c : {};
+                    [[P.local, true], [P.localOff, false]].forEach(([list, on]) => (Array.isArray(list) ? list : []).forEach(e => {
+                        const k = key(e); if (!k) return;
+                        const cur = last.get(k), t = at(e);
+                        if (!cur || t > cur.t || (t === cur.t && !on)) last.set(k, { e, t, on });
+                    }));
+                });
+                const all = [...last.values()].sort((a, b) => a.t - b.t);
+                return { local: all.filter(x => x.on).map(x => x.e), localOff: all.filter(x => !x.on && Array.isArray(x.e)).slice(-100).map(x => x.e) };
             },
 
             outboxDue(x) {
@@ -9907,15 +9929,38 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 }).filter(Boolean);
             },
 
+            // v16.0: the sweet spot is the tightest area where your shots average the most stars, not a box around every good
+            // one (one 4.5★ shot far off stretched it across the chart). Every group of nearby shots (ratio and time each
+            // measured against how spread out this coffee's shots are) is scored by the average rating of every shot inside
+            // its box, pulled toward this coffee's overall average by three shots' worth, so two lucky shots don't beat five
+            // great ones. A box can't stretch past 1.5 times the usual spread, and it has to beat the overall average and
+            // reach 3.5★ to count.
             sweetZone(points) {
                 const rated = points.filter(p => p.rating > 0);
                 if (rated.length < 3) return null;
-                const best = Math.max(...rated.map(p => p.rating));
-                const cut = Math.max(Math.min(4, best), best - 0.5);
-                const top = rated.filter(p => p.rating >= cut);
-                if (top.length < 2) return null;
-                const rs = top.map(p => p.ratio), ts = top.map(p => p.time);
-                return { r0: Math.min(...rs), r1: Math.max(...rs), t0: Math.min(...ts), t1: Math.max(...ts), n: top.length, cut };
+                const med = a => { const s = [...a].sort((x, y) => x - y); return s[Math.floor(s.length / 2)]; };
+                const sd = a => { const m = a.reduce((s, v) => s + v, 0) / a.length; return Math.sqrt(a.reduce((s, v) => s + (v - m) ** 2, 0) / a.length); };
+                const rs = rated.map(p => p.ratio), ts = rated.map(p => p.time);
+                const sx = Math.max(sd(rs), med(rs) * 0.04, 0.05), sy = Math.max(sd(ts), med(ts) * 0.06, 1);
+                const mean = rated.reduce((s, p) => s + p.rating, 0) / rated.length, K = 3, MIN = rated.length >= 8 ? 3 : 2;
+                const dist = (a, b) => Math.hypot((a.ratio - b.ratio) / sx, (a.time - b.time) / sy);
+                let best = null;
+                rated.forEach(seed => {
+                    const near = rated.slice().sort((a, b) => dist(seed, a) - dist(seed, b));
+                    for (let k = MIN; k <= Math.min(near.length, 12); k++) {
+                        const g = near.slice(0, k);
+                        const r0 = Math.min(...g.map(p => p.ratio)), r1 = Math.max(...g.map(p => p.ratio)), t0 = Math.min(...g.map(p => p.time)), t1 = Math.max(...g.map(p => p.time));
+                        if ((r1 - r0) / sx > 1.5 || (t1 - t0) / sy > 1.5) break;   // a zone, not a blanket
+                        const inside = rated.filter(p => p.ratio >= r0 - 1e-9 && p.ratio <= r1 + 1e-9 && p.time >= t0 - 1e-9 && p.time <= t1 + 1e-9);
+                        const score = (inside.reduce((s, p) => s + p.rating, 0) + mean * K) / (inside.length + K);
+                        const area = ((r1 - r0) / sx + 0.05) * ((t1 - t0) / sy + 0.05);
+                        if (!best || score > best.score + 1e-9 || (Math.abs(score - best.score) <= 1e-9 && area < best.area)) best = { score, area, r0, r1, t0, t1, inside };
+                    }
+                });
+                if (!best) return null;
+                const avg = best.inside.reduce((s, p) => s + p.rating, 0) / best.inside.length;
+                if (avg < mean + 0.1 || avg < 3.5) return null;
+                return { r0: best.r0, r1: best.r1, t0: best.t0, t1: best.t1, n: best.inside.length, avg, mean, of: rated.length };
             },
 
             fmtSeconds(s) { return s >= 90 ? `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}` : `${Math.round(s)} s`; },
@@ -9930,13 +9975,24 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const ticks = (a, b, n) => { const step = (b - a) / n; const mag = Math.pow(10, Math.floor(Math.log10(step))); const nice = [1, 2, 2.5, 5, 10].map(k => k * mag).find(k => k >= step) || step; const out = []; for (let v = Math.ceil(a / nice) * nice; v <= b + 1e-9; v += nice) out.push(+v.toFixed(6)); return out; };
                 const grid = ticks(x0, x1, 4).map(v => `<line class="sw-grid" x1="${X(v)}" x2="${X(v)}" y1="${T}" y2="${H - B}"/><text class="sw-tick" x="${X(v)}" y="${H - B + 14}" text-anchor="middle">1:${this.fmtNum(v, 1)}</text>`).join('')
                     + ticks(y0, y1, 4).map(v => `<line class="sw-grid" x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}"/><text class="sw-tick" x="${L - 6}" y="${Y(v) + 3}" text-anchor="end">${this.esc(this.fmtSeconds(v))}</text>`).join('');
-                const z = zone ? `<rect class="sw-zone" x="${X(zone.r0) - 9}" y="${Y(zone.t1) - 9}" width="${Math.max(18, X(zone.r1) - X(zone.r0) + 18)}" height="${Math.max(18, Y(zone.t0) - Y(zone.t1) + 18)}" rx="12"/><text class="sw-zlabel" x="${X(zone.r0) - 6}" y="${Y(zone.t1) - 13}">Sweet spot</text>` : '';
+                // v16.0: the zone is small now, so it gets room around its dots, and its label goes where it covers the fewest dots
+                let z = '';
+                if (zone) {
+                    const pad = 11, min = 30, cx = (X(zone.r0) + X(zone.r1)) / 2, cy = (Y(zone.t0) + Y(zone.t1)) / 2;
+                    const w = Math.max(min, X(zone.r1) - X(zone.r0) + pad * 2), h = Math.max(min, Y(zone.t0) - Y(zone.t1) + pad * 2), zx = cx - w / 2, zy = cy - h / 2;
+                    const lw = 50, lh = 11, spots = [[cx - lw / 2, zy - 5 - lh], [cx - lw / 2, zy + h + 4], [zx + w + 5, cy - lh / 2], [zx - 5 - lw, cy - lh / 2]];
+                    const px = points.map(p => [X(p.ratio), Y(p.time)]);
+                    const cost = ([x, y]) => (x < L || x + lw > W - R || y < T - 4 || y + lh > H - B ? 100 : 0) + px.filter(([a, b]) => a > x - 7 && a < x + lw + 7 && b > y - 7 && b < y + lh + 7).length;
+                    const [lx, ly] = spots.reduce((a, b) => cost(b) < cost(a) ? b : a);
+                    z = `<rect class="sw-zone" x="${zx.toFixed(1)}" y="${zy.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="${Math.min(14, w / 2, h / 2).toFixed(1)}"/>`;
+                    zone.label = `<text class="sw-zlabel" x="${(lx + lw / 2).toFixed(1)}" y="${(ly + lh - 2).toFixed(1)}" text-anchor="middle">Sweet spot</text>`;
+                }
                 const dots = points.slice().sort((p, q) => p.rating - q.rating).map(p => {
                     const id = this.esc(p.b.id);
                     const rated = p.rating > 0;
                     return `<circle class="sw-dot${rated ? '' : ' unrated'}" data-sw="${id}" cx="${X(p.ratio).toFixed(1)}" cy="${Y(p.time).toFixed(1)}" r="${p.rating >= 4.5 ? 7 : 5.5}" fill="${rated ? this.ratingColor(p.rating) : 'none'}" stroke="${rated ? 'var(--surface)' : 'var(--text-faint)'}" onclick="app.showSweetDot('${app.escJs(id)}', event)"><title>${this.esc(this.shortDate(p.b.date))} · ${this.esc(p.who)} · ${rated ? `${this.fmtNum(p.rating)}★` : 'unrated'}</title></circle>`;
                 }).join('');
-                return `<svg class="sweet-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Ratio against shot time for ${points.length} sessions">${grid}<text class="sw-axis" x="${(L + W - R) / 2}" y="${H - 4}" text-anchor="middle">Ratio (out ÷ in)</text><text class="sw-axis" transform="translate(11 ${(T + H - B) / 2}) rotate(-90)" text-anchor="middle">Time</text>${z}${dots}</svg>`;
+                return `<svg class="sweet-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Ratio against shot time for ${points.length} sessions">${grid}<text class="sw-axis" x="${(L + W - R) / 2}" y="${H - 4}" text-anchor="middle">Ratio (out ÷ in)</text><text class="sw-axis" transform="translate(11 ${(T + H - B) / 2}) rotate(-90)" text-anchor="middle">Time</text>${z}${dots}${zone && zone.label ? zone.label : ''}</svg>`;
             },
 
             renderSweetSpot() {
@@ -9960,8 +10016,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 }
                 const zone = this.sweetZone(points);
                 const summary = zone
-                    ? `Best ${this.esc(this.shotWord(this.sweetMethod))}s${this.sweetWho === 'all' ? '' : ` for ${this.esc(this.sweetWho)}`} cluster at <b>1:${this.fmtNum(zone.r0, 1)}${zone.r1 - zone.r0 >= 0.05 ? `–${this.fmtNum(zone.r1, 1)}` : ''}</b> in <b>${zone.t1 - zone.t0 < 1 ? this.esc(this.fmtSeconds(zone.t0)) : (zone.t1 < 90 ? `${Math.round(zone.t0)}–${Math.round(zone.t1)} s` : `${this.esc(this.fmtSeconds(zone.t0))}–${this.esc(this.fmtSeconds(zone.t1))}`)}</b> (${zone.n} ${this.esc(this.shotWord(this.sweetMethod))}s at ${this.fmtNum(zone.cut)}★+).`
-                    : 'Rate a few more sessions to find the cluster.';
+                    ? `Best ${this.esc(this.shotWord(this.sweetMethod))}s${this.sweetWho === 'all' ? '' : ` for ${this.esc(this.sweetWho)}`} cluster at <b>1:${this.fmtNum(zone.r0, 1)}${this.fmtNum(zone.r1, 1) !== this.fmtNum(zone.r0, 1) ? `–${this.fmtNum(zone.r1, 1)}` : ''}</b> in <b>${Math.round(zone.t1) === Math.round(zone.t0) ? this.esc(this.fmtSeconds(zone.t0)) : (zone.t1 < 90 ? `${Math.round(zone.t0)}–${Math.round(zone.t1)} s` : `${this.esc(this.fmtSeconds(zone.t0))}–${this.esc(this.fmtSeconds(zone.t1))}`)}</b>: those ${zone.n} average <b>${this.fmtNum(Math.round(zone.avg * 10) / 10)}★</b> (${this.fmtNum(Math.round(zone.mean * 10) / 10)}★ across all ${zone.of}).`
+                    : (points.filter(p => p.rating > 0).length < 3 ? 'Rate a few more sessions to find the cluster.' : 'No clear sweet spot yet: no area stands out above the rest. Keep rating.');
                 pane.innerHTML = `
                     <div class="sweet-card">
                         <div class="sw-head"><h3>Sweet spot</h3><p>Ratio against time, colored by rating. Ratios and times compare across people; grind doesn't.</p></div>
@@ -11188,7 +11244,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 this.openThreads.add(key);
                 this.setThreadDom(key, true);
                 if (!focus) return;
-                const thread = [...document.querySelectorAll('[data-thread]')].find(el => el.getAttribute('data-thread') === key);
+                const threads = [...document.querySelectorAll('[data-thread]')].filter(el => el.getAttribute('data-thread') === key);
+                const thread = threads.find(el => el.getClientRects().length > 0) || threads[0];   // v16.0: the one on screen, not a hidden copy
                 const input = thread && thread.querySelector('.comment-input');
                 if (input) setTimeout(() => input.focus(), 30);
             },
@@ -11466,7 +11523,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             saveRoasterPrefs(change) {
                 if (!this.user) { this.showToast('Pick who you are in Settings first.'); return false; }
                 const cur = RoasterEngine.prefsOf(this, this.user);
-                const next = { merged: [...cur.merged], notSame: [...cur.notSame], fav: [...cur.fav], local: [...cur.local], info: { ...cur.info } };
+                const next = { merged: [...cur.merged], notSame: [...cur.notSame], fav: [...cur.fav], local: [...cur.local], localOff: [...cur.localOff], info: { ...cur.info } };
                 change(next);
                 this.pushGearWith({ roasters: next });
                 return true;
@@ -11500,7 +11557,14 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (!r) return;
                 const on = (r.localBy || []).includes(this.user);
                 const keys = new Set([r.key, ...r.spellings.map(n => RoasterEngine.keyOf(n))]);
-                if (this.saveRoasterPrefs(p => { p.local = p.local.filter(e => !keys.has(this.roasterKey(Array.isArray(e) ? e[0] : e))); if (!on) p.local.push([r.name, new Date().toISOString()]); }))
+                const nm = e => Array.isArray(e) ? e[0] : e, mine = e => keys.has(this.roasterKey(nm(e)));
+                // v16.0: taking it off leaves [name, when] behind, so a phone that hadn't caught up can't bring it back (and a
+                // tick isn't lost to one that hadn't seen it: see mergeLocalTicks)
+                if (this.saveRoasterPrefs(p => {
+                    const at = new Date().toISOString(), was = p.local.filter(mine);
+                    p.local = p.local.filter(e => !mine(e)); p.localOff = p.localOff.filter(e => !mine(e));
+                    if (on) p.localOff.push(...[...new Set([r.name, ...was.map(nm)].filter(Boolean))].map(n => [n, at])); else p.local.push([r.name, at]);
+                }))
                     this.showToast(on ? `${r.name} isn't marked local anymore.` : 'Marked local. From today, its coffees count for local goals and awards.');
                 this.renderRoasterPage();
             },
@@ -15685,11 +15749,23 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 }
             },
 
+            // v16.0: the box you typed in. The same session can be drawn twice (a coffee page stays in the page after you
+            // leave it, under the feed), and reading the first box with that id read the hidden, empty one: Post did nothing
+            // until the app was reopened. The Post button and Enter both know their own box.
+            commentBoxFor(event, ...ids) {
+                const t = event && event.target;
+                if (t && t.classList && t.classList.contains('comment-input')) return t;
+                const row = t && t.closest ? t.closest('.cmt-input-row') : null;
+                const own = row && row.querySelector('.comment-input');
+                if (own) return own;
+                const boxes = [...document.querySelectorAll('input, textarea')], all = ids.flatMap(id => boxes.filter(i => i.id === id));
+                const seen = i => i.getClientRects().length > 0;
+                return all.find(i => i.value.trim() && seen(i)) || all.find(i => i.value.trim()) || all.find(seen) || all[0] || null;
+            },
+
             addComment(brewId, event) {
                 if (event) event.stopPropagation();
-                const inlineInput = document.getElementById(`comment-input-${brewId}`);
-                const feedInput = document.getElementById(`feed-comment-input-brew-${brewId}`);
-                const input = inlineInput || feedInput;
+                const input = this.commentBoxFor(event, `comment-input-${brewId}`, `feed-comment-input-brew-${brewId}`);
                 if (!input) return;
                 const text = input.value.trim();
                 if (!text) return;
@@ -15708,8 +15784,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 });
                 this.openThreads.add(this.threadKey('brew', brewId));
 
-                if (inlineInput) inlineInput.value = '';
-                if (feedInput) feedInput.value = '';
+                input.value = '';
                 const updated = this.withBrewOwner({ ...brew, comments }, brew);
                 this.push({ type: 'brew', ...updated });
                 this.openCommentId = brewId;
@@ -15814,7 +15889,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (event) event.stopPropagation();
                 const bean = this.beans.get(String(beanId || ''));
                 if (!bean) return;
-                const input = document.getElementById(`feed-comment-input-bean-${beanId}`);
+                const input = this.commentBoxFor(event, `feed-comment-input-bean-${beanId}`);
                 if (!input) return;
                 const text = input.value.trim();
                 if (!text) return;

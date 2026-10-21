@@ -55,11 +55,23 @@
                 }
             },
 
+            // v16.0: the box you typed in. The same session can be drawn twice (a coffee page stays in the page after you
+            // leave it, under the feed), and reading the first box with that id read the hidden, empty one: Post did nothing
+            // until the app was reopened. The Post button and Enter both know their own box.
+            commentBoxFor(event, ...ids) {
+                const t = event && event.target;
+                if (t && t.classList && t.classList.contains('comment-input')) return t;
+                const row = t && t.closest ? t.closest('.cmt-input-row') : null;
+                const own = row && row.querySelector('.comment-input');
+                if (own) return own;
+                const boxes = [...document.querySelectorAll('input, textarea')], all = ids.flatMap(id => boxes.filter(i => i.id === id));
+                const seen = i => i.getClientRects().length > 0;
+                return all.find(i => i.value.trim() && seen(i)) || all.find(i => i.value.trim()) || all.find(seen) || all[0] || null;
+            },
+
             addComment(brewId, event) {
                 if (event) event.stopPropagation();
-                const inlineInput = document.getElementById(`comment-input-${brewId}`);
-                const feedInput = document.getElementById(`feed-comment-input-brew-${brewId}`);
-                const input = inlineInput || feedInput;
+                const input = this.commentBoxFor(event, `comment-input-${brewId}`, `feed-comment-input-brew-${brewId}`);
                 if (!input) return;
                 const text = input.value.trim();
                 if (!text) return;
@@ -78,8 +90,7 @@
                 });
                 this.openThreads.add(this.threadKey('brew', brewId));
 
-                if (inlineInput) inlineInput.value = '';
-                if (feedInput) feedInput.value = '';
+                input.value = '';
                 const updated = this.withBrewOwner({ ...brew, comments }, brew);
                 this.push({ type: 'brew', ...updated });
                 this.openCommentId = brewId;
@@ -184,7 +195,7 @@
                 if (event) event.stopPropagation();
                 const bean = this.beans.get(String(beanId || ''));
                 if (!bean) return;
-                const input = document.getElementById(`feed-comment-input-bean-${beanId}`);
+                const input = this.commentBoxFor(event, `feed-comment-input-bean-${beanId}`);
                 if (!input) return;
                 const text = input.value.trim();
                 if (!text) return;

@@ -298,6 +298,9 @@
                 [['Dose', 'dose', 'g'], [(() => { const e = x => !x.method || x.method === 'Espresso'; return e(A) && e(Bv) ? 'Pull' : !e(A) && !e(Bv) ? 'Pour' : 'Pull / water'; })(), 'yield', 'g'], ['Time', 'time', 's']].forEach(([lbl, k, kind]) => { const av = num(A[k]), bv = num(Bv[k]); if (av !== null || bv !== null) rows.push([lbl, fmt(av, kind), fmt(bv, kind), chip(av, bv, null)]); });
                 const ra = this.ratioOf(A) || null, rb = this.ratioOf(Bv) || null;
                 if (ra || rb) rows.push(['Ratio', fmt(ra, 'ratio'), fmt(rb, 'ratio'), chip(ra, rb, null)]);
+                // v16.0: how old the beans were (the bag's roast date on each session); the same grind runs faster as they age
+                const age = x => this.roastDays ? this.roastDays(x.roastDate, x.date) : null, da = age(A), db = age(Bv), day = n => n === null ? '–' : n === 0 ? 'Roast day' : `Day ${n}`;
+                if (da !== null || db !== null) rows.push(['Off roast', day(da), day(db), chip(da, db, null)]);
                 const rta = this.normalizeRating(A.rating) || null, rtb = this.normalizeRating(Bv.rating) || null;
                 rows.push(['Rating', fmt(rta, 'r'), fmt(rtb, 'r'), chip(rta, rtb, true)]);
                 const taste = TASTE_META.map(([k, lbl]) => { const av = this.tasteValue(A, k), bv = this.tasteValue(Bv, k); return (av === null && bv === null) ? null : [lbl, av === null ? '–' : String(av), bv === null ? '–' : String(bv), chip(av, bv, null), FlavorShape ? FlavorShape.COLORS[k] : '']; }).filter(Boolean);

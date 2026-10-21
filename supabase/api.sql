@@ -841,7 +841,7 @@ begin
   insert into profile_gear (profile_id, recipes, last_by_method, roaster_prefs, favorites, updated_at)
   values (me_id, coalesce(case when jsonb_typeof(ev->'recipes') = 'array' then ev->'recipes' end, '[]'::jsonb),
           coalesce(case when jsonb_typeof(ev->'lastByMethod') = 'object' then ev->'lastByMethod' end, '{}'::jsonb),
-          internal.keep_local(coalesce(case when jsonb_typeof(ev->'roasters') = 'object' then ev->'roasters' end, '{}'::jsonb), me_id),   -- v15.8
+          internal.keep_local(coalesce(case when jsonb_typeof(ev->'roasters') = 'object' then ev->'roasters' end, '{}'::jsonb), me_id, internal.try_ts(ev->>'baseAt')),   -- v15.8, v16.0
           jsonb_build_object('fabFour', coalesce(case when jsonb_typeof(ev->'fabFour') = 'array' then ev->'fabFour' end, '[]'::jsonb),
                              'goals', case when ev ? 'goals' then coalesce((select jsonb_agg(x.g) from (select g from jsonb_array_elements(case when jsonb_typeof(ev->'goals') = 'array' then ev->'goals' else '[]'::jsonb end) g
                                                                             where jsonb_typeof(g) = 'object' and char_length(g::text) < 500 limit 3) x), '[]'::jsonb)
@@ -1744,12 +1744,52 @@ language sql stable security definer set search_path = public as $$
                    from notification_prefs p where p.profile_id = for_id), true);
 $$;
 
--- a phone on an older version saves roaster choices without "local": keep the local ticks it didn't know about
-create or replace function internal.keep_local(r jsonb, me_id uuid) returns jsonb
-language sql stable security definer set search_path = public as $$
-  select case when r ? 'local' then r
-              else r || coalesce((select jsonb_build_object('local', pg.roaster_prefs -> 'local') from profile_gear pg where pg.profile_id = me_id and pg.roaster_prefs ? 'local'), '{}'::jsonb) end;
+-- v16.0: "Local to me" ticks merge; they're never just replaced. Every gear save carries your whole roaster choices (logging
+-- a session saves your last setup, say), so a phone or app that hadn't caught up since a tick made elsewhere wiped it.
+-- Each tick is [name, when] and each one taken off leaves [name, when] in localOff: per roaster the newest of the two
+-- wins, whichever copy it came from. A phone on v15.8 or v15.9 doesn't send localOff: a tick it left out that was
+-- there when its copy was made (baseAt) was taken off on that phone. A phone older than v15.8 doesn't send "local" at
+-- all, and changes none of them.
+drop function if exists internal.keep_local(jsonb, uuid);
+create or replace function internal.local_key(e jsonb) returns text language sql immutable as $$
+  select lower(btrim(coalesce(case jsonb_typeof(e) when 'array' then e->>0 when 'string' then e #>> '{}' end, '')));
 $$;
+create or replace function internal.keep_local(r jsonb, me_id uuid, base_at timestamptz) returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare
+  old jsonb; s_on jsonb; s_off jsonb; i_on jsonb; i_off jsonb; gone jsonb := '[]'::jsonb; res jsonb;
+  arr constant text := 'array';
+begin
+  select pg.roaster_prefs into old from profile_gear pg where pg.profile_id = me_id;
+  old := coalesce(old, '{}'::jsonb);
+  s_on := case when jsonb_typeof(old->'local') = arr then old->'local' else '[]'::jsonb end;
+  s_off := case when jsonb_typeof(old->'localOff') = arr then old->'localOff' else '[]'::jsonb end;
+  i_on := case when jsonb_typeof(r->'local') = arr then r->'local' else '[]'::jsonb end;
+  i_off := case when jsonb_typeof(r->'localOff') = arr then r->'localOff' else '[]'::jsonb end;
+  if r ? 'local' and not (r ? 'localOff') and base_at is not null then
+    -- v15.8 / v15.9: a tick it had when its copy was made and has left out, it took off
+    select coalesce(jsonb_agg(jsonb_build_array(o->>0, to_char(now() at time zone 'utc', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'))), '[]'::jsonb) into gone
+    from jsonb_array_elements(s_on) o
+    where jsonb_typeof(o) = arr and internal.try_ts(o->>1) <= base_at
+      and not exists (select 1 from jsonb_array_elements(i_on) i where internal.local_key(i) = internal.local_key(o));
+  end if;
+  with ev as (
+    select e, internal.local_key(e) k, coalesce(case when jsonb_typeof(e) = arr then internal.try_ts(e->>1) end, '-infinity'::timestamptz) at, on_ from (
+      select e, true on_ from jsonb_array_elements(s_on) e union all select e, true from jsonb_array_elements(i_on) e
+      union all select e, false from jsonb_array_elements(s_off) e union all select e, false from jsonb_array_elements(i_off) e
+      union all select e, false from jsonb_array_elements(gone) e) x
+  ), last as (
+    select distinct on (k) k, e, at, on_ from ev where k <> '' order by k, at desc, on_ asc
+  )
+  select jsonb_build_object(
+      'local', coalesce((select jsonb_agg(case when jsonb_typeof(e) = arr then e else jsonb_build_array(e #>> '{}') end order by at) from last where on_), '[]'::jsonb),
+      'localOff', coalesce((select jsonb_agg(e order by at) from (select e, at from last where not on_ and jsonb_typeof(e) = arr order by at desc limit 100) z), '[]'::jsonb))
+    into res;
+  -- (someone who never ticked one keeps roaster choices exactly as sent: no empty lists added)
+  if res->'local' = '[]'::jsonb and not (r ? 'local') and not (old ? 'local') then res := res - 'local'; end if;
+  if res->'localOff' = '[]'::jsonb and not (r ? 'localOff') and not (old ? 'localOff') then res := res - 'localOff'; end if;
+  return r || res;
+end $$;
 
 create or replace function my_notification_prefs() returns jsonb
 language sql stable security definer set search_path = public as $$

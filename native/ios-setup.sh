@@ -75,4 +75,23 @@ cat > "$SPL/Contents.json" <<'JSON'
   "info": { "author": "xcode", "version": 1 } }
 JSON
 
-echo "ios-setup: Info.plist, push hooks, entitlement, icon, launch screen"
+# iOS 15 or later (Apple, ITMS-90068: from April 2027 apps must target iOS 15). Every iPhone that ran iOS 14 can run 15,
+# so nobody who has the app is left out. The app's own project, then CocoaPods or Swift Package Manager, whichever
+# this Capacitor made.
+PBX=ios/App/App.xcodeproj/project.pbxproj
+python3 - "$PBX" <<'PY'
+import re, sys
+p = sys.argv[1]; s = open(p).read()
+s = re.sub(r'IPHONEOS_DEPLOYMENT_TARGET = (1[0-4]\.\d+|[0-9]\.\d+);', 'IPHONEOS_DEPLOYMENT_TARGET = 15.0;', s)
+open(p, 'w').write(s)
+PY
+if [ -f ios/App/Podfile ] && grep -qE "platform :ios, '1[0-4]" ios/App/Podfile; then
+  python3 -c "import re,sys; p=sys.argv[1]; s=open(p).read(); open(p,'w').write(re.sub(r\"platform :ios, '1[0-4][.0-9]*'\", \"platform :ios, '15.0'\", s))" ios/App/Podfile
+  (cd ios/App && pod install >/dev/null)
+fi
+for P in ios/App/CapApp-SPM/Package.swift; do
+  [ -f "$P" ] && python3 -c "import re,sys; p=sys.argv[1]; s=open(p).read(); open(p,'w').write(re.sub(r'\.iOS\(\.v1[0-4]\)', '.iOS(.v15)', s))" "$P"
+done
+if grep -qE 'IPHONEOS_DEPLOYMENT_TARGET = (1[0-4]|[0-9])\.' "$PBX"; then echo "ios-setup: the app still targets an iOS below 15" >&2; exit 1; fi
+
+echo "ios-setup: Info.plist, push hooks, entitlement, icon, launch screen, iOS 15 or later"
