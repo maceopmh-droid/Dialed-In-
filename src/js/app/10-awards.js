@@ -293,7 +293,7 @@
                 const open = this._awInRow ? true : this.awardsOpen();
                 const tog = this._awInRow ? '' : `<button type="button" class="aw-toggle${open ? ' open' : ''}" aria-expanded="${open}" aria-label="${open ? 'Show less' : 'Show all the awards'}" onclick="app.toggleAwards()"><svg class="icon"><use href="#i-chevron-down"/></svg></button>`;
                 // the title on one line, whose and how far along under it; the month picker only once it's open
-                const head = sub => this._awInRow ? `<div class="aw-month">${picker}</div>` : `<div class="aw-head"><div class="aw-head-t" onclick="app.toggleAwards()"><div class="label">Monthly awards</div><div class="aw-sub">${named ? `${this.esc(named)} · ` : ''}${sub}</div></div>${tog}</div>${open ? `<div class="aw-month">${picker}</div>` : ''}`;
+                const head = (sub, share = '') => this._awInRow ? `<div class="aw-month">${picker}${share}</div>` : `<div class="aw-head"><div class="aw-head-t" onclick="app.toggleAwards()"><div class="label">Monthly awards</div><div class="aw-sub">${named ? `${this.esc(named)} · ` : ''}${sub}</div></div>${share}${tog}</div>${open ? `<div class="aw-month">${picker}</div>` : ''}`;
                 if (this.monthLocked(key)) {
                     const unlock = new Date(y, m, 1);
                     const days = this.daysUntil(unlock);
@@ -344,7 +344,7 @@
                 const revealing = revealT >= 0 && revealT < awards.length * 150 + 1200 && this.motionOK();
                 return `
                     <div class="profile-card crew-awards${revealing ? ' revealing' : ''}${open ? '' : ' folded'}" id="crew-awards" style="--n:${awards.length}${revealing ? `;--aw-at:${-revealT}ms` : ''}">
-                        ${head(`Final · ${awards.length} award${awards.length === 1 ? '' : 's'}`)}
+                        ${head(`Final · ${awards.length} award${awards.length === 1 ? '' : 's'}`, this.storyShareBtn ? this.storyShareBtn('app.openAwardsStory()', 'Share these awards as a picture') : '')}
                         ${champ}
                         ${open ? `<div class="aw-grid">${this.awardTilesHtml(awards, false, { rivalry: aw => this.awardRivalry(aw, prevBy.get(aw.key)) })}</div>${raceHtml}` : ''}
                     </div>`;

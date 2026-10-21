@@ -195,7 +195,8 @@
                     ? [chips('Notes', p.notes), chips('Origins', p.origins), chips('Process', p.processes), chips('Roast', p.roasts), chips('Variety', p.varieties), chips('Methods', p.methods)].join('')
                     : '';
                 const meta = p && p.rated ? `<div class="palate-meta">Weighted by ${p.rated} rated session${p.rated === 1 ? '' : 's'} · avg ${this.esc(this.formatRating(p.avgRating))}★</div>` : '';
-                return `<section class="profile-card"><h4 class="section-label">${user === this.user ? 'Your palate' : `${this.esc(user)}'s palate`}</h4><div class="palate-summary">${this.esc(this.palateSentence(p))}</div>${groups ? `<div class="palate-groups">${groups}</div>` : ''}${meta}</section>`;
+                const share = user === this.user && p && p.count >= 3 && this.storyShareBtn ? this.storyShareBtn('app.openPalateStory()', 'Share your palate as a picture') : '';   // v16.1
+                return `<section class="profile-card palate-card"><h4 class="section-label">${user === this.user ? 'Your palate' : `${this.esc(user)}'s palate`}${share}</h4><div class="palate-summary">${this.esc(this.palateSentence(p))}</div>${groups ? `<div class="palate-groups">${groups}</div>` : ''}${meta}</section>`;
             },
 
             renderFriendPalates() {

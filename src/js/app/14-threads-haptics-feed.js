@@ -514,7 +514,7 @@
                                     <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}</div>
                                     <div class="feed-time" data-time="${this.esc(String(entry.date || bean.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || bean.date))}</div>
                                 </div>
-                                <div class="feed-type">${this.esc(entry.kindLabel || 'Bean')}</div><button type="button" class="feed-share" onclick="app.shareItem('coffee', '${app.escJs(bean.id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>
+                                <div class="feed-type">${this.esc(entry.kindLabel || 'Bean')}</div><button type="button" class="feed-share" onclick="event.stopPropagation(); app.openCoffeeStory('${app.escJs(bean.id)}')" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>
                             </div>
                             <div class="feed-card-title" style="margin-top:11px">${this.esc(bean.name || beanName)}</div>
                             ${bean.roaster ? `<div class="fb-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(bean.roaster)}" onclick="app.openRoasterFrom(this, event)">${this.esc(bean.roaster)}</span></div>` : ''}

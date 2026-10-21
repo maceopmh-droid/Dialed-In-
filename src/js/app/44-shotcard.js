@@ -185,7 +185,7 @@
                 try { if (navigator.canShare && navigator.canShare({ files: [s.file] })) { await navigator.share({ files: [s.file] }); return 'shared'; } } catch (e) { if (e && e.name === 'AbortError') return 'cancelled'; }
                 return this.saveFile ? this.saveFile(s.file, s.file.name, 'Dialed In') : null;
             },
-            shareShotLink() { const s = this._shot; if (!s) return; return this.shareSessionLink(s.id); },
+            shareShotLink() { const s = this._shot; if (!s) return; if (typeof s.link === 'function') return s.link(); return this.shareSessionLink(s.id); },   // v16.1: a coffee's or roaster's picture carries its own link
             closeShotCard() {
                 const m = document.getElementById('shot-modal'); if (m) m.classList.remove('active');
                 this._shotGen = (this._shotGen || 0) + 1;

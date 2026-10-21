@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v16.0 -->
+<!-- Dialed In v16.1 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="16.0">
+    <meta name="dialed-in-version" content="16.1">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -65,6 +65,7 @@
 @@include css/17-levels.css
 @@include css/18-shotcard.css
 @@include css/19-homescreen.css
+@@include css/20-story.css
     </style>
 </head>
 <body>
@@ -334,7 +335,7 @@
             <div id="d-everyone-pane" class="detail-extra-pane"></div>
             <div id="d-compare-pane" class="compare-panel">
                 <div class="sweet-card cmp-wrap">
-                    <div class="sw-head"><h3>Compare</h3><p>Any two sessions side by side. Starts with the latest against the best-rated.</p></div>
+                    <div class="sw-head"><h3>Compare</h3><button type="button" class="story-share" aria-label="Share this comparison as a picture" onclick="event.stopPropagation(); app.openCompareStory()"><svg class="icon"><use href="#i-share-2"/></svg></button><p>Any two sessions side by side. Starts with the latest against the best-rated.</p></div>
                     <div class="cmp-pickers">
                         <label class="cmp-pick a"><span>A</span><select id="compare-a-select" onchange="app.renderComparePanel()"></select></label>
                         <label class="cmp-pick b"><span>B</span><select id="compare-b-select" onchange="app.renderComparePanel()"></select></label>
@@ -478,7 +479,7 @@
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v16.0</div>
+            <div class="app-version">Dialed In · v16.1</div>
         </div>
     </div>
 
@@ -826,6 +827,7 @@
 @@include js/app/46-grinders.js
 @@include js/app/47-goals.js
 @@include js/app/48-notif-settings.js
+@@include js/app/49-story-cards.js
 @@include js/app/99-end.js
 @@include js/99-boot.js
     </script>

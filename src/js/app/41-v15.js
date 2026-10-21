@@ -121,7 +121,7 @@
                 const line = this.shareSessionLine(b);
                 return this.shareLink(this.shareUrl({ s: id, by: owner }), `${owner === this.user ? 'My' : `${owner}'s`} ${String(b.method || 'session').toLowerCase()} of ${coffee}${line ? `: ${line}` : ''}. On Dialed In:`);
             },
-            shareCurrentCoffee() { return this.shareItem('coffee', this.activeId); },
+            shareCurrentCoffee() { return this.openCoffeeStory ? this.openCoffeeStory(this.activeId) : this.shareItem('coffee', this.activeId); },   // v16.1: a picture, with Share link on it
             // a community: its invite link (the same one People has)
             shareCommunity(gid, event) {
                 if (event && event.stopPropagation) event.stopPropagation();
