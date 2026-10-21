@@ -107,7 +107,7 @@
                     : (points.filter(p => p.rating > 0).length < 3 ? 'Rate a few more sessions to find the cluster.' : 'No clear sweet spot yet: no area stands out above the rest. Keep rating.');
                 pane.innerHTML = `
                     <div class="sweet-card">
-                        <div class="sw-head"><h3>Sweet spot</h3><p>Ratio against time, colored by rating. Ratios and times compare across people; grind doesn't.</p></div>
+                        <div class="sw-head"><h3>Sweet spot</h3>${this.storyShareBtn ? this.storyShareBtn('app.openSweetStory()', 'Share the sweet spot as a picture') : ''}<p>Ratio against time, colored by rating. Ratios and times compare across people; grind doesn't.</p></div>
                         ${methodRow}${peopleRow}
                         <div class="sw-chart">${this.sweetSvg(points, zone)}</div>
                         <div class="sw-legend"><span><i style="background:${this.ratingColor(2)}"></i>2★</span><span><i style="background:${this.ratingColor(3.5)}"></i>3.5★</span><span><i style="background:${this.ratingColor(4.5)}"></i>4.5★</span><span><i class="hollow"></i>unrated</span></div>

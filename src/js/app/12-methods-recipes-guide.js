@@ -126,7 +126,7 @@
                 const active = list.find(r => r.id === this.recipeId);
                 card.hidden = false;
                 card.innerHTML = `
-                    <div class="rc-head"><h3>Recipe</h3>${active && active.credit ? `<span>${this.esc(active.credit)}</span>` : ''}</div>
+                    <div class="rc-head"><h3>Recipe</h3>${active && active.credit ? `<span>${this.esc(active.credit)}</span>` : ''}${this.storyShareBtn ? this.storyShareBtn('app.openRecipeStory()', 'Share this recipe as a picture') : ''}</div>
                     ${chips ? `<div class="rc-chips">${chips}</div>` : ''}
                     <div class="rc-nums"><div id="rc-slot-dose"></div><div id="rc-slot-yield"></div><div class="rc-ratio-field"><label>Ratio</label><div class="rc-ratio-in"><span>1:</span><input type="number" id="recipe-ratio" step="0.1" min="1" inputmode="decimal" value="${this.fmtNum(ratio, 1)}" oninput="app.onRecipeInput('ratio')"></div></div></div>
                     <div id="rc-slot-extras"></div>

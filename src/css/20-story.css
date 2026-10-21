@@ -1,0 +1,19 @@
+/* v16.1: share as a picture: one small round button, top right of whatever it shares */
+.story-share { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 32px; height: 32px; padding: 0; border-radius: 999px; border: 1px solid rgba(var(--hair-rgb), 0.1); background: rgba(var(--hair-rgb), 0.04); color: var(--ink-2); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.story-share .icon { width: 15px; height: 15px; }
+.story-share:active { transform: scale(0.94); }
+.sw-head { position: relative; }
+.sw-head > .story-share { position: absolute; top: -4px; right: -4px; }
+.sw-head:has(> .story-share) h3, .sw-head:has(> .story-share) p { padding-right: 36px; }
+.rc-head { align-items: center; }
+.rc-head > .story-share { margin-left: auto; }
+.crew-awards .aw-head > .story-share { margin-left: auto; }
+.crew-awards .aw-month > .story-share { margin-left: 8px; }
+.crew-awards .aw-month:has(> .story-share) { display: flex; align-items: center; }
+.palate-card > .section-label { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.crew-quest .cq-right .story-share { width: 28px; height: 28px; }
+.crew-quest .cq-right .story-share .icon { width: 13px; height: 13px; }
+.lvl-hero .lvl-share { display: inline-flex; align-items: center; gap: 7px; margin-top: 14px; min-height: 40px; padding: 0 16px; }
+.lvl-hero .lvl-share .icon { width: 15px; height: 15px; }
+.rc-head:has(> .story-share) { flex-wrap: wrap; }
+.rc-head:has(> .story-share) > span { order: 2; flex-basis: 100%; }

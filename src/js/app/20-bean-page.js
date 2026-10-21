@@ -246,7 +246,7 @@
                 }).join('');
                 pane.innerHTML = `
                     <div class="sweet-card">
-                        ${head}${methodRow}
+                        ${this.storyShareBtn ? head.replace('<h3>Dial-in</h3>', `<h3>Dial-in</h3>${this.storyShareBtn('app.openDialinStory()', 'Share the dial-in curves as a picture')}`) : head}${methodRow}
                         <div class="sw-chart"><svg class="sweet-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Dial-in curves">${grid}<text class="sw-axis" x="${(L + W - R) / 2}" y="${H - 3}" text-anchor="middle">Session number</text>${lines}</svg></div>
                         <div class="di-rows">${rows}</div>
                     </div>`;
