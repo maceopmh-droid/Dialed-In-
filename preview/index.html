@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v16.2 -->
+<!-- Dialed In v16.3 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="16.2">
+    <meta name="dialed-in-version" content="16.3">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -3953,6 +3953,9 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
 .lvl-hero .lvl-share .icon { width: 15px; height: 15px; }
 .rc-head:has(> .story-share) { flex-wrap: wrap; }
 .rc-head:has(> .story-share) > span { order: 2; flex-basis: 100%; }
+/* v16.2: faces on a coffee card, like a roaster's */
+.card-users .card-count { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); }
+.card-users .card-faces { margin-left: auto; }
     </style>
 </head>
 <body>
@@ -4366,7 +4369,7 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v16.2</div>
+            <div class="app-version">Dialed In · v16.3</div>
         </div>
     </div>
 
@@ -12603,6 +12606,19 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 this.render();
             },
 
+            // v16.2: who's on a coffee, as faces (like a roaster's): most sessions first, five, then +N. In Mine only when
+            // you share it with someone; in All always
+            coffeeFacesHtml(group, brews) {
+                const n = new Map();
+                brews.forEach(b => { const o = this.getBrewOwner(b); if (o) n.set(o, (n.get(o) || 0) + 1); });
+                [...(group.users || [])].forEach(u => { if (u && !n.has(u)) n.set(u, 0); });
+                const people = [...n.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(e => e[0]);
+                const shared = people.some(p => p !== this.user);
+                if (!people.length || (this.coffeeScopeNow() === 'mine' && !shared)) return '';
+                const shown = people.slice(0, 5), more = people.length - shown.length;
+                return `<span class="dh-faces card-faces" aria-label="${this.esc(people.join(', '))}">${shown.map((p, i) => `<i data-face="${this.esc(p)}" style="background:${this.esc(this.getUserColor(p))};z-index:${9 - i}">${this.esc(this.feedInitial(p))}</i>`).join('')}${more > 0 ? `<i class="more">+${more}</i>` : ''}</span>`;
+            },
+
             setMethodFilter(method) {
                 this.currentMethodFilter = method;
                 document.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active'));
@@ -12711,7 +12727,6 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     const avgRating = this.calculateAverageRating(brews);
                     const topFlavors = this.getTopFlavors(brews, 3);
                     const userNames = [...group.users].sort((a, b) => a.localeCompare(b));
-                    const userLine = this.formatNamesInline(userNames, 3);
                     const isShared = userNames.length > 1;
                     const art = isShared ? '#i-leaf-line' : '#i-bean-line';
 
@@ -12733,11 +12748,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                             ${bean.process ? `<span class="tag">${this.esc(bean.process)}</span>` : ''}
                         </div>
                         <div class="card-users">
-                            <div class="card-usernames">${this.esc(userLine || 'Unknown user')}</div>
-                            ${isShared ? '<span class="shared-tag">Shared</span>' : ''}
-                        </div>
-                        <div style="font-size:0.76rem; color:#8A8A8A; margin-top:6px;">
-                            ${brews.length} session${brews.length !== 1 ? 's' : ''}
+                            <span class="card-count">${brews.length} session${brews.length !== 1 ? 's' : ''}</span>
+                            ${this.coffeeFacesHtml(group, brews)}
                         </div>
                         ${topFlavors.length ? `
                             <div class="top-flavors">
