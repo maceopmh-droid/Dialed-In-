@@ -1,0 +1,31 @@
+# Read-only: prints where the app stands with Apple (versions, review submissions, newest builds). Changes nothing.
+# Runs when pushed to the appstore-status branch.
+name: app store status
+on:
+  push:
+    branches: [appstore-status]
+  workflow_dispatch:
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID || 'com.dialedincoffeeapp.ios' }}
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+      APNS_KEY_ID: ${{ secrets.APNS_KEY_ID }}
+      APNS_KEY_P8: ${{ secrets.APNS_KEY_P8 }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Which secrets hold the App Store Connect key
+        id: apple
+        run: node native/scripts/apple-check.js
+      - name: Status
+        if: steps.apple.outputs.ok == '1'
+        run: |
+          if [ "${{ steps.apple.outputs.asc_from }}" = "APNS" ]; then ASC_KEY_ID="$APNS_KEY_ID"; ASC_KEY_P8="$APNS_KEY_P8"; fi
+          k="$RUNNER_TEMP/k.p8"; body=$(printf '%s' "$ASC_KEY_P8" | tr -d '\r"' | sed -e 's/-----BEGIN [A-Z ]*-----//g' -e 's/-----END [A-Z ]*-----//g' | tr -d ' \n\t')
+          { echo "-----BEGIN PRIVATE KEY-----"; printf '%s\n' "$body" | fold -w 64; echo "-----END PRIVATE KEY-----"; } > "$k"
+          ASC_KEY_ID="$ASC_KEY_ID" ASC_KEY_FILE="$k" node native/scripts/appstore-status.js; rc=$?
+          rm -f "$k"; exit $rc
