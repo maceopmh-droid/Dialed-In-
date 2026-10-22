@@ -102,6 +102,7 @@
                 this.installTapHaptics();
                 if (this.bindScrollBars) this.bindScrollBars();   // v14.7
                 if (this.bindTabTaps) this.bindTabTaps();   // v14.8
+                if (this.bindGestures) this.bindGestures();   // v16.4: swipe back, swipe a sheet away, swipe between Mine/All and the feed's tabs
                 if (this.bindTyping) this.bindTyping();   // v15.0: while the keyboard is up
                 this.bindRatingSlider();
                 this.setTab(this.tab);
