@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v16.5 -->
+<!-- Dialed In v16.6 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="16.5">
+    <meta name="dialed-in-version" content="16.6">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -3966,6 +3966,12 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         .roaster-list, .feed-list, .profile-feed { gap: var(--card-gap); }
         @media (max-width: 768px) { .feed-list { gap: var(--card-gap); } }
         .log-row { margin-bottom: var(--card-gap); }
+        /* v16.6: Favorites, Favorite roasters and a profile's Coffees spilled into each other on Julian's iPhone 12 Pro.
+           His Safari won't make a tile narrower than its longest line that can't wrap (the roaster name, which never
+           wraps), even though the tile is told to fill its column. The text lines now add nothing to a tile's minimum
+           width (width 0) and still fill it (min-width 100%), so the roaster name cuts off with "…" as it does elsewhere. */
+        .fab-tile > .fab-name, .fab-tile > .fab-roaster { width: 0; min-width: 100%; box-sizing: border-box; }
+        .fab-tile { min-width: 0; max-width: 100%; }
     </style>
 </head>
 <body>
@@ -4567,7 +4573,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v16.5</div>
+            <div class="app-version">Dialed In · v16.6</div>
         </div>
     </div>
 

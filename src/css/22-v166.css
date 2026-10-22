@@ -1,0 +1,6 @@
+        /* v16.6: Favorites, Favorite roasters and a profile's Coffees spilled into each other on Julian's iPhone 12 Pro.
+           His Safari won't make a tile narrower than its longest line that can't wrap (the roaster name, which never
+           wraps), even though the tile is told to fill its column. The text lines now add nothing to a tile's minimum
+           width (width 0) and still fill it (min-width 100%), so the roaster name cuts off with "…" as it does elsewhere. */
+        .fab-tile > .fab-name, .fab-tile > .fab-roaster { width: 0; min-width: 100%; box-sizing: border-box; }
+        .fab-tile { min-width: 0; max-width: 100%; }
