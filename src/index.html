@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v16.4 -->
+<!-- Dialed In v16.5 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="16.4">
+    <meta name="dialed-in-version" content="16.5">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -66,11 +66,15 @@
 @@include css/18-shotcard.css
 @@include css/19-homescreen.css
 @@include css/20-story.css
+@@include css/21-v165.css
     </style>
 </head>
 <body>
     <!-- v15.1: the start-up screen, while the app starts (it goes once your coffees are on screen; on its own after 9 s) -->
     <div id="boot-screen" aria-hidden="true"><div class="bs-inner"><div class="bs-logo"></div><div class="bs-text">Starting up…</div><div class="bs-bar"><i id="boot-bar"></i></div></div></div>
+    <script id="blob-boot">
+@@include js/blob-boot.js
+    </script>
     <script id="boot-script">(function () { try { var b = document.getElementById('boot-bar'); if (b) setTimeout(function () { b.style.width = '22%'; }, 30); setTimeout(function () { var s = document.getElementById('boot-screen'); if (s && s.parentNode) s.parentNode.removeChild(s); }, 9000); } catch (e) {} })();</script>
     <!-- SVG Icon Definitions -->
     <svg><defs>
@@ -479,7 +483,7 @@
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v16.4</div>
+            <div class="app-version">Dialed In · v16.5</div>
         </div>
     </div>
 

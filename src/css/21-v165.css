@@ -1,0 +1,10 @@
+        /* v16.5: the loading logo changes shape as it turns. The holder keeps turning (CSS); the shape is drawn in a canvas */
+        .di-morph { background: none; }
+        .di-morph > canvas.di-blob { display: block; width: 100%; height: 100%; }
+
+        /* v16.5: the same space between cards everywhere: coffees, roasters and sessions (feed, profile, a coffee's page) */
+        :root { --card-gap: 14px; }
+        #grid.grid { gap: var(--card-gap); }
+        .roaster-list, .feed-list, .profile-feed { gap: var(--card-gap); }
+        @media (max-width: 768px) { .feed-list { gap: var(--card-gap); } }
+        .log-row { margin-bottom: var(--card-gap); }

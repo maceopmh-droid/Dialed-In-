@@ -1,7 +1,10 @@
             // ---- v15.1: the loading animation, the Dialed In logo turning, wherever something has to load (the words stay
             // for screen readers)
+            // v16.5: the logo now changes shape as it turns (the blob draws itself once the spinner is on the page)
             loaderHtml(label = '') {
-                return `<span class="di-loader" role="status"><i class="dl-logo" aria-hidden="true"></i><span class="dl-label">${this.esc(label || 'Loading…')}</span></span>`;
+                const blob = typeof window !== 'undefined' && window.DIBlob && window.DIBlob.on();
+                if (blob) window.DIBlob.kick();
+                return `<span class="di-loader" role="status"><i class="dl-logo${blob ? ' di-morph' : ''}" aria-hidden="true">${blob ? '<canvas class="di-blob"></canvas>' : ''}</i><span class="dl-label">${this.esc(label || 'Loading…')}</span></span>`;
             },
             loadingBlockHtml(cls = 'pp-empty', label = '') { return `<div class="${cls} di-loading">${this.loaderHtml(label)}</div>`; },
 
