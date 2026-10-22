@@ -259,7 +259,7 @@ language sql stable set search_path = public as $$
       'actor', internal.name_of(s.owner_id), 'actorColor', internal.color_of(s.owner_id),
       'method', coalesce(s.method, ''), 'grind', coalesce(s.grind, ''),
       'dose', s.dose, 'yield', s.yield, 'time', s.time_s, 'rating', s.rating,
-      'tasted', to_jsonb(coalesce(s.tasted, '{}'::text[])), 'flavorNotes', s.flavor_notes,
+      'tasted', case when coalesce(cardinality(s.tasted), 0) > 0 then to_jsonb(s.tasted) end, 'flavorNotes', s.flavor_notes,   -- v16.2: no list when it's empty (a session saved before v10 has none; an empty list hid its sliders, and an older app editing it saved them as 5)
       'notes', coalesce(n.body, ''),
       'photo', case when p.path is null then null
                     when p.path like 'drive:%' then jsonb_build_object('fileId', substr(p.path, 7), 'url', 'https://drive.google.com/uc?export=view&id=' || substr(p.path, 7))

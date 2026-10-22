@@ -11,8 +11,12 @@
                 if (raw === undefined || raw === null || raw === '') return null;
                 const v = Number(raw);
                 if (!Number.isFinite(v)) return null;
-                if (Array.isArray(brew.tasted)) return brew.tasted.includes(k) ? v : null;
-                // sessions from before v10 can't tell "left at 5" from "never moved": treat 5 as not set, like v9 did
+                if (Array.isArray(brew.tasted) && brew.tasted.length) return brew.tasted.includes(k) ? v : null;
+                // sessions from before v10 can't tell "left at 5" from "never moved": treat 5 as not set, like v9 did.
+                // v16.2: an empty list counts as no list. The new backend handed every session saved before v10 back with
+                // an empty list, which read as "no slider moved": their sliders vanished from view (the values were never
+                // lost), and editing one would have saved them all as 5. A session where nothing was moved has every
+                // value at 5, so it still shows none.
                 return v === 5 ? null : v;
             },
 

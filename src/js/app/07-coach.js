@@ -62,7 +62,7 @@
             coachFromBrew(brew) {
                 return { id: String(brew.id), owner: this.getBrewOwner(brew), beanKey: this.groupKeyOfBrew(brew), beanId: String(brew.beanId || ''), method: brew.method || '', date: brew.date,
                     grind: brew.grind, dose: this.num(brew.dose), yield: this.num(brew.yield), time: this.num(brew.time), rating: this.normalizeRating(brew.rating),
-                    text: this.getBrewNotes(brew), flavors: this.extractFlavors(brew), values: this.shapeValues(brew), tasted: this.tastedKeys(brew), tastedExplicit: Array.isArray(brew.tasted), verdict: String(brew.verdict || ''), grinder: this.grinderFor(brew) };
+                    text: this.getBrewNotes(brew), flavors: this.extractFlavors(brew), values: this.shapeValues(brew), tasted: this.tastedKeys(brew), tastedExplicit: Array.isArray(brew.tasted) && brew.tasted.length > 0,   /* v16.2: an empty list is no list (see tasteValue) */ verdict: String(brew.verdict || ''), grinder: this.grinderFor(brew) };
             },
 
             coachFromForm() {

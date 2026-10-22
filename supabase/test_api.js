@@ -466,6 +466,23 @@ ok(fx('maceo', `select resolve_report('comment', '${r1.target}', 'remove');`) ==
 ok(!JSON.parse(fx('maceo', 'select review_reports();')).some(r => r.ref === 'bb1' || r.kind === 'comment'), '...and both leave the review list');
 ok(/Only reviewers/.test(fx('aidan', `select resolve_report('session', '${bbRow.target}', 'remove');`)), 'nobody else can resolve a report');
 
+// --- v16.2: a session saved before v10 (no slider list) comes back without one, so its sliders show (an empty list hid them)
+{
+  const T = (id, extra) => ({ type: 'brew', id, beanId: 'b1', user: 'Maceo', owner: 'Maceo', method: 'Espresso', dose: 18, yield: 36, time: 28, date: '2026-09-20T12:00:00Z', likes: [], comments: [], ...extra });
+  push('maceo', T('tl1', { acidity: 8, sweetness: 6, body: 7, finish: 8, balance: 5 }));
+  push('maceo', T('tl2', { acidity: 5, sweetness: 5, body: 5, finish: 5, balance: 5, bitterness: 5, tasted: [] }));
+  push('maceo', T('tl3', { acidity: 7, sweetness: 5, body: 5, finish: 5, balance: 5, bitterness: 5, tasted: ['acidity'] }));
+  const got = id => pull('maceo').find(e => e.id === id) || {};
+  const a = got('tl1'), b = got('tl2'), c = got('tl3');
+  ok(!('tasted' in a) && a.acidity === 8 && a.sweetness === 6 && a.finish === 8, 'a session saved before v10 (no slider list) comes back without a list, with its slider values');
+  ok(!('tasted' in b), 'one where no slider was moved (an empty list, every value 5) comes back without a list too');
+  ok(JSON.stringify(c.tasted) === '["acidity"]' && c.acidity === 7, 'one with sliders moved keeps its list');
+  ok(one(`select coalesce(cardinality(tasted), 0) from sessions where legacy_id = 'tl1';`) === '0' && /"acidity": 8/.test(one(`select taste::text from sessions where legacy_id = 'tl1';`)), 'nothing about how it is stored changed');
+  push('maceo', { ...a, likes: ['Maceo'] });
+  ok(/"acidity": 8/.test(one(`select taste::text from sessions where legacy_id = 'tl1';`)) && got('tl1').acidity === 8, 'saving it again as it came back (a like, say) keeps the values');
+  psql(`delete from notifications;`);
+}
+
 // --- v15.8: choose your notifications; a friend's new session; local roaster ticks survive an older phone
 {
   psql(`delete from notifications;`);
