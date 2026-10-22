@@ -175,10 +175,23 @@
             fabTileHtml(beanId, opts = {}) {
                 const bean = beanId ? this.beans.get(String(beanId)) : null;
                 const click = opts.click || (bean ? `app.openFeedTarget('${app.escJs(bean.id)}','',false)` : '');
-                if (!bean) return `<button type="button" class="fab-tile empty${opts.small ? ' small' : ''}"${click ? ` onclick="${click}"` : ' disabled'} aria-label="${opts.editable ? 'Add a favorite' : 'Empty slot'}"><span class="fab-art empty">${opts.editable ? '<svg class="icon"><use href="#i-plus"/></svg>' : ''}</span><span class="fab-name">${opts.editable ? 'Add favorite' : '—'}</span></button>`;
+                if (!bean) return `<div class="fab-tile empty${opts.small ? ' small' : ''}" ${this.tileAttrs(click)} aria-label="${opts.editable ? 'Add a favorite' : 'Empty slot'}"><span class="fab-art empty">${opts.editable ? '<svg class="icon"><use href="#i-plus"/></svg>' : ''}</span><span class="fab-name">${opts.editable ? 'Add favorite' : '—'}</span></div>`;
                 const art = this.coverArt(bean);
                 const r = opts.user ? this.avgRatingFor(opts.user, bean.id) : 0;
-                return `<button type="button" class="fab-tile${opts.small ? ' small' : ''}" onclick="${click}" aria-label="${this.esc(this.beanLabel(bean))}"><span class="fab-art" style="background:${art.bg}"><b>${this.esc(art.initials)}</b>${r ? `<em>${this.esc(this.fmtNum(r))}★</em>` : ''}</span><span class="fab-name">${this.esc(bean.name || this.beanLabel(bean))}</span><span class="fab-roaster">${this.esc(bean.roaster || '')}</span></button>`;
+                return `<div class="fab-tile${opts.small ? ' small' : ''}" ${this.tileAttrs(click)} aria-label="${this.esc(this.beanLabel(bean))}"><span class="fab-art" style="background:${art.bg}"><b>${this.esc(art.initials)}</b>${r ? `<em>${this.esc(this.fmtNum(r))}★</em>` : ''}</span><span class="fab-name">${this.esc(bean.name || this.beanLabel(bean))}</span><span class="fab-roaster">${this.esc(bean.roaster || '')}</span></div>`;
+            },
+
+            // v16.7: the profile's tiles (Favorites, Favorite roasters, Coffees) are plain blocks that act as buttons, not
+            // <button>s: Julian's Safari sized a <button> in a grid to its text (bigger or smaller than its column) whatever
+            // it was told; a plain block always fills its column. Tap, Enter or Space opens it; an empty slot on someone
+            // else's profile does nothing.
+            tileAttrs(click) {
+                return click ? `role="button" tabindex="0" onclick="${click}" onkeydown="app.tileKey(event)"` : 'role="button" aria-disabled="true"';
+            },
+            tileKey(e) {
+                if (!e || (e.key !== 'Enter' && e.key !== ' ')) return;
+                e.preventDefault();
+                if (e.currentTarget && e.currentTarget.click) e.currentTarget.click();
             },
 
             renderFabFour(who) {
