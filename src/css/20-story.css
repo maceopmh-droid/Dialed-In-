@@ -17,3 +17,6 @@
 .lvl-hero .lvl-share .icon { width: 15px; height: 15px; }
 .rc-head:has(> .story-share) { flex-wrap: wrap; }
 .rc-head:has(> .story-share) > span { order: 2; flex-basis: 100%; }
+/* v16.2: faces on a coffee card, like a roaster's */
+.card-users .card-count { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); }
+.card-users .card-faces { margin-left: auto; }
