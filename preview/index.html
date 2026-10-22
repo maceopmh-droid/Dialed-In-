@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v16.1 -->
+<!-- Dialed In v16.2 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="16.1">
+    <meta name="dialed-in-version" content="16.2">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -4366,7 +4366,7 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v16.1</div>
+            <div class="app-version">Dialed In · v16.2</div>
         </div>
     </div>
 
@@ -8261,7 +8261,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             coachFromBrew(brew) {
                 return { id: String(brew.id), owner: this.getBrewOwner(brew), beanKey: this.groupKeyOfBrew(brew), beanId: String(brew.beanId || ''), method: brew.method || '', date: brew.date,
                     grind: brew.grind, dose: this.num(brew.dose), yield: this.num(brew.yield), time: this.num(brew.time), rating: this.normalizeRating(brew.rating),
-                    text: this.getBrewNotes(brew), flavors: this.extractFlavors(brew), values: this.shapeValues(brew), tasted: this.tastedKeys(brew), tastedExplicit: Array.isArray(brew.tasted), verdict: String(brew.verdict || ''), grinder: this.grinderFor(brew) };
+                    text: this.getBrewNotes(brew), flavors: this.extractFlavors(brew), values: this.shapeValues(brew), tasted: this.tastedKeys(brew), tastedExplicit: Array.isArray(brew.tasted) && brew.tasted.length > 0,   /* v16.2: an empty list is no list (see tasteValue) */ verdict: String(brew.verdict || ''), grinder: this.grinderFor(brew) };
             },
 
             coachFromForm() {
@@ -14988,8 +14988,12 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (raw === undefined || raw === null || raw === '') return null;
                 const v = Number(raw);
                 if (!Number.isFinite(v)) return null;
-                if (Array.isArray(brew.tasted)) return brew.tasted.includes(k) ? v : null;
-                // sessions from before v10 can't tell "left at 5" from "never moved": treat 5 as not set, like v9 did
+                if (Array.isArray(brew.tasted) && brew.tasted.length) return brew.tasted.includes(k) ? v : null;
+                // sessions from before v10 can't tell "left at 5" from "never moved": treat 5 as not set, like v9 did.
+                // v16.2: an empty list counts as no list. The new backend handed every session saved before v10 back with
+                // an empty list, which read as "no slider moved": their sliders vanished from view (the values were never
+                // lost), and editing one would have saved them all as 5. A session where nothing was moved has every
+                // value at 5, so it still shows none.
                 return v === 5 ? null : v;
             },
 
