@@ -47,6 +47,19 @@
                 this.render();
             },
 
+            // v16.2: who's on a coffee, as faces (like a roaster's): most sessions first, five, then +N. In Mine only when
+            // you share it with someone; in All always
+            coffeeFacesHtml(group, brews) {
+                const n = new Map();
+                brews.forEach(b => { const o = this.getBrewOwner(b); if (o) n.set(o, (n.get(o) || 0) + 1); });
+                [...(group.users || [])].forEach(u => { if (u && !n.has(u)) n.set(u, 0); });
+                const people = [...n.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(e => e[0]);
+                const shared = people.some(p => p !== this.user);
+                if (!people.length || (this.coffeeScopeNow() === 'mine' && !shared)) return '';
+                const shown = people.slice(0, 5), more = people.length - shown.length;
+                return `<span class="dh-faces card-faces" aria-label="${this.esc(people.join(', '))}">${shown.map((p, i) => `<i data-face="${this.esc(p)}" style="background:${this.esc(this.getUserColor(p))};z-index:${9 - i}">${this.esc(this.feedInitial(p))}</i>`).join('')}${more > 0 ? `<i class="more">+${more}</i>` : ''}</span>`;
+            },
+
             setMethodFilter(method) {
                 this.currentMethodFilter = method;
                 document.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active'));
@@ -155,7 +168,6 @@
                     const avgRating = this.calculateAverageRating(brews);
                     const topFlavors = this.getTopFlavors(brews, 3);
                     const userNames = [...group.users].sort((a, b) => a.localeCompare(b));
-                    const userLine = this.formatNamesInline(userNames, 3);
                     const isShared = userNames.length > 1;
                     const art = isShared ? '#i-leaf-line' : '#i-bean-line';
 
@@ -177,11 +189,8 @@
                             ${bean.process ? `<span class="tag">${this.esc(bean.process)}</span>` : ''}
                         </div>
                         <div class="card-users">
-                            <div class="card-usernames">${this.esc(userLine || 'Unknown user')}</div>
-                            ${isShared ? '<span class="shared-tag">Shared</span>' : ''}
-                        </div>
-                        <div style="font-size:0.76rem; color:#8A8A8A; margin-top:6px;">
-                            ${brews.length} session${brews.length !== 1 ? 's' : ''}
+                            <span class="card-count">${brews.length} session${brews.length !== 1 ? 's' : ''}</span>
+                            ${this.coffeeFacesHtml(group, brews)}
                         </div>
                         ${topFlavors.length ? `
                             <div class="top-flavors">
