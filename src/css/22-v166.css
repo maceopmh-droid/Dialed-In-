@@ -4,3 +4,6 @@
            width (width 0) and still fill it (min-width 100%), so the roaster name cuts off with "…" as it does elsewhere. */
         .fab-tile > .fab-name, .fab-tile > .fab-roaster { width: 0; min-width: 100%; box-sizing: border-box; }
         .fab-tile { min-width: 0; max-width: 100%; }
+        /* v16.7: the tiles are plain blocks now (still buttons to screen readers and the keyboard) */
+        .fab-tile { width: 100%; }
+        .fab-tile[aria-disabled="true"] { cursor: default; }

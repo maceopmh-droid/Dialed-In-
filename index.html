@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v16.6 -->
+<!-- Dialed In v16.7 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="16.6">
+    <meta name="dialed-in-version" content="16.7">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -3972,6 +3972,9 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
            width (width 0) and still fill it (min-width 100%), so the roaster name cuts off with "…" as it does elsewhere. */
         .fab-tile > .fab-name, .fab-tile > .fab-roaster { width: 0; min-width: 100%; box-sizing: border-box; }
         .fab-tile { min-width: 0; max-width: 100%; }
+        /* v16.7: the tiles are plain blocks now (still buttons to screen readers and the keyboard) */
+        .fab-tile { width: 100%; }
+        .fab-tile[aria-disabled="true"] { cursor: default; }
     </style>
 </head>
 <body>
@@ -4573,7 +4576,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v16.6</div>
+            <div class="app-version">Dialed In · v16.7</div>
         </div>
     </div>
 
@@ -10315,10 +10318,23 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             fabTileHtml(beanId, opts = {}) {
                 const bean = beanId ? this.beans.get(String(beanId)) : null;
                 const click = opts.click || (bean ? `app.openFeedTarget('${app.escJs(bean.id)}','',false)` : '');
-                if (!bean) return `<button type="button" class="fab-tile empty${opts.small ? ' small' : ''}"${click ? ` onclick="${click}"` : ' disabled'} aria-label="${opts.editable ? 'Add a favorite' : 'Empty slot'}"><span class="fab-art empty">${opts.editable ? '<svg class="icon"><use href="#i-plus"/></svg>' : ''}</span><span class="fab-name">${opts.editable ? 'Add favorite' : '—'}</span></button>`;
+                if (!bean) return `<div class="fab-tile empty${opts.small ? ' small' : ''}" ${this.tileAttrs(click)} aria-label="${opts.editable ? 'Add a favorite' : 'Empty slot'}"><span class="fab-art empty">${opts.editable ? '<svg class="icon"><use href="#i-plus"/></svg>' : ''}</span><span class="fab-name">${opts.editable ? 'Add favorite' : '—'}</span></div>`;
                 const art = this.coverArt(bean);
                 const r = opts.user ? this.avgRatingFor(opts.user, bean.id) : 0;
-                return `<button type="button" class="fab-tile${opts.small ? ' small' : ''}" onclick="${click}" aria-label="${this.esc(this.beanLabel(bean))}"><span class="fab-art" style="background:${art.bg}"><b>${this.esc(art.initials)}</b>${r ? `<em>${this.esc(this.fmtNum(r))}★</em>` : ''}</span><span class="fab-name">${this.esc(bean.name || this.beanLabel(bean))}</span><span class="fab-roaster">${this.esc(bean.roaster || '')}</span></button>`;
+                return `<div class="fab-tile${opts.small ? ' small' : ''}" ${this.tileAttrs(click)} aria-label="${this.esc(this.beanLabel(bean))}"><span class="fab-art" style="background:${art.bg}"><b>${this.esc(art.initials)}</b>${r ? `<em>${this.esc(this.fmtNum(r))}★</em>` : ''}</span><span class="fab-name">${this.esc(bean.name || this.beanLabel(bean))}</span><span class="fab-roaster">${this.esc(bean.roaster || '')}</span></div>`;
+            },
+
+            // v16.7: the profile's tiles (Favorites, Favorite roasters, Coffees) are plain blocks that act as buttons, not
+            // <button>s: Julian's Safari sized a <button> in a grid to its text (bigger or smaller than its column) whatever
+            // it was told; a plain block always fills its column. Tap, Enter or Space opens it; an empty slot on someone
+            // else's profile does nothing.
+            tileAttrs(click) {
+                return click ? `role="button" tabindex="0" onclick="${click}" onkeydown="app.tileKey(event)"` : 'role="button" aria-disabled="true"';
+            },
+            tileKey(e) {
+                if (!e || (e.key !== 'Enter' && e.key !== ' ')) return;
+                e.preventDefault();
+                if (e.currentTarget && e.currentTarget.click) e.currentTarget.click();
             },
 
             renderFabFour(who) {
@@ -11806,7 +11822,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             favRoastersHtml(who, list, mine) {
                 if (!list.length && !mine) return '';
                 const tiles = list.map(r => { const p = r.people.find(x => x.name === who); const paint = this.roasterPaint(r);
-                    return `<button type="button" class="fab-tile small ro-fab" data-roaster-key="${this.esc(r.key)}" onclick="app.openRoaster(this.getAttribute('data-roaster-key'))" aria-label="${this.esc(r.name)}"><span class="fab-art" style="background:${paint.bg}"><b>${this.esc(this.roasterInitials(r.name))}</b>${p && p.rated ? `<em>${this.esc(RoasterEngine.f1(p.avg))}★</em>` : ''}</span><span class="fab-name">${this.esc(r.name)}</span><span class="fab-roaster">${p ? `${p.sessions} session${p.sessions === 1 ? '' : 's'}` : 'Not brewed yet'}</span></button>`; }).join('');
+                    return `<div class="fab-tile small ro-fab" data-roaster-key="${this.esc(r.key)}" ${this.tileAttrs("app.openRoaster(this.getAttribute('data-roaster-key'))")} aria-label="${this.esc(r.name)}"><span class="fab-art" style="background:${paint.bg}"><b>${this.esc(this.roasterInitials(r.name))}</b>${p && p.rated ? `<em>${this.esc(RoasterEngine.f1(p.avg))}★</em>` : ''}</span><span class="fab-name">${this.esc(r.name)}</span><span class="fab-roaster">${p ? `${p.sessions} session${p.sessions === 1 ? '' : 's'}` : 'Not brewed yet'}</span></div>`; }).join('');
                 return `<div class="label fab-last-label">Favorite roasters</div>${list.length ? `<div class="fab-row small">${tiles}</div>` : `<div class="fab-sub ro-fab-empty">Tap the heart on a roaster's page to add it here.</div>`}`;
             },
 

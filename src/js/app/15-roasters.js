@@ -110,7 +110,7 @@
             favRoastersHtml(who, list, mine) {
                 if (!list.length && !mine) return '';
                 const tiles = list.map(r => { const p = r.people.find(x => x.name === who); const paint = this.roasterPaint(r);
-                    return `<button type="button" class="fab-tile small ro-fab" data-roaster-key="${this.esc(r.key)}" onclick="app.openRoaster(this.getAttribute('data-roaster-key'))" aria-label="${this.esc(r.name)}"><span class="fab-art" style="background:${paint.bg}"><b>${this.esc(this.roasterInitials(r.name))}</b>${p && p.rated ? `<em>${this.esc(RoasterEngine.f1(p.avg))}★</em>` : ''}</span><span class="fab-name">${this.esc(r.name)}</span><span class="fab-roaster">${p ? `${p.sessions} session${p.sessions === 1 ? '' : 's'}` : 'Not brewed yet'}</span></button>`; }).join('');
+                    return `<div class="fab-tile small ro-fab" data-roaster-key="${this.esc(r.key)}" ${this.tileAttrs("app.openRoaster(this.getAttribute('data-roaster-key'))")} aria-label="${this.esc(r.name)}"><span class="fab-art" style="background:${paint.bg}"><b>${this.esc(this.roasterInitials(r.name))}</b>${p && p.rated ? `<em>${this.esc(RoasterEngine.f1(p.avg))}★</em>` : ''}</span><span class="fab-name">${this.esc(r.name)}</span><span class="fab-roaster">${p ? `${p.sessions} session${p.sessions === 1 ? '' : 's'}` : 'Not brewed yet'}</span></div>`; }).join('');
                 return `<div class="label fab-last-label">Favorite roasters</div>${list.length ? `<div class="fab-row small">${tiles}</div>` : `<div class="fab-sub ro-fab-empty">Tap the heart on a roaster's page to add it here.</div>`}`;
             },
 
