@@ -1,0 +1,71 @@
+# The Shot Logger (v16.9): makes the test machine for the desktop simulator, until linking a machine from the app is
+# designed. It makes "Maceo's Gaggia (simulator)" for Maceo as a test machine (what it posts is "Only me", so friends
+# never see test shots), unlinks any earlier one of that name, and writes the simulator's link file
+# (/dialedin/config.json: {"inbox_url", "token"}, the same shape as the machine side's stand-in inbox writes). The file is
+# locked with the BACKUP_PASSPHRASE secret (AES-256, like the nightly backup) and kept as a workflow artifact for 3 days.
+# The repository is public: anyone signed in to GitHub can download the artifact, nobody can open it without the
+# passphrase, and nothing here prints the token. Opening it on the Mac (gpg asks for the passphrase):
+#   gpg -o <simulator>/sim_data/littlefs/dialedin/config.json -d dialedin-config.json.gpg
+# Runs when pushed to the `supabase-machine` branch; running it again gives a new token and unlinks the old one.
+name: supabase machine
+on:
+  push:
+    branches: [supabase-machine]
+
+jobs:
+  machine:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_REF: glombusdjwlrgjihnylk
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+      OWNER: Maceo
+      MACHINE: "Maceo's Gaggia (simulator)"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Is there a passphrase to lock the file with?
+        run: |
+          if [ -z "$BACKUP_PASSPHRASE" ]; then echo "No BACKUP_PASSPHRASE secret: the token can't be handed over safely, so nothing was made." | tee "$RUNNER_TEMP/p.txt"; bash supabase/report.sh "Test machine" "$RUNNER_TEMP/p.txt"; exit 1; fi
+      - name: Find the database
+        run: |
+          set +e
+          bash supabase/find_db.sh 2> "$RUNNER_TEMP/find.txt"; rc=$?
+          cat "$RUNNER_TEMP/find.txt"; [ $rc -eq 0 ] || bash supabase/report.sh "Find the database" "$RUNNER_TEMP/find.txt"; exit $rc
+      - name: Is the database ready (the Shot Logger with test machines)?
+        run: |
+          ready=$(psql "$DB_URL" -Atqc "select (to_regprocedure('internal.shot_inbox(text,jsonb)') is not null and exists (select 1 from information_schema.columns where table_name = 'machines' and column_name = 'test'))::text")
+          { [ "$ready" = "true" ] && echo "The database has the Shot Logger, with test machines." || echo "The database isn't ready: run supabase setup first (push to supabase-setup)."; } | tee "$RUNNER_TEMP/r.txt"
+          bash supabase/report.sh "Database ready" "$RUNNER_TEMP/r.txt"; [ "$ready" = "true" ]
+      - name: Make the test machine and lock its link file
+        run: |
+          set -eo pipefail
+          umask 077
+          node supabase/make_machine.js --owner "$OWNER" --name "$MACHINE" --out "$RUNNER_TEMP/token" --test --replace | tee "$RUNNER_TEMP/m.txt"
+          echo "::add-mask::$(cat "$RUNNER_TEMP/token")"
+          mkdir -p "$RUNNER_TEMP/out"
+          python3 - "$RUNNER_TEMP/token" "$RUNNER_TEMP/config.json" <<'PY'
+          import json, sys
+          tok = open(sys.argv[1]).read().strip()
+          json.dump({"inbox_url": "https://glombusdjwlrgjihnylk.supabase.co/functions/v1/shot-inbox", "token": tok}, open(sys.argv[2], "w"))
+          PY
+          gpg --batch --yes --pinentry-mode loopback --passphrase "$BACKUP_PASSPHRASE" --symmetric --cipher-algo AES256 -o "$RUNNER_TEMP/out/dialedin-config.json.gpg" "$RUNNER_TEMP/config.json"
+          # the locked file opens to exactly the link file (compared without printing either)
+          gpg --batch --quiet --pinentry-mode loopback --passphrase "$BACKUP_PASSPHRASE" -d "$RUNNER_TEMP/out/dialedin-config.json.gpg" | cmp -s - "$RUNNER_TEMP/config.json"
+          echo "Locked link file: dialedin-config.json.gpg (opens with the backup passphrase)." | tee -a "$RUNNER_TEMP/m.txt"
+          bash supabase/report.sh "Test machine" "$RUNNER_TEMP/m.txt"
+      - name: Check the token from the outside (reads only; no shot is sent)
+        run: |
+          set +e
+          base="https://$PROJECT_REF.supabase.co/functions/v1"
+          code=$(curl -s -o "$RUNNER_TEMP/sync.json" -w '%{http_code}' "$base/machine-sync" -H "Authorization: Bearer $(cat "$RUNNER_TEMP/token")")
+          n=$(python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print(len(d.get('coffees') or []))" "$RUNNER_TEMP/sync.json" 2>/dev/null)
+          echo "machine-sync with the new token: $code (200 expected), $n coffees on the shelf for the picker" | tee "$RUNNER_TEMP/k.txt"
+          rm -f "$RUNNER_TEMP/sync.json" "$RUNNER_TEMP/token" "$RUNNER_TEMP/config.json"
+          bash supabase/report.sh "Token check" "$RUNNER_TEMP/k.txt"; [ "$code" = "200" ]
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dialedin-simulator-link-${{ github.run_id }}
+          path: ${{ runner.temp }}/out/dialedin-config.json.gpg
+          retention-days: 3
+          if-no-files-found: error

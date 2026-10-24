@@ -162,9 +162,9 @@ ok(one(`select count(*) from machines where token_hash = '${TOKEN}'`) === '0' &&
   ok(r.status === 200, 'someone else\'s coffee he brews (Aidan\'s Alchemy) is fine, as in the app');
   const big = shotOf('44444444-4444-4444-8444-444444444444'); big.notes = 'x'.repeat(300000);
   r = await send(TOKEN, big);
-  ok(r.status === 422 && /too big/.test(r.body.error) && one(`select count(*) from shots where id = '44444444-4444-4444-8444-444444444444'`) === '0', `an oversized body (over 256 KB): 422, nothing saved (${r.body.error})`);
+  ok(r.status === 413 && /too big/.test(r.body.error) && one(`select count(*) from shots where id = '44444444-4444-4444-8444-444444444444'`) === '0', `an oversized body (over 256 KB): 413, nothing saved (${r.body.error})`);
   r = await send(TOKEN, null, { raw: JSON.stringify(big), headers: { 'Content-Length': '0' } });
-  ok(r.status === 422 && /too big/.test(r.body.error), '...even when it doesn\'t say how big it is (it stops reading at 256 KB)');
+  ok(r.status === 413 && /too big/.test(r.body.error), '...even when it doesn\'t say how big it is (it stops reading at 256 KB): 413');
   r = await send(TOKEN, null, { raw: '{"v": 1, "shot_id": ' });
   ok(r.status === 422 && /isn't JSON/.test(r.body.error), 'a body that isn\'t JSON: 422');
   r = await send(TOKEN, null, { method: 'GET' });
@@ -173,14 +173,13 @@ ok(one(`select count(*) from machines where token_hash = '${TOKEN}'`) === '0' &&
     ['an unknown version', { v: 2 }, /version/],
     ['a shot_id that isn\'t a UUID', { shot_id: 'shot-1' }, /shot_id/],
     ['a status that isn\'t draft or post', { status: 'done' }, /status/],
-    ['a start time in the future', { started_at: iso(now + 3600e3) }, /future/],
     ['a start time that isn\'t a time', { started_at: 'yesterday' }, /started_at/],
     ['a method other than Espresso', { method: 'Pour Over' }, /Espresso/],
     ['a dose of 400 g', { dose_g: 400 }, /dose_g/],
     ['a time that isn\'t a number', { time_s: '29.1' }, /time_s/],
     ['curves of different lengths', { samples: { ...EXAMPLE.samples, flow_gs: EXAMPLE.samples.flow_gs.slice(1) } }, /flow_gs/],
     ['time going backwards', { samples: { ...EXAMPLE.samples, t_s: [...EXAMPLE.samples.t_s].reverse() } }, /t_s/],
-    ['a curve this version doesn\'t know', { samples: { ...EXAMPLE.samples, rpm: EXAMPLE.samples.t_s } }, /doesn't know/],
+    ['a list a later version might add, the wrong length', { samples: { ...EXAMPLE.samples, rpm: EXAMPLE.samples.t_s.slice(1) } }, /rpm/],
     ['6 stars', { status: 'post', rating: { stars: 6 } }, /stars/],
     ['a slider at 11', { rating: { stars: 4, taste: { acidity: 11 } } }, /1 to 10/],
     ['a complexity slider (the machine doesn\'t ask it)', { rating: { stars: 4, taste: { complexity: 5 } } }, /doesn't know/],
@@ -191,6 +190,8 @@ ok(one(`select count(*) from machines where token_hash = '${TOKEN}'`) === '0' &&
     r = await send(TOKEN, shotOf(id, extra));
     ok(r.status === 422 && re.test(r.body.error) && one(`select count(*) from shots where id = '${id}'`) === '0', `${label}: 422 "${r.body && r.body.error}"`);
   }
+  r = await send(TOKEN, shotOf('66666666-6666-4666-8666-666666666667', { samples: { ...EXAMPLE.samples, resistance: EXAMPLE.samples.t_s.map(() => 1.5) } }));
+  ok(r.status === 200, 'a list a later machine version adds (same length, numbers) is kept, not refused (refusing would make the machine drop the shot)');
   r = await send(TOKEN, shotOf('66666666-6666-4666-8666-666666666666', { dose_g: null, yield_g: null, grind: null, rating: null }));
   ok(r.status === 200, 'a shot with dose, yield and grind empty (skipped dose screen, no scale) is still saved');
   psql(`update machines set revoked_at = now() where owner_id = '${P.Aidan}'`);
@@ -210,8 +211,12 @@ ok(one(`select count(*) from machines where token_hash = '${TOKEN}'`) === '0' &&
   ok(r.status === 200 && new Date(lateRow[0]).getTime() === new Date(iso(lateAt)).getTime() && new Date(lateRow[1]).getTime() === new Date(iso(lateAt)).getTime(),
      `a shot three days late is dated when it was brewed, the shot and its session (${lateRow[0]})`);
   ok(one(`select count(*) from notifications where kind = 'friend_session'`) === notesBefore, '...and isn\'t news to friends (history, like any session brewed days ago)');
-  r = await send(TOKEN, shotOf('aaaaaaaa-1111-4111-8111-000000000001', { started_at: iso(now - 70 * 864e5) }));
-  ok(r.status === 422 && /60 days/.test(r.body.error), 'a shot more than 60 days old: 422');
+  // a clock we can't believe (over 60 days ago, or in the future): kept, dated when it arrived, marked approximate
+  for (const [id, at, label] of [['aaaaaaaa-1111-4111-8111-000000000001', now - 70 * 864e5, 'over 60 days ago'], ['aaaaaaaa-1111-4111-8111-000000000002', now + 3600e3, 'an hour in the future']]) {
+    r = await send(TOKEN, shotOf(id, { started_at: iso(at), ended_at: iso(at + 29e3) }));
+    const row = one(`select abs(extract(epoch from brewed_at - now()))::int < 60 and time_approx from shots where id = '${id}'`);
+    ok(r.status === 200 && row === 't', `a machine clock saying ${label}: kept, dated when it arrived, marked approximate (${r.status}, ${row})`);
+  }
 
   // ---------------------------------------------------------------- 7. the app: the popup, Post as is, Later, Drafts, delete
   const S2 = 'bbbbbbbb-2222-4222-8222-000000000002', S3 = 'bbbbbbbb-3333-4333-8333-000000000003', S4 = 'bbbbbbbb-4444-4444-8444-000000000004', S5 = 'bbbbbbbb-5555-4555-8555-000000000005';
@@ -275,8 +280,52 @@ ok(one(`select count(*) from machines where token_hash = '${TOKEN}'`) === '0' &&
   // too many sends
   let limited = null;
   for (let i = 0; i < 120 && !limited; i++) { const x = await send(TOKEN, shotOf(S5, { status: 'post', started_at: iso(now - 5 * 60e3), ended_at: iso(now - 5 * 60e3 + 29e3) })); if (x.status !== 200) limited = x; }
-  ok(limited && limited.status === 422 && /Too many sends/.test(limited.body.error), `a machine sending far too fast is held back: 422 (${limited && limited.body.error})`);
+  ok(limited && limited.status === 429 && /Too many sends/.test(limited.body.error), `a machine sending far too fast is held back: 429, so it keeps the shot and retries (${limited && limited.body.error})`);
   psql(`delete from internal.rate_log where kind = 'shot'`);
+  // ---------------------------------------------------------------- 8. the machine side's update (Oct 24 evening)
+  // a clock that was never set: started_at and ended_at null. Kept, dated when it arrived, marked approximate.
+  const NC = 'dddddddd-1111-4111-8111-000000000001';
+  r = await send(TOKEN, shotOf(NC, { started_at: null, ended_at: null }));
+  const nc = one(`select abs(extract(epoch from brewed_at - now()))::int < 60 and time_approx from shots where id = '${NC}'`);
+  ok(r.status === 200 && r.body.state === 'draft' && nc === 't', `no clock (started_at and ended_at null): 200, dated when it arrived, approximate (${r.status}, ${nc})`);
+  const ncAt = one(`select brewed_at::text from shots where id = '${NC}'`);
+  const drNC = (call('maceo', 'select my_shots(30);').drafts || []).find(d => d.id === NC);
+  ok(drNC && drNC.approx === true, 'the app is told the time is approximate');
+  r = await send(TOKEN, shotOf(NC, { started_at: null, ended_at: null, status: 'post', rating: { stars: 4, taste: { acidity: 6 } } }));
+  ok(r.status === 200 && one(`select brewed_at::text from shots where id = '${NC}'`) === ncAt, 'sent again (posted), still no clock: its time stays when it first arrived');
+  ok(one(`select (extras->>'timeApprox') || '|' || (brewed_at = '${ncAt}'::timestamptz) from sessions where legacy_id = 'shot_${NC}'`) === 'true|true', 'its session has the same time, marked approximate');
+  // the rest of the values the machine sends: more ways a phase ends, nulls for no scale, no stars, untouched sliders, no weight target
+  const MV = 'dddddddd-2222-4222-8222-000000000002';
+  const noScale = { ...EXAMPLE.samples, weight_g: EXAMPLE.samples.weight_g.map(() => null) };
+  const phases = [{ name: 'Fill', start_s: 0, end_s: 3, ended_by: 'water', target: '40 ml' }, { name: 'Soak', start_s: 3, end_s: 9, ended_by: 'pressure', target: '3 bar' },
+    { name: 'Hold 9 bar', start_s: 9, end_s: 26, ended_by: 'stopped', target: '17 s' }, { name: 'Taper', start_s: 26, end_s: 29.1, ended_by: null, target: 'until 36 g' }];
+  r = await send(TOKEN, shotOf(MV, { yield_g: null, target_yield_g: null, grind: '13.0', samples: noScale, phases, status: 'post',
+    rating: { stars: null, taste: { acidity: 7, sweetness: null, body: null, finish: null, bitterness: null } }, started_at: iso(now - 9 * 60e3).replace(/\.\d+Z$/, 'Z'), ended_at: iso(now - 9 * 60e3 + 29e3).replace(/\.\d+Z$/, 'Z') }));
+  const mv = one(`select coalesce(rating::text, 'none') || '|' || coalesce(yield::text, 'none') || '|' || grind || '|' || taste::text || '|' || array_to_string(tasted, ',') from sessions where legacy_id = 'shot_${MV}'`);
+  ok(r.status === 200 && r.body.state === 'posted', `a shot with ended_by water / stopped / null, no scale, no stars: accepted and posted (${r.status} ${r.body.state || r.body.error})`);
+  ok(mv === 'none|none|13|{"acidity": 7}|acidity', `its session: no stars, no yield, grind "13.0" → "13", only the slider that was moved (${mv})`);
+  r = await send(TOKEN, shotOf('dddddddd-3333-4333-8333-000000000003', { phases: [{ name: 'Hold', start_s: 0, end_s: 40, ended_by: 'safety', target: '40 s' }], grind: '12.0E' }));
+  ok(r.status === 200 && one(`select internal.shot_grind(payload->>'grind') from shots where id = 'dddddddd-3333-4333-8333-000000000003'`) === '12E', 'ended_by "safety" is accepted; grind "12.0E" reads "12E"');
+
+  // a test machine (the desktop simulator), made with make_machine.js --test --replace: what it posts is "Only me"
+  const tokFile = require('path').join(require('os').tmpdir(), `dialed-test-machine-${process.pid}`);
+  const mk = () => execSync(`node ${require('path').join(__dirname, 'make_machine.js')} --owner Maceo --name "Maceo's Gaggia (simulator)" --out ${tokFile} --test --replace --host ${HOST} --user ${USER} --db ${DB}`, { encoding: 'utf8' });
+  const said1 = mk(), tok1 = require('fs').readFileSync(tokFile, 'utf8').trim();
+  const mode = (require('fs').statSync(tokFile).mode & 0o777).toString(8);
+  ok(/^[0-9a-f]{64}$/.test(tok1) && !said1.includes(tok1) && mode === '600', `make_machine.js --test: the token is in a file only you can read (mode ${mode}), never printed`);
+  const TS = 'eeeeeeee-1111-4111-8111-000000000001';
+  r = await send(tok1, shotOf(TS, { status: 'post', rating: { stars: 4 } }));
+  ok(r.status === 200 && one(`select audience from sessions where legacy_id = 'shot_${TS}'`) === 'only_me', `a test machine's posted shot is "Only me" (${one(`select audience from sessions where legacy_id = 'shot_${TS}'`)})`);
+  await send(tok1, shotOf('eeeeeeee-1111-4111-8111-000000000002'));
+  ok(((call('maceo', 'select my_shots(30);').drafts || []).find(d => d.id === 'eeeeeeee-1111-4111-8111-000000000002') || {}).test === true, 'the app is told a draft came from a test machine');
+  mk();
+  const tok2 = require('fs').readFileSync(tokFile, 'utf8').trim();
+  r = await send(tok1, shotOf('eeeeeeee-1111-4111-8111-000000000003'));
+  const r2 = await send(tok2, shotOf('eeeeeeee-1111-4111-8111-000000000004'));
+  ok(tok2 !== tok1 && r.status === 401 && r2.status === 200 && one(`select count(*) from machines where name = 'Maceo''s Gaggia (simulator)' and revoked_at is null`) === '1', 'making it again (--replace): a new token works, the old one is unlinked (401)');
+  ok(one(`select count(*) from machines where name = 'Maceo''s Gaggia' and revoked_at is null and not test`) === '1', '...and his real machine is untouched');
+  require('fs').unlinkSync(tokFile);
+
   // leaving: the account goes, its machines and shots with it
   ok(call('aidan', `select delete_account('Aidan');`) === 'deleted' && one(`select count(*) from machines where owner_id = '${P.Aidan}'`) === '0' && one(`select count(*) from shots where owner_id = '${P.Aidan}'`) === '0', 'deleting an account deletes its machines and shots');
   r = await send(TOKEN_AIDAN, shotOf('cccccccc-1111-4111-8111-000000000001'));

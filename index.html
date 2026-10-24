@@ -21667,6 +21667,12 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (h < 24) return `${h} hr ago`;
                 return this.formatRelativeDate(t);
             },
+            // "4 min ago", or "arrived 4 min ago" when the machine's clock wasn't set (the shot is dated when it arrived)
+            shotWhen(d) { const ago = this.shotAgo(d && d.brewedAt); return d && d.approx && ago ? `arrived ${ago}` : ago; },
+            // what ended a phase, in the phase table: time, weight, pressure, flow, water, stopped (by hand), safety stop
+            shotEndedBy(v) { const w = String(v || '').trim(); return w === 'safety' ? 'safety stop' : w; },
+            // a number the machine sent, or null (the machine sends null for "none": no scale, no weight target...)
+            shotVal(v) { return v === null || v === undefined || v === '' || !Number.isFinite(Number(v)) ? null : Number(v); },
             shotNum(v, unit) { const n = Number(v); return v === null || v === undefined || v === '' || !Number.isFinite(n) ? '–' : `${n.toFixed(1)}${unit ? ' ' + unit : ''}`; },
             shotPeak(shot) {
                 const p = Number(shot && shot.peak_bar);
@@ -21727,7 +21733,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 el.id = 'shot-ask';
                 el.className = 'shot-ask';
                 el.innerHTML = `<div class="sa-card" role="dialog" aria-modal="true" aria-labelledby="sa-title">
-                    <div class="sa-top"><span class="sa-from"><svg class="icon" aria-hidden="true"><use href="#i-coffee"/></svg>From your ${this.esc(this.shotMachineWord(d))} · ${this.esc(this.shotAgo(d.brewedAt))}</span>
+                    <div class="sa-top"><span class="sa-from"><svg class="icon" aria-hidden="true"><use href="#i-coffee"/></svg>From your ${this.esc(this.shotMachineWord(d))} · ${this.esc(this.shotWhen(d))}</span>
                         <button type="button" class="sa-x" aria-label="Close and save for later" onclick="app.shotLater('${this.escJs(String(d.id))}')"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button></div>
                     <h2 id="sa-title" class="sa-title">Taste and rate your ${this.esc(d.coffee || 'espresso')} shot</h2>
                     <div class="sa-graph">${this.shotGraphSvg(d.shot)}</div>
@@ -21784,29 +21790,31 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 this.activeId = String(d.beanId);
                 const s = d.shot || {}, r = s.rating && typeof s.rating === 'object' ? s.rating : null, taste = (r && r.taste) || {};
                 const prefill = { method: 'Espresso', grind: d.grind || '', dose: s.dose_g ?? '', yield: s.yield_g ?? '', time: s.time_s ?? '', notes: '', flavors: [] };
-                TASTE_KEYS.forEach(k => { if (Number.isFinite(Number(taste[k]))) prefill[k] = Number(taste[k]); });
-                if (Object.keys(taste).length) prefill.tasted = TASTE_KEYS.filter(k => Number.isFinite(Number(taste[k])));
+                const moved = k => taste[k] !== null && taste[k] !== undefined && taste[k] !== '' && Number.isFinite(Number(taste[k]));   // (a slider left alone comes as null)
+                TASTE_KEYS.forEach(k => { if (moved(k)) prefill[k] = Number(taste[k]); });
+                if (TASTE_KEYS.some(moved)) prefill.tasted = TASTE_KEYS.filter(moved);
                 this.openBrewModal(prefill);
                 const form = this.getBrewForm();
                 if (!form) return;
                 form.elements.id.value = 'shot_' + d.id;
                 this.shotLogHead(d);
+                if (d.test && this.share) { this.share.audience = 'only_me'; this.renderShareRow(); }   // (a test machine, the simulator: "Only me" to start, not saved as your usual)
                 if (r && Number(r.stars) > 0) { form.rating.value = this.normalizeRating(r.stars); this.updateRatingDisplay(form.rating.value); }
                 const rec = s.recipe && typeof s.recipe === 'object' ? s.recipe : {};
-                const temp = Number.isFinite(Number(s.temp_c)) ? Number(s.temp_c) : (Number.isFinite(Number(rec.temp_c)) ? Number(rec.temp_c) : null);
+                const temp = this.shotVal(s.temp_c) ?? this.shotVal(rec.temp_c);
                 this._shotForm = { id: 'shot_' + d.id, date: d.brewedAt, extras: Object.fromEntries(Object.entries({
-                    shotId: String(d.id), temp, machineRecipe: rec.name || null, peakBar: Number.isFinite(Number(s.peak_bar)) ? Number(s.peak_bar) : null,
-                    targetYield: Number.isFinite(Number(s.target_yield_g)) ? Number(s.target_yield_g) : null, machine: d.machine || null }).filter(([, v]) => v !== null && v !== '')) };
+                    shotId: String(d.id), temp, machineRecipe: rec.name || null, peakBar: this.shotVal(s.peak_bar),
+                    targetYield: this.shotVal(s.target_yield_g), machine: d.machine || null, timeApprox: d.approx ? true : null }).filter(([, v]) => v !== null && v !== '')) };
             },
             // the top of the Log for a machine shot: where it came from and its curve, in place of the timer (it's already timed)
             shotLogHead(d) {
                 const modal = document.getElementById('brew-modal'), title = document.getElementById('brew-modal-title');
                 if (!modal || !title) return;
                 const s = d.shot || {}, rec = s.recipe && typeof s.recipe === 'object' ? s.recipe : {};
-                const temp = Number.isFinite(Number(s.temp_c)) ? Number(s.temp_c) : Number(rec.temp_c);
+                const temp = this.shotVal(s.temp_c) ?? this.shotVal(rec.temp_c);
                 const when = new Date(this.toTime(d.brewedAt));
                 const at = Number.isFinite(when.getTime()) ? when.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '';
-                const bits = [`From your ${this.esc(this.shotMachineWord(d))}`, rec.name ? this.esc(rec.name) : '', Number.isFinite(temp) ? `${Math.round(temp)}°C` : '', at ? `pulled ${this.esc(at)}` : ''].filter(Boolean).join(' · ');
+                const bits = [`From your ${this.esc(this.shotMachineWord(d))}`, rec.name ? this.esc(rec.name) : '', temp !== null ? `${Math.round(temp)}°C` : '', at ? `${d.approx ? 'arrived' : 'pulled'} ${this.esc(at)}` : ''].filter(Boolean).join(' · ');
                 title.innerText = 'Taste and rate';
                 modal.classList.add('from-shot');
                 title.insertAdjacentHTML('afterend', `<div class="shot-log-head"><div class="slh-from">${bits}</div>${this.shotGraphSvg(s)}${this.shotKeyHtml(s)}</div>`);
@@ -21845,8 +21853,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (!list.length) return '';
                 const rows = list.map(d => {
                     const s = d.shot || {};
-                    const num = v => Number.isFinite(Number(v)) && v !== null && v !== '' ? this.fmtNum(Number(v)) : '';
-                    const bits = [this.shotAgo(d.brewedAt), num(s.dose_g) && num(s.yield_g) ? `${num(s.dose_g)} → ${num(s.yield_g)} g` : '', num(s.time_s) ? `${num(s.time_s)} s` : ''].filter(Boolean)
+                    const num = v => this.shotVal(v) !== null ? this.fmtNum(Number(v)) : '';
+                    const bits = [this.shotWhen(d), num(s.dose_g) && num(s.yield_g) ? `${num(s.dose_g)} → ${num(s.yield_g)} g` : num(s.dose_g) ? `${num(s.dose_g)} g in` : '', num(s.time_s) ? `${num(s.time_s)} s` : ''].filter(Boolean)
                         .map(t => `<span class="sd-bit">${this.esc(t)}</span>`).join(' · ');   // (each piece stays whole if the line wraps)
                     return `<div class="sd-row"><button type="button" class="sd-open" onclick="app.tasteShot('${this.escJs(String(d.id))}')" aria-label="Taste and rate your ${this.esc(d.coffee || 'espresso')} shot">
                         <span class="sd-curve">${this.shotGraphSvg(s, { w: 56, h: 30, bare: true })}</span>
@@ -21869,7 +21877,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const ph = Array.isArray(c.phases) ? c.phases : [];
                 const table = ph.length ? `<div class="shot-phases">${ph.map(p => {
                     const dur = Number(p.end_s) - Number(p.start_s);
-                    return `<div class="sp-row"><span>${this.esc(p.name || 'Phase')}</span><span>${Number.isFinite(dur) ? dur.toFixed(1) + ' s' : '–'}</span><span>${this.esc(p.ended_by || '')}</span></div>`;
+                    return `<div class="sp-row"><span>${this.esc(p.name || 'Phase')}</span><span>${Number.isFinite(dur) ? dur.toFixed(1) + ' s' : '–'}</span><span>${this.esc(this.shotEndedBy(p.ended_by))}</span></div>`;
                 }).join('')}</div>` : '';
                 const rec = c.recipe && c.recipe.name ? `<div class="shot-recipe">${this.esc(c.recipe.name)}${Number.isFinite(Number(c.temp_c || c.recipe.temp_c)) ? ` · ${Math.round(Number(c.temp_c || c.recipe.temp_c))}°C` : ''}</div>` : '';
                 return `<div class="card-pane pane-block log-wide${active}" data-pane="shot"><div class="shot-pane">${rec}${this.shotGraphSvg(c, { axes: true, w: 330, h: 150 })}${this.shotKeyHtml(c)}${table}</div></div>`;

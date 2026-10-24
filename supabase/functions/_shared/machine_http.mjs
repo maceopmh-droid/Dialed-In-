@@ -8,7 +8,8 @@
 //   GET  /functions/v1/machine-sync  Authorization: Bearer <machine token>
 //
 // Answers: 200 {ok: true, ...}; 401 {ok: false, error} for a missing or unknown token (link the machine again);
-// 422 {ok: false, error} for a shot that can't be saved (don't send it again); 5xx: try again later (keep the shot).
+// 413 (too big) and 422 {ok: false, error} for a shot that can't be saved (don't send it again); 429 (too many sends)
+// and 5xx: try again later (keep the shot). The machine side treats them exactly so (the handoff's Oct 24 update).
 
 export const MAX_BYTES = 262144;
 
@@ -56,7 +57,7 @@ export async function shotInbox(req, db) {
   const token = machineToken(req);
   if (!token) return answer(401, { ok: false, error: 'Missing machine token (Authorization: Bearer <token>).' });
   const raw = await readCapped(req);
-  if (raw === null) return answer(422, { ok: false, error: 'The shot is too big (256 KB at most).' });
+  if (raw === null) return answer(413, { ok: false, error: 'The shot is too big (256 KB at most).' });
   let shot;
   try { shot = JSON.parse(new TextDecoder().decode(raw)); } catch (_) { return answer(422, { ok: false, error: 'The body isn\'t JSON.' }); }
   try { return fromDb(await db('inbox', token, shot)); }

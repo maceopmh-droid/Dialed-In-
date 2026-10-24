@@ -1879,13 +1879,18 @@ create table if not exists shots (
   state         text not null default 'draft' check (state in ('draft', 'posted', 'dismissed')),
   payload       jsonb not null,                        -- the latest send, curves included (about 6 KB)
   session_id    uuid references sessions (id) on delete set null,
-  brewed_at     timestamptz not null,                  -- the shot's started_at, never when it arrived
+  brewed_at     timestamptz not null,                  -- the shot's started_at, never when it arrived (unless the machine's clock wasn't set: time_approx)
   asked_at      timestamptz,                           -- the app's "Taste and rate" popup was answered (Later or X)
   sends         int not null default 1,
   received_at   timestamptz not null default now(),
   updated_at    timestamptz not null default now()
 );
 create index if not exists shots_owner on shots (owner_id, state, brewed_at desc);
+-- (Oct 24 evening, the machine side's update) a machine whose clock was never set sends started_at: null, and one whose
+-- clock is wrong sends a time we can't believe: the shot is kept, dated when it arrived, and marked as approximate
+alter table shots add column if not exists time_approx boolean not null default false;
+-- a test machine (the desktop simulator): what it posts is "Only me", so friends never see test shots
+alter table machines add column if not exists test boolean not null default false;
 alter table machines enable row level security;   -- no rules: only the calls below and the two machine functions touch them
 alter table shots enable row level security;
 revoke all on machines, shots from authenticated, anon;
@@ -1904,11 +1909,19 @@ create or replace function internal.token_hash(token text) returns text language
 $$;
 
 -- what's wrong with a shot, in words the machine side can log (null: nothing)
+-- when the shot was pulled, if the machine's clock can be believed: null when it sent none (its clock was never set)
+-- or one more than 10 minutes in the future or over 60 days old (a wrong clock). The shot is then dated when it arrives.
+create or replace function internal.shot_started(b jsonb) returns timestamptz language plpgsql stable as $$
+declare t timestamptz := case when b->>'started_at' ~ '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}' then internal.try_ts(b->>'started_at') end;
+begin
+  if t is null or t > now() + interval '10 minutes' or t < now() - interval '60 days' then return null; end if;
+  return t;
+end $$;
+
 create or replace function internal.shot_problem(b jsonb) returns text
 language plpgsql stable as $$
 declare
   t timestamptz; e timestamptz; smp jsonb; n int; k text; i int; prev numeric; x jsonb; ph jsonb; r jsonb;
-  keys constant text[] := array['pressure_bar', 'flow_gs', 'weight_g', 'temp_c', 'plan_bar'];
   tastes constant text[] := array['acidity', 'sweetness', 'body', 'finish', 'bitterness'];
   num constant text := 'number';
 begin
@@ -1916,14 +1929,13 @@ begin
   if b->'v' is distinct from '1'::jsonb then return 'Unknown version: v must be 1.'; end if;
   if not internal.is_uuid(b->>'shot_id') then return 'shot_id must be a UUID.'; end if;
   if coalesce(b->>'status', '') not in ('draft', 'post') then return 'status must be "draft" or "post".'; end if;
-  t := internal.try_ts(b->>'started_at');
-  if t is null then return 'started_at must be an ISO 8601 time.'; end if;
-  if t > now() + interval '10 minutes' then return 'started_at is in the future (check the machine''s clock).'; end if;
-  if t < now() - interval '60 days' then return 'started_at is more than 60 days ago.'; end if;
-  if jsonb_typeof(b->'ended_at') = 'string' then
-    e := internal.try_ts(b->>'ended_at');
-    if e is null or e < t or e > t + interval '10 minutes' then return 'ended_at must be a time after started_at (within 10 minutes).'; end if;
-  elsif b ? 'ended_at' and jsonb_typeof(b->'ended_at') <> 'null' then return 'ended_at must be an ISO 8601 time.'; end if;
+  -- started_at / ended_at: ISO 8601, or null when the machine's clock was never set (the shot is then dated when it arrives)
+  if b ? 'started_at' and jsonb_typeof(b->'started_at') <> 'null'
+     and (jsonb_typeof(b->'started_at') <> 'string' or b->>'started_at' !~ '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}' or internal.try_ts(b->>'started_at') is null) then return 'started_at must be an ISO 8601 time, or null when the machine''s clock isn''t set.'; end if;
+  if b ? 'ended_at' and jsonb_typeof(b->'ended_at') <> 'null'
+     and (jsonb_typeof(b->'ended_at') <> 'string' or b->>'ended_at' !~ '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}' or internal.try_ts(b->>'ended_at') is null) then return 'ended_at must be an ISO 8601 time, or null.'; end if;
+  t := internal.shot_started(b); e := internal.try_ts(b->>'ended_at');
+  if t is not null and e is not null and (e < t or e > t + interval '10 minutes') then return 'ended_at must be a time after started_at (within 10 minutes).'; end if;
   if lower(coalesce(b->>'method', '')) <> 'espresso' then return 'method must be "Espresso".'; end if;
   if not internal.is_uuid(b->>'coffee_id') then return 'coffee_id must be a Dialed In coffee id (a UUID).'; end if;
   if jsonb_typeof(b->'coffee_name') = 'string' and char_length(b->>'coffee_name') > 120 then return 'coffee_name is too long.'; end if;
@@ -1963,14 +1975,17 @@ begin
     if jsonb_typeof(x) <> num or (x #>> '{}')::numeric < prev or (x #>> '{}')::numeric > 600 then return 'samples.t_s must be numbers that only go forward (seconds).'; end if;
     prev := (x #>> '{}')::numeric;
   end loop;
-  foreach k in array keys loop
-    if smp ? k and jsonb_typeof(smp->k) <> 'null' then
+  -- (a list a later machine version adds is kept as long as it has the same shape: refusing it would make the machine
+  -- drop the whole shot; the app draws only the ones it knows)
+  if (select count(*) from jsonb_object_keys(smp)) > 12 then return 'samples has too many lists (12 at most).'; end if;
+  for k in select jsonb_object_keys(smp) loop
+    if k <> 't_s' and jsonb_typeof(smp->k) <> 'null' then
+      if char_length(k) > 40 then return 'samples has a list with too long a name.'; end if;
       if jsonb_typeof(smp->k) <> 'array' or jsonb_array_length(smp->k) <> n then return format('samples.%s must be a list as long as samples.t_s.', k); end if;
       if exists (select 1 from jsonb_array_elements(smp->k) v where jsonb_typeof(v) not in ('number', 'null')
                  or (jsonb_typeof(v) = num and abs((v #>> '{}')::numeric) > 1000)) then return format('samples.%s must hold numbers (or null).', k); end if;
     end if;
   end loop;
-  if exists (select 1 from jsonb_object_keys(smp) o where o <> 't_s' and o <> all (keys)) then return 'samples has a list this version doesn''t know.'; end if;
   -- a rating from the machine: stars and five sliders (the app's complexity stays empty)
   r := b->'rating';
   if r is not null and jsonb_typeof(r) not in ('object', 'null') then return 'rating must be an object or null.'; end if;
@@ -2004,12 +2019,13 @@ begin
   ex := jsonb_strip_nulls(jsonb_build_object(
     'temp', coalesce(internal.shot_num(p->'temp_c', 50, 110), internal.shot_num(p->'recipe'->'temp_c', 50, 110)),
     'machineRecipe', nullif(internal.clean_text(left(btrim(coalesce(p->'recipe'->>'name', '')), 60)), ''), 'peakBar', internal.shot_num(p->'peak_bar', 0, 20),
-    'targetYield', internal.shot_num(p->'target_yield_g', 0, 200), 'shotId', s.id::text,
+    'targetYield', internal.shot_num(p->'target_yield_g', 0, 200), 'shotId', s.id::text, 'timeApprox', case when s.time_approx then true end,
     'machine', (select name from machines where id = s.machine_id)));
   select * into ses from sessions where legacy_id = lid;
   if not found then
     -- who sees it: where the person's last session was set (the app does the same for a new session), else the default
-    aud := coalesce((select x.audience from sessions x where x.owner_id = s.owner_id and x.deleted_at is null order by x.created_at desc limit 1),
+    aud := case when (select test from machines where id = s.machine_id) then 'only_me'::audience end;   -- (a test machine's shots: yours alone)
+    aud := coalesce(aud, (select x.audience from sessions x where x.owner_id = s.owner_id and x.deleted_at is null order by x.created_at desc limit 1),
                     case when (select joined_at from profiles where id = s.owner_id) is not null then 'everyone'::audience else 'friends'::audience end);
     -- the gear: what the person last used for espresso (as the app fills in a new session)
     select coalesce(case when jsonb_typeof(g.last_by_method->'Espresso') = 'array' then g.last_by_method->'Espresso' end, '[]'::jsonb) into eq
@@ -2045,7 +2061,8 @@ language sql stable security definer set search_path = public as $$
 $$;
 
 -- the shot-inbox function's whole job (it passes the token and the body, already checked for size and JSON).
--- Answers {status, ok, shot_id, state} or {status, error}: 200, 401 (the token), 422 (the data).
+-- Answers {status, ok, shot_id, state} or {status, error}: 200, 401 (the token), 413 (too big), 422 (the data: don't
+-- send it again), 429 (too many sends: keep it and retry).
 create or replace function internal.shot_inbox(token text, body jsonb) returns jsonb
 language plpgsql security definer set search_path = public as $$
 declare m machines; s shots; why text; sid uuid; cof uuid; started timestamptz; posting boolean;
@@ -2053,24 +2070,25 @@ begin
   m := internal.machine_for(token);
   if m.id is null then return jsonb_build_object('status', 401, 'error', 'Unknown machine. Link it again in Dialed In.'); end if;
   update machines set last_seen_at = now() where id = m.id;
-  if octet_length(body::text) > 262144 then return jsonb_build_object('status', 422, 'error', 'The shot is too big (256 KB at most).'); end if;
+  if octet_length(body::text) > 262144 then return jsonb_build_object('status', 413, 'error', 'The shot is too big (256 KB at most).'); end if;
   why := internal.shot_problem(body);
   if why is not null then return jsonb_build_object('status', 422, 'error', why); end if;
-  sid := (body->>'shot_id')::uuid; started := internal.try_ts(body->>'started_at'); posting := body->>'status' = 'post';
+  sid := (body->>'shot_id')::uuid; started := internal.shot_started(body); posting := body->>'status' = 'post';
   -- a coffee the owner can log against: it's there and not deleted (anyone signed in can log on any coffee)
   select k.id into cof from coffees k where k.id = (body->>'coffee_id')::uuid and k.deleted_at is null;
   if cof is null then return jsonb_build_object('status', 422, 'error', 'That coffee isn''t on Dialed In any more. Pick it again on the machine.'); end if;
   begin
     perform internal.rate_hit(m.owner_id, 'shot');
-  exception when others then return jsonb_build_object('status', 422, 'error', 'Too many sends from this machine. Wait a few minutes.'); end;
+  exception when others then return jsonb_build_object('status', 429, 'error', 'Too many sends from this machine. Keep the shot and try again in a few minutes.'); end;   -- (429: the machine keeps it and retries)
   select * into s from shots where id = sid for update;
   if found and s.owner_id <> m.owner_id then return jsonb_build_object('status', 422, 'error', 'That shot_id belongs to someone else''s machine.'); end if;
   if not found then
-    insert into shots (id, machine_id, owner_id, coffee_id, state, payload, brewed_at) values (sid, m.id, m.owner_id, cof, 'draft', body, started)
+    insert into shots (id, machine_id, owner_id, coffee_id, state, payload, brewed_at, time_approx) values (sid, m.id, m.owner_id, cof, 'draft', body, coalesce(started, now()), started is null)
     returning * into s;
   elsif s.state = 'draft' or posting then
     -- the latest send wins, but never backwards: a draft retry after the shot was posted (or deleted in the app) changes nothing
-    update shots set payload = body, machine_id = m.id, coffee_id = cof, brewed_at = started, sends = sends + 1, updated_at = now(),
+    update shots set payload = body, machine_id = m.id, coffee_id = cof, brewed_at = coalesce(started, brewed_at), time_approx = started is null and time_approx,
+                     sends = sends + 1, updated_at = now(),
                      state = case when state = 'dismissed' then 'draft' else state end
      where id = sid returning * into s;
   else
@@ -2125,7 +2143,7 @@ begin
   if me_id is null then raise exception 'Sign in first.' using errcode = '28000'; end if;
   return jsonb_build_object(
     'drafts', coalesce((select jsonb_agg(d.j order by d.brewed_at desc) from (
-      select s.brewed_at, jsonb_build_object('id', s.id, 'machine', m.name, 'brewedAt', s.brewed_at, 'receivedAt', s.received_at, 'asked', s.asked_at is not null,
+      select s.brewed_at, jsonb_build_object('id', s.id, 'machine', m.name, 'brewedAt', s.brewed_at, 'approx', s.time_approx, 'test', m.test, 'receivedAt', s.received_at, 'asked', s.asked_at is not null,
                'beanId', coalesce(k.legacy_id, k.id::text), 'coffee', coalesce(k.name, s.payload->>'coffee_name'), 'roaster', coalesce(k.roaster_text, r.name, ''),
                'grind', internal.shot_grind(s.payload->>'grind'), 'shot', s.payload) j
         from shots s join machines m on m.id = s.machine_id left join coffees k on k.id = s.coffee_id left join roasters r on r.id = k.roaster_id
@@ -2170,7 +2188,7 @@ end $$;
 -- the curves for one of your posted sessions (its shot page). Yours only, like drafts.
 create or replace function shot_for_session(session_ref text) returns jsonb
 language sql stable security definer set search_path = public as $$
-  select jsonb_build_object('id', s.id, 'machine', m.name, 'brewedAt', s.brewed_at, 'shot', s.payload)
+  select jsonb_build_object('id', s.id, 'machine', m.name, 'brewedAt', s.brewed_at, 'approx', s.time_approx, 'shot', s.payload)
     from shots s join machines m on m.id = s.machine_id
    where s.owner_id = me() and s.state = 'posted'
      and (('shot_' || s.id::text) = session_ref or s.session_id = (select x.id from sessions x where coalesce(x.legacy_id, x.id::text) = session_ref and x.owner_id = me()))

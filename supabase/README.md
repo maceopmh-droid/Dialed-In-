@@ -234,7 +234,14 @@ A GaggiMate kit on a Gaggia sends every shot it pulls; the contract with the mac
   the shared web side in `functions/_shared/machine_http.mjs` (also used by `dev_server.js` and the tests). Deployed by
   `.github/workflows/supabase-shots.yml` with `--no-verify-jwt` (a machine's token isn't a sign-in).
 - `make_machine.js`: makes a machine for someone and writes its token to a file only you can read (never printed),
-  until linking a machine from the app is designed.
+  until linking a machine from the app is designed. `--test` makes a test machine (what it posts is "Only me"),
+  `--replace` unlinks an earlier one of the same name. `.github/workflows/supabase-machine.yml` (push to
+  `supabase-machine`) does that for the desktop simulator and hands over its link file locked with `BACKUP_PASSPHRASE`.
+- Answers to the machine: 200; 401 (unknown or unlinked token: link it again); 413 (over 256 KB) and 422 (bad data:
+  don't send it again); 429 (too many sends) and 5xx (keep it and try again). A machine whose clock was never set sends
+  `started_at: null`: the shot is kept, dated when it arrived and marked approximate (`time_approx`), as is one whose
+  clock says more than 10 minutes ahead or over 60 days ago. A sample list a later machine version adds is kept if it
+  has the same shape.
 - Tests: `test_shots.js` (the inbox, drafts, posting, privacy, the machine's sync; real Postgres, made-up data) and
   `functions/try_functions.sh` (the deployed files under real Deno, in the checks workflow).
 
