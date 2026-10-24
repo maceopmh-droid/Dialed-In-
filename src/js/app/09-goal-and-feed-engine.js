@@ -287,6 +287,22 @@
                 return '#' + x.map((v, i) => Math.round(v + (y[i] - v) * t).toString(16).padStart(2, '0')).join('');
             },
 
+            // v16.8: who gets which part of the bar. Each counted session (or origin, roaster, comment...) is one person's.
+            // Past the goal the bar stays full, split by each person's share of everything counted that week; it used to
+            // fill person by person and stop at the goal, so whoever came last got no part (the Bookclub's third brewer,
+            // 6 of 18 sessions, Oct 24). Up to the goal nothing changes.
+            crewSegs(q) {
+                if (q.type === 'everyone') return q.people.filter(p => (q.counts[p] || 0) >= q.per).map(p => ({ p, w: 1 / q.target }));
+                const all = q.by.reduce((t, [, n]) => t + n, 0), whole = Math.max(q.target, all) || 1;
+                return q.by.map(([p, n]) => ({ p, w: n / whole }));
+            },
+            // the count under the bar: "8 of 12 sessions", and past the goal "18 sessions · goal was 12" (it used to stop at
+            // "12 of 12" while the counts by the faces kept going)
+            crewCount(q) {
+                if (q.type !== 'everyone' && q.raw > q.target) return { n: q.raw, rest: ` ${q.unit} · goal was ${q.target}` };
+                return { n: q.progress, rest: ` of ${q.target} ${q.unit}` };
+            },
+
             crewBarHtml(q, segs) {
                 // parts as fractions of the whole bar, in order, never past the end
                 let used = 0;
@@ -591,10 +607,8 @@
                 if (!this.brews.size) return '';
                 const q = this.crewQuest();
                 const won = this.questsWon();
-                const segs = q.type === 'everyone'
-                    ? q.people.filter(p => (q.counts[p] || 0) >= q.per).map(p => ({ p, w: 1 / q.target }))
-                    : q.by.map(([p, n]) => ({ p, w: Math.min(n, q.target) / q.target }));
-                const bar = this.crewBarHtml(q, segs);
+                const bar = this.crewBarHtml(q, this.crewSegs(q));
+                const count = this.crewCount(q);
                 const faces = q.by.map(([p, n]) => `<span class="cq-face" data-profile="${this.esc(p)}"><b data-face="${this.esc(p)}" style="background:${this.esc(this.getUserColor(p))};--ring:${this.esc(this.getUserColor(p))}">${this.esc(this.feedInitial(p))}</b>${n}</span>`).join('');   // v15.8: a ring in their color (a photo hides it), to match their part of the bar
                 const left = q.done ? 'Done together' : (q.daysLeft <= 1 ? 'Last day' : `${q.daysLeft} days left`);
                 // v15.0: invite people to this community from its goal (its invite link, as in People)
@@ -605,7 +619,7 @@
                         <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-target"/></svg>${this._crewScope ? 'Community goal' : 'Group goal'} · this week</span><span class="cq-right"><span class="cq-left">${this.esc(left)}</span>${invite}${q.done && this.storyShareBtn ? this.storyShareBtn('app.openGoalStory()', 'Share the finished goal as a picture') : ''}</span></div>
                         <div class="cq-title">${this.esc(q.title)}</div>
                         ${bar}
-                        <div class="cq-meta"><span><b>${q.progress}</b> of ${q.target} ${this.esc(q.unit)}${q.detail ? ` · ${this.esc(q.detail)}` : ''}</span></div>
+                        <div class="cq-meta"><span><b>${count.n}</b>${this.esc(count.rest)}${q.detail ? ` · ${this.esc(q.detail)}` : ''}</span></div>
                         <div class="cq-foot">${faces || '<span class="cq-empty">First session this week starts the bar.</span>'}${won ? `<span class="cq-won"><svg class="icon"><use href="#i-trophy"/></svg>${won} goal${won === 1 ? '' : 's'} reached together</span>` : ''}</div>
                     </section>`;
             },

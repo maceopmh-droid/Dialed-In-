@@ -442,14 +442,14 @@
                 y += 110;
                 const bw = k.W - k.PAD * 2, bh = 64;
                 k.round(k.PAD, y, bw, bh, 32); ctx.fillStyle = 'rgba(255,255,255,0.08)'; ctx.fill();
-                const segs = q.type === 'everyone' ? q.people.filter(p => (q.counts[p] || 0) >= q.per).map(p => ({ p, w: 1 / q.target })) : q.by.map(([p, n]) => ({ p, w: Math.min(n, q.target) / q.target }));
+                const segs = this.crewSegs(q), count = this.crewCount(q), countText = `${count.n}${count.rest}`;   // v16.8: as on the card
                 let used = 0;
                 ctx.save(); k.round(k.PAD, y, bw, bh, 32); ctx.clip();
                 segs.forEach(s => { const w = Math.max(0, Math.min(1 - used, s.w)); if (w <= 0) return; ctx.fillStyle = this.getUserColor(s.p); ctx.fillRect(k.PAD + used * bw, y, w * bw + 1, bh); used += w; });
                 ctx.restore();
                 y += bh + 64;
-                ctx.font = k.sans(700, 46); ctx.fillStyle = k.ink; ctx.fillText(`${q.raw} of ${q.target} ${q.unit}`, k.PAD, y);
-                if (q.detail) { const w = ctx.measureText(`${q.raw} of ${q.target} ${q.unit}`).width; ctx.font = k.sans(500, 36); ctx.fillStyle = k.muted; ctx.fillText(k.fit(` · ${q.detail}`, k.W - k.PAD * 2 - w), k.PAD + w, y); }
+                ctx.font = k.sans(700, 46); ctx.fillStyle = k.ink; ctx.fillText(countText, k.PAD, y);
+                if (q.detail) { const w = ctx.measureText(countText).width; ctx.font = k.sans(500, 36); ctx.fillStyle = k.muted; ctx.fillText(k.fit(` · ${q.detail}`, k.W - k.PAD * 2 - w), k.PAD + w, y); }
                 y += 110;
                 const faces = q.by.slice().sort((a, b) => b[1] - a[1]).slice(0, 8), per = faces.length > 4 ? 4 : faces.length, size = 168, gap = per > 1 ? Math.min(90, (k.W - k.PAD * 2 - size * per) / (per - 1)) : 0, x0 = (k.W - (per * size + (per - 1) * gap)) / 2;
                 faces.forEach(([p, n], i) => {
