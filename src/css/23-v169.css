@@ -24,6 +24,7 @@
             box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28); transform: translateY(10px) scale(0.98); transition: transform 0.26s cubic-bezier(.2,.8,.2,1);
             max-height: calc(100vh - 32px); overflow-y: auto; }
         .shot-ask.on .sa-card { transform: none; }
+        .sa-card:focus { outline: none; }
         :root[data-theme="dark"] .sa-card { border: 1px solid rgba(var(--hair-rgb), 0.1); }
         .sa-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: -6px -8px 6px 0; }
         .sa-from { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--text-muted); min-width: 0; }

@@ -7,15 +7,17 @@
 
             shotsOn() { return Boolean(this.acctOn && this.acctOn() && typeof Supa !== 'undefined' && Supa.ready && Supa.ready() && this.user); },
 
-            // after every sync (and when the app comes back to the front): look for new drafts, at most every 20 seconds
+            // after every sync and when the app comes back to the front: look for new drafts, at most every 20 seconds (every
+            // 5 minutes for someone with no machine linked, so their syncs don't each ask)
             checkShotDrafts() {
                 if (!this.shotsOn()) return;
                 if (!this._shotBound && typeof document !== 'undefined') {
                     this._shotBound = true;
                     document.addEventListener('visibilitychange', () => { if (!document.hidden) this._shotBackAt = Date.now(); });
                 }
+                if (this._shotFor !== this.user) { this._shotFor = this.user; this.shotDrafts = []; this.shotDraftCount = 0; this._shotAt = 0; this._shotAsked = new Set(); this._shotCurves = {}; this.closeShotAsk(); }   // (someone else signed in)
                 const back = (this._shotBackAt || 0) > (this._shotAt || 0);
-                if (!back && Date.now() - (this._shotAt || 0) < 20000) { this.maybeAskShot(); return; }
+                if (!back && Date.now() - (this._shotAt || 0) < (this._shotEvery || 20000)) { this.maybeAskShot(); return; }
                 this.loadShotDrafts();
             },
 
@@ -27,6 +29,7 @@
                     const r = await Supa.rpc('my_shots', { max_items: 30 });
                     this.shotDrafts = (r && Array.isArray(r.drafts)) ? r.drafts : [];
                     this.shotDraftCount = (r && r.count) || this.shotDrafts.length;
+                    this._shotEvery = (r && r.machines) || this.shotDrafts.length ? 20000 : 300000;
                     this._shotAt = Date.now();
                 } catch (e) {
                     this._shotAt = Date.now();   // (a database without the Shot Logger yet: nothing to show)
@@ -120,23 +123,25 @@
                 this._shotAsked.add(String(d.id));
                 this.closeShotAsk();
                 const more = (this.shotDrafts || []).filter(x => String(x.id) !== String(d.id)).length;
-                const id = this.escJs(String(d.id));
                 const el = document.createElement('div');
                 el.id = 'shot-ask';
                 el.className = 'shot-ask';
                 el.innerHTML = `<div class="sa-card" role="dialog" aria-modal="true" aria-labelledby="sa-title">
                     <div class="sa-top"><span class="sa-from"><svg class="icon" aria-hidden="true"><use href="#i-coffee"/></svg>From your ${this.esc(this.shotMachineWord(d))} · ${this.esc(this.shotAgo(d.brewedAt))}</span>
-                        <button type="button" class="sa-x" aria-label="Close and save for later" onclick="app.shotLater('${id}')"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+                        <button type="button" class="sa-x" aria-label="Close and save for later" onclick="app.shotLater('${this.escJs(String(d.id))}')"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button></div>
                     <h2 id="sa-title" class="sa-title">Taste and rate your ${this.esc(d.coffee || 'espresso')} shot</h2>
                     <div class="sa-graph">${this.shotGraphSvg(d.shot)}</div>
                     ${this.shotStatsHtml(d)}
                     ${this.shotKeyHtml(d.shot)}
-                    <button type="button" class="btn-primary sa-rate" onclick="app.tasteShot('${id}')">Taste and rate</button>
-                    <div class="sa-row"><button type="button" class="sa-btn" onclick="app.postShotAsIs('${id}')">Post as is</button><button type="button" class="sa-btn" onclick="app.shotLater('${id}')">Later</button></div>
+                    <button type="button" class="btn-primary sa-rate" onclick="app.tasteShot('${this.escJs(String(d.id))}')">Taste and rate</button>
+                    <div class="sa-row"><button type="button" class="sa-btn" onclick="app.postShotAsIs('${this.escJs(String(d.id))}')">Post as is</button><button type="button" class="sa-btn" onclick="app.shotLater('${this.escJs(String(d.id))}')">Later</button></div>
                     <p class="sa-help">Later saves it to Drafts on your profile.${more ? `<br>${more} more in Drafts.` : ''}</p>
                 </div>`;
                 el.addEventListener('click', e => { if (e.target === el) this.shotLater(String(d.id)); });   // (a tap outside it is Later, like the X)
+                el.addEventListener('keydown', e => { if (e.key === 'Escape') this.shotLater(String(d.id)); });
                 document.body.appendChild(el);
+                const card = el.querySelector('.sa-card');
+                if (card) { card.tabIndex = -1; try { card.focus({ preventScroll: true }); } catch (e) {} }   // (VoiceOver and the keyboard start in the card)
                 requestAnimationFrame(() => el.classList.add('on'));
                 if (this.haptic) this.haptic('tick');
             },
@@ -239,14 +244,14 @@
                 const list = this.shotsOn() ? (this.shotDrafts || []) : [];
                 if (!list.length) return '';
                 const rows = list.map(d => {
-                    const s = d.shot || {}, id = this.escJs(String(d.id));
+                    const s = d.shot || {};
                     const num = v => Number.isFinite(Number(v)) && v !== null && v !== '' ? this.fmtNum(Number(v)) : '';
                     const bits = [this.shotAgo(d.brewedAt), num(s.dose_g) && num(s.yield_g) ? `${num(s.dose_g)} → ${num(s.yield_g)} g` : '', num(s.time_s) ? `${num(s.time_s)} s` : ''].filter(Boolean)
                         .map(t => `<span class="sd-bit">${this.esc(t)}</span>`).join(' · ');   // (each piece stays whole if the line wraps)
-                    return `<div class="sd-row"><button type="button" class="sd-open" onclick="app.tasteShot('${id}')" aria-label="Taste and rate your ${this.esc(d.coffee || 'espresso')} shot">
+                    return `<div class="sd-row"><button type="button" class="sd-open" onclick="app.tasteShot('${this.escJs(String(d.id))}')" aria-label="Taste and rate your ${this.esc(d.coffee || 'espresso')} shot">
                         <span class="sd-curve">${this.shotGraphSvg(s, { w: 56, h: 30, bare: true })}</span>
                         <span class="sd-main"><b>${this.esc(d.coffee || 'Espresso')}</b><span>${bits}</span></span></button>
-                        <button type="button" class="sd-del" aria-label="Delete this draft" onclick="app.dismissShot('${id}', event)"><svg class="icon" aria-hidden="true"><use href="#i-trash-2"/></svg></button></div>`;
+                        <button type="button" class="sd-del" aria-label="Delete this draft" onclick="app.dismissShot('${this.escJs(String(d.id))}', event)"><svg class="icon" aria-hidden="true"><use href="#i-trash-2"/></svg></button></div>`;
                 }).join('');
                 return `<div class="profile-card shot-drafts"><div class="label">Drafts <span class="sd-count">${Math.max(list.length, this.shotDraftCount || 0)}</span></div>${rows}</div>`;
             },
