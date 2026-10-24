@@ -395,6 +395,7 @@
                     Object.keys(existing).forEach(k => { if (!managed.has(k) && existing[k] !== undefined) payload[k] = existing[k]; });
                 }
 
+                if (this.applyShotForm) this.applyShotForm(payload, id, existing);   // v16.9: a shot from the espresso machine
                 this.push(payload);
                 this.resetTimer();
                 this.closeModals();
@@ -547,6 +548,7 @@
                 }
 
                 const form = this.getBrewForm();
+                this._shotForm = null; if (this.clearShotLogHead) this.clearShotLogHead();   // v16.9
                 this.recipeTyped = new Set(['dose', 'yield']); this._brewFormGen = (this._brewFormGen || 0) + 1;   // an old session's numbers are measurements
                 form.elements.id.value = brew.id;
                 form.method.value = brew.method || '';
@@ -637,7 +639,7 @@
                 form.reset();
                 this.recipeTyped = new Set(); this._brewFormGen = (this._brewFormGen || 0) + 1;
                 form.elements.id.value = '';
-                this._eqAtOpen = null;
+                this._eqAtOpen = null; this._shotForm = null; if (this.clearShotLogHead) this.clearShotLogHead();
                 this.selFlavors = [];
                 this.resetTasteForm(null);
                 this.methodExtras = {}; this.recipeId = ''; this.recipeName = ''; this.recipeSteps = null; this.stepsOpen = false;

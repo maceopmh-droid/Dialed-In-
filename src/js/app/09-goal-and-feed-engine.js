@@ -536,6 +536,7 @@
 
             // ---- v12.2: the coffee-page / card panes, worked out when opened
             paneHtml(brew, key) {
+                if (key === 'shot') return this.renderShotPane(brew);   // v16.9: your machine shot's graph
                 if (key === 'flavor') return this.renderFlavorPane(brew);
                 if (key === 'vs') return this.renderVsPane(brew);
                 return this.renderNextPane(brew);
@@ -543,7 +544,7 @@
 
             lazyPanes(brew) {
                 const active = this.cardTab(brew);
-                return ['flavor', 'vs', 'next'].map(k => active === k ? this.paneHtml(brew, k) : `<div class="card-pane pane-block log-wide" data-pane="${k}" data-lazy="${k}"></div>`).join('');
+                return [...(this.hasShotPane && this.hasShotPane(brew) ? ['shot'] : []), 'flavor', 'vs', 'next'].map(k => active === k ? this.paneHtml(brew, k) : `<div class="card-pane pane-block log-wide" data-pane="${k}" data-lazy="${k}"></div>`).join('');
             },
 
             // ---- v12.2: a like changes only its own heart and "liked" line

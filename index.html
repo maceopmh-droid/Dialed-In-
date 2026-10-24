@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v16.8 -->
+<!-- Dialed In v16.9 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="16.8">
+    <meta name="dialed-in-version" content="16.9">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -3975,6 +3975,85 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         /* v16.7: the tiles are plain blocks now (still buttons to screen readers and the keyboard) */
         .fab-tile { width: 100%; }
         .fab-tile[aria-disabled="true"] { cursor: default; }
+        /* ===== v16.9: the Shot Logger (shots from your espresso machine) ===== */
+        /* the graph: pressure in the app's green, flow in its star color, on one 0-10 scale (the machine's own rules) */
+        .shot-graph { display: block; width: 100%; height: auto; overflow: visible; --sg-p: var(--matcha); --sg-f: var(--gold); }
+        .shot-graph polyline { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .shot-graph .sg-p { stroke: var(--sg-p); stroke-width: 3; }
+        .shot-graph .sg-f { stroke: var(--sg-f); stroke-width: 3; }
+        .shot-graph .sg-plan { stroke: var(--ink); stroke-opacity: 0.32; stroke-width: 1.6; stroke-dasharray: 1.5 4; }
+        .shot-graph .sg-grid { stroke: rgba(var(--hair-rgb), 0.1); stroke-width: 1; }
+        .shot-graph .sg-base { stroke: rgba(var(--hair-rgb), 0.22); stroke-width: 1; }
+        .shot-graph .sg-phase { stroke: rgba(var(--hair-rgb), 0.3); stroke-width: 1; stroke-dasharray: 3 4; }
+        .shot-graph.axes .sg-p, .shot-graph.axes .sg-f { stroke-width: 4; }
+        .shot-graph .sg-ylab, .shot-graph .sg-xlab { fill: var(--text-muted); font-size: 12px; font-family: var(--font-main); font-variant-numeric: tabular-nums; }
+        .shot-graph .sg-ylab { text-anchor: end; }
+        .shot-key { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--text-muted); }
+        .shot-key span { display: inline-flex; align-items: center; gap: 7px; }
+        .shot-key i { display: inline-block; width: 16px; height: 4px; border-radius: 2px; background: var(--matcha); }
+        .shot-key i.sk-f { background: var(--gold); }
+
+        /* the popup (board 8b): a card over the dimmed app */
+        .shot-ask { position: fixed; inset: 0; z-index: 6500; display: flex; align-items: center; justify-content: center; padding: 16px;
+            background: rgba(4, 6, 5, 0.66); opacity: 0; transition: opacity 0.22s ease; }
+        .shot-ask.on { opacity: 1; }
+        .sa-card { width: 346px; max-width: 100%; box-sizing: border-box; padding: 22px; border-radius: 26px; background: var(--surface);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28); transform: translateY(10px) scale(0.98); transition: transform 0.26s cubic-bezier(.2,.8,.2,1);
+            max-height: calc(100vh - 32px); overflow-y: auto; }
+        .shot-ask.on .sa-card { transform: none; }
+        :root[data-theme="dark"] .sa-card { border: 1px solid rgba(var(--hair-rgb), 0.1); }
+        .sa-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: -6px -8px 6px 0; }
+        .sa-from { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--text-muted); min-width: 0; }
+        .sa-from .icon { width: 18px; height: 18px; color: var(--matcha); flex-shrink: 0; }
+        .sa-x { width: 44px; height: 44px; flex-shrink: 0; border: none; border-radius: 50%; background: transparent; color: var(--text-muted);
+            display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+        .sa-x .icon { width: 20px; height: 20px; }
+        .sa-x:active { background: rgba(var(--hair-rgb), 0.08); }
+        .sa-title { font-family: var(--font-bean); font-size: 25px; font-weight: 600; line-height: 1.16; color: var(--ink); margin: 0 0 14px; letter-spacing: -0.01em; text-transform: none; }
+        .sa-graph { margin: 0 0 14px; }
+        .shot-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 0 0 12px; }
+        .ss-cell { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .ss-cell b { font-size: 18px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ss-cell span { font-size: 12px; color: var(--text-muted); }
+        .sa-card .shot-key { margin: 0 0 18px; }
+        .sa-rate { display: block; width: 100%; height: 52px; margin: 0 0 10px; border-radius: 16px; font-size: 17px; font-weight: 700; text-transform: none; letter-spacing: 0; }
+        .sa-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .sa-btn { height: 46px; border-radius: 14px; border: 1px solid rgba(var(--hair-rgb), 0.18); background: transparent; color: var(--ink);
+            font-size: 16px; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .sa-btn:active { background: rgba(var(--hair-rgb), 0.06); }
+        .sa-help { margin: 12px 0 0; font-size: 13px; line-height: 1.4; color: var(--text-muted); text-align: center; }
+
+        /* the Log for a machine shot: where it came from and its curve, in place of the timer */
+        #brew-modal.from-shot .timer-hero { display: none; }
+        .shot-log-head { margin: 4px 0 18px; display: flex; flex-direction: column; gap: 10px; }
+        .slh-from { font-size: 14px; font-weight: 600; color: var(--text-muted); }
+
+        /* Drafts on your profile */
+        .shot-drafts .label { display: flex; align-items: baseline; gap: 8px; }
+        .sd-count { font-size: 0.85em; font-weight: 600; color: var(--text-muted); }
+        .sd-row { display: flex; align-items: center; gap: 4px; border-top: 1px solid rgba(var(--hair-rgb), 0.08); }
+        .sd-row:first-of-type { border-top: none; }
+        .sd-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 10px 0; border: none; background: none; text-align: left;
+            color: inherit; font: inherit; cursor: pointer; }
+        .sd-curve { width: 56px; flex-shrink: 0; }
+        .sd-bit { white-space: nowrap; }
+        .sd-curve .shot-graph .sg-p, .sd-curve .shot-graph .sg-f { stroke-width: 2; }
+        .sd-main { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+        .sd-main b { font-family: var(--font-bean); font-size: 17px; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sd-main span { font-size: 13px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+        .sd-del { width: 44px; height: 44px; margin-right: -12px; flex-shrink: 0; border: none; background: none; color: var(--text-faint); border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+        .sd-del .icon { width: 18px; height: 18px; }
+        .sd-del:active { color: var(--danger); background: rgba(var(--hair-rgb), 0.06); }
+
+        /* the Shot tab on a posted machine shot: the graph and how each phase went */
+        .shot-pane { display: flex; flex-direction: column; gap: 12px; padding: 4px 0 2px; }
+        .shot-recipe { font-size: 14px; font-weight: 600; color: var(--text-muted); }
+        .shot-phases { display: flex; flex-direction: column; border-top: 1px solid rgba(var(--hair-rgb), 0.08); }
+        .sp-row { display: grid; grid-template-columns: 1fr auto 76px; gap: 10px; padding: 8px 0; font-size: 14px; border-bottom: 1px solid rgba(var(--hair-rgb), 0.08); }
+        .sp-row span:first-child { color: var(--ink); font-weight: 600; }
+        .sp-row span:nth-child(2) { color: var(--ink); font-variant-numeric: tabular-nums; text-align: right; }
+        .sp-row span:last-child { color: var(--text-muted); text-align: right; }
     </style>
 </head>
 <body>
@@ -4576,7 +4655,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v16.8</div>
+            <div class="app-version">Dialed In · v16.9</div>
         </div>
     </div>
 
@@ -7549,6 +7628,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     if (changed) this.persistCloudCache();
                     if (this.adoptSheetOutbox && Cloud.confirms) this.adoptSheetOutbox();   // v14.2: saves made on the Sheet that never left this phone
                     if (this.checkNotifications) this.checkNotifications();   // v14.4: the bell's unread count
+                    if (this.checkShotDrafts) this.checkShotDrafts();   // v16.9: shots from your espresso machine
                     if (this.checkPendingJoin) this.checkPendingJoin();   // v14.4: an invite link opened before signing in
                     if (this.checkPendingProfile) this.checkPendingProfile();   // v14.5: a profile link
                     if (this.checkPendingShare) this.checkPendingShare();   // v15.0: a shared session, coffee or roaster
@@ -9668,6 +9748,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
             // ---- v12.2: the coffee-page / card panes, worked out when opened
             paneHtml(brew, key) {
+                if (key === 'shot') return this.renderShotPane(brew);   // v16.9: your machine shot's graph
                 if (key === 'flavor') return this.renderFlavorPane(brew);
                 if (key === 'vs') return this.renderVsPane(brew);
                 return this.renderNextPane(brew);
@@ -9675,7 +9756,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
             lazyPanes(brew) {
                 const active = this.cardTab(brew);
-                return ['flavor', 'vs', 'next'].map(k => active === k ? this.paneHtml(brew, k) : `<div class="card-pane pane-block log-wide" data-pane="${k}" data-lazy="${k}"></div>`).join('');
+                return [...(this.hasShotPane && this.hasShotPane(brew) ? ['shot'] : []), 'flavor', 'vs', 'next'].map(k => active === k ? this.paneHtml(brew, k) : `<div class="card-pane pane-block log-wide" data-pane="${k}" data-lazy="${k}"></div>`).join('');
             },
 
             // ---- v12.2: a like changes only its own heart and "liked" line
@@ -13150,7 +13231,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const active = this.cardTab(brew);
                 const id = this.esc(brew.id);
                 const tab = (key, label) => `<button type="button" class="card-tab${active === key ? ' active' : ''}" data-tab-key="${key}" onclick="app.setCardTab('${app.escJs(id)}','${app.escJs(key)}',event)">${label}</button>`;
-                return `<div class="card-tabs">${tab('session', 'Session')}${tab('flavor', 'Flavor')}${tab('vs', 'Vs. last time')}${tab('next', `Next ${this.shotWord(brew.method)}`)}</div>`;
+                return `<div class="card-tabs">${tab('session', 'Session')}${this.hasShotPane && this.hasShotPane(brew) ? tab('shot', 'Shot') : ''}${tab('flavor', 'Flavor')}${tab('vs', 'Vs. last time')}${tab('next', `Next ${this.shotWord(brew.method)}`)}</div>`;
             },
 
             setCardTab(brewId, tab, event) {
@@ -13681,7 +13762,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const section = ['sessions', 'overview', 'taste', 'activity'].includes(this.profileSection) ? this.profileSection : 'sessions';   // v14.5: Sessions first
                 const freshRecap = who === this.user ? this.freshRecap() : null;
                 const tabs = `<div class="seg-control profile-tabs" role="tablist" aria-label="Profile sections">${[['sessions', 'Sessions'], ['overview', 'Overview'], ['taste', 'Taste'], ['activity', 'More']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === section}" aria-pressed="${k === section}" onclick="app.setProfileSection('${app.escJs(k)}')">${l}${k === 'activity' && freshRecap && section !== 'activity' ? '<span class="nav-dot"></span>' : ''}</button>`).join('')}</div>`;
-                const cards = section === 'sessions' ? [this.profileSessionsHtml(who)]
+                const cards = section === 'sessions' ? [who === this.user && this.renderShotDraftsCard ? this.renderShotDraftsCard() : '', this.profileSessionsHtml(who)]   // v16.9: shots waiting from your espresso machine first
+
                     : section === 'taste'
                     ? [this.renderPalateCard(who), this.renderCoffeeMapCard ? this.renderCoffeeMapCard(who) : '', who === this.user ? this.renderFriendPalates() : '', this.renderMatchesCard(who), this.renderWantCard(who)]
                     : section === 'activity'
@@ -16360,6 +16442,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     Object.keys(existing).forEach(k => { if (!managed.has(k) && existing[k] !== undefined) payload[k] = existing[k]; });
                 }
 
+                if (this.applyShotForm) this.applyShotForm(payload, id, existing);   // v16.9: a shot from the espresso machine
                 this.push(payload);
                 this.resetTimer();
                 this.closeModals();
@@ -16512,6 +16595,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 }
 
                 const form = this.getBrewForm();
+                this._shotForm = null; if (this.clearShotLogHead) this.clearShotLogHead();   // v16.9
                 this.recipeTyped = new Set(['dose', 'yield']); this._brewFormGen = (this._brewFormGen || 0) + 1;   // an old session's numbers are measurements
                 form.elements.id.value = brew.id;
                 form.method.value = brew.method || '';
@@ -16602,7 +16686,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 form.reset();
                 this.recipeTyped = new Set(); this._brewFormGen = (this._brewFormGen || 0) + 1;
                 form.elements.id.value = '';
-                this._eqAtOpen = null;
+                this._eqAtOpen = null; this._shotForm = null; if (this.clearShotLogHead) this.clearShotLogHead();
                 this.selFlavors = [];
                 this.resetTasteForm(null);
                 this.methodExtras = {}; this.recipeId = ''; this.recipeName = ''; this.recipeSteps = null; this.stepsOpen = false;
@@ -21512,6 +21596,291 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 };
                 document.addEventListener('touchend', finish, { passive: true });
                 document.addEventListener('touchcancel', () => { const s = g; g = null; if (s && s.el && s.lock) { s.el.style.transition = ease; s.el.style.transform = ''; s.el.style.opacity = ''; if (s.modal) s.modal.style.opacity = ''; setTimeout(() => clear(s.el), 240); } }, { passive: true });
+            },
+            // ===================== v16.9: the Shot Logger in the app =====================
+            // A GaggiMate kit on your Gaggia sends each shot to Dialed In as a draft (supabase/api.sql, "the Shot Logger").
+            // Here: the "Taste and rate" popup when the app opens or comes back (board 8b of the machine-screen canvas), the
+            // Log filled in from the shot, Drafts on your profile, and a Shot tab with the graph on your posted machine
+            // shots. Drafts and graphs are yours alone. The contract with the machine side: claude/shot-logger-app-handoff.md.
+            SHOT_ASK_HOURS: 12,   // the popup asks about shots from the last 12 hours (older ones wait in Drafts)
+
+            shotsOn() { return Boolean(this.acctOn && this.acctOn() && typeof Supa !== 'undefined' && Supa.ready && Supa.ready() && this.user); },
+
+            // after every sync (and when the app comes back to the front): look for new drafts, at most every 20 seconds
+            checkShotDrafts() {
+                if (!this.shotsOn()) return;
+                if (!this._shotBound && typeof document !== 'undefined') {
+                    this._shotBound = true;
+                    document.addEventListener('visibilitychange', () => { if (!document.hidden) this._shotBackAt = Date.now(); });
+                }
+                const back = (this._shotBackAt || 0) > (this._shotAt || 0);
+                if (!back && Date.now() - (this._shotAt || 0) < 20000) { this.maybeAskShot(); return; }
+                this.loadShotDrafts();
+            },
+
+            async loadShotDrafts() {
+                if (!this.shotsOn() || this._shotLoading) return;
+                this._shotLoading = true;
+                const before = JSON.stringify((this.shotDrafts || []).map(d => d.id + (d.asked ? '+' : '')));
+                try {
+                    const r = await Supa.rpc('my_shots', { max_items: 30 });
+                    this.shotDrafts = (r && Array.isArray(r.drafts)) ? r.drafts : [];
+                    this.shotDraftCount = (r && r.count) || this.shotDrafts.length;
+                    this._shotAt = Date.now();
+                } catch (e) {
+                    this._shotAt = Date.now();   // (a database without the Shot Logger yet: nothing to show)
+                } finally { this._shotLoading = false; }
+                if (JSON.stringify((this.shotDrafts || []).map(d => d.id + (d.asked ? '+' : ''))) !== before && this.tab === 'profile' && (!this.profileUser || this.profileUser === this.user)) this.render();
+                this.maybeAskShot();
+            },
+
+            shotDraft(id) { return (this.shotDrafts || []).find(d => String(d.id) === String(id)) || null; },
+
+            // only the newest draft (the rest are "N more in Drafts"), if it's from the last 12 hours and you haven't answered
+            // it yet, once nothing else is on screen
+            maybeAskShot() {
+                if (!this.shotsOn() || typeof document === 'undefined' || document.hidden) return;
+                this._shotAsked = this._shotAsked || new Set();
+                const due = (this.shotDrafts || [])[0];
+                if (!due || due.asked || this._shotAsked.has(String(due.id)) || !(Date.now() - this.toTime(due.brewedAt) < this.SHOT_ASK_HOURS * 3600e3)) return;
+                const busy = document.getElementById('boot-screen') || document.getElementById('shot-ask') || this.tour || !this.updateIdle();   // (nothing open, no typing, no tour)
+                if (busy) { clearTimeout(this._shotRetry); this._shotRetry = setTimeout(() => this.maybeAskShot(), 2500); return; }
+                this.openShotAsk(due);
+            },
+
+            // "From your Gaggia": the machine's name without its owner ("Maceo's Gaggia" → "Gaggia")
+            shotMachineWord(d) {
+                const n = String((d && d.machine) || '').trim();
+                return n.replace(/^.*?['’]s\s+/i, '') || n || 'machine';
+            },
+            shotAgo(t) {
+                const ms = Date.now() - this.toTime(t);
+                if (!(ms >= 0)) return '';
+                const m = Math.floor(ms / 60000);
+                if (m < 1) return 'just now';
+                if (m < 60) return `${m} min ago`;
+                const h = Math.floor(m / 60);
+                if (h < 24) return `${h} hr ago`;
+                return this.formatRelativeDate(t);
+            },
+            shotNum(v, unit) { const n = Number(v); return v === null || v === undefined || v === '' || !Number.isFinite(n) ? '–' : `${n.toFixed(1)}${unit ? ' ' + unit : ''}`; },
+            shotPeak(shot) {
+                const p = Number(shot && shot.peak_bar);
+                if (Number.isFinite(p) && p > 0) return p;
+                const list = ((shot && shot.samples && shot.samples.pressure_bar) || []).map(Number).filter(Number.isFinite);
+                return list.length ? Math.max(...list) : 0;
+            },
+
+            // ---- the shot graph: pressure (bar) and flow into the cup (g/s) on one 0-10 scale, gridlines at 3, 6 and 9, the
+            // recipe's planned pressure dotted, dashed lines where phases change. The same rules as the machine's screen.
+            shotGraphSvg(shot, o = {}) {
+                const s = (shot && shot.samples) || {}, t = Array.isArray(s.t_s) ? s.t_s.map(Number) : [];
+                const n = t.length;
+                if (n < 2) return '';
+                const axes = Boolean(o.axes), W = o.w || 302, H = o.h || 84;
+                const L = axes ? 30 : 6, R = 8, T = 8, B = axes ? 26 : 6;
+                const end = t[n - 1], xMax = Math.max(40, Math.ceil((end + 0.5) / 10) * 10);
+                const X = v => +(L + (Math.max(0, Math.min(xMax, v)) / xMax) * (W - L - R)).toFixed(1);
+                const Y = v => +((H - B) - (Math.max(0, Math.min(10, v)) / 10) * (H - B - T)).toFixed(1);
+                const step = Math.max(1, Math.ceil(n / 320)), idx = [];
+                for (let i = 0; i < n; i += step) idx.push(i);
+                if (idx[idx.length - 1] !== n - 1) idx.push(n - 1);
+                const lines = (arr, cls) => {   // a break wherever the list has no value (the plan has none during the fill)
+                    if (!Array.isArray(arr) || arr.length !== n) return '';
+                    const runs = []; let cur = [];
+                    idx.forEach(i => { const v = arr[i]; if (v === null || v === undefined || !Number.isFinite(Number(v))) { if (cur.length > 1) runs.push(cur); cur = []; } else cur.push(`${X(t[i])},${Y(Number(v))}`); });
+                    if (cur.length > 1) runs.push(cur);
+                    return runs.map(r => `<polyline class="${cls}" points="${r.join(' ')}"></polyline>`).join('');
+                };
+                const bare = Boolean(o.bare);   // (the tiny one in Drafts: just the two lines on a baseline)
+                const grid = bare ? `<line class="sg-base" x1="${L}" y1="${Y(0)}" x2="${W - R}" y2="${Y(0)}"></line>` : [3, 6, 9].map(v => `<line class="sg-grid${v === 9 ? ' top' : ''}" x1="${L}" y1="${Y(v)}" x2="${W - R}" y2="${Y(v)}"></line>`).join('') + `<line class="sg-base" x1="${L}" y1="${Y(0)}" x2="${W - R}" y2="${Y(0)}"></line>`;
+                const phases = !bare && Array.isArray(shot.phases) ? shot.phases : [];
+                const cuts = phases.slice(1).map(p => Number(p.start_s)).concat(axes && phases.length ? [Number(phases[phases.length - 1].end_s)] : []).filter(v => Number.isFinite(v) && v > 0 && v < xMax);
+                const phaseLines = [...new Set(cuts)].map(v => `<line class="sg-phase" x1="${X(v)}" y1="${T - 2}" x2="${X(v)}" y2="${Y(0)}"></line>`).join('');
+                const labels = axes ? [3, 6, 9].map(v => `<text class="sg-ylab" x="${L - 8}" y="${Y(v) + 4}">${v}</text>`).join('')
+                    + `<text class="sg-xlab" x="${L}" y="${H - 6}" text-anchor="middle">0</text><text class="sg-xlab" x="${X(xMax / 2)}" y="${H - 6}" text-anchor="middle">${xMax / 2}</text><text class="sg-xlab" x="${W - R}" y="${H - 6}" text-anchor="end">${xMax} s</text>` : '';
+                const flows = (s.flow_gs || []).map(Number).filter(Number.isFinite);
+                const label = `Shot curve: pressure peaked at ${this.shotPeak(shot).toFixed(1)} bar${flows.length ? `, flow into the cup up to ${Math.max(...flows).toFixed(1)} grams a second` : ''}, ${end.toFixed(1)} seconds`;
+                return `<svg class="shot-graph${axes ? ' axes' : ''}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${this.esc(label)}">${grid}${phaseLines}${labels}${bare ? '' : lines(s.plan_bar, 'sg-plan')}${lines(s.pressure_bar, 'sg-p')}${lines(s.flow_gs, 'sg-f')}</svg>`;
+            },
+            shotKeyHtml(shot) {
+                return `<div class="shot-key"><span><i class="sk-p"></i>Pressure, peak ${this.shotPeak(shot).toFixed(1)} bar</span><span><i class="sk-f"></i>Flow</span></div>`;
+            },
+            shotStatsHtml(d) {
+                const s = d.shot || {};
+                const cell = (v, l) => `<div class="ss-cell"><b>${this.esc(v)}</b><span>${l}</span></div>`;
+                return `<div class="shot-stats">${cell(this.shotNum(s.dose_g, 'g'), 'In')}${cell(this.shotNum(s.yield_g, 'g'), 'Out')}${cell(this.shotNum(s.time_s, 's'), 'Time')}${cell(d.grind || s.grind || '–', 'Grind')}</div>`;
+            },
+
+            // ---- the popup (board 8b): taste and rate, post as is, or later
+            openShotAsk(d) {
+                if (!d || typeof document === 'undefined') return;
+                this._shotAsked = this._shotAsked || new Set();
+                this._shotAsked.add(String(d.id));
+                this.closeShotAsk();
+                const more = (this.shotDrafts || []).filter(x => String(x.id) !== String(d.id)).length;
+                const id = this.escJs(String(d.id));
+                const el = document.createElement('div');
+                el.id = 'shot-ask';
+                el.className = 'shot-ask';
+                el.innerHTML = `<div class="sa-card" role="dialog" aria-modal="true" aria-labelledby="sa-title">
+                    <div class="sa-top"><span class="sa-from"><svg class="icon" aria-hidden="true"><use href="#i-coffee"/></svg>From your ${this.esc(this.shotMachineWord(d))} · ${this.esc(this.shotAgo(d.brewedAt))}</span>
+                        <button type="button" class="sa-x" aria-label="Close and save for later" onclick="app.shotLater('${id}')"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+                    <h2 id="sa-title" class="sa-title">Taste and rate your ${this.esc(d.coffee || 'espresso')} shot</h2>
+                    <div class="sa-graph">${this.shotGraphSvg(d.shot)}</div>
+                    ${this.shotStatsHtml(d)}
+                    ${this.shotKeyHtml(d.shot)}
+                    <button type="button" class="btn-primary sa-rate" onclick="app.tasteShot('${id}')">Taste and rate</button>
+                    <div class="sa-row"><button type="button" class="sa-btn" onclick="app.postShotAsIs('${id}')">Post as is</button><button type="button" class="sa-btn" onclick="app.shotLater('${id}')">Later</button></div>
+                    <p class="sa-help">Later saves it to Drafts on your profile.${more ? `<br>${more} more in Drafts.` : ''}</p>
+                </div>`;
+                el.addEventListener('click', e => { if (e.target === el) this.shotLater(String(d.id)); });   // (a tap outside it is Later, like the X)
+                document.body.appendChild(el);
+                requestAnimationFrame(() => el.classList.add('on'));
+                if (this.haptic) this.haptic('tick');
+            },
+            closeShotAsk() {
+                const el = typeof document !== 'undefined' ? document.getElementById('shot-ask') : null;
+                if (el) el.remove();
+            },
+
+            // Later (or the X): it stays in Drafts and isn't asked about again
+            shotLater(id) {
+                this.closeShotAsk();
+                const d = this.shotDraft(id);
+                if (d) d.asked = true;
+                if (this.shotsOn()) Supa.rpc('shot_later', { shot_id: String(id) }).catch(() => {});
+            },
+
+            // Post as is: a session with the machine's numbers only (no stars, no tasting)
+            async postShotAsIs(id) {
+                this.closeShotAsk();
+                try {
+                    await Supa.rpc('post_shot', { shot_id: String(id) });
+                    this.shotDrafts = (this.shotDrafts || []).filter(d => String(d.id) !== String(id));
+                    this.showToast('Posted to your sessions.');
+                    this.sync({ silent: true });
+                    if (this.tab === 'profile') this.render();
+                } catch (e) {
+                    this.showToast('Couldn\'t post it just now. It\'s still in Drafts.');
+                }
+            },
+
+            // Taste and rate: the Log, filled in from the shot (coffee, Espresso, dose, yield, time, grind, and the stars and
+            // sliders when it was rated on the machine); saving it posts the draft as this session
+            tasteShot(id) {
+                const d = this.shotDraft(id);
+                if (!d) { this.showToast('That shot isn\'t in Drafts any more.'); return; }
+                if (document.getElementById('shot-ask')) this.shotLater(id);   // (from the popup: answered, so it doesn't ask again; backing out of the Log leaves it in Drafts)
+                const bean = this.beans.get(String(d.beanId || ''));
+                if (!bean) { this.showToast('That shot\'s coffee isn\'t on your shelf. Add the coffee, then try again.'); return; }
+                this.openFeedTarget(d.beanId, '', false);   // its coffee's page underneath, where the session lands
+                this.activeId = String(d.beanId);
+                const s = d.shot || {}, r = s.rating && typeof s.rating === 'object' ? s.rating : null, taste = (r && r.taste) || {};
+                const prefill = { method: 'Espresso', grind: d.grind || '', dose: s.dose_g ?? '', yield: s.yield_g ?? '', time: s.time_s ?? '', notes: '', flavors: [] };
+                TASTE_KEYS.forEach(k => { if (Number.isFinite(Number(taste[k]))) prefill[k] = Number(taste[k]); });
+                if (Object.keys(taste).length) prefill.tasted = TASTE_KEYS.filter(k => Number.isFinite(Number(taste[k])));
+                this.openBrewModal(prefill);
+                const form = this.getBrewForm();
+                if (!form) return;
+                form.elements.id.value = 'shot_' + d.id;
+                this.shotLogHead(d);
+                if (r && Number(r.stars) > 0) { form.rating.value = this.normalizeRating(r.stars); this.updateRatingDisplay(form.rating.value); }
+                const rec = s.recipe && typeof s.recipe === 'object' ? s.recipe : {};
+                const temp = Number.isFinite(Number(s.temp_c)) ? Number(s.temp_c) : (Number.isFinite(Number(rec.temp_c)) ? Number(rec.temp_c) : null);
+                this._shotForm = { id: 'shot_' + d.id, date: d.brewedAt, extras: Object.fromEntries(Object.entries({
+                    shotId: String(d.id), temp, machineRecipe: rec.name || null, peakBar: Number.isFinite(Number(s.peak_bar)) ? Number(s.peak_bar) : null,
+                    targetYield: Number.isFinite(Number(s.target_yield_g)) ? Number(s.target_yield_g) : null, machine: d.machine || null }).filter(([, v]) => v !== null && v !== '')) };
+            },
+            // the top of the Log for a machine shot: where it came from and its curve, in place of the timer (it's already timed)
+            shotLogHead(d) {
+                const modal = document.getElementById('brew-modal'), title = document.getElementById('brew-modal-title');
+                if (!modal || !title) return;
+                const s = d.shot || {}, rec = s.recipe && typeof s.recipe === 'object' ? s.recipe : {};
+                const temp = Number.isFinite(Number(s.temp_c)) ? Number(s.temp_c) : Number(rec.temp_c);
+                const when = new Date(this.toTime(d.brewedAt));
+                const at = Number.isFinite(when.getTime()) ? when.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '';
+                const bits = [`From your ${this.esc(this.shotMachineWord(d))}`, rec.name ? this.esc(rec.name) : '', Number.isFinite(temp) ? `${Math.round(temp)}°C` : '', at ? `pulled ${this.esc(at)}` : ''].filter(Boolean).join(' · ');
+                title.innerText = 'Taste and rate';
+                modal.classList.add('from-shot');
+                title.insertAdjacentHTML('afterend', `<div class="shot-log-head"><div class="slh-from">${bits}</div>${this.shotGraphSvg(s)}${this.shotKeyHtml(s)}</div>`);
+            },
+            clearShotLogHead() {
+                if (typeof document === 'undefined') return;
+                document.querySelectorAll('#brew-modal .shot-log-head').forEach(el => el.remove());
+                const modal = document.getElementById('brew-modal');
+                if (modal) modal.classList.remove('from-shot');
+            },
+
+            // (handleBrewSubmit) a new session from a machine shot keeps the shot's time and details, and leaves Drafts
+            applyShotForm(payload, id, existing) {
+                if (existing && existing.shotId && payload.temp === undefined && existing.temp !== undefined) payload.temp = existing.temp;   // (editing one later: the Log has no temperature for espresso)
+                const f = this._shotForm;
+                if (!f || existing || f.id !== id) return;
+                payload.date = f.date || payload.date;
+                Object.assign(payload, f.extras);
+                this._shotForm = null;
+                this.shotDrafts = (this.shotDrafts || []).filter(d => 'shot_' + d.id !== id);
+            },
+
+            // delete a draft (a late retry from the machine won't bring it back)
+            async dismissShot(id, event) {
+                if (event) event.stopPropagation();
+                const keep = this.shotDrafts || [];
+                this.shotDrafts = keep.filter(d => String(d.id) !== String(id));
+                this.render();
+                try { await Supa.rpc('dismiss_shot', { shot_id: String(id) }); this.showToast('Draft deleted.'); }
+                catch (e) { this.shotDrafts = keep; this.render(); this.showToast('Couldn\'t delete it just now.'); }
+            },
+
+            // ---- Drafts, on your own profile (above your sessions): each with its coffee, when, the numbers and a tiny curve
+            renderShotDraftsCard() {
+                const list = this.shotsOn() ? (this.shotDrafts || []) : [];
+                if (!list.length) return '';
+                const rows = list.map(d => {
+                    const s = d.shot || {}, id = this.escJs(String(d.id));
+                    const num = v => Number.isFinite(Number(v)) && v !== null && v !== '' ? this.fmtNum(Number(v)) : '';
+                    const bits = [this.shotAgo(d.brewedAt), num(s.dose_g) && num(s.yield_g) ? `${num(s.dose_g)} → ${num(s.yield_g)} g` : '', num(s.time_s) ? `${num(s.time_s)} s` : ''].filter(Boolean)
+                        .map(t => `<span class="sd-bit">${this.esc(t)}</span>`).join(' · ');   // (each piece stays whole if the line wraps)
+                    return `<div class="sd-row"><button type="button" class="sd-open" onclick="app.tasteShot('${id}')" aria-label="Taste and rate your ${this.esc(d.coffee || 'espresso')} shot">
+                        <span class="sd-curve">${this.shotGraphSvg(s, { w: 56, h: 30, bare: true })}</span>
+                        <span class="sd-main"><b>${this.esc(d.coffee || 'Espresso')}</b><span>${bits}</span></span></button>
+                        <button type="button" class="sd-del" aria-label="Delete this draft" onclick="app.dismissShot('${id}', event)"><svg class="icon" aria-hidden="true"><use href="#i-trash-2"/></svg></button></div>`;
+                }).join('');
+                return `<div class="profile-card shot-drafts"><div class="label">Drafts <span class="sd-count">${Math.max(list.length, this.shotDraftCount || 0)}</span></div>${rows}</div>`;
+            },
+
+            // ---- the Shot tab on your posted machine shots: the graph, its key and how each phase went
+            hasShotPane(brew) { return Boolean(brew && brew.shotId && this.shotsOn() && this.getBrewOwner(brew) === this.user); },
+            renderShotPane(brew) {
+                const active = this.cardTab(brew) === 'shot' ? ' active' : '';
+                const id = String(brew.id), c = (this._shotCurves || {})[id];
+                if (c === undefined) {
+                    this.loadShotCurve(brew);
+                    return `<div class="card-pane pane-block log-wide${active}" data-pane="shot">${this.loadingBlockHtml('shot-wait', 'Loading the shot…')}</div>`;
+                }
+                if (!c) return `<div class="card-pane pane-block log-wide${active}" data-pane="shot"><div class="vs-empty">This shot's graph isn't available.</div></div>`;
+                const ph = Array.isArray(c.phases) ? c.phases : [];
+                const table = ph.length ? `<div class="shot-phases">${ph.map(p => {
+                    const dur = Number(p.end_s) - Number(p.start_s);
+                    return `<div class="sp-row"><span>${this.esc(p.name || 'Phase')}</span><span>${Number.isFinite(dur) ? dur.toFixed(1) + ' s' : '–'}</span><span>${this.esc(p.ended_by || '')}</span></div>`;
+                }).join('')}</div>` : '';
+                const rec = c.recipe && c.recipe.name ? `<div class="shot-recipe">${this.esc(c.recipe.name)}${Number.isFinite(Number(c.temp_c || c.recipe.temp_c)) ? ` · ${Math.round(Number(c.temp_c || c.recipe.temp_c))}°C` : ''}</div>` : '';
+                return `<div class="card-pane pane-block log-wide${active}" data-pane="shot"><div class="shot-pane">${rec}${this.shotGraphSvg(c, { axes: true, w: 330, h: 150 })}${this.shotKeyHtml(c)}${table}</div></div>`;
+            },
+            async loadShotCurve(brew) {
+                const id = String(brew.id);
+                this._shotCurves = this._shotCurves || {};
+                if (this._shotCurveLoading && this._shotCurveLoading.has(id)) return;
+                (this._shotCurveLoading = this._shotCurveLoading || new Set()).add(id);
+                let shot = null;
+                try { const r = await Supa.rpc('shot_for_session', { session_ref: id }); shot = r && r.shot ? r.shot : null; }
+                catch (e) { shot = null; }
+                this._shotCurveLoading.delete(id);
+                this._shotCurves[id] = shot;
+                if (typeof document === 'undefined') return;
+                if (this.dirtyKeys) this.dirtyKeys(`session:${id}`, `log-${id}`);
+                document.querySelectorAll(`[data-card-brew="${CSS.escape(id)}"] [data-pane="shot"]`).forEach(pane => { const el = this.htmlEl(this.renderShotPane(brew)); pane.replaceWith(el); });
             },
         };
         window.onload = () => app.init();

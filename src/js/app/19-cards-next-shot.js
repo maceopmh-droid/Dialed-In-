@@ -141,7 +141,7 @@
                 const active = this.cardTab(brew);
                 const id = this.esc(brew.id);
                 const tab = (key, label) => `<button type="button" class="card-tab${active === key ? ' active' : ''}" data-tab-key="${key}" onclick="app.setCardTab('${app.escJs(id)}','${app.escJs(key)}',event)">${label}</button>`;
-                return `<div class="card-tabs">${tab('session', 'Session')}${tab('flavor', 'Flavor')}${tab('vs', 'Vs. last time')}${tab('next', `Next ${this.shotWord(brew.method)}`)}</div>`;
+                return `<div class="card-tabs">${tab('session', 'Session')}${this.hasShotPane && this.hasShotPane(brew) ? tab('shot', 'Shot') : ''}${tab('flavor', 'Flavor')}${tab('vs', 'Vs. last time')}${tab('next', `Next ${this.shotWord(brew.method)}`)}</div>`;
             },
 
             setCardTab(brewId, tab, event) {

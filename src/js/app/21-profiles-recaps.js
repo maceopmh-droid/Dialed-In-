@@ -40,7 +40,8 @@
                 const section = ['sessions', 'overview', 'taste', 'activity'].includes(this.profileSection) ? this.profileSection : 'sessions';   // v14.5: Sessions first
                 const freshRecap = who === this.user ? this.freshRecap() : null;
                 const tabs = `<div class="seg-control profile-tabs" role="tablist" aria-label="Profile sections">${[['sessions', 'Sessions'], ['overview', 'Overview'], ['taste', 'Taste'], ['activity', 'More']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === section}" aria-pressed="${k === section}" onclick="app.setProfileSection('${app.escJs(k)}')">${l}${k === 'activity' && freshRecap && section !== 'activity' ? '<span class="nav-dot"></span>' : ''}</button>`).join('')}</div>`;
-                const cards = section === 'sessions' ? [this.profileSessionsHtml(who)]
+                const cards = section === 'sessions' ? [who === this.user && this.renderShotDraftsCard ? this.renderShotDraftsCard() : '', this.profileSessionsHtml(who)]   // v16.9: shots waiting from your espresso machine first
+
                     : section === 'taste'
                     ? [this.renderPalateCard(who), this.renderCoffeeMapCard ? this.renderCoffeeMapCard(who) : '', who === this.user ? this.renderFriendPalates() : '', this.renderMatchesCard(who), this.renderWantCard(who)]
                     : section === 'activity'
