@@ -58,7 +58,9 @@ jobs:
           c=$(curl -s -o /dev/null -w '%{http_code}' "$base/shot-inbox")
           d=$(curl -s -o /dev/null -w '%{http_code}' "$base/machine-sync" -H "$bad")
           e=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$base/machine-sync" -H "$bad")
+          head -c 300000 /dev/zero | tr '\0' 'x' > "$RUNNER_TEMP/big.txt"
+          f=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$base/shot-inbox" -H "$bad" --data-binary @"$RUNNER_TEMP/big.txt")
           { echo "shot-inbox, a wrong token: $a (401 expected)"; echo "shot-inbox, no token: $b (401 expected)"; echo "shot-inbox, GET: $c (405 expected)";
-            echo "machine-sync, a wrong token: $d (401 expected)"; echo "machine-sync, POST: $e (405 expected)"; } | tee "$RUNNER_TEMP/k.txt"
+            echo "machine-sync, a wrong token: $d (401 expected)"; echo "machine-sync, POST: $e (405 expected)"; echo "shot-inbox, over 256 KB: $f (413 expected)"; } | tee "$RUNNER_TEMP/k.txt"
           bash supabase/report.sh "Function checks" "$RUNNER_TEMP/k.txt"
-          [ "$a" = "401" ] && [ "$b" = "401" ] && [ "$c" = "405" ] && [ "$d" = "401" ] && [ "$e" = "405" ]
+          [ "$a" = "401" ] && [ "$b" = "401" ] && [ "$c" = "405" ] && [ "$d" = "401" ] && [ "$e" = "405" ] && [ "$f" = "413" ]

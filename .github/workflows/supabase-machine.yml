@@ -61,8 +61,11 @@ jobs:
           code=$(curl -s -o "$RUNNER_TEMP/sync.json" -w '%{http_code}' "$base/machine-sync" -H "Authorization: Bearer $(cat "$RUNNER_TEMP/token")")
           n=$(python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print(len(d.get('coffees') or []))" "$RUNNER_TEMP/sync.json" 2>/dev/null)
           echo "machine-sync with the new token: $code (200 expected), $n coffees on the shelf for the picker" | tee "$RUNNER_TEMP/k.txt"
+          head -c 300000 /dev/zero | tr '\0' 'x' > "$RUNNER_TEMP/big.txt"
+          big=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$base/shot-inbox" -H 'Authorization: Bearer 0000000000000000000000000000000000000000000000000000000000000000' --data-binary @"$RUNNER_TEMP/big.txt")
+          echo "shot-inbox, a body over 256 KB: $big (413 expected; the functions are the Oct 24 evening version)" | tee -a "$RUNNER_TEMP/k.txt"
           rm -f "$RUNNER_TEMP/sync.json" "$RUNNER_TEMP/token" "$RUNNER_TEMP/config.json"
-          bash supabase/report.sh "Token check" "$RUNNER_TEMP/k.txt"; [ "$code" = "200" ]
+          bash supabase/report.sh "Token check" "$RUNNER_TEMP/k.txt"; [ "$code" = "200" ] && [ "$big" = "413" ]
       - uses: actions/upload-artifact@v4
         with:
           name: dialedin-simulator-link-${{ github.run_id }}
