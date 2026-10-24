@@ -1,8 +1,9 @@
 # Supabase (phases 1 and 2)
 
 The database for the public version of Dialed In. The project exists (created Oct 16, 2026); it's loaded and
-checked from GitHub (`.github/workflows/supabase-setup.yml`), since GitHub can reach it. The app still runs on the
-Sheet for everyone until the move (`CUTOVER.md`).
+checked from GitHub (`.github/workflows/supabase-setup.yml`), since GitHub can reach it. Everyone moved to it on
+Oct 16, 2026 (v14.3, `CUTOVER.md`): the app reads and writes here, and the Sheet is kept only as an archive
+(`sheet_archive`).
 
 - `check_project.js`: checks the real project after loading: privacy rules on for every table, signed-out
   visitors get nothing (from the database and from the outside), signed-in people can call exactly the app's calls,
@@ -214,6 +215,28 @@ four people match. Two things it found about today's data:
   Supabase (a new session with a reply and a comment like, an edit, a delete, gear, a tasting note, a goal switch,
   a comment and an unlike on the session of someone who never signed in) and confirms a second run finds nothing
   left to send.
+
+## The Shot Logger (v16.9): espresso machines that send each shot
+
+A GaggiMate kit on a Gaggia sends every shot it pulls; the contract with the machine side is
+`claude/shot-logger-app-handoff.md` in the project docs, and its example shot is `fixtures/shot-example.json`.
+
+- `api.sql`, "the Shot Logger" section: the `machines` table (each machine's token kept only as a hash) and `shots`
+  (one row per shot however often it's sent; the curves stay here, never on the session). `internal.shot_inbox` checks
+  and saves a shot (the token says whose it is, never the shot), `internal.machine_sync` gives the machine its owner's
+  coffees and their own last shot on each (never anyone else's grind). A posted shot is one normal session with the app
+  id `shot_<shot id>`, so the machine, the app's "Taste and rate" and a late retry all land on the same one. A draft is
+  the owner's alone: in no feed, profile, goal, award or stat until it's posted.
+- The app's calls: `my_shots` (your drafts, newest first, curves included), `post_shot` ("Post as is"), `shot_later`
+  ("Later": stays in Drafts, not asked again), `dismiss_shot` (delete a draft), `shot_for_session` (a posted shot's
+  curves, yours only).
+- `functions/shot-inbox` and `functions/machine-sync`: the two functions a machine calls, thin Deno wrappers around
+  the shared web side in `functions/_shared/machine_http.mjs` (also used by `dev_server.js` and the tests). Deployed by
+  `.github/workflows/supabase-shots.yml` with `--no-verify-jwt` (a machine's token isn't a sign-in).
+- `make_machine.js`: makes a machine for someone and writes its token to a file only you can read (never printed),
+  until linking a machine from the app is designed.
+- Tests: `test_shots.js` (the inbox, drafts, posting, privacy, the machine's sync; real Postgres, made-up data) and
+  `functions/try_functions.sh` (the deployed files under real Deno, in the checks workflow).
 
 ## Backups (`backup.sh`, `.github/workflows/backup.yml`)
 
