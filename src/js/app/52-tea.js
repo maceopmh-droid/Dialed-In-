@@ -122,7 +122,7 @@
                 const btn = document.getElementById('drink-title');
                 if (!btn) return;
                 const kind = this.drinkNow();
-                const opt = (k, label, icon) => `<button type="button" role="menuitemradio" aria-checked="${kind === k}" class="dm-opt${kind === k ? ' on' : ''}" onclick="app.setDrink('${k}')">
+                const opt = (k, label, icon) => `<button type="button" role="menuitemradio" aria-checked="${kind === k}" class="dm-opt${kind === k ? ' on' : ''}" onclick="app.setDrink('${this.escJs(k)}')">
                     <svg class="icon" aria-hidden="true"><use href="${icon}"/></svg><span>${label}</span><svg class="icon dm-check" aria-hidden="true"><use href="#i-check"/></svg></button>`;
                 const menu = document.createElement('div');
                 menu.id = 'drink-menu';
@@ -198,7 +198,7 @@
                 if (tea && this.detailTab === 'sweet') this.detailTab = 'timeline';
                 if (!tea) {   // (back to a coffee after a tea: as coffee pages always were)
                     ['d-roast', 'd-process', 'd-origin'].forEach(id => { const el = document.getElementById(id); if (el) el.hidden = false; });
-                    const tt = document.getElementById('d-roast'); if (tt) { tt.classList.remove('tea-type-tag'); tt.style.removeProperty('--tt'); }
+                    const tt = document.getElementById('d-roast'); if (tt) { tt.classList.remove('tea-type-tag'); if (tt.style && tt.style.removeProperty) tt.style.removeProperty('--tt'); }
                     return;
                 }
                 const tag = (id, v) => { const el = document.getElementById(id); if (!el) return; const t = String(v || '').trim(); el.innerText = t; el.hidden = !t; };
@@ -206,7 +206,7 @@
                 tag('d-process', meta.process);
                 tag('d-origin', meta.origin);
                 const tt = document.getElementById('d-roast');
-                if (tt) { tt.classList.add('tea-type-tag'); tt.style.setProperty('--tt', (this.teaTypeInfo(meta.teaType) || {}).color || '#7FA45B'); }
+                if (tt && tt.style && tt.style.setProperty) { tt.classList.add('tea-type-tag'); tt.style.setProperty('--tt', (this.teaTypeInfo(meta.teaType) || {}).color || '#7FA45B'); }
                 const line = document.getElementById('d-roast-date');
                 if (line) {
                     const t = this.parseLocalDate(meta.roastDate);
