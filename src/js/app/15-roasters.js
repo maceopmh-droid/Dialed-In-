@@ -1,11 +1,22 @@
             // ===================== v13.0: Roasters =====================
-            roasterData() {
+            // v17.0: kind 'all' (the default: every company, as before), 'coffee' (the Roasters tab) or 'tea' (Brands: tea
+            // companies, never called roasters). A company that sells both shows on each with only its own coffees or teas.
+            roasterData(kind = 'all') {
                 const last = this.eventLog && this.eventLog.length ? this.eventLog[this.eventLog.length - 1] : null;
                 const sig = `${this.beans.size}|${this.brews.size}|${this.eventLog ? this.eventLog.length : 0}|${last ? (last.eventAt || last.date || '') : ''}|${this.gearByUser.size}`;
-                if (this._roData && this._roSig === sig && this._roMaps === this.beans && this._roBrewMap === this.brews && this._roGear === this.gearByUser) return this._roData;
-                this._roSig = sig; this._roMaps = this.beans; this._roBrewMap = this.brews; this._roGear = this.gearByUser;
-                this._roData = RoasterEngine.build(this);
-                return this._roData;
+                const k = kind === 'tea' || kind === 'coffee' ? kind : 'all';
+                this._roByKind = this._roByKind || {};
+                const c = this._roByKind[k];
+                if (c && c.sig === sig && c.beans === this.beans && c.brews === this.brews && c.gear === this.gearByUser) return c.data;
+                let ctx = this;
+                if (k !== 'all') {
+                    ctx = Object.create(this);
+                    ctx.beans = new Map([...this.beans].filter(([, b]) => this.isTeaBean(b) === (k === 'tea')));
+                }
+                const data = RoasterEngine.build(ctx);
+                this._roByKind[k] = { sig, beans: this.beans, brews: this.brews, gear: this.gearByUser, data };
+                if (k === 'all') { this._roData = data; this._roSig = sig; }
+                return data;
             },
 
             roasterKey(name) { return this.roasterData().clusterOf(name); },
@@ -154,18 +165,18 @@
 
             renderRoasterList(grid, q) {
                 grid.className = 'roaster-list';
-                const D = this.roasterData();
+                const kind = this.drinkNow(), w = this.drinkWords(kind), D = this.roasterData(kind);   // v17.0: Roasters, or Brands in tea mode
                 let list = D.roasters;
                 if (q) list = list.filter(r => [r.name, ...r.spellings].some(n => n.toLowerCase().includes(q)));
                 list = this.sortRoasters(list);
                 const sorts = [['brewed', 'Most brewed'], ['rated', 'Top rated'], ['recent', 'Recent'], ['az', 'A–Z']];
                 const cur = this.roasterSort || 'brewed';
                 const s = !q && D.suggestions[0];
-                const merge = s ? `<div class="profile-card ro-merge"><p><b>${this.esc(s.b.name)}</b> (${this.esc(this.roasterPeopleLabel(s.b))}, ${s.b.sessions} session${s.b.sessions === 1 ? '' : 's'}) and <b>${this.esc(s.a.name)}</b> (${this.esc(this.roasterPeopleLabel(s.a))}, ${s.a.sessions} session${s.a.sessions === 1 ? '' : 's'}) look like the same roaster. Merge them so their stats add up?</p><div class="ro-merge-actions"><button type="button" class="btn-primary" onclick="app.mergeRoasters('${app.escJs(s.a.key)}', '${app.escJs(s.b.key)}')">Merge</button><button type="button" class="btn-outline" onclick="app.notSameRoasters('${app.escJs(s.a.key)}', '${app.escJs(s.b.key)}')">Not the same</button></div></div>` : '';
+                const merge = s ? `<div class="profile-card ro-merge"><p><b>${this.esc(s.b.name)}</b> (${this.esc(this.roasterPeopleLabel(s.b))}, ${s.b.sessions} session${s.b.sessions === 1 ? '' : 's'}) and <b>${this.esc(s.a.name)}</b> (${this.esc(this.roasterPeopleLabel(s.a))}, ${s.a.sessions} session${s.a.sessions === 1 ? '' : 's'}) look like the same ${w.company}. Merge them so their stats add up?</p><div class="ro-merge-actions"><button type="button" class="btn-primary" onclick="app.mergeRoasters('${app.escJs(s.a.key)}', '${app.escJs(s.b.key)}')">Merge</button><button type="button" class="btn-outline" onclick="app.notSameRoasters('${app.escJs(s.a.key)}', '${app.escJs(s.b.key)}')">Not the same</button></div></div>` : '';
                 grid.innerHTML = [
-                    `<div class="ro-sorts" role="group" aria-label="Sort roasters">${sorts.map(([k, l]) => `<button type="button" class="chip-btn" aria-pressed="${k === cur}" onclick="app.setRoasterSort('${app.escJs(k)}')">${l}</button>`).join('')}</div>`,
+                    `<div class="ro-sorts" role="group" aria-label="Sort ${w.companies}">${sorts.map(([k, l]) => `<button type="button" class="chip-btn" aria-pressed="${k === cur}" onclick="app.setRoasterSort('${app.escJs(k)}')">${l}</button>`).join('')}</div>`,
                     merge,
-                    list.length ? list.map(r => this.roasterCardHtml(r)).join('') : `<div class="ro-empty">${q ? 'No roasters match your search.' : 'No roasters yet. Add a coffee and its roaster shows up here.'}</div>`
+                    list.length ? list.map(r => this.roasterCardHtml(r, kind)).join('') : `<div class="ro-empty">${q ? `No ${w.companies} match your search.` : `No ${w.companies} yet. Add a ${w.item} and its ${w.company} shows up here.`}</div>`
                 ].join('');
                 this.fitRoasterBeans(grid);
                 if (!this._roResize) {   // re-fit the coffee lines when the width changes or the fonts arrive
@@ -175,13 +186,14 @@
                 }
             },
 
-            roasterCardHtml(r) {
+            roasterCardHtml(r, kind = 'coffee') {
                 const fav = this.user && r.favBy.includes(this.user), local = !!(this.user && (r.localBy || []).includes(this.user));   // v15.8
                 const faces = r.people.slice(0, 3).map((p, i) => `<i data-face="${this.esc(p.name)}" style="background:${this.esc(this.getUserColor(p.name))};z-index:${9 - i}">${this.esc(this.feedInitial(p.name))}</i>`).join('') + (r.people.length > 3 ? `<i class="more">+${r.people.length - 3}</i>` : '');
                 const n = r.coffees.length;
-                return `<div class="card ro-card" role="button" tabindex="0" data-roaster-key="${this.esc(r.key)}" onclick="app.openRoaster(this.getAttribute('data-roaster-key'))">
+                const w = this.drinkWords(kind);
+                return `<div class="card ro-card" role="button" tabindex="0" data-roaster-key="${this.esc(r.key)}" onclick="app.openRoaster(this.getAttribute('data-roaster-key'), '${app.escJs(kind)}')">
                     <div class="ro-head">${this.roasterTileHtml(r)}<div class="ro-main"><span class="ro-name">${this.esc(r.name)}</span>${r.rated ? `<div class="ro-rate"><span class="star-meter" style="--fill:${this.starFill(r.avg)}%;--whole:${this.starWhole(r.avg)};--frac:${this.starFrac(r.avg)}"></span><span>${this.esc(RoasterEngine.f1(r.avg))}</span></div>` : ''}</div></div>
-                    <div class="ro-meta"><span>${n} coffee${n === 1 ? '' : 's'} · ${r.sessions} session${r.sessions === 1 ? '' : 's'}</span>${fav ? '<svg class="icon ro-heart" aria-label="Favorite"><use href="#i-heart"/></svg>' : ''}${local ? '<span class="ro-local-tag"><svg class="icon"><use href="#i-pin"/></svg>Local</span>' : ''}${faces ? `<span class="dh-faces" aria-label="${this.esc(r.people.map(p => p.name).join(', '))}">${faces}</span>` : ''}</div>
+                    <div class="ro-meta"><span>${n} ${n === 1 ? w.item : w.items} · ${r.sessions} session${r.sessions === 1 ? '' : 's'}</span>${fav ? '<svg class="icon ro-heart" aria-label="Favorite"><use href="#i-heart"/></svg>' : ''}${local ? '<span class="ro-local-tag"><svg class="icon"><use href="#i-pin"/></svg>Local</span>' : ''}${faces ? `<span class="dh-faces" aria-label="${this.esc(r.people.map(p => p.name).join(', '))}">${faces}</span>` : ''}</div>
                     <div class="ro-beans" data-total="${n}">${r.coffees.map(c => `<button type="button" class="ro-bean" data-bean="${this.esc(c.beanId)}" onclick="event.stopPropagation(); app.openCoffeeFromRoaster(this.getAttribute('data-bean'))">${this.esc(c.name)}</button>`).join('')}<span class="ro-more" hidden></span></div>
                 </div>`;
             },
@@ -213,7 +225,7 @@
             roasterViewActive() { const v = document.getElementById('roaster-view'); return Boolean(v && v.classList.contains('active')); },
 
             snapPage() {
-                if (this.roasterViewActive()) return { kind: 'roaster', key: this.roasterOpen, scroll: document.getElementById('roaster-view').scrollTop };
+                if (this.roasterViewActive()) return { kind: 'roaster', key: this.roasterOpen, roKind: this.roasterOpenKind || 'coffee', scroll: document.getElementById('roaster-view').scrollTop };
                 if (this.isDetailActive()) return { kind: 'bean', lens: this._lens || '', group: { meta: this.activeGroup.meta, ids: [...this.activeGroup.ids], users: new Set(this.activeGroup.users) }, scroll: document.getElementById('detail-view').scrollTop };
                 return null;
             },
@@ -222,15 +234,19 @@
                 if (ev) { ev.stopPropagation(); ev.preventDefault(); }
                 const name = el && el.getAttribute('data-roaster');
                 if (!name) return;
-                this.openRoaster(this.roasterKey(name));
+                this.openRoaster(this.roasterKey(name), el.getAttribute('data-kind') || '');   // (v17.0: a tea's brand opens as a brand)
             },
 
-            openRoaster(key) {
-                const r = this.roasterFind(key);
+            openRoaster(key, kind) {
+                // v17.0: which side of the company: the one asked for, else what's on screen (Roasters or Brands), else the other
+                const mode = this.drinkNow(), other = mode === 'tea' ? 'coffee' : 'tea';
+                const k = kind === 'tea' || kind === 'coffee' ? kind : (this.roasterFind(key, mode) ? mode : this.roasterFind(key, other) ? other : mode);
+                const r = this.roasterFind(key, k);
                 if (r) key = r.key;
-                if (!r) { this.showToast('That roaster has no coffees anymore.'); return; }
+                if (!r) { this.showToast(k === 'tea' ? 'That brand has no teas anymore.' : 'That roaster has no coffees anymore.'); return; }
+                this.roasterOpenKind = k;
                 const from = this.snapPage();
-                if (from && !(from.kind === 'roaster' && from.key === key)) { this.navStack = this.navStack || []; this.navStack.push(from); }
+                if (from && !(from.kind === 'roaster' && from.key === key && from.roKind === k)) { this.navStack = this.navStack || []; this.navStack.push(from); }
                 if (!from) this.navStack = [];
                 document.getElementById('detail-view').classList.remove('active');
                 this.roasterOpen = key;
@@ -260,8 +276,9 @@
             goBackPage() {
                 const prev = (this.navStack || []).pop();
                 if (!prev) { this.hideRoasterView(); document.getElementById('detail-view').classList.remove('active'); this.openCommentId = null; this.roasterOpen = ''; this.render(); return; }
-                if (prev.kind === 'roaster' && this.roasterFind(prev.key)) {
-                    prev.key = this.roasterFind(prev.key).key;
+                if (prev.kind === 'roaster' && this.roasterFind(prev.key, prev.roKind)) {
+                    prev.key = this.roasterFind(prev.key, prev.roKind).key;
+                    this.roasterOpenKind = prev.roKind || 'coffee';
                     document.getElementById('detail-view').classList.remove('active'); this.openCommentId = null;
                     this.roasterOpen = prev.key;
                     const v = document.getElementById('roaster-view'); v.classList.add('active'); v.setAttribute('aria-hidden', 'false');
@@ -286,8 +303,9 @@
 
             backLabel() {
                 const prev = (this.navStack || [])[this.navStack ? this.navStack.length - 1 : 0];
-                if (!prev) return ({ feed: 'Feed', profile: 'Profile', roasters: 'Roasters' })[this.tab] || 'Coffees';   // v13.4: where Back actually goes
-                if (prev.kind === 'roaster') { const r = this.roasterFind(prev.key); return r ? r.name : 'Back'; }
+                const dw = this.drinkWords(this.drinkNow());
+                if (!prev) return ({ feed: 'Feed', profile: 'Profile', roasters: dw.Companies })[this.tab] || dw.Items;   // v13.4: where Back actually goes (v17.0: Teas / Brands in tea mode)
+                if (prev.kind === 'roaster') { const r = this.roasterFind(prev.key, prev.roKind); return r ? r.name : 'Back'; }
                 return (prev.group && prev.group.meta && prev.group.meta.name) || 'Back';
             },
 
@@ -323,7 +341,8 @@
             renderRoasterPage() {
                 const page = document.getElementById('ro-page');
                 if (!page || !this.roasterViewActive()) return;
-                const r = this.roasterFind(this.roasterOpen);   // v13.4: still there after a merge from another phone
+                const kind = this.roasterOpenKind === 'tea' ? 'tea' : 'coffee', w = this.drinkWords(kind), tea = kind === 'tea';   // v17.0: a brand's page
+                const r = this.roasterFind(this.roasterOpen, kind);   // v13.4: still there after a merge from another phone
                 if (!r) { this.goBackPage(); return; }
                 this.roasterOpen = r.key;
                 const esc = s => this.esc(s);
@@ -338,24 +357,24 @@
                 const rgb = this.roasterPaint(r).rgb;
                 const best = r.best, bc = r.bestCoffee;
                 const bestCard = best && bc ? `<button type="button" class="profile-card ro-sec" data-bean="${esc(best.beanId)}" onclick="app.openCoffeeFromRoaster(this.getAttribute('data-bean'))"><div class="label">Best ${esc(this.shotWord(best.method))}</div><div class="ro-best"><div class="ro-best-main"><div class="ro-best-name">${esc(bc.name)}</div><div class="ro-best-line"><span>${esc(this.getBrewOwner(best))} · ${esc(this.shortDate(best.date))}</span><span class="star-meter" style="--fill:${this.starFill(best.rating)}%;--whole:${this.starWhole(best.rating)};--frac:${this.starFrac(best.rating)}"></span><span>${esc(this.formatRating(best.rating))}</span></div>${this.recipeLine(best, false) ? `<div class="ro-best-recipe">${esc(best.method || '')}${best.method ? ' · ' : ''}${esc(this.recipeLine(best, false))}</div>` : ''}</div><svg class="icon ro-go"><use href="#i-chevron-down"/></svg></div></button>` : '';
-                const coffees = `<section class="profile-card ro-sec"><div class="label">Their coffees</div>${this.moreHtml(r.coffees.map(c => `<button type="button" class="ro-cof" data-bean="${esc(c.beanId)}" onclick="app.openCoffeeFromRoaster(this.getAttribute('data-bean'))"><span class="ro-cof-main"><span class="ro-cof-name">${esc(c.name)}</span><span class="ro-cof-sub">${c.sessions} session${c.sessions === 1 ? '' : 's'}</span></span>${c.rated ? `<span class="ro-meter"><i style="width:${(c.avg / 5) * 100}%"></i></span><span class="ro-cof-n">${RoasterEngine.f1(c.avg)}★</span>` : ''}<svg class="icon ro-go"><use href="#i-chevron-down"/></svg></button>`), 4, 'coffees')}</section>`;
-                const who = r.people.length ? `<section class="profile-card ro-sec"><div class="label">Who drinks it</div>${this.moreHtml(r.people.map(p => `<div class="ro-who" data-profile="${esc(p.name)}"><span class="person-dot" data-face="${esc(p.name)}" style="background:${esc(this.getUserColor(p.name))}">${esc(this.feedInitial(p.name))}</span><span class="ro-who-t">${esc(p.name)}<small>${p.sessions} session${p.sessions === 1 ? '' : 's'}${p.rated ? ` · ${RoasterEngine.f1(p.avg)}★ average` : ''}</small></span>${p.top ? `<span class="ro-badge">${esc(p.name)}'s top roaster</span>` : ''}</div>`), 4, 'people')}</section>` : '';
+                const coffees = `<section class="profile-card ro-sec"><div class="label">Their ${w.items}</div>${this.moreHtml(r.coffees.map(c => `<button type="button" class="ro-cof" data-bean="${esc(c.beanId)}" onclick="app.openCoffeeFromRoaster(this.getAttribute('data-bean'))"><span class="ro-cof-main"><span class="ro-cof-name">${esc(c.name)}</span><span class="ro-cof-sub">${c.sessions} session${c.sessions === 1 ? '' : 's'}</span></span>${c.rated ? `<span class="ro-meter"><i style="width:${(c.avg / 5) * 100}%"></i></span><span class="ro-cof-n">${RoasterEngine.f1(c.avg)}★</span>` : ''}<svg class="icon ro-go"><use href="#i-chevron-down"/></svg></button>`), 4, 'coffees')}</section>`;
+                const who = r.people.length ? `<section class="profile-card ro-sec"><div class="label">Who drinks it</div>${this.moreHtml(r.people.map(p => `<div class="ro-who" data-profile="${esc(p.name)}"><span class="person-dot" data-face="${esc(p.name)}" style="background:${esc(this.getUserColor(p.name))}">${esc(this.feedInitial(p.name))}</span><span class="ro-who-t">${esc(p.name)}<small>${p.sessions} session${p.sessions === 1 ? '' : 's'}${p.rated ? ` · ${RoasterEngine.f1(p.avg)}★ average` : ''}</small></span>${p.top ? `<span class="ro-badge">${esc(p.name)}'s top ${w.company}</span>` : ''}</div>`), 4, 'people')}</section>` : '';
                 const e = r.espresso;
                 const range = (a, f) => a ? (Math.abs(a[1] - a[0]) < 1e-9 ? f(a[0]) : `${f(a[0])}–${f(a[1])}`) : '';
                 const ratio = e && e.ratio ? range(e.ratio, x => `1:${x.toFixed(1)}`) : '', secs = e && e.time ? range(e.time, x => `${this.fmtNum(x, 0)}`) + ' s' : '';
-                const esp = e ? `<section class="profile-card ro-sec"><div class="label">Dialing in their espresso</div><div class="ro-esp">4★+ shots of their coffees ran ${ratio ? `<b>${esc(ratio)}</b>` : ''}${ratio && secs ? ' in ' : ''}${secs ? `<b>${esc(secs)}</b>` : ''}.</div><div class="ro-sub" style="margin:6px 0 0">From ${e.shots} shots. Ratios and times only: grind numbers differ by grinder.</div></section>` : '';
+                const esp = e && !tea ? `<section class="profile-card ro-sec"><div class="label">Dialing in their espresso</div><div class="ro-esp">4★+ shots of their coffees ran ${ratio ? `<b>${esc(ratio)}</b>` : ''}${ratio && secs ? ' in ' : ''}${secs ? `<b>${esc(secs)}</b>` : ''}.</div><div class="ro-sub" style="margin:6px 0 0">From ${e.shots} shots. Ratios and times only: grind numbers differ by grinder.</div></section>` : '';
                 page.innerHTML = `
-                    <div class="dh-top ro-top"><button type="button" class="dh-pill dh-back" onclick="app.goBackPage()"><svg class="icon"><use href="#i-arrow-left"/></svg><span>${esc(this.backLabel())}</span></button><div class="dh-actions"><button type="button" class="btn-clean ro-fav" aria-pressed="${fav}" aria-label="${fav ? 'Remove from favorites' : 'Favorite this roaster'}" onclick="app.toggleRoasterFav('${app.escJs(r.key)}')"><svg class="icon"><use href="#i-heart"/></svg></button><button type="button" class="btn-clean" aria-label="Share this roaster" data-roaster="${esc(r.name)}" onclick="app.openRoasterStory('${app.escJs(r.key)}')"><svg class="icon"><use href="#i-share-2"/></svg></button><button type="button" class="btn-clean" aria-label="Edit roaster details" onclick="app.openRoasterEdit('${app.escJs(r.key)}')"><svg class="icon"><use href="#i-edit-2"/></svg></button></div></div>
+                    <div class="dh-top ro-top"><button type="button" class="dh-pill dh-back" onclick="app.goBackPage()"><svg class="icon"><use href="#i-arrow-left"/></svg><span>${esc(this.backLabel())}</span></button><div class="dh-actions"><button type="button" class="btn-clean ro-fav" aria-pressed="${fav}" aria-label="${fav ? 'Remove from favorites' : `Favorite this ${w.company}`}" onclick="app.toggleRoasterFav('${app.escJs(r.key)}')"><svg class="icon"><use href="#i-heart"/></svg></button><button type="button" class="btn-clean" aria-label="Share this ${w.company}" data-roaster="${esc(r.name)}" onclick="app.openRoasterStory('${app.escJs(r.key)}')"><svg class="icon"><use href="#i-share-2"/></svg></button><button type="button" class="btn-clean" aria-label="Edit ${w.company} details" onclick="app.openRoasterEdit('${app.escJs(r.key)}')"><svg class="icon"><use href="#i-edit-2"/></svg></button></div></div>
                     <section class="profile-card profile-hero ro-hero" style="--pc-rgb:${rgb}">
                         <div class="ro-hero-row">${this.roasterTileHtml(r, true)}<div style="min-width:0"><h2>${esc(r.name)}</h2>${where ? `<div class="ro-where">${where}</div>` : `<button type="button" class="ro-add" onclick="app.openRoasterEdit('${app.escJs(r.key)}')">+ Add location &amp; website</button>`}${this.user ? `<button type="button" class="ro-local" aria-pressed="${local}" onclick="app.toggleRoasterLocal('${app.escJs(r.key)}')"><svg class="icon"><use href="#i-pin"/></svg>Local to me</button>` : ''}</div></div>
                         ${info.note ? `<p class="ro-note">${esc(info.note)}</p>` : ''}
-                        <p class="ro-style">${esc(r.style)}</p>
-                        <div class="stat-row"><div class="stat-box"><div class="stat-num">${n}</div><div class="stat-cap">${n === 1 ? 'Coffee' : 'Coffees'}</div></div><div class="stat-box"><div class="stat-num">${r.sessions}</div><div class="stat-cap">${r.sessions === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${r.rated ? `${RoasterEngine.f1(r.avg)}<small>★</small>` : '–'}</div><div class="stat-cap">${r.rated} rated</div></div><div class="stat-box"><div class="stat-num word">${esc(this.roasterLastLabel(r.last))}</div><div class="stat-cap">Last brewed</div></div></div>
-                        ${this.roasterBarHtml('Roast', r.roast, RoasterEngine.ROASTS, ROAST_C)}
-                        ${this.roasterBarHtml('Process', r.proc, null, PROC_C)}
+                        <p class="ro-style">${esc(tea ? this.teaBrandStyle(r) : r.style)}</p>
+                        <div class="stat-row"><div class="stat-box"><div class="stat-num">${n}</div><div class="stat-cap">${n === 1 ? w.Item : w.Items}</div></div><div class="stat-box"><div class="stat-num">${r.sessions}</div><div class="stat-cap">${r.sessions === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${r.rated ? `${RoasterEngine.f1(r.avg)}<small>★</small>` : '–'}</div><div class="stat-cap">${r.rated} rated</div></div><div class="stat-box"><div class="stat-num word">${esc(this.roasterLastLabel(r.last))}</div><div class="stat-cap">Last brewed</div></div></div>
+                        ${tea ? this.roasterBarHtml('Type', this.teaTypeCounts(r), TEA_TYPES.map(t => t.toUpperCase()), Object.fromEntries(TEA_TYPES.map(t => [t.toUpperCase(), TEA_TYPE_INFO[t].color]))) : this.roasterBarHtml('Roast', r.roast, RoasterEngine.ROASTS, ROAST_C)}
+                        ${tea ? '' : this.roasterBarHtml('Process', r.proc, null, PROC_C)}
                     </section>
                     ${bestCard}${coffees}${who}${esp}
-                    <div class="ro-acts"><button type="button" class="btn-primary" onclick="app.logCoffeeForRoaster('${app.escJs(r.key)}')"><svg class="icon" style="width:16px;height:16px;stroke:currentColor"><use href="#i-plus"/></svg>Add a coffee</button><button type="button" class="btn-outline" onclick="app.showRoasterCoffees('${app.escJs(r.key)}')">All coffees</button></div>`;
+                    <div class="ro-acts"><button type="button" class="btn-primary" onclick="app.logCoffeeForRoaster('${app.escJs(r.key)}')"><svg class="icon" style="width:16px;height:16px;stroke:currentColor"><use href="#i-plus"/></svg>Add a ${w.item}</button><button type="button" class="btn-outline" onclick="app.showRoasterCoffees('${app.escJs(r.key)}')">All ${w.items}</button></div>`;
             },
 
             openRoasterEdit(key) {
@@ -379,8 +398,9 @@
             },
 
             logCoffeeForRoaster(key) {
-                const r = this.roasterData().byKey.get(key);
-                this.openBeanModal();
+                const kind = this.roasterOpenKind === 'tea' ? 'tea' : 'coffee';
+                const r = this.roasterData(kind).byKey.get(key) || this.roasterData().byKey.get(key);
+                this.openBeanModal(kind);
                 const f = this.getBeanForm();
                 if (r && f && f.elements.roaster) f.elements.roaster.value = r.name;
                 setTimeout(() => { if (f && f.elements.name) f.elements.name.focus(); }, 60);
@@ -393,15 +413,19 @@
                 this.roasterOpen = '';
                 this.roasterFilter = key;
                 this.coffeeScope = 'all';   // v15.1: that roaster's coffees, everyone's, on the Coffees tab
+                const kind = this.roasterOpenKind === 'tea' ? 'tea' : 'coffee';   // v17.0: a brand's teas, on Teas
+                if (kind !== this.drinkNow()) { this.drink = kind; safeSet('dialed_drink', kind); }
                 this.setTab('my');
+                this.roasterFilter = key;
                 window.scrollTo(0, 0);
             },
 
             // the add-coffee form suggests the roasters already logged (the names they go by)
-            fillRoasterSuggestions() {
+            fillRoasterSuggestions(kind) {
                 const list = document.getElementById('roaster-names');
                 if (!list) return;
-                const names = this.sortRoasters(this.roasterData().roasters).map(r => r.name);
+                const k = kind === 'tea' ? 'tea' : 'coffee';   // v17.0: brands for a tea, roasters for a coffee
+                const names = this.sortRoasters(this.roasterData(k).roasters).map(r => r.name);
                 list.innerHTML = names.map(n => `<option value="${this.esc(n)}"></option>`).join('');
             },
 

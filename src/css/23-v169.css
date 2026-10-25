@@ -1,0 +1,80 @@
+        /* ===== v16.9: the Shot Logger (shots from your espresso machine) ===== */
+        /* the graph: pressure in the app's green, flow in its star color, on one 0-10 scale (the machine's own rules) */
+        .shot-graph { display: block; width: 100%; height: auto; overflow: visible; --sg-p: var(--matcha); --sg-f: var(--gold); }
+        .shot-graph polyline { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .shot-graph .sg-p { stroke: var(--sg-p); stroke-width: 3; }
+        .shot-graph .sg-f { stroke: var(--sg-f); stroke-width: 3; }
+        .shot-graph .sg-plan { stroke: var(--ink); stroke-opacity: 0.32; stroke-width: 1.6; stroke-dasharray: 1.5 4; }
+        .shot-graph .sg-grid { stroke: rgba(var(--hair-rgb), 0.1); stroke-width: 1; }
+        .shot-graph .sg-base { stroke: rgba(var(--hair-rgb), 0.22); stroke-width: 1; }
+        .shot-graph .sg-phase { stroke: rgba(var(--hair-rgb), 0.3); stroke-width: 1; stroke-dasharray: 3 4; }
+        .shot-graph.axes .sg-p, .shot-graph.axes .sg-f { stroke-width: 4; }
+        .shot-graph .sg-ylab, .shot-graph .sg-xlab { fill: var(--text-muted); font-size: 12px; font-family: var(--font-main); font-variant-numeric: tabular-nums; }
+        .shot-graph .sg-ylab { text-anchor: end; }
+        .shot-key { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--text-muted); }
+        .shot-key span { display: inline-flex; align-items: center; gap: 7px; }
+        .shot-key i { display: inline-block; width: 16px; height: 4px; border-radius: 2px; background: var(--matcha); }
+        .shot-key i.sk-f { background: var(--gold); }
+
+        /* the popup (board 8b): a card over the dimmed app */
+        .shot-ask { position: fixed; inset: 0; z-index: 6500; display: flex; align-items: center; justify-content: center; padding: 16px;
+            background: rgba(4, 6, 5, 0.66); opacity: 0; transition: opacity 0.22s ease; }
+        .shot-ask.on { opacity: 1; }
+        .sa-card { width: 346px; max-width: 100%; box-sizing: border-box; padding: 22px; border-radius: 26px; background: var(--surface);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28); transform: translateY(10px) scale(0.98); transition: transform 0.26s cubic-bezier(.2,.8,.2,1);
+            max-height: calc(100vh - 32px); overflow-y: auto; }
+        .shot-ask.on .sa-card { transform: none; }
+        .sa-card:focus { outline: none; }
+        :root[data-theme="dark"] .sa-card { border: 1px solid rgba(var(--hair-rgb), 0.1); }
+        .sa-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: -6px -8px 6px 0; }
+        .sa-from { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--text-muted); min-width: 0; }
+        .sa-from .icon { width: 18px; height: 18px; color: var(--matcha); flex-shrink: 0; }
+        .sa-x { width: 44px; height: 44px; flex-shrink: 0; border: none; border-radius: 50%; background: transparent; color: var(--text-muted);
+            display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+        .sa-x .icon { width: 20px; height: 20px; }
+        .sa-x:active { background: rgba(var(--hair-rgb), 0.08); }
+        .sa-title { font-family: var(--font-bean); font-size: 25px; font-weight: 600; line-height: 1.16; color: var(--ink); margin: 0 0 14px; letter-spacing: -0.01em; text-transform: none; }
+        .sa-graph { margin: 0 0 14px; }
+        .shot-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 0 0 12px; }
+        .ss-cell { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .ss-cell b { font-size: 18px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ss-cell span { font-size: 12px; color: var(--text-muted); }
+        .sa-card .shot-key { margin: 0 0 18px; }
+        .sa-rate { display: block; width: 100%; height: 52px; margin: 0 0 10px; border-radius: 16px; font-size: 17px; font-weight: 700; text-transform: none; letter-spacing: 0; }
+        .sa-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .sa-btn { height: 46px; border-radius: 14px; border: 1px solid rgba(var(--hair-rgb), 0.18); background: transparent; color: var(--ink);
+            font-size: 16px; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .sa-btn:active { background: rgba(var(--hair-rgb), 0.06); }
+        .sa-help { margin: 12px 0 0; font-size: 13px; line-height: 1.4; color: var(--text-muted); text-align: center; }
+
+        /* the Log for a machine shot: where it came from and its curve, in place of the timer */
+        #brew-modal.from-shot .timer-hero { display: none; }
+        .shot-log-head { margin: 4px 0 18px; display: flex; flex-direction: column; gap: 10px; }
+        .slh-from { font-size: 14px; font-weight: 600; color: var(--text-muted); }
+
+        /* Drafts on your profile */
+        .shot-drafts .label { display: flex; align-items: baseline; gap: 8px; }
+        .sd-count { font-size: 0.85em; font-weight: 600; color: var(--text-muted); }
+        .sd-row { display: flex; align-items: center; gap: 4px; border-top: 1px solid rgba(var(--hair-rgb), 0.08); }
+        .sd-row:first-of-type { border-top: none; }
+        .sd-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 10px 0; border: none; background: none; text-align: left;
+            color: inherit; font: inherit; cursor: pointer; }
+        .sd-curve { width: 56px; flex-shrink: 0; }
+        .sd-bit { white-space: nowrap; }
+        .sd-curve .shot-graph .sg-p, .sd-curve .shot-graph .sg-f { stroke-width: 2; }
+        .sd-main { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+        .sd-main b { font-family: var(--font-bean); font-size: 17px; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sd-main span { font-size: 13px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+        .sd-del { width: 44px; height: 44px; margin-right: -12px; flex-shrink: 0; border: none; background: none; color: var(--text-faint); border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+        .sd-del .icon { width: 18px; height: 18px; }
+        .sd-del:active { color: var(--danger); background: rgba(var(--hair-rgb), 0.06); }
+
+        /* the Shot tab on a posted machine shot: the graph and how each phase went */
+        .shot-pane { display: flex; flex-direction: column; gap: 12px; padding: 4px 0 2px; }
+        .shot-recipe { font-size: 14px; font-weight: 600; color: var(--text-muted); }
+        .shot-phases { display: flex; flex-direction: column; border-top: 1px solid rgba(var(--hair-rgb), 0.08); }
+        .sp-row { display: grid; grid-template-columns: 1fr auto 76px; gap: 10px; padding: 8px 0; font-size: 14px; border-bottom: 1px solid rgba(var(--hair-rgb), 0.08); }
+        .sp-row span:first-child { color: var(--ink); font-weight: 600; }
+        .sp-row span:nth-child(2) { color: var(--ink); font-variant-numeric: tabular-nums; text-align: right; }
+        .sp-row span:last-child { color: var(--text-muted); text-align: right; }

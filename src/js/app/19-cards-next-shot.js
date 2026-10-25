@@ -122,6 +122,7 @@
 
             recipeLine(brew, withGrind) {
                 if (!brew) return '';
+                if (this.isTeaBrew && this.isTeaBrew(brew)) return this.teaRecipeLine(brew);   // v17.0: leaf · water · °C · steeps
                 const parts = [];
                 if (withGrind && this.grindText(brew.grind)) parts.push(`grind\u00A0${this.grindText(brew.grind)}`);
                 if (this.num(brew.dose) > 0 || this.num(brew.yield) > 0) {
@@ -141,7 +142,7 @@
                 const active = this.cardTab(brew);
                 const id = this.esc(brew.id);
                 const tab = (key, label) => `<button type="button" class="card-tab${active === key ? ' active' : ''}" data-tab-key="${key}" onclick="app.setCardTab('${app.escJs(id)}','${app.escJs(key)}',event)">${label}</button>`;
-                return `<div class="card-tabs">${tab('session', 'Session')}${tab('flavor', 'Flavor')}${tab('vs', 'Vs. last time')}${tab('next', `Next ${this.shotWord(brew.method)}`)}</div>`;
+                return `<div class="card-tabs">${tab('session', 'Session')}${this.hasShotPane && this.hasShotPane(brew) ? tab('shot', 'Shot') : ''}${tab('flavor', 'Flavor')}${tab('vs', 'Vs. last time')}${tab('next', `Next ${this.shotWord(brew.method)}`)}</div>`;
             },
 
             setCardTab(brewId, tab, event) {
@@ -173,9 +174,9 @@
                 const owner = this.getBrewOwner(brew);
                 const whose = owner === this.user ? 'your' : `${this.esc(owner)}'s`;
                 const method = this.esc(brew.method || 'brew');
-                const prev = this.previousBrewFor(brew);
+                const prev = this.previousBrewFor(brew), tea = this.isTeaBrew(brew), kind = tea ? 'tea' : 'coffee';   // v17.0
                 if (!prev) {
-                    return `<div class="card-pane pane-block log-wide${active}" data-pane="vs"><div class="vs-empty">This is ${whose} first ${method} session of this bean, so there's nothing to compare yet.</div></div>`;
+                    return `<div class="card-pane pane-block log-wide${active}" data-pane="vs"><div class="vs-empty">This is ${whose} first ${method} session of this ${tea ? 'tea' : 'bean'}, so there's nothing to compare yet.</div></div>`;
                 }
                 // v14.6: two short sections, Recipe and Taste. Each row reads "before → now" (the unit once, before muted,
                 // now bold) and the change; recipe numbers that didn't move fold into one "Same" line; the taste sliders
@@ -194,21 +195,24 @@
                 };
                 const esp = !brew.method || brew.method === 'Espresso';
                 const gPrev = this.grinderFor(prev), gNow = this.grinderFor(brew);
-                if (!this.sameGrinder(gPrev, gNow)) {   // v15.7: numbers from two grinders don't compare, so no grind change is worked out
+                if (tea) { /* (v17.0: a tea has no grind) */ }
+                else if (!this.sameGrinder(gPrev, gNow)) {   // v15.7: numbers from two grinders don't compare, so no grind change is worked out
                     recipe.push(row('Grinder', this.esc(gPrev.name), this.esc(gNow.name), '', 'neutral', 'new'));
                     if (this.grindText(prev.grind) || this.grindText(brew.grind)) recipe.push(row('Grind', this.esc(this.grindText(prev.grind) || '–'), this.esc(this.grindText(brew.grind) || '–'), '', 'neutral', ''));
                 }
                 else if (this.grindNum(prev.grind) !== null && this.grindNum(brew.grind) !== null) num('Grind', this.grindNum(prev.grind), this.grindNum(brew.grind), '', null);
                 else if ((this.grindText(prev.grind) || this.grindText(brew.grind)) && !this.sameGrind(prev.grind, brew.grind)) recipe.push(row('Grind', this.esc(this.grindText(prev.grind) || '–'), this.esc(this.grindText(brew.grind) || '–'), '', 'neutral', 'changed'));
                 else if (this.grindText(brew.grind)) same.push(`grind ${this.esc(this.grindText(brew.grind))}`);
-                num('Dose', this.num(prev.dose), this.num(brew.dose), 'g', null, { deltaUnit: 'g' });
-                num(esp ? 'Pull' : 'Pour', this.num(prev.yield), this.num(brew.yield), 'g', null, { deltaUnit: 'g' });
-                num('Ratio', this.ratioOf(prev), this.ratioOf(brew), '', null, { prefix: '1:' });
-                const hours = brew.timeUnit === 'h' || brew.method === 'Cold Brew';
+                num(tea ? 'Leaf' : 'Dose', this.num(prev.dose), this.num(brew.dose), 'g', null, { deltaUnit: 'g' });
+                num(tea ? 'Water' : esp ? 'Pull' : 'Pour', this.num(prev.yield), this.num(brew.yield), tea ? 'ml' : 'g', null, { deltaUnit: tea ? 'ml' : 'g' });
+                num('Ratio', this.ratioOf(prev), this.ratioOf(brew), '', null, { prefix: '1:', ...(tea ? { round: Math.round, show: v => String(Math.round(v)) } : {}) });
+                if (tea) num('Temp', this.num(prev.temp), this.num(brew.temp), '°C', null, { deltaUnit: '°C', round: Math.round, show: v => String(Math.round(v)) });
+                const hours = brew.timeUnit === 'h' || brew.method === 'Cold Brew' || this.methodProfile(brew.method).hours;
                 num(hours ? 'Steep' : 'Time', this.num(prev.time), this.num(brew.time), hours ? 'h' : 's', null, { deltaUnit: hours ? 'h' : 's', round: hours ? r1 : Math.round, show: hours ? (v => this.fmtNum(v, 1)) : (v => String(Math.round(v))) });
                 // v13.1: grams out per second (espresso)
                 const flow = b => { const y = this.num(b.yield), t = this.num(b.time); return y > 0 && t > 0 ? y / t : 0; };
-                if (esp && (!prev.method || prev.method === 'Espresso') && flow(prev) > 0 && flow(brew) > 0) num('Flow', flow(prev), flow(brew), 'g/s', null);
+                if (esp && !tea && (!prev.method || prev.method === 'Espresso') && flow(prev) > 0 && flow(brew) > 0) num('Flow', flow(prev), flow(brew), 'g/s', null);
+                if (tea) num('Steeps', this.teaStepsOf(prev).length, this.teaStepsOf(brew).length, '', null, { round: Math.round, show: v => String(Math.round(v)) });
                 // taste: the rating, then the sliders as tracks
                 const ra = this.normalizeRating(prev.rating), rb = this.normalizeRating(brew.rating);
                 if (ra > 0 || rb > 0) {
@@ -216,7 +220,7 @@
                     taste.push(row('Rating', ra > 0 ? this.fmtNum(ra, 1) : '–', rb > 0 ? this.fmtNum(rb, 1) : '–', '★', !both ? 'neutral' : Math.abs(d) < 1e-9 ? 'same' : d > 0 ? 'up' : 'down', !both ? 'new' : Math.abs(d) < 1e-9 ? 'same' : `${d > 0 ? '+' : '−'}${this.fmtNum(Math.abs(d), 1)}`));
                 }
                 const pos = v => `${(((Math.max(1, Math.min(10, v)) - 1) / 9) * 100).toFixed(1)}%`;
-                [['Acidity', 'acidity'], ['Sweetness', 'sweetness'], ['Body', 'body'], ['Finish', 'finish'], ['Bitterness', 'bitterness'], ['Complexity', 'balance']].forEach(([label, key]) => {
+                ['acidity', 'sweetness', 'body', 'finish', 'bitterness', 'balance'].map(key => [this.tasteLabel(key, kind), key]).forEach(([label, key]) => {
                     const a = this.tasteValue(prev, key) || 0, b = this.tasteValue(brew, key) || 0;
                     if (!(a > 0) && !(b > 0)) return;
                     const d = Math.round((b - a) * 10) / 10, both = a > 0 && b > 0;
@@ -262,6 +266,7 @@
             },
 
             nextShotAdvice(brew) {
+                if (brew && this.isTeaBrew(brew)) { const k = this.teaCoach(this.teaFromBrew(brew)); return { signal: { kind: k.mode, from: 'tea' }, headline: k.head, detail: [k.next ? `Next: ${k.next}` : '', ...k.why].filter(Boolean), best: k.ref, evidence: k.ev, conf: k.conf, coach: k }; }   // v17.0: next-cup advice for tea
                 if (brew && brew.method) {
                     const k = this.coach(this.coachFromBrew(brew));
                     return { signal: { kind: (k.mode === 'ask' || k.mode === 'hold') ? 'unknown' : k.mode, from: k.from }, headline: k.head, detail: [k.next ? `Next: ${k.next}` : '', ...k.why].filter(Boolean), best: k.ref, evidence: k.ev, conf: k.conf, coach: k };

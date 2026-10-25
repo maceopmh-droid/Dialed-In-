@@ -1,14 +1,15 @@
             // ===================== presenting flavor (v10) =====================
-            flavorCounts(brews) {
+            flavorCounts(brews, kind) {
                 const counts = {}, groupCounts = {}, notes = new Map();
+                const k = kind || (brews && brews.length && this.kindOfBrew(brews[0])) || 'coffee';   // v17.0: a tea's notes on the tea wheel
                 brews.forEach(b => {
                     const strength = this.noteIntensities(b);
                     this.extractFlavors(b).forEach(n => {
-                        const at = this.noteLocate(n);
-                        const cur = notes.get(n) || { n, count: 0, strength: 0, f: at ? at.f : -1 };
+                        const at = this.noteLocate(n, k);
+                        const cur = notes.get(n) || { n, count: 0, strength: 0, f: at ? at.f : -1, color: at ? at.color : '' };
                         cur.count += 1; cur.strength = Math.max(cur.strength, strength[n] || 2);
                         notes.set(n, cur);
-                        if (!at) return;
+                        if (!at || at.wheel !== k) return;
                         counts[at.f] = (counts[at.f] || 0) + 1;
                         if (at.g >= 0) groupCounts[`${at.f}:${at.g}`] = (groupCounts[`${at.f}:${at.g}`] || 0) + 1;
                     });
@@ -17,16 +18,17 @@
             },
 
             // two rings: families inside, groups outside; only what was tasted lights up
-            wheelSvgStatic(fc) {
+            wheelSvgStatic(fc, kind) {
+                const WH = this.wheelFor(kind);   // v17.0
                 const cx = 120, cy = 120, ri0 = 34, ri1 = 72, ro0 = 76, ro1 = 112;
                 const arc = (r0, r1, a0, a1) => {
                     const p = (r, a) => `${(cx + r * Math.cos(a)).toFixed(2)} ${(cy + r * Math.sin(a)).toFixed(2)}`;
                     const large = a1 - a0 > Math.PI ? 1 : 0;
                     return `M${p(r1, a0)} A${r1} ${r1} 0 ${large} 1 ${p(r1, a1)} L${p(r0, a1)} A${r0} ${r0} 0 ${large} 0 ${p(r0, a0)} Z`;
                 };
-                const n = NOTE_WHEEL.length, step = 2 * Math.PI / n, start = -Math.PI / 2 - step / 2;
+                const n = WH.length, step = 2 * Math.PI / n, start = -Math.PI / 2 - step / 2;
                 let out = '';
-                NOTE_WHEEL.forEach((fam, i) => {
+                WH.forEach((fam, i) => {
                     const a0 = start + i * step, a1 = a0 + step, lit = (fc.counts[i] || 0) > 0;
                     out += `<path d="${arc(ri0, ri1, a0, a1)}" fill="${fam.color}" fill-opacity="${lit ? 1 : 0.14}"></path>`;
                     const gs = fam.groups.length;
@@ -36,7 +38,7 @@
                     });
                     if (lit) {
                         const mid = (a0 + a1) / 2, r = (ri0 + ri1) / 2;
-                        const short = { 'Nutty & cocoa': 'Cocoa', 'Roasted & earthy': 'Roasted', 'Tastes off': 'Off' }[fam.fam] || fam.fam;
+                        const short = { 'Nutty & cocoa': 'Cocoa', 'Roasted & earthy': 'Roasted', 'Tastes off': 'Off', 'Nutty & toasty': 'Toasty', 'Spice & wood': 'Spice', 'Earthy & smoky': 'Earthy' }[fam.fam] || fam.fam;
                         out += `<text x="${(cx + r * Math.cos(mid)).toFixed(1)}" y="${(cy + r * Math.sin(mid)).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" class="ws-f">${this.esc(short)}</text>`;
                     }
                 });
@@ -47,7 +49,7 @@
 
             noteChipsHtml(notes, withCounts) {
                 return notes.map(x => {
-                    const color = x.f >= 0 ? NOTE_WHEEL[x.f].color : '#7D8984';
+                    const color = x.color || (x.f >= 0 ? NOTE_WHEEL[x.f].color : '#7D8984');
                     return `<span class="flv-note fam-chip" style="${this.famVars(color)}">${this.esc(x.n)}${withCounts ? (x.count > 1 ? `<em>×${x.count}</em>` : '') : `<span class="flv-dots">${[1, 2, 3].map(k => `<b class="${k <= x.strength ? 'on' : ''}"></b>`).join('')}</span>`}</span>`;
                 }).join('');
             },
@@ -65,15 +67,15 @@
 
             renderFlavorPane(brew) {
                 const active = this.cardTab(brew) === 'flavor' ? ' active' : '';
-                const tasted = this.tastedKeys(brew);
-                const fc = this.flavorCounts([brew]);
-                const words = this.describeCup(this.shapeValues(brew), tasted, this.extractFlavors(brew), this.noteIntensities(brew));
+                const tasted = this.tastedKeys(brew), kind = this.kindOfBrew(brew);
+                const fc = this.flavorCounts([brew], kind);
+                const words = this.describeCup(this.shapeValues(brew), tasted, this.extractFlavors(brew), this.noteIntensities(brew), kind);
                 const id = this.esc(brew.id);
                 const shape = tasted.length
                     ? `<button type="button" class="flv-shape" onclick="app.openShapeViewer('${app.escJs(id)}', event)" aria-label="Open the 3D flavor shape"><img data-shape-for="${id}" alt=""><span class="flv-spin">Tap to spin</span></button>`
                     : '<div class="flv-empty">No taste sliders were set for this session.</div>';
                 const wheel = fc.notes.length
-                    ? `<div class="flv-wheel">${this.wheelSvgStatic(fc)}</div><div class="flv-notes">${this.noteChipsHtml(fc.notes, false)}</div>`
+                    ? `<div class="flv-wheel">${this.wheelSvgStatic(fc, kind)}</div><div class="flv-notes">${this.noteChipsHtml(fc.notes, false)}</div>`
                     : '<div class="flv-empty">No tasting notes logged.</div>';
                 return `<div class="card-pane pane-block log-wide${active}" data-pane="flavor"><div class="flv">${shape}<div class="flv-side">${wheel}</div></div>${words ? `<div class="flv-words">${this.esc(words)}</div>` : ''}</div>`;
             },
@@ -88,7 +90,7 @@
                     if (!brew) return;
                     const best = this.bestOtherShot(brew);
                     const tasted = this.tastedKeys(brew);
-                    const url = FlavorShape.snapshot(this.shapeValues(brew), best ? this.shapeValues(best) : null, { width: 320, height: 240, zoom: 1.12, isSet: k => tasted.includes(k), setKey: tasted.join(',') });
+                    const url = FlavorShape.snapshot(this.shapeValues(brew), best ? this.shapeValues(best) : null, { width: 320, height: 240, zoom: 1.12, isSet: k => tasted.includes(k), setKey: tasted.join(','), names: this.kindOfBrew(brew) === 'tea' ? 'tea' : null });
                     if (url) img.src = url;
                 });
             },
@@ -101,17 +103,18 @@
                 this.viewerValues = this.shapeValues(brew);
                 this.viewerGhost = best ? this.shapeValues(best) : null;
                 this.viewerTasted = this.tastedKeys(brew);
-                if (!this.viewerView) this.viewerView = FlavorShape.createView({ values: () => this.viewerValues, ghost: () => this.viewerGhost, ghostLabel: 'Best', isSet: k => (this.viewerTasted || []).includes(k), fullGestures: true });
+                const kind = this.viewerKind = this.kindOfBrew(brew);   // v17.0
+                if (!this.viewerView) this.viewerView = FlavorShape.createView({ names: () => (this.viewerKind === 'tea' ? 'tea' : null), values: () => this.viewerValues, ghost: () => this.viewerGhost, ghostLabel: 'Best', isSet: k => (this.viewerTasted || []).includes(k), fullGestures: true });
                 const bean = this.beans.get(String(brew.beanId));
                 document.getElementById('shape-title').innerText = bean ? this.beanLabel(bean) : 'Flavor shape';
                 document.getElementById('shape-sub').innerText = `${this.getBrewOwner(brew)} · ${this.shortDate(brew.date)}${brew.method ? ` · ${brew.method}` : ''}${best ? ` · dashed: best ${this.shotWord(brew.method)} (${this.shortDate(best.date)})` : ''}`;
                 const host = document.getElementById('shape-host');
                 if (typeof host.replaceChildren === 'function') host.replaceChildren(this.viewerView.el);
-                const fc = this.flavorCounts([brew]);
+                const fc = this.flavorCounts([brew], kind);
                 const tasted = this.tastedKeys(brew);
-                const rows = TASTE_META.map(([k, label]) => { const v = this.tasteValue(brew, k); return `<div class="sv-row"><span><i style="background:${FlavorShape.COLORS[k]}"></i>${label}</span><b>${v === null ? '–' : `${v} · ${this.esc(this.tasteWord(k, v))}`}</b></div>`; }).join('');
-                const words = this.describeCup(this.shapeValues(brew), tasted, this.extractFlavors(brew), this.noteIntensities(brew));
-                document.getElementById('shape-detail').innerHTML = `<div class="sv-grid">${rows}</div>${fc.notes.length ? `<div class="sv-wheel">${this.wheelSvgStatic(fc)}<div class="flv-notes">${this.noteChipsHtml(fc.notes, false)}</div></div>` : ''}${words ? `<div class="flv-words">${this.esc(words)}</div>` : ''}`;
+                const rows = this.tasteMetaFor(kind).map(([k, label]) => { const v = this.tasteValue(brew, k); return `<div class="sv-row"><span><i style="background:${FlavorShape.COLORS[k]}"></i>${label}</span><b>${v === null ? '–' : `${v} · ${this.esc(this.tasteWord(k, v, kind))}`}</b></div>`; }).join('');
+                const words = this.describeCup(this.shapeValues(brew), tasted, this.extractFlavors(brew), this.noteIntensities(brew), kind);
+                document.getElementById('shape-detail').innerHTML = `<div class="sv-grid">${rows}</div>${fc.notes.length ? `<div class="sv-wheel">${this.wheelSvgStatic(fc, kind)}<div class="flv-notes">${this.noteChipsHtml(fc.notes, false)}</div></div>` : ''}${words ? `<div class="flv-words">${this.esc(words)}</div>` : ''}`;
                 this.openModal('shape-modal');
                 this.viewerView.start();
             },
@@ -124,7 +127,7 @@
                 const people = [...new Set(brews.map(b => this.getBrewOwner(b)))].sort();
                 if (this.beanFlavorWho !== 'all' && !people.includes(this.beanFlavorWho)) this.beanFlavorWho = 'all';
                 const pool = this.beanFlavorWho === 'all' ? brews : brews.filter(b => this.getBrewOwner(b) === this.beanFlavorWho);
-                const values = {}, tasted = [];
+                const values = {}, tasted = [], kind = this.beanFlavorKind = this.activeGroup && this.isTeaBean(this.activeGroup.meta) ? 'tea' : 'coffee';   // v17.0
                 TASTE_KEYS.forEach(k => {
                     const list = pool.map(b => this.tasteValue(b, k)).filter(v => v !== null);
                     values[k] = list.length ? list.reduce((s, v) => s + v, 0) / list.length : 5;
@@ -133,13 +136,13 @@
                 this.beanFlavorValues = values;
                 const mineBest = (() => { let best = null; brews.filter(b => this.getBrewOwner(b) === this.user).forEach(b => { const r = this.normalizeRating(b.rating); if (r <= 0) return; const br = best ? this.normalizeRating(best.rating) : -1; if (r > br) best = b; }); return best; })();
                 this.beanFlavorGhost = mineBest ? this.shapeValues(mineBest) : null;
-                const fc = this.flavorCounts(pool);
+                const fc = this.flavorCounts(pool, kind);
                 const chips = people.length > 1 && people.length <= 8 ? `<div class="bf-people">${['all', ...people].map(p => `<button type="button" class="chip-btn" aria-pressed="${this.beanFlavorWho === p}" data-who="${this.esc(p)}" onclick="app.setBeanFlavorWho(this.getAttribute('data-who'))">${p === 'all' ? 'All' : this.esc(p)}</button>`).join('')}</div>` : '';
-                const words = this.describeCup(values, tasted, fc.notes.slice(0, 4).map(x => x.n), Object.fromEntries(fc.notes.map(x => [x.n, x.strength])));
-                box.innerHTML = `<div class="bf-head"><div><h3>Flavor profile</h3><p>${pool.length} session${pool.length === 1 ? '' : 's'} · ${this.beanFlavorWho === 'all' ? this.esc(this.lensLabel()) : this.esc(this.beanFlavorWho)}${mineBest ? ' · dashed: your best' : ''}</p></div></div>${chips}<div id="bf-shape"></div>${!tasted.length ? '<div class="flv-empty">No taste sliders set on these sessions yet.</div>' : ''}${fc.notes.length ? `<div class="bf-wheel">${this.wheelSvgStatic(fc)}<div class="flv-notes">${this.noteChipsHtml(fc.notes.slice(0, 12), true)}</div></div>` : ''}${words ? `<div class="flv-words">${this.esc(words)}</div>` : ''}`;
+                const words = this.describeCup(values, tasted, fc.notes.slice(0, 4).map(x => x.n), Object.fromEntries(fc.notes.map(x => [x.n, x.strength])), kind);
+                box.innerHTML = `<div class="bf-head"><div><h3>Flavor profile</h3><p>${pool.length} session${pool.length === 1 ? '' : 's'} · ${this.beanFlavorWho === 'all' ? this.esc(this.lensLabel()) : this.esc(this.beanFlavorWho)}${mineBest ? ' · dashed: your best' : ''}</p></div></div>${chips}<div id="bf-shape"></div>${!tasted.length ? '<div class="flv-empty">No taste sliders set on these sessions yet.</div>' : ''}${fc.notes.length ? `<div class="bf-wheel">${this.wheelSvgStatic(fc, kind)}<div class="flv-notes">${this.noteChipsHtml(fc.notes.slice(0, 12), true)}</div></div>` : ''}${words ? `<div class="flv-words">${this.esc(words)}</div>` : ''}`;
                 setTimeout(() => this.fillShapeImages(document.getElementById('detail-view')), 0);
                 if (typeof FlavorShape !== 'undefined' && tasted.length) {
-                    if (!this.beanView) this.beanView = FlavorShape.createView({ values: () => this.beanFlavorValues, ghost: () => this.beanFlavorGhost, ghostLabel: 'Your best' });
+                    if (!this.beanView) this.beanView = FlavorShape.createView({ names: () => (this.beanFlavorKind === 'tea' ? 'tea' : null), values: () => this.beanFlavorValues, ghost: () => this.beanFlavorGhost, ghostLabel: 'Your best' });
                     const bfHost = document.getElementById('bf-shape');
                     if (bfHost && typeof bfHost.replaceChildren === 'function') bfHost.replaceChildren(this.beanView.el);
                     this.beanView.start();
@@ -205,6 +208,7 @@
                 document.getElementById('d-process').innerText = bean.process || '-';
                 document.getElementById('d-roast').innerText = bean.roast || '-';
                 this.renderDetailExtras(group, this.detailAllBrews);
+                if (this.paintDetailKind) this.paintDetailKind(group);   // v17.0: a tea's page
 
                 const overallRating = this.calculateAverageRating(brews);
                 const ratedCount = brews.filter(item => this.normalizeRating(item.rating) > 0).length;

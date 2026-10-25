@@ -40,7 +40,8 @@
                 const section = ['sessions', 'overview', 'taste', 'activity'].includes(this.profileSection) ? this.profileSection : 'sessions';   // v14.5: Sessions first
                 const freshRecap = who === this.user ? this.freshRecap() : null;
                 const tabs = `<div class="seg-control profile-tabs" role="tablist" aria-label="Profile sections">${[['sessions', 'Sessions'], ['overview', 'Overview'], ['taste', 'Taste'], ['activity', 'More']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === section}" aria-pressed="${k === section}" onclick="app.setProfileSection('${app.escJs(k)}')">${l}${k === 'activity' && freshRecap && section !== 'activity' ? '<span class="nav-dot"></span>' : ''}</button>`).join('')}</div>`;
-                const cards = section === 'sessions' ? [this.profileSessionsHtml(who)]
+                const cards = section === 'sessions' ? [who === this.user && this.renderShotDraftsCard ? this.renderShotDraftsCard() : '', this.profileSessionsHtml(who)]   // v16.9: shots waiting from your espresso machine first
+
                     : section === 'taste'
                     ? [this.renderPalateCard(who), this.renderCoffeeMapCard ? this.renderCoffeeMapCard(who) : '', who === this.user ? this.renderFriendPalates() : '', this.renderMatchesCard(who), this.renderWantCard(who)]
                     : section === 'activity'
@@ -126,16 +127,18 @@
                 const color = this.getUserColor(user);
                 const brews = this.brewsOf(user);
                 const r = this.rhythmFor(user);
-                const beans = new Set(brews.map(b => this.groupKeyOfBrew(b))).size;
+                const beans = new Set(brews.filter(b => !this.isTeaBrew(b)).map(b => this.groupKeyOfBrew(b))).size;
+                const teas = new Set(brews.filter(b => this.isTeaBrew(b)).map(b => this.groupKeyOfBrew(b))).size;   // v17.0: teas count on their own
                 const methods = new Set(brews.map(b => b.method).filter(Boolean)).size;
                 const dots = r.weeks.map((on, i) => `<span class="week-dot${on ? ' on' : ''}" title="${i === 7 ? 'This week' : `${7 - i} week${7 - i === 1 ? '' : 's'} ago`}"></span>`).join('');
                 const streak = this.streakChipHtml(r.streak);
                 const last = r.lastT ? `Last brewed ${this.formatRelativeDate(r.lastT)}` : 'No sessions yet';
-                return `<section class="profile-card profile-hero" style="--pc-rgb:${this.hexRgb(color)}"><div class="hero-row"><div class="hero-avatar" data-face="${this.esc(user)}" style="background:${this.esc(color)};">${this.esc(this.feedInitial(user))}</div><div class="hero-id"><div class="hero-name">${this.esc(user)}${user === this.user ? '<span class="you-tag">You</span>' : this.profileRelTagHtml(user)}</div><div class="hero-sub">${this.esc(last)}</div></div>${this.acctOn() ? `<button type="button" class="btn-clean hero-share" data-name="${this.esc(user)}" onclick="app.shareItem('profile', this.getAttribute('data-name'), event)" aria-label="Share ${this.esc(user)}'s profile"><svg class="icon"><use href="#i-share-2"/></svg></button>` : ''}</div>${this.acctOn() ? this.profileFollowHtml(user) : ''}<div class="rhythm"><div class="week-dots">${dots}</div><div class="rhythm-text">Brewed in ${r.active} of the last 8 weeks</div>${streak}</div><div class="stat-row"><div class="stat-box"><div class="stat-num">${brews.length}</div><div class="stat-cap">${brews.length === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${beans}</div><div class="stat-cap">${beans === 1 ? 'Coffee' : 'Coffees'}</div></div><div class="stat-box"><div class="stat-num">${methods}</div><div class="stat-cap">${methods === 1 ? 'Method' : 'Methods'}</div></div></div>${this.levelRowHtml ? this.levelRowHtml(user) : ''}</section>`;   // v15.1: the level
+                return `<section class="profile-card profile-hero" style="--pc-rgb:${this.hexRgb(color)}"><div class="hero-row"><div class="hero-avatar" data-face="${this.esc(user)}" style="background:${this.esc(color)};">${this.esc(this.feedInitial(user))}</div><div class="hero-id"><div class="hero-name">${this.esc(user)}${user === this.user ? '<span class="you-tag">You</span>' : this.profileRelTagHtml(user)}</div><div class="hero-sub">${this.esc(last)}</div></div>${this.acctOn() ? `<button type="button" class="btn-clean hero-share" data-name="${this.esc(user)}" onclick="app.shareItem('profile', this.getAttribute('data-name'), event)" aria-label="Share ${this.esc(user)}'s profile"><svg class="icon"><use href="#i-share-2"/></svg></button>` : ''}</div>${this.acctOn() ? this.profileFollowHtml(user) : ''}<div class="rhythm"><div class="week-dots">${dots}</div><div class="rhythm-text">Brewed in ${r.active} of the last 8 weeks</div>${streak}</div><div class="stat-row"><div class="stat-box"><div class="stat-num">${brews.length}</div><div class="stat-cap">${brews.length === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${beans}</div><div class="stat-cap">${beans === 1 ? 'Coffee' : 'Coffees'}</div></div>${teas ? `<div class="stat-box"><div class="stat-num">${teas}</div><div class="stat-cap">${teas === 1 ? 'Tea' : 'Teas'}</div></div>` : ''}<div class="stat-box"><div class="stat-num">${methods}</div><div class="stat-cap">${methods === 1 ? 'Method' : 'Methods'}</div></div></div>${this.levelRowHtml ? this.levelRowHtml(user) : ''}</section>`;   // v15.1: the level
             },
 
-            palateFor(user) {
-                const brews = this.brewsOf(user);
+            palateFor(user, kind) {
+                const k = kind === 'tea' || kind === 'coffee' ? kind : this.drinkNow();   // v17.0: a coffee palate, or a tea palate in tea mode
+                const brews = this.brewsOf(user).filter(b => this.isTeaBrew(b) === (k === 'tea'));
                 if (!brews.length) return null;
                 const dims = { notes: new Map(), origins: new Map(), processes: new Map(), roasts: new Map(), methods: new Map(), varieties: new Map() };
                 const bump = (map, label, w) => {
@@ -160,24 +163,33 @@
                     if (bean) {
                         this.originList(bean.origin).forEach(o => bump(dims.origins, o, w));
                         bump(dims.processes, this.normalizeTag(bean.process), w);
-                        bump(dims.roasts, String(bean.roast || '').trim(), w);
+                        bump(dims.roasts, String((k === 'tea' ? bean.teaType : bean.roast) || '').trim(), w);   // (a tea's type where a coffee's roast goes)
                         bump(dims.varieties, this.normalizeTag(bean.variety), w);
                     }
                     bump(dims.methods, String(b.method || '').trim(), 1);
                 });
                 const top = (map, n) => [...map.values()].sort((a, b) => b.w - a.w || b.n - a.n || a.label.localeCompare(b.label)).slice(0, n);
                 return {
-                    user, dims, count: brews.length, rated, avgRating: rated ? ratingSum / rated : 0,
+                    user, kind: k, dims, count: brews.length, rated, avgRating: rated ? ratingSum / rated : 0,
                     notes: top(dims.notes, 5), origins: top(dims.origins, 3), processes: top(dims.processes, 2),
                     roasts: top(dims.roasts, 2), methods: top(dims.methods, 2), varieties: top(dims.varieties, 2)
                 };
             },
 
             palateSentence(p) {
-                if (!p) return 'No sessions yet.';
+                if (!p) return this.teaMode() ? 'No tea sessions yet.' : 'No sessions yet.';
                 if (p.count < 3) return 'Still forming. A few more sessions will fill this in.';
                 const lower = s => String(s).toLowerCase();
                 const bits = [];
+                if (p.kind === 'tea') {   // v17.0
+                    let first = `Leans toward ${p.roasts[0] ? `${lower(p.roasts[0].label)} teas` : 'teas'}`;
+                    if (p.origins[0]) first += ` from ${p.origins[0].label}${p.origins[1] ? ` and ${p.origins[1].label}` : ''}`;
+                    bits.push(`${first}.`);
+                    const tn = p.notes.slice(0, 2).map(n => lower(n.label));
+                    if (tn.length) bits.push(`Favorite notes: ${tn.join(' and ')}.`);
+                    if (p.methods[0]) bits.push(`Brews mostly ${lower(p.methods[0].label)}.`);
+                    return bits.join(' ');
+                }
                 const adj = [p.roasts[0] && `${lower(p.roasts[0].label)}-roast`, p.processes[0] && lower(p.processes[0].label)].filter(Boolean).join(', ');
                 let first = `Leans toward ${adj ? `${adj} coffees` : 'coffees'}`;
                 if (p.origins[0]) first += ` from ${p.origins[0].label}${p.origins[1] ? ` and ${p.origins[1].label}` : ''}`;
@@ -192,11 +204,11 @@
                 const p = this.palateFor(user);
                 const chips = (label, items) => (items.length ? `<div class="palate-group"><span class="palate-key">${label}</span>${items.map(i => label === 'Notes' ? this.famChip(i.label) : `<span class="flavor-mini">${this.esc(i.label)}</span>`).join('')}</div>` : '');
                 const groups = p && p.count >= 3
-                    ? [chips('Notes', p.notes), chips('Origins', p.origins), chips('Process', p.processes), chips('Roast', p.roasts), chips('Variety', p.varieties), chips('Methods', p.methods)].join('')
+                    ? [chips('Notes', p.notes), chips('Origins', p.origins), chips(p.kind === 'tea' ? 'Processing' : 'Process', p.processes), chips(p.kind === 'tea' ? 'Type' : 'Roast', p.roasts), chips(p.kind === 'tea' ? 'Cultivar' : 'Variety', p.varieties), chips('Methods', p.methods)].join('')
                     : '';
                 const meta = p && p.rated ? `<div class="palate-meta">Weighted by ${p.rated} rated session${p.rated === 1 ? '' : 's'} · avg ${this.esc(this.formatRating(p.avgRating))}★</div>` : '';
                 const share = user === this.user && p && p.count >= 3 && this.storyShareBtn ? this.storyShareBtn('app.openPalateStory()', 'Share your palate as a picture') : '';   // v16.1
-                return `<section class="profile-card palate-card"><h4 class="section-label">${user === this.user ? 'Your palate' : `${this.esc(user)}'s palate`}${share}</h4><div class="palate-summary">${this.esc(this.palateSentence(p))}</div>${groups ? `<div class="palate-groups">${groups}</div>` : ''}${meta}</section>`;
+                return `<section class="profile-card palate-card"><h4 class="section-label">${user === this.user ? (this.teaMode() ? 'Your tea palate' : 'Your palate') : `${this.esc(user)}'s ${this.teaMode() ? 'tea ' : ''}palate`}${share}</h4><div class="palate-summary">${this.esc(this.palateSentence(p))}</div>${groups ? `<div class="palate-groups">${groups}</div>` : ''}${meta}</section>`;
             },
 
             renderFriendPalates() {
@@ -224,6 +236,7 @@
                 this.buildBeanGroups().forEach(({ group, brews }) => {
                     const key = this.beanGroupKey(group.meta);
                     if (tried.has(key) || group.users.has(forUser)) return;
+                    if (this.isTeaBean(group.meta) !== (p.kind === 'tea')) return;   // v17.0: teas for a tea palate, coffees for a coffee one
                     if (fromUser && !group.users.has(fromUser) && !brews.some(b => this.getBrewOwner(b) === fromUser)) return;
                     const meta = group.meta;
                     const origins = this.originList(meta.origin);
@@ -231,7 +244,7 @@
                     const originScore = originHit ? originHit.s : 0;
                     const process = this.normalizeTag(meta.process);
                     const processScore = share(p.dims.processes, process);
-                    const roast = String(meta.roast || '').trim();
+                    const roast = String((p.kind === 'tea' ? meta.teaType : meta.roast) || '').trim();
                     const roastScore = share(p.dims.roasts, roast);
                     const notes = this.getTopFlavors(brews, 4).map(f => this.normalizeTag(f)).filter(Boolean);
                     const noteScores = notes.map(n => ({ n, s: share(p.dims.notes, n) }));
@@ -242,7 +255,7 @@
                     const why = [];
                     if (originScore >= 0.5) why.push(originHit.o);
                     if (processScore >= 0.5) why.push(process);
-                    if (roastScore >= 0.5) why.push(`${roast} roast`);
+                    if (roastScore >= 0.5) why.push(p.kind === 'tea' ? `${roast.toLowerCase()} tea` : `${roast} roast`);
                     const sharedNotes = noteScores.filter(x => x.s >= 0.4).slice(0, 2).map(x => x.n.toLowerCase());
                     if (sharedNotes.length) why.push(sharedNotes.join(' & '));
                     if (othersRated.length) {
@@ -430,7 +443,7 @@
                 // no spoilers: the champion only shows once you've revealed the month's awards
                 const champ = st.length && !this.awardsNeedReveal(key, awards) ? st.filter(r => r[1] === st[0][1]).map(r => r[0]) : [];
                 const rated = list.filter(x => ratingOf(x) > 0);
-                return { count: list.length, people, grams: list.reduce((s, x) => s + this.num(x.dose), 0), fives: rated.filter(x => ratingOf(x) >= 5).length, avg: rated.length ? rated.reduce((s, x) => s + ratingOf(x), 0) / rated.length : 0, likes: list.reduce((s, x) => s + likesOf(x), 0), coffee, busiest, goals, champ, sealed: !!st.length && !champ.length };
+                return { count: list.length, people, grams: list.filter(x => !this.isTeaBrew(x)).reduce((s, x) => s + this.num(x.dose), 0), fives: rated.filter(x => ratingOf(x) >= 5).length, avg: rated.length ? rated.reduce((s, x) => s + ratingOf(x), 0) / rated.length : 0, likes: list.reduce((s, x) => s + likesOf(x), 0), coffee, busiest, goals, champ, sealed: !!st.length && !champ.length };
             },
 
             monthCardsHtml(user, s, period, best) {
@@ -438,9 +451,13 @@
                 const month = this.monthName(period.slice(2), false);
                 const face = n => `<b class="mrc-face" data-face="${esc(n)}" style="background:${esc(this.getUserColor(n))}">${esc(this.feedInitial(n))}</b>`;
                 const amount = g => g >= 1000 ? `${this.fmtNum(g / 1000, 2)} kg` : `${Math.round(g)} g`;
-                const stats = [[amount(s.grams), 'coffee'], [s.avgRating ? `${this.fmtNum(s.avgRating, 1)}★` : '—', 'average rating'], [`${s.longestStreak} day${s.longestStreak === 1 ? '' : 's'}`, 'longest run'], [String(s.newBeans || 0), `new coffee${s.newBeans === 1 ? '' : 's'}`]];
+                const onlyTea = s.tea && !s.coffeeCount;   // v17.0: a month of only tea reads in tea
+                const stats = onlyTea
+                    ? [[`${this.fmtNum(s.tea.leaf, 1)} g`, 'leaf'], [s.avgRating ? `${this.fmtNum(s.avgRating, 1)}★` : '—', 'average rating'], [`${s.longestStreak} day${s.longestStreak === 1 ? '' : 's'}`, 'longest run'], [String(s.tea.newTeas || 0), `new tea${s.tea.newTeas === 1 ? '' : 's'}`]]
+                    : [[amount(s.grams), 'coffee'], [s.avgRating ? `${this.fmtNum(s.avgRating, 1)}★` : '—', 'average rating'], [`${s.longestStreak} day${s.longestStreak === 1 ? '' : 's'}`, 'longest run'], [String(s.newBeans || 0), `new coffee${s.newBeans === 1 ? '' : 's'}`]];
                 const lines = [];
-                if (s.topBean) lines.push(['Top coffee', `${s.topBean.name || s.topBean.label} · ${s.topBean.count}×`]);
+                if (s.topBean && !onlyTea) lines.push(['Top coffee', `${s.topBean.name || s.topBean.label} · ${s.topBean.count}×`]);
+                if (s.tea) lines.push(['Tea', `${s.tea.count} session${s.tea.count === 1 ? '' : 's'}${s.tea.top ? ` · ${s.tea.top.name}` : ''}`]);
                 if (s.topMethod) lines.push(['Method', `${s.topMethod.label} · ${s.topMethod.count}×`]);
                 if (s.buddy) lines.push(['Brew buddy', s.buddy.name]);
                 const row = ([l, v]) => `<div><span>${esc(l)}</span><b>${esc(v)}</b></div>`;
@@ -463,7 +480,7 @@
                 const board = c.people.map(([n, k]) => `<div><span class="mrc-name">${face(n)}<span class="mrc-nm">${esc(n)}</span></span><i><b style="width:${(k / max * 100).toFixed(1)}%"></b></i><span class="mrc-n">${k}</span></div>`).join('');
                 const cstats = [[amount(c.grams), 'coffee'], [String(c.fives), `5★ session${c.fives === 1 ? '' : 's'}`], [String(c.likes), `like${c.likes === 1 ? '' : 's'}`], circle && circle.id === 'friends' ? [String(c.count), `session${c.count === 1 ? '' : 's'}`] : [String(c.goals), `goal${c.goals === 1 ? '' : 's'} reached`]];   // v15.1: friends have no group goal
                 const clines = [];
-                if (c.coffee && c.coffee.bean) clines.push(['Coffee in common', `${String(c.coffee.bean.name || '').trim() || this.beanLabel(c.coffee.bean)} · ${c.coffee.n}×`]);
+                if (c.coffee && c.coffee.bean) clines.push([this.isTeaBean(c.coffee.bean) ? 'Tea in common' : 'Coffee in common', `${String(c.coffee.bean.name || '').trim() || this.beanLabel(c.coffee.bean)} · ${c.coffee.n}×`]);
                 if (c.busiest && c.busiest[1] > 1) clines.push(['Busiest day', `${new Date(this.parseLocalDate(c.busiest[0])).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · ${c.busiest[1]} sessions`]);
                 if (c.champ.length) clines.push(['Champion', c.champ.join(' & ')]);
                 else if (c.sealed) clines.push(['Awards', 'ready to reveal']);
@@ -607,8 +624,12 @@
                 const brews = all.filter(b => inRange(this.toTime(b.date)));
                 const s = { user, period, label: this.periodLabel(period), count: brews.length, isYear: period.startsWith('y:') };
                 if (!brews.length) return s;
-                s.grams = brews.reduce((sum, b) => sum + this.num(b.dose), 0);
-                s.out = brews.reduce((sum, b) => sum + this.num(b.yield), 0);
+                // v17.0: coffee's numbers are coffee's; tea gets its own (sessions, leaf, steeps, its top tea and type)
+                const coffeeBrews = brews.filter(b => !this.isTeaBrew(b)), teaBrews = brews.filter(b => this.isTeaBrew(b));
+                s.coffeeCount = coffeeBrews.length;
+                s.grams = coffeeBrews.reduce((sum, b) => sum + this.num(b.dose), 0);
+                s.out = coffeeBrews.reduce((sum, b) => sum + this.num(b.yield), 0);
+                if (teaBrews.length) s.tea = this.teaRecap(teaBrews, all, inRange);
                 const dayNums = [...new Set(brews.map(b => this.dayNum(this.toTime(b.date))))].sort((a, b) => a - b);
                 s.days = dayNums.length;
                 let longest = 0;
@@ -629,7 +650,7 @@
                     });
                     return [...m.entries()].sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0])));
                 };
-                const topBean = countBy(b => this.groupKeyOfBrew(b))[0];
+                const topBean = countBy(b => this.isTeaBrew(b) ? '' : this.groupKeyOfBrew(b))[0] || countBy(b => this.groupKeyOfBrew(b))[0];
                 if (topBean) {
                     const sample = brews.find(b => this.groupKeyOfBrew(b) === topBean[0]);
                     const topB = this.beans.get(String(sample.beanId));
@@ -653,6 +674,7 @@
                 }
                 const firstSeen = new Map();
                 all.forEach(b => {
+                    if (this.isTeaBrew(b)) return;   // (v17.0: new teas are counted with tea)
                     const k = this.groupKeyOfBrew(b);
                     const t = this.toTime(b.date);
                     if (!t) return;
@@ -675,6 +697,7 @@
             recapNumbers(s) {
                 const grams = s.grams >= 1000 ? `${this.fmtNum(s.grams / 1000, 2)} kg` : `${Math.round(s.grams)} g`;
                 const out = s.out >= 1000 ? `${this.fmtNum(s.out / 1000, 2)} L` : `${Math.round(s.out)} ml`;
+                if (s.tea && !s.coffeeCount) return [[String(s.count), 'Sessions'], [String(s.days), 'Brewing days'], [`${this.fmtNum(s.tea.leaf, 1)} g`, 'Leaf used'], [String(s.tea.steeps), 'Steeps']];   // v17.0: a month of only tea
                 return [[String(s.count), 'Sessions'], [String(s.days), 'Brewing days'], [grams, 'Coffee used'], [out, 'Brewed out']];
             },
 
@@ -683,7 +706,8 @@
                 if (s.topBean) lines.push(['Top coffee', `${s.topBean.label} · ${s.topBean.count}×`]);
                 if (s.topRoaster) lines.push(['Top roaster', s.topRoaster.label]);
                 if (s.topMethod) lines.push(['Most-used method', `${s.topMethod.label} · ${s.topMethod.count}×`]);
-                lines.push(['New coffees tried', String(s.newBeans || 0)]);
+                if (!s.tea || s.coffeeCount) lines.push(['New coffees tried', String(s.newBeans || 0)]);
+                if (s.tea) lines.push(...this.teaRecapLines(s.tea));   // v17.0
                 lines.push(['Longest daily run', `${s.longestStreak} day${s.longestStreak === 1 ? '' : 's'}`]);
                 if (s.avgRating) lines.push(['Average rating', `${this.fmtNum(s.avgRating)}★`]);
                 if (s.buddy) lines.push(['Brew buddy', `${s.buddy.name} · ${s.buddy.count} session${s.buddy.count === 1 ? '' : 's'} on the same coffees`]);

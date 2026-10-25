@@ -115,6 +115,8 @@
                 if (this.tab === 'roasters') { this.renderRoasterList(grid, searchQuery); return; }
 
                 let list = this.buildBeanGroups();
+                const teaShelf = this.teaMode(), dw = this.drinkWords(this.drinkNow());   // v17.0: the shelf shows coffees or teas
+                list = list.filter(item => this.isTeaBean(item.group.meta) === teaShelf);
                 // v14.4: the library is your circle's; community sessions and coffees (Feed, Community) stay out of it
                 if (this.communityIds && this.communityIds.size) {
                     list = list.filter(item => item.group.ids.some(id => !this.communityIds.has('bean:' + id)))
@@ -128,7 +130,7 @@
                 if (searchQuery) {
                     list = list.filter(item => {
                         const b = item.group.meta;
-                        const text = `${b.roaster || ''} ${b.name || ''} ${b.origin || ''} ${b.variety || ''} ${b.process || ''}`.toLowerCase();
+                        const text = `${b.roaster || ''} ${b.name || ''} ${b.origin || ''} ${b.variety || ''} ${b.process || ''} ${b.teaType || ''}`.toLowerCase();
                         return text.includes(searchQuery);
                     });
                 }
@@ -169,10 +171,10 @@
                     const topFlavors = this.getTopFlavors(brews, 3);
                     const userNames = [...group.users].sort((a, b) => a.localeCompare(b));
                     const isShared = userNames.length > 1;
-                    const art = isShared ? '#i-leaf-line' : '#i-bean-line';
+                    const art = teaShelf ? '#i-tea-line' : isShared ? '#i-leaf-line' : '#i-bean-line';
 
                     card.innerHTML = `
-                        ${isNew ? '<div class="fresh-dot" title="New coffee"></div>' : ''}
+                        ${isNew ? `<div class="fresh-dot" title="New ${dw.item}"></div>` : ''}
                         ${avgRating > 0 ? `
                             <div class="card-rating">
                                 <span class="star-meter" style="--fill:${this.starFill(avgRating)}%;--whole:${this.starWhole(avgRating)};--frac:${this.starFrac(avgRating)}"></span>
@@ -182,8 +184,9 @@
                         <div class="lib-name" style="font-size:1.5rem; font-weight:700;">
                             ${this.esc(bean.name || '')}
                         </div>
-                        ${bean.roaster ? `<div class="lib-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(bean.roaster)}" onclick="app.openRoasterFrom(this, event)">${this.esc(bean.roaster)}</span></div>` : '<div class="lib-roaster"></div>'}
+                        ${bean.roaster ? `<div class="lib-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(bean.roaster)}"${teaShelf ? ' data-kind="tea"' : ''} onclick="app.openRoasterFrom(this, event)">${this.esc(bean.roaster)}</span></div>` : '<div class="lib-roaster"></div>'}
                         <div style="margin-bottom:12px;">
+                            ${teaShelf && bean.teaType ? `<span class="tag tea-type-tag" style="--tt:${(this.teaTypeInfo(bean.teaType) || {}).color || '#7FA45B'}">${this.esc(bean.teaType)}</span>` : ''}
                             ${bean.variety ? `<span class="tag">${this.esc(bean.variety)}</span>` : ''}
                             ${bean.origin ? `<span class="tag">${this.esc(bean.origin)}</span>` : ''}
                             ${bean.process ? `<span class="tag">${this.esc(bean.process)}</span>` : ''}
@@ -206,8 +209,8 @@
 
                 if (!list.length) {
                     const message = (searchQuery || this.currentMethodFilter !== 'all' || this.roasterFilter)
-                        ? 'No coffees match your filters.'
-                        : 'No coffees yet. Add your first one with the + button.';
+                        ? `No ${dw.items} match your filters.`
+                        : `No ${dw.items} yet. Add your first one with the + button.`;
                     grid.innerHTML = `<div style="text-align:center; color:#999; padding:3rem;">${message}</div>`;
                 }
                 if (this.tab === 'my' && grid.insertAdjacentHTML) grid.insertAdjacentHTML('afterbegin', this.coffeeScopeHtml() + this.roasterFilterHtml());

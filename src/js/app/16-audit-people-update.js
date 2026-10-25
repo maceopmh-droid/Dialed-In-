@@ -8,8 +8,8 @@
             cssUrl(u) { return String(u || '').replace(/['"()\\\s]/g, ch => '%' + ch.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')); },
 
             // the roaster for a key, even after a merge changed which key it goes by
-            roasterFind(key) {
-                const D = this.roasterData();
+            roasterFind(key, kind) {
+                const D = this.roasterData(kind);
                 return D.byKey.get(key) || D.byKey.get(D.clusterOf(key)) || null;
             },
 

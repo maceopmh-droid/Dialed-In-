@@ -1,0 +1,66 @@
+# The Shot Logger (v16.9): deploys the two functions espresso machines call, shot-inbox and machine-sync, to Supabase,
+# and checks them from the outside (a wrong token is turned away, the wrong method too). The database side
+# (internal.shot_inbox, internal.machine_sync and their tables) comes with api.sql: run `supabase setup` first.
+# Deployed with --no-verify-jwt: a machine's token isn't a Supabase sign-in; the database checks it.
+# Needs the SUPABASE_ACCESS_TOKEN secret (as supabase-push does) and SUPABASE_DB_PASSWORD (to see the database is ready).
+# Runs when pushed to the `supabase-shots` branch; safe to run again. The logs are public: nothing here prints a token.
+name: supabase shots
+on:
+  push:
+    branches: [supabase-shots]
+
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_REF: glombusdjwlrgjihnylk
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Is there an access token yet?
+        id: cfg
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then echo "skip=1" >> "$GITHUB_OUTPUT"; echo "No SUPABASE_ACCESS_TOKEN secret yet: nothing deployed." > "$RUNNER_TEMP/c.txt"; cat "$RUNNER_TEMP/c.txt"; bash supabase/report.sh "Shot Logger" "$RUNNER_TEMP/c.txt"; fi
+      - name: Find the database
+        if: steps.cfg.outputs.skip != '1'
+        run: |
+          set +e
+          bash supabase/find_db.sh 2> "$RUNNER_TEMP/find.txt"; rc=$?
+          cat "$RUNNER_TEMP/find.txt"; [ $rc -eq 0 ] || bash supabase/report.sh "Find the database" "$RUNNER_TEMP/find.txt"; exit $rc
+      - name: Is the database ready (api.sql with the Shot Logger applied)?
+        if: steps.cfg.outputs.skip != '1'
+        run: |
+          set +e
+          ready=$(psql "$DB_URL" -Atqc "select (to_regprocedure('internal.shot_inbox(text,jsonb)') is not null and to_regclass('public.shots') is not null)::text")
+          { if [ "$ready" = "true" ]; then echo "The database has the Shot Logger's tables and calls."; echo "Machines linked so far: $(psql "$DB_URL" -Atqc 'select count(*) from machines')"; echo "Shots received so far: $(psql "$DB_URL" -Atqc 'select count(*) from shots')";
+            else echo "The database doesn't have the Shot Logger yet: run supabase setup first (push to supabase-setup)."; fi; } > "$RUNNER_TEMP/r.txt"
+          cat "$RUNNER_TEMP/r.txt"; bash supabase/report.sh "Database ready" "$RUNNER_TEMP/r.txt"; [ "$ready" = "true" ]
+      - uses: supabase/setup-cli@v1
+        if: steps.cfg.outputs.skip != '1'
+        with:
+          version: latest
+      - name: Deploy shot-inbox and machine-sync
+        if: steps.cfg.outputs.skip != '1'
+        run: |
+          set +e
+          supabase functions deploy shot-inbox --project-ref "$PROJECT_REF" --no-verify-jwt 2>&1 | tee "$RUNNER_TEMP/d.txt"; a=${PIPESTATUS[0]}
+          supabase functions deploy machine-sync --project-ref "$PROJECT_REF" --no-verify-jwt 2>&1 | tee -a "$RUNNER_TEMP/d.txt"; b=${PIPESTATUS[0]}
+          bash supabase/report.sh "Deploy" "$RUNNER_TEMP/d.txt"; [ $a -eq 0 ] && [ $b -eq 0 ]
+      - name: Check them from the outside (no data touched)
+        if: steps.cfg.outputs.skip != '1'
+        run: |
+          base="https://$PROJECT_REF.supabase.co/functions/v1"
+          bad='Authorization: Bearer 0000000000000000000000000000000000000000000000000000000000000000'
+          a=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$base/shot-inbox" -H "$bad" -H 'Content-Type: application/json' --data @supabase/fixtures/shot-example.json)
+          b=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$base/shot-inbox" -H 'Content-Type: application/json' --data '{}')
+          c=$(curl -s -o /dev/null -w '%{http_code}' "$base/shot-inbox")
+          d=$(curl -s -o /dev/null -w '%{http_code}' "$base/machine-sync" -H "$bad")
+          e=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$base/machine-sync" -H "$bad")
+          head -c 300000 /dev/zero | tr '\0' 'x' > "$RUNNER_TEMP/big.txt"
+          f=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$base/shot-inbox" -H "$bad" --data-binary @"$RUNNER_TEMP/big.txt")
+          { echo "shot-inbox, a wrong token: $a (401 expected)"; echo "shot-inbox, no token: $b (401 expected)"; echo "shot-inbox, GET: $c (405 expected)";
+            echo "machine-sync, a wrong token: $d (401 expected)"; echo "machine-sync, POST: $e (405 expected)"; echo "shot-inbox, over 256 KB: $f (413 expected)"; } | tee "$RUNNER_TEMP/k.txt"
+          bash supabase/report.sh "Function checks" "$RUNNER_TEMP/k.txt"
+          [ "$a" = "401" ] && [ "$b" = "401" ] && [ "$c" = "405" ] && [ "$d" = "401" ] && [ "$e" = "405" ] && [ "$f" = "413" ]

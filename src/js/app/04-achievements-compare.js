@@ -164,7 +164,16 @@
                         metric: stats => (stats.samplerMax || 0),
                         format: value => `${Math.round(value)} in 30 days`,
                         sentence: value => `brewed ${Math.round(value)} different roasters within 30 days`
-                    }
+                    },
+                    // v17.0: tea's own (they show once someone has logged a tea)
+                    { key: 'tea_sessions', group: 'Tea', desc: 'Tea sessions logged', title: 'Tea Time', thresholds: [1, 5, 15, 30, 60, 100, 160, 240],
+                      metric: stats => stats.teaSessions || 0, format: value => `${Math.round(value)}`, sentence: value => (Math.round(value) === 1 ? 'logged a first tea session' : `logged ${Math.round(value)} tea sessions`) },
+                    { key: 'tea_explorer', group: 'Tea', desc: 'Different teas tried', title: 'Leaf Explorer', thresholds: [2, 5, 10, 20, 35, 50],
+                      metric: stats => (stats.teaSet ? stats.teaSet.size : 0), format: value => `${Math.round(value)}`, sentence: value => `tried ${Math.round(value)} different teas` },
+                    { key: 'tea_types', group: 'Tea', desc: 'Kinds of tea tried (green, white, yellow, oolong, black, pu-erh, matcha)', title: 'Tea Spectrum', thresholds: [2, 4, 7],
+                      metric: stats => (stats.teaTypeSet ? stats.teaTypeSet.size : 0), format: value => `${Math.min(7, Math.round(value))}/7 types`, sentence: value => `tried ${Math.round(value)} kinds of tea` },
+                    { key: 'tea_steeps', group: 'Tea', desc: 'Steeps logged, all time', title: 'Steep Count', thresholds: [10, 50, 150, 400, 1000],
+                      metric: stats => stats.steepTotal || 0, format: value => `${Math.round(value)}`, sentence: value => `logged ${Math.round(value)} steeps` }
                 ];
                 return this.achievementCatalogCache;
             },
@@ -212,15 +221,16 @@
                 if (title) title.innerText = user === this.user ? 'Achievement Locker' : `${user}'s Achievements`;
                 const stats = this.achievementStatsByUser[user] || this.createAchievementStats();
                 const levels = this.achievementLevelsByUser[user] || {};
-                const catalog = this.getAchievementCatalog();
+                const catalog = this.achievementCatalogFor(user);   // v17.0: tea's appear once there's tea
                 const earned = catalog.reduce((s, d) => s + Math.min(d.thresholds.length, Number(levels[d.key] || 0)), 0);
                 const total = catalog.reduce((s, d) => s + d.thresholds.length, 0);
                 const recent = [];
                 [this.achievementUnlockByBrew, this.achievementUnlockByBean].forEach(map => map.forEach(list => list.forEach(u => { if (u.user === user) recent.push(u); })));
                 recent.sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
                 const recentHtml = recent.slice(0, 3).map(u => `<div>${this.esc(u.definition.title)}${u.definition.thresholds.length > 1 ? ` Lv ${u.level}` : ''} · ${this.esc(this.shortDate(u.date))}</div>`).join('');
-                const groups = ['Brewing', 'Exploring', 'Social'].map(groupName => {
+                const groups = ['Brewing', 'Exploring', 'Tea', 'Social'].map(groupName => {
                     const defs = catalog.filter(d => (d.group || 'Brewing') === groupName);
+                    if (!defs.length) return '';
                     return `<div class="ach-group"><div class="ach-group-title">${groupName}</div><div class="ach-cards">${defs.map(d => this.renderAchievementCard(d, stats, levels)).join('')}</div></div>`;
                 }).join('');
                 box.innerHTML = `<div class="ach-summary"><div><div class="ach-total-num">${earned}<span class="ach-total-of"> / ${total}</span></div><div class="ach-total-cap">Levels unlocked</div></div><div class="ach-recent">${recentHtml ? `<div class="ach-recent-title">Recent</div>${recentHtml}` : 'No unlocks yet'}</div></div>${groups}`;
@@ -290,20 +300,43 @@
                 };
                 const num = v => { const n = this.num(v); return n > 0 ? n : null; };
                 const rows = [];
-                const ga = this.grindText(A.grind), gb = this.grindText(Bv.grind);
-                if (ga || gb) {
+                // v17.0: two tea sessions compare in tea terms (leaf, water, temperature, steeps), never grind or roast age
+                const tea = this.isTeaBrew(A) && this.isTeaBrew(Bv), kind = tea ? 'tea' : 'coffee';
+                const ga = tea ? '' : this.grindText(A.grind), gb = tea ? '' : this.grindText(Bv.grind);
+                if (tea) {
+                    const ml = v => v === null ? '–' : `${this.fmtNum(v, 0)} ml`, deg = v => v === null ? '–' : `${this.fmtNum(v, 0)}°C`;
+                    const st = x => this.teaTimeText(x) || '–', stN = x => { const n = this.num(x.time); return n > 0 ? n : null; };
+                    const la = num(A.dose), lb = num(Bv.dose), wa = num(A.yield), wb = num(Bv.yield), ta = num(A.temp), tb = num(Bv.temp);
+                    const bagsOf = x => x.teabag ? Math.max(1, Number(x.bags) || 1) : null, ba = bagsOf(A), bb = bagsOf(Bv);
+                    const stOf = x => x.method === 'Matcha' && this.matchaStyle(x) ? this.matchaStyle(x).short : '', stA = stOf(A), stB = stOf(Bv);
+                    if (stA || stB) rows.push(['Style', this.esc(stA || '–'), this.esc(stB || '–'), stA === stB ? '<span class="cmp-d same">same</span>' : '<span class="cmp-d neutral">changed</span>']);
+                    if (ba !== null || bb !== null) rows.push(['Teabags', ba === null ? fmt(la, 'g') : String(ba), bb === null ? fmt(lb, 'g') : String(bb), ba !== null && bb !== null ? chip(ba, bb, null) : '<span class="cmp-d neutral">changed</span>']);
+                    else if (la !== null || lb !== null) rows.push([A.method === 'Matcha' && Bv.method === 'Matcha' ? 'Matcha' : 'Leaf', fmt(la, 'g'), fmt(lb, 'g'), chip(la, lb, null)]);
+                    if (wa !== null || wb !== null) rows.push(['Water', ml(wa), ml(wb), chip(wa, wb, null)]);
+                    const ra = la && wa ? wa / la : null, rb = lb && wb ? wb / lb : null;
+                    if (ra || rb) rows.push(['Ratio', ra ? `1:${this.fmtNum(ra, 0)}` : '–', rb ? `1:${this.fmtNum(rb, 0)}` : '–', chip(ra === null ? null : Math.round(ra), rb === null ? null : Math.round(rb), null)]);
+                    const ma = num(A.milk), mb = num(Bv.milk);
+                    if (ma !== null || mb !== null) rows.push(['Milk', ml(ma), ml(mb), chip(ma, mb, null)]);
+                    if (ta !== null || tb !== null) rows.push(['Temp', deg(ta), deg(tb), chip(ta, tb, null)]);
+                    if (stN(A) !== null || stN(Bv) !== null) rows.push([A.method === 'Matcha' && Bv.method === 'Matcha' ? 'Whisk' : 'Steep', this.esc(st(A)), this.esc(st(Bv)), chip(stN(A), stN(Bv), null)]);
+                    const sa = this.teaStepsOf(A).length || null, sb = this.teaStepsOf(Bv).length || null;
+                    if (sa || sb) rows.push(['Steeps', sa ? String(sa) : '–', sb ? String(sb) : '–', chip(sa, sb, null)]);
+                }
+                if (!tea && (ga || gb)) {
                     const d = !sameOwner ? '<span class="cmp-d note">different grinders</span>' : (this.sameGrind(A.grind, Bv.grind) ? '<span class="cmp-d same">same</span>' : (this.grindNum(A.grind) !== null && this.grindNum(Bv.grind) !== null ? chip(this.grindNum(A.grind), this.grindNum(Bv.grind), null) : '<span class="cmp-d neutral">changed</span>'));
                     rows.push(['Grind', this.esc(ga || '–'), this.esc(gb || '–'), d]);
                 }
-                [['Dose', 'dose', 'g'], [(() => { const e = x => !x.method || x.method === 'Espresso'; return e(A) && e(Bv) ? 'Pull' : !e(A) && !e(Bv) ? 'Pour' : 'Pull / water'; })(), 'yield', 'g'], ['Time', 'time', 's']].forEach(([lbl, k, kind]) => { const av = num(A[k]), bv = num(Bv[k]); if (av !== null || bv !== null) rows.push([lbl, fmt(av, kind), fmt(bv, kind), chip(av, bv, null)]); });
-                const ra = this.ratioOf(A) || null, rb = this.ratioOf(Bv) || null;
-                if (ra || rb) rows.push(['Ratio', fmt(ra, 'ratio'), fmt(rb, 'ratio'), chip(ra, rb, null)]);
-                // v16.0: how old the beans were (the bag's roast date on each session); the same grind runs faster as they age
-                const age = x => this.roastDays ? this.roastDays(x.roastDate, x.date) : null, da = age(A), db = age(Bv), day = n => n === null ? '–' : n === 0 ? 'Roast day' : `Day ${n}`;
-                if (da !== null || db !== null) rows.push(['Off roast', day(da), day(db), chip(da, db, null)]);
+                if (!tea) [['Dose', 'dose', 'g'], [(() => { const e = x => !x.method || x.method === 'Espresso'; return e(A) && e(Bv) ? 'Pull' : !e(A) && !e(Bv) ? 'Pour' : 'Pull / water'; })(), 'yield', 'g'], ['Time', 'time', 's']].forEach(([lbl, k, kind]) => { const av = num(A[k]), bv = num(Bv[k]); if (av !== null || bv !== null) rows.push([lbl, fmt(av, kind), fmt(bv, kind), chip(av, bv, null)]); });
+                if (!tea) {
+                    const ra = this.ratioOf(A) || null, rb = this.ratioOf(Bv) || null;
+                    if (ra || rb) rows.push(['Ratio', fmt(ra, 'ratio'), fmt(rb, 'ratio'), chip(ra, rb, null)]);
+                    // v16.0: how old the beans were (the bag's roast date on each session); the same grind runs faster as they age
+                    const age = x => this.roastDays ? this.roastDays(x.roastDate, x.date) : null, da = age(A), db = age(Bv), day = n => n === null ? '–' : n === 0 ? 'Roast day' : `Day ${n}`;
+                    if (da !== null || db !== null) rows.push(['Off roast', day(da), day(db), chip(da, db, null)]);
+                }
                 const rta = this.normalizeRating(A.rating) || null, rtb = this.normalizeRating(Bv.rating) || null;
                 rows.push(['Rating', fmt(rta, 'r'), fmt(rtb, 'r'), chip(rta, rtb, true)]);
-                const taste = TASTE_META.map(([k, lbl]) => { const av = this.tasteValue(A, k), bv = this.tasteValue(Bv, k); return (av === null && bv === null) ? null : [lbl, av === null ? '–' : String(av), bv === null ? '–' : String(bv), chip(av, bv, null), FlavorShape ? FlavorShape.COLORS[k] : '']; }).filter(Boolean);
+                const taste = this.tasteMetaFor(kind).map(([k, lbl]) => { const av = this.tasteValue(A, k), bv = this.tasteValue(Bv, k); return (av === null && bv === null) ? null : [lbl, av === null ? '–' : String(av), bv === null ? '–' : String(bv), chip(av, bv, null), FlavorShape ? FlavorShape.COLORS[k] : '']; }).filter(Boolean);
                 const table = list => list.map(([lbl, av, bv, d, color]) => `<div class="cmp-r"><span class="cmp-l">${color ? `<i style="background:${color}"></i>` : ''}${lbl}</span><span class="cmp-v">${av}</span><span class="cmp-v">${bv}</span>${d}</div>`).join('');
                 const fa = this.extractFlavors(A), fb = this.extractFlavors(Bv);
                 const lower = l => l.map(x => x.toLowerCase());
@@ -312,7 +345,7 @@
                 let shape = '';
                 if (typeof FlavorShape !== 'undefined' && (this.tastedKeys(A).length || this.tastedKeys(Bv).length)) {
                     const ta = this.tastedKeys(A);
-                    const url = FlavorShape.snapshot(this.shapeValues(A), this.shapeValues(Bv), { width: 320, height: 220, zoom: 1.1, isSet: k => ta.includes(k), setKey: `cmp-${ta.join(',')}` });
+                    const url = FlavorShape.snapshot(this.shapeValues(A), this.shapeValues(Bv), { width: 320, height: 220, zoom: 1.1, isSet: k => ta.includes(k), setKey: `cmp-${ta.join(',')}`, names: tea ? 'tea' : undefined });
                     if (url) shape = `<div class="cmp-shape"><img src="${url}" alt="Flavor shapes compared"><div class="cmp-shape-key"><span><i class="solid"></i>A</span><span><i class="dashed"></i>B</span></div></div>`;
                 }
                 results.innerHTML = `

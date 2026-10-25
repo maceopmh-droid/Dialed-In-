@@ -2,7 +2,7 @@
             // ---- v12.2: a flavor note as a chip in its wheel family's color (shaded, no dot)
             famChip(name) {
                 const at = this.noteLocate(name);
-                const hex = at && at.f >= 0 ? NOTE_WHEEL[at.f].color : '#7D8984';
+                const hex = at && at.f >= 0 ? at.color : '#7D8984';   // (v17.0: a tea note in its tea family's color)
                 const s = String(this.normalizeHexColor(hex) || '#7D8984').slice(1);
                 const rgb = [0, 2, 4].map(i => parseInt(s.slice(i, i + 2), 16)).join(', ');
                 return `<span class="fam-chip" style="${this.famVars(hex)}">${this.esc(name)}</span>`;
@@ -52,7 +52,8 @@
                 const unlocks = this.achievementUnlockByBrew.get(String(log.id)) || [];
                 const notes = this.getBrewNotes(log);
                 const bean = this.beans.get(String(log.beanId || ''));
-                const coffeeName = (bean ? String(bean.name || '').trim() : '') || 'Coffee';
+                const tea = this.isTeaBrew(log);   // v17.0
+                const coffeeName = (bean ? String(bean.name || '').trim() : '') || (tea ? 'Tea' : 'Coffee');
                 const roasterName = bean ? String(bean.roaster || '').trim() : '';
                 const id = this.esc(log.id);
                 const lead = `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('brew', log.id)}"${this.likePopStyle('brew', log.id)} onclick="app.toggleLike('${app.escJs(id)}', event)" title="Like session"><svg class="heart-icon"><use href="#i-heart"/></svg></button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}${owner === this.user ? `<span class="social-owner-actions"><button class="btn-clean" onclick="app.editBrew('${app.escJs(id)}')" title="Edit session"><svg class="icon" style="width:14px;height:14px;"><use href="#i-edit-2"/></svg></button><button class="btn-clean danger" onclick="app.delete('brew','${app.escJs(id)}')" title="Delete session"><svg class="icon" style="width:14px;height:14px;"><use href="#i-trash-2"/></svg></button></span>` : this.acctOn() ? `<span class="social-owner-actions"><button class="btn-clean" onclick="app.reportItem('session','${app.escJs(id)}', event)" title="Report session" aria-label="Report session"><svg class="icon" style="width:14px;height:14px;"><use href="#i-flag"/></svg></button></span>` : ''}`;
@@ -64,10 +65,10 @@
                                     <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}${this.levelDotHtml ? this.levelDotHtml(owner) : ''}</div>
                                     <div class="feed-time">${this.esc(this.formatRelativeDate(log.date))}</div>
                                 </div>
-                                <div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(log.method)}"/></svg>${this.esc(log.method || 'Espresso')}</div><button type="button" class="feed-share" onclick="app.shareItem('session', '${app.escJs(id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>
+                                <div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(log.method)}"/></svg>${this.esc(this.methodLabel(log.method || (tea ? 'Western' : 'Espresso')))}</div><button type="button" class="feed-share" onclick="app.shareItem('session', '${app.escJs(id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>
                             </div>
                             <div class="sc-title">
-                                <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(roasterName)}" onclick="app.openRoasterFrom(this, event)">${this.esc(roasterName)}</span></div>` : ''}</div>
+                                <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(roasterName)}"${tea ? ' data-kind="tea"' : ''} onclick="app.openRoasterFrom(this, event)">${this.esc(roasterName)}</span></div>` : ''}</div>
                                 ${rating > 0 ? `<div class="sc-rate"><span class="star-meter" style="--fill:${this.starFill(rating)}%;--whole:${this.starWhole(rating)};--frac:${this.starFrac(rating)}"></span><b>${this.esc(this.formatRating(rating))}</b></div>` : ''}
                             </div>
                             ${this.recipeStripHtml(log)}

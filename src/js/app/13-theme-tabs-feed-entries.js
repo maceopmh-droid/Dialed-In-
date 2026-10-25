@@ -31,12 +31,12 @@
                 document.querySelectorAll('.nav-btn, .mob-item').forEach(el => el.classList.remove('active'));
                 document.querySelectorAll(`[data-tab="${tab}"]`).forEach(el => el.classList.add('active'));
                 // v15.1: the page title is the tab's name (Coffees holds yours and everyone's; Roasters is its own tab)
-                const titles = { my: 'Coffees', roasters: 'Roasters', feed: 'Feed', profile: 'Profile' };
-                document.getElementById('view-title').innerText = titles[tab] || 'Coffees';
+                // v17.0: on Coffees it's the Coffees / Teas menu; Roasters says Brands in tea mode
+                if (this.closeDrinkMenu) this.closeDrinkMenu();
+                this.paintDrinkChrome();   // (the title, the bars' words and icons, the method chips, search's placeholder)
                 document.body.classList.toggle('feed-mode', tab === 'feed' || tab === 'profile');
                 document.body.classList.toggle('roasters-mode', tab === 'roasters');
                 if (prevTab !== tab && document.body.classList.contains('search-open')) { document.body.classList.remove('search-open'); const t = document.getElementById('search-input-top'); if (t) t.value = ''; ['search-input', 'search-input-mobile'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; }); }   // v15.1: a new tab starts unsearched
-                ['search-input', 'search-input-mobile', 'search-input-top'].forEach(id => { const el = document.getElementById(id); if (el) el.placeholder = tab === 'roasters' ? 'Search roasters…' : 'Search coffees…'; });
                 this.closeMobileControls();
                 this.updateAchievementCount();
                 this.render();
@@ -45,7 +45,7 @@
 
             beanGroupKey(bean) {
                 if (!bean) return '';
-                return `${bean.name || ''}${bean.roaster || ''}`.toLowerCase().trim();
+                return `${bean.kind === 'tea' ? 'tea|' : ''}${bean.name || ''}${bean.roaster || ''}`.toLowerCase().trim();   // (v17.0: a tea never merges with a coffee; coffee keys as before)
             },
 
             mergeGroupMeta(beans) {
@@ -66,7 +66,8 @@
                     origin: pick('origin'),
                     process: pick('process'),
                     roast: pick('roast'),
-                    roastDate: pick('roastDate')
+                    roastDate: pick('roastDate'),
+                    teaType: pick('teaType')   // v17.0
                 };
             },
 
@@ -113,7 +114,8 @@
                     roastSet: new Set(),
                     roasterSet: new Set(),
                     roasterLog: [],
-                    samplerMax: 0
+                    samplerMax: 0,
+                    teaSessions: 0, teaSet: new Set(), teaTypeSet: new Set(), steepTotal: 0   // v17.0
                 };
             },
 
@@ -207,13 +209,13 @@
                             items.push({
                                 id: `feed-bean-${beanId}-${this.toTime(ts)}`,
                                 kind: libraryAdd ? 'library' : 'bean',
-                                kindLabel: libraryAdd ? 'Added' : 'New coffee',
+                                kindLabel: libraryAdd ? 'Added' : this.isTeaBean(event) ? 'New tea' : 'New coffee',
                                 actor,
                                 actorColor,
                                 date: ts,
                                 text: libraryAdd
                                     ? `${actor} added ${beanName} to their library`
-                                    : `${actor} added a new bean: ${beanName}`,
+                                    : `${actor} added a new ${this.isTeaBean(event) ? 'tea' : 'bean'}: ${beanName}`,
                                 beanId,
                                 beanName
                             });
@@ -270,21 +272,24 @@
                     const nextComments = this.normalizeCommentList(event.comments, `brew-${brewId}`, ts);
                     const ownerStats = this.getAchievementStatsForUser(statsByUser, owner);
 
-                    const doseNow = this.asNumber(event.dose, 0);
-                    const yieldNow = this.asNumber(event.yield, 0);
-                    const timeNow = this.asNumber(event.time, 0);
-                    const dosePrev = prev ? this.asNumber(prev.dose, 0) : 0;
-                    const yieldPrev = prev ? this.asNumber(prev.yield, 0) : 0;
-                    const timePrev = prev ? this.asNumber(prev.time, 0) : 0;
+                    const teaEvent = this.isTeaBrew(event);   // v17.0: tea has its own achievements; coffee's stay coffee
+                    const doseNow = teaEvent ? 0 : this.asNumber(event.dose, 0);
+                    const yieldNow = teaEvent ? 0 : this.asNumber(event.yield, 0);
+                    const timeNow = teaEvent ? 0 : this.asNumber(event.time, 0);
+                    const prevTea = prev ? this.isTeaBrew(prev) : false;
+                    const dosePrev = prev && !prevTea ? this.asNumber(prev.dose, 0) : 0;
+                    const yieldPrev = prev && !prevTea ? this.asNumber(prev.yield, 0) : 0;
+                    const timePrev = prev && !prevTea ? this.asNumber(prev.time, 0) : 0;
                     ownerStats.doseTotal = Math.max(0, ownerStats.doseTotal + (doseNow - dosePrev));
                     ownerStats.yieldTotal = Math.max(0, ownerStats.yieldTotal + (yieldNow - yieldPrev));
                     ownerStats.brewTimeTotal = Math.max(0, ownerStats.brewTimeTotal + (timeNow - timePrev));
+                    if (teaEvent && this.trackTea) this.trackTea(ownerStats, event, prev);
                     if (!prev) {
                         ownerStats.sessionCount += 1;
                         if (event.beanId) ownerStats.beanIds.add(String(event.beanId));
-                        this.trackExploration(ownerStats, event);
+                        if (!teaEvent) this.trackExploration(ownerStats, event);
                     }
-                    if (event.method) ownerStats.methodSet.add(String(event.method));
+                    if (event.method && !teaEvent) ownerStats.methodSet.add(String(event.method));
                     const likeDelta = nextLikes.length - (prev ? (Array.isArray(prev.likes) ? prev.likes.length : 0) : 0);
                     ownerStats.likesReceived = Math.max(0, ownerStats.likesReceived + likeDelta);
 

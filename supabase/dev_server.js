@@ -142,6 +142,17 @@ async function handle(req, res) {
   }
   if (url.pathname === '/auth/v1/logout') return send(res, 204);
 
+  // -- v16.9: the espresso machine's two functions (the real ones are Deno functions on Supabase; the web side is the
+  // same shared file, and the database calls run as the database owner, like theirs). Before the sign-in check: a
+  // machine's token isn't a sign-in.
+  if (url.pathname === '/functions/v1/shot-inbox' || url.pathname === '/functions/v1/machine-sync') {
+    const mh = await import(path.join(__dirname, 'functions', '_shared', 'machine_http.mjs'));
+    const request = new Request('http://stand-in' + req.url, { method: req.method, headers: req.headers, body: ['GET', 'HEAD'].includes(req.method) ? undefined : raw });
+    const db = async (kind, token, shot) => JSON.parse(psql(kind === 'inbox' ? `select internal.shot_inbox(${lit(token)}, '${JSON.stringify(shot).replace(/'/g, "''")}'::jsonb);` : `select internal.machine_sync(${lit(token)});`) || 'null');
+    const out = await (url.pathname.endsWith('shot-inbox') ? mh.shotInbox : mh.machineSync)(request, db);
+    return send(res, out.status, Buffer.from(await out.arrayBuffer()));
+  }
+
   const who = whoFrom(req);
   if (who.expired || who.bad) return send(res, 401, { code: 'PGRST301', message: who.expired ? 'JWT expired' : 'JWT invalid', details: null, hint: null });
 

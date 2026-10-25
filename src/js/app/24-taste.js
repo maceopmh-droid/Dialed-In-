@@ -1,6 +1,6 @@
             // ===================== taste (v10) =====================
-            tasteWord(k, v) {
-                const m = TASTE_META.find(x => x[0] === k);
+            tasteWord(k, v, kind) {
+                const m = this.tasteMetaFor(kind || this.logKind).find(x => x[0] === k);   // (v17.0: tea has its own words)
                 return m ? m[2][v <= 3 ? 0 : v >= 8 ? 2 : 1] : '';
             },
 
@@ -30,23 +30,30 @@
                 return out;
             },
 
-            noteLocate(name) {
+            // where a note sits on the wheel: its family (f), group (g) and color. v17.0: tea has its own wheel; a note is
+            // looked for on the wheel of its kind first (coffee unless told), then on the other one
+            noteLocate(name, kind) {
                 const key = String(name || '').trim().toLowerCase();
                 if (!key) return null;
-                for (let f = 0; f < NOTE_WHEEL.length; f++) {
-                    const fam = NOTE_WHEEL[f];
-                    if (fam.fam.toLowerCase() === key) return { f, g: -1, note: '' };
-                    for (let g = 0; g < fam.groups.length; g++) {
-                        const hit = fam.groups[g][1].find(n => n.toLowerCase() === key);
-                        if (hit) return { f, g, note: hit };
-                        if (fam.groups[g][0].toLowerCase() === key) return { f, g, note: '' };
+                const order = kind === 'tea' ? [['tea', TEA_WHEEL], ['coffee', NOTE_WHEEL]] : [['coffee', NOTE_WHEEL], ['tea', TEA_WHEEL]];
+                for (const [wk, W] of order) {
+                    for (let f = 0; f < W.length; f++) {
+                        const fam = W[f];
+                        if (fam.fam.toLowerCase() === key) return { f, g: -1, note: '', wheel: wk, color: fam.color };
+                        for (let g = 0; g < fam.groups.length; g++) {
+                            const hit = fam.groups[g][1].find(n => n.toLowerCase() === key);
+                            if (hit) return { f, g, note: hit, wheel: wk, color: fam.color };
+                            if (fam.groups[g][0].toLowerCase() === key) return { f, g, note: '', wheel: wk, color: fam.color };
+                        }
                     }
-                }
-                const legacy = LEGACY_NOTES[key];
-                if (legacy) {
-                    const f = NOTE_WHEEL.findIndex(x => x.fam === legacy[0]);
-                    const g = legacy[1] ? NOTE_WHEEL[f].groups.findIndex(x => x[0] === legacy[1]) : -1;
-                    return { f, g, note: '' };
+                    if (wk === 'coffee') {
+                        const legacy = LEGACY_NOTES[key];
+                        if (legacy) {
+                            const f = NOTE_WHEEL.findIndex(x => x.fam === legacy[0]);
+                            const g = legacy[1] ? NOTE_WHEEL[f].groups.findIndex(x => x[0] === legacy[1]) : -1;
+                            return { f, g, note: '', wheel: 'coffee', color: NOTE_WHEEL[f].color };
+                        }
+                    }
                 }
                 return null;
             },
@@ -58,18 +65,18 @@
                 return out;
             },
 
-            describeCup(values, tasted, notes, intensities) {
+            describeCup(values, tasted, notes, intensities, kind = 'coffee') {
                 const on = k => tasted.includes(k);
-                const adj = [];
-                if (on('acidity')) adj.push({ Flat: 'flat', Balanced: 'gently acidic', Bright: 'bright' }[this.tasteWord('acidity', values.acidity)]);
-                if (on('sweetness')) adj.push({ Dry: 'dry', Sweet: 'sweet', Syrupy: 'syrupy' }[this.tasteWord('sweetness', values.sweetness)]);
-                if (on('body')) adj.push({ Thin: 'light-bodied', Medium: 'medium-bodied', Heavy: 'heavy-bodied' }[this.tasteWord('body', values.body)]);
+                const adj = [], tea = kind === 'tea', W = this.wheelFor(kind), word = k => this.tasteWord(k, values[k], kind);
+                if (on('acidity')) adj.push(tea ? { Soft: 'soft', 'Some grip': 'gently astringent', Drying: 'drying' }[word('acidity')] : { Flat: 'flat', Balanced: 'gently acidic', Bright: 'bright' }[word('acidity')]);
+                if (on('sweetness')) adj.push(tea ? { Dry: 'dry', Sweet: 'sweet', Honeyed: 'honeyed' }[word('sweetness')] : { Dry: 'dry', Sweet: 'sweet', Syrupy: 'syrupy' }[word('sweetness')]);
+                if (on('body')) adj.push(tea ? { Thin: 'light-bodied', Medium: 'medium-bodied', Thick: 'full-bodied' }[word('body')] : { Thin: 'light-bodied', Medium: 'medium-bodied', Heavy: 'heavy-bodied' }[word('body')]);
                 if (on('balance') && values.balance >= 8) adj.push('layered');
                 if (on('bitterness') && values.bitterness >= 7) adj.push('bitter-edged');
-                const off = new Set(NOTE_WHEEL[7].groups.flatMap(g => g[1]).map(n => n.toLowerCase()));
+                const off = new Set(W[W.length - 1].groups.flatMap(g => g[1]).map(n => n.toLowerCase()));
                 const list = notes.filter(n => !off.has(n.toLowerCase())).map(n => ({ n, i: intensities[n] || 2 })).sort((a, b) => b.i - a.i)
                     .map(x => x.i === 3 ? `lots of ${x.n.toLowerCase()}` : x.i === 1 ? `a hint of ${x.n.toLowerCase()}` : x.n.toLowerCase());
-                const finish = on('finish') ? { Short: 'a short finish', Clean: 'a clean finish', Lingering: 'a long finish' }[this.tasteWord('finish', values.finish)] : '';
+                const finish = on('finish') ? { Short: 'a short finish', Clean: 'a clean finish', Lingering: 'a long finish' }[word('finish')] : '';
                 if (!adj.length && !list.length) return '';
                 const join = a => a.length < 2 ? a.join('') : `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}`;
                 let out = adj.length ? join(adj) : '';
@@ -143,7 +150,7 @@
                 const host = document.getElementById('taste-shape');
                 if (host && typeof FlavorShape !== 'undefined') {
                     if (!this.tasteView) {
-                        this.tasteView = FlavorShape.createView({ values: () => this.formTasteValues(), ghost: () => { const r = this.tasteReference(); return r ? this.shapeValues(r) : null; }, ghostLabel: 'Best', isSet: k => this.tasteTouched.has(k) });
+                        this.tasteView = FlavorShape.createView({ names: () => (this.logKind === 'tea' ? 'tea' : null), values: () => this.formTasteValues(), ghost: () => { const r = this.tasteReference(); return r ? this.shapeValues(r) : null; }, ghostLabel: 'Best', isSet: k => this.tasteTouched.has(k) });
                     }
                     if (this.tasteView.el.parentNode !== host && typeof host.replaceChildren === 'function') host.replaceChildren(this.tasteView.el);
                     this.tasteView.start();
@@ -161,6 +168,7 @@
 
             // v15.7: the best shot's grind only shows when it was on the grinder you're logging with
             tasteTargetHtml(ref) {
+                if (this.logKind === 'tea' && this.teaTargetHtml) return this.teaTargetHtml(ref);   // v17.0
                 const method = this.readFormRecipe().method, rg = this.grinderFor(ref), cg = this.formGrinder(method), same = this.sameGrinder(rg, cg);
                 return `<span>Target</span><b>Your best ${this.shotWord(method)} · ${this.esc(this.shortDate(ref.date))} · ${this.esc(this.fmtNum(this.normalizeRating(ref.rating)))}★ · ${this.esc(this.recipeLine(ref, same))}${same ? '' : ` · on your ${this.esc(rg.name)}`}</b>`;
             },
@@ -242,6 +250,7 @@
             renderTasteTip() {
                 const box = document.getElementById('taste-tip');
                 if (!box) return;
+                if (this.logKind === 'tea' && this.teaTipHtml) { box.innerHTML = this.teaTipHtml(); return; }   // v17.0: next-steep advice, never grind
                 const c = this.coachFromForm();
                 if (c.method && this.activeGroup) { box.innerHTML = this.coachHtml(this.coach(c), `Next ${this.shotWord(c.method)}`); return; }
                 const ref = this.tasteReference();
@@ -293,10 +302,10 @@
                     const large = a1 - a0 > Math.PI ? 1 : 0;
                     return `M${p(r1, a0)} A${r1} ${r1} 0 ${large} 1 ${p(r1, a1)} L${p(r0, a1)} A${r0} ${r0} 0 ${large} 0 ${p(r0, a0)} Z`;
                 };
-                const fam = opts.fam;
+                const fam = opts.fam, WH = opts.wheel || NOTE_WHEEL;   // (v17.0: the tea wheel too)
                 const items = fam == null
-                    ? NOTE_WHEEL.map((f, i) => ({ label: f.fam, color: f.color, count: (opts.counts || {})[i] || 0, act: `app.setWheel(${i}, null, event)` }))
-                    : NOTE_WHEEL[fam].groups.map(([g], i) => ({ label: g, color: NOTE_WHEEL[fam].color, count: (opts.groupCounts || {})[`${fam}:${i}`] || 0, sel: opts.group === i, act: `app.setWheel(${fam}, ${opts.group === i ? 'null' : i}, event)` }));
+                    ? WH.map((f, i) => ({ label: f.fam, color: f.color, count: (opts.counts || {})[i] || 0, act: `app.setWheel(${i}, null, event)` }))
+                    : WH[fam].groups.map(([g], i) => ({ label: g, color: WH[fam].color, count: (opts.groupCounts || {})[`${fam}:${i}`] || 0, sel: opts.group === i, act: `app.setWheel(${fam}, ${opts.group === i ? 'null' : i}, event)` }));
                 const n = items.length, start = -Math.PI / 2 - Math.PI / n;
                 const lit = !opts.interactive && items.some(it => it.count);
                 const parts = items.map((it, i) => {
@@ -312,7 +321,7 @@
                 }).join('');
                 const center = fam == null
                     ? `<circle class="w-center" cx="${cx}" cy="${cy}" r="${r0 - 4}"></circle><text class="w-ctext" x="${cx}" y="${cy - 5}" text-anchor="middle">${opts.interactive ? 'Tap a' : 'Flavor'}</text><text class="w-ctext" x="${cx}" y="${cy + 12}" text-anchor="middle">${opts.interactive ? 'family' : 'wheel'}</text>`
-                    : `<circle class="w-center" cx="${cx}" cy="${cy}" r="${r0 - 4}" onclick="app.setWheel(null, null, event)" role="button" tabindex="0" aria-label="All families"></circle><text class="w-ctext" x="${cx}" y="${cy - 5}" text-anchor="middle" style="font-size:${NOTE_WHEEL[fam].fam.length > 9 ? 11 : 13}px">${this.esc(NOTE_WHEEL[fam].fam)}</text><text class="w-csub" x="${cx}" y="${cy + 12}" text-anchor="middle">‹ All families</text>`;
+                    : `<circle class="w-center" cx="${cx}" cy="${cy}" r="${r0 - 4}" onclick="app.setWheel(null, null, event)" role="button" tabindex="0" aria-label="All families"></circle><text class="w-ctext" x="${cx}" y="${cy - 5}" text-anchor="middle" style="font-size:${WH[fam].fam.length > 9 ? 11 : 13}px">${this.esc(WH[fam].fam)}</text><text class="w-csub" x="${cx}" y="${cy + 12}" text-anchor="middle">‹ All families</text>`;
                 // v12.11: lit from above, raised center
                 const uid = (this._wheelN = (this._wheelN || 0) + 1);
                 const defs = `<defs><linearGradient id="wsh${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.26"/><stop offset="0.42" stop-color="#fff" stop-opacity="0.05"/><stop offset="0.58" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.2"/></linearGradient><radialGradient id="wcn${uid}" cx="0.5" cy="0.28" r="0.8"><stop offset="0" class="wc-hi"/><stop offset="1" class="wc-lo"/></radialGradient><filter id="wlf${uid}" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000" flood-opacity="0.3"/></filter></defs>`;
@@ -325,14 +334,14 @@
             renderNotePicker() {
                 const wheel = document.getElementById('note-wheel');
                 if (!wheel) return;
-                const counts = {}, groupCounts = {};
-                this.selFlavors.forEach(n => { const at = this.noteLocate(n); if (!at) return; counts[at.f] = (counts[at.f] || 0) + 1; if (at.g >= 0) groupCounts[`${at.f}:${at.g}`] = (groupCounts[`${at.f}:${at.g}`] || 0) + 1; });
-                wheel.innerHTML = this.wheelSvg({ fam: this.wheelFam, group: this.wheelGroup, interactive: true, counts, groupCounts });
+                const counts = {}, groupCounts = {}, lk = this.logKind === 'tea' ? 'tea' : 'coffee', WH = this.wheelFor(lk);   // v17.0: a tea session picks from the tea wheel
+                this.selFlavors.forEach(n => { const at = this.noteLocate(n, lk); if (!at || at.wheel !== lk) return; counts[at.f] = (counts[at.f] || 0) + 1; if (at.g >= 0) groupCounts[`${at.f}:${at.g}`] = (groupCounts[`${at.f}:${at.g}`] || 0) + 1; });
+                wheel.innerHTML = this.wheelSvg({ fam: this.wheelFam, group: this.wheelGroup, interactive: true, counts, groupCounts, wheel: WH });
                 const tray = document.getElementById('note-tray');
                 if (tray) {
                     if (this.wheelFam == null) tray.innerHTML = '<p class="note-help">Start broad, then go specific. “Tastes off” notes help the coach most.</p>';
                     else {
-                        const groups = this.wheelGroup == null ? NOTE_WHEEL[this.wheelFam].groups : [NOTE_WHEEL[this.wheelFam].groups[this.wheelGroup]];
+                        const groups = this.wheelGroup == null ? WH[this.wheelFam].groups : [WH[this.wheelFam].groups[this.wheelGroup]];
                         tray.innerHTML = groups.map(([g, notes]) => `${this.wheelGroup == null ? `<div class="note-group">${this.esc(g)}</div>` : ''}<div class="note-chips">${notes.map(nm => `<button type="button" class="note-chip" aria-pressed="${this.selFlavors.includes(nm)}" onclick="app.pickNote('${app.escJs(nm)}', event)">${this.esc(nm)}</button>`).join('')}</div>`).join('');
                     }
                 }
@@ -340,8 +349,8 @@
                 if (picked) {
                     picked.innerHTML = this.selFlavors.length ? `<div class="note-group">Your notes</div><div class="note-picked">${this.selFlavors.map(nm => {
                         const lv = this.noteIntensity[nm] || 2;
-                        const at = this.noteLocate(nm);
-                        const color = at ? NOTE_WHEEL[at.f].color : 'var(--text-muted)';
+                        const at = this.noteLocate(nm, lk);
+                        const color = at ? at.color : 'var(--text-muted)';
                         return `<span class="pick fam-pick" style="--fc:${color};${this.famVars(/^#/.test(color) ? color : '#7D8984')}"><i class="pick-dot"></i>${this.esc(nm)}<button type="button" class="dots" onclick="app.cycleNote('${app.escJs(nm)}', event)" aria-label="${this.esc(nm)} strength ${lv} of 3">${[1, 2, 3].map(i => `<i class="${i <= lv ? 'on' : ''}"></i>`).join('')}</button><button type="button" class="x" onclick="app.pickNote('${app.escJs(nm)}', event)" aria-label="Remove ${this.esc(nm)}">×</button></span>`;
                     }).join('')}</div>` : '';
                 }
@@ -361,7 +370,7 @@
             renderCupWords() {
                 const box = document.getElementById('note-words');
                 if (!box) return;
-                const text = this.describeCup(this.formTasteValues(), [...this.tasteTouched], [...this.selFlavors], this.noteIntensity);
+                const text = this.describeCup(this.formTasteValues(), [...this.tasteTouched], [...this.selFlavors], this.noteIntensity, this.logKind);
                 box.hidden = !text;
                 box.innerHTML = text ? `<span class="k">Your cup in words</span><span class="t">${this.esc(text)}</span><button type="button" class="link-btn" onclick="app.useCupWords(event)">Use as observations</button>` : '';
             },
@@ -369,7 +378,7 @@
             useCupWords(event) {
                 if (event) event.stopPropagation();
                 const form = this.getBrewForm();
-                const text = this.describeCup(this.formTasteValues(), [...this.tasteTouched], [...this.selFlavors], this.noteIntensity);
+                const text = this.describeCup(this.formTasteValues(), [...this.tasteTouched], [...this.selFlavors], this.noteIntensity, this.logKind);
                 if (!form || !text) return;
                 form.notes.value = form.notes.value.trim() ? `${form.notes.value.trim()} ${text}` : text;
             },

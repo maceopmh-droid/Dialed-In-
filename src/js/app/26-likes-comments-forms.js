@@ -152,18 +152,21 @@
             buildBeanPayload(bean, overrides = {}) {
                 if (!bean) return null;
                 const owner = String(bean.owner || bean.user || this.user || 'Unknown');
+                const tea = (overrides.kind ?? bean.kind) === 'tea';   // v17.0: a tea (it says so on every save, so a like never turns it back into a coffee)
                 const payload = {
                     type: 'bean',
+                    kind: tea ? 'tea' : 'coffee',
+                    ...(tea ? { teaType: String((overrides.teaType ?? bean.teaType ?? '')).trim() } : {}),
                     id: String(bean.id || overrides.id || `${Date.now()}`),
                     user: owner,
                     owner,
                     date: overrides.date || bean.date || new Date().toISOString(),
-                    roaster: String((overrides.roaster ?? bean.roaster ?? '')).trim() || 'Unknown Roaster',
-                    name: String((overrides.name ?? bean.name ?? '')).trim() || 'Untitled Bean',
+                    roaster: String((overrides.roaster ?? bean.roaster ?? '')).trim() || (tea ? 'Unknown Brand' : 'Unknown Roaster'),
+                    name: String((overrides.name ?? bean.name ?? '')).trim() || (tea ? 'Untitled Tea' : 'Untitled Bean'),
                     variety: String((overrides.variety ?? bean.variety ?? '')).trim(),
                     origin: String((overrides.origin ?? bean.origin ?? '')).trim(),
                     process: String((overrides.process ?? bean.process ?? '')).trim(),
-                    roast: String((overrides.roast ?? bean.roast ?? 'Light')).trim(),
+                    roast: tea ? '' : String((overrides.roast ?? bean.roast ?? 'Light')).trim(),
                     likes: this.normalizeLikeList(overrides.likes ?? bean.likes, owner),
                     comments: this.normalizeCommentList(overrides.comments ?? bean.comments, `bean-${bean.id || overrides.id || ''}`, overrides.date || bean.date || new Date().toISOString()),
                     roastDate: String((overrides.roastDate ?? bean.roastDate ?? '')).trim(),
@@ -275,8 +278,9 @@
                 const form = event.target;
                 const id = form.elements.id.value || `${Date.now()}`;
                 const existing = this.beans.get(id);
+                const kind = form.elements.kind && form.elements.kind.value === 'tea' ? 'tea' : 'coffee';   // v17.0
                 if (existing && existing.user !== this.user) {
-                    alert('Only the owner can edit this coffee.');
+                    alert(`Only the owner can edit this ${this.kindOfBean(existing) === 'tea' ? 'tea' : 'coffee'}.`);
                     return;
                 }
                 const now = new Date().toISOString();
@@ -302,10 +306,13 @@
                     variety: form.variety.value.trim(),
                     origin: form.origin.value.trim(),
                     process: form.process.value.trim(),
-                    roast: form.roast.value,
-                    roastDate: form.roastDate ? form.roastDate.value : ''
+                    roast: kind === 'tea' ? '' : form.roast.value,
+                    roastDate: form.roastDate ? form.roastDate.value : '',
+                    kind,
+                    teaType: kind === 'tea' && form.elements.teaType ? form.elements.teaType.value : ''
                 });
                 if (!payload) return;
+                if (!existing && kind !== this.drinkNow()) { this.drink = kind; safeSet('dialed_drink', kind); this.paintDrinkChrome(); }   // (a new tea from coffee mode: you land where it is)
                 this.push(payload);
                 this.closeModals();
             },
@@ -347,7 +354,7 @@
                     : null;
                 const seedMaster = isMaster && !existingMaster ? {
                     method,
-                    grind: this.normalizeGrindInput(form.grind.value),
+                    grind: this.logKind === 'tea' ? '' : this.normalizeGrindInput(form.grind.value),
                     dose: this.asNumber(form.dose.value, 0),
                     yield: this.asNumber(form.yield.value, 0),
                     time: this.asNumber(form.time.value, 0),
@@ -362,8 +369,8 @@
                     beanId: existing ? existing.beanId : this.activeId,
                     date: existing ? existing.date : now,
                     method,
-                    grind: this.normalizeGrindInput(form.grind.value),
-                    dose: this.asNumber(form.dose.value, 0),
+                    grind: this.logKind === 'tea' ? '' : this.normalizeGrindInput(form.grind.value),
+                    dose: this.logKind === 'tea' && this.methodExtras && this.methodExtras.teabag && this.methodProfile(method).extras.includes('teabag') ? 0 : this.asNumber(form.dose.value, 0),   // (v17.0: teabags are counted in bags, not weighed)
                     yield: this.asNumber(form.yield.value, 0),
                     time: this.asNumber(form.time.value, 0),
                     acidity: this.asNumber(form.acidity.value, 5),
@@ -378,7 +385,7 @@
                     isMaster,
                     masterProfile: seedMaster,
                     notes: form.notes.value.trim(),
-                    roastDate: form.roastDate ? String(form.roastDate.value || '').slice(0, 10) : (existing ? String(existing.roastDate || '') : ''),   // v15.1: the bag's
+                    roastDate: this.logKind === 'tea' ? '' : form.roastDate ? String(form.roastDate.value || '').slice(0, 10) : (existing ? String(existing.roastDate || '') : ''),   // v15.1: the bag's (v17.0: a tea has none)
                     verdict: form.verdict ? form.verdict.value : (existing ? String(existing.verdict || '') : ''),
                     flavors,
                     rating: this.normalizeRating(form.rating.value),
@@ -391,10 +398,11 @@
                     ...(seedMaster ? { masterGrind: String(seedMaster.grind || '') } : {})
                 }, existing);
                 if (existing) {   // fields this form doesn't show (and ones future versions add) stay as they were
-                    const managed = new Set([...Object.keys(payload), 'temp', 'brewer', 'inverted', 'heat', 'preheated', 'recipeName', 'timeUnit', 'actor', 'actorColor', 'eventAt', 'commentMeta']);
+                    const managed = new Set([...Object.keys(payload), 'temp', 'brewer', 'inverted', 'heat', 'preheated', 'recipeName', 'timeUnit', 'steeps', 'teabag', 'bags', 'rinse', 'style', 'milk', 'actor', 'actorColor', 'eventAt', 'commentMeta']);   // (v17.0: a tea's steeps, teabags, rinse, matcha style and milk too)
                     Object.keys(existing).forEach(k => { if (!managed.has(k) && existing[k] !== undefined) payload[k] = existing[k]; });
                 }
 
+                if (this.applyShotForm) this.applyShotForm(payload, id, existing);   // v16.9: a shot from the espresso machine
                 this.push(payload);
                 this.resetTimer();
                 this.closeModals();
@@ -411,7 +419,14 @@
                 const form = this.getMasterForm();
                 const profile = this.getMasterProfile(brew);
                 form.elements.id.value = brew.id;
-                form.method.value = profile.method || 'Espresso';
+                // v17.0: a tea's master recipe: the tea methods, and no grind
+                const tea = this.isTeaBrew(brew), methods = this.methodsFor(tea ? 'tea' : 'coffee');
+                form.method.innerHTML = methods.map(m => `<option value="${this.esc(m)}">${this.esc(this.methodLabel(m))}</option>`).join('');
+                form.method.value = methods.includes(profile.method) ? profile.method : methods.includes(brew.method) ? brew.method : methods[0];
+                const gf = document.getElementById('master-grind-field'), row = document.getElementById('master-row-1');
+                if (gf) gf.style.display = tea ? 'none' : '';
+                if (row) row.style.gridTemplateColumns = tea ? '1fr' : '1fr 1fr';
+                form.grind.required = !tea;
                 this.masterLabels(form.method.value);
                 form.grind.value = profile.grind ?? '';
                 form.dose.value = profile.dose ?? '';
@@ -479,7 +494,7 @@
 
                 const masterProfile = {
                     method: form.method.value,
-                    grind: this.normalizeGrindInput(form.grind.value),
+                    grind: this.isTeaBrew(brew) ? '' : this.normalizeGrindInput(form.grind.value),
                     dose: this.asNumber(form.dose.value, 0),
                     yield: this.asNumber(form.yield.value, 0),
                     time: this.asNumber(form.time.value, 0),
@@ -519,22 +534,25 @@
             editBean() {
                 const bean = this.beans.get(this.activeId);
                 if (!bean) return;
+                const kind = this.kindOfBean(bean);
                 if (bean.user !== this.user) {
-                    alert('Only the owner can edit this coffee.');
+                    alert(`Only the owner can edit this ${kind}.`);
                     return;
                 }
 
                 const form = this.getBeanForm();
                 form.elements.id.value = bean.id;
+                this.setBeanKind(kind, true);   // v17.0
+                if (form.elements.teaType) form.elements.teaType.value = TEA_TYPES.includes(bean.teaType) ? bean.teaType : '';
                 form.roaster.value = bean.roaster || '';
-                if (this.fillRoasterSuggestions) this.fillRoasterSuggestions();   // v13.4
+                if (this.fillRoasterSuggestions) this.fillRoasterSuggestions(kind);   // v13.4
                 form.name.value = bean.name || '';
                 form.variety.value = bean.variety || '';
                 form.origin.value = bean.origin || '';
                 form.process.value = bean.process || '';
                 form.roast.value = bean.roast || 'Light';
                 if (form.roastDate) form.roastDate.value = bean.roastDate || '';
-                document.getElementById('bean-modal-title').innerText = 'Edit Coffee';
+                document.getElementById('bean-modal-title').innerText = kind === 'tea' ? 'Edit Tea' : 'Edit Coffee';
                 this.openModal('bean-modal');
             },
 
@@ -547,6 +565,8 @@
                 }
 
                 const form = this.getBrewForm();
+                this._shotForm = null; if (this.clearShotLogHead) this.clearShotLogHead();   // v16.9
+                if (this.applyLogKind) this.applyLogKind(this.kindOfBrew(brew), brew.method);   // v17.0
                 this.recipeTyped = new Set(['dose', 'yield']); this._brewFormGen = (this._brewFormGen || 0) + 1;   // an old session's numbers are measurements
                 form.elements.id.value = brew.id;
                 form.method.value = brew.method || '';
@@ -618,12 +638,11 @@
                 }
             },
 
-            openBeanModal() {
+            openBeanModal(kind) {
                 const form = this.getBeanForm();
                 form.reset();
                 form.elements.id.value = '';
-                document.getElementById('bean-modal-title').innerText = 'New Coffee';
-                this.fillRoasterSuggestions();
+                this.setBeanKind(kind === 'tea' || kind === 'coffee' ? kind : this.drinkNow());   // v17.0: starts on what's on screen
                 if (this.bindCoffeeSuggest) { this.bindCoffeeSuggest(); const box = form.querySelector('.cs-list'); if (box) box.hidden = true; }   // v15.1
                 this.openModal('bean-modal');
             },
@@ -637,10 +656,11 @@
                 form.reset();
                 this.recipeTyped = new Set(); this._brewFormGen = (this._brewFormGen || 0) + 1;
                 form.elements.id.value = '';
-                this._eqAtOpen = null;
+                this._eqAtOpen = null; this._shotForm = null; if (this.clearShotLogHead) this.clearShotLogHead();
                 this.selFlavors = [];
                 this.resetTasteForm(null);
                 this.methodExtras = {}; this.recipeId = ''; this.recipeName = ''; this.recipeSteps = null; this.stepsOpen = false;
+                if (this.applyLogKind) this.applyLogKind(this.logKindFor(null));   // v17.0: a tea's Log (its methods, no grind)
                 if (!this.timer.on) this.resetTimer(); else this.paintTimer();
                 form.rating.value = 0;
                 this.updateRatingDisplay(0);
@@ -680,6 +700,11 @@
                 }
 
                 if (form.roastDate) form.roastDate.value = (prefill && prefill.roastDate && (!prefill.owner || prefill.owner === this.user || prefill.user === this.user)) ? String(prefill.roastDate).slice(0, 10) : this.bagRoastDate();   // v15.1: your bag's, from your last session
+                if (this.logKind === 'tea') {   // v17.0: a tea has no roast date; it starts on its usual method
+                    if (form.roastDate) form.roastDate.value = '';
+                    if (!form.method.value) { form.method.value = this.defaultTeaMethod(); this.loadEquipmentForMethod(form.method.value); }
+                    if (!prefill) this.methodExtras = this.teaCarry();   // teabag or loose, rinse, matcha style: as your last cup of this tea
+                }
                 this._roastWhen = null; this.paintRoastDays();
                 this.openModal('brew-modal');
                 this.applyMethodProfile(this.getBrewForm() && this.getBrewForm().method ? this.getBrewForm().method.value : '');

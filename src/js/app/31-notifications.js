@@ -54,7 +54,7 @@
             notifText(n) {
                 const who = `<b>${this.esc(n.who || 'Someone')}</b>`, said = n.comment ? ` <q>${this.esc(n.comment)}</q>` : '';
                 switch (n.kind) {
-                    case 'like': return n.coffee && !n.session ? `${who} liked your coffee` : `${who} liked your session`;
+                    case 'like': return n.coffee && !n.session ? `${who} liked your ${this.isTeaBean(this.beans.get(String(n.coffee))) ? 'tea' : 'coffee'}` : `${who} liked your session`;   // (v17.0: a tea)
                     case 'comment': return `${who} commented${said}`;
                     case 'reply': return `${who} replied${said}`;
                     case 'comment_like': return `${who} liked your comment${said}`;

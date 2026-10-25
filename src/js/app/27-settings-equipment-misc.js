@@ -480,13 +480,16 @@
                     t.on = false;
                     clearInterval(t.int);
                     t.int = null;
+                    if (this.teaSteepStop && this.teaSteepStop(t)) { this.paintTimer(); this.renderTasteTip(); return; }   // v17.0: a tea steep (each stop is one steep)
                     const input = document.getElementById('time-input');
                     if (input) input.value = Math.round(t.acc);
                     this.paintTimer();
                     this.renderTasteTip();
                     return;
                 }
+                if (t.teaNext) { t.acc = 0; t.teaNext = false; }   // v17.0: the next steep times from zero
                 t.on = true;
+                t.runFrom = t.acc;
                 t.start = Date.now();
                 clearInterval(t.int);
                 t.int = setInterval(() => this.paintTimer(), 100);

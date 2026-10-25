@@ -234,6 +234,13 @@ $$;
 
 -- one coffee / one session in the app's event format (pull_events and community_feed share them). They run as the
 -- caller, so the row rules decide which notes, photos, likes and comments come along.
+-- v17.0: tea. A coffee item can be a tea (kind 'tea', with its type: Green, White, Yellow, Oolong, Black, Pu-erh,
+-- Matcha). Everything else about it (the company, name, origin, process, variety as cultivar) uses the same columns.
+alter table coffees add column if not exists kind text not null default 'coffee';
+alter table coffees add column if not exists tea_type text;
+do $$ begin alter table coffees add constraint coffees_kind check (kind in ('coffee', 'tea'));
+exception when duplicate_object then null; end $$;
+
 create or replace function internal.coffee_json(k coffees) returns jsonb
 language sql stable set search_path = public as $$
   select jsonb_strip_nulls(jsonb_build_object(
@@ -242,6 +249,7 @@ language sql stable set search_path = public as $$
       'actor', internal.name_of(k.owner_id), 'actorColor', internal.color_of(k.owner_id),
       'roaster', coalesce(k.roaster_text, r.name, ''), 'name', k.name, 'origin', coalesce(k.origin, ''), 'process', coalesce(k.process, ''),
       'variety', coalesce(k.variety, ''), 'roast', coalesce(k.roast, ''), 'roastDate', coalesce(k.roast_date::text, ''),
+      'kind', case when k.kind = 'tea' then 'tea' end, 'teaType', case when k.kind = 'tea' then k.tea_type end,   -- (v17.0: only on teas, so a coffee reads as it always did)
       'date', k.created_at, 'eventAt', k.updated_at,
       'likes', coalesce((select jsonb_agg(internal.name_of(l.user_id) order by l.created_at) from coffee_likes l where l.coffee_id = k.id), '[]'::jsonb),
       'comments', internal.comments_json(k.id, null),
@@ -626,6 +634,13 @@ do $$ declare t text; begin
 end $$;
 drop function if exists internal.bump_version();
 drop function if exists data_version();
+-- v16.9: how your own shots stand (the tables are the machine functions' alone, so this reads them for you)
+create or replace function internal.shots_mark(pid uuid) returns text
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if to_regclass('public.shots') is null then return ''; end if;
+  return (select count(*) || ':' || coalesce(max(updated_at)::text, '') from shots where owner_id = pid);
+end $$;
 create or replace function data_version() returns text
 language plpgsql stable set search_path = public as $$
 declare me_id uuid := me(); circle uuid[];
@@ -650,7 +665,8 @@ begin
     (select md5(string_agg(m.group_id::text || m.user_id::text || m.role || m.counts_in_goal::text, ',' order by m.group_id, m.user_id))
        from group_members m where m.group_id in (select group_id from group_members where user_id = me_id)),
     (select count(*) || ':' || coalesce(max(created_at)::text, '') from flavors),
-    internal.report_mark()));
+    internal.report_mark(),
+    internal.shots_mark(me_id)));   -- v16.9: your shots (a new draft from your machine)
 end $$;
 
 -- ---------------------------------------------------------------- writing: push_event(ev)
@@ -722,6 +738,12 @@ begin
   return rid;
 end $$;
 
+-- a tea's type, as the app offers them (anything else is dropped)
+create or replace function internal.tea_type(t text) returns text language sql immutable as $$
+  select case lower(btrim(coalesce(t, ''))) when 'green' then 'Green' when 'white' then 'White' when 'yellow' then 'Yellow'
+              when 'oolong' then 'Oolong' when 'black' then 'Black' when 'pu-erh' then 'Pu-erh' when 'matcha' then 'Matcha' end
+$$;
+
 create or replace function internal.push_bean(ev jsonb, me_id uuid, me_nm text) returns void
 language plpgsql set search_path = public as $$
 declare k coffees;
@@ -730,16 +752,20 @@ begin
   if not found then
     if lower(btrim(coalesce(ev->>'owner', ev->>'user', me_nm))) <> lower(me_nm) then return; end if;   -- someone else's coffee you can't see
     perform internal.rate_hit(me_id, 'coffee');   -- v14.6
-    insert into coffees (legacy_id, owner_id, roaster_id, roaster_text, name, origin, process, variety, roast, roast_date, created_at)
-    values (ev->>'id', me_id, internal.roaster_for(ev->>'roaster', me_id), nullif(btrim(ev->>'roaster'), ''), coalesce(nullif(btrim(ev->>'name'), ''), 'Coffee'),
+    insert into coffees (legacy_id, owner_id, roaster_id, roaster_text, name, origin, process, variety, roast, roast_date, created_at, kind, tea_type)
+    values (ev->>'id', me_id, internal.roaster_for(ev->>'roaster', me_id), nullif(btrim(ev->>'roaster'), ''), coalesce(nullif(btrim(ev->>'name'), ''), case when ev->>'kind' = 'tea' then 'Tea' else 'Coffee' end),
             nullif(btrim(ev->>'origin'), ''), nullif(btrim(ev->>'process'), ''), nullif(btrim(ev->>'variety'), ''), nullif(btrim(ev->>'roast'), ''),
-            internal.try_date(ev->>'roastDate'), coalesce(internal.try_ts(ev->>'date'), now()))
+            internal.try_date(ev->>'roastDate'), coalesce(internal.try_ts(ev->>'date'), now()),
+            case when ev->>'kind' = 'tea' then 'tea' else 'coffee' end, case when ev->>'kind' = 'tea' then internal.tea_type(ev->>'teaType') end)
     returning * into k;
   elsif k.deleted_at is not null then return;                                                         -- deleted stays deleted
   elsif k.owner_id = me_id then                                                    -- only the owner edits a coffee, as in the app today
     update coffees set roaster_id = internal.roaster_for(ev->>'roaster', me_id), roaster_text = nullif(btrim(ev->>'roaster'), ''), name = coalesce(nullif(btrim(ev->>'name'), ''), name),
       origin = nullif(btrim(ev->>'origin'), ''), process = nullif(btrim(ev->>'process'), ''), variety = nullif(btrim(ev->>'variety'), ''),
-      roast = nullif(btrim(ev->>'roast'), ''), roast_date = internal.try_date(ev->>'roastDate'), updated_at = now()
+      roast = nullif(btrim(ev->>'roast'), ''), roast_date = internal.try_date(ev->>'roastDate'), updated_at = now(),
+      -- (a save from a version before tea has no "kind": it leaves the kind and type as they were)
+      kind = case when not ev ? 'kind' then kind when ev->>'kind' = 'tea' then 'tea' else 'coffee' end,
+      tea_type = case when not ev ? 'kind' then tea_type when ev->>'kind' = 'tea' then internal.tea_type(ev->>'teaType') end
     where id = k.id;
   end if;
   perform internal.sync_like('coffee', k.id, ev->'likes', me_id, me_nm);
@@ -768,6 +794,16 @@ create or replace function internal.session_fields(ev jsonb) returns jsonb langu
                   when jsonb_typeof(ev->'photo') = 'string' and (ev->>'photo') ~ '^https?://' then ev->>'photo' end);
 $$;
 
+-- v16.9: is "shot_<id>" one of your machine's shots (the shots table is the machine functions' alone)
+create or replace function internal.owns_shot(app_id text, pid uuid) returns boolean
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if to_regclass('public.shots') is null or not internal.is_uuid(substr(coalesce(app_id, ''), 6)) then return false; end if;
+  return exists (select 1 from shots where id = substr(app_id, 6)::uuid and owner_id = pid);
+end $$;
+create or replace function internal.is_uuid(t text) returns boolean language sql immutable as $$
+  select coalesce(t, '') ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$';
+$$;
 create or replace function internal.push_brew(ev jsonb, me_id uuid, me_nm text) returns void
 language plpgsql set search_path = public as $$
 declare s sessions; f jsonb := internal.session_fields(ev); cof uuid; ex jsonb;
@@ -778,6 +814,7 @@ begin
   select * into s from sessions where legacy_id = ev->>'id';
   if not found then
     if lower(btrim(coalesce(ev->>'owner', ev->>'user', me_nm))) <> lower(me_nm) then return; end if;
+    if ev->>'id' like 'shot\_%' and not internal.owns_shot(ev->>'id', me_id) then return; end if;   -- v16.9: a machine shot's id is only its owner's to use
     perform internal.rate_hit(me_id, 'session');   -- v14.6
     insert into sessions (legacy_id, owner_id, coffee_id, audience, help_wanted, method, grind, dose, yield, time_s, rating, taste, tasted, flavor_notes, extras, equipment, master, brewed_at)
     values (ev->>'id', me_id, cof, coalesce(internal.aud(ev->>'audience'), 'friends'), lower(coalesce(ev->>'helpWanted', '')) = 'true', nullif(btrim(ev->>'method'), ''), nullif(btrim(ev->>'grind'), ''),
@@ -1458,7 +1495,7 @@ language sql stable security definer set search_path = public as $$
   select jsonb_build_object('title', case when n.kind = 'report' then 'New report' when n.kind = 'bug' then 'Bug report' else coalesce(internal.name_of(n.actor_id), 'Someone') end, 'tag', 'n' || n.id, 'body',
     case when n.kind = 'report' then 'Something was reported. Review it in Settings.' when n.kind = 'bug' then coalesce(internal.name_of(n.actor_id), 'Someone') || ' reported a bug. Read it in Settings.' else   -- (who reported it stays off the lock screen)
     case n.kind
-      when 'like' then case when n.coffee_id is not null and n.session_id is null then 'Liked your coffee' else 'Liked your session' end
+      when 'like' then case when n.coffee_id is not null and n.session_id is null then (case when (select kind from coffees where id = n.coffee_id) = 'tea' then 'Liked your tea' else 'Liked your coffee' end) else 'Liked your session' end   -- (v17.0: a tea)
       when 'comment' then 'Commented' || coalesce(': ' || (select left(body, 120) from comments where id = n.comment_id and deleted_at is null), '')
       when 'reply' then 'Replied' || coalesce(': ' || (select left(body, 120) from comments where id = n.comment_id and deleted_at is null), '')
       when 'comment_like' then 'Liked your comment'
@@ -1534,6 +1571,7 @@ begin
 end $$;
 
 -- everything that's yours, to download
+-- (v16.9: replaced further down by the version that also has your machines and shots)
 create or replace function export_my_data() returns jsonb
 language sql stable security definer set search_path = public as $$
   select jsonb_build_object(
@@ -1589,13 +1627,14 @@ begin
            mode() within group (order by nullif(btrim(c.process), '')) as process,
            mode() within group (order by nullif(btrim(c.variety), '')) as variety,
            mode() within group (order by nullif(btrim(c.roast), '')) as roast,
+           c.kind as kind, mode() within group (order by c.tea_type) as "teaType",   -- (v17.0: teas and coffees never mix)
            count(distinct c.owner_id) as people
     from coffees c join profiles p on p.id = c.owner_id left join roasters r on r.id = c.roaster_id
     where c.deleted_at is null and btrim(c.name) <> ''
       and (c.owner_id = me_id or not p.is_private)
       and not exists (select 1 from blocks b where (b.blocker = me_id and b.blocked = c.owner_id) or (b.blocker = c.owner_id and b.blocked = me_id))
       and (lower(c.name) like pat or lower(coalesce(r.name, c.roaster_text, '')) like pat)
-    group by lower(btrim(c.name)), lower(btrim(coalesce(r.name, c.roaster_text, '')))
+    group by lower(btrim(c.name)), lower(btrim(coalesce(r.name, c.roaster_text, ''))), c.kind
     order by count(distinct c.owner_id) desc, lower(btrim(c.name))
     limit greatest(1, least(coalesce(max_items, 8), 12))) t), '[]'::jsonb);
 end $$;
@@ -1831,6 +1870,399 @@ end $$;
 drop trigger if exists notify_friend_session on sessions;
 create trigger notify_friend_session after insert on sessions for each row execute function internal.on_session();
 
+-- ---------------------------------------------------------------- v16.9: the Shot Logger (espresso machines that send each shot)
+-- A GaggiMate kit on a Gaggia sends every shot it pulls to the shot-inbox function (supabase/functions/shot-inbox),
+-- with the machine's own secret token, and the function hands it here. The token names the machine and its owner;
+-- nothing in the shot itself is trusted for that. A shot arrives as a draft the moment it ends (the machine says
+-- "Saved to Dialed In") and may come again: rated on the machine and posted, or retried after the machine was offline.
+-- One shot is one row here however many times it's sent, and a posted shot is one normal session whose app id is
+-- "shot_<shot id>": the machine, the app's "Taste and rate" and a late retry all land on that same session. A draft is
+-- the owner's alone: it's in no feed, profile, goal, award or stat until it's posted.
+-- The contract with the machine side is claude/shot-logger-app-handoff.md (the project docs); the example shot it
+-- describes is supabase/fixtures/shot-example.json.
+create table if not exists machines (
+  id            uuid primary key default gen_random_uuid(),
+  owner_id      uuid not null references profiles (id) on delete cascade,
+  name          text not null check (char_length(name) between 1 and 60),
+  token_hash    text not null unique,                  -- sha-256 of the machine's token; the token itself is never stored
+  created_at    timestamptz not null default now(),
+  last_seen_at  timestamptz,
+  revoked_at    timestamptz                            -- unlinked: its token no longer works
+);
+create index if not exists machines_owner on machines (owner_id);
+create table if not exists shots (
+  id            uuid primary key,                      -- the machine's shot_id
+  machine_id    uuid not null references machines (id) on delete cascade,
+  owner_id      uuid not null references profiles (id) on delete cascade,
+  coffee_id     uuid references coffees (id) on delete set null,
+  state         text not null default 'draft' check (state in ('draft', 'posted', 'dismissed')),
+  payload       jsonb not null,                        -- the latest send, curves included (about 6 KB)
+  session_id    uuid references sessions (id) on delete set null,
+  brewed_at     timestamptz not null,                  -- the shot's started_at, never when it arrived (unless the machine's clock wasn't set: time_approx)
+  asked_at      timestamptz,                           -- the app's "Taste and rate" popup was answered (Later or X)
+  sends         int not null default 1,
+  received_at   timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
+create index if not exists shots_owner on shots (owner_id, state, brewed_at desc);
+-- (Oct 24 evening, the machine side's update) a machine whose clock was never set sends started_at: null, and one whose
+-- clock is wrong sends a time we can't believe: the shot is kept, dated when it arrived, and marked as approximate
+alter table shots add column if not exists time_approx boolean not null default false;
+-- a test machine (the desktop simulator): what it posts is "Only me", so friends never see test shots
+alter table machines add column if not exists test boolean not null default false;
+alter table machines enable row level security;   -- no rules: only the calls below and the two machine functions touch them
+alter table shots enable row level security;
+revoke all on machines, shots from authenticated, anon;
+
+-- a grind as the app writes it: the Sette 270Wi's "12.0D" is "12D" (how people type letter grinds: "8H", "10E"), so
+-- the machine's shots and hand-logged ones read as the same setting; "12.5D" stays as it is
+create or replace function internal.shot_grind(g text) returns text language sql immutable as $$
+  select nullif(left(regexp_replace(btrim(coalesce(g, '')), '^(\d+)\.0+(\s*[A-Ia-i]?)$', '\1\2'), 24), '');
+$$;
+-- a number from the shot, only if it's a number in the range (else null)
+create or replace function internal.shot_num(v jsonb, lo numeric, hi numeric) returns numeric language sql immutable as $$
+  select case when jsonb_typeof(v) = 'number' and (v #>> '{}')::numeric between lo and hi then (v #>> '{}')::numeric end;
+$$;
+create or replace function internal.token_hash(token text) returns text language sql immutable as $$
+  select encode(sha256(convert_to(coalesce(token, ''), 'utf8')), 'hex');   -- (built in; no extension needed)
+$$;
+
+-- what's wrong with a shot, in words the machine side can log (null: nothing)
+-- when the shot was pulled, if the machine's clock can be believed: null when it sent none (its clock was never set)
+-- or one more than 10 minutes in the future or over 60 days old (a wrong clock). The shot is then dated when it arrives.
+create or replace function internal.shot_started(b jsonb) returns timestamptz language plpgsql stable as $$
+declare t timestamptz := case when b->>'started_at' ~ '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}' then internal.try_ts(b->>'started_at') end;
+begin
+  if t is null or t > now() + interval '10 minutes' or t < now() - interval '60 days' then return null; end if;
+  return t;
+end $$;
+
+create or replace function internal.shot_problem(b jsonb) returns text
+language plpgsql stable as $$
+declare
+  t timestamptz; e timestamptz; smp jsonb; n int; k text; i int; prev numeric; x jsonb; ph jsonb; r jsonb;
+  tastes constant text[] := array['acidity', 'sweetness', 'body', 'finish', 'bitterness'];
+  num constant text := 'number';
+begin
+  if jsonb_typeof(b) is distinct from 'object' then return 'The shot must be a JSON object.'; end if;
+  if b->'v' is distinct from '1'::jsonb then return 'Unknown version: v must be 1.'; end if;
+  if not internal.is_uuid(b->>'shot_id') then return 'shot_id must be a UUID.'; end if;
+  if coalesce(b->>'status', '') not in ('draft', 'post') then return 'status must be "draft" or "post".'; end if;
+  -- started_at / ended_at: ISO 8601, or null when the machine's clock was never set (the shot is then dated when it arrives)
+  if b ? 'started_at' and jsonb_typeof(b->'started_at') <> 'null'
+     and (jsonb_typeof(b->'started_at') <> 'string' or b->>'started_at' !~ '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}' or internal.try_ts(b->>'started_at') is null) then return 'started_at must be an ISO 8601 time, or null when the machine''s clock isn''t set.'; end if;
+  if b ? 'ended_at' and jsonb_typeof(b->'ended_at') <> 'null'
+     and (jsonb_typeof(b->'ended_at') <> 'string' or b->>'ended_at' !~ '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}' or internal.try_ts(b->>'ended_at') is null) then return 'ended_at must be an ISO 8601 time, or null.'; end if;
+  t := internal.shot_started(b); e := internal.try_ts(b->>'ended_at');
+  if t is not null and e is not null and (e < t or e > t + interval '10 minutes') then return 'ended_at must be a time after started_at (within 10 minutes).'; end if;
+  if lower(coalesce(b->>'method', '')) <> 'espresso' then return 'method must be "Espresso".'; end if;
+  if not internal.is_uuid(b->>'coffee_id') then return 'coffee_id must be a Dialed In coffee id (a UUID).'; end if;
+  if jsonb_typeof(b->'coffee_name') = 'string' and char_length(b->>'coffee_name') > 120 then return 'coffee_name is too long.'; end if;
+  if b ? 'recipe' and jsonb_typeof(b->'recipe') not in ('object', 'null') then return 'recipe must be an object.'; end if;
+  if jsonb_typeof(b->'recipe') = 'object' and (char_length(coalesce(b->'recipe'->>'name', '')) > 60 or char_length(coalesce(b->'recipe'->>'id', '')) > 60) then return 'recipe name and id must be 60 characters or fewer.'; end if;
+  if jsonb_typeof(b->'recipe'->'temp_c') = num and internal.shot_num(b->'recipe'->'temp_c', 50, 110) is null then return 'recipe.temp_c must be between 50 and 110.'; end if;
+  -- (dose and yield can be empty: the dose screen is skippable, and a shot without the scale has no yield)
+  if b ? 'dose_g' and jsonb_typeof(b->'dose_g') <> 'null' and internal.shot_num(b->'dose_g', 1, 40) is null then return 'dose_g must be a number from 1 to 40.'; end if;
+  if b ? 'yield_g' and jsonb_typeof(b->'yield_g') <> 'null' and internal.shot_num(b->'yield_g', 0, 200) is null then return 'yield_g must be a number from 0 to 200.'; end if;
+  if internal.shot_num(b->'time_s', 0, 300) is null then return 'time_s must be a number from 0 to 300.'; end if;
+  if b ? 'grind' and jsonb_typeof(b->'grind') not in ('string', 'null') then return 'grind must be text, like "12.0D".'; end if;
+  if char_length(coalesce(b->>'grind', '')) > 24 then return 'grind is too long.'; end if;
+  if b ? 'target_yield_g' and jsonb_typeof(b->'target_yield_g') <> 'null' and internal.shot_num(b->'target_yield_g', 0, 200) is null then return 'target_yield_g must be a number from 0 to 200.'; end if;
+  if b ? 'temp_c' and jsonb_typeof(b->'temp_c') <> 'null' and internal.shot_num(b->'temp_c', 50, 110) is null then return 'temp_c must be between 50 and 110.'; end if;
+  if b ? 'peak_bar' and jsonb_typeof(b->'peak_bar') <> 'null' and internal.shot_num(b->'peak_bar', 0, 20) is null then return 'peak_bar must be between 0 and 20.'; end if;
+  -- phases: what the recipe did, in order
+  if b ? 'phases' and jsonb_typeof(b->'phases') not in ('array', 'null') then return 'phases must be a list.'; end if;
+  if jsonb_typeof(b->'phases') = 'array' then
+    if jsonb_array_length(b->'phases') > 20 then return 'A shot can have at most 20 phases.'; end if;
+    for ph in select * from jsonb_array_elements(b->'phases') loop
+      if jsonb_typeof(ph) <> 'object' or char_length(coalesce(ph->>'name', '')) not between 1 and 40
+         or internal.shot_num(ph->'start_s', 0, 600) is null or internal.shot_num(ph->'end_s', 0, 600) is null
+         or (ph->>'end_s')::numeric < (ph->>'start_s')::numeric
+         or char_length(coalesce(ph->>'ended_by', '')) > 20 or char_length(coalesce(ph->>'target', '')) > 30 then
+        return 'Each phase needs a name, start_s and end_s (end after start).';
+      end if;
+    end loop;
+  end if;
+  -- the curves: same length lists, time going forward
+  smp := b->'samples';
+  if jsonb_typeof(smp) <> 'object' or jsonb_typeof(smp->'t_s') <> 'array' then return 'samples.t_s must be a list.'; end if;
+  n := jsonb_array_length(smp->'t_s');
+  if n < 2 or n > 3000 then return 'samples must have between 2 and 3000 points.'; end if;
+  prev := -1;
+  for i in 0 .. n - 1 loop
+    x := smp->'t_s'->i;
+    if jsonb_typeof(x) <> num or (x #>> '{}')::numeric < prev or (x #>> '{}')::numeric > 600 then return 'samples.t_s must be numbers that only go forward (seconds).'; end if;
+    prev := (x #>> '{}')::numeric;
+  end loop;
+  -- (a list a later machine version adds is kept as long as it has the same shape: refusing it would make the machine
+  -- drop the whole shot; the app draws only the ones it knows)
+  if (select count(*) from jsonb_object_keys(smp)) > 12 then return 'samples has too many lists (12 at most).'; end if;
+  for k in select jsonb_object_keys(smp) loop
+    if k <> 't_s' and jsonb_typeof(smp->k) <> 'null' then
+      if char_length(k) > 40 then return 'samples has a list with too long a name.'; end if;
+      if jsonb_typeof(smp->k) <> 'array' or jsonb_array_length(smp->k) <> n then return format('samples.%s must be a list as long as samples.t_s.', k); end if;
+      if exists (select 1 from jsonb_array_elements(smp->k) v where jsonb_typeof(v) not in ('number', 'null')
+                 or (jsonb_typeof(v) = num and abs((v #>> '{}')::numeric) > 1000)) then return format('samples.%s must hold numbers (or null).', k); end if;
+    end if;
+  end loop;
+  -- a rating from the machine: stars and five sliders (the app's complexity stays empty)
+  r := b->'rating';
+  if r is not null and jsonb_typeof(r) not in ('object', 'null') then return 'rating must be an object or null.'; end if;
+  if jsonb_typeof(r) = 'object' then
+    if r ? 'stars' and jsonb_typeof(r->'stars') <> 'null' and (internal.shot_num(r->'stars', 0.5, 5) is null or ((r->>'stars')::numeric * 2) % 1 <> 0) then return 'rating.stars must be 1 to 5 (halves allowed).'; end if;
+    if r ? 'taste' and jsonb_typeof(r->'taste') not in ('object', 'null') then return 'rating.taste must be an object.'; end if;
+    if jsonb_typeof(r->'taste') = 'object' then
+      if exists (select 1 from jsonb_object_keys(r->'taste') o where o <> all (tastes)) then return 'rating.taste has a slider the app doesn''t know.'; end if;
+      if exists (select 1 from jsonb_each(r->'taste') v where jsonb_typeof(v.value) <> 'null' and internal.shot_num(v.value, 1, 10) is null) then return 'Each taste slider must be 1 to 10.'; end if;
+    end if;
+  end if;
+  return null;
+end $$;
+
+-- a posted shot becomes (or updates) its session. The machine's own numbers are the machine's to set; a person's
+-- tasting (stars, sliders) is never overwritten by a later send, only filled in where it's empty.
+create or replace function internal.shot_post(shot uuid) returns uuid
+language plpgsql security definer set search_path = public as $$
+declare
+  s shots; p jsonb; ses sessions; lid text; r jsonb; v_stars numeric; v_taste jsonb; ex jsonb; eq jsonb := '[]'::jsonb; snap jsonb := '[]'::jsonb; aud audience;
+begin
+  select * into s from shots where id = shot for update;
+  if not found or s.state = 'dismissed' then return null; end if;
+  p := s.payload; lid := 'shot_' || s.id::text;
+  r := case when jsonb_typeof(p->'rating') = 'object' then p->'rating' end;
+  v_stars := internal.shot_num(r->'stars', 0.5, 5);
+  v_taste := jsonb_strip_nulls(jsonb_build_object(
+    'acidity', internal.shot_num(r->'taste'->'acidity', 1, 10), 'sweetness', internal.shot_num(r->'taste'->'sweetness', 1, 10),
+    'body', internal.shot_num(r->'taste'->'body', 1, 10), 'finish', internal.shot_num(r->'taste'->'finish', 1, 10),
+    'bitterness', internal.shot_num(r->'taste'->'bitterness', 1, 10)));
+  ex := jsonb_strip_nulls(jsonb_build_object(
+    'temp', coalesce(internal.shot_num(p->'temp_c', 50, 110), internal.shot_num(p->'recipe'->'temp_c', 50, 110)),
+    'machineRecipe', nullif(internal.clean_text(left(btrim(coalesce(p->'recipe'->>'name', '')), 60)), ''), 'peakBar', internal.shot_num(p->'peak_bar', 0, 20),
+    'targetYield', internal.shot_num(p->'target_yield_g', 0, 200), 'shotId', s.id::text, 'timeApprox', case when s.time_approx then true end,
+    'machine', (select name from machines where id = s.machine_id)));
+  select * into ses from sessions where legacy_id = lid;
+  if not found then
+    -- who sees it: where the person's last session was set (the app does the same for a new session), else the default
+    aud := case when (select test from machines where id = s.machine_id) then 'only_me'::audience end;   -- (a test machine's shots: yours alone)
+    aud := coalesce(aud, (select x.audience from sessions x where x.owner_id = s.owner_id and x.deleted_at is null order by x.created_at desc limit 1),
+                    case when (select joined_at from profiles where id = s.owner_id) is not null then 'everyone'::audience else 'friends'::audience end);
+    -- the gear: what the person last used for espresso (as the app fills in a new session)
+    select coalesce(case when jsonb_typeof(g.last_by_method->'Espresso') = 'array' then g.last_by_method->'Espresso' end, '[]'::jsonb) into eq
+      from profile_gear g where g.profile_id = s.owner_id;
+    eq := coalesce(eq, '[]'::jsonb);
+    select coalesce(jsonb_agg(e.name order by x.ord), '[]'::jsonb) into snap
+      from jsonb_array_elements_text(eq) with ordinality x(gid, ord) join equipment e on e.owner_id = s.owner_id and coalesce(e.legacy_id, e.id::text) = x.gid;
+    insert into sessions (legacy_id, owner_id, coffee_id, audience, method, grind, dose, yield, time_s, rating, taste, tasted, extras, equipment, brewed_at)
+    values (lid, s.owner_id, s.coffee_id, aud, 'Espresso', internal.shot_grind(p->>'grind'), internal.shot_num(p->'dose_g', 1, 40),
+            internal.shot_num(p->'yield_g', 0, 200), internal.shot_num(p->'time_s', 0, 300), v_stars, nullif(v_taste, '{}'::jsonb),
+            array(select jsonb_object_keys(v_taste)), ex, jsonb_build_object('ids', eq, 'snapshot', snap), s.brewed_at)
+    returning * into ses;
+  elsif ses.owner_id <> s.owner_id then return null;   -- (never someone else's session)
+  elsif ses.deleted_at is null and ses.owner_id = s.owner_id then
+    update sessions set coffee_id = coalesce(s.coffee_id, coffee_id), grind = internal.shot_grind(p->>'grind'),
+      dose = internal.shot_num(p->'dose_g', 1, 40), yield = internal.shot_num(p->'yield_g', 0, 200), time_s = internal.shot_num(p->'time_s', 0, 300),
+      brewed_at = s.brewed_at, rating = coalesce(sessions.rating, v_stars),
+      taste = nullif(v_taste || coalesce(sessions.taste, '{}'::jsonb), '{}'::jsonb),
+      tasted = case when coalesce(cardinality(sessions.tasted), 0) > 0 or coalesce(sessions.taste, '{}'::jsonb) <> '{}'::jsonb then sessions.tasted
+                    else array(select jsonb_object_keys(v_taste)) end,
+      extras = coalesce(sessions.extras, '{}'::jsonb) || ex, updated_at = now()
+    where id = ses.id;
+  end if;   -- (a session deleted in the app stays deleted)
+  update shots set state = 'posted', session_id = ses.id, updated_at = now() where id = s.id;
+  return ses.id;
+end $$;
+
+-- the machine is who its token says (null: no such machine, or it was unlinked)
+create or replace function internal.machine_for(token text) returns machines
+language sql stable security definer set search_path = public as $$
+  select * from machines where token_hash = internal.token_hash(token) and revoked_at is null
+   and char_length(coalesce(token, '')) between 20 and 200;
+$$;
+
+-- the shot-inbox function's whole job (it passes the token and the body, already checked for size and JSON).
+-- Answers {status, ok, shot_id, state} or {status, error}: 200, 401 (the token), 413 (too big), 422 (the data: don't
+-- send it again), 429 (too many sends: keep it and retry).
+create or replace function internal.shot_inbox(token text, body jsonb) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare m machines; s shots; why text; sid uuid; cof uuid; started timestamptz; posting boolean;
+begin
+  m := internal.machine_for(token);
+  if m.id is null then return jsonb_build_object('status', 401, 'error', 'Unknown machine. Link it again in Dialed In.'); end if;
+  update machines set last_seen_at = now() where id = m.id;
+  if octet_length(body::text) > 262144 then return jsonb_build_object('status', 413, 'error', 'The shot is too big (256 KB at most).'); end if;
+  why := internal.shot_problem(body);
+  if why is not null then return jsonb_build_object('status', 422, 'error', why); end if;
+  sid := (body->>'shot_id')::uuid; started := internal.shot_started(body); posting := body->>'status' = 'post';
+  -- a coffee the owner can log against: it's there and not deleted (anyone signed in can log on any coffee)
+  select k.id into cof from coffees k where k.id = (body->>'coffee_id')::uuid and k.deleted_at is null;
+  if cof is null then return jsonb_build_object('status', 422, 'error', 'That coffee isn''t on Dialed In any more. Pick it again on the machine.'); end if;
+  begin
+    perform internal.rate_hit(m.owner_id, 'shot');
+  exception when others then return jsonb_build_object('status', 429, 'error', 'Too many sends from this machine. Keep the shot and try again in a few minutes.'); end;   -- (429: the machine keeps it and retries)
+  select * into s from shots where id = sid for update;
+  if found and s.owner_id <> m.owner_id then return jsonb_build_object('status', 422, 'error', 'That shot_id belongs to someone else''s machine.'); end if;
+  if not found then
+    insert into shots (id, machine_id, owner_id, coffee_id, state, payload, brewed_at, time_approx) values (sid, m.id, m.owner_id, cof, 'draft', body, coalesce(started, now()), started is null)
+    returning * into s;
+  elsif s.state = 'draft' or posting then
+    -- the latest send wins, but never backwards: a draft retry after the shot was posted (or deleted in the app) changes nothing
+    update shots set payload = body, machine_id = m.id, coffee_id = cof, brewed_at = coalesce(started, brewed_at), time_approx = started is null and time_approx,
+                     sends = sends + 1, updated_at = now(),
+                     state = case when state = 'dismissed' then 'draft' else state end
+     where id = sid returning * into s;
+  else
+    update shots set sends = sends + 1 where id = sid returning * into s;
+  end if;
+  if posting then perform internal.shot_post(sid); select * into s from shots where id = sid; end if;
+  return jsonb_build_object('status', 200, 'ok', true, 'shot_id', sid, 'state', case when s.state = 'posted' then 'posted' else 'draft' end);
+end $$;
+
+-- what the machine reads at power-on and every few minutes: the coffees on its owner's shelf for the picker (most
+-- recently brewed first) and, for each, the owner's own last espresso on that coffee to prefill dose and grind. Only
+-- ever the owner's own grind: grinds don't carry across grinders.
+create or replace function internal.machine_sync(token text) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare m machines;
+begin
+  m := internal.machine_for(token);
+  if m.id is null then return jsonb_build_object('status', 401, 'error', 'Unknown machine. Link it again in Dialed In.'); end if;
+  update machines set last_seen_at = now() where id = m.id;
+  return jsonb_build_object('status', 200, 'ok', true, 'v', 1, 'at', now(),
+    'machine', jsonb_build_object('id', m.id, 'name', m.name), 'owner', internal.name_of(m.owner_id),
+    'coffees', coalesce((
+      with shelf as (   -- your coffees and the ones you've brewed, one per coffee (same roaster and name), yours first
+        select distinct on (internal.coffee_key(k.roaster_text), internal.coffee_key(k.name))
+               k.id, k.name, coalesce(k.roaster_text, r.name, '') roaster, internal.coffee_key(k.roaster_text) rk, internal.coffee_key(k.name) nk, k.created_at
+          from coffees k left join roasters r on r.id = k.roaster_id
+         where k.deleted_at is null and k.kind = 'coffee'   -- (v17.0: an espresso machine's picker never lists teas)
+           and (k.owner_id = m.owner_id or exists (select 1 from sessions x where x.coffee_id = k.id and x.owner_id = m.owner_id and x.deleted_at is null))
+         order by internal.coffee_key(k.roaster_text), internal.coffee_key(k.name), (k.owner_id = m.owner_id) desc, k.created_at desc
+      ), mine as (
+        select s.dose, s.grind, s.yield, s.time_s, s.brewed_at, s.method, internal.coffee_key(k.roaster_text) rk, internal.coffee_key(k.name) nk
+          from sessions s join coffees k on k.id = s.coffee_id where s.owner_id = m.owner_id and s.deleted_at is null
+      ), listed as (
+        select sh.id, sh.name, sh.roaster, sh.created_at, lb.last_brewed, ls.dose, ls.grind, ls.yield, ls.time_s, ls.brewed_at shot_at
+          from shelf sh
+          left join lateral (select max(x.brewed_at) last_brewed from mine x where x.rk = sh.rk and x.nk = sh.nk) lb on true
+          left join lateral (select x.dose, x.grind, x.yield, x.time_s, x.brewed_at from mine x
+                              where x.rk = sh.rk and x.nk = sh.nk and lower(coalesce(x.method, '')) = 'espresso' order by x.brewed_at desc limit 1) ls on true
+      )
+      select jsonb_agg(jsonb_build_object('id', l.id, 'name', l.name, 'roaster', l.roaster,
+               'last', case when l.shot_at is not null then jsonb_strip_nulls(jsonb_build_object('dose_g', l.dose, 'grind', l.grind,
+                       'yield_g', l.yield, 'time_s', l.time_s, 'at', l.shot_at)) end)
+               order by l.last_brewed desc nulls last, l.created_at desc)
+        from (select * from listed order by last_brewed desc nulls last, created_at desc limit 40) l), '[]'::jsonb));
+end $$;
+
+-- the app's own calls -------------------------------------------------------------------------------------------
+-- your drafts from your machines, newest first, curves included (the popup draws the newest; Drafts draws them all)
+create or replace function my_shots(max_items int default 30) returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare me_id uuid := me(); lim int := least(greatest(coalesce(max_items, 30), 1), 100);
+begin
+  if me_id is null then raise exception 'Sign in first.' using errcode = '28000'; end if;
+  return jsonb_build_object(
+    'drafts', coalesce((select jsonb_agg(d.j order by d.brewed_at desc) from (
+      select s.brewed_at, jsonb_build_object('id', s.id, 'machine', m.name, 'brewedAt', s.brewed_at, 'approx', s.time_approx, 'test', m.test, 'receivedAt', s.received_at, 'asked', s.asked_at is not null,
+               'beanId', coalesce(k.legacy_id, k.id::text), 'coffee', coalesce(k.name, s.payload->>'coffee_name'), 'roaster', coalesce(k.roaster_text, r.name, ''),
+               'grind', internal.shot_grind(s.payload->>'grind'), 'shot', s.payload) j
+        from shots s join machines m on m.id = s.machine_id left join coffees k on k.id = s.coffee_id left join roasters r on r.id = k.roaster_id
+       where s.owner_id = me_id and s.state = 'draft'
+       order by s.brewed_at desc limit lim) d), '[]'::jsonb),
+    'count', (select count(*) from shots where owner_id = me_id and state = 'draft'),
+    'machines', (select count(*) from machines where owner_id = me_id and revoked_at is null));
+end $$;
+
+-- "Post as is": the shot becomes a session right away with the machine's numbers only (no stars, no tasting)
+create or replace function post_shot(shot_id uuid) returns text
+language plpgsql security definer set search_path = public as $$
+declare me_id uuid := me(); s shots;
+begin
+  if me_id is null then raise exception 'Sign in first.' using errcode = '28000'; end if;
+  select * into s from shots where id = post_shot.shot_id and owner_id = me_id;
+  if not found then raise exception 'That shot isn''t yours.' using errcode = '42501'; end if;
+  if s.state = 'dismissed' then raise exception 'That shot was deleted.' using errcode = '22023'; end if;
+  if s.state = 'draft' then perform internal.shot_post(s.id); end if;
+  return 'shot_' || s.id::text;
+end $$;
+
+-- "Later" (or the X): it stays in Drafts and the popup doesn't ask about it again
+create or replace function shot_later(shot_id uuid) returns text
+language plpgsql security definer set search_path = public as $$
+begin
+  if me() is null then raise exception 'Sign in first.' using errcode = '28000'; end if;
+  update shots set asked_at = coalesce(asked_at, now()) where id = shot_later.shot_id and owner_id = me();
+  return 'later';
+end $$;
+
+-- delete a draft (it's kept as dismissed, so a late retry from the machine doesn't bring it back)
+create or replace function dismiss_shot(shot_id uuid) returns text
+language plpgsql security definer set search_path = public as $$
+begin
+  if me() is null then raise exception 'Sign in first.' using errcode = '28000'; end if;
+  update shots set state = 'dismissed', asked_at = coalesce(asked_at, now()), updated_at = now()
+   where id = dismiss_shot.shot_id and owner_id = me() and state = 'draft';
+  return 'deleted';
+end $$;
+
+-- the curves for one of your posted sessions (its shot page). Yours only, like drafts.
+create or replace function shot_for_session(session_ref text) returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object('id', s.id, 'machine', m.name, 'brewedAt', s.brewed_at, 'approx', s.time_approx, 'shot', s.payload)
+    from shots s join machines m on m.id = s.machine_id
+   where s.owner_id = me() and s.state = 'posted'
+     and (('shot_' || s.id::text) = session_ref or s.session_id = (select x.id from sessions x where coalesce(x.legacy_id, x.id::text) = session_ref and x.owner_id = me()))
+   limit 1;
+$$;
+
+-- saving "Taste and rate" in the app: the session it saves has the shot's app id ("shot_<shot id>"), so the shot
+-- becomes posted and points at it (only your own shot)
+create or replace function internal.on_shot_session() returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if new.legacy_id like 'shot\_%' and internal.is_uuid(substr(new.legacy_id, 6)) and new.deleted_at is null then
+    update shots set state = 'posted', session_id = new.id, updated_at = now()
+     where id = substr(new.legacy_id, 6)::uuid and owner_id = new.owner_id and (state <> 'posted' or session_id is distinct from new.id);
+  end if;
+  return null;
+end $$;
+drop trigger if exists link_shot_session on sessions;
+create trigger link_shot_session after insert on sessions for each row execute function internal.on_shot_session();
+
+-- a machine for someone (until linking from the app is designed: supabase/make_machine.js calls this). Returns the
+-- token once; only its hash is kept.
+create or replace function internal.add_machine(owner uuid, machine_name text) returns text
+language plpgsql security definer set search_path = public as $$
+declare tok text := replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '');   -- 244 random bits (built in)
+begin
+  if not exists (select 1 from profiles where id = owner) then raise exception 'No such profile.'; end if;
+  insert into machines (owner_id, name, token_hash) values (owner, left(btrim(coalesce(machine_name, 'Espresso machine')), 60), internal.token_hash(tok));
+  return tok;
+end $$;
+
+-- your data, now with your machines (never their tokens) and every shot they sent (this replaces the export_my_data
+-- above, which can't name tables made further down)
+create or replace function export_my_data() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object(
+    'exported_at', now(),
+    'profile', (select to_jsonb(p) - 'auth_id' from profiles p where p.id = me()),
+    'coffees', coalesce((select jsonb_agg(to_jsonb(k) order by k.created_at) from coffees k where k.owner_id = me()), '[]'::jsonb),
+    'sessions', coalesce((select jsonb_agg(to_jsonb(s) || jsonb_build_object('notes', n.body, 'note_audience', n.audience, 'photo', ph.path, 'photo_audience', ph.audience) order by s.brewed_at)
+                          from sessions s left join session_notes n on n.session_id = s.id left join session_photos ph on ph.session_id = s.id where s.owner_id = me()), '[]'::jsonb),
+    'comments', coalesce((select jsonb_agg(to_jsonb(c) order by c.created_at) from comments c where c.author_id = me()), '[]'::jsonb),
+    'likes', coalesce((select jsonb_agg(l.session_id) from likes l where l.user_id = me()), '[]'::jsonb),
+    'equipment', coalesce((select jsonb_agg(to_jsonb(e) order by e.sort_order) from equipment e where e.owner_id = me()), '[]'::jsonb),
+    'gear', (select to_jsonb(g) from profile_gear g where g.profile_id = me()),
+    'want_to_try', coalesce((select jsonb_agg(w.coffee_id) from want_to_try w where w.owner_id = me()), '[]'::jsonb),
+    'following', coalesce((select jsonb_agg(internal.name_of(f.followee)) from follows f where f.follower = me()), '[]'::jsonb),
+    'followers', coalesce((select jsonb_agg(internal.name_of(f.follower)) from follows f where f.followee = me()), '[]'::jsonb),
+    'groups', coalesce((select jsonb_agg(jsonb_build_object('name', g.name, 'role', m.role)) from group_members m join groups g on g.id = m.group_id where m.user_id = me()), '[]'::jsonb),
+    'machines', coalesce((select jsonb_agg(jsonb_build_object('name', mc.name, 'linked_at', mc.created_at, 'last_seen_at', mc.last_seen_at, 'unlinked_at', mc.revoked_at) order by mc.created_at)
+                          from machines mc where mc.owner_id = me()), '[]'::jsonb),
+    'shots', coalesce((select jsonb_agg(jsonb_build_object('id', sh.id, 'state', sh.state, 'brewed_at', sh.brewed_at, 'session_id', sh.session_id, 'shot', sh.payload) order by sh.brewed_at)
+                       from shots sh where sh.owner_id = me()), '[]'::jsonb));
+$$;
+
 -- push_event and friends run as the signed-in person (so the row rules apply to every write) and use the helpers in
 -- "internal", so signed-in people need them; the app's web address doesn't serve that schema, so they can't be called
 -- directly.
@@ -1843,13 +2275,17 @@ revoke execute on function pull_events(), push_event(jsonb), claim_name(text), c
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version(),
-  coffee_catalog(text, int), set_avatar(text), faces(jsonb), set_crema(int), report_bug(text, jsonb), review_bugs(int), close_bug(uuid, boolean), my_notification_prefs(), set_notification_pref(text, boolean) from public, anon;
+  coffee_catalog(text, int), set_avatar(text), faces(jsonb), set_crema(int), report_bug(text, jsonb), review_bugs(int), close_bug(uuid, boolean), my_notification_prefs(), set_notification_pref(text, boolean),
+  my_shots(int), post_shot(uuid), shot_later(uuid), dismiss_shot(uuid), shot_for_session(text) from public, anon;
 grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text, boolean), coffee_community(text, text, timestamptz, int), monthly_highlights(date), report_item(text, text, text),
   profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
   push_key(), push_ready(), save_push(jsonb), remove_push(text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version(),
-  coffee_catalog(text, int), set_avatar(text), faces(jsonb), set_crema(int), report_bug(text, jsonb), review_bugs(int), close_bug(uuid, boolean), my_notification_prefs(), set_notification_pref(text, boolean) to authenticated;
+  coffee_catalog(text, int), set_avatar(text), faces(jsonb), set_crema(int), report_bug(text, jsonb), review_bugs(int), close_bug(uuid, boolean), my_notification_prefs(), set_notification_pref(text, boolean),
+  my_shots(int), post_shot(uuid), shot_later(uuid), dismiss_shot(uuid), shot_for_session(text) to authenticated;
 revoke execute on all functions in schema internal from public, anon;
 revoke execute on function internal.push_payload(bigint, text), internal.push_text(notifications) from authenticated;   -- the sender's alone (it has the phones' addresses and the VAPID key)
+-- v16.9: the machine functions' alone (they take a machine's token and act as its owner), and making machines
+revoke execute on function internal.shot_inbox(text, jsonb), internal.machine_sync(text), internal.machine_for(text), internal.add_machine(uuid, text), internal.shot_post(uuid) from authenticated;

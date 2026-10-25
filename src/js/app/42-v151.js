@@ -30,19 +30,20 @@
                     KEN: 'kenya|kenyan|nyeri|kirinyaga|embu|kiambu|muranga', RWA: 'rwanda|rwandan', BDI: 'burundi|kayanza|ngozi', UGA: 'uganda|mt elgon|mount elgon',
                     TZA: 'tanzania|kilimanjaro', COD: 'congo|drc|dr congo|kivu', MWI: 'malawi', ZMB: 'zambia', ZWE: 'zimbabwe', CMR: 'cameroon',
                     CIV: "ivory coast|cote d'ivoire", MDG: 'madagascar', SLE: 'sierra leone', SDS: 'south sudan',
-                    YEM: 'yemen|yemeni|mocha|mokha', IND: 'india|indian|malabar|karnataka|chikmagalur', NPL: 'nepal',
+                    YEM: 'yemen|yemeni|mocha|mokha', IND: 'india|indian|malabar|karnataka|chikmagalur|darjeeling|assam|nilgiri', NPL: 'nepal|ilam',
                     IDN: 'indonesia|indonesian|sumatra|sumatran|java|sulawesi|toraja|bali|flores|aceh|gayo|mandheling|lintong',
-                    VNM: 'vietnam|viet nam', LAO: 'laos', THA: 'thailand', MMR: 'myanmar|burma', CHN: 'china|yunnan', PHL: 'philippines',
-                    TLS: 'timor|east timor|timor-leste', TWN: 'taiwan', LKA: 'sri lanka', SAU: 'saudi arabia',
+                    VNM: 'vietnam|viet nam', LAO: 'laos', THA: 'thailand', MMR: 'myanmar|burma', CHN: 'china|yunnan|fujian|zhejiang|anhui|hunan|guangdong|sichuan|wuyi|anxi|hangzhou', PHL: 'philippines',
+                    TLS: 'timor|east timor|timor-leste', TWN: 'taiwan|taiwanese|nantou|alishan|lishan', LKA: 'sri lanka|ceylon|nuwara eliya', SAU: 'saudi arabia',
+                    JPN: 'japan|japanese|shizuoka|uji|kagoshima', KOR: 'korea|south korea|jeju|boseong', GEO: 'georgia|georgian', TUR: 'turkey|turkiye|rize', IRN: 'iran',   // v17.0: where tea grows too
                     PNG: 'papua new guinea|png', AUS: 'australia', HI: 'hawaii|hawaiian|kona|maui|kauai',
                     BRA: 'brazil|brazilian|brasil|cerrado|mogiana|sul de minas', COL: 'colombia|colombian|huila|narino|cauca|tolima|antioquia|quindio',
                     PER: 'peru|peruvian|cajamarca', ECU: 'ecuador|loja', BOL: 'bolivia|caranavi', VEN: 'venezuela',
                     GTM: 'guatemala|huehuetenango|atitlan|antigua', HND: 'honduras|marcala', SLV: 'el salvador',
                     NIC: 'nicaragua|jinotega|nueva segovia', CRI: 'costa rica|tarrazu|west valley', PAN: 'panama|boquete|chiriqui',
-                    MEX: 'mexico|chiapas|oaxaca|veracruz', JAM: 'jamaica|blue mountain', DOM: 'dominican republic', HTI: 'haiti', CUB: 'cuba', PRI: 'puerto rico'
+                    MEX: 'mexico|chiapas|oaxaca|veracruz', JAM: 'jamaica|blue mountain', DOM: 'dominican republic', HTI: 'haiti', CUB: 'cuba', PRI: 'puerto rico', ARG: 'argentina|misiones'
                 };
-                const C = { Africa: 'ETH KEN RWA BDI UGA TZA COD MWI ZMB ZWE CMR CIV MDG SLE SDS', Asia: 'YEM IND NPL IDN VNM LAO THA MMR CHN PHL TLS TWN LKA SAU',
-                    Oceania: 'PNG AUS HI', 'South America': 'BRA COL PER ECU BOL VEN', 'North & Central America': 'GTM HND SLV NIC CRI PAN MEX JAM DOM HTI CUB PRI' };
+                const C = { Africa: 'ETH KEN RWA BDI UGA TZA COD MWI ZMB ZWE CMR CIV MDG SLE SDS', Asia: 'YEM IND NPL IDN VNM LAO THA MMR CHN PHL TLS TWN LKA SAU JPN KOR GEO TUR IRN',
+                    Oceania: 'PNG AUS HI', 'South America': 'BRA COL PER ECU BOL VEN ARG', 'North & Central America': 'GTM HND SLV NIC CRI PAN MEX JAM DOM HTI CUB PRI' };
                 const names = { HI: 'Hawaii', COD: 'DR Congo', DOM: 'Dominican Republic', CIV: 'Côte d\'Ivoire', SDS: 'South Sudan' };
                 const alias = [];
                 Object.entries(T).forEach(([code, words]) => words.split('|').forEach(w => alias.push([w, code])));
@@ -61,10 +62,10 @@
 
             // ---- v15.1: someone's coffee map: the countries their coffees came from, shaded by how many, and the coffee
             // continents they've covered. Tap a country (or its name under the map) for those coffees.
-            coffeeMapData(user) {
-                const byBean = new Map();
+            coffeeMapData(user, kind) {
+                const byBean = new Map(), tea = (kind || this.drinkNow()) === 'tea';   // v17.0: a tea map in tea mode
                 this.brews.forEach(b => {
-                    if (this.getBrewOwner(b) !== user) return;
+                    if (this.getBrewOwner(b) !== user || this.isTeaBrew(b) !== tea) return;
                     const bean = this.beans.get(String(b.beanId || '')); if (!bean) return;
                     const r = this.normalizeRating(b.rating) || 0, cur = byBean.get(bean.id);
                     byBean.set(bean.id, { bean, best: Math.max(cur ? cur.best : 0, r), n: (cur ? cur.n : 0) + 1 });
@@ -79,7 +80,7 @@
                     });
                 });
                 by.forEach(list => list.sort((a, b) => b.best - a.best || b.n - a.n));
-                return { by, continents, coffees: [...by.values()].reduce((s, l) => s + l.length, 0) };
+                return { by, continents, tea, coffees: [...by.values()].reduce((s, l) => s + l.length, 0) };
             },
             renderCoffeeMapCard(user) {
                 if (typeof WORLD_MAP === 'undefined' || !user) return '';
@@ -96,19 +97,20 @@
                 // the picked country's outline goes on top of everything (drawn with its neighbors, they covered parts of it)
                 const selLine = sel && WORLD_MAP.c[sel] ? `<path class="cm-selo" d="${WORLD_MAP.c[sel]}"/>` : '';
                 // the coffee belt, dashed: between the tropics, where coffee grows
-                const belt = (WORLD_MAP.belt || []).map(y => `<line class="cm-tropic" x1="0" x2="${WORLD_MAP.w}" y1="${y}" y2="${y}"/>`).join('');
+                const belt = D.tea ? '' : (WORLD_MAP.belt || []).map(y => `<line class="cm-tropic" x1="0" x2="${WORLD_MAP.w}" y1="${y}" y2="${y}"/>`).join('');   // (the coffee belt is coffee's)
+                const wd = this.drinkWords(D.tea ? 'tea' : 'coffee');
                 const hi = WORLD_MAP.dots.HI, hl = D.by.get('HI');
                 const dot = `<circle class="cm-dot${hl ? ` cm-on cm-l${level(hl.length)}` : ''}${sel === 'HI' ? ' cm-sel' : ''}" cx="${hi[0]}" cy="${hi[1]}" r="5"${hl ? ' data-c="HI"' : ''}/>`;
                 const order = [...D.by.entries()].sort((a, b) => b[1].length - a[1].length || this.coffeeCountryName(a[0]).localeCompare(this.coffeeCountryName(b[0])));
                 const chips = order.map(([c, l]) => `<button type="button" class="cm-chip${c === sel ? ' on' : ''}" data-c="${c}">${esc(this.coffeeCountryName(c))} <b>${l.length}</b></button>`).join('');
                 const conts = geo.continents.map(k => `<span class="cm-cont${D.continents.has(k) ? ' on' : ''}">${esc(k)}</span>`).join('');
-                const list = sel ? `<div class="cm-list"><div class="cm-list-h">${esc(this.coffeeCountryName(sel))} · ${D.by.get(sel).length} coffee${D.by.get(sel).length === 1 ? '' : 's'}</div>${D.by.get(sel).map(x => `<button type="button" class="cm-row" data-bean="${esc(x.bean.id)}"><span><b>${esc(x.bean.name || 'Coffee')}</b><small>${esc(x.bean.roaster || '')}</small></span>${x.best ? `<em>${this.formatRating(x.best)}★</em>` : ''}</button>`).join('')}</div>`
-                    : `<p class="cm-hint">Tap a country to see ${user === this.user ? 'your' : 'their'} coffees from there.</p>`;
+                const list = sel ? `<div class="cm-list"><div class="cm-list-h">${esc(this.coffeeCountryName(sel))} · ${D.by.get(sel).length} ${D.by.get(sel).length === 1 ? wd.item : wd.items}</div>${D.by.get(sel).map(x => `<button type="button" class="cm-row" data-bean="${esc(x.bean.id)}"><span><b>${esc(x.bean.name || 'Coffee')}</b><small>${esc(x.bean.roaster || '')}</small></span>${x.best ? `<em>${this.formatRating(x.best)}★</em>` : ''}</button>`).join('')}</div>`
+                    : `<p class="cm-hint">Tap a country to see ${user === this.user ? 'your' : 'their'} ${wd.items} from there.</p>`;
                 const own = user === this.user;
-                return `<section class="profile-card cmap" data-cmap="${esc(user)}" onclick="app.coffeeMapTap(event)"><h4 class="section-label">${own ? 'Your coffee map' : `${esc(user)}'s coffee map`}</h4>`
-                    + `<div class="cm-sum">${D.coffees} coffee${D.coffees === 1 ? '' : 's'} from ${D.by.size} countr${D.by.size === 1 ? 'y' : 'ies'} · ${D.continents.size} of ${geo.continents.length} coffee continents</div>`
-                    + `<svg class="cm-svg" viewBox="0 34 ${WORLD_MAP.w} ${WORLD_MAP.h - 70}" role="img" aria-label="Map of the countries ${own ? 'your' : 'their'} coffees came from">${paths}${dot}${belt}${selLine}</svg><div class="cm-legend"><i></i>The coffee belt, where coffee grows</div>`
-                    + `<div class="cm-chips">${chips}</div><div class="cm-conts">${conts}</div>${list}</section>`;
+                return `<section class="profile-card cmap" data-cmap="${esc(user)}" onclick="app.coffeeMapTap(event)"><h4 class="section-label">${own ? `Your ${wd.item} map` : `${esc(user)}'s ${wd.item} map`}</h4>`
+                    + `<div class="cm-sum">${D.coffees} ${D.coffees === 1 ? wd.item : wd.items} from ${D.by.size} countr${D.by.size === 1 ? 'y' : 'ies'}${D.tea ? '' : ` · ${D.continents.size} of ${geo.continents.length} coffee continents`}</div>`
+                    + `<svg class="cm-svg" viewBox="0 34 ${WORLD_MAP.w} ${WORLD_MAP.h - 70}" role="img" aria-label="Map of the countries ${own ? 'your' : 'their'} ${wd.items} came from">${paths}${dot}${belt}${selLine}</svg>${D.tea ? '' : '<div class="cm-legend"><i></i>The coffee belt, where coffee grows</div>'}`
+                    + `<div class="cm-chips">${chips}</div>${D.tea ? '' : `<div class="cm-conts">${conts}</div>`}${list}</section>`;
             },
             coffeeMapTap(event) {
                 const t = event && event.target && event.target.closest ? event.target : null; if (!t) return;
@@ -140,7 +142,8 @@
                     if (!(this.acctOn && this.acctOn()) || !Supa.ready() || q.length < 2) return;
                     this._catCache = this._catCache || new Map();
                     const hit = this._catCache.get(q.toLowerCase());
-                    const use = list => { if (my !== seq) return; this.paintCoffeeSuggest(box, this.mergeCoffeeMatches(local, list), q); };
+                    const want = this.beanFormKind ? this.beanFormKind() : 'coffee';   // v17.0: teas suggest teas, coffees coffees
+                    const use = list => { if (my !== seq) return; this.paintCoffeeSuggest(box, this.mergeCoffeeMatches(local, (list || []).filter(x => (x.kind === 'tea' ? 'tea' : 'coffee') === want)), q); };
                     if (hit) { use(hit); return; }
                     Supa.rpc('coffee_catalog', { q, max_items: 8 }).then(list => { const l = Array.isArray(list) ? list : []; this._catCache.set(q.toLowerCase(), l); use(l); }).catch(() => {});
                 };
@@ -162,17 +165,19 @@
                     const set = (k, v) => { if (v && form.elements[k]) form.elements[k].value = v; };
                     set('name', x.name); set('roaster', x.roaster); set('origin', x.origin); set('process', x.process); set('variety', x.variety);
                     if (x.roast && [...form.elements.roast.options].some(o => o.value === x.roast)) form.elements.roast.value = x.roast;
+                    if (x.teaType && form.elements.teaType && TEA_TYPES.includes(x.teaType)) form.elements.teaType.value = x.teaType;   // v17.0
                     box.hidden = true;
                     if (this.haptic) this.haptic('light');
                 });
             },
             localCoffeeMatches(q) {
-                const s = q.toLowerCase(), seen = new Map();
+                const s = q.toLowerCase(), seen = new Map(), want = this.beanFormKind ? this.beanFormKind() : 'coffee';
                 this.beans.forEach(b => {
+                    if (this.kindOfBean(b) !== want) return;   // v17.0
                     const name = String(b.name || '').trim(), roaster = String(b.roaster || '').trim();
                     if (!name || !(name.toLowerCase().includes(s) || roaster.toLowerCase().includes(s))) return;
                     const k = (name + '|' + roaster).toLowerCase();
-                    const cur = seen.get(k) || { name, roaster, origin: b.origin || '', process: b.process || '', variety: b.variety || '', roast: b.roast || '', who: new Set() };
+                    const cur = seen.get(k) || { name, roaster, origin: b.origin || '', process: b.process || '', variety: b.variety || '', roast: b.roast || '', teaType: b.teaType || '', who: new Set() };
                     cur.who.add(String(b.user || b.owner || ''));
                     seen.set(k, cur);
                 });
@@ -190,8 +195,8 @@
             paintCoffeeSuggest(box, items, q) {
                 box._items = items;
                 if (!items.length) { box.hidden = true; return; }
-                const bits = x => [x.roaster, x.origin, x.process].map(v => String(v || '').trim()).filter(Boolean).map(v => this.esc(v)).join(' · ');
-                box.innerHTML = `<div class="cs-head">Coffees people have logged</div>` + items.map((x, i) => `<button type="button" class="cs-row" data-i="${i}"><span><b>${this.esc(x.name)}</b><small>${bits(x)}</small></span>${Number(x.people) > 1 ? `<em>${Number(x.people)} people</em>` : ''}</button>`).join('');
+                const bits = x => [x.roaster, x.teaType, x.origin, x.process].map(v => String(v || '').trim()).filter(Boolean).map(v => this.esc(v)).join(' · ');
+                box.innerHTML = `<div class="cs-head">${this.beanFormKind && this.beanFormKind() === 'tea' ? 'Teas' : 'Coffees'} people have logged</div>` + items.map((x, i) => `<button type="button" class="cs-row" data-i="${i}"><span><b>${this.esc(x.name)}</b><small>${bits(x)}</small></span>${Number(x.people) > 1 ? `<em>${Number(x.people)} people</em>` : ''}</button>`).join('');
                 box.hidden = false;
             },
 
@@ -352,14 +357,15 @@
             setCoffeeScope(v) { this.coffeeScope = v === 'all' ? 'all' : 'mine'; safeSet('dialed_coffee_scope', this.coffeeScope); this.render(); window.scrollTo(0, 0); },
             coffeeScopeHtml() {
                 const m = this.coffeeScopeNow();
-                return `<div class="seg-control lib-switch" role="tablist" aria-label="Whose coffees">${[['mine', 'Mine'], ['all', 'All']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === m}" aria-pressed="${k === m}" onclick="app.setCoffeeScope('${app.escJs(k)}')">${l}</button>`).join('')}</div>`;
+                return `<div class="seg-control lib-switch" role="tablist" aria-label="Whose ${this.drinkWords(this.drinkNow()).items}">${[['mine', 'Mine'], ['all', 'All']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === m}" aria-pressed="${k === m}" onclick="app.setCoffeeScope('${app.escJs(k)}')">${l}</button>`).join('')}</div>`;
             },
 
             // ---- v15.1: "shot" is espresso's word; every other method gets "brew" (a pour over isn't a shot)
-            shotWord(method) { return !method || /espresso/i.test(String(method)) ? 'shot' : 'brew'; },
+            shotWord(method) { return this.isTeaMethod && this.isTeaMethod(method) ? 'cup' : !method || /espresso/i.test(String(method)) ? 'shot' : 'brew'; },   // (v17.0: a tea is a cup)
             methodWorded(o, method) {
                 if (!o || this.shotWord(method) === 'shot') return o;
-                const t = v => typeof v === 'string' ? v.replace(/\b([Ss])hot(s?)\b/g, (m, s, pl) => (s === 'S' ? 'Brew' : 'brew') + pl) : Array.isArray(v) ? v.map(t) : (v && typeof v === 'object' && typeof v.text === 'string' ? { ...v, text: t(v.text) } : v);
+                const w = this.shotWord(method), W = w.charAt(0).toUpperCase() + w.slice(1);
+                const t = v => typeof v === 'string' ? v.replace(/\b([Ss])hot(s?)\b/g, (m, s, pl) => (s === 'S' ? W : w) + pl) : Array.isArray(v) ? v.map(t) : (v && typeof v === 'object' && typeof v.text === 'string' ? { ...v, text: t(v.text) } : v);
                 const out = { ...o };
                 ['head', 'headline', 'detail', 'note', 'conf', 'why', 'ctx', 'evidence', 'ev'].forEach(k => { if (k in out) out[k] = t(out[k]); });
                 return out;
@@ -520,7 +526,7 @@
                 const row = (key, icon, title, sub, onclick, open, expands) => `<button type="button" class="more-row${expands ? ' expands' : ''}${open ? ' open' : ''}" data-row="${key}" aria-expanded="${expands ? String(!!open) : 'false'}" onclick="${onclick}"><span class="more-ic"><svg class="icon"><use href="#${icon}"/></svg></span><span class="more-t"><b>${esc(title)}</b>${sub ? `<small>${sub}</small>` : ''}</span>${chev}</button>`;
                 const parts = [];
                 // achievements: the locker
-                const levels = this.achievementLevelsByUser[who] || {}, catalog = this.getAchievementCatalog();
+                const levels = this.achievementLevelsByUser[who] || {}, catalog = this.achievementCatalogFor(who);
                 const earned = catalog.reduce((s, d) => s + Number(levels[d.key] || 0), 0), total = catalog.reduce((s, d) => s + d.thresholds.length, 0);
                 parts.push(row('ach', 'i-medal', 'Achievements', `${earned} of ${total} levels`, `app.openAchievementLocker('${app.escJs(who)}')`, false, false));
                 // monthly awards (yours: the circle picked above)
