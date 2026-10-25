@@ -42,3 +42,7 @@
         .steep-add input { width: 84px; margin: 0; }
         .steeps-hint { margin: 6px 0 0; font-size: 0.8rem; color: var(--text-faint); }
         #method-extras .steeps-field + div, #method-extras > div + .steeps-field { margin-top: 0; }
+
+        /* v17.0: °F typed into the water temperature, shown as °C */
+        #method-extras .temp-f { display: block; margin-top: 4px; font-size: 0.78rem; color: var(--text-faint); }
+        #method-extras .temp-f:empty { display: none; }

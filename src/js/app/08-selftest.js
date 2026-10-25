@@ -322,14 +322,18 @@
                             TASTE_KEYS.forEach(k => { vals[k] = 1 + Math.floor(rnd() * 10); if (rnd() < 0.6) tasted.push(k); });
                             const c = { id: `st-tea-${i}`, method: pick([m, m, m, '']), dose: pick([0, 2, 3, 4.5, 5, 7]), water: pick([0, 80, 100, 250, 350, 500]), time: m === 'Cold Steep' ? pick([0, 6, 8, 12]) : pick([0, 10, 20, 45, 120, 180, 300]),
                                 temp: pick([0, 70, 80, 85, 90, 95, 100]), steeps: Array.from({ length: steepsN }, (_, j) => 10 + j * 5), values: vals, tasted, notes: [pick(words), pick(words)].filter(() => rnd() < 0.6), rating: pick([0, 2, 3, 4, 4.5, 5]), type: tp,
-                                key: 'tea|st', owner: 'st-tea-nobody', date: '2026-10-01' };
+                                key: 'tea|st', owner: 'st-tea-nobody', date: '2026-10-01', bags: m === 'Western' && rnd() < 0.4 ? pick([1, 2]) : 0, style: m === 'Matcha' ? pick(['usucha', 'koicha', 'latte', 'iced', '']) : '', milk: pick([0, 0, 120, 200]) };
+                            if (c.bags) c.dose = 0;
                             const k = safe('tea coach', () => this.teaCoach(c));
                             const text = k ? [k.head, k.next || '', ...k.why, ...k.ctx.map(x => x.join(' ')), ...k.ev.map(e => e.text)].join(' ') : '';
                             check(k && k.head && !bad(text) && !/grind|finer|coarser|click/i.test(text), `tea coach ${i}: tea advice only (no grind)`);
-                            const b = { id: c.id, method: c.method || 'Western', dose: c.dose, yield: c.water, time: c.time, temp: c.temp, steeps: c.steeps, rating: c.rating };
-                            const strip = safe('tea strip', () => this.teaStripHtml(b)) || '', line = safe('tea line', () => this.teaRecipeLine(b));
-                            check(!bad(strip) && !bad(line || '') && /Leaf/.test(strip) && /Water/.test(strip) && !/Grind|Pull/.test(strip), `tea card ${i}: Leaf / Water / Steep / Temp`);
+                            const b = { id: c.id, method: c.method || 'Western', dose: c.dose, yield: c.water, time: c.time, temp: c.temp, steeps: c.steeps, rating: c.rating, teabag: c.bags > 0, bags: c.bags, style: c.style, milk: c.milk };
+                            const strip = safe('tea strip', () => this.teaStripHtml(b)) || '', line = safe('tea line', () => this.teaRecipeLine(b)), extras = safe('tea extras', () => this.sessionExtras(b).join(' ')) || '';
+                            check(!bad(strip) && !bad(line || '') && !bad(extras) && (c.bags ? /Teabag/.test(strip) && /bag/.test(line) : /Leaf|Matcha/.test(strip)) && /Water/.test(strip) && !/Grind|Pull/.test(strip), `tea card ${i}: Leaf (or teabags) / Water / Steep / Temp`);
                         }
+                        check(this.tempC(175) === 79 && this.tempC(212) === 100 && this.tempC(80) === 80 && this.tempC('') === 0 && this.tempC(300) === 300, 'water temperature: °F is turned into °C, °C left alone');
+                        check(this.teaMethodsFor('Matcha').join() === 'Matcha' && this.teaMethodsFor('Green').join() === 'Western,Gongfu,Cold Steep' && this.teaMethodsFor('').length === 4 && this.teaMethodsFor('Green', 'Matcha').includes('Matcha'), 'matcha is whisked, leaf teas are steeped; an older session keeps its method');
+                        check(this.teaRatio('Matcha', 'koicha') === 10 && this.teaRatio('Matcha', '') === 35 && this.teaRatio('Western') === 80, 'each matcha style has its own ratio');
                         const fakeBrand = { coffees: [] };
                         check(this.teaBrandStyle(fakeBrand) === 'No type or origin logged yet.' && JSON.stringify(this.teaTypeCounts(fakeBrand)) === '{}', 'a brand with nothing logged says so');
                         check(this.drinkNow() === drink0, 'the Coffees / Teas choice is left as it was');

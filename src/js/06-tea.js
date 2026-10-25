@@ -12,13 +12,23 @@
         };
         // the tea methods (same form as coffee: leaf goes where the dose goes, water where the yield goes)
         const TEA_METHOD_PROFILES = {
-            'Western': { dose: 'Leaf (g)', yld: 'Water (ml)', time: 'Steep (s)', ratio: 80, extras: ['temp', 'steeps'], recipes: false, tea: true, hint: 'Teapot, mug or infuser' },
-            'Gongfu': { dose: 'Leaf (g)', yld: 'Water (ml)', time: 'Steep (s)', ratio: 18, extras: ['temp', 'steeps'], recipes: false, tea: true, hint: 'Gaiwan or small pot, many short steeps' },
-            'Matcha': { dose: 'Matcha (g)', yld: 'Water (ml)', time: 'Whisk (s)', ratio: 35, extras: ['temp'], recipes: false, tea: true, hint: 'Whisked' },
+            'Western': { dose: 'Leaf (g)', yld: 'Water (ml)', time: 'Steep (s)', ratio: 80, extras: ['teabag', 'temp', 'steeps'], recipes: false, tea: true, hint: 'Teapot, mug or infuser' },
+            'Gongfu': { dose: 'Leaf (g)', yld: 'Water (ml)', time: 'Steep (s)', ratio: 18, extras: ['temp', 'rinse', 'steeps'], recipes: false, tea: true, hint: 'Gaiwan or small pot, many short steeps' },
+            'Matcha': { dose: 'Matcha (g)', yld: 'Water (ml)', time: 'Whisk (s)', ratio: 35, extras: ['style', 'milk', 'temp'], recipes: false, tea: true, hint: 'Whisked' },
             'Cold Steep': { dose: 'Leaf (g)', yld: 'Water (ml)', time: 'Steep (hours)', ratio: 100, extras: [], recipes: false, tea: true, hours: true, hint: 'Steeped cold in the fridge' }
         };
         Object.assign(METHOD_PROFILES, TEA_METHOD_PROFILES);
         const TEA_METHODS = Object.keys(TEA_METHOD_PROFILES);
+        // matcha is powder, so it's only ever whisked; leaf teas are steeped (a tea with no type set gets all four)
+        const LEAF_TEA_METHODS = ['Western', 'Gongfu', 'Cold Steep'];
+        // how a matcha is made: thin (the everyday bowl), thick (twice the powder, little water), or with milk.
+        // ratio: water to powder (a latte's is the matcha shot before the milk)
+        const MATCHA_STYLES = [
+            { key: 'usucha', label: 'Thin (usucha)', short: 'Usucha', ratio: 35, usual: '2 g in 70 ml · 75°C' },
+            { key: 'koicha', label: 'Thick (koicha)', short: 'Koicha', ratio: 10, usual: '4 g in 40 ml · 75°C' },
+            { key: 'latte', label: 'Latte', short: 'Latte', ratio: 30, milk: true, usual: '2 g in 60 ml, then 150 ml milk' },
+            { key: 'iced', label: 'Iced latte', short: 'Iced latte', ratio: 30, milk: true, usual: '2 g in 60 ml, then 150 ml cold milk over ice' }
+        ];
         const COFFEE_METHODS = ['Espresso', 'Pour Over', 'French Press', 'Moka Pot', 'Aeropress', 'Cold Brew'];
         // the six sliders keep their places (and storage keys); tea reads them in tea words. Acidity's place is astringency.
         const TEA_TASTE_META = [

@@ -36,7 +36,8 @@
 
             extrasFrom(brew) {
                 const b = brew || {};
-                return { temp: b.temp || '', brewer: b.brewer || '', inverted: !!b.inverted, heat: b.heat || '', preheated: !!b.preheated, steeps: Array.isArray(b.steeps) ? b.steeps.map(Number).filter(v => v > 0) : [] };   // (v17.0: a tea's steeps)
+                return { temp: b.temp || '', brewer: b.brewer || '', inverted: !!b.inverted, heat: b.heat || '', preheated: !!b.preheated, steeps: Array.isArray(b.steeps) ? b.steeps.map(Number).filter(v => v > 0) : [],
+                    teabag: !!b.teabag, bags: Number(b.bags) || 0, rinse: !!b.rinse, style: b.style || '', milk: b.milk || '' };   // (v17.0: a tea's steeps, teabags, rinse, matcha style and milk)
             },
 
             applyMethodProfile(method) {
@@ -56,7 +57,12 @@
                 const p = this.methodProfile(method), x = this.methodExtras || {};
                 const field = {
                     brewer: `<div><label>Brewer</label><select name="brewer" onchange="app.methodExtras.brewer = this.value">${['', 'V60', 'Kalita Wave', 'Chemex', 'Origami', 'April', 'Orea', 'Other'].map(v => `<option value="${v}"${v === x.brewer ? ' selected' : ''}>${v || 'Choose…'}</option>`).join('')}</select></div>`,
-                    temp: `<div><label>Water temp (°C)</label><input type="number" name="temp" min="0" max="212" step="any" inputmode="numeric" placeholder="${p.tea && this.teaTempHint ? this.teaTempHint() : 94}" value="${this.esc(x.temp)}" oninput="app.methodExtras.temp = this.value"></div>`,
+                    temp: `<div><label>Water temp (°C)</label><input type="number" name="temp" min="0" max="212" step="any" inputmode="numeric" placeholder="${p.tea && this.teaTempHint ? this.teaTempHint() : 94}" value="${this.esc(x.temp)}" oninput="app.methodExtras.temp = this.value; app.paintTempF(this)"><small class="temp-f" aria-live="polite">${this.tempFText(x.temp)}</small></div>`,
+                    // v17.0: tea
+                    teabag: `<label class="method-check"><input type="checkbox" name="teabag"${x.teabag ? ' checked' : ''} onchange="app.setTeabag(this.checked)"> Teabag</label>`,
+                    rinse: `<label class="method-check"><input type="checkbox" name="rinse"${x.rinse ? ' checked' : ''} onchange="app.methodExtras.rinse = this.checked"> Rinsed leaves</label>`,
+                    style: `<div><label>Style</label><select name="style" onchange="app.setMatchaStyle(this.value)">${MATCHA_STYLES.map(st => `<option value="${st.key}"${st.key === (x.style || 'usucha') ? ' selected' : ''}>${st.label}</option>`).join('')}</select></div>`,
+                    milk: (MATCHA_STYLES.find(st => st.key === (x.style || 'usucha')) || {}).milk ? `<div><label>Milk (ml)</label><input type="number" name="milk" min="0" max="1000" step="any" inputmode="numeric" placeholder="150" value="${this.esc(x.milk)}" oninput="app.methodExtras.milk = this.value"></div>` : '',
                     steeps: p.tea && this.steepsFieldHtml ? this.steepsFieldHtml(x.steeps) : '',   // v17.0
                     heat: `<div><label>Heat</label><select name="heat" onchange="app.methodExtras.heat = this.value">${['', 'Low', 'Medium', 'High'].map(v => `<option value="${v}"${v === x.heat ? ' selected' : ''}>${v || 'Choose…'}</option>`).join('')}</select></div>`,
                     inverted: `<label class="method-check"><input type="checkbox" name="inverted"${x.inverted ? ' checked' : ''} onchange="app.methodExtras.inverted = this.checked"> Inverted</label>`,
@@ -64,12 +70,22 @@
                 };
                 box.innerHTML = p.extras.map(k => field[k]).join('');
                 box.hidden = !p.extras.length;
+                if (this.paintTeabag) this.paintTeabag(method);   // v17.0: a teabag is counted, not weighed
             },
+
+            // water temperature: typed in °C, or in °F (anything from 104 up to 212), kept as °C
+            tempC(v) { const t = Number(v); if (!(t > 0)) return 0; return t > 100 && t <= 212 ? Math.round((t - 32) * 5 / 9) : t; },
+            tempFText(v) { const t = Number(v); return t > 100 && t <= 212 ? `${Math.round(t)} °F = ${this.tempC(t)} °C` : ''; },
+            paintTempF(input) { const s = input && input.parentElement && input.parentElement.querySelector('.temp-f'); if (s) s.textContent = this.tempFText(input.value); },
 
             collectMethodExtras(method) {
                 const p = this.methodProfile(method), x = this.methodExtras || {}, out = {};
                 p.extras.forEach(k => {
-                    if (k === 'temp') { const t = Number(x.temp); if (t >= 40 && t <= 100) out.temp = t; }
+                    if (k === 'temp') { const t = this.tempC(x.temp); if (t >= 40 && t <= 100) out.temp = t; }   // (v17.0: °F typed in is kept, as °C)
+                    else if (k === 'teabag') { if (x.teabag) { const f = this.getBrewForm(); out.teabag = true; out.bags = Math.min(20, Math.max(1, Math.round(Number(f && f.dose ? f.dose.value : 1) || 1))); } }
+                    else if (k === 'rinse') { if (x.rinse) out.rinse = true; }
+                    else if (k === 'style') { const st = MATCHA_STYLES.find(v => v.key === (x.style || 'usucha')); out.style = st.key; }
+                    else if (k === 'milk') { const st = MATCHA_STYLES.find(v => v.key === (x.style || 'usucha')); const ml = Number(x.milk); if (st && st.milk && ml > 0 && ml <= 1000) out.milk = Math.round(ml); }
                     else if (k === 'inverted' || k === 'preheated') out[k] = !!x[k];
                     else if (k === 'steeps') { const list = (Array.isArray(x.steeps) ? x.steeps : []).map(Number).filter(v => v > 0 && v <= 3600).slice(0, 30); if (list.length) out.steeps = list; }   // v17.0
                     else if (x[k]) out[k] = String(x[k]).slice(0, 30);

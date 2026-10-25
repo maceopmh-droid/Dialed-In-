@@ -207,6 +207,7 @@
                 const best = D.best, dose = best ? Number(best.dose) || 0 : 0, out = best ? Number(best.yield) || 0 : 0, t = best ? Number(best.time) || 0 : 0;
                 y = this.storyBoxes(S, [
                     D.avg ? { big: [[this.formatRating(D.avg), '★']], small: `avg of ${D.rated}${D.mine ? '' : ' (everyone)'}` } : { big: [[String(D.list.length), '']], small: D.list.length === 1 ? 'session' : 'sessions' },
+                    tea && best && best.teabag && out ? { big: [[String(Math.max(1, Number(best.bags) || 1)), Number(best.bags) > 1 ? ' bags' : ' bag'], [this.fmtNum(out, 0), ' ml']], small: `best: ${[Number(best.temp) ? `${Math.round(Number(best.temp))}°C` : '', this.teaTimeText(best)].filter(Boolean).join(' · ') || 'teabag'}`, wide: true } :
                     tea && dose && out ? { big: [[this.fmtNum(dose, 1), ' g'], [this.fmtNum(out, 0), ' ml']], small: `best: ${[Number(best.temp) ? `${Math.round(Number(best.temp))}°C` : '', this.teaTimeText(best)].filter(Boolean).join(' · ') || `1:${this.fmtNum(out / dose, 0)}`}`, wide: true } :
                     dose && out ? { big: [[this.fmtNum(dose, 1), ' g'], [this.fmtNum(out, 1), ' g']], small: `best: 1:${this.fmtNum(out / dose, 1)}${t ? ` · ${best.method === 'Espresso' || !best.method ? `${Math.round(t)} s` : this.clock(t)}` : ''}`, wide: true } : null,
                     best ? { big: [[this.formatRating(this.normalizeRating(best.rating)), '★']], small: 'best' } : null

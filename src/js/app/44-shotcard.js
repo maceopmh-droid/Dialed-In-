@@ -13,7 +13,9 @@
                 const boxes = [], tea = this.isTeaBrew(b);   // v17.0: a tea's card: leaf in water, the steep (and how many), the temperature
                 if (tea) {
                     const temp = Number(b.temp) || 0, steeps = this.teaStepsOf(b), p = this.methodProfile(b.method);
-                    if (dose || out) boxes.push({ big: [dose ? [this.fmtNum(dose, 1), ' g'] : null, out ? [this.fmtNum(out, 0), ' ml'] : null].filter(Boolean), small: dose && out ? `leaf · 1:${this.fmtNum(out / dose, 0)}` : (dose ? 'leaf' : 'water'), wide: true });
+                    const bags = b.teabag ? Math.max(1, Number(b.bags) || 1) : 0, st = b.method === 'Matcha' ? this.matchaStyle(b) : null;
+                    if (bags) boxes.push({ big: [[String(bags), bags === 1 ? ' bag' : ' bags'], out ? [this.fmtNum(out, 0), ' ml'] : null].filter(Boolean), small: 'teabag', wide: true });
+                    else if (dose || out) boxes.push({ big: [dose ? [this.fmtNum(dose, 1), ' g'] : null, out ? [this.fmtNum(out, 0), ' ml'] : null].filter(Boolean), small: [st ? st.short.toLowerCase() : (b.method === 'Matcha' ? 'matcha' : 'leaf'), dose && out ? `1:${this.fmtNum(out / dose, 0)}` : ''].filter(Boolean).join(' · '), wide: true });
                     if (time) boxes.push({ big: [p.hours ? [this.fmtNum(time, 1), ' h'] : time >= 60 ? [this.clock(time), ''] : [String(Math.round(time)), ' s']], small: steeps.length > 1 ? `${steeps.length} steeps` : 'steep' });
                     else if (temp) boxes.push({ big: [[String(Math.round(temp)), '°C']], small: 'water' });
                     if (r > 0) boxes.push({ big: [[this.formatRating(r), '★']], small: this.methodLabel(b.method) || 'rating' });

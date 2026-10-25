@@ -370,7 +370,7 @@
                     date: existing ? existing.date : now,
                     method,
                     grind: this.logKind === 'tea' ? '' : this.normalizeGrindInput(form.grind.value),
-                    dose: this.asNumber(form.dose.value, 0),
+                    dose: this.logKind === 'tea' && this.methodExtras && this.methodExtras.teabag && this.methodProfile(method).extras.includes('teabag') ? 0 : this.asNumber(form.dose.value, 0),   // (v17.0: teabags are counted in bags, not weighed)
                     yield: this.asNumber(form.yield.value, 0),
                     time: this.asNumber(form.time.value, 0),
                     acidity: this.asNumber(form.acidity.value, 5),
@@ -398,7 +398,7 @@
                     ...(seedMaster ? { masterGrind: String(seedMaster.grind || '') } : {})
                 }, existing);
                 if (existing) {   // fields this form doesn't show (and ones future versions add) stay as they were
-                    const managed = new Set([...Object.keys(payload), 'temp', 'brewer', 'inverted', 'heat', 'preheated', 'recipeName', 'timeUnit', 'steeps', 'actor', 'actorColor', 'eventAt', 'commentMeta']);   // (v17.0: steeps too)
+                    const managed = new Set([...Object.keys(payload), 'temp', 'brewer', 'inverted', 'heat', 'preheated', 'recipeName', 'timeUnit', 'steeps', 'teabag', 'bags', 'rinse', 'style', 'milk', 'actor', 'actorColor', 'eventAt', 'commentMeta']);   // (v17.0: a tea's steeps, teabags, rinse, matcha style and milk too)
                     Object.keys(existing).forEach(k => { if (!managed.has(k) && existing[k] !== undefined) payload[k] = existing[k]; });
                 }
 
@@ -566,7 +566,7 @@
 
                 const form = this.getBrewForm();
                 this._shotForm = null; if (this.clearShotLogHead) this.clearShotLogHead();   // v16.9
-                if (this.applyLogKind) this.applyLogKind(this.kindOfBrew(brew));   // v17.0
+                if (this.applyLogKind) this.applyLogKind(this.kindOfBrew(brew), brew.method);   // v17.0
                 this.recipeTyped = new Set(['dose', 'yield']); this._brewFormGen = (this._brewFormGen || 0) + 1;   // an old session's numbers are measurements
                 form.elements.id.value = brew.id;
                 form.method.value = brew.method || '';
@@ -703,6 +703,7 @@
                 if (this.logKind === 'tea') {   // v17.0: a tea has no roast date; it starts on its usual method
                     if (form.roastDate) form.roastDate.value = '';
                     if (!form.method.value) { form.method.value = this.defaultTeaMethod(); this.loadEquipmentForMethod(form.method.value); }
+                    if (!prefill) this.methodExtras = this.teaCarry();   // teabag or loose, rinse, matcha style: as your last cup of this tea
                 }
                 this._roastWhen = null; this.paintRoastDays();
                 this.openModal('brew-modal');

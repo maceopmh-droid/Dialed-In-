@@ -91,11 +91,11 @@
                 const h = typeof document !== 'undefined' ? document.getElementById('view-title') : null;
                 if (!h) return;
                 const w = this.drinkWords(this.drinkNow());
-                if (tab === 'my') {
-                    h.innerHTML = `<button type="button" class="drink-title" id="drink-title" aria-haspopup="menu" aria-expanded="false" aria-controls="drink-menu" onclick="app.toggleDrinkMenu(event)">${w.Items}<svg class="icon dt-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>`;
+                if (tab === 'my' || tab === 'roasters') {   // both pages switch the same way (Coffees / Teas, Roasters / Brands), and stay in step
+                    h.innerHTML = `<button type="button" class="drink-title" id="drink-title" aria-haspopup="menu" aria-expanded="false" aria-controls="drink-menu" onclick="app.toggleDrinkMenu(event)">${tab === 'roasters' ? w.Companies : w.Items}<svg class="icon dt-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>`;
                     return;
                 }
-                const titles = { roasters: w.Companies, feed: 'Feed', profile: 'Profile' };
+                const titles = { feed: 'Feed', profile: 'Profile' };
                 h.textContent = titles[tab] || w.Items;
             },
             paintMethodFilters() {
@@ -129,7 +129,8 @@
                 menu.className = 'drink-menu';
                 menu.setAttribute('role', 'menu');
                 menu.setAttribute('aria-label', 'Coffee or tea');
-                menu.innerHTML = opt('coffee', 'Coffees', '#i-bean') + opt('tea', 'Teas', '#i-teabag');
+                const ro = this.tab === 'roasters';
+                menu.innerHTML = opt('coffee', ro ? 'Roasters' : 'Coffees', '#i-bean') + opt('tea', ro ? 'Brands' : 'Teas', '#i-teabag');
                 const r = btn.getBoundingClientRect();
                 menu.style.top = `${Math.round(r.bottom + 8)}px`;
                 menu.style.left = `${Math.round(Math.max(12, r.left - 6))}px`;
@@ -220,18 +221,21 @@
                 if (brew) return this.kindOfBrew(brew);
                 return this.isTeaBean(this.beans && this.beans.get(String(this.activeId))) ? 'tea' : 'coffee';
             },
-            applyLogKind(kind) {
+            applyLogKind(kind, keepMethod) {
                 const k = kind === 'tea' ? 'tea' : 'coffee', tea = k === 'tea';
                 this.logKind = k;
                 const form = this.getBrewForm(); if (!form) return;
                 const modal = document.getElementById('brew-modal');
                 if (modal) modal.classList.toggle('is-tea', tea);
                 const sel = form.method;
-                if (sel && sel.getAttribute('data-kind') !== k) {
+                // a tea's methods follow the tea: matcha is whisked, leaf teas are steeped (an older session keeps its own method)
+                const list = tea ? this.teaMethodsFor(this.teaTypeOfActive(), keepMethod) : this.methodsFor(k);
+                const sig = `${k}|${list.join(',')}`;
+                if (sel && sel.getAttribute('data-kind') !== sig) {
                     const keep = sel.value;
-                    sel.setAttribute('data-kind', k);
-                    sel.innerHTML = `<option value="">Select Method</option>` + this.methodsFor(k).map(m => `<option value="${this.esc(m)}">${this.esc(this.methodLabel(m))}</option>`).join('');
-                    sel.value = this.methodsFor(k).includes(keep) ? keep : '';
+                    sel.setAttribute('data-kind', sig);
+                    sel.innerHTML = `<option value="">Select Method</option>` + list.map(m => `<option value="${this.esc(m)}">${this.esc(this.methodLabel(m))}</option>`).join('');
+                    sel.value = list.includes(keep) ? keep : '';
                 }
                 if (form.grind) {
                     const wrap = form.grind.closest('div');
@@ -253,16 +257,64 @@
                 this.wheelFam = null; this.wheelGroup = null;
                 if (this.tasteView && this.tasteView.redraw) this.tasteView.redraw();
             },
-            // a tea's usual method: your last on this tea, else your last tea, else by its type
+            // the methods a tea can be made with: matcha only whisked; a leaf tea steeped (Western, Gongfu, Cold Steep);
+            // no type set: all four. An older session on another method keeps it in the list.
+            teaMethodsFor(type, keep) {
+                const list = type === 'Matcha' ? ['Matcha'] : type && TEA_TYPE_INFO[type] ? LEAF_TEA_METHODS.slice() : TEA_METHODS.slice();
+                if (keep && this.isTeaMethod(keep) && !list.includes(keep)) list.push(keep);
+                return list;
+            },
+            // a tea's usual method: your last on this tea, else your last tea, else by its type (always one this tea can use)
             defaultTeaMethod() {
                 const bean = this.beans.get(String(this.activeId)) || {};
                 const key = this.activeGroup ? this.beanGroupKey(this.activeGroup.meta) : this.beanGroupKey(bean);
-                const mine = this.user ? this.brewsOf(this.user).filter(b => this.isTeaMethod(b.method)).sort((a, b) => this.toTime(b.date) - this.toTime(a.date)) : [];
+                const ok = this.teaMethodsFor(this.teaTypeOfActive());
+                const mine = this.user ? this.brewsOf(this.user).filter(b => this.isTeaMethod(b.method) && ok.includes(b.method)).sort((a, b) => this.toTime(b.date) - this.toTime(a.date)) : [];
                 const here = mine.find(b => this.groupKeyOfBrew(b) === key);
                 if (here) return here.method;
-                if (bean.teaType === 'Matcha') return 'Matcha';
+                if (ok.length === 1) return ok[0];
                 return mine.length ? mine[0].method : 'Western';
             },
+            // a new cup of a tea starts as your last cup of it did: teabag or loose, rinsed or not, the matcha style
+            teaCarry() {
+                const key = this.activeGroup ? this.beanGroupKey(this.activeGroup.meta) : '';
+                const last = key && this.user ? this.brewsOf(this.user).filter(b => this.isTeaBrew(b) && this.groupKeyOfBrew(b) === key).sort((a, b) => this.toTime(b.date) - this.toTime(a.date))[0] : null;
+                if (!last) return {};
+                const out = {};
+                if (last.teabag) { out.teabag = true; out.bags = Number(last.bags) || 1; }
+                if (last.rinse) out.rinse = true;
+                if (last.style) out.style = String(last.style);
+                if (last.milk) out.milk = String(last.milk);
+                return out;
+            },
+            // ---- teabags: the leaf field counts bags instead of weighing grams (saved as bags, with no leaf weight)
+            setTeabag(on) {
+                this.methodExtras.teabag = !!on;
+                const form = this.getBrewForm();
+                if (form && form.dose) {
+                    const v = Number(form.dose.value);
+                    if (on && !(Number.isInteger(v) && v >= 1 && v <= 6)) form.dose.value = String(this.methodExtras.bags || 1);
+                    if (!on && Number.isInteger(v) && v >= 1 && v <= 6 && this.methodExtras.bags) form.dose.value = '';
+                }
+                this.paintTeabag(this.activeMethod);
+                this.renderTasteTip && this.renderTasteTip();
+            },
+            paintTeabag(method) {
+                const p = this.methodProfile(method), form = this.getBrewForm(), lbl = document.getElementById('lbl-dose');
+                if (!form || !form.dose || !lbl) return;
+                const on = !!(p.tea && p.extras.includes('teabag') && this.methodExtras && this.methodExtras.teabag);
+                lbl.textContent = on ? 'Teabags' : p.dose;
+                form.dose.step = on ? '1' : '0.1';
+                form.dose.placeholder = on ? '1' : '';
+                if (on && !(Number(form.dose.value) > 0)) form.dose.value = String(this.methodExtras.bags || 1);
+            },
+            setMatchaStyle(key) {
+                this.methodExtras.style = MATCHA_STYLES.some(st => st.key === key) ? key : 'usucha';
+                this.renderMethodExtras(this.activeMethod);
+                this.renderTasteTip && this.renderTasteTip();
+            },
+            matchaStyle(b) { return MATCHA_STYLES.find(st => st.key === (b && b.style)) || null; },
+            teaRatio(method, style) { const st = method === 'Matcha' ? MATCHA_STYLES.find(v => v.key === (style || 'usucha')) : null; return st ? st.ratio : this.methodProfile(method).ratio; },
             teaTypeOfActive() { const g = this.activeGroup && this.activeGroup.meta; return (g && g.teaType) || ((this.beans.get(String(this.activeId)) || {}).teaType) || ''; },
             teaTempHint() { const info = this.teaTypeInfo(this.teaTypeOfActive()); return info ? info.temp : 85; },
 
@@ -323,11 +375,17 @@
                 const cell = (v, label, sub) => `<div class="sc-cell"><b>${v}</b><span>${this.esc(label)}${sub ? ` · <em>${this.esc(sub)}</em>` : ''}</span></div>`;
                 const t = !(time > 0) ? '–' : hours ? `${this.esc(this.fmtNum(time, 1))}<small>h</small>` : time >= 60 ? this.esc(this.clock(time)) : `${this.esc(this.fmtNum(time))}<small>s</small>`;
                 const stepLabel = b.method === 'Matcha' ? 'Whisk' : steeps.length > 1 ? `${steeps.length} steeps` : 'Steep';   // (the first steep's time, and how many)
-                return `<div class="sc-strip feed-card-metrics sc-tea">${cell(dose > 0 ? `${this.esc(this.fmtNum(dose, 1))}<small>g</small>` : '–', 'Leaf')}${cell(yld > 0 ? `${this.esc(this.fmtNum(yld, 0))}<small>ml</small>` : '–', 'Water', ratio)}${cell(t, stepLabel, '')}${cell(temp > 0 ? `${this.esc(this.fmtNum(temp, 0))}<small>°C</small>` : '–', 'Temp')}</div>`;
+                const bags = b.teabag ? Math.max(1, Number(b.bags) || 1) : 0;
+                const leaf = bags ? cell(`${bags}<small>${bags === 1 ? 'bag' : 'bags'}</small>`, 'Teabag') : cell(dose > 0 ? `${this.esc(this.fmtNum(dose, 1))}<small>g</small>` : '–', b.method === 'Matcha' ? 'Matcha' : 'Leaf');
+                return `<div class="sc-strip feed-card-metrics sc-tea">${leaf}${cell(yld > 0 ? `${this.esc(this.fmtNum(yld, 0))}<small>ml</small>` : '–', 'Water', ratio)}${cell(t, stepLabel, '')}${cell(temp > 0 ? `${this.esc(this.fmtNum(temp, 0))}<small>°C</small>` : '–', 'Temp')}</div>`;
             },
             teaRecipeLine(b) {
                 const parts = [], steeps = this.teaStepsOf(b);
-                if (this.num(b.dose) > 0 || this.num(b.yield) > 0) parts.push(`${this.fmtNum(b.dose)} g in ${this.fmtNum(b.yield, 0)} ml`);
+                const bags = b.teabag ? Math.max(1, Number(b.bags) || 1) : 0, st = b.method === 'Matcha' ? this.matchaStyle(b) : null;
+                if (st) parts.push(st.short);
+                if (bags) parts.push(`${bags} ${bags === 1 ? 'bag' : 'bags'}${this.num(b.yield) > 0 ? ` in ${this.fmtNum(b.yield, 0)} ml` : ''}`);
+                else if (this.num(b.dose) > 0 || this.num(b.yield) > 0) parts.push(`${this.fmtNum(b.dose)} g in ${this.fmtNum(b.yield, 0)} ml`);
+                if (st && st.milk && this.num(b.milk) > 0) parts.push(`${this.fmtNum(b.milk, 0)} ml milk`);
                 if (this.num(b.temp) > 0) parts.push(`${this.fmtNum(b.temp, 0)}°C`);
                 const t = this.teaTimeText(b);
                 if (t) parts.push(steeps.length > 1 ? `${t.replace(' ', ' ')}, ${steeps.length} steeps` : t.replace(' ', ' '));
@@ -339,13 +397,16 @@
             teaFromBrew(b) {
                 const bean = this.beans.get(String(b.beanId)) || {};
                 return { id: String(b.id), method: b.method || '', dose: this.num(b.dose), water: this.num(b.yield), time: this.num(b.time), temp: this.num(b.temp), steeps: this.teaStepsOf(b),
+                    bags: b.teabag ? Math.max(1, Number(b.bags) || 1) : 0, style: b.style || '', milk: this.num(b.milk),
                     values: this.shapeValues(b), tasted: this.tastedKeys(b), notes: this.extractFlavors(b), rating: this.normalizeRating(b.rating), type: bean.teaType || '',
                     key: this.groupKeyOfBrew(b), owner: this.getBrewOwner(b), date: b.date };
             },
             teaFromForm() {
                 const form = this.getBrewForm(), x = this.methodExtras || {};
                 const n = name => (form && form[name] && form[name].value !== '' ? Number(form[name].value) : 0);
-                return { id: form && form.elements.id ? String(form.elements.id.value || '') : '', method: form && form.method ? form.method.value : '', dose: n('dose'), water: n('yield'), time: n('time'), temp: Number(x.temp) || 0,
+                const method = form && form.method ? form.method.value : '', bagsOn = !!(x.teabag && this.methodProfile(method).extras.includes('teabag'));
+                return { id: form && form.elements.id ? String(form.elements.id.value || '') : '', method, dose: bagsOn ? 0 : n('dose'), water: n('yield'), time: n('time'), temp: this.tempC(x.temp),
+                    bags: bagsOn ? Math.max(1, Math.round(n('dose')) || 1) : 0, style: method === 'Matcha' ? (x.style || 'usucha') : '', milk: Number(x.milk) || 0,
                     steeps: Array.isArray(x.steeps) ? x.steeps : [], values: this.formTasteValues(), tasted: [...this.tasteTouched], notes: [...this.selFlavors],
                     rating: form && form.rating ? this.normalizeRating(form.rating.value) : 0, type: this.teaTypeOfActive(), key: this.activeGroup ? this.beanGroupKey(this.activeGroup.meta) : '', owner: this.user, date: new Date().toISOString() };
             },
@@ -390,8 +451,25 @@
                     k.conf = ref && c.rating > this.normalizeRating(ref.rating) ? 'a new best' : '';
                     return k;
                 }
+                const matcha = c.method === 'Matcha', st = matcha ? (MATCHA_STYLES.find(v => v.key === (c.style || 'usucha')) || MATCHA_STYLES[0]) : null;
+                const target = this.teaRatio(c.method, c.style), what = matcha ? 'matcha' : 'leaf';
+                const how = matcha ? `${st.short.toLowerCase()} matcha` : c.method.toLowerCase();
+                if (matcha) ctx.push([`Usual for ${st.short === 'Usucha' || st.short === 'Koicha' ? st.short.toLowerCase() : `a matcha ${st.short.toLowerCase()}`}`, st.usual]);
                 if (over.length) {
                     k.mode = 'fix'; k.conf = 'from your notes';
+                    if (matcha && !(c.temp > 0 && c.temp > 80)) {   // matcha isn't steeped: too strong or too hot, not too long
+                        const ratio = c.dose > 0 && c.water > 0 ? c.water / c.dose : 0;
+                        if (ratio && ratio < target * 0.8) {
+                            const w = Math.round(c.dose * target / 5) * 5;
+                            k.head = `Use a little more water: about ${this.fmtNum(w, 0)} ml for ${this.fmtNum(c.dose)} g.`; k.next = `${this.fmtNum(w, 0)} ml`;
+                            why.unshift(`This was 1:${Math.round(ratio)}; ${how} usually runs nearer 1:${target}.`);
+                        } else if (c.dose > 0) {
+                            const d = Math.max(0.5, Math.round(c.dose * 0.8 * 2) / 2);
+                            k.head = `Use a little less matcha: about ${this.fmtNum(d)} g.`; k.next = `${this.fmtNum(d)} g`;
+                            why.unshift('A bitter bowl at a good temperature usually means a little too much powder.');
+                        } else k.head = 'Water around 75°C and a little less matcha should soften it.';
+                        return k;
+                    }
                     if (c.temp > 0 && info && c.temp > info.temp + 3 && !p.hours) {
                         k.head = `Try cooler water: about ${info.temp}°C.`; k.next = `${info.temp}°C`;
                         why.unshift(`Bitter or drying usually means the water was too hot for ${aType(c.type)} tea (${this.fmtNum(c.temp, 0)}°C this time).`);
@@ -408,10 +486,18 @@
                 if (under.length) {
                     k.mode = 'fix'; k.conf = 'from your notes';
                     const ratio = c.dose > 0 && c.water > 0 ? c.water / c.dose : 0;
-                    if (ratio && ratio > p.ratio * 1.25) {
-                        const d = Math.round((c.water / p.ratio) * 2) / 2;
-                        k.head = `Use more leaf: about ${this.fmtNum(d)} g for ${this.fmtNum(c.water, 0)} ml.`; k.next = `${this.fmtNum(d)} g`;
-                        why.unshift(`Thin cups usually need more leaf: this was 1:${Math.round(ratio)}, ${c.method.toLowerCase()} usually runs nearer 1:${p.ratio}.`);
+                    if (ratio && ratio > target * 1.25) {
+                        const d = Math.round((c.water / target) * 2) / 2;
+                        k.head = `Use more ${what}: about ${this.fmtNum(d)} g for ${this.fmtNum(c.water, 0)} ml.`; k.next = `${this.fmtNum(d)} g`;
+                        why.unshift(`Thin cups usually need more ${what}: this was 1:${Math.round(ratio)}, ${how} usually runs nearer 1:${target}.`);
+                    } else if (c.bags && c.water / c.bags > 350) {   // one teabag (about 2 g) suits a 250-300 ml mug
+                        const n = Math.ceil(c.water / 300);
+                        k.head = `Use ${n} teabags for ${this.fmtNum(c.water, 0)} ml.`; k.next = `${n} bags`;
+                        why.unshift('One bag is made for a mug of about 250 ml; more water than that thins it out.');
+                    } else if (matcha) {
+                        const d = c.dose > 0 ? Math.round(c.dose * 1.25 * 2) / 2 : 0;
+                        k.head = d ? `Use a little more matcha: about ${this.fmtNum(d)} g.` : 'A little more matcha should fill it out.'; k.next = d ? `${this.fmtNum(d)} g` : '';
+                        if (st.milk && c.milk > 0) why.unshift(`With ${this.fmtNum(c.milk, 0)} ml of milk, a stronger matcha shot keeps the tea from getting lost.`);
                     } else if (c.time > 0) {
                         const t = p.hours ? Math.round(c.time * 1.3 * 2) / 2 : Math.round(c.time * 1.3);
                         k.head = `Steep longer: about ${fmtT(t)}.`; k.next = fmtT(t);

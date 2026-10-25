@@ -307,10 +307,16 @@
                     const ml = v => v === null ? '–' : `${this.fmtNum(v, 0)} ml`, deg = v => v === null ? '–' : `${this.fmtNum(v, 0)}°C`;
                     const st = x => this.teaTimeText(x) || '–', stN = x => { const n = this.num(x.time); return n > 0 ? n : null; };
                     const la = num(A.dose), lb = num(Bv.dose), wa = num(A.yield), wb = num(Bv.yield), ta = num(A.temp), tb = num(Bv.temp);
-                    if (la !== null || lb !== null) rows.push(['Leaf', fmt(la, 'g'), fmt(lb, 'g'), chip(la, lb, null)]);
+                    const bagsOf = x => x.teabag ? Math.max(1, Number(x.bags) || 1) : null, ba = bagsOf(A), bb = bagsOf(Bv);
+                    const stOf = x => x.method === 'Matcha' && this.matchaStyle(x) ? this.matchaStyle(x).short : '', stA = stOf(A), stB = stOf(Bv);
+                    if (stA || stB) rows.push(['Style', this.esc(stA || '–'), this.esc(stB || '–'), stA === stB ? '<span class="cmp-d same">same</span>' : '<span class="cmp-d neutral">changed</span>']);
+                    if (ba !== null || bb !== null) rows.push(['Teabags', ba === null ? fmt(la, 'g') : String(ba), bb === null ? fmt(lb, 'g') : String(bb), ba !== null && bb !== null ? chip(ba, bb, null) : '<span class="cmp-d neutral">changed</span>']);
+                    else if (la !== null || lb !== null) rows.push([A.method === 'Matcha' && Bv.method === 'Matcha' ? 'Matcha' : 'Leaf', fmt(la, 'g'), fmt(lb, 'g'), chip(la, lb, null)]);
                     if (wa !== null || wb !== null) rows.push(['Water', ml(wa), ml(wb), chip(wa, wb, null)]);
                     const ra = la && wa ? wa / la : null, rb = lb && wb ? wb / lb : null;
                     if (ra || rb) rows.push(['Ratio', ra ? `1:${this.fmtNum(ra, 0)}` : '–', rb ? `1:${this.fmtNum(rb, 0)}` : '–', chip(ra === null ? null : Math.round(ra), rb === null ? null : Math.round(rb), null)]);
+                    const ma = num(A.milk), mb = num(Bv.milk);
+                    if (ma !== null || mb !== null) rows.push(['Milk', ml(ma), ml(mb), chip(ma, mb, null)]);
                     if (ta !== null || tb !== null) rows.push(['Temp', deg(ta), deg(tb), chip(ta, tb, null)]);
                     if (stN(A) !== null || stN(Bv) !== null) rows.push([A.method === 'Matcha' && Bv.method === 'Matcha' ? 'Whisk' : 'Steep', this.esc(st(A)), this.esc(st(Bv)), chip(stN(A), stN(Bv), null)]);
                     const sa = this.teaStepsOf(A).length || null, sb = this.teaStepsOf(Bv).length || null;
