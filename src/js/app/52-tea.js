@@ -304,7 +304,7 @@
                 if (!form || !form.dose || !lbl) return;
                 const on = !!(p.tea && p.extras.includes('teabag') && this.methodExtras && this.methodExtras.teabag);
                 lbl.textContent = on ? 'Teabags' : p.dose;
-                form.dose.step = on ? '1' : '0.1';
+                form.dose.step = on ? '1' : 'any';   // (as the form has it: any decimal, 18.25 g)
                 form.dose.placeholder = on ? '1' : '';
                 if (on && !(Number(form.dose.value) > 0)) form.dose.value = String(this.methodExtras.bags || 1);
             },
