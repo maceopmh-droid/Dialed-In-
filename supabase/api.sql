@@ -234,6 +234,13 @@ $$;
 
 -- one coffee / one session in the app's event format (pull_events and community_feed share them). They run as the
 -- caller, so the row rules decide which notes, photos, likes and comments come along.
+-- v17.0: tea. A coffee item can be a tea (kind 'tea', with its type: Green, White, Yellow, Oolong, Black, Pu-erh,
+-- Matcha). Everything else about it (the company, name, origin, process, variety as cultivar) uses the same columns.
+alter table coffees add column if not exists kind text not null default 'coffee';
+alter table coffees add column if not exists tea_type text;
+do $$ begin alter table coffees add constraint coffees_kind check (kind in ('coffee', 'tea'));
+exception when duplicate_object then null; end $$;
+
 create or replace function internal.coffee_json(k coffees) returns jsonb
 language sql stable set search_path = public as $$
   select jsonb_strip_nulls(jsonb_build_object(
@@ -242,6 +249,7 @@ language sql stable set search_path = public as $$
       'actor', internal.name_of(k.owner_id), 'actorColor', internal.color_of(k.owner_id),
       'roaster', coalesce(k.roaster_text, r.name, ''), 'name', k.name, 'origin', coalesce(k.origin, ''), 'process', coalesce(k.process, ''),
       'variety', coalesce(k.variety, ''), 'roast', coalesce(k.roast, ''), 'roastDate', coalesce(k.roast_date::text, ''),
+      'kind', case when k.kind = 'tea' then 'tea' end, 'teaType', case when k.kind = 'tea' then k.tea_type end,   -- (v17.0: only on teas, so a coffee reads as it always did)
       'date', k.created_at, 'eventAt', k.updated_at,
       'likes', coalesce((select jsonb_agg(internal.name_of(l.user_id) order by l.created_at) from coffee_likes l where l.coffee_id = k.id), '[]'::jsonb),
       'comments', internal.comments_json(k.id, null),
@@ -730,6 +738,12 @@ begin
   return rid;
 end $$;
 
+-- a tea's type, as the app offers them (anything else is dropped)
+create or replace function internal.tea_type(t text) returns text language sql immutable as $$
+  select case lower(btrim(coalesce(t, ''))) when 'green' then 'Green' when 'white' then 'White' when 'yellow' then 'Yellow'
+              when 'oolong' then 'Oolong' when 'black' then 'Black' when 'pu-erh' then 'Pu-erh' when 'matcha' then 'Matcha' end
+$$;
+
 create or replace function internal.push_bean(ev jsonb, me_id uuid, me_nm text) returns void
 language plpgsql set search_path = public as $$
 declare k coffees;
@@ -738,16 +752,20 @@ begin
   if not found then
     if lower(btrim(coalesce(ev->>'owner', ev->>'user', me_nm))) <> lower(me_nm) then return; end if;   -- someone else's coffee you can't see
     perform internal.rate_hit(me_id, 'coffee');   -- v14.6
-    insert into coffees (legacy_id, owner_id, roaster_id, roaster_text, name, origin, process, variety, roast, roast_date, created_at)
-    values (ev->>'id', me_id, internal.roaster_for(ev->>'roaster', me_id), nullif(btrim(ev->>'roaster'), ''), coalesce(nullif(btrim(ev->>'name'), ''), 'Coffee'),
+    insert into coffees (legacy_id, owner_id, roaster_id, roaster_text, name, origin, process, variety, roast, roast_date, created_at, kind, tea_type)
+    values (ev->>'id', me_id, internal.roaster_for(ev->>'roaster', me_id), nullif(btrim(ev->>'roaster'), ''), coalesce(nullif(btrim(ev->>'name'), ''), case when ev->>'kind' = 'tea' then 'Tea' else 'Coffee' end),
             nullif(btrim(ev->>'origin'), ''), nullif(btrim(ev->>'process'), ''), nullif(btrim(ev->>'variety'), ''), nullif(btrim(ev->>'roast'), ''),
-            internal.try_date(ev->>'roastDate'), coalesce(internal.try_ts(ev->>'date'), now()))
+            internal.try_date(ev->>'roastDate'), coalesce(internal.try_ts(ev->>'date'), now()),
+            case when ev->>'kind' = 'tea' then 'tea' else 'coffee' end, case when ev->>'kind' = 'tea' then internal.tea_type(ev->>'teaType') end)
     returning * into k;
   elsif k.deleted_at is not null then return;                                                         -- deleted stays deleted
   elsif k.owner_id = me_id then                                                    -- only the owner edits a coffee, as in the app today
     update coffees set roaster_id = internal.roaster_for(ev->>'roaster', me_id), roaster_text = nullif(btrim(ev->>'roaster'), ''), name = coalesce(nullif(btrim(ev->>'name'), ''), name),
       origin = nullif(btrim(ev->>'origin'), ''), process = nullif(btrim(ev->>'process'), ''), variety = nullif(btrim(ev->>'variety'), ''),
-      roast = nullif(btrim(ev->>'roast'), ''), roast_date = internal.try_date(ev->>'roastDate'), updated_at = now()
+      roast = nullif(btrim(ev->>'roast'), ''), roast_date = internal.try_date(ev->>'roastDate'), updated_at = now(),
+      -- (a save from a version before tea has no "kind": it leaves the kind and type as they were)
+      kind = case when not ev ? 'kind' then kind when ev->>'kind' = 'tea' then 'tea' else 'coffee' end,
+      tea_type = case when not ev ? 'kind' then tea_type when ev->>'kind' = 'tea' then internal.tea_type(ev->>'teaType') end
     where id = k.id;
   end if;
   perform internal.sync_like('coffee', k.id, ev->'likes', me_id, me_nm);
@@ -1477,7 +1495,7 @@ language sql stable security definer set search_path = public as $$
   select jsonb_build_object('title', case when n.kind = 'report' then 'New report' when n.kind = 'bug' then 'Bug report' else coalesce(internal.name_of(n.actor_id), 'Someone') end, 'tag', 'n' || n.id, 'body',
     case when n.kind = 'report' then 'Something was reported. Review it in Settings.' when n.kind = 'bug' then coalesce(internal.name_of(n.actor_id), 'Someone') || ' reported a bug. Read it in Settings.' else   -- (who reported it stays off the lock screen)
     case n.kind
-      when 'like' then case when n.coffee_id is not null and n.session_id is null then 'Liked your coffee' else 'Liked your session' end
+      when 'like' then case when n.coffee_id is not null and n.session_id is null then (case when (select kind from coffees where id = n.coffee_id) = 'tea' then 'Liked your tea' else 'Liked your coffee' end) else 'Liked your session' end   -- (v17.0: a tea)
       when 'comment' then 'Commented' || coalesce(': ' || (select left(body, 120) from comments where id = n.comment_id and deleted_at is null), '')
       when 'reply' then 'Replied' || coalesce(': ' || (select left(body, 120) from comments where id = n.comment_id and deleted_at is null), '')
       when 'comment_like' then 'Liked your comment'
@@ -1609,13 +1627,14 @@ begin
            mode() within group (order by nullif(btrim(c.process), '')) as process,
            mode() within group (order by nullif(btrim(c.variety), '')) as variety,
            mode() within group (order by nullif(btrim(c.roast), '')) as roast,
+           c.kind as kind, mode() within group (order by c.tea_type) as "teaType",   -- (v17.0: teas and coffees never mix)
            count(distinct c.owner_id) as people
     from coffees c join profiles p on p.id = c.owner_id left join roasters r on r.id = c.roaster_id
     where c.deleted_at is null and btrim(c.name) <> ''
       and (c.owner_id = me_id or not p.is_private)
       and not exists (select 1 from blocks b where (b.blocker = me_id and b.blocked = c.owner_id) or (b.blocker = c.owner_id and b.blocked = me_id))
       and (lower(c.name) like pat or lower(coalesce(r.name, c.roaster_text, '')) like pat)
-    group by lower(btrim(c.name)), lower(btrim(coalesce(r.name, c.roaster_text, '')))
+    group by lower(btrim(c.name)), lower(btrim(coalesce(r.name, c.roaster_text, ''))), c.kind
     order by count(distinct c.owner_id) desc, lower(btrim(c.name))
     limit greatest(1, least(coalesce(max_items, 8), 12))) t), '[]'::jsonb);
 end $$;
@@ -2115,7 +2134,8 @@ begin
         select distinct on (internal.coffee_key(k.roaster_text), internal.coffee_key(k.name))
                k.id, k.name, coalesce(k.roaster_text, r.name, '') roaster, internal.coffee_key(k.roaster_text) rk, internal.coffee_key(k.name) nk, k.created_at
           from coffees k left join roasters r on r.id = k.roaster_id
-         where k.deleted_at is null and (k.owner_id = m.owner_id or exists (select 1 from sessions x where x.coffee_id = k.id and x.owner_id = m.owner_id and x.deleted_at is null))
+         where k.deleted_at is null and k.kind = 'coffee'   -- (v17.0: an espresso machine's picker never lists teas)
+           and (k.owner_id = m.owner_id or exists (select 1 from sessions x where x.coffee_id = k.id and x.owner_id = m.owner_id and x.deleted_at is null))
          order by internal.coffee_key(k.roaster_text), internal.coffee_key(k.name), (k.owner_id = m.owner_id) desc, k.created_at desc
       ), mine as (
         select s.dose, s.grind, s.yield, s.time_s, s.brewed_at, s.method, internal.coffee_key(k.roaster_text) rk, internal.coffee_key(k.name) nk

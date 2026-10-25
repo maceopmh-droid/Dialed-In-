@@ -231,7 +231,8 @@
                     'French Press': '#i-method-french-press',
                     'Moka Pot': '#i-method-moka-pot',
                     'Aeropress': '#i-method-aeropress',
-                    'Cold Brew': '#i-method-cold-brew'
+                    'Cold Brew': '#i-method-cold-brew',
+                    'Western': '#i-method-western', 'Gongfu': '#i-method-gongfu', 'Matcha': '#i-method-matcha', 'Cold Steep': '#i-method-cold-steep'   // v17.0
                 };
                 return map[method] || '#i-method-espresso';
             },

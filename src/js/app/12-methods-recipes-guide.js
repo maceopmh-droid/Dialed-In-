@@ -36,7 +36,7 @@
 
             extrasFrom(brew) {
                 const b = brew || {};
-                return { temp: b.temp || '', brewer: b.brewer || '', inverted: !!b.inverted, heat: b.heat || '', preheated: !!b.preheated };
+                return { temp: b.temp || '', brewer: b.brewer || '', inverted: !!b.inverted, heat: b.heat || '', preheated: !!b.preheated, steeps: Array.isArray(b.steeps) ? b.steeps.map(Number).filter(v => v > 0) : [] };   // (v17.0: a tea's steeps)
             },
 
             applyMethodProfile(method) {
@@ -56,7 +56,8 @@
                 const p = this.methodProfile(method), x = this.methodExtras || {};
                 const field = {
                     brewer: `<div><label>Brewer</label><select name="brewer" onchange="app.methodExtras.brewer = this.value">${['', 'V60', 'Kalita Wave', 'Chemex', 'Origami', 'April', 'Orea', 'Other'].map(v => `<option value="${v}"${v === x.brewer ? ' selected' : ''}>${v || 'Choose…'}</option>`).join('')}</select></div>`,
-                    temp: `<div><label>Water temp (°C)</label><input type="number" name="temp" min="0" max="212" step="any" inputmode="numeric" placeholder="94" value="${this.esc(x.temp)}" oninput="app.methodExtras.temp = this.value"></div>`,
+                    temp: `<div><label>Water temp (°C)</label><input type="number" name="temp" min="0" max="212" step="any" inputmode="numeric" placeholder="${p.tea && this.teaTempHint ? this.teaTempHint() : 94}" value="${this.esc(x.temp)}" oninput="app.methodExtras.temp = this.value"></div>`,
+                    steeps: p.tea && this.steepsFieldHtml ? this.steepsFieldHtml(x.steeps) : '',   // v17.0
                     heat: `<div><label>Heat</label><select name="heat" onchange="app.methodExtras.heat = this.value">${['', 'Low', 'Medium', 'High'].map(v => `<option value="${v}"${v === x.heat ? ' selected' : ''}>${v || 'Choose…'}</option>`).join('')}</select></div>`,
                     inverted: `<label class="method-check"><input type="checkbox" name="inverted"${x.inverted ? ' checked' : ''} onchange="app.methodExtras.inverted = this.checked"> Inverted</label>`,
                     preheated: `<label class="method-check"><input type="checkbox" name="preheated"${x.preheated ? ' checked' : ''} onchange="app.methodExtras.preheated = this.checked"> Hot water in the base</label>`
@@ -70,6 +71,7 @@
                 p.extras.forEach(k => {
                     if (k === 'temp') { const t = Number(x.temp); if (t >= 40 && t <= 100) out.temp = t; }
                     else if (k === 'inverted' || k === 'preheated') out[k] = !!x[k];
+                    else if (k === 'steeps') { const list = (Array.isArray(x.steeps) ? x.steeps : []).map(Number).filter(v => v > 0 && v <= 3600).slice(0, 30); if (list.length) out.steeps = list; }   // v17.0
                     else if (x[k]) out[k] = String(x[k]).slice(0, 30);
                 });
                 if (p.recipes && this.recipeName) out.recipeName = String(this.recipeName).slice(0, 60);

@@ -30,17 +30,19 @@
                     rows.sort((u, v) => this.localTime(u.date) - this.localTime(v.date));
                     const lastByBean = new Map(), perBean = new Map();
                     let changes = 0;
+                    const coffeeKeys = new Set();
                     rows.forEach(x => {
                         const key = this.groupKeyOfBrew(x);
                         const g = this.grindText(x.grind);
                         if (g && lastByBean.has(key) && !this.sameGrind(lastByBean.get(key), g)) changes++;
                         if (g) lastByBean.set(key, g);
                         perBean.set(key, (perBean.get(key) || 0) + 1);
+                        if (!this.isTeaBrew(x)) coffeeKeys.add(key);
                     });
                     grindChanges.set(p, changes);
                     let bestKey = '', bestN = 0; perBean.forEach((n, k) => { if (n > bestN) { bestN = n; bestKey = k; } });
                     loyal.set(p, { n: bestN, key: bestKey });
-                    explore.set(p, perBean.size);
+                    explore.set(p, coffeeKeys.size);   // (v17.0: different coffees; teas have their own award)
                     notes.set(p, new Set(rows.flatMap(x => this.extractFlavors(x).map(n => n.toLowerCase()))).size);
                 });
                 add('tinker', 'The Tinkerer', 'i-settings', '#4E8F7A', top(grindChanges, 2), v => `${v} grind changes`);
@@ -50,11 +52,11 @@
                     const o = loyal.get(loyalRes.names[0]);
                     const sample = list.find(x => this.groupKeyOfBrew(x) === o.key);
                     const bean = sample ? this.beans.get(String(sample.beanId)) : null;
-                    add('loyal', 'The Loyalist', 'i-repeat', '#B4664F', loyalRes, v => `${v} sessions of ${bean ? this.beanLabel(bean) : 'one coffee'}`);
+                    add('loyal', 'The Loyalist', 'i-repeat', '#B4664F', loyalRes, v => `${v} sessions of ${bean ? this.beanLabel(bean) : this.isTeaBean(bean) ? 'one tea' : 'one coffee'}`);
                 }
                 add('explorer', 'The Explorer', 'i-compass', '#5F8FDB', top(explore, 2), v => `${v} different coffees`);
                 if (y * 12 + m >= 2026 * 12 + 9) add('local', 'Local Legend', 'i-pin', '#6E9C4F', top(tally(x => this.isLocalBrew(x) ? 1 : 0), 2), v => `${v} sessions from local roasters`);   // v15.8: from October 2026 (earlier months keep their awards)
-                add('dialed', 'Dialed In', 'i-star', '#36A57F', top(tally(x => this.normalizeRating(x.rating) >= 4.5 ? 1 : 0), 1), v => `${v} shot${v === 1 ? '' : 's'} at 4.5★ or better`);
+                add('dialed', 'Dialed In', 'i-star', '#36A57F', top(tally(x => !this.isTeaBrew(x) && this.normalizeRating(x.rating) >= 4.5 ? 1 : 0), 1), v => `${v} shot${v === 1 ? '' : 's'} at 4.5★ or better`);   // (v17.0: coffee; tea has Cup of the Month)
                 const avg = new Map();
                 byPerson.forEach((rows, p) => { const r = rows.map(x => this.normalizeRating(x.rating)).filter(v => v > 0); if (r.length >= 3) avg.set(p, r.reduce((s, v) => s + v, 0) / r.length); });
                 if (avg.size >= 2) add('critic', 'Toughest Critic', 'i-search', '#8A63C4', top(avg, 0, true), v => `averages ${this.fmtNum(v, 1)}★`);
@@ -68,7 +70,7 @@
                 add('notes', 'Flavor Hunter', 'i-leaf-line', '#A06F98', top(notes, 3), v => `${v} different tasting notes`);
                 // ---- v12.0: more awards
                 add('workhorse', 'The Workhorse', 'i-coffee', '#8A6240', top(tally(() => 1), 5), v => `${v} sessions`);
-                const ratedTop = list.filter(x => this.normalizeRating(x.rating) >= 4);
+                const ratedTop = list.filter(x => !this.isTeaBrew(x) && this.normalizeRating(x.rating) >= 4);   // (v17.0: coffee; tea has its own)
                 if (ratedTop.length) {
                     const likesOf = x => (Array.isArray(x.likes) ? x.likes.length : 0);
                     const bestR = Math.max(...ratedTop.map(x => this.normalizeRating(x.rating)));
@@ -97,7 +99,8 @@
                 byPerson.forEach((rows, p) => { const last = new Map(); rows.forEach(x => { const k = this.groupKeyOfBrew(x), r = this.normalizeRating(x.rating); if (!(r > 0)) return; const before = last.get(k); if (before !== undefined && r >= 4 && r - before >= 1.5 && (!comeback.has(p) || r - before > comeback.get(p))) { comeback.set(p, r - before); comebackInfo.set(p, { from: before, to: r, bean: (bn => bn ? (String(bn.name || '').trim() || this.beanLabel(bn)) : 'a coffee')(this.beans.get(String(x.beanId))) }); } last.set(k, r); }); });
                 const cb = top(comeback, 1.5);
                 if (cb) { const info = comebackInfo.get(cb.names[0]); add('comeback', 'Comeback Kid', 'i-bolt', '#D9822B', cb, () => `${this.fmtNum(info.from)}★ to ${this.fmtNum(info.to)}★ on ${info.bean}`); }
-                const ORDER = ['shot', 'workhorse', 'dialed', 'improved', 'comeback', 'streak', 'early', 'night', 'weekend', 'tinker', 'metronome', 'loyal', 'explorer', 'globe', 'notes', 'critic', 'fan', 'hype', 'chatter', 'photo'];
+                if (y * 12 + m >= 2026 * 12 + 9 && this.teaAwards) this.teaAwards(list, owner, top, add);   // v17.0: tea's own awards, when the month had tea
+                const ORDER = ['shot', 'cup', 'workhorse', 'dialed', 'improved', 'comeback', 'streak', 'early', 'night', 'weekend', 'tinker', 'metronome', 'loyal', 'explorer', 'teatime', 'tealeaf', 'steeps', 'globe', 'notes', 'critic', 'fan', 'hype', 'chatter', 'photo'];
                 out.sort((u, v) => (ORDER.indexOf(u.key) + 1 || 99) - (ORDER.indexOf(v.key) + 1 || 99));
 
                 return out;

@@ -6,6 +6,9 @@
             const FLOOR = ['acidity', 'sweetness', 'body', 'bitterness', 'finish'];
             const TOPK = 'balance';
             const NAMES = { acidity: 'Acidity', sweetness: 'Sweetness', body: 'Body', bitterness: 'Bitterness', finish: 'Finish', balance: 'Complexity' };
+            // v17.0: a tea reads the same six places in tea words (opts.names: an object, or a function for a live view)
+            const TEA_NAMES = { acidity: 'Astringency', sweetness: 'Sweetness', body: 'Body', bitterness: 'Bitterness', finish: 'Finish', balance: 'Complexity' };
+            const namesOf = opts => { const n = opts && (typeof opts.names === 'function' ? opts.names() : opts.names); return n === 'tea' ? TEA_NAMES : (n && typeof n === 'object' ? n : NAMES); };
             const COLORS = { acidity: '#EDB92E', sweetness: '#EE7A62', body: '#A0663F', bitterness: '#8A63C4', finish: '#5F8FDB', balance: '#36B38C' };
             const N = FLOOR.length, SEG = 2 * Math.PI / N, NP = 200, NT = 60;
             const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
@@ -230,11 +233,12 @@
                 dotAt([0, heightOf(vals), 0], COLORS[TOPK]);
                 if (opts.labels === false) return;
                 const small = W < 260;
+                const NM = namesOf(opts);
                 const label = (pos, k) => { const s = proj(pos); o.textAlign = 'center'; o.textBaseline = 'middle';
                     if (k === TOPK) s[1] -= 36 * smoothstep(0.8, 1.45, pitch);
                     o.lineJoin = 'round'; o.strokeStyle = th.surface; o.lineWidth = 4;
                     o.font = `700 ${small ? 9 : 11}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
-                    o.strokeText(NAMES[k], s[0], s[1] - 8); o.fillStyle = COLORS[k]; o.fillText(NAMES[k], s[0], s[1] - 8);
+                    o.strokeText(NM[k], s[0], s[1] - 8); o.fillStyle = COLORS[k]; o.fillText(NM[k], s[0], s[1] - 8);
                     const shown = (opts.isSet && !opts.isSet(k)) || !vals || vals[k] === undefined || vals[k] === null || vals[k] === '' ? '–' : String(Math.round(val(vals, k) * 10) / 10);
                     o.font = `800 ${small ? 11 : 13}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
                     o.strokeText(shown, s[0], s[1] + 7); o.fillStyle = th.ink; o.fillText(shown, s[0], s[1] + 7); };
@@ -242,7 +246,7 @@
                 label([0, 2.34, 0], TOPK);
             }
             // flat top view for devices without WebGL2
-            function flat(o, vals, ghost, W, H, dpr, th) {
+            function flat(o, vals, ghost, W, H, dpr, th, NM = NAMES) {
                 o.setTransform(dpr, 0, 0, dpr, 0, 0); o.clearRect(0, 0, W, H);
                 const cx = W / 2, cy = H / 2, R = Math.min(W, H) * 0.34;
                 const P = (r, a) => [cx + r * Math.cos(a - Math.PI / 2), cy + r * Math.sin(a - Math.PI / 2)];
@@ -253,7 +257,7 @@
                 grad.addColorStop(0, COLORS[TOPK]); grad.addColorStop(1, COLORS.sweetness);
                 shape(vals); o.globalAlpha = 0.75; o.fillStyle = grad; o.fill(); o.globalAlpha = 1;
                 if (ghost) { o.setLineDash([4, 4]); o.strokeStyle = th.muted; shape(ghost); o.stroke(); o.setLineDash([]); }
-                FLOOR.forEach((k, i) => { const p = P(R * 1.22, i * SEG); o.fillStyle = COLORS[k]; o.font = '700 11px -apple-system, sans-serif'; o.textAlign = 'center'; o.fillText(`${NAMES[k]} ${Math.round(val(vals, k))}`, p[0], p[1]); });
+                FLOOR.forEach((k, i) => { const p = P(R * 1.22, i * SEG); o.fillStyle = COLORS[k]; o.font = '700 11px -apple-system, sans-serif'; o.textAlign = 'center'; o.fillText(`${NM[k]} ${Math.round(val(vals, k))}`, p[0], p[1]); });
             }
             const h = (tag, cls) => { const el = document.createElement(tag); if (cls) el.className = cls; return el; };
             const raf = cb => (typeof requestAnimationFrame === 'function' ? requestAnimationFrame(cb) : setTimeout(() => cb(Date.now()), 16));
@@ -302,14 +306,14 @@
                     const { W, H, dpr } = size(), th = themeColors(), ghost = ghostOn && opts.ghost ? opts.ghost() : null;
                     const o = over.getContext('2d'), u = under.getContext('2d');
                     if (!o || !u) return;
-                    if (!gl) { u.clearRect(0, 0, under.width, under.height); flat(o, cur, ghost, W, H, dpr, th); return; }
+                    if (!gl) { u.clearRect(0, 0, under.width, under.height); flat(o, cur, ghost, W, H, dpr, th, namesOf(opts)); return; }
                     const { MVP, MV } = matrices(W, H, yaw, pitch, opts.zoom || 1, opts.lookY ?? 1);
                     gl.upload(cur, prefs.smooth); gl.draw(MVP, MV, th.dark);
                     overlay(u, o, cur, ghost, MVP, MV, W, H, dpr, pitch, th, opts);
                     if (topBtn) topBtn.setAttribute('aria-pressed', String(pitch > 1.3));
                     if (curvedBtn) curvedBtn.setAttribute('aria-pressed', String(prefs.smooth));
                     if (spinBtn) spinBtn.setAttribute('aria-pressed', String(prefs.spin));
-                    over.setAttribute('aria-label', `Flavor shape: ${FLOOR.concat(TOPK).map(k => `${NAMES[k]} ${Math.round(val(cur, k))}`).join(', ')}`);
+                    over.setAttribute('aria-label', `Flavor shape: ${FLOOR.concat(TOPK).map(k => `${namesOf(opts)[k]} ${Math.round(val(cur, k))}`).join(', ')}`);
                 }
                 function frame(ts) {
                     // stop completely when hidden (closed sheet, page left); skip work while scrolled off-screen
@@ -351,7 +355,7 @@
                 const probe = document.createElement('canvas');
                 if (!probe || typeof probe.getContext !== 'function') return '';
                 const th = opts.theme || themeColors();   // (v15.2: the shot card is always dark)
-                const key = [W, H, dpr, th.dark ? 'd' : 'l', FLOOR.concat(TOPK).map(k => val(vals, k)).join(','), ghost ? FLOOR.concat(TOPK).map(k => val(ghost, k)).join(',') : '-', opts.labels === false ? 'n' : 'y', opts.setKey || '', prefs.smooth ? 's' : 'f'].join('|');
+                const key = [W, H, dpr, th.dark ? 'd' : 'l', FLOOR.concat(TOPK).map(k => val(vals, k)).join(','), ghost ? FLOOR.concat(TOPK).map(k => val(ghost, k)).join(',') : '-', opts.labels === false ? 'n' : 'y', opts.setKey || '', prefs.smooth ? 's' : 'f', namesOf(opts) === TEA_NAMES ? 't' : 'c'].join('|');
                 if (cache.has(key)) return cache.get(key);
                 try {
                     if (!shared) { const under = document.createElement('canvas'), glc = document.createElement('canvas'), over = document.createElement('canvas'), out = document.createElement('canvas'); shared = { under, glc, over, out, gl: makeGL(glc) }; }
@@ -366,7 +370,7 @@
                         overlay(u, o, vals, ghost, MVP, MV, W, H, dpr, pitch, th, opts);
                         x.clearRect(0, 0, out.width, out.height); x.drawImage(under, 0, 0); x.drawImage(glc, 0, 0); x.drawImage(over, 0, 0);
                     } else {
-                        flat(x, vals, ghost, W, H, dpr, th);
+                        flat(x, vals, ghost, W, H, dpr, th, namesOf(opts));
                     }
                     const url = out.toDataURL('image/png');
                     if (cache.size > 160) cache.delete(cache.keys().next().value);
@@ -374,6 +378,6 @@
                     return url;
                 } catch (err) { console.warn('Flavor shape snapshot failed', err); return ''; }
             }
-            return { createView, snapshot, setPref, prefs, FLOOR, TOPK, NAMES, COLORS, KEYS: FLOOR.concat(TOPK) };
+            return { createView, snapshot, setPref, prefs, FLOOR, TOPK, NAMES, TEA_NAMES, COLORS, KEYS: FLOOR.concat(TOPK) };
         })();
 

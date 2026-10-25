@@ -433,7 +433,7 @@
                 const color = this.getUserColor(owner, entry.actorColor || '');
                 const bean = this.beans.get(String(brew.beanId || ''));
                 const roasterName = bean ? String(bean.roaster || '').trim() : '';
-                const coffeeName = (bean ? String(bean.name || '').trim() : String(entry.beanName || '')) || 'Coffee';
+                const coffeeName = (bean ? String(bean.name || '').trim() : String(entry.beanName || '')) || (this.isTeaBrew(brew) ? 'Tea' : 'Coffee');
                 const rating = this.normalizeRating(brew.rating);
                 const flavors = this.extractFlavors(brew).slice(0, 4);
                 const gear = [...this.resolveEquipmentNames(brew), ...this.sessionExtras(brew), ...(this.roastDayLabel ? this.roastDayLabel(brew) : [])];   // v15.1: day N off roast
@@ -449,10 +449,10 @@
                                     <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}${this.levelDotHtml ? this.levelDotHtml(owner) : ''}</div>
                                     <div class="feed-time" data-time="${this.esc(String(entry.date || brew.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || brew.date))}</div>
                                 </div>
-                                ${entry.community ? this.communityFollowHtml(owner) : ''}<div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(brew.method)}"/></svg>${this.esc(brew.method || 'Espresso')}</div><button type="button" class="feed-share" onclick="app.shareItem('session', '${app.escJs(brew.id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>
+                                ${entry.community ? this.communityFollowHtml(owner) : ''}<div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(brew.method)}"/></svg>${this.esc(this.methodLabel(brew.method) || 'Espresso')}</div><button type="button" class="feed-share" onclick="app.shareItem('session', '${app.escJs(brew.id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>
                             </div>
                             <div class="sc-title">
-                                <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(roasterName)}" onclick="app.openRoasterFrom(this, event)">${this.esc(roasterName)}</span></div>` : ''}${(tag => tag ? `<div class="sc-tags">${tag}</div>` : '')(this.helpTagHtml ? this.helpTagHtml(brew) : '')}</div>
+                                <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(roasterName)}"${this.isTeaBrew(brew) ? ' data-kind="tea"' : ''} onclick="app.openRoasterFrom(this, event)">${this.esc(roasterName)}</span></div>` : ''}${(tag => tag ? `<div class="sc-tags">${tag}</div>` : '')(this.helpTagHtml ? this.helpTagHtml(brew) : '')}</div>
                                 ${rating > 0 ? `<div class="sc-rate"><span class="star-meter" style="--fill:${this.starFill(rating)}%;--whole:${this.starWhole(rating)};--frac:${this.starFrac(rating)}"></span><b>${this.esc(this.formatRating(rating).replace('/5', ''))}</b></div>` : ''}
                             </div>
                             ${this.recipeStripHtml(brew)}
@@ -475,6 +475,7 @@
 
             // ---- v12.2: the recipe as four cells (Dose / Pull or Water / Time or Steep / Grind)
             recipeStripHtml(b) {
+                if (this.isTeaBrew && this.isTeaBrew(b)) return this.teaStripHtml(b);   // v17.0: Leaf / Water / Steep / Temp
                 const esp = !b.method || b.method === 'Espresso';
                 const dose = this.num(b.dose), yld = this.num(b.yield), time = this.num(b.time);
                 const hours = b.timeUnit === 'h' || b.method === 'Cold Brew';
@@ -490,7 +491,7 @@
             sessionExtras(b) {
                 const out = [];
                 if (b.brewer) out.push(String(b.brewer));
-                if (b.temp) out.push(`${this.fmtNum(b.temp)}°C`);
+                if (b.temp && !(this.isTeaBrew && this.isTeaBrew(b))) out.push(`${this.fmtNum(b.temp)}°C`);   // (a tea's temperature is in its strip)
                 if (b.heat) out.push(`${b.heat} heat`);
                 if (b.inverted) out.push('Inverted');
                 return out;
@@ -504,7 +505,8 @@
                 const beanName = `${bean.roaster || ''} ${bean.name || ''}`.trim() || 'Unnamed coffee';
                 const likes = this.normalizeLikeList(bean.likes, owner);
                 const comments = this.normalizeCommentList(bean.comments, `bean-${bean.id}`, bean.date);
-                const topTags = [bean.variety, bean.origin, bean.process].filter(Boolean).slice(0, 3);
+                const teaBean = this.isTeaBean(bean);   // v17.0
+                const topTags = [teaBean ? bean.teaType : '', bean.variety, bean.origin, bean.process].filter(Boolean).slice(0, 3);
                 return `
                     <article class="feed-card">
                         <div class="feed-card-body">
@@ -517,12 +519,12 @@
                                 <div class="feed-type">${this.esc(entry.kindLabel || 'Bean')}</div><button type="button" class="feed-share" onclick="event.stopPropagation(); app.openCoffeeStory('${app.escJs(bean.id)}')" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>
                             </div>
                             <div class="feed-card-title" style="margin-top:11px">${this.esc(bean.name || beanName)}</div>
-                            ${bean.roaster ? `<div class="fb-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(bean.roaster)}" onclick="app.openRoasterFrom(this, event)">${this.esc(bean.roaster)}</span></div>` : ''}
+                            ${bean.roaster ? `<div class="fb-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(bean.roaster)}"${teaBean ? ' data-kind="tea"' : ''} onclick="app.openRoasterFrom(this, event)">${this.esc(bean.roaster)}</span></div>` : ''}
                             ${topTags.length ? `<div class="fb-tags">${topTags.map(tag => `<span class="tag">${this.esc(tag)}</span>`).join('')}</div>` : ''}
                             ${this.renderThread('bean', { ...bean, comments }, { inputId: `feed-comment-input-bean-${bean.id}`, lead: `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('bean', bean.id)}"${this.likePopStyle('bean', bean.id)} onclick="app.toggleBeanLike('${app.escJs(bean.id)}', event)" title="Like bean">
                                     <svg class="heart-icon"><use href="#i-heart"/></svg>
                                 </button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}<span class="social-owner-actions"><button class="btn-outline feed-open-link" type="button" onclick="app.openFeedTarget('${app.escJs(bean.id)}','',false); event.stopPropagation();">
-                                    Open Bean
+                                    ${teaBean ? 'Open Tea' : 'Open Bean'}
                                 </button></span>` })}
                         </div>
                     </article>

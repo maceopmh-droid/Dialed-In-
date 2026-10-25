@@ -15,6 +15,8 @@
                 const mine = all.filter(x => owner(x) === user);
                 const D = { user, year, color: this.getUserColor(user), count: mine.length };
                 if (!mine.length) return D;
+                // v17.0: the coffee numbers (beans, roasters, origins, shot of the year, taste, dial-in) count coffee only; tea gets its own slide
+                const isTea = x => this.isTeaBrew(x), cof = mine.filter(x => !isTea(x)), teaMine = mine.filter(isTea), allC = all.filter(x => !isTea(x)), allT = all.filter(isTea);
                 const countBy = (rows, fn) => { const m = new Map(); rows.forEach(x => { const k = fn(x); if (k) m.set(k, (m.get(k) || 0) + 1); }); return [...m.entries()].sort((p, q) => q[1] - p[1] || String(p[0]).localeCompare(String(q[0]))); };
                 const beanOf = x => this.beans.get(String(x.beanId));
                 const ratingOf = x => this.normalizeRating(x.rating);
@@ -26,25 +28,25 @@
                 let best = 0, run = 0, prev = null, runStart = null, bestStart = null, bestEnd = null;
                 days.forEach(d => { if (prev !== null && d === prev + 1) run++; else { run = 1; runStart = d; } if (run > best) { best = run; bestStart = runStart; bestEnd = d; } prev = d; });
                 D.streak = { days: best, from: bestStart !== null ? new Date(bestStart * 864e5) : null, to: bestEnd !== null ? new Date(bestEnd * 864e5) : null };
-                D.grams = mine.reduce((s, x) => s + this.num(x.dose), 0);
-                D.out = mine.reduce((s, x) => s + this.num(x.yield), 0);
+                D.grams = cof.reduce((s, x) => s + this.num(x.dose), 0);
+                D.out = cof.reduce((s, x) => s + this.num(x.yield), 0);
                 const isEsp = x => /espresso/i.test(String(x.method || ''));
                 const inHours = x => { const prof = METHOD_PROFILES[x.method]; return !!(prof && prof.hours); };
                 const secsOf = rows => rows.reduce((s, x) => { const t = this.num(x.time); return s + (!inHours(x) && t > 0 && t < 3600 ? t : 0); }, 0);
-                D.secs = secsOf(mine);
-                D.shots = mine.filter(isEsp).length;
-                D.espOut = mine.filter(isEsp).reduce((s, x) => s + this.num(x.yield), 0);
-                D.water = mine.filter(x => !isEsp(x)).reduce((s, x) => s + this.num(x.yield), 0);
+                D.secs = secsOf(cof);
+                D.shots = cof.filter(isEsp).length;
+                D.espOut = cof.filter(isEsp).reduce((s, x) => s + this.num(x.yield), 0);
+                D.water = cof.filter(x => !isEsp(x)).reduce((s, x) => s + this.num(x.yield), 0);
                 // coffees
-                const byCoffee = countBy(mine, x => this.groupKeyOfBrew(x));
+                const byCoffee = countBy(cof, x => this.groupKeyOfBrew(x));
                 D.coffees = byCoffee.length;
                 D.topCoffees = byCoffee.slice(0, 5).map(([k, n]) => {
-                    const rows = mine.filter(x => this.groupKeyOfBrew(x) === k), bean = beanOf(rows[0]);
+                    const rows = cof.filter(x => this.groupKeyOfBrew(x) === k), bean = beanOf(rows[0]);
                     const r = rows.map(ratingOf).filter(v => v > 0);
                     return { name: bean ? String(bean.name || '').trim() || this.beanLabel(bean) : 'Coffee', roaster: bean ? String(bean.roaster || '').trim() : '', count: n, avg: r.length ? r.reduce((s, v) => s + v, 0) / r.length : 0 };
                 });
-                D.origins = countBy(mine, x => { const o = String(this.originOf(x) || '').trim(); return o ? o.charAt(0).toUpperCase() + o.slice(1) : ''; });
-                D.roasters = countBy(mine, x => { const bn = beanOf(x); return bn ? String(bn.roaster || '').trim() : ''; });
+                D.origins = countBy(cof, x => { const o = String(this.originOf(x) || '').trim(); return o ? o.charAt(0).toUpperCase() + o.slice(1) : ''; });
+                D.roasters = countBy(cof, x => { const bn = beanOf(x); return bn ? String(bn.roaster || '').trim() : ''; });
                 D.methods = countBy(mine, x => String(x.method || '').trim());
                 // rhythm
                 D.months = Array.from({ length: 12 }, (_, i) => mine.filter(x => new Date(this.localTime(x.date)).getMonth() === i).length);
@@ -61,15 +63,16 @@
                 D.avg = rated.length ? rated.reduce((s, x) => s + ratingOf(x), 0) / rated.length : 0;
                 D.fives = rated.filter(x => ratingOf(x) >= 5).length;
                 const likesOf = x => (Array.isArray(x.likes) ? x.likes.filter(n => String(n || '').trim() && String(n).trim() !== owner(x)).length : 0);
-                if (rated.length) {
-                    const top = Math.max(...rated.map(ratingOf));
-                    const shot = rated.filter(x => ratingOf(x) === top).sort((p, q) => likesOf(q) - likesOf(p) || this.localTime(p.date) - this.localTime(q.date))[0];
+                const ratedC = rated.filter(x => !isTea(x));
+                if (ratedC.length) {
+                    const top = Math.max(...ratedC.map(ratingOf));
+                    const shot = ratedC.filter(x => ratingOf(x) === top).sort((p, q) => likesOf(q) - likesOf(p) || this.localTime(p.date) - this.localTime(q.date))[0];
                     const photo = this.normalizePhoto(shot.photo);
                     const fb = photo ? this.buildDriveFallbackUrls(photo.fileId || this.extractDriveFileId(photo.url), photo.url) : [];
                     D.best = { rating: top, bean: beanOf(shot), date: shot.date, dose: this.num(shot.dose), yld: this.num(shot.yield), time: this.num(shot.time), grind: this.grindText(shot.grind), method: shot.method || '', notes: String(this.getBrewNotes(shot) || '').trim(), photo: fb[0] || (photo ? photo.url : ''), likes: likesOf(shot) };
                 }
                 // taste
-                const tasted = mine.filter(x => this.tastedKeys(x).length);
+                const tasted = cof.filter(x => this.tastedKeys(x).length);
                 if (tasted.length >= 4) {
                     const vals = {}, seen = {};
                     TASTE_KEYS.forEach(k => { const v = tasted.map(x => this.tasteValue(x, k)).filter(v => v !== null); seen[k] = v.length; vals[k] = v.length ? v.reduce((s, n) => s + n, 0) / v.length : 5; });
@@ -77,10 +80,10 @@
                     const ranked = TASTE_KEYS.filter(k => seen[k] >= 3 && k !== 'bitterness').sort((p, q) => vals[q] - vals[p]);
                     D.taste = { vals, n: tasted.length, top: ranked[0] ? { key: ranked[0], label: label(ranked[0]), v: vals[ranked[0]] } : null };
                 }
-                D.notes = countBy(mine.flatMap(x => this.extractFlavors(x).map(n => ({ n }))), o => { const t = String(o.n || '').trim(); return t ? t.charAt(0).toUpperCase() + t.slice(1).toLowerCase() : ''; });
+                D.notes = countBy(cof.flatMap(x => this.extractFlavors(x).map(n => ({ n }))), o => { const t = String(o.n || '').trim(); return t ? t.charAt(0).toUpperCase() + t.slice(1).toLowerCase() : ''; });
                 // dial-in
                 let changes = 0; const lastGrind = new Map(), perCoffee = new Map();
-                mine.forEach(x => {
+                cof.forEach(x => {
                     const k = this.groupKeyOfBrew(x), g = this.grindText(x.grind);
                     if (g && lastGrind.has(k) && !this.sameGrind(lastGrind.get(k), g)) changes++;
                     if (g) lastGrind.set(k, g);
@@ -93,10 +96,18 @@
                 D.fastest = hits.length ? hits.sort((p, q) => p.hit - q.hit || q.n - p.n)[0] : null;
                 const chased = [...perCoffee.values()].sort((p, q) => q.n - p.n)[0];
                 D.chased = chased && chased.n >= 5 ? chased : null;
-                const goodEsp = mine.filter(x => /espresso/i.test(String(x.method || '')) && ratingOf(x) >= 4 && this.num(x.dose) > 0 && this.num(x.yield) > 0 && this.num(x.time) > 0);
+                const goodEsp = cof.filter(x => /espresso/i.test(String(x.method || '')) && ratingOf(x) >= 4 && this.num(x.dose) > 0 && this.num(x.yield) > 0 && this.num(x.time) > 0);
                 if (goodEsp.length >= 3) {
                     const med = arr => { const s = [...arr].sort((p, q) => p - q); return s[Math.floor(s.length / 2)]; };
                     D.sweet = { ratio: med(goodEsp.map(x => this.num(x.yield) / this.num(x.dose))), time: med(goodEsp.map(x => this.num(x.time))), n: goodEsp.length };
+                }
+                // tea (v17.0): sessions, steeps, teas, top tea, favorite type, new teas this year, best cup
+                const inYearT = t => t >= a && t < b;
+                if (teaMine.length) {
+                    D.tea = this.teaRecap(teaMine, [...this.brews.values()].filter(x => owner(x) === user), inYearT);
+                    D.tea.teas = new Set(teaMine.map(x => this.groupKeyOfBrew(x))).size;
+                    const tr = teaMine.filter(x => ratingOf(x) > 0).sort((p, q) => ratingOf(q) - ratingOf(p) || this.localTime(p.date) - this.localTime(q.date))[0];
+                    if (tr) D.tea.best = { bean: beanOf(tr), rating: ratingOf(tr), date: tr.date };
                 }
                 // social
                 const inYear = ts => { const t = this.localTime(ts); return t >= a && t < b; };
@@ -168,21 +179,22 @@
                 });
                 D.persona = pick ? { key: pick, title: P[pick][0], text: P[pick][1] } : { key: 'daily', title: 'The Daily Grinder', text: 'Steady, every week. Coffee is part of how your days go.' };
                 // the crew
-                const C = { sessions: all.length, grams: all.reduce((s, x) => s + this.num(x.dose), 0), coffees: new Set(all.map(x => this.groupKeyOfBrew(x))).size, origins: new Set(all.map(x => String(this.originOf(x) || '').toLowerCase()).filter(Boolean)).size, people };
+                const C = { sessions: all.length, grams: allC.reduce((s, x) => s + this.num(x.dose), 0), coffees: new Set(allC.map(x => this.groupKeyOfBrew(x))).size, origins: new Set(allC.map(x => String(this.originOf(x) || '').toLowerCase()).filter(Boolean)).size, people };
+                if (allT.length) { C.tea = this.teaRecap(allT, [...this.brews.values()], inYearT); C.tea.teas = new Set(allT.map(x => this.groupKeyOfBrew(x))).size; C.tea.who = countBy(allT, owner); }
                 C.fives = people.map(([n]) => [n, all.filter(x => owner(x) === n && ratingOf(x) >= 5).length]);
                 let goals = 0;
                 for (let t = this.weekStartOf(a) + 3 * 864e5; t < Math.min(b, Date.now()); t += 7 * 864e5) { const ws = this.weekStartOf(t); if (ws + 7 * 864e5 > Date.now()) break; const q = this.crewQuest(t); if (q.done) goals++; }
                 C.goals = goals;
                 // the crew's coffee: the most-brewed one that more than one of you brewed (else simply the most-brewed)
-                const byGroup = countBy(all, x => this.groupKeyOfBrew(x));
-                const sharedTop = byGroup.find(([k]) => new Set(all.filter(x => this.groupKeyOfBrew(x) === k).map(owner)).size > 1);
+                const byGroup = countBy(allC, x => this.groupKeyOfBrew(x));
+                const sharedTop = byGroup.find(([k]) => new Set(allC.filter(x => this.groupKeyOfBrew(x) === k).map(owner)).size > 1);
                 const crewCoffee = sharedTop || byGroup[0];
                 if (crewCoffee) {
-                    const rows = all.filter(x => this.groupKeyOfBrew(x) === crewCoffee[0]);
+                    const rows = allC.filter(x => this.groupKeyOfBrew(x) === crewCoffee[0]);
                     C.coffee = { bean: beanOf(rows[0]), n: crewCoffee[1], who: [...new Set(rows.map(owner))].sort() };
                 }
-                const loved = countBy(all, x => this.groupKeyOfBrew(x)).map(([k]) => { const r = all.filter(x => this.groupKeyOfBrew(x) === k).map(ratingOf).filter(v => v > 0); return { k, n: r.length, avg: r.length ? r.reduce((s, v) => s + v, 0) / r.length : 0 }; }).filter(e => e.n >= 5).sort((p, q) => q.avg - p.avg)[0];
-                if (loved) C.loved = { bean: beanOf(all.find(x => this.groupKeyOfBrew(x) === loved.k)), avg: loved.avg, n: loved.n };
+                const loved = countBy(allC, x => this.groupKeyOfBrew(x)).map(([k]) => { const r = allC.filter(x => this.groupKeyOfBrew(x) === k).map(ratingOf).filter(v => v > 0); return { k, n: r.length, avg: r.length ? r.reduce((s, v) => s + v, 0) / r.length : 0 }; }).filter(e => e.n >= 5).sort((p, q) => q.avg - p.avg)[0];
+                if (loved) C.loved = { bean: beanOf(allC.find(x => this.groupKeyOfBrew(x) === loved.k)), avg: loved.avg, n: loved.n };
                 // the year's awards
                 const yearly = [];
                 const lead = (pairs, min = 1, low = false) => { const rows = pairs.filter(p => low ? Number.isFinite(p[1]) : p[1] >= min); if (!rows.length) return null; const v = low ? Math.min(...rows.map(p => p[1])) : Math.max(...rows.map(p => p[1])); const names = rows.filter(p => Math.abs(p[1] - v) < 1e-9).map(p => p[0]).sort(); return names.length > 2 ? null : { names, v }; };
@@ -190,7 +202,7 @@
                 const per = fn => ppl.map(n => [n, fn(all.filter(x => owner(x) === n), n)]);
                 const award = (title, icon, color, res, stat) => { if (res) yearly.push({ title, icon, color, winners: res.names, stat: stat(res.v) }); };
                 award('Brewer of the Year', 'i-coffee', '#8A6240', lead(per(r => r.length), 10), v => `${v} sessions`);
-                const allRated = all.filter(x => ratingOf(x) > 0);
+                const allRated = allC.filter(x => ratingOf(x) > 0);
                 if (allRated.length) {
                     const top = Math.max(...allRated.map(ratingOf));
                     const shot = allRated.filter(x => ratingOf(x) === top).sort((p, q) => likesOf(q) - likesOf(p) || this.localTime(p.date) - this.localTime(q.date))[0];
@@ -198,7 +210,7 @@
                     yearly.push({ title: 'Shot of the Year', icon: 'i-medal', color: '#C49A2C', winners: [owner(shot)], stat: `${this.fmtNum(top)}★ · ${bn ? String(bn.name || '').trim() || this.beanLabel(bn) : 'a coffee'}, ${this.shortDate(shot.date)}` });
                 }
                 award('Award Champion', 'i-crown', '#E3AE45', lead(D.race, 2), v => `${v} monthly awards`);
-                award('Explorer of the Year', 'i-compass', '#5F8FDB', lead(per(r => new Set(r.map(x => this.groupKeyOfBrew(x))).size), 3), v => `${v} different coffees`);
+                award('Explorer of the Year', 'i-compass', '#5F8FDB', lead(per(r => new Set(r.filter(x => !isTea(x)).map(x => this.groupKeyOfBrew(x))).size), 3), v => `${v} different coffees`);
                 award('Palate of the Year', 'i-leaf-line', '#A06F98', lead(per(r => new Set(r.flatMap(x => this.extractFlavors(x).map(n => n.toLowerCase()))).size), 5), v => `${v} different tasting notes`);
                 award('Iron Streak', 'i-flame', '#E0663A', lead(per(r => { const ds = [...new Set(r.map(x => this.dayNum(this.localTime(x.date))))].sort((p, q) => p - q); let bst = 0, rn = 0, pv = null; ds.forEach(d => { rn = pv !== null && d === pv + 1 ? rn + 1 : 1; bst = Math.max(bst, rn); pv = d; }); return bst; }), 4), v => `${v} days in a row`);
                 award('Crowd Favorite', 'i-award', '#D45D8A', lead(per(r => r.reduce((s, x) => s + likesOf(x), 0)), 5), v => `${v} likes received`);
@@ -207,14 +219,14 @@
                 C.yearly = yearly;
                 // ---- everyone combined, the same depth as the personal slides
                 C.days = new Set(all.map(x => this.dayNum(this.localTime(x.date)))).size;
-                C.secs = secsOf(all);
-                C.shots = all.filter(isEsp).length;
-                C.espOut = all.filter(isEsp).reduce((s, x) => s + this.num(x.yield), 0);
-                C.water = all.filter(x => !isEsp(x)).reduce((s, x) => s + this.num(x.yield), 0);
+                C.secs = secsOf(allC);
+                C.shots = allC.filter(isEsp).length;
+                C.espOut = allC.filter(isEsp).reduce((s, x) => s + this.num(x.yield), 0);
+                C.water = allC.filter(x => !isEsp(x)).reduce((s, x) => s + this.num(x.yield), 0);
                 C.methods = countBy(all, x => String(x.method || '').trim());
-                C.originList = countBy(all, x => { const o = String(this.originOf(x) || '').trim(); return o ? o.charAt(0).toUpperCase() + o.slice(1) : ''; });
-                C.roasters = countBy(all, x => { const bn = beanOf(x); return bn ? String(bn.roaster || '').trim() : ''; });
-                C.topCoffees = byGroup.slice(0, 5).map(([k, n]) => { const rows = all.filter(x => this.groupKeyOfBrew(x) === k), bn = beanOf(rows[0]); const r = rows.map(ratingOf).filter(v => v > 0); return { name: bn ? String(bn.name || '').trim() || this.beanLabel(bn) : 'Coffee', roaster: bn ? String(bn.roaster || '').trim() : '', count: n, who: [...new Set(rows.map(owner))].sort(), avg: r.length ? r.reduce((s, v) => s + v, 0) / r.length : 0 }; });
+                C.originList = countBy(allC, x => { const o = String(this.originOf(x) || '').trim(); return o ? o.charAt(0).toUpperCase() + o.slice(1) : ''; });
+                C.roasters = countBy(allC, x => { const bn = beanOf(x); return bn ? String(bn.roaster || '').trim() : ''; });
+                C.topCoffees = byGroup.slice(0, 5).map(([k, n]) => { const rows = allC.filter(x => this.groupKeyOfBrew(x) === k), bn = beanOf(rows[0]); const r = rows.map(ratingOf).filter(v => v > 0); return { name: bn ? String(bn.name || '').trim() || this.beanLabel(bn) : 'Coffee', roaster: bn ? String(bn.roaster || '').trim() : '', count: n, who: [...new Set(rows.map(owner))].sort(), avg: r.length ? r.reduce((s, v) => s + v, 0) / r.length : 0 }; });
                 C.months = Array.from({ length: 12 }, (_, i) => all.filter(x => new Date(this.localTime(x.date)).getMonth() === i).length);
                 C.peakMonth = C.months.indexOf(Math.max(...C.months));
                 const cwd = countBy(all, x => String(new Date(this.localTime(x.date)).getDay() + 1));
@@ -231,7 +243,7 @@
                 C.rated = cRated.length;
                 C.avg = cRated.length ? cRated.reduce((s, x) => s + ratingOf(x), 0) / cRated.length : 0;
                 C.fiveTotal = cRated.filter(x => ratingOf(x) >= 5).length;
-                const cTasted = all.filter(x => this.tastedKeys(x).length);
+                const cTasted = allC.filter(x => this.tastedKeys(x).length);
                 if (cTasted.length >= 6) {
                     const vals = {}, seen = {};
                     TASTE_KEYS.forEach(k => { const v = cTasted.map(x => this.tasteValue(x, k)).filter(v => v !== null); seen[k] = v.length; vals[k] = v.length ? v.reduce((s, n) => s + n, 0) / v.length : 5; });
@@ -239,7 +251,7 @@
                     const ranked = TASTE_KEYS.filter(k => seen[k] >= 3 && k !== 'bitterness').sort((p, q) => vals[q] - vals[p]);
                     C.taste = { vals, n: cTasted.length, top: ranked[0] ? { label: label(ranked[0]), v: vals[ranked[0]] } : null };
                 }
-                C.notes = countBy(all.flatMap(x => this.extractFlavors(x).map(n => ({ n }))), o => { const t = String(o.n || '').trim(); return t ? t.charAt(0).toUpperCase() + t.slice(1).toLowerCase() : ''; });
+                C.notes = countBy(allC.flatMap(x => this.extractFlavors(x).map(n => ({ n }))), o => { const t = String(o.n || '').trim(); return t ? t.charAt(0).toUpperCase() + t.slice(1).toLowerCase() : ''; });
                 C.likes = all.reduce((s, x) => s + likesOf(x), 0);
                 let cc = 0;
                 [...this.brews.values(), ...this.beans.values()].forEach(x => this.normalizeCommentList(x.comments, `wrc-${x.id}`, x.date).forEach(c => { if (inYear(c.timestamp)) cc++; }));
@@ -282,7 +294,7 @@
                 const ring = '<svg class="wr-ring" viewBox="0 0 200 200" role="presentation"><g fill="none" stroke="currentColor"><path d="M100 18c46 0 82 35 82 81s-37 83-83 83-81-38-81-83 36-81 82-81Z" stroke-width="7"/><path d="M101 30c39 0 70 31 70 70s-32 70-71 70-69-31-69-70 31-70 70-70Z" stroke-width="2" opacity=".6"/><path d="M40 60c10-14 26-26 44-30" stroke-width="3" opacity=".5"/></g></svg>';
                 const add = (theme, html, dur = 6500, bg = '') => S.push({ theme, html, dur, bg });
 
-                add('espresso', `${ring}<div class="wr-k wr-in" style="--d:0">${esc(your)} year in coffee</div><div class="wr-cover-year wr-in" style="--d:1">${D.year}</div><div class="wr-p wr-in" style="--d:2">${D.count} sessions, ${D.coffees} coffee${D.coffees === 1 ? '' : 's'}, one year. Let's see how ${esc(y)} brewed.</div><div class="wr-hint">Tap to start</div>`, 5000);
+                add('espresso', `${ring}<div class="wr-k wr-in" style="--d:0">${esc(your)} year in coffee</div><div class="wr-cover-year wr-in" style="--d:1">${D.year}</div><div class="wr-p wr-in" style="--d:2">${D.count} sessions, ${D.coffees} coffee${D.coffees === 1 ? '' : 's'}${D.tea ? `, ${D.tea.teas} tea${D.tea.teas === 1 ? '' : 's'}` : ''}, one year. Let's see how ${esc(y)} brewed.</div><div class="wr-hint">Tap to start</div>`, 5000);
 
                 const others = D.people.filter(p => p[0] !== D.user);
                 let rankLine = '';
@@ -309,6 +321,15 @@
                     const chips = D.origins.slice(0, 8).map(([o, n], i) => `<span class="wr-chip wr-in" style="--d:${i + 3}">${esc(o)}<em>${n}</em></span>`).join('');
                     const roaster = D.roasters[0];
                     add('matcha', `<div class="wr-k wr-in" style="--d:0">${esc(Y)} tasted coffee from</div><div class="wr-big wr-in" style="--d:1" data-count="${D.origins.length}">${D.origins.length}</div><div class="wr-unit wr-in" style="--d:2">origin${D.origins.length === 1 ? '' : 's'}</div><div class="wr-chips">${chips}</div>${roaster ? `<div class="wr-p wr-in" style="--d:6">Top roaster: <b>${esc(roaster[0])}</b>, ${roaster[1]} session${roaster[1] === 1 ? '' : 's'}.</div>` : ''}`, 7500);
+                }
+
+                if (D.tea) {   // v17.0: the year's tea
+                    const t = D.tea, tb = t.best;
+                    const lines = [`<b>${t.teas}</b> different tea${t.teas === 1 ? '' : 's'}, <b>${t.steeps}</b> steep${t.steeps === 1 ? '' : 's'}.`];
+                    if (t.top) lines.push(`Top tea: <b>${esc(t.top.name)}</b>, ${t.top.count} session${t.top.count === 1 ? '' : 's'}.`);
+                    if (t.type) lines.push(`Favorite type: <b>${esc(t.type.toLowerCase())}</b>.`);
+                    if (tb && tb.rating >= 4) lines.push(`Best cup: <b>${esc(beanName(tb.bean))}</b>, ${this.fmtNum(tb.rating)}★ on ${esc(this.shortDate(tb.date))}.`);
+                    add('matcha', `<div class="wr-k wr-in" style="--d:0">${esc(Y)} also made tea</div><div class="wr-big wr-in" style="--d:1" data-count="${t.count}">${t.count}</div><div class="wr-unit wr-in" style="--d:2">tea session${t.count === 1 ? '' : 's'}</div>${lines.map((l, i) => `<div class="wr-p wr-in" style="--d:${i + 3}">${l}</div>`).join('')}`, 7000);
                 }
 
                 if (D.methods.length) {
@@ -380,7 +401,7 @@
 
                     const ckg = C.grams / 1000, cbags = Math.max(1, Math.round(C.grams / 340));
                     const ch = Math.floor(C.secs / 3600), cm = Math.round((C.secs % 3600) / 60);
-                    add('crema', `<div class="wr-k wr-in" style="--d:0">Between you, that's</div><div class="wr-big wr-in" style="--d:1" data-count="${ckg >= 1 ? ckg.toFixed(1) : Math.round(C.grams)}" data-dec="${ckg >= 1 ? 1 : 0}">${ckg >= 1 ? fmt(ckg, 1) : Math.round(C.grams)}</div><div class="wr-unit wr-in" style="--d:2">${ckg >= 1 ? 'kilos' : 'grams'} of coffee beans</div><div class="wr-p wr-in" style="--d:3">About <b>${cbags} bags</b>.${this.wrappedLiquid(C)}${C.secs > 600 ? ` <b>${ch ? `${ch} h ` : ''}${cm} min</b> of brewing, all told.` : ''}</div>`);
+                    if (C.grams > 0) add('crema', `<div class="wr-k wr-in" style="--d:0">Between you, that's</div><div class="wr-big wr-in" style="--d:1" data-count="${ckg >= 1 ? ckg.toFixed(1) : Math.round(C.grams)}" data-dec="${ckg >= 1 ? 1 : 0}">${ckg >= 1 ? fmt(ckg, 1) : Math.round(C.grams)}</div><div class="wr-unit wr-in" style="--d:2">${ckg >= 1 ? 'kilos' : 'grams'} of coffee beans</div><div class="wr-p wr-in" style="--d:3">About <b>${cbags} bags</b>.${this.wrappedLiquid(C)}${C.secs > 600 ? ` <b>${ch ? `${ch} h ` : ''}${cm} min</b> of brewing, all told.` : ''}</div>`);
 
                     const max = C.people[0][1];
                     const rows = C.people.map(([n, c], i) => { const f = (C.fives.find(e => e[0] === n) || [n, 0])[1]; return `<div class="wr-bar-row wr-in" style="--d:${i + 1};color:${esc(this.getUserColor(n))}"><span style="color:#EFF6EA">${i + 1}. ${esc(n)}</span><span class="v" style="color:#EFF6EA">${c}${f ? ` · ${f}×5★` : ''}</span><span class="track"><span class="fill" style="width:${(c / max * 100).toFixed(1)}%;--d:${i}"></span></span></div>`; }).join('');
@@ -389,6 +410,14 @@
                     if (C.topCoffees.length) {
                         const list = C.topCoffees.map((c, i) => `<li class="wr-in" style="--d:${i + 1}"><span class="n">${i + 1}</span><span class="t">${esc(c.name)}<span class="s">${c.roaster ? `${esc(c.roaster)} · ` : ''}${c.count} sessions · ${c.who.map(n => esc(n)).join(', ')}</span></span></li>`).join('');
                         add('espresso', `<div class="wr-k wr-in" style="--d:0">Your top coffees together</div><ol class="wr-rank">${list}</ol>`, 8000);
+                    }
+
+                    if (C.tea && C.tea.count >= 2) {   // v17.0: the crew's tea
+                        const t = C.tea, lead = t.who[0];
+                        const lines = [`<b>${t.teas}</b> different tea${t.teas === 1 ? '' : 's'}, <b>${t.steeps}</b> steep${t.steeps === 1 ? '' : 's'}.`];
+                        if (t.top) lines.push(`Most made: <b>${esc(t.top.name)}</b>, ${t.top.count} session${t.top.count === 1 ? '' : 's'}.`);
+                        if (lead && t.who.length > 1) lines.push(`Most tea: <b>${esc(lead[0])}</b>, ${lead[1]} session${lead[1] === 1 ? '' : 's'}.`);
+                        add('matcha', `<div class="wr-k wr-in" style="--d:0">And the tea</div><div class="wr-big wr-in" style="--d:1" data-count="${t.count}">${t.count}</div><div class="wr-unit wr-in" style="--d:2">tea sessions together</div>${lines.map((l, i) => `<div class="wr-p wr-in" style="--d:${i + 3}">${l}</div>`).join('')}`, 6500);
                     }
 
                     if (C.methods.length) {
@@ -645,7 +674,7 @@
 
             renderAchievementsCard(user) {
                 const levels = this.achievementLevelsByUser[user] || {};
-                const catalog = this.getAchievementCatalog();
+                const catalog = this.achievementCatalogFor(user);
                 const earned = catalog.reduce((s, d) => s + Number(levels[d.key] || 0), 0);
                 const total = catalog.reduce((s, d) => s + d.thresholds.length, 0);
                 const top = catalog.map(d => ({ d, lv: Number(levels[d.key] || 0) }))

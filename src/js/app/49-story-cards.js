@@ -84,7 +84,7 @@
                 const h = 70, gap = 16; let x = k.PAD, row = 0;
                 ctx.font = k.sans(600, 34);
                 for (const n of notes) {
-                    const at = this.noteLocate ? this.noteLocate(n) : null, hex = at && at.f >= 0 && typeof NOTE_WHEEL !== 'undefined' ? NOTE_WHEEL[at.f].color : '#7D8984';
+                    const at = this.noteLocate ? this.noteLocate(n) : null, hex = at && at.f >= 0 ? at.color : '#7D8984';
                     const w = Math.min(k.W - k.PAD * 2, ctx.measureText(n).width + 56);
                     if (x + w > k.W - k.PAD) { row++; x = k.PAD; if (row >= maxRows) break; }
                     const yy = y + row * (h + gap);
@@ -111,11 +111,11 @@
                 return this.storyLoad('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
             },
 
-            storyShape(vals, ghost, tasted, size = [900, 660]) {
+            storyShape(vals, ghost, tasted, size = [900, 660], kind = 'coffee') {
                 if (!vals || typeof FlavorShape === 'undefined') return Promise.resolve(null);
                 const theme = { line: '#3A443B', muted: '#8D978E', ink: '#E8EEE8', surface: '#141915', dark: true };
                 let url = '';
-                try { url = FlavorShape.snapshot(vals, ghost || null, { width: Math.round(size[0] / 2.25), height: Math.round(size[1] / 2.25), zoom: 1.12, isSet: k => tasted.includes(k), setKey: 'story-' + tasted.join(','), theme, dpr: 2.4 }); } catch (e) { url = ''; }
+                try { url = FlavorShape.snapshot(vals, ghost || null, { width: Math.round(size[0] / 2.25), height: Math.round(size[1] / 2.25), zoom: 1.12, isSet: k => tasted.includes(k), setKey: 'story-' + tasted.join(','), theme, dpr: 2.4, names: kind === 'tea' ? 'tea' : null }); } catch (e) { url = ''; }
                 return this.storyLoad(url);
             },
 
@@ -195,17 +195,19 @@
             async drawCoffeeStory(beanId, who = this.user) {
                 const D = this.storyCoffeeData(beanId, who); if (!D) return null;
                 const b = D.bean, sub = [b.roaster, b.origin].map(x => String(x || '').trim()).filter(Boolean).join(' · ');
-                const S = this.storyStart({ who, sub, title: String(b.name || '').trim() || 'A coffee' }); if (!S) return null;
+                const tea = this.isTeaBean(b);   // v17.0: a tea's picture
+                const S = this.storyStart({ who, sub, title: String(b.name || '').trim() || (tea ? 'A tea' : 'A coffee') }); if (!S) return null;
                 const { ctx, k } = S; let y = S.y;
-                const facts = [b.process, b.roast ? `${b.roast} roast` : '', b.variety].map(x => String(x || '').trim()).filter(Boolean).join(' · ');
+                const facts = (tea ? [b.teaType ? `${b.teaType} tea` : '', b.process, b.variety] : [b.process, b.roast ? `${b.roast} roast` : '', b.variety]).map(x => String(x || '').trim()).filter(Boolean).join(' · ');
                 if (facts) { ctx.font = k.sans(500, 36); ctx.fillStyle = k.ink2; ctx.fillText(k.fit(facts, k.W - k.PAD * 2), k.PAD, y + 46); y += 66; }
                 const chipsH = D.notes.length ? (D.notes.length > 3 ? 172 : 86) + 44 : 0, boxY = k.H - 150 - chipsH - 150;
-                const img = D.shape ? await this.storyShape(D.shape.vals, null, D.shape.tasted, [940, 760]) : null;
+                const img = D.shape ? await this.storyShape(D.shape.vals, null, D.shape.tasted, [940, 760], tea ? 'tea' : 'coffee') : null;
                 if (img) this.storyDrawFit(S, img, y + 30 + Math.max(0, (boxY - y - 70 - Math.min(760, boxY - y - 70)) / 2), 940, Math.min(760, boxY - y - 70));
                 y = boxY;
                 const best = D.best, dose = best ? Number(best.dose) || 0 : 0, out = best ? Number(best.yield) || 0 : 0, t = best ? Number(best.time) || 0 : 0;
                 y = this.storyBoxes(S, [
                     D.avg ? { big: [[this.formatRating(D.avg), '★']], small: `avg of ${D.rated}${D.mine ? '' : ' (everyone)'}` } : { big: [[String(D.list.length), '']], small: D.list.length === 1 ? 'session' : 'sessions' },
+                    tea && dose && out ? { big: [[this.fmtNum(dose, 1), ' g'], [this.fmtNum(out, 0), ' ml']], small: `best: ${[Number(best.temp) ? `${Math.round(Number(best.temp))}°C` : '', this.teaTimeText(best)].filter(Boolean).join(' · ') || `1:${this.fmtNum(out / dose, 0)}`}`, wide: true } :
                     dose && out ? { big: [[this.fmtNum(dose, 1), ' g'], [this.fmtNum(out, 1), ' g']], small: `best: 1:${this.fmtNum(out / dose, 1)}${t ? ` · ${best.method === 'Espresso' || !best.method ? `${Math.round(t)} s` : this.clock(t)}` : ''}`, wide: true } : null,
                     best ? { big: [[this.formatRating(this.normalizeRating(best.rating)), '★']], small: 'best' } : null
                 ], y);
@@ -215,7 +217,7 @@
 
             openCoffeeStory(beanId) {
                 const bean = this.beans.get(String(beanId || '')); if (!bean) return;
-                return this.openStory({ draw: () => this.drawCoffeeStory(beanId), slug: bean.name || 'coffee', alt: `${bean.name || 'This coffee'} as a Story picture`, link: () => this.shareItem('coffee', beanId) });
+                return this.openStory({ draw: () => this.drawCoffeeStory(beanId), slug: bean.name || (this.isTeaBean(bean) ? 'tea' : 'coffee'), alt: `${bean.name || (this.isTeaBean(bean) ? 'This tea' : 'This coffee')} as a Story picture`, link: () => this.shareItem('coffee', beanId) });
             },
 
             // ---- 2. the dial-in curves (what the Dial-in tab shows), with your own way there in words
@@ -343,11 +345,20 @@
                 const age = x => this.roastDays ? this.roastDays(x.roastDate, x.date) : null;
                 const rows = [];
                 const add = (label, av, bv, show) => { if (av === null && bv === null) return; const d = av !== null && bv !== null ? av - bv : null; rows.push([label, av === null ? '–' : show(av), bv === null ? '–' : show(bv), d === null ? '' : Math.abs(d) < 1e-9 ? 'same' : `${d > 0 ? '+' : '−'}${this.fmtNum(Math.abs(d), 2)}`]); };
+                const tea = this.isTeaBrew(A);   // v17.0: two teas: leaf, water, temperature, steep, steeps
+                if (tea) {
+                    add('Leaf', num(A.dose), num(B.dose), v => `${this.fmtNum(v, 1)} g`);
+                    add('Water', num(A.yield), num(B.yield), v => `${this.fmtNum(v, 0)} ml`);
+                    add('Temp', num(A.temp), num(B.temp), v => `${this.fmtNum(v, 0)}°C`);
+                    add('Steep', num(A.time), num(B.time), v => (this.methodProfile(A.method).hours ? `${this.fmtNum(v, 1)} h` : this.fmtSteep(v)));
+                    add('Steeps', this.teaStepsOf(A).length || null, this.teaStepsOf(B).length || null, v => String(v));
+                } else {
                 add('Dose', num(A.dose), num(B.dose), v => `${this.fmtNum(v, 1)} g`);
                 add(esp(A) && esp(B) ? 'Pull' : !esp(A) && !esp(B) ? 'Pour' : 'Pull / water', num(A.yield), num(B.yield), v => `${this.fmtNum(v, 1)} g`);
                 add('Time', num(A.time), num(B.time), v => (esp(A) && esp(B) ? `${this.fmtNum(v)} s` : this.clock(v)));
                 add('Ratio', this.ratioOf(A) || null, this.ratioOf(B) || null, v => `1:${this.fmtNum(v, 2)}`);
                 add('Off roast', age(A), age(B), v => (v === 0 ? 'Roast day' : `Day ${v}`));
+                }
                 add('Rating', this.normalizeRating(A.rating) || null, this.normalizeRating(B.rating) || null, v => `${this.formatRating(v)}★`);
                 const tw = k.W - k.PAD * 2, rh = 92, cols = [k.PAD + 40, k.PAD + tw * 0.40, k.PAD + tw * 0.66, k.PAD + tw - 40];
                 k.round(k.PAD, y, tw, rh * (rows.length + 1), 40); ctx.fillStyle = k.box; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = k.boxLine; ctx.stroke();
@@ -363,7 +374,7 @@
                 y += rh * (rows.length + 1) + 30;
                 const ta = this.tastedKeys(A), tb = this.tastedKeys(B);
                 if ((ta.length || tb.length) && y < 1560) {
-                    const img = await this.storyShape(this.shapeValues(A), this.shapeValues(B), ta, [900, 700]);
+                    const img = await this.storyShape(this.shapeValues(A), this.shapeValues(B), ta, [900, 700], tea ? 'tea' : 'coffee');
                     if (img) {
                         const bottom = this.storyDrawFit(S, img, y, 900, Math.min(700, k.H - 130 - y));
                         ctx.font = k.sans(700, 30); ctx.fillStyle = k.ink2; ctx.strokeStyle = k.ink2; ctx.lineWidth = 5;
@@ -380,8 +391,11 @@
             },
 
             // ---- 5. a roaster: its tile, where it is, your local tick, and the coffees from it
-            async drawRoasterStory(key) {
-                const r = this.roasterData().byKey.get(key); if (!r) return null;
+            async drawRoasterStory(key, kindIn) {
+                // v17.0: a brand's picture lists its teas (the side asked for, else the one on screen, else whichever has it)
+                const onScreen = this.roasterViewActive && this.roasterViewActive() ? this.roasterOpenKind : '';
+                const kind = kindIn === 'tea' || kindIn === 'coffee' ? kindIn : onScreen === 'tea' || onScreen === 'coffee' ? onScreen : (!this.roasterFind(key, 'coffee') && this.roasterFind(key, 'tea') ? 'tea' : 'coffee'), w = this.drinkWords(kind);
+                const r = this.roasterData(kind).byKey.get(key) || this.roasterData().byKey.get(key); if (!r) return null;
                 const S = this.storyStart({ sub: '', title: '' }); if (!S) return null;
                 const { ctx, k } = S; let y = 330;
                 const set = this.ROASTER_COLORS[r.key] || this.ROASTER_COLORS[RoasterEngine.keyOf(r.name)];
@@ -393,7 +407,7 @@
                 const info = r.info || {}, local = (r.localBy || []).includes(this.user);
                 ctx.font = k.sans(600, 36); ctx.fillStyle = k.muted;
                 const where = String(info.location || '').trim();
-                if (where || local) { ctx.fillText(k.fit(['Roaster', where].filter(Boolean).join(' · '), k.W - k.PAD * 2 - (local ? 260 : 0)), k.PAD, y + 26); }
+                if (where || local) { ctx.fillText(k.fit([w.Company, where].filter(Boolean).join(' · '), k.W - k.PAD * 2 - (local ? 260 : 0)), k.PAD, y + 26); }
                 if (local) {
                     const label = 'Local to me', lw = (ctx.font = k.sans(700, 32), ctx.measureText(label).width + 100), lx = k.W - k.PAD - lw;
                     k.round(lx, y - 22, lw, 64, 32); ctx.fillStyle = 'rgba(134,172,136,0.2)'; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = 'rgba(134,172,136,0.5)'; ctx.stroke();
@@ -405,12 +419,12 @@
                 const lines = k.wrap(r.name, k.W - k.PAD * 2, 2); lines.forEach((l, i) => ctx.fillText(l, k.PAD, y + 108 * (i + 1) - 18)); y += 108 * lines.length + 40;
                 const mine = r.people.find(p => p.name === this.user);
                 y = this.storyBoxes(S, [
-                    { big: [[String(r.coffees.length), '']], small: r.coffees.length === 1 ? 'coffee' : 'coffees' },
+                    { big: [[String(r.coffees.length), '']], small: r.coffees.length === 1 ? w.item : w.items },
                     { big: [[String(mine ? mine.sessions : r.sessions), '']], small: mine ? 'your sessions' : 'sessions' },
                     (mine ? mine.avg : r.avg) ? { big: [[this.formatRating(mine ? mine.avg : r.avg), '★']], small: mine ? 'your average' : 'average' } : null
                 ], y);
                 y += 70;
-                ctx.font = k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText('COFFEES', k.PAD, y); y += 34;
+                ctx.font = k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText(w.Items.toUpperCase(), k.PAD, y); y += 34;
                 const list = r.coffees.slice().sort((a, b) => b.sessions - a.sessions || (b.avg || 0) - (a.avg || 0)).slice(0, 6);
                 list.forEach(cf => {
                     if (y > k.H - 140) return;
@@ -425,7 +439,7 @@
             },
 
             openRoasterStory(key) {
-                const r = this.roasterData().byKey.get(key); if (!r) return;
+                const r = this.roasterData(this.roasterOpenKind === 'tea' ? 'tea' : 'coffee').byKey.get(key) || this.roasterData().byKey.get(key); if (!r) return;
                 return this.openStory({ draw: () => this.drawRoasterStory(key), slug: r.name, alt: `${r.name} as a Story picture`, link: () => this.shareItem('roaster', r.name) });
             },
 
@@ -539,14 +553,14 @@
             // ---- 9. your palate: what you lean toward, your shape, your notes
             async drawPalateStory(who = this.user) {
                 const p = this.palateFor(who); if (!p || p.count < 3) return null;
-                const S = this.storyStart({ who, sub: who === this.user ? 'My palate' : `${who}'s palate` }); if (!S) return null;
+                const S = this.storyStart({ who, sub: who === this.user ? (p.kind === 'tea' ? 'My tea palate' : 'My palate') : `${who}'s ${p.kind === 'tea' ? 'tea ' : ''}palate` }); if (!S) return null;
                 const { ctx, k } = S; let y = S.y + 20;
                 ctx.font = k.serif(600, 62); ctx.fillStyle = k.ink;
                 const lines = k.wrap(this.palateSentence(p), k.W - k.PAD * 2, 5); lines.forEach((l, i) => ctx.fillText(l, k.PAD, y + 74 * (i + 1) - 14)); y += 74 * lines.length + 10;
-                const shape = this.storyAvgShape(this.brewsOf(who));
-                const img = shape ? await this.storyShape(shape.vals, null, shape.tasted, [820, 600]) : null;
+                const shape = this.storyAvgShape(this.brewsOf(who).filter(b => this.isTeaBrew(b) === (p.kind === 'tea')));
+                const img = shape ? await this.storyShape(shape.vals, null, shape.tasted, [820, 600], p.kind) : null;
                 y = img ? this.storyDrawFit(S, img, y + 10, 820, Math.min(600, 1360 - y)) + 10 : y + 30;
-                const groups = [['Origins', p.origins], ['Process', p.processes], ['Roast', p.roasts], ['Methods', p.methods]].filter(([, l]) => l.length);
+                const groups = [['Origins', p.origins], [p.kind === 'tea' ? 'Processing' : 'Process', p.processes], [p.kind === 'tea' ? 'Type' : 'Roast', p.roasts], ['Methods', p.methods]].filter(([, l]) => l.length);
                 if (p.notes.length) { ctx.font = k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText('NOTES', k.PAD, y + 20); y = this.storyNoteChips(S, p.notes.map(n => n.label), y + 44, 2) + 34; }
                 groups.slice(0, 3).forEach(([label, list]) => {
                     if (y > k.H - 200) return;

@@ -1,0 +1,502 @@
+            // ===================== v17.0: tea =====================
+            // Coffee is still the main thing; tea is a real option next to it. The Coffees title at the top opens a menu
+            // (Coffees / Teas). In tea mode the bottom bar's first tab is Teas (a teabag), Roasters is Brands (tea
+            // companies, never called roasters), and the shelf, search and filters show teas. The mode is remembered on
+            // this phone until it's switched back. Feed and Profile show everything, each card in its own words.
+            drinkNow() {
+                if (this.drink !== 'tea' && this.drink !== 'coffee') this.drink = safeGet('dialed_drink') === 'tea' ? 'tea' : 'coffee';
+                return this.drink;
+            },
+            teaMode() { return this.drinkNow() === 'tea'; },
+            setDrink(kind) {
+                const next = kind === 'tea' ? 'tea' : 'coffee';
+                this.closeDrinkMenu();
+                if (next === this.drinkNow()) return;
+                this.drink = next;
+                safeSet('dialed_drink', next);
+                this.currentMethodFilter = 'all';   // (a coffee method filter means nothing on teas, and back)
+                this.roasterFilter = '';
+                this._roasterCache = null;
+                if (this.haptic) this.haptic('tick');
+                this.paintDrinkChrome();
+                if (this.tab !== 'my' && this.tab !== 'roasters') { this.setTab('my'); return; }
+                this.render();
+                const main = document.getElementById('main-content');
+                if (main) main.scrollTop = 0;
+            },
+
+            // ---- words: the same screens say coffee or tea
+            drinkWords(kind) {
+                return kind === 'tea'
+                    ? { item: 'tea', items: 'teas', Item: 'Tea', Items: 'Teas', company: 'brand', companies: 'brands', Company: 'Brand', Companies: 'Brands', cup: 'cup', session: 'steep', icon: '#i-teabag' }
+                    : { item: 'coffee', items: 'coffees', Item: 'Coffee', Items: 'Coffees', company: 'roaster', companies: 'roasters', Company: 'Roaster', Companies: 'Roasters', cup: 'cup', session: 'shot', icon: '#i-bean' };
+            },
+            isTeaBean(b) { return Boolean(b && b.kind === 'tea'); },
+            kindOfBean(b) { return this.isTeaBean(b) ? 'tea' : 'coffee'; },
+            isTeaMethod(m) { return TEA_METHODS.includes(String(m || '')); },
+            isTeaBrew(brew) {
+                if (!brew) return false;
+                if (this.isTeaMethod(brew.method)) return true;
+                return this.isTeaBean(this.beans && this.beans.get(String(brew.beanId)));
+            },
+            kindOfBrew(brew) { return this.isTeaBrew(brew) ? 'tea' : 'coffee'; },
+            methodsFor(kind) { return kind === 'tea' ? TEA_METHODS : COFFEE_METHODS; },
+            methodLabel(m) { return m === 'Aeropress' ? 'AeroPress' : String(m || ''); },
+            tasteMetaFor(kind) { return kind === 'tea' ? TEA_TASTE_META : TASTE_META; },
+            tasteLabel(k, kind) { const m = this.tasteMetaFor(kind).find(x => x[0] === k); return m ? m[1] : k; },
+            wheelFor(kind) { return kind === 'tea' ? TEA_WHEEL : NOTE_WHEEL; },
+            teaTypeInfo(t) { return TEA_TYPE_INFO[t] || null; },
+            // a brand's page: how its teas split by type (each tea once), and a line in place of a roaster's house style
+            teaTypeCounts(r) {
+                const out = {};
+                (r && r.coffees || []).forEach(c => {
+                    const ids = c.beanIds && c.beanIds.length ? c.beanIds : [c.beanId];
+                    const t = ids.map(id => (this.beans.get(String(id)) || {}).teaType).find(Boolean);
+                    if (t && TEA_TYPE_INFO[t]) out[t.toUpperCase()] = (out[t.toUpperCase()] || 0) + 1;
+                });
+                return out;
+            },
+            teaBrandStyle(r) {
+                const and = l => l.length < 2 ? (l[0] || '') : `${l.slice(0, -1).join(', ')} and ${l[l.length - 1]}`;
+                const order = TEA_TYPES.map(t => t.toUpperCase());
+                const types = Object.entries(this.teaTypeCounts(r)).sort((a, b) => b[1] - a[1] || order.indexOf(a[0]) - order.indexOf(b[0]));
+                const total = types.reduce((s, [, v]) => s + v, 0);
+                const word = k => (k.charAt(0) + k.slice(1).toLowerCase()).toLowerCase().replace(/^pu-erh$/, 'pu-erh');
+                const origins = new Map();
+                (r && r.coffees || []).forEach(c => (c.origins || []).forEach(o => origins.set(o, (origins.get(o) || 0) + 1)));
+                const where = [...origins.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([o]) => o);
+                let line = '';
+                if (types.length === 1) line = `${total > 1 ? 'All' : 'A'} ${word(types[0][0])} tea${total > 1 ? 's' : ''}`;
+                else if (types.length && types[0][1] / total > 0.5) line = `Mostly ${word(types[0][0])} teas`;
+                else if (types.length) line = `${and(types.slice(0, 3).map(([k]) => word(k))).replace(/^./, ch => ch.toUpperCase())} teas`;
+                if (where.length) line = line ? `${line} from ${and(where)}` : `Teas from ${and(where)}`;
+                return line ? `${line}.` : 'No type or origin logged yet.';
+            },
+
+            // ---- the top of the page and the bars
+            paintDrinkChrome() {
+                if (typeof document === 'undefined') return;
+                const w = this.drinkWords(this.drinkNow());
+                document.querySelectorAll('[data-drink-label="items"]').forEach(el => { el.textContent = w.Items; });
+                document.querySelectorAll('[data-drink-label="companies"]').forEach(el => { el.textContent = w.Companies; });
+                document.querySelectorAll('[data-drink-label="add"]').forEach(el => { el.textContent = `Add ${w.item}`; });
+                document.querySelectorAll('use[data-drink-icon]').forEach(el => el.setAttribute('href', w.icon));
+                document.body.classList.toggle('tea-mode', w.item === 'tea');
+                this.paintViewTitle(this.tab);
+                this.paintMethodFilters();
+                ['search-input', 'search-input-mobile', 'search-input-top'].forEach(id => { const el = document.getElementById(id); if (el) el.placeholder = this.tab === 'roasters' ? `Search ${w.companies}…` : `Search ${w.items}…`; });
+            },
+            // the page title: on Coffees (or Teas) it's the menu button; on Roasters it says Brands in tea mode
+            paintViewTitle(tab) {
+                const h = typeof document !== 'undefined' ? document.getElementById('view-title') : null;
+                if (!h) return;
+                const w = this.drinkWords(this.drinkNow());
+                if (tab === 'my') {
+                    h.innerHTML = `<button type="button" class="drink-title" id="drink-title" aria-haspopup="menu" aria-expanded="false" aria-controls="drink-menu" onclick="app.toggleDrinkMenu(event)">${w.Items}<svg class="icon dt-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>`;
+                    return;
+                }
+                const titles = { roasters: w.Companies, feed: 'Feed', profile: 'Profile' };
+                h.textContent = titles[tab] || w.Items;
+            },
+            paintMethodFilters() {
+                if (typeof document === 'undefined') return;
+                const kind = this.drinkNow(), list = this.methodsFor(kind);
+                const row = document.getElementById('filter-row');
+                if (row && row.getAttribute('data-kind') !== kind) {
+                    row.setAttribute('data-kind', kind);
+                    row.innerHTML = [['all', 'All'], ...list.map(m => [m, this.methodLabel(m)])]
+                        .map(([v, l]) => `<button class="filter-chip${this.currentMethodFilter === v ? ' active' : ''}" data-method="${this.esc(v)}" onclick="app.setMethodFilter('${this.escJs(v)}')">${this.esc(l)}</button>`).join('');
+                }
+                const sel = document.getElementById('mobile-method-select');
+                if (sel && sel.getAttribute('data-kind') !== kind) {
+                    sel.setAttribute('data-kind', kind);
+                    sel.innerHTML = [['all', 'All'], ...list.map(m => [m, this.methodLabel(m)])].map(([v, l]) => `<option value="${this.esc(v)}">${this.esc(l)}</option>`).join('');
+                    sel.value = this.currentMethodFilter;
+                }
+            },
+
+            // ---- the Coffees / Teas menu under the title
+            toggleDrinkMenu(event) {
+                if (event) { event.preventDefault(); event.stopPropagation(); }
+                if (document.getElementById('drink-menu')) { this.closeDrinkMenu(); return; }
+                const btn = document.getElementById('drink-title');
+                if (!btn) return;
+                const kind = this.drinkNow();
+                const opt = (k, label, icon) => `<button type="button" role="menuitemradio" aria-checked="${kind === k}" class="dm-opt${kind === k ? ' on' : ''}" onclick="app.setDrink('${k}')">
+                    <svg class="icon" aria-hidden="true"><use href="${icon}"/></svg><span>${label}</span><svg class="icon dm-check" aria-hidden="true"><use href="#i-check"/></svg></button>`;
+                const menu = document.createElement('div');
+                menu.id = 'drink-menu';
+                menu.className = 'drink-menu';
+                menu.setAttribute('role', 'menu');
+                menu.setAttribute('aria-label', 'Coffee or tea');
+                menu.innerHTML = opt('coffee', 'Coffees', '#i-bean') + opt('tea', 'Teas', '#i-teabag');
+                const r = btn.getBoundingClientRect();
+                menu.style.top = `${Math.round(r.bottom + 8)}px`;
+                menu.style.left = `${Math.round(Math.max(12, r.left - 6))}px`;
+                document.body.appendChild(menu);
+                btn.setAttribute('aria-expanded', 'true');
+                requestAnimationFrame(() => menu.classList.add('on'));
+                this._drinkAway = e => { if (!menu.contains(e.target) && !btn.contains(e.target)) this.closeDrinkMenu(); };
+                this._drinkKey = e => { if (e.key === 'Escape') this.closeDrinkMenu(); };
+                setTimeout(() => { document.addEventListener('pointerdown', this._drinkAway, true); document.addEventListener('keydown', this._drinkKey); }, 0);
+                const first = menu.querySelector('.dm-opt.on') || menu.querySelector('.dm-opt');
+                if (first) try { first.focus({ preventScroll: true }); } catch (e) {}
+                if (this.haptic) this.haptic('tap');
+            },
+            closeDrinkMenu() {
+                if (typeof document === 'undefined') return;
+                const menu = document.getElementById('drink-menu');
+                if (menu) menu.remove();
+                const btn = document.getElementById('drink-title');
+                if (btn) btn.setAttribute('aria-expanded', 'false');
+                if (this._drinkAway) document.removeEventListener('pointerdown', this._drinkAway, true);
+                if (this._drinkKey) document.removeEventListener('keydown', this._drinkKey);
+                this._drinkAway = this._drinkKey = null;
+            },
+
+            // ---- the add form: Coffee / Tea at the very top; tea asks for its type, cultivar, processing and harvest
+            beanFormKind() { const f = this.getBeanForm(); return f && f.elements.kind && f.elements.kind.value === 'tea' ? 'tea' : 'coffee'; },
+            setBeanKind(kind, keepTitle) {
+                const k = kind === 'tea' ? 'tea' : 'coffee', tea = k === 'tea';
+                const form = this.getBeanForm(); if (!form) return;
+                if (form.elements.kind) form.elements.kind.value = k;
+                document.querySelectorAll('#bean-kind [data-kind]').forEach(b => b.setAttribute('aria-checked', String(b.getAttribute('data-kind') === k)));
+                const set = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+                const editing = Boolean(form.elements.id.value);
+                if (!keepTitle) set('bean-modal-title', editing ? (tea ? 'Edit Tea' : 'Edit Coffee') : (tea ? 'New Tea' : 'New Coffee'));
+                set('lbl-company', tea ? 'Brand' : 'Roaster');
+                set('lbl-variety', tea ? 'Cultivar' : 'Variety');
+                set('lbl-process', tea ? 'Processing' : 'Process');
+                set('lbl-bag-date', tea ? 'Harvested (optional)' : 'Roast date on your bag (optional)');
+                set('bean-save-btn', tea ? 'Save Tea' : 'Save Coffee');
+                const ph = (name, coffee, teaText) => { const el = form.elements[name]; if (el) el.placeholder = tea ? teaText : coffee; };
+                ph('roaster', '', 'e.g., Mountain Leaf Tea Co.');
+                ph('name', '', 'e.g., Long Jing, Darjeeling');
+                ph('variety', 'e.g., Gesha, SL28, Bourbon...', 'e.g., Longjing #43, Yabukita');
+                ph('origin', '', 'e.g., Zhejiang, China');
+                ph('process', '', 'e.g., Pan-fired, Roasted, Aged');
+                form.querySelectorAll('.tea-only').forEach(el => { el.hidden = !tea; });
+                form.querySelectorAll('.coffee-only').forEach(el => { el.hidden = tea; });
+                this.fillRoasterSuggestions(k);
+                const box = form.querySelector('.cs-list'); if (box) box.hidden = true;
+            },
+
+            // ---- a tea's page: its type where the roast goes, harvested where the roast date goes, no sweet spot
+            paintDetailKind(group) {
+                const meta = (group && group.meta) || {}, tea = this.isTeaBean(meta);
+                const view = document.getElementById('detail-view');
+                if (view) view.classList.toggle('is-tea', tea);
+                const word = tea ? 'tea' : 'coffee';
+                const lab = (sel, text) => { const el = document.querySelector(sel); if (el) el.setAttribute('aria-label', text); };
+                lab('#detail-view .dh-share', `Share this ${word}`);
+                lab('#detail-view .hero-actions .btn-clean:not(.danger)', `Edit ${word}`);
+                lab('#detail-view .hero-actions .btn-clean.danger', `Delete ${word}`);
+                const ro = document.querySelector('#d-roaster .ro-link');
+                if (ro) { if (tea) ro.setAttribute('data-kind', 'tea'); else ro.removeAttribute('data-kind'); }
+                const sweet = document.querySelector('[data-detail-tab="sweet"]');
+                if (sweet) sweet.hidden = tea;
+                if (tea && this.detailTab === 'sweet') this.detailTab = 'timeline';
+                if (!tea) {   // (back to a coffee after a tea: as coffee pages always were)
+                    ['d-roast', 'd-process', 'd-origin'].forEach(id => { const el = document.getElementById(id); if (el) el.hidden = false; });
+                    const tt = document.getElementById('d-roast'); if (tt) { tt.classList.remove('tea-type-tag'); tt.style.removeProperty('--tt'); }
+                    return;
+                }
+                const tag = (id, v) => { const el = document.getElementById(id); if (!el) return; const t = String(v || '').trim(); el.innerText = t; el.hidden = !t; };
+                tag('d-roast', meta.teaType);
+                tag('d-process', meta.process);
+                tag('d-origin', meta.origin);
+                const tt = document.getElementById('d-roast');
+                if (tt) { tt.classList.add('tea-type-tag'); tt.style.setProperty('--tt', (this.teaTypeInfo(meta.teaType) || {}).color || '#7FA45B'); }
+                const line = document.getElementById('d-roast-date');
+                if (line) {
+                    const t = this.parseLocalDate(meta.roastDate);
+                    line.innerText = t ? `Harvested ${new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}` : '';
+                    line.style.display = t ? 'block' : 'none';
+                }
+            },
+
+            // ---- the Log for a tea: tea methods, no grind or roast date, tea words on the sliders, the tea wheel
+            logKindFor(brew) {
+                if (brew) return this.kindOfBrew(brew);
+                return this.isTeaBean(this.beans && this.beans.get(String(this.activeId))) ? 'tea' : 'coffee';
+            },
+            applyLogKind(kind) {
+                const k = kind === 'tea' ? 'tea' : 'coffee', tea = k === 'tea';
+                this.logKind = k;
+                const form = this.getBrewForm(); if (!form) return;
+                const modal = document.getElementById('brew-modal');
+                if (modal) modal.classList.toggle('is-tea', tea);
+                const sel = form.method;
+                if (sel && sel.getAttribute('data-kind') !== k) {
+                    const keep = sel.value;
+                    sel.setAttribute('data-kind', k);
+                    sel.innerHTML = `<option value="">Select Method</option>` + this.methodsFor(k).map(m => `<option value="${this.esc(m)}">${this.esc(this.methodLabel(m))}</option>`).join('');
+                    sel.value = this.methodsFor(k).includes(keep) ? keep : '';
+                }
+                if (form.grind) {
+                    const wrap = form.grind.closest('div');
+                    if (wrap) wrap.hidden = tea;
+                    form.grind.required = !tea;
+                    if (tea) form.grind.value = '';
+                }
+                const grid = sel && sel.closest('.brew-grid-2'); if (grid) grid.classList.toggle('solo', tea);
+                const roast = modal && modal.querySelector('.roast-row'); if (roast) roast.hidden = tea;
+                if (modal) modal.querySelectorAll('.ns').forEach(row => {
+                    const key = row.getAttribute('data-k'), label = this.tasteLabel(key, k);
+                    const name = row.querySelector('.ns-name'); if (name && name.lastChild && name.lastChild.nodeType === 3) name.lastChild.textContent = label;
+                    const input = row.querySelector('input'); if (input) input.setAttribute('aria-label', label);
+                });
+                const p = modal && modal.querySelector('.taste-card .taste-head p');
+                if (p) p.textContent = tea ? 'Move only what felt different. The dashed outline and ticks are your best cup of this tea.' : 'Move only what felt different. The dashed outline and ticks are your best shot of this coffee.';
+                const hint = document.getElementById('timer-tea-hint');
+                if (hint) hint.hidden = true;
+                this.wheelFam = null; this.wheelGroup = null;
+                if (this.tasteView && this.tasteView.redraw) this.tasteView.redraw();
+            },
+            // a tea's usual method: your last on this tea, else your last tea, else by its type
+            defaultTeaMethod() {
+                const bean = this.beans.get(String(this.activeId)) || {};
+                const key = this.activeGroup ? this.beanGroupKey(this.activeGroup.meta) : this.beanGroupKey(bean);
+                const mine = this.user ? this.brewsOf(this.user).filter(b => this.isTeaMethod(b.method)).sort((a, b) => this.toTime(b.date) - this.toTime(a.date)) : [];
+                const here = mine.find(b => this.groupKeyOfBrew(b) === key);
+                if (here) return here.method;
+                if (bean.teaType === 'Matcha') return 'Matcha';
+                return mine.length ? mine[0].method : 'Western';
+            },
+            teaTypeOfActive() { const g = this.activeGroup && this.activeGroup.meta; return (g && g.teaType) || ((this.beans.get(String(this.activeId)) || {}).teaType) || ''; },
+            teaTempHint() { const info = this.teaTypeInfo(this.teaTypeOfActive()); return info ? info.temp : 85; },
+
+            // ---- steeps: each stop of the timer is one steep (Western and Gongfu); they can be typed or removed too
+            fmtSteep(sec) { const s = Math.round(Number(sec) || 0); return s >= 60 ? this.clock(s) : `${s}s`; },
+            steepsFieldHtml(list) {
+                const arr = (Array.isArray(list) ? list : []).map(Number).filter(v => v > 0);
+                const chips = arr.map((v, i) => `<button type="button" class="steep-chip" onclick="app.removeSteep(${i})" aria-label="Remove steep ${i + 1} (${this.esc(this.fmtSteep(v))})"><span>${i + 1}</span><b>${this.esc(this.fmtSteep(v))}</b><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>`).join('');
+                return `<div class="steeps-field"><label>Steeps${arr.length ? ` · ${arr.length}` : ''}</label><div class="steeps-row">${chips}<span class="steep-add"><input type="number" id="steep-new" min="1" max="3600" step="1" inputmode="numeric" placeholder="sec" aria-label="Next steep, in seconds" onkeydown="if (event.key === 'Enter') { event.preventDefault(); app.addSteepFromInput(); }"><button type="button" class="chip-btn" onclick="app.addSteepFromInput()">Add</button></span></div><p class="steeps-hint">Stop the timer after each steep and it's added here.</p></div>`;
+            },
+            addSteep(sec) {
+                const v = Math.round(Number(sec));
+                if (!(v > 0 && v <= 3600)) return;
+                this.methodExtras = this.methodExtras || {};
+                const list = Array.isArray(this.methodExtras.steeps) ? this.methodExtras.steeps : [];
+                if (list.length >= 30) return;
+                this.methodExtras.steeps = [...list, v];
+                const form = this.getBrewForm();
+                if (form && form.time && !form.time.value) form.time.value = String(v);   // (the first steep is the session's time)
+                this.renderMethodExtras(this.activeMethod);
+            },
+            addSteepFromInput() {
+                const el = document.getElementById('steep-new');
+                if (!el) return;
+                this.addSteep(el.value);
+                const again = document.getElementById('steep-new'); if (again) again.focus();
+            },
+            removeSteep(i) {
+                const list = Array.isArray(this.methodExtras && this.methodExtras.steeps) ? [...this.methodExtras.steeps] : [];
+                list.splice(i, 1);
+                this.methodExtras.steeps = list;
+                this.renderMethodExtras(this.activeMethod);
+            },
+            // (toggleTimer) a stop on a tea with steeps: that run is one steep; the next start times from zero
+            teaSteepStop(t) {
+                if (this.logKind !== 'tea') return false;
+                const p = this.methodProfile(this.activeMethod);
+                if (!p.tea || !p.extras.includes('steeps')) return false;
+                const run = Math.round(t.acc - (t.runFrom || 0));
+                if (run > 0) this.addSteep(run);
+                t.acc = run; t.teaNext = true;
+                return true;
+            },
+
+            // ---- a tea session's numbers: Leaf / Water (and its ratio) / Steep (and how many) / Temp
+            teaStepsOf(b) { return Array.isArray(b && b.steeps) ? b.steeps.map(Number).filter(v => v > 0) : []; },
+            teaTimeText(b) {
+                const time = this.num(b.time), p = this.methodProfile(b.method);
+                if (!(time > 0)) return '';
+                if (p.hours || b.timeUnit === 'h') return `${this.fmtNum(time, 1)} h`;
+                return this.fmtSteep(time);
+            },
+            teaStripHtml(b) {
+                const dose = this.num(b.dose), yld = this.num(b.yield), time = this.num(b.time), temp = this.num(b.temp);
+                const p = this.methodProfile(b.method), steeps = this.teaStepsOf(b);
+                const hours = p.hours || b.timeUnit === 'h';
+                const ratio = dose > 0 && yld > 0 ? `1:${this.fmtNum(yld / dose, 0)}` : '';
+                const cell = (v, label, sub) => `<div class="sc-cell"><b>${v}</b><span>${this.esc(label)}${sub ? ` · <em>${this.esc(sub)}</em>` : ''}</span></div>`;
+                const t = !(time > 0) ? '–' : hours ? `${this.esc(this.fmtNum(time, 1))}<small>h</small>` : time >= 60 ? this.esc(this.clock(time)) : `${this.esc(this.fmtNum(time))}<small>s</small>`;
+                const stepLabel = b.method === 'Matcha' ? 'Whisk' : steeps.length > 1 ? `${steeps.length} steeps` : 'Steep';   // (the first steep's time, and how many)
+                return `<div class="sc-strip feed-card-metrics sc-tea">${cell(dose > 0 ? `${this.esc(this.fmtNum(dose, 1))}<small>g</small>` : '–', 'Leaf')}${cell(yld > 0 ? `${this.esc(this.fmtNum(yld, 0))}<small>ml</small>` : '–', 'Water', ratio)}${cell(t, stepLabel, '')}${cell(temp > 0 ? `${this.esc(this.fmtNum(temp, 0))}<small>°C</small>` : '–', 'Temp')}</div>`;
+            },
+            teaRecipeLine(b) {
+                const parts = [], steeps = this.teaStepsOf(b);
+                if (this.num(b.dose) > 0 || this.num(b.yield) > 0) parts.push(`${this.fmtNum(b.dose)} g in ${this.fmtNum(b.yield, 0)} ml`);
+                if (this.num(b.temp) > 0) parts.push(`${this.fmtNum(b.temp, 0)}°C`);
+                const t = this.teaTimeText(b);
+                if (t) parts.push(steeps.length > 1 ? `${t.replace(' ', ' ')}, ${steeps.length} steeps` : t.replace(' ', ' '));
+                return parts.join(' · ');
+            },
+
+            // ---- next-cup advice for tea: what this cup said (sliders, notes, stars) against your best cup of this tea and
+            // what its type usually wants. Water temperature, steep time and leaf only; there's no grind in tea.
+            teaFromBrew(b) {
+                const bean = this.beans.get(String(b.beanId)) || {};
+                return { id: String(b.id), method: b.method || '', dose: this.num(b.dose), water: this.num(b.yield), time: this.num(b.time), temp: this.num(b.temp), steeps: this.teaStepsOf(b),
+                    values: this.shapeValues(b), tasted: this.tastedKeys(b), notes: this.extractFlavors(b), rating: this.normalizeRating(b.rating), type: bean.teaType || '',
+                    key: this.groupKeyOfBrew(b), owner: this.getBrewOwner(b), date: b.date };
+            },
+            teaFromForm() {
+                const form = this.getBrewForm(), x = this.methodExtras || {};
+                const n = name => (form && form[name] && form[name].value !== '' ? Number(form[name].value) : 0);
+                return { id: form && form.elements.id ? String(form.elements.id.value || '') : '', method: form && form.method ? form.method.value : '', dose: n('dose'), water: n('yield'), time: n('time'), temp: Number(x.temp) || 0,
+                    steeps: Array.isArray(x.steeps) ? x.steeps : [], values: this.formTasteValues(), tasted: [...this.tasteTouched], notes: [...this.selFlavors],
+                    rating: form && form.rating ? this.normalizeRating(form.rating.value) : 0, type: this.teaTypeOfActive(), key: this.activeGroup ? this.beanGroupKey(this.activeGroup.meta) : '', owner: this.user, date: new Date().toISOString() };
+            },
+            teaBestFor(c) {
+                if (!c.owner || !c.key) return null;
+                let best = null;
+                this.brewsOf(c.owner).forEach(b => {
+                    if (String(b.id) === c.id || this.groupKeyOfBrew(b) !== c.key || !this.isTeaBrew(b)) return;
+                    if (c.date && this.toTime(b.date) > this.toTime(c.date)) return;   // (up to that cup)
+                    const r = this.normalizeRating(b.rating); if (r <= 0) return;
+                    const br = best ? this.normalizeRating(best.rating) : -1;
+                    if (r > br || (r === br && this.isEarlier(best, b))) best = b;
+                });
+                return best;
+            },
+            teaCoach(c) {
+                const p = this.methodProfile(c.method), info = this.teaTypeInfo(c.type), ref = this.teaBestFor(c);
+                const on = k => c.tasted.includes(k), v = k => Number(c.values[k]);
+                const notes = new Set(c.notes.map(n => String(n).toLowerCase()));
+                const ev = [], why = [], ctx = [];
+                const over = [], under = [];
+                if (on('bitterness') && v('bitterness') >= 7) over.push(`bitterness ${v('bitterness')}`);
+                if (on('acidity') && v('acidity') >= 7) over.push(`astringency ${v('acidity')}`);
+                ['bitter', 'harsh', 'drying', 'stewed'].forEach(n => { if (notes.has(n)) over.push(`"${n}"`); });
+                if (on('body') && v('body') <= 3) under.push(`body ${v('body')}`);
+                ['thin', 'watery', 'flat'].forEach(n => { if (notes.has(n)) under.push(`"${n}"`); });
+                over.forEach(t => ev.push({ side: 'over', text: t }));
+                under.forEach(t => ev.push({ side: 'under', text: t }));
+                if (c.rating > 0) ev.push({ side: 'ok', text: `${this.fmtNum(c.rating)}★` });
+                const fmtT = s => p.hours ? `${this.fmtNum(s, 1)} h` : this.fmtSteep(s);
+                const aType = t => `${/^[aeiou]/i.test(t) ? 'an' : 'a'} ${t.toLowerCase()}`;   // "an oolong", "a green"
+
+                if (ref) ctx.push(['Your best on this tea', `${this.teaRecipeLine(ref)} · ${this.fmtNum(this.normalizeRating(ref.rating))}★`]);
+                if (info && c.type !== 'Matcha') ctx.push([`Usual for ${c.type.toLowerCase()} tea`, `${info.temp}°C${c.method === 'Western' && info.steep ? ` · ${this.fmtSteep(info.steep)}` : ''}`]);
+                const k = { mode: 'ask', head: '', next: '', why, ev, ctx, conf: '', ref, from: 'tea' };
+                if (!c.method) { k.head = 'Pick a method and log the steep: the advice reads it against your best cup of this tea.'; return k; }
+                const gongfu = c.method === 'Gongfu', last = c.steeps.length ? c.steeps[c.steeps.length - 1] : c.time;
+                if (gongfu && last > 0) why.push(`Gongfu: each next steep a few seconds longer (about ${this.fmtSteep(Math.round(last + 4))} after ${this.fmtSteep(last)}).`);
+                if (c.rating >= 4.5 && !over.length && !under.length) {
+                    k.mode = 'hold'; k.head = 'Repeat it exactly.'; k.next = this.teaRecipeLine({ ...c, yield: c.water, timeUnit: p.hours ? 'h' : '' });
+                    why.unshift('Your notes don\'t flag anything to fix.');
+                    k.conf = ref && c.rating > this.normalizeRating(ref.rating) ? 'a new best' : '';
+                    return k;
+                }
+                if (over.length) {
+                    k.mode = 'fix'; k.conf = 'from your notes';
+                    if (c.temp > 0 && info && c.temp > info.temp + 3 && !p.hours) {
+                        k.head = `Try cooler water: about ${info.temp}°C.`; k.next = `${info.temp}°C`;
+                        why.unshift(`Bitter or drying usually means the water was too hot for ${aType(c.type)} tea (${this.fmtNum(c.temp, 0)}°C this time).`);
+                    } else if (c.time > 0) {
+                        const t = p.hours ? Math.max(1, Math.round(c.time * 0.75 * 2) / 2) : Math.max(5, Math.round(c.time * 0.75));
+                        k.head = `Steep shorter: about ${fmtT(t)}.`; k.next = fmtT(t);
+                        why.unshift('Bitterness and astringency build the longer the leaf sits.');
+                    } else if (c.dose > 0) {
+                        const d = Math.max(0.5, Math.round(c.dose * 0.8 * 2) / 2);
+                        k.head = `Use a little less leaf: about ${this.fmtNum(d)} g.`; k.next = `${this.fmtNum(d)} g`;
+                    } else k.head = 'Cooler water or a shorter steep should soften it.';
+                    return k;
+                }
+                if (under.length) {
+                    k.mode = 'fix'; k.conf = 'from your notes';
+                    const ratio = c.dose > 0 && c.water > 0 ? c.water / c.dose : 0;
+                    if (ratio && ratio > p.ratio * 1.25) {
+                        const d = Math.round((c.water / p.ratio) * 2) / 2;
+                        k.head = `Use more leaf: about ${this.fmtNum(d)} g for ${this.fmtNum(c.water, 0)} ml.`; k.next = `${this.fmtNum(d)} g`;
+                        why.unshift(`Thin cups usually need more leaf: this was 1:${Math.round(ratio)}, ${c.method.toLowerCase()} usually runs nearer 1:${p.ratio}.`);
+                    } else if (c.time > 0) {
+                        const t = p.hours ? Math.round(c.time * 1.3 * 2) / 2 : Math.round(c.time * 1.3);
+                        k.head = `Steep longer: about ${fmtT(t)}.`; k.next = fmtT(t);
+                        why.unshift('More time pulls more body and sweetness out of the leaf.');
+                    } else if (c.temp > 0 && info && c.temp < info.temp - 5) {
+                        k.head = `Try hotter water: about ${info.temp}°C.`; k.next = `${info.temp}°C`;
+                    } else k.head = 'More leaf or a longer steep should fill it out.';
+                    return k;
+                }
+                if (on('balance') && v('balance') <= 3 && info && ['Oolong', 'Black', 'Pu-erh'].includes(c.type) && c.temp > 0 && c.temp < info.temp - 4) {
+                    k.mode = 'fix'; k.head = `Try hotter water: about ${info.temp}°C.`; k.next = `${info.temp}°C`;
+                    why.unshift(`A flat ${c.type.toLowerCase()} tea usually opens up closer to boiling.`);
+                    return k;
+                }
+                if (ref && c.rating > 0 && c.rating < this.normalizeRating(ref.rating)) {
+                    k.mode = 'toward'; k.head = `Go back toward your best cup of this tea (${this.shortDate(ref.date)}).`;
+                    const diffs = [];
+                    if (this.num(ref.temp) > 0 && c.temp > 0 && Math.abs(this.num(ref.temp) - c.temp) >= 3) diffs.push(`water ${this.fmtNum(ref.temp, 0)}°C (this time ${this.fmtNum(c.temp, 0)}°C)`);
+                    if (this.num(ref.time) > 0 && c.time > 0 && Math.abs(this.num(ref.time) - c.time) / this.num(ref.time) >= 0.15) diffs.push(`steep ${fmtT(this.num(ref.time))} (this time ${fmtT(c.time)})`);
+                    if (this.num(ref.dose) > 0 && c.dose > 0 && Math.abs(this.num(ref.dose) - c.dose) >= 0.5) diffs.push(`${this.fmtNum(ref.dose)} g leaf (this time ${this.fmtNum(c.dose)} g)`);
+                    if (diffs.length) why.unshift(`It had ${diffs.join(', ')}.`);
+                    k.next = this.teaRecipeLine(ref);
+                    return k;
+                }
+                k.head = c.tasted.length || c.notes.length || c.rating ? 'Nothing to fix from your notes. Keep it, or change one thing at a time.' : 'Taste it, then move the sliders that stood out: the advice reads them.';
+                return k;
+            },
+            teaTipHtml() { return this.coachHtml(this.teaCoach(this.teaFromForm()), 'Next cup'); },
+            teaTargetHtml(ref) {
+                return `<span>Target</span><b>Your best cup · ${this.esc(this.shortDate(ref.date))} · ${this.esc(this.fmtNum(this.normalizeRating(ref.rating)))}★ · ${this.esc(this.teaRecipeLine(ref))}</b>`;
+            },
+
+            // ---- monthly awards for tea (only when the month had tea): Cup of the Month, Tea Time, Tea Explorer, Steep Master
+            teaAwards(list, owner, top, add) {
+                const teas = list.filter(x => this.isTeaBrew(x));
+                if (!teas.length) return;
+                const tally = fn => { const t = new Map(); teas.forEach(x => { const v = fn(x); if (v) t.set(owner(x), (t.get(owner(x)) || 0) + v); }); return t; };
+                const rated = teas.filter(x => this.normalizeRating(x.rating) >= 4);
+                if (rated.length) {
+                    const likesOf = x => (Array.isArray(x.likes) ? x.likes.length : 0);
+                    const bestR = Math.max(...rated.map(x => this.normalizeRating(x.rating)));
+                    const cup = rated.filter(x => this.normalizeRating(x.rating) === bestR).sort((u, v) => likesOf(v) - likesOf(u) || this.localTime(u.date) - this.localTime(v.date))[0];
+                    const bean = this.beans.get(String(cup.beanId));
+                    add('cup', 'Cup of the Month', 'i-teabag', '#6E9E3F', { names: [owner(cup)], value: bestR, runner: null }, v => `${this.fmtNum(v)}★ · ${bean ? (String(bean.name || '').trim() || this.beanLabel(bean)) : 'a tea'}, ${this.shortDate(cup.date)}`, { shotId: String(cup.id) });
+                }
+                add('teatime', 'Tea Time', 'i-method-gongfu', '#7FA45B', top(tally(() => 1), 3), v => `${v} tea sessions`);
+                const kinds = new Map();
+                teas.forEach(x => { const p = owner(x); if (!kinds.has(p)) kinds.set(p, new Set()); kinds.get(p).add(this.groupKeyOfBrew(x)); });
+                add('tealeaf', 'Tea Explorer', 'i-compass', '#4F8A6B', top(new Map([...kinds].map(([p, set]) => [p, set.size])), 2), v => `${v} different teas`);
+                add('steeps', 'Steep Master', 'i-repeat', '#8C9A4B', top(tally(x => this.teaStepsOf(x).length), 8), v => `${v} steeps`);
+            },
+
+            // ---- recaps: a month (or year) of tea
+            teaRecap(teaBrews, all, inRange) {
+                const t = { count: teaBrews.length, leaf: teaBrews.reduce((s, b) => s + this.num(b.dose), 0), steeps: teaBrews.reduce((s, b) => s + Math.max(1, this.teaStepsOf(b).length), 0) };
+                const by = new Map(), types = new Map();
+                teaBrews.forEach(b => { const k = this.groupKeyOfBrew(b); by.set(k, (by.get(k) || 0) + 1); const bean = this.beans.get(String(b.beanId)); if (bean && bean.teaType) types.set(bean.teaType, (types.get(bean.teaType) || 0) + 1); });
+                const top = [...by.entries()].sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0])))[0];
+                if (top) { const sample = teaBrews.find(b => this.groupKeyOfBrew(b) === top[0]); const bean = this.beans.get(String(sample.beanId)); t.top = { name: bean ? String(bean.name || '').trim() || this.beanLabel(bean) : 'a tea', count: top[1] }; }
+                const tt = [...types.entries()].sort((a, b) => b[1] - a[1])[0];
+                if (tt) t.type = tt[0];
+                const first = new Map();
+                all.forEach(b => { if (!this.isTeaBrew(b)) return; const k = this.groupKeyOfBrew(b), at = this.toTime(b.date); if (at && (!first.has(k) || at < first.get(k))) first.set(k, at); });
+                t.newTeas = [...first.values()].filter(inRange).length;
+                return t;
+            },
+            teaRecapLines(t) {
+                const lines = [['Tea sessions', `${t.count} · ${t.steeps} steep${t.steeps === 1 ? '' : 's'}`]];
+                if (t.top) lines.push(['Top tea', `${t.top.name} · ${t.top.count}×`]);
+                if (t.type) lines.push(['Favorite type', t.type]);
+                lines.push(['New teas tried', String(t.newTeas || 0)]);
+                return lines;
+            },
+
+            // ---- achievements: tea's own group (sessions, different teas, kinds of tea, steeps), shown once there's tea
+            trackTea(stats, event, prev) {
+                const steeps = Math.max(1, this.teaStepsOf(event).length), before = prev && this.isTeaBrew(prev) ? Math.max(1, this.teaStepsOf(prev).length) : 0;
+                stats.steepTotal = Math.max(0, (stats.steepTotal || 0) + steeps - before);
+                if (prev) return;
+                stats.teaSessions = (stats.teaSessions || 0) + 1;
+                const bean = this.beans.get(String(event.beanId));
+                if (bean) { stats.teaSet.add(this.beanGroupKey(bean)); if (bean.teaType) stats.teaTypeSet.add(bean.teaType); }
+            },
+            achievementCatalogFor(user) {
+                const st = (this.achievementStatsByUser || {})[user];
+                const tea = Boolean(st && st.teaSessions > 0);
+                return this.getAchievementCatalog().filter(d => d.group !== 'Tea' || tea);
+            },

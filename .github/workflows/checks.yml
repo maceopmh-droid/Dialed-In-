@@ -42,6 +42,8 @@ jobs:
         run: node supabase/test_api.js --host localhost --user postgres
       - name: "The Shot Logger: machines sending shots, drafts, posting (v16.9)"
         run: node supabase/test_shots.js --host localhost --user postgres
+      - name: "Tea (v17.0): teas save as teas, tea sessions keep their steeps, teas and coffees never mix"
+        run: node supabase/test_tea.js --host localhost --user postgres
 
   machine-functions:
     name: Shot Logger machine functions (Deno)

@@ -305,6 +305,35 @@
                         const refR = k && k.ref ? this.normalizeRating(k.ref.rating) : 0, r = this.normalizeRating(b.rating);
                         check(k && !(r > 0 && refR > 0 && r >= refR && /Head back to your/.test(k.head)) && !(/^Close\./.test(k.head) && r > 0 && refR - r > 1), `coach ${i}: never steers back to a worse best, "Close." only when close`);
                     }
+                    // 14b. tea (v17.0): words, numbers and the next-cup advice, on made-up cups (nothing is saved)
+                    section = 'tea';
+                    {
+                        const drink0 = this.drinkNow();
+                        check(TEA_METHODS.every(m => this.isTeaMethod(m) && METHOD_PROFILES[m] && METHOD_PROFILES[m].tea) && COFFEE_METHODS.every(m => !this.isTeaMethod(m)) && !TEA_METHODS.some(m => COFFEE_METHODS.includes(m)), 'tea methods are their own (no name shared with coffee)');
+                        check(this.tasteLabel('acidity', 'tea') === 'Astringency' && this.tasteLabel('acidity', 'coffee') === 'Acidity' && this.tasteMetaFor('tea').map(x => x[0]).join() === TASTE_META.map(x => x[0]).join(), 'tea sliders keep coffee\'s places, in tea words');
+                        check(this.drinkWords('tea').company === 'brand' && this.drinkWords('coffee').company === 'roaster', 'a tea company is a brand, never a roaster');
+                        const notesT = TEA_WHEEL.flatMap(f => f.groups.flatMap(g => g[1]));
+                        check(notesT.length > 60 && notesT.every(n => { const at = this.noteLocate(n, 'tea'); return at && at.f >= 0 && at.color; }), 'every tea note is on the tea wheel, with a color');
+                        const words = ['sour', 'bitter', 'harsh', 'drying', 'thin', 'watery', 'sweet', 'great', 'stewed', 'flat'];
+                        const types = [...TEA_TYPES, ''];
+                        for (let i = 0; i < 160; i++) {
+                            const m = pick(TEA_METHODS), tp = pick(types), steepsN = m === 'Gongfu' ? Math.floor(rnd() * 7) : m === 'Western' ? Math.floor(rnd() * 3) : 0;
+                            const vals = {}, tasted = [];
+                            TASTE_KEYS.forEach(k => { vals[k] = 1 + Math.floor(rnd() * 10); if (rnd() < 0.6) tasted.push(k); });
+                            const c = { id: `st-tea-${i}`, method: pick([m, m, m, '']), dose: pick([0, 2, 3, 4.5, 5, 7]), water: pick([0, 80, 100, 250, 350, 500]), time: m === 'Cold Steep' ? pick([0, 6, 8, 12]) : pick([0, 10, 20, 45, 120, 180, 300]),
+                                temp: pick([0, 70, 80, 85, 90, 95, 100]), steeps: Array.from({ length: steepsN }, (_, j) => 10 + j * 5), values: vals, tasted, notes: [pick(words), pick(words)].filter(() => rnd() < 0.6), rating: pick([0, 2, 3, 4, 4.5, 5]), type: tp,
+                                key: 'tea|st', owner: 'st-tea-nobody', date: '2026-10-01' };
+                            const k = safe('tea coach', () => this.teaCoach(c));
+                            const text = k ? [k.head, k.next || '', ...k.why, ...k.ctx.map(x => x.join(' ')), ...k.ev.map(e => e.text)].join(' ') : '';
+                            check(k && k.head && !bad(text) && !/grind|finer|coarser|click/i.test(text), `tea coach ${i}: tea advice only (no grind)`);
+                            const b = { id: c.id, method: c.method || 'Western', dose: c.dose, yield: c.water, time: c.time, temp: c.temp, steeps: c.steeps, rating: c.rating };
+                            const strip = safe('tea strip', () => this.teaStripHtml(b)) || '', line = safe('tea line', () => this.teaRecipeLine(b));
+                            check(!bad(strip) && !bad(line || '') && /Leaf/.test(strip) && /Water/.test(strip) && !/Grind|Pull/.test(strip), `tea card ${i}: Leaf / Water / Steep / Temp`);
+                        }
+                        const fakeBrand = { coffees: [] };
+                        check(this.teaBrandStyle(fakeBrand) === 'No type or origin logged yet.' && JSON.stringify(this.teaTypeCounts(fakeBrand)) === '{}', 'a brand with nothing logged says so');
+                        check(this.drinkNow() === drink0, 'the Coffees / Teas choice is left as it was');
+                    }
                     // 15. polish (v11.8)
                     section = 'screens';
                     check(this.coverArt({ roaster: '\u{1F1E8}\u{1F1F2}', name: 'Mystery' }).initials === '\u{1F1E8}\u{1F1F2}' && this.coverArt({ roaster: 'Urbana Roasters' }).initials === 'UR' && this.coverArt({ name: 'x' }).initials === 'X', 'cover tiles: whole flag emoji, letters otherwise');

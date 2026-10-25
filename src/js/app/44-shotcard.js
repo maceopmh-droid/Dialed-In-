@@ -10,16 +10,24 @@
                 const tasted = this.tastedKeys(b), notes = this.extractFlavors(b);
                 const r = this.normalizeRating(b.rating), dose = Number(b.dose) || 0, out = Number(b.yield) || 0, time = Number(b.time) || 0;
                 const t = this.localTime(b.date);
-                const boxes = [];
+                const boxes = [], tea = this.isTeaBrew(b);   // v17.0: a tea's card: leaf in water, the steep (and how many), the temperature
+                if (tea) {
+                    const temp = Number(b.temp) || 0, steeps = this.teaStepsOf(b), p = this.methodProfile(b.method);
+                    if (dose || out) boxes.push({ big: [dose ? [this.fmtNum(dose, 1), ' g'] : null, out ? [this.fmtNum(out, 0), ' ml'] : null].filter(Boolean), small: dose && out ? `leaf · 1:${this.fmtNum(out / dose, 0)}` : (dose ? 'leaf' : 'water'), wide: true });
+                    if (time) boxes.push({ big: [p.hours ? [this.fmtNum(time, 1), ' h'] : time >= 60 ? [this.clock(time), ''] : [String(Math.round(time)), ' s']], small: steeps.length > 1 ? `${steeps.length} steeps` : 'steep' });
+                    else if (temp) boxes.push({ big: [[String(Math.round(temp)), '°C']], small: 'water' });
+                    if (r > 0) boxes.push({ big: [[this.formatRating(r), '★']], small: this.methodLabel(b.method) || 'rating' });
+                } else {
                 if (dose || out) boxes.push({ big: [dose ? [this.fmtNum(dose, 1), ' g'] : null, out ? [this.fmtNum(out, 1), ' g'] : null].filter(Boolean), small: dose && out ? `1:${this.fmtNum(out / dose, 1)}` : (dose ? 'dose' : 'out'), wide: true });
                 if (time) boxes.push({ big: [b.method === 'Espresso' || !b.method ? [String(Math.round(time)), ' s'] : [this.clock(time), '']], small: 'time' });
                 if (r > 0) boxes.push({ big: [[this.formatRating(r), '★']], small: String(b.method || '') || 'rating' });
+                }
                 return {
                     name: this.getBrewOwner(b) || this.user, color: this.getUserColor(this.getBrewOwner(b) || this.user),
                     date: t ? new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '',
-                    coffee: String(bean.name || '').trim() || 'A coffee', roaster: String(bean.roaster || '').trim(), origin: String(bean.origin || '').trim(),
-                    boxes, tasted, shape: tasted.length ? this.shapeValues(b) : null,
-                    words: this.describeCup(this.shapeValues(b), tasted, notes, this.noteIntensities(b)) || ''
+                    coffee: String(bean.name || '').trim() || (tea ? 'A tea' : 'A coffee'), roaster: String(bean.roaster || '').trim(), origin: [tea ? bean.teaType : '', String(bean.origin || '').trim()].filter(Boolean).join(' · '),
+                    boxes, tasted, shape: tasted.length ? this.shapeValues(b) : null, tea,
+                    words: this.describeCup(this.shapeValues(b), tasted, notes, this.noteIntensities(b), tea ? 'tea' : 'coffee') || ''
                 };
             },
             // your photo, read so it can be drawn into the picture (a link that doesn't allow that is skipped)
@@ -67,7 +75,7 @@
                 const loadImg = src => new Promise(ok => { if (!src) return ok(null); const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; });
                 const round = (x, y, w, h, r) => { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); };
                 const darkTheme = { line: '#3A443B', muted: '#8D978E', ink: '#E8EEE8', surface: '#141915', dark: true };
-                const shapeImg = D.shape && typeof FlavorShape !== 'undefined' ? await loadImg((() => { try { return FlavorShape.snapshot(D.shape, null, { width: 420, height: 320, zoom: 1.12, labels: !photo, isSet: k => D.tasted.includes(k), setKey: 'shot-' + (photo ? 'p' : 'n'), theme: darkTheme, dpr: 2.4 }); } catch (e) { return ''; } })()) : null;
+                const shapeImg = D.shape && typeof FlavorShape !== 'undefined' ? await loadImg((() => { try { return FlavorShape.snapshot(D.shape, null, { names: D.tea ? 'tea' : null, width: 420, height: 320, zoom: 1.12, labels: !photo, isSet: k => D.tasted.includes(k), setKey: 'shot-' + (photo ? 'p' : 'n'), theme: darkTheme, dpr: 2.4 }); } catch (e) { return ''; } })()) : null;
 
                 // the background
                 if (photo) {
