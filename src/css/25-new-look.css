@@ -709,7 +709,7 @@
         html[data-look="new"] .profile-view .hero-avatar { border: 0 !important; outline: 3px solid var(--ring, var(--hl)); outline-offset: 3px; }
         /* v17.5: open, the comment pill grows down into the box that holds the comments (as it used to) */
         html[data-look="new"] .nl-card .thread.compact.open .thread-row { align-items: stretch; }
-        html[data-look="new"] .nl-card .thread.compact.open .thread-toggle { align-self: stretch !important; height: auto; min-height: 48px; border-radius: 24px 24px 0 0 !important; border-color: transparent !important; position: relative; }
+        html[data-look="new"] .nl-card .thread.compact.open .thread-toggle { align-self: stretch !important; height: auto; min-height: 48px; border-radius: 24px 24px 0 0 !important; border-width: 0 !important; padding: 0 7px 0 16px !important; position: relative; }   /* (v17.6: no border at all when open, so the curve beside it and the box below meet it with no seam) */
         html[data-look="new"] .nl-card .thread.compact.open .thread-toggle::before { display: block !important; content: '' !important; position: absolute; left: -20px; bottom: 0; width: 20px; height: 20px; pointer-events: none; background: radial-gradient(circle at 0 0, transparent 19.5px, var(--pill) 20px); }
         html[data-look="new"] .nl-card .thread.compact.open .thread-body { background: var(--pill); border-radius: 22px 0 22px 22px; padding: 6px 16px 16px; margin: 0; }
         /* v17.5: an achievement on a card is its own little card in the earner's color (tap: their achievements) */
@@ -751,3 +751,10 @@
         html[data-look="new"] .modal-card input[type="date"]::-webkit-date-and-time-value { text-align: left; margin: 0; line-height: 48px; min-height: 48px; }
         html[data-look="new"] .modal-card input[type="date"]::-webkit-datetime-edit { padding: 0; line-height: 48px; }
         html[data-look="new"] #roaster-modal form > label { margin: 18px 0 8px !important; }
+        /* v17.6: a profile's sessions as rows in one box, like the coffee page's */
+        html[data-look="new"] .nl-proflogs { background: var(--box); border: 1px solid var(--hl); border-radius: 20px; overflow: hidden; }
+        html[data-look="new"] .nl-proflogs > * + * { border-top: 1px solid var(--hl); }
+        html[data-look="new"] .nl-proflogs .comm-more { width: 100%; justify-content: center; color: var(--k) !important; background: none !important; border: 0 !important; border-radius: 0 !important; font-weight: 650; min-height: 54px; margin: 0 !important; box-shadow: none !important; }
+        html[data-look="new"] .nl-lr-coffee { font-family: var(--nl-hand); font-weight: 600; font-size: 16px; line-height: 1.15; color: var(--n); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        /* v17.6: a long name beside a coffee's tile wraps into two even lines, smaller, instead of one word a line */
+        html[data-look="new"] .nl-name { text-wrap: balance; }

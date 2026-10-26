@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v17.5 -->
+<!-- Dialed In v17.6 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="17.5">
+    <meta name="dialed-in-version" content="17.6">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -4868,7 +4868,7 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] .profile-view .hero-avatar { border: 0 !important; outline: 3px solid var(--ring, var(--hl)); outline-offset: 3px; }
         /* v17.5: open, the comment pill grows down into the box that holds the comments (as it used to) */
         html[data-look="new"] .nl-card .thread.compact.open .thread-row { align-items: stretch; }
-        html[data-look="new"] .nl-card .thread.compact.open .thread-toggle { align-self: stretch !important; height: auto; min-height: 48px; border-radius: 24px 24px 0 0 !important; border-color: transparent !important; position: relative; }
+        html[data-look="new"] .nl-card .thread.compact.open .thread-toggle { align-self: stretch !important; height: auto; min-height: 48px; border-radius: 24px 24px 0 0 !important; border-width: 0 !important; padding: 0 7px 0 16px !important; position: relative; }   /* (v17.6: no border at all when open, so the curve beside it and the box below meet it with no seam) */
         html[data-look="new"] .nl-card .thread.compact.open .thread-toggle::before { display: block !important; content: '' !important; position: absolute; left: -20px; bottom: 0; width: 20px; height: 20px; pointer-events: none; background: radial-gradient(circle at 0 0, transparent 19.5px, var(--pill) 20px); }
         html[data-look="new"] .nl-card .thread.compact.open .thread-body { background: var(--pill); border-radius: 22px 0 22px 22px; padding: 6px 16px 16px; margin: 0; }
         /* v17.5: an achievement on a card is its own little card in the earner's color (tap: their achievements) */
@@ -4910,6 +4910,13 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] .modal-card input[type="date"]::-webkit-date-and-time-value { text-align: left; margin: 0; line-height: 48px; min-height: 48px; }
         html[data-look="new"] .modal-card input[type="date"]::-webkit-datetime-edit { padding: 0; line-height: 48px; }
         html[data-look="new"] #roaster-modal form > label { margin: 18px 0 8px !important; }
+        /* v17.6: a profile's sessions as rows in one box, like the coffee page's */
+        html[data-look="new"] .nl-proflogs { background: var(--box); border: 1px solid var(--hl); border-radius: 20px; overflow: hidden; }
+        html[data-look="new"] .nl-proflogs > * + * { border-top: 1px solid var(--hl); }
+        html[data-look="new"] .nl-proflogs .comm-more { width: 100%; justify-content: center; color: var(--k) !important; background: none !important; border: 0 !important; border-radius: 0 !important; font-weight: 650; min-height: 54px; margin: 0 !important; box-shadow: none !important; }
+        html[data-look="new"] .nl-lr-coffee { font-family: var(--nl-hand); font-weight: 600; font-size: 16px; line-height: 1.15; color: var(--n); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        /* v17.6: a long name beside a coffee's tile wraps into two even lines, smaller, instead of one word a line */
+        html[data-look="new"] .nl-name { text-wrap: balance; }
     </style>
 </head>
 <body>
@@ -5541,7 +5548,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v17.5</div>
+            <div class="app-version">Dialed In · v17.6</div>
         </div>
     </div>
 
@@ -20027,8 +20034,9 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 }
                 const shown = this._profShow && this._profShow.who === who ? this._profShow.n : 15;
                 const n = Math.min(list.length, shown);
-                const cards = list.slice(0, n).map(b => this.renderFeedSessionCard({ kind: 'session', brewId: b.id, date: b.date, actorColor: b.actorColor || '' })).join('');
                 const more = list.length > n ? `<button type="button" class="btn-outline comm-more" onclick="app.profileMore()">Show older sessions</button>` : '';
+                if (this.newLook && this.newLook() && this.nlProfileSessionsHtml) return this.nlProfileSessionsHtml(list, n, more);   // v17.6: rows, like the coffee page
+                const cards = list.slice(0, n).map(b => this.renderFeedSessionCard({ kind: 'session', brewId: b.id, date: b.date, actorColor: b.actorColor || '' })).join('');
                 return `<div class="profile-feed">${cards}${more}</div>`;
             },
 
@@ -24624,7 +24632,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         let size = max; set(size);
                         const lh = () => parseFloat(getComputedStyle(el).lineHeight) || size * 1.02;
                         const wordSplit = () => { el.style.overflowWrap = 'normal'; el.style.wordBreak = 'normal'; const s = el.scrollWidth > el.clientWidth + 1; el.style.overflowWrap = ''; el.style.wordBreak = ''; return s; };
-                        while (size > min && (el.scrollHeight > lh() * lines + 2 || wordSplit())) { size -= 2; set(size); }
+                        while (size > min && (Math.round(el.scrollHeight / lh()) > lines || wordSplit())) { size -= 2; set(size); }   // (v17.6: lines counted, so a letter's tail below the last line isn't taken for another line)
                     }
                     el.setAttribute('data-nl-fitted', '1');
                 });
@@ -24808,7 +24816,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     <article class="nl-card ${ph ? 'has-photo' : withShape ? 'has-shape' : 'is-flat'}" data-fam="${fam}" onclick="app.openFeedTarget('${app.escJs(bean.id)}','',false)">
                         ${media}
                         <div class="nl-body">
-                            <div class="nl-titlerow nl-beanrow">${ph ? '' : this.nlCoverHtml(bean, 'nl-cover nl-bcover')}<div class="nl-titles">${this.nlRoasterHtml(bean, tea)}<h2 class="nl-name" data-nl-fit="44,28,3,28" style="font-size:${this.nlNameSize(bean.name, 322, 44, 34, 2)}px">${this.esc(bean.name || (tea ? 'Tea' : 'Coffee'))}</h2></div></div>
+                            <div class="nl-titlerow nl-beanrow">${ph ? '' : this.nlCoverHtml(bean, 'nl-cover nl-bcover')}<div class="nl-titles">${this.nlRoasterHtml(bean, tea)}<h2 class="nl-name" data-nl-fit="44,26,2,34" style="font-size:${this.nlNameSize(bean.name, 230, 44, 26, 2)}px">${this.esc(bean.name || (tea ? 'Tea' : 'Coffee'))}</h2></div></div>
                             ${tags.length ? `<div class="nl-badges">${tags.map(t => `<span class="nl-badge">${this.esc(t)}</span>`).join('')}</div>` : ''}
                             ${this.nlSocial('bean', { ...bean, comments }, likes, `app.toggleBeanLike('${app.escJs(bean.id)}', event)`)}
                         </div>
@@ -25142,14 +25150,26 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             },
 
             // a session on the coffee page: one row (who, when, the numbers, their words); tap it for the Session screen
-            nlLogRow(log) {
+            // (v17.6: on a profile, o.coffee: the row names the coffee instead of the person)
+            nlLogRow(log, o = {}) {
                 const owner = this.getBrewOwner(log), fam = this.famOfBrew(log), ph = this.nlPhoto(log), r = this.normalizeRating(log.rating);
                 const dose = this.num(log.dose), yld = this.num(log.yield), tea = this.isTeaBrew(log);
                 const t = this.nlTimeVal(log).replace(/<\/?small>/g, '');   // ("30 s", like the tiles)
                 const spec = [dose > 0 && yld > 0 ? `${this.fmtNum(dose, 1)} g → ${this.fmtNum(yld, tea ? 0 : 1)} ${tea ? 'ml' : 'g'}` : '', t].filter(Boolean).join(' · ');
                 const words = this.getBrewNotes(log);
                 const thumb = ph ? `<span class="nl-thumb session-photo-wrap">${this.nlPhotoImg(ph, 'nl-photo', '')}</span>` : this.nlHasShape(log) ? `<span class="nl-thumb nl-thumb-shape" data-fam="${fam}">${this.nlShapeImg(log, fam, { cls: 'nl-shape', w: 150, h: 120 })}</span>` : `<span class="nl-thumb nl-thumb-method" data-fam="${fam}"><svg class="nl-ic"><use href="${this.methodIconUse(log.method)}"/></svg></span>`;
-                return `<div class="nl-logrow" role="button" tabindex="0" onclick="app.openSession('${app.escJs(log.id)}')">${thumb}<div class="nl-lr-main"><div class="nl-lr-top">${this.nlSig(owner, null, 'nl-sig', 16)}<span class="nl-ago" data-time="${this.esc(String(log.date || ''))}">${this.esc(this.nlAgo(log.date))}</span></div><b>${this.esc(spec || this.methodLabel(log.method) || '')}${r > 0 ? ` <span class="nl-gold">· ${this.esc(this.fmtNum(r, 1))} ★</span>` : ''}</b>${words || log.method ? `<small>${!tea && log.method && log.method !== 'Espresso' ? `${this.esc(this.methodLabel(log.method))} · ` : tea ? `${this.esc(this.methodLabel(log.method))} · ` : ''}${words ? `“${this.esc(this.shortText(words, 70))}”` : ''}</small>` : ''}</div></div>`;
+                return `<div class="nl-logrow" role="button" tabindex="0" onclick="app.openSession('${app.escJs(log.id)}')">${thumb}<div class="nl-lr-main"><div class="nl-lr-top">${o.coffee ? this.nlLogCoffee(log) : this.nlSig(owner, null, 'nl-sig', 16)}<span class="nl-ago" data-time="${this.esc(String(log.date || ''))}">${this.esc(this.nlAgo(log.date))}</span></div><b>${this.esc(spec || this.methodLabel(log.method) || '')}${r > 0 ? ` <span class="nl-gold">· ${this.esc(this.fmtNum(r, 1))} ★</span>` : ''}</b>${words || log.method ? `<small>${!tea && log.method && log.method !== 'Espresso' ? `${this.esc(this.methodLabel(log.method))} · ` : tea ? `${this.esc(this.methodLabel(log.method))} · ` : ''}${words ? `“${this.esc(this.shortText(words, 70))}”` : ''}</small>` : ''}</div></div>`;
+            },
+
+            nlLogCoffee(log) {
+                const bean = this.beans.get(String(log.beanId || '')) || {}, tea = this.isTeaBrew(log);
+                const name = String(bean.name || '').trim() || (tea ? 'A tea' : 'A coffee');
+                return `<span class="nl-lr-coffee">${this.esc(name)}</span>`;
+            },
+            // v17.6: a profile's sessions as the coffee page shows them: one row each in a box (the coffee, when, the
+            // numbers, their words); tap one for the Session screen
+            nlProfileSessionsHtml(list, n, more) {
+                return `<div class="nl-proflogs">${list.slice(0, n).map(b => this.nlLogRow(b, { coffee: true })).join('')}${more}</div>`;
             },
 
             // ===================== the share image (1080 x 1920): the card's anatomy =====================
@@ -25352,28 +25372,46 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 return Object.entries(t).map(([k, v]) => `${k}: ${v};`).join(' ');
             },
 
-            // ---- a note's own color (null for "Tastes off" and notes that aren't on a wheel)
-            noteHue(name, kind) {
+            // ---- a note's own color (null for "Tastes off" and notes that aren't on a wheel): its hue, how colorful, its family
+            noteColor(name, kind) {
                 const at = this.noteLocate(name, kind);
                 if (!at || at.f < 0) return null;
                 const W = at.wheel === 'tea' ? TEA_WHEEL : NOTE_WHEEL, fam = W[at.f], famKey = fam && this.NL_WHEEL_FAM[fam.fam];
                 if (!famKey || famKey === 'off') return null;
-                return (at.note && this.NL_HUES.n[at.note]) || (at.g >= 0 && this.NL_HUES.g[fam.groups[at.g][0]]) || this.NL_HUES.f[famKey] || null;
+                const hc = (at.note && this.NL_HUES.n[at.note]) || (at.g >= 0 && this.NL_HUES.g[fam.groups[at.g][0]]) || this.NL_HUES.f[famKey] || null;
+                return hc ? { h: hc[0], C: hc[1], fam: famKey } : null;
             },
+            noteHue(name, kind) { const c = this.noteColor(name, kind); return c ? [c.h, c.C] : null; },
             noteToneKey(name, kind) { const hc = this.noteHue(name, kind); return hc ? this.nlToneKey(hc[0], hc[1]) : 'off'; },
-            // the blend of a set of notes ([[name, strength, kind]]): their colors averaged in OKLab by strength; very different
-            // notes average toward a quieter color, never grey (null when none has a color)
+            // v17.6: how much a family's notes lead a cup's color. Nearly every coffee has some chocolate, caramel or nuts, so
+            // those lead a little less; flowers, greens and herbs a little more. (Fixed, so everyone's phone shows the same.)
+            NL_FAM_WEIGHT: { sweet: 0.7, nutty: 0.7, earthy: 0.7, spice: 0.8, fruity: 1, fermented: 1.05, vegetal: 1.15, herbal: 1.15, floral: 1.3 },
+            // the color of a set of notes ([[name, strength, kind]]). v17.6, less muddy: the plain average of a cup's notes is
+            // nearly always a brown, so the hue comes from its leading group of notes (those within 45° of each other on the
+            // color wheel, weighed by strength, how colorful each is and its family) instead of averaging across the wheel.
+            // How colorful it is stays as quiet as before (all the notes averaged by strength; Maceo: "more muted like it was
+            // before"), a tea a little brighter. (null when no note has a color)
             toneOfNotes(notes) {
-                let A = 0, B = 0, W = 0;
+                const pts = [];
+                let tea = false;
                 (notes || []).forEach(([name, s, kind]) => {
-                    const hc = this.noteHue(name, kind);
-                    if (!hc) return;
-                    const w = Number(s) >= 1 && Number(s) <= 3 ? Number(s) : 2;
-                    A += w * hc[1] * Math.cos(hc[0] * Math.PI / 180); B += w * hc[1] * Math.sin(hc[0] * Math.PI / 180); W += w;
+                    const c = this.noteColor(name, kind);
+                    if (kind === 'tea') tea = true;
+                    if (!c) return;
+                    const st = Number(s) >= 1 && Number(s) <= 3 ? Number(s) : 2;
+                    const quiet = c.h >= 30 && c.h <= 80 && c.C < 0.11 ? 0.6 : 1;   // (the browns)
+                    pts.push({ h: c.h, C: c.C, st, w: st * Math.max(0.15, c.C / 0.12) * quiet * (this.NL_FAM_WEIGHT[c.fam] || 1) });
                 });
-                if (!W) return null;
-                const C = Math.hypot(A, B) / W, h = ((Math.atan2(B, A) * 180 / Math.PI) + 360) % 360;
-                return this.nlToneKey(h, Math.max(0.035, C));
+                if (!pts.length) return null;
+                const apart = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
+                let best = null;
+                pts.forEach(c => { const near = pts.filter(q => apart(q.h, c.h) <= 45), w = near.reduce((t, q) => t + q.w, 0); if (!best || w > best.w + 1e-9) best = { w, near }; });
+                let A = 0, B = 0;
+                best.near.forEach(q => { A += q.w * Math.cos(q.h * Math.PI / 180); B += q.w * Math.sin(q.h * Math.PI / 180); });
+                const h = ((Math.atan2(B, A) * 180 / Math.PI) + 360) % 360;
+                let a = 0, b = 0, S = 0;   // (how colorful: as before, every note's color averaged by its strength)
+                pts.forEach(q => { a += q.st * q.C * Math.cos(q.h * Math.PI / 180); b += q.st * q.C * Math.sin(q.h * Math.PI / 180); S += q.st; });
+                return this.nlToneKey(h, Math.max(0.035, Math.hypot(a, b) / S) * (tea ? 1.2 : 1));
             },
 
             // ---- a coffee's picture: { hue, tone (0-100), photo (a path in your folder of public pictures) } saved on the
@@ -25401,12 +25439,13 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             coffeeToneKey(bean) {
                 if (!bean) return 'app';
                 const cb = this.coverBean(bean), cov = this.coverOf(cb);
-                if (cov && cov.hue !== null) return this.nlToneKey(cov.hue, 0.012 + 0.12 * Math.max(0.1, Math.min(1, cov.tone / 100)));
+                const teaB = !!(this.isTeaBean && this.isTeaBean(bean));
+                if (cov && cov.hue !== null) return this.nlToneKey(cov.hue, (0.012 + 0.12 * Math.max(0.1, Math.min(1, cov.tone / 100))) * (teaB ? 1.2 : 1));   // (v17.6: a tea a little brighter)
                 const key = this.beanGroupKey(bean);
                 return this.nlFamOf(`ct:${key}`, () => {
                     const first = [...this.brews.values()].filter(b => { const bn = this.beans.get(String(b.beanId)); return bn && this.beanGroupKey(bn) === key; }).sort((a, b) => this.toTime(a.date) - this.toTime(b.date))
                         .find(b => this.toneOfNotes(this.brewNoteList(b)));
-                    return (first && this.toneOfNotes(this.brewNoteList(first))) || this.nlToneKey(this.nlNameHue(`${bean.roaster || ''}|${bean.name || ''}`), 0.09);
+                    return (first && this.toneOfNotes(this.brewNoteList(first))) || this.nlToneKey(this.nlNameHue(`${bean.roaster || ''}|${bean.name || ''}`), teaB ? 0.12 : 0.09);
                 });
             },
             // a coffee's picture: its color (a gradient), the name's first letters, and its photo if it has one
