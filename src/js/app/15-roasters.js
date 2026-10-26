@@ -346,7 +346,7 @@
                 const r = this.roasterFind(this.roasterOpen, kind);   // v13.4: still there after a merge from another phone
                 if (!r) { this.goBackPage(); return; }
                 this.roasterOpen = r.key;
-                if (this.newLook && this.newLook()) page.setAttribute('data-fam', this.famOfRoaster(r.name, kind)); else if (page.hasAttribute('data-fam')) page.removeAttribute('data-fam');   // v17.2
+                if (this.newLook && this.newLook()) page.setAttribute('data-fam', this.famOfRoaster(r.name, kind)); else if (page.getAttribute && page.getAttribute('data-fam') !== null && page.removeAttribute) page.removeAttribute('data-fam');   // v17.2
                 const esc = s => this.esc(s);
                 const fav = this.user && r.favBy.includes(this.user), local = !!(this.user && (r.localBy || []).includes(this.user));   // v15.8
                 const info = r.info || {};

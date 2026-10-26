@@ -2,7 +2,7 @@
             // A second look behind a switch (Settings, Appearance), saved per phone. Off is the app exactly as before:
             // every rule in 25-new-look.css sits under html[data-look="new"], and every new piece of markup here is only
             // drawn when newLook() says so. The data, features and who-sees-what are the same in both looks.
-            newLook() { return typeof document !== 'undefined' && document.documentElement.getAttribute('data-look') === 'new'; },
+            newLook() { return typeof document !== 'undefined' && !!document.documentElement && typeof document.documentElement.getAttribute === 'function' && document.documentElement.getAttribute('data-look') === 'new'; },
 
             toggleNewLook(btn) {
                 const on = !(window.__dialedLook && window.__dialedLook.isNew());
@@ -268,7 +268,7 @@
 
             // after every draw: shapes, names, and the Session screen if it's open
             nlAfterRender() {
-                if (!this.newLook()) { if (document.body.hasAttribute('data-nltab')) document.body.removeAttribute('data-nltab'); const g = document.getElementById('grid'); if (g && g.hasAttribute('data-fam')) g.removeAttribute('data-fam'); return; }
+                if (!this.newLook()) { const bd = typeof document !== 'undefined' ? document.body : null; if (bd && bd.hasAttribute && bd.hasAttribute('data-nltab')) bd.removeAttribute('data-nltab'); const g = typeof document !== 'undefined' && document.getElementById ? document.getElementById('grid') : null; if (g && g.hasAttribute && g.hasAttribute('data-fam')) g.removeAttribute('data-fam'); return; }
                 if (document.body.getAttribute('data-nltab') !== this.tab) document.body.setAttribute('data-nltab', this.tab);
                 const grid = document.getElementById('grid');
                 if (grid) { if (this.tab === 'profile' && this.profileUser) grid.setAttribute('data-fam', this.famOfPerson(this.profileUser)); else if (grid.hasAttribute('data-fam')) grid.removeAttribute('data-fam'); }
@@ -376,7 +376,7 @@
             },
 
             // ===================== the Session screen =====================
-            sessionViewActive() { const v = typeof document !== 'undefined' && document.getElementById('session-view'); return !!(v && v.classList.contains('active')); },
+            sessionViewActive() { const v = typeof document !== 'undefined' && document.getElementById ? document.getElementById('session-view') : null; return !!(v && v.classList && v.classList.contains('active')); },
 
             openSession(brewId, opts = {}) {
                 const brew = this.brews.get(String(brewId));
@@ -403,8 +403,8 @@
             },
 
             closeSession(instant) {
-                const v = typeof document !== 'undefined' && document.getElementById('session-view');
-                if (!v || !v.classList.contains('active')) return;
+                if (!this.sessionViewActive()) return;
+                const v = document.getElementById('session-view');
                 document.body.classList.remove('nls-open');
                 const done = () => { v.classList.remove('active', 'closing'); v.setAttribute('aria-hidden', 'true'); v.hidden = true; v.style.transform = ''; this._sessionId = ''; const pg = document.getElementById('nls-page'); if (pg) pg.innerHTML = ''; this._nlsHtml = ''; };
                 if (instant) { done(); return; }
@@ -525,9 +525,9 @@
 
             // a sheet or page in one thing's colors (the New look); with it off, nothing is left behind
             nlTint(sel, fam) {
-                const el = typeof document !== 'undefined' && document.querySelector(sel);
-                if (!el) return;
-                if (this.newLook()) el.setAttribute('data-fam', fam || 'app'); else if (el.hasAttribute('data-fam')) el.removeAttribute('data-fam');
+                const el = typeof document !== 'undefined' && typeof document.querySelector === 'function' ? document.querySelector(sel) : null;
+                if (!el || !el.setAttribute) return;
+                if (this.newLook()) el.setAttribute('data-fam', fam || 'app'); else if (el.getAttribute && el.getAttribute('data-fam') !== null && el.removeAttribute) el.removeAttribute('data-fam');
             },
 
             // ===================== Coffees: a tile per coffee, in its family =====================
@@ -566,13 +566,13 @@
 
             // ===================== the coffee page: tinted, its photo leading =====================
             nlDecorateDetail(group, brews) {
-                const view = document.getElementById('detail-view'), hero = view && view.querySelector('.detail-hero');
+                const view = typeof document !== 'undefined' && document.getElementById ? document.getElementById('detail-view') : null, hero = view && typeof view.querySelector === 'function' ? view.querySelector('.detail-hero') : null;
                 if (!view || !hero) return;
                 let photo = hero.querySelector('.nl-dphoto');
                 if (!this.newLook()) {
-                    if (view.hasAttribute('data-fam')) view.removeAttribute('data-fam');
-                    if (photo) photo.remove();
-                    hero.classList.remove('nl-has-photo');
+                    if (view.getAttribute && view.getAttribute('data-fam') !== null && view.removeAttribute) view.removeAttribute('data-fam');
+                    if (photo && photo.remove) photo.remove();
+                    if (hero.classList) hero.classList.remove('nl-has-photo');
                     return;
                 }
                 const bean = group.meta, fam = this.famOfCoffee(bean);
