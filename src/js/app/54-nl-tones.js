@@ -218,7 +218,7 @@
                 tile.style.background = `linear-gradient(145deg, ${P.tileA}, ${P.tileB})`;
                 tile.innerHTML = `${c.photo && this.faceUrl ? `<img src="${this.esc(this.faceUrl(c.photo))}" alt="">` : ''}${words.length ? `<b>${this.esc(ini)}</b>` : '<svg class="icon nl-ic"><use href="#i-bean"/></svg>'}`;
                 const near = this.NL_COVER_HUES.reduce((a, h) => (Math.abs(((h - c.hue + 540) % 360) - 180) < Math.abs(((a - c.hue + 540) % 360) - 180) ? h : a), this.NL_COVER_HUES[0]);
-                sw.innerHTML = this.NL_COVER_HUES.map(h => { const k = this.nlToneKey(h, 0.084), q = this.nlTonePal(k, this.nlDark()); return `<button type="button" role="radio" aria-checked="${h === near}" aria-label="Color ${h}" style="background:linear-gradient(145deg, ${q.tileA}, ${q.tileB})" onclick="app.pickCoverHue(${h}, '${ctx}')"></button>`; }).join('');
+                sw.innerHTML = this.NL_COVER_HUES.map(h => { const k = this.nlToneKey(h, 0.084), q = this.nlTonePal(k, this.nlDark()); return `<button type="button" role="radio" aria-checked="${h === near}" aria-label="Color ${h}" style="background:linear-gradient(145deg, ${q.tileA}, ${q.tileB})" onclick="app.pickCoverHue(${h}, '${app.escJs(ctx)}')"></button>`; }).join('');
                 const photoBtn = document.getElementById(ids.photo), rm = document.getElementById(ids.rm);
                 const canPhoto = !!(typeof Supa !== 'undefined' && Supa.ready && Supa.ready() && this.acctOn && this.acctOn());
                 const busy = ctx === 'roaster' ? this._rcvBusy : this._bcvBusy;
