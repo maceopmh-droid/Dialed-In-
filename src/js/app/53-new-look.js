@@ -319,7 +319,7 @@
                         let size = max; set(size);
                         const lh = () => parseFloat(getComputedStyle(el).lineHeight) || size * 1.02;
                         const wordSplit = () => { el.style.overflowWrap = 'normal'; el.style.wordBreak = 'normal'; const s = el.scrollWidth > el.clientWidth + 1; el.style.overflowWrap = ''; el.style.wordBreak = ''; return s; };
-                        while (size > min && (el.scrollHeight > lh() * lines + 2 || wordSplit())) { size -= 2; set(size); }
+                        while (size > min && (Math.round(el.scrollHeight / lh()) > lines || wordSplit())) { size -= 2; set(size); }   // (v17.6: lines counted, so a letter's tail below the last line isn't taken for another line)
                     }
                     el.setAttribute('data-nl-fitted', '1');
                 });
@@ -503,7 +503,7 @@
                     <article class="nl-card ${ph ? 'has-photo' : withShape ? 'has-shape' : 'is-flat'}" data-fam="${fam}" onclick="app.openFeedTarget('${app.escJs(bean.id)}','',false)">
                         ${media}
                         <div class="nl-body">
-                            <div class="nl-titlerow nl-beanrow">${ph ? '' : this.nlCoverHtml(bean, 'nl-cover nl-bcover')}<div class="nl-titles">${this.nlRoasterHtml(bean, tea)}<h2 class="nl-name" data-nl-fit="44,28,3,28" style="font-size:${this.nlNameSize(bean.name, 322, 44, 34, 2)}px">${this.esc(bean.name || (tea ? 'Tea' : 'Coffee'))}</h2></div></div>
+                            <div class="nl-titlerow nl-beanrow">${ph ? '' : this.nlCoverHtml(bean, 'nl-cover nl-bcover')}<div class="nl-titles">${this.nlRoasterHtml(bean, tea)}<h2 class="nl-name" data-nl-fit="44,26,2,34" style="font-size:${this.nlNameSize(bean.name, 230, 44, 26, 2)}px">${this.esc(bean.name || (tea ? 'Tea' : 'Coffee'))}</h2></div></div>
                             ${tags.length ? `<div class="nl-badges">${tags.map(t => `<span class="nl-badge">${this.esc(t)}</span>`).join('')}</div>` : ''}
                             ${this.nlSocial('bean', { ...bean, comments }, likes, `app.toggleBeanLike('${app.escJs(bean.id)}', event)`)}
                         </div>
@@ -837,14 +837,26 @@
             },
 
             // a session on the coffee page: one row (who, when, the numbers, their words); tap it for the Session screen
-            nlLogRow(log) {
+            // (v17.6: on a profile, o.coffee: the row names the coffee instead of the person)
+            nlLogRow(log, o = {}) {
                 const owner = this.getBrewOwner(log), fam = this.famOfBrew(log), ph = this.nlPhoto(log), r = this.normalizeRating(log.rating);
                 const dose = this.num(log.dose), yld = this.num(log.yield), tea = this.isTeaBrew(log);
                 const t = this.nlTimeVal(log).replace(/<\/?small>/g, '');   // ("30 s", like the tiles)
                 const spec = [dose > 0 && yld > 0 ? `${this.fmtNum(dose, 1)} g → ${this.fmtNum(yld, tea ? 0 : 1)} ${tea ? 'ml' : 'g'}` : '', t].filter(Boolean).join(' · ');
                 const words = this.getBrewNotes(log);
                 const thumb = ph ? `<span class="nl-thumb session-photo-wrap">${this.nlPhotoImg(ph, 'nl-photo', '')}</span>` : this.nlHasShape(log) ? `<span class="nl-thumb nl-thumb-shape" data-fam="${fam}">${this.nlShapeImg(log, fam, { cls: 'nl-shape', w: 150, h: 120 })}</span>` : `<span class="nl-thumb nl-thumb-method" data-fam="${fam}"><svg class="nl-ic"><use href="${this.methodIconUse(log.method)}"/></svg></span>`;
-                return `<div class="nl-logrow" role="button" tabindex="0" onclick="app.openSession('${app.escJs(log.id)}')">${thumb}<div class="nl-lr-main"><div class="nl-lr-top">${this.nlSig(owner, null, 'nl-sig', 16)}<span class="nl-ago" data-time="${this.esc(String(log.date || ''))}">${this.esc(this.nlAgo(log.date))}</span></div><b>${this.esc(spec || this.methodLabel(log.method) || '')}${r > 0 ? ` <span class="nl-gold">· ${this.esc(this.fmtNum(r, 1))} ★</span>` : ''}</b>${words || log.method ? `<small>${!tea && log.method && log.method !== 'Espresso' ? `${this.esc(this.methodLabel(log.method))} · ` : tea ? `${this.esc(this.methodLabel(log.method))} · ` : ''}${words ? `“${this.esc(this.shortText(words, 70))}”` : ''}</small>` : ''}</div></div>`;
+                return `<div class="nl-logrow" role="button" tabindex="0" onclick="app.openSession('${app.escJs(log.id)}')">${thumb}<div class="nl-lr-main"><div class="nl-lr-top">${o.coffee ? this.nlLogCoffee(log) : this.nlSig(owner, null, 'nl-sig', 16)}<span class="nl-ago" data-time="${this.esc(String(log.date || ''))}">${this.esc(this.nlAgo(log.date))}</span></div><b>${this.esc(spec || this.methodLabel(log.method) || '')}${r > 0 ? ` <span class="nl-gold">· ${this.esc(this.fmtNum(r, 1))} ★</span>` : ''}</b>${words || log.method ? `<small>${!tea && log.method && log.method !== 'Espresso' ? `${this.esc(this.methodLabel(log.method))} · ` : tea ? `${this.esc(this.methodLabel(log.method))} · ` : ''}${words ? `“${this.esc(this.shortText(words, 70))}”` : ''}</small>` : ''}</div></div>`;
+            },
+
+            nlLogCoffee(log) {
+                const bean = this.beans.get(String(log.beanId || '')) || {}, tea = this.isTeaBrew(log);
+                const name = String(bean.name || '').trim() || (tea ? 'A tea' : 'A coffee');
+                return `<span class="nl-lr-coffee">${this.esc(name)}</span>`;
+            },
+            // v17.6: a profile's sessions as the coffee page shows them: one row each in a box (the coffee, when, the
+            // numbers, their words); tap one for the Session screen
+            nlProfileSessionsHtml(list, n, more) {
+                return `<div class="nl-proflogs">${list.slice(0, n).map(b => this.nlLogRow(b, { coffee: true })).join('')}${more}</div>`;
             },
 
             // ===================== the share image (1080 x 1920): the card's anatomy =====================

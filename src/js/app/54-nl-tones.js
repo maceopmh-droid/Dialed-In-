@@ -97,28 +97,46 @@
                 return Object.entries(t).map(([k, v]) => `${k}: ${v};`).join(' ');
             },
 
-            // ---- a note's own color (null for "Tastes off" and notes that aren't on a wheel)
-            noteHue(name, kind) {
+            // ---- a note's own color (null for "Tastes off" and notes that aren't on a wheel): its hue, how colorful, its family
+            noteColor(name, kind) {
                 const at = this.noteLocate(name, kind);
                 if (!at || at.f < 0) return null;
                 const W = at.wheel === 'tea' ? TEA_WHEEL : NOTE_WHEEL, fam = W[at.f], famKey = fam && this.NL_WHEEL_FAM[fam.fam];
                 if (!famKey || famKey === 'off') return null;
-                return (at.note && this.NL_HUES.n[at.note]) || (at.g >= 0 && this.NL_HUES.g[fam.groups[at.g][0]]) || this.NL_HUES.f[famKey] || null;
+                const hc = (at.note && this.NL_HUES.n[at.note]) || (at.g >= 0 && this.NL_HUES.g[fam.groups[at.g][0]]) || this.NL_HUES.f[famKey] || null;
+                return hc ? { h: hc[0], C: hc[1], fam: famKey } : null;
             },
+            noteHue(name, kind) { const c = this.noteColor(name, kind); return c ? [c.h, c.C] : null; },
             noteToneKey(name, kind) { const hc = this.noteHue(name, kind); return hc ? this.nlToneKey(hc[0], hc[1]) : 'off'; },
-            // the blend of a set of notes ([[name, strength, kind]]): their colors averaged in OKLab by strength; very different
-            // notes average toward a quieter color, never grey (null when none has a color)
+            // v17.6: how much a family's notes lead a cup's color. Nearly every coffee has some chocolate, caramel or nuts, so
+            // those lead a little less; flowers, greens and herbs a little more. (Fixed, so everyone's phone shows the same.)
+            NL_FAM_WEIGHT: { sweet: 0.7, nutty: 0.7, earthy: 0.7, spice: 0.8, fruity: 1, fermented: 1.05, vegetal: 1.15, herbal: 1.15, floral: 1.3 },
+            // the color of a set of notes ([[name, strength, kind]]). v17.6, less muddy: the plain average of a cup's notes is
+            // nearly always a brown, so the hue comes from its leading group of notes (those within 45° of each other on the
+            // color wheel, weighed by strength, how colorful each is and its family) instead of averaging across the wheel.
+            // How colorful it is stays as quiet as before (all the notes averaged by strength; Maceo: "more muted like it was
+            // before"), a tea a little brighter. (null when no note has a color)
             toneOfNotes(notes) {
-                let A = 0, B = 0, W = 0;
+                const pts = [];
+                let tea = false;
                 (notes || []).forEach(([name, s, kind]) => {
-                    const hc = this.noteHue(name, kind);
-                    if (!hc) return;
-                    const w = Number(s) >= 1 && Number(s) <= 3 ? Number(s) : 2;
-                    A += w * hc[1] * Math.cos(hc[0] * Math.PI / 180); B += w * hc[1] * Math.sin(hc[0] * Math.PI / 180); W += w;
+                    const c = this.noteColor(name, kind);
+                    if (kind === 'tea') tea = true;
+                    if (!c) return;
+                    const st = Number(s) >= 1 && Number(s) <= 3 ? Number(s) : 2;
+                    const quiet = c.h >= 30 && c.h <= 80 && c.C < 0.11 ? 0.6 : 1;   // (the browns)
+                    pts.push({ h: c.h, C: c.C, st, w: st * Math.max(0.15, c.C / 0.12) * quiet * (this.NL_FAM_WEIGHT[c.fam] || 1) });
                 });
-                if (!W) return null;
-                const C = Math.hypot(A, B) / W, h = ((Math.atan2(B, A) * 180 / Math.PI) + 360) % 360;
-                return this.nlToneKey(h, Math.max(0.035, C));
+                if (!pts.length) return null;
+                const apart = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
+                let best = null;
+                pts.forEach(c => { const near = pts.filter(q => apart(q.h, c.h) <= 45), w = near.reduce((t, q) => t + q.w, 0); if (!best || w > best.w + 1e-9) best = { w, near }; });
+                let A = 0, B = 0;
+                best.near.forEach(q => { A += q.w * Math.cos(q.h * Math.PI / 180); B += q.w * Math.sin(q.h * Math.PI / 180); });
+                const h = ((Math.atan2(B, A) * 180 / Math.PI) + 360) % 360;
+                let a = 0, b = 0, S = 0;   // (how colorful: as before, every note's color averaged by its strength)
+                pts.forEach(q => { a += q.st * q.C * Math.cos(q.h * Math.PI / 180); b += q.st * q.C * Math.sin(q.h * Math.PI / 180); S += q.st; });
+                return this.nlToneKey(h, Math.max(0.035, Math.hypot(a, b) / S) * (tea ? 1.2 : 1));
             },
 
             // ---- a coffee's picture: { hue, tone (0-100), photo (a path in your folder of public pictures) } saved on the
@@ -146,12 +164,13 @@
             coffeeToneKey(bean) {
                 if (!bean) return 'app';
                 const cb = this.coverBean(bean), cov = this.coverOf(cb);
-                if (cov && cov.hue !== null) return this.nlToneKey(cov.hue, 0.012 + 0.12 * Math.max(0.1, Math.min(1, cov.tone / 100)));
+                const teaB = !!(this.isTeaBean && this.isTeaBean(bean));
+                if (cov && cov.hue !== null) return this.nlToneKey(cov.hue, (0.012 + 0.12 * Math.max(0.1, Math.min(1, cov.tone / 100))) * (teaB ? 1.2 : 1));   // (v17.6: a tea a little brighter)
                 const key = this.beanGroupKey(bean);
                 return this.nlFamOf(`ct:${key}`, () => {
                     const first = [...this.brews.values()].filter(b => { const bn = this.beans.get(String(b.beanId)); return bn && this.beanGroupKey(bn) === key; }).sort((a, b) => this.toTime(a.date) - this.toTime(b.date))
                         .find(b => this.toneOfNotes(this.brewNoteList(b)));
-                    return (first && this.toneOfNotes(this.brewNoteList(first))) || this.nlToneKey(this.nlNameHue(`${bean.roaster || ''}|${bean.name || ''}`), 0.09);
+                    return (first && this.toneOfNotes(this.brewNoteList(first))) || this.nlToneKey(this.nlNameHue(`${bean.roaster || ''}|${bean.name || ''}`), teaB ? 0.12 : 0.09);
                 });
             },
             // a coffee's picture: its color (a gradient), the name's first letters, and its photo if it has one

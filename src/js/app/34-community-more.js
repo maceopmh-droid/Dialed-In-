@@ -101,8 +101,9 @@
                 }
                 const shown = this._profShow && this._profShow.who === who ? this._profShow.n : 15;
                 const n = Math.min(list.length, shown);
-                const cards = list.slice(0, n).map(b => this.renderFeedSessionCard({ kind: 'session', brewId: b.id, date: b.date, actorColor: b.actorColor || '' })).join('');
                 const more = list.length > n ? `<button type="button" class="btn-outline comm-more" onclick="app.profileMore()">Show older sessions</button>` : '';
+                if (this.newLook && this.newLook() && this.nlProfileSessionsHtml) return this.nlProfileSessionsHtml(list, n, more);   // v17.6: rows, like the coffee page
+                const cards = list.slice(0, n).map(b => this.renderFeedSessionCard({ kind: 'session', brewId: b.id, date: b.date, actorColor: b.actorColor || '' })).join('');
                 return `<div class="profile-feed">${cards}${more}</div>`;
             },
 
