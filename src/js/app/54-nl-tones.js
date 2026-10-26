@@ -186,49 +186,74 @@
             },
             // a coffee from before pictures: the color it already wears (its first session's), so editing doesn't change it
             nlBeanHueGuess(bean) { const p = this.nlToneParts(this.coffeeToneKey(bean)); return p ? p.h : 28; },
-            beanCoverNow() {
-                const c = this._bcv || { hue: null, tone: 60, photo: '' };
+            // v17.5: the same Picture editor serves the coffee editor ('bean', #bcv-…) and the roaster editor ('roaster', #rcv-…)
+            cvIds(ctx) { const p = ctx === 'roaster' ? 'rcv' : 'bcv'; return { tile: `${p}-tile`, sw: `${p}-swatches`, photo: `${p}-photo`, rm: `${p}-remove`, input: `${p}-input` }; },
+            cvState(ctx) { return ctx === 'roaster' ? this._rcv : this._bcv; },
+            cvName(ctx) {
+                if (ctx === 'roaster') return this._rcvName || '';
+                const form = this.getBeanForm && this.getBeanForm();
+                return form && form.elements.name ? form.elements.name.value : '';
+            },
+            beanCoverNow(ctx = 'bean') {
+                const c = this.cvState(ctx) || { hue: null, tone: 60, photo: '' };
                 let hue = c.hue;
                 if (hue === null || hue === undefined) {
-                    const form = this.getBeanForm && this.getBeanForm();
-                    const nm = form ? `${(form.elements.roaster || {}).value || ''}|${(form.elements.name || {}).value || ''}` : '';
+                    let nm = '';
+                    if (ctx === 'roaster') nm = this._rcvName || '';
+                    else { const form = this.getBeanForm && this.getBeanForm(); nm = form ? `${(form.elements.roaster || {}).value || ''}|${(form.elements.name || {}).value || ''}` : ''; }
                     hue = this.NL_COVER_HUES[this.nlNameHue(nm) % this.NL_COVER_HUES.length];
                 }
                 return { hue: Math.round(hue) % 360, tone: Math.max(0, Math.min(100, Math.round(c.tone ?? 60))), photo: c.photo || '' };
             },
-            beanCoverOut() { const c = this.beanCoverNow(); return c.photo ? c : { hue: c.hue, tone: c.tone }; },
-            paintBeanCover() {
+            beanCoverOut(ctx = 'bean') { const c = this.beanCoverNow(ctx); return c.photo ? c : { hue: c.hue, tone: c.tone }; },
+            paintBeanCover(ctx = 'bean') {
                 if (typeof document === 'undefined') return;
-                const tile = document.getElementById('bcv-tile'), sw = document.getElementById('bcv-swatches');
+                const ids = this.cvIds(ctx), tile = document.getElementById(ids.tile), sw = document.getElementById(ids.sw);
                 if (!tile || !sw) return;
-                const c = this.beanCoverNow(), form = this.getBeanForm && this.getBeanForm();
-                const name = form && form.elements.name ? form.elements.name.value : '';
+                const c = this.beanCoverNow(ctx), name = this.cvName(ctx);
                 const key = this.nlToneKey(c.hue, 0.012 + 0.12 * Math.max(0.1, c.tone / 100)), P = this.nlTonePal(key, this.nlDark());
                 const words = String(name || '').replace(/[^\p{L}\p{N}\s&]/gu, ' ').split(/\s+/).filter(w => w && w !== '&');
                 const ini = (words.length > 1 ? words[0][0] + words[1][0] : (words[0] || '?').slice(0, 1)).toUpperCase();
-                tile.className = 'bcv-tile nl-cover';
+                tile.className = `${ids.tile.slice(0, 3)}-tile bcv-tile nl-cover`;
                 tile.style.background = `linear-gradient(145deg, ${P.tileA}, ${P.tileB})`;
                 tile.innerHTML = `${c.photo && this.faceUrl ? `<img src="${this.esc(this.faceUrl(c.photo))}" alt="">` : ''}${words.length ? `<b>${this.esc(ini)}</b>` : '<svg class="icon nl-ic"><use href="#i-bean"/></svg>'}`;
                 const near = this.NL_COVER_HUES.reduce((a, h) => (Math.abs(((h - c.hue + 540) % 360) - 180) < Math.abs(((a - c.hue + 540) % 360) - 180) ? h : a), this.NL_COVER_HUES[0]);
-                sw.innerHTML = this.NL_COVER_HUES.map(h => { const k = this.nlToneKey(h, 0.084), q = this.nlTonePal(k, this.nlDark()); return `<button type="button" role="radio" aria-checked="${h === near}" aria-label="Color ${h}" style="background:linear-gradient(145deg, ${q.tileA}, ${q.tileB})" onclick="app.pickCoverHue(${h})"></button>`; }).join('');
-                const photoBtn = document.getElementById('bcv-photo'), rm = document.getElementById('bcv-remove');
+                sw.innerHTML = this.NL_COVER_HUES.map(h => { const k = this.nlToneKey(h, 0.084), q = this.nlTonePal(k, this.nlDark()); return `<button type="button" role="radio" aria-checked="${h === near}" aria-label="Color ${h}" style="background:linear-gradient(145deg, ${q.tileA}, ${q.tileB})" onclick="app.pickCoverHue(${h}, '${ctx}')"></button>`; }).join('');
+                const photoBtn = document.getElementById(ids.photo), rm = document.getElementById(ids.rm);
                 const canPhoto = !!(typeof Supa !== 'undefined' && Supa.ready && Supa.ready() && this.acctOn && this.acctOn());
-                if (photoBtn) { photoBtn.hidden = !canPhoto; photoBtn.textContent = c.photo ? 'Change photo' : 'Add a photo'; photoBtn.disabled = !!this._bcvBusy; }
+                const busy = ctx === 'roaster' ? this._rcvBusy : this._bcvBusy;
+                if (photoBtn) { photoBtn.hidden = !canPhoto; photoBtn.textContent = c.photo ? 'Change photo' : 'Add a photo'; photoBtn.disabled = !!busy; }
                 if (rm) rm.hidden = !c.photo;
             },
-            pickCoverHue(h) { if (!this._bcv) this._bcv = { tone: 60, photo: '' }; this._bcv.hue = h; this._bcv.tone = 60; this._bcv.picked = true; if (this.haptic) this.haptic('tick'); this.paintBeanCover(); },
-            pickCoverPhoto() { const i = document.getElementById('bcv-input'); if (i) { i.value = ''; i.click(); } },
-            removeCoverPhoto() { if (this._bcv) { this._bcv.photo = ''; this.paintBeanCover(); } },
+            pickCoverHue(h, ctx = 'bean') {
+                const key = ctx === 'roaster' ? '_rcv' : '_bcv';
+                if (!this[key]) this[key] = { tone: 60, photo: '' };
+                this[key].hue = h; this[key].tone = 60; this[key].picked = true;
+                if (this.haptic) this.haptic('tick');
+                this.paintBeanCover(ctx);
+            },
+            pickCoverPhoto(ctx = 'bean') { const i = document.getElementById(this.cvIds(ctx).input); if (i) { i.value = ''; i.click(); } },
+            removeCoverPhoto(ctx = 'bean') { const st = this.cvState(ctx); if (st) { st.photo = ''; this.paintBeanCover(ctx); } },
+            // the roaster editor's Picture (v17.5): starts on the roaster's saved picture, or the color its tile wears now
+            roasterCoverInit(r) {
+                const cov = r && r.info && r.info.cover;
+                this._rcvName = r ? r.name : '';
+                const guess = r ? (this.nlToneParts(this.famOfRoaster(r.name)) || {}).h : null;
+                this._rcv = cov ? { hue: cov.hue, tone: cov.tone ?? 60, photo: cov.photo || '', picked: true } : { hue: guess ?? null, tone: 60, photo: '', picked: false };
+                this._rcvStart = JSON.stringify(this.beanCoverOut('roaster'));
+                this.paintBeanCover('roaster');
+            },
             // a picked photo: the middle square, 480 px, as a JPEG, into your folder of public pictures; its main color becomes
             // the coffee's color (pick a swatch after to change it)
-            async coverPhotoPicked(input) {
+            async coverPhotoPicked(input, ctx = 'bean') {
                 const file = input && input.files && input.files[0];
                 if (input) input.value = '';
                 if (!file) return;
                 const s = typeof Supa !== 'undefined' ? Supa.session() : null;
                 if (!s || !s.user) { this.showToast('Sign in first.'); return; }
-                this._bcvBusy = true; this.paintBeanCover();
-                const btn = document.getElementById('bcv-photo'); if (btn) btn.textContent = 'Uploading…';
+                const stKey = ctx === 'roaster' ? '_rcv' : '_bcv', busyKey = ctx === 'roaster' ? '_rcvBusy' : '_bcvBusy';
+                this[busyKey] = true; this.paintBeanCover(ctx);
+                const btn = document.getElementById(this.cvIds(ctx).photo); if (btn) btn.textContent = 'Uploading…';
                 try {
                     const img = await new Promise((ok, no) => { const u = URL.createObjectURL(file); const i = new Image(); i.onload = () => { URL.revokeObjectURL(u); ok(i); }; i.onerror = () => { URL.revokeObjectURL(u); no(new Error('not a picture')); }; i.src = u; });
                     const side = Math.min(img.naturalWidth, img.naturalHeight), N = 480;
@@ -240,13 +265,13 @@
                     const rand = Array.from(crypto.getRandomValues(new Uint8Array(9)), b => b.toString(16).padStart(2, '0')).join('');
                     const path = `${s.user.id}/c${rand}.jpg`;
                     await Supa.call('/storage/v1/object/avatars/' + path, blob, { headers: { 'Content-Type': 'image/jpeg' } });
-                    if (!this._bcv) this._bcv = { tone: 60 };
-                    this._bcv.photo = path;
-                    if (hue) { this._bcv.hue = hue.h; this._bcv.tone = hue.tone; this._bcv.picked = true; }
+                    if (!this[stKey]) this[stKey] = { tone: 60 };
+                    this[stKey].photo = path;
+                    if (hue) { this[stKey].hue = hue.h; this[stKey].tone = hue.tone; this[stKey].picked = true; }
                     this.showToast('Photo added. Save to keep it.');
                 } catch (e) {
                     this.showToast(/not a picture|no picture/.test(String(e && e.message)) ? 'That file isn\'t a picture.' : 'Couldn\'t upload the photo. Check your connection.');
-                } finally { this._bcvBusy = false; this.paintBeanCover(); }
+                } finally { this[busyKey] = false; this.paintBeanCover(ctx); }
             },
             // a photo's main color: the average of its more colorful pixels in OKLab (a grey photo gives a quiet color)
             nlPhotoHue(canvas) {

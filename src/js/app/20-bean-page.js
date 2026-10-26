@@ -175,9 +175,12 @@
                 const pickLabel = master ? 'Master recipe' : `${best ? 'Best-rated' : 'Latest'} ${this.shotWord(pick && pick.method)}`;
                 const methods = [...new Set(list.map(b => b.method).filter(Boolean))];
                 const avg = key => list.reduce((s, b) => s + (b[key] === undefined || b[key] === '' ? 5 : this.num(b[key])), 0) / list.length;
-                const bars = [['Acidity', 'acidity'], ['Sweetness', 'sweetness'], ['Body', 'body'], ['Finish', 'finish'], ['Complexity', 'balance']].map(([label, key]) => {
-                    const v = avg(key);
-                    return `<div class="taste-bar"><span>${label}</span><div class="taste-track"><div class="taste-fill" style="width:${Math.max(0, Math.min(100, v * 10))}%; background:${this.esc(color)};"></div></div><span>${this.esc(this.fmtNum(v))}</span></div>`;
+                // v17.5: in the New look each bar wears its taste's color (sweetness red, acidity yellow…), all six tastes, in tea words for a tea
+                const nl = !!(this.newLook && this.newLook()), kind = nl && list[0] && this.kindOfBrew ? this.kindOfBrew(list[0]) : 'coffee';
+                const rows = nl ? ['acidity', 'sweetness', 'body', 'finish', 'bitterness', 'balance'].map(k => [this.tasteLabel ? this.tasteLabel(k, kind) : k, k]) : [['Acidity', 'acidity'], ['Sweetness', 'sweetness'], ['Body', 'body'], ['Finish', 'finish'], ['Complexity', 'balance']];
+                const bars = rows.map(([label, key]) => {
+                    const v = avg(key), fill = nl && typeof FlavorShape !== 'undefined' && FlavorShape.COLORS && FlavorShape.COLORS[key] ? FlavorShape.COLORS[key] : color;
+                    return `<div class="taste-bar"><span>${label}</span><div class="taste-track"><div class="taste-fill" style="width:${Math.max(0, Math.min(100, v * 10))}%; background:${this.esc(fill)};"></div></div><span>${this.esc(this.fmtNum(v))}</span></div>`;
                 }).join('');
                 const flavors = this.getTopFlavors(list, 3);
                 const avgRating = this.calculateAverageRating(list);

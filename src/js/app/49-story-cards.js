@@ -4,8 +4,9 @@
             // recipe. Each opens the same Share sheet as the shot card: the picture is made first, so Share image opens the
             // share sheet straight from the tap; a coffee and a roaster also keep Share link. Never a grind setting (it only
             // means something on your own grinder).
-            storyKit(ctx) {
+            storyKit(ctx, fam) {
                 const sans = (w, z) => `${w} ${z}px -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Inter, sans-serif`;
+                const nl = !!(this.newLook && this.newLook() && this.nlPal);
                 const serif = (w, z) => `${w} ${z}px ui-serif, -apple-system-ui-serif, "New York", "Iowan Old Style", Georgia, serif`;
                 const wrap = (text, maxW, maxLines) => {
                     const words = String(text || '').split(/\s+/).filter(Boolean), lines = [];
@@ -24,14 +25,22 @@
                 };
                 const round = (x, y, w, h, r) => { r = Math.max(0, Math.min(r, w / 2, h / 2)); ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); };
                 const fit = (text, maxW) => this.fitText(ctx, String(text || ''), maxW);
-                return { sans, serif, wrap, round, fit, W: 1080, H: 1920, PAD: 78, ink: '#E8EEE8', ink2: '#C2CBC3', muted: '#8D978E', faint: '#5F6A61', box: 'rgba(255,255,255,0.07)', boxLine: 'rgba(255,255,255,0.08)', grid: 'rgba(255,255,255,0.09)' };
+                const base = { sans, serif, wrap, round, fit, W: 1080, H: 1920, PAD: 78, ink: '#E8EEE8', ink2: '#C2CBC3', muted: '#8D978E', faint: '#5F6A61', box: 'rgba(255,255,255,0.07)', boxLine: 'rgba(255,255,255,0.08)', grid: 'rgba(255,255,255,0.09)' };
+                if (!nl) return base;
+                // v17.5: the New look's share pictures: the thing's own colors (in the phone's light or dark), Roboto Slab for
+                // names and roasters, the serif for titles, soft tiles
+                const P = this.nlPal(fam || 'app'), mix = (a, b, t) => this.hexMix(a, b, t), rgba = (hx, a) => this.hexToRgba(hx, a);
+                return { ...base, nl: true, P, hand: z => `600 ${z}px "Roboto Slab NL", "Roboto Slab", Georgia, serif`, serif: (w, z) => `500 ${z}px ui-serif, -apple-system-ui-serif, "New York", "Iowan Old Style", Georgia, serif`,
+                    bg: P.c, ink: P.t, ink2: mix(P.t, P.l, 0.35), muted: P.l, faint: mix(P.l, P.c, 0.45), name: P.n, accent: P.k,
+                    box: P.dark ? rgba(P.n, 0.08) : 'rgba(255,255,255,0.55)', boxLine: P.dark ? rgba(P.n, 0.15) : 'rgba(255,255,255,0.75)', grid: rgba(P.t, 0.1), dark: P.dark };
             },
 
             // the canvas, the background, who and when, and a title (a small line over a big one); returns where the title ends
-            storyStart({ who = this.user, date = Date.now(), sub = '', title = '', titleLines = 2, titleSize = 93 } = {}) {
+            storyStart({ who = this.user, date = Date.now(), sub = '', title = '', titleLines = 2, titleSize = 93, fam = '' } = {}) {
                 const c = document.createElement('canvas'); c.width = 1080; c.height = 1920;
                 const ctx = c.getContext('2d'); if (!ctx) return null;
-                const k = this.storyKit(ctx), { W, H, PAD } = k;
+                const k = this.storyKit(ctx, fam || (this.famOfPerson ? this.famOfPerson(who) : 'app')), { W, H, PAD } = k;
+                if (k.nl) return this.storyStartNew({ c, ctx, k, who, date, sub, title, titleLines, titleSize });
                 const g = ctx.createRadialGradient(W / 2, H * 0.42, 0, W / 2, H * 0.42, H * 0.75);
                 g.addColorStop(0, '#1E2620'); g.addColorStop(0.6, '#121713'); g.addColorStop(1, '#0C100D');
                 ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
@@ -47,6 +56,37 @@
                 if (title) {
                     ctx.font = k.serif(600, titleSize); ctx.fillStyle = k.ink;
                     const LH = Math.round(titleSize * 1.12), lines = k.wrap(title, W - PAD * 2, titleLines);
+                    lines.forEach((l, i) => ctx.fillText(l, PAD, y + LH * (i + 1) - Math.round(titleSize * 0.2)));
+                    y += LH * lines.length;
+                }
+                return { c, ctx, k, y };
+            },
+
+            // v17.5: the New look's start: its color, the person (picture with a ring in their color, name in Roboto Slab), the
+            // small line in the accent, the title in the serif, and Dialed In
+            storyStartNew({ c, ctx, k, who, date, sub, title, titleLines, titleSize }) {
+                const { W, H, PAD, P } = k;
+                ctx.fillStyle = k.bg; ctx.fillRect(0, 0, W, H);
+                const g = ctx.createRadialGradient(W * 0.5, H * 0.3, 0, W * 0.5, H * 0.3, H * 0.8);
+                g.addColorStop(0, this.hexToRgba(P.dark ? '#FFFFFF' : '#FFFFFF', P.dark ? 0.05 : 0.22)); g.addColorStop(1, this.hexToRgba('#000000', 0));
+                ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+                const topY = 210;
+                if (who) {
+                    const col = this.getUserColor(who) || '#5B7FA6';
+                    ctx.fillStyle = col; ctx.beginPath(); ctx.arc(PAD + 34, topY - 14, 34, 0, Math.PI * 2); ctx.fill();
+                    ctx.lineWidth = 6; ctx.strokeStyle = this.hexMix(col, P.c, 0.35); ctx.beginPath(); ctx.arc(PAD + 34, topY - 14, 41, 0, Math.PI * 2); ctx.stroke();
+                    ctx.fillStyle = '#FFFFFF'; ctx.font = k.sans(700, 32); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(this.feedInitial(who), PAD + 34, topY - 12);
+                    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+                    ctx.font = k.hand(40); ctx.fillStyle = this.nameColor ? this.nameColor(who, P.c) : k.name; ctx.fillText(k.fit(who, W - PAD * 2 - 420), PAD + 96, topY - 4);
+                    const when = date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+                    if (when) { ctx.font = k.sans(600, 30); ctx.fillStyle = k.muted; ctx.fillText(when, PAD + 96, topY + 36); }
+                }
+                ctx.font = k.hand(40); ctx.textAlign = 'right'; ctx.fillStyle = k.accent; ctx.fillText('Dialed In', W - PAD, topY - 4); ctx.textAlign = 'left';
+                let y = topY + 130;
+                if (sub) { ctx.fillStyle = k.accent; ctx.font = k.hand(40); ctx.fillText(k.fit(sub, W - PAD * 2), PAD, y); y += 26; }
+                if (title) {
+                    ctx.font = k.serif(500, titleSize); ctx.fillStyle = k.name;
+                    const LH = Math.round(titleSize * 1.08), lines = k.wrap(title, W - PAD * 2, titleLines);
                     lines.forEach((l, i) => ctx.fillText(l, PAD, y + LH * (i + 1) - Math.round(titleSize * 0.2)));
                     y += LH * lines.length;
                 }
@@ -69,10 +109,10 @@
                     while (z > 30 && width(z) > room) z -= 2;
                     big.forEach((part, i) => {
                         if (i) { ctx.font = k.sans(700, z - 5); ctx.fillStyle = k.ink; ctx.fillText(' → ', tx, by); tx += ctx.measureText(' → ').width; }
-                        ctx.font = k.sans(700, z); ctx.fillStyle = '#FFFFFF'; ctx.fillText(part[0], tx, by); tx += ctx.measureText(part[0]).width;
-                        if (part[1]) { ctx.font = k.sans(600, Math.round(z * 0.65)); ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fillText(part[1], tx, by); tx += ctx.measureText(part[1]).width; }
+                        ctx.font = k.sans(700, z); ctx.fillStyle = k.nl ? k.ink : '#FFFFFF'; ctx.fillText(part[0], tx, by); tx += ctx.measureText(part[0]).width;
+                        if (part[1]) { ctx.font = k.sans(600, Math.round(z * 0.65)); ctx.fillStyle = k.nl ? k.muted : 'rgba(255,255,255,0.7)'; ctx.fillText(part[1], tx, by); tx += ctx.measureText(part[1]).width; }
                     });
-                    ctx.font = k.sans(600, 31); ctx.fillStyle = 'rgba(255,255,255,0.62)'; ctx.fillText(k.fit(bx.small || '', room), x + 33, y + 118);
+                    ctx.font = k.sans(600, 31); ctx.fillStyle = k.nl ? k.muted : 'rgba(255,255,255,0.62)'; ctx.fillText(k.fit(bx.small || '', room), x + 33, y + 118);
                     x += bw + gap;
                 });
                 return y + bh;
@@ -83,6 +123,17 @@
                 const { ctx, k } = S; if (!notes.length) return y;
                 const h = 70, gap = 16; let x = k.PAD, row = 0;
                 ctx.font = k.sans(600, 34);
+                if (k.nl && this.noteToneKey && this.nlTonePal) {   // v17.5: as the cards show them
+                    for (const n of notes) {
+                        const tp = this.nlTonePal(this.noteToneKey(n, 'coffee'), k.dark), w = Math.min(k.W - k.PAD * 2, ctx.measureText(n).width + 56);
+                        if (x + w > k.W - k.PAD) { row++; x = k.PAD; if (row >= maxRows) break; }
+                        const yy = y + row * (h + gap);
+                        k.round(x, yy, w, h, 22); ctx.fillStyle = tp ? (k.dark ? tp.chipBg : tp.chipBgL || tp.chipBg) : k.box; ctx.fill();
+                        ctx.fillStyle = tp ? (k.dark ? tp.chipFg : tp.chipFgL || tp.chipFg) : k.ink; ctx.fillText(k.fit(n, w - 56), x + 28, yy + 47);
+                        x += w + gap;
+                    }
+                    return y + (row + 1) * (h + gap) - gap;
+                }
                 for (const n of notes) {
                     const at = this.noteLocate ? this.noteLocate(n) : null, hex = at && at.f >= 0 ? at.color : '#7D8984';
                     const w = Math.min(k.W - k.PAD * 2, ctx.measureText(n).width + 56);
@@ -100,6 +151,11 @@
                 return `rgba(${[0, 2, 4].map(i => parseInt(s.slice(i, i + 2), 16)).join(',')},${a})`;
             },
 
+            // v17.5: a picture from the photo store, fetched first so the share picture can still be saved (a picture straight
+            // from another site would lock the canvas)
+            async storyLoadCors(url) {
+                try { const r = await fetch(url, { mode: 'cors' }); if (!r.ok) return null; const b = await r.blob(); const u = URL.createObjectURL(b); const img = await this.storyLoad(u); setTimeout(() => URL.revokeObjectURL(u), 4000); return img; } catch (e) { return null; }
+            },
             storyLoad(src) { return new Promise(ok => { if (!src) return ok(null); const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; }); },
 
             // an icon from the app's set, drawn white (or a color) at any size
@@ -111,8 +167,13 @@
                 return this.storyLoad('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
             },
 
-            storyShape(vals, ghost, tasted, size = [900, 660], kind = 'coffee') {
+            storyShape(vals, ghost, tasted, size = [900, 660], kind = 'coffee', k = null) {
                 if (!vals || typeof FlavorShape === 'undefined') return Promise.resolve(null);
+                if (k && k.nl) {   // v17.5: as on the cards: the shape, the circle at 10 and the center line; no box, no numbers
+                    let url = '';
+                    try { url = FlavorShape.snapshot(vals, ghost || null, { width: Math.round(size[0] / 2.25), height: Math.round(size[1] / 2.25), dpr: 2.25, labels: false, lines: false, ring: this.NL_RING || 'axis', fit: true, isSet: x => tasted.includes(x), setKey: 'story-nl-' + tasted.join(',') + (k.P ? k.P.c : ''), names: kind === 'tea' ? 'tea' : null, theme: { line: k.grid, muted: k.muted, ink: k.ink, surface: k.bg, dark: k.dark } }); } catch (e) { url = ''; }
+                    return this.storyLoad(url);
+                }
                 const theme = { line: '#3A443B', muted: '#8D978E', ink: '#E8EEE8', surface: '#141915', dark: true };
                 let url = '';
                 try { url = FlavorShape.snapshot(vals, ghost || null, { width: Math.round(size[0] / 2.25), height: Math.round(size[1] / 2.25), zoom: 1.12, isSet: k => tasted.includes(k), setKey: 'story-' + tasted.join(','), theme, dpr: 2.4, names: kind === 'tea' ? 'tea' : null }); } catch (e) { url = ''; }
@@ -196,12 +257,12 @@
                 const D = this.storyCoffeeData(beanId, who); if (!D) return null;
                 const b = D.bean, sub = [String(b.roaster || '').trim() || this.teaMakerName(b), b.origin].map(x => String(x || '').trim()).filter(Boolean).join(' · ');   // (v17.1: "Your blend")
                 const tea = this.isTeaBean(b);   // v17.0: a tea's picture
-                const S = this.storyStart({ who, sub, title: String(b.name || '').trim() || (tea ? 'A tea' : 'A coffee') }); if (!S) return null;
+                const S = this.storyStart({ who, sub, title: String(b.name || '').trim() || (tea ? 'A tea' : 'A coffee'), fam: this.famOfCoffee ? this.famOfCoffee(b) : '' }); if (!S) return null;
                 const { ctx, k } = S; let y = S.y;
                 const facts = (tea ? [b.teaType ? `${b.teaType} tea` : '', b.process, b.variety] : [b.process, b.roast ? `${b.roast} roast` : '', b.variety]).map(x => String(x || '').trim()).filter(Boolean).join(' · ');
                 if (facts) { ctx.font = k.sans(500, 36); ctx.fillStyle = k.ink2; ctx.fillText(k.fit(facts, k.W - k.PAD * 2), k.PAD, y + 46); y += 66; }
                 const chipsH = D.notes.length ? (D.notes.length > 3 ? 172 : 86) + 44 : 0, boxY = k.H - 150 - chipsH - 150;
-                const img = D.shape ? await this.storyShape(D.shape.vals, null, D.shape.tasted, [940, 760], tea ? 'tea' : 'coffee') : null;
+                const img = D.shape ? await this.storyShape(D.shape.vals, null, D.shape.tasted, [940, 760], tea ? 'tea' : 'coffee', k) : null;
                 if (img) this.storyDrawFit(S, img, y + 30 + Math.max(0, (boxY - y - 70 - Math.min(760, boxY - y - 70)) / 2), 940, Math.min(760, boxY - y - 70));
                 y = boxY;
                 const best = D.best, dose = best ? Number(best.dose) || 0 : 0, out = best ? Number(best.yield) || 0 : 0, t = best ? Number(best.time) || 0 : 0;
@@ -229,7 +290,7 @@
                 const meta = this.activeGroup ? this.activeGroup.meta : null;
                 const used = new Set();
                 series.forEach(s => { let c = this.getUserColor(s.owner); if (used.has(String(c).toLowerCase())) c = (this.beanPalette || []).find(p => !used.has(String(p).toLowerCase())) || c; used.add(String(c).toLowerCase()); s.color = c; });
-                const S = this.storyStart({ sub: `Dial-in${this.dialinMethod ? ` · ${this.dialinMethod}` : ''}${meta && meta.roaster ? ` · ${meta.roaster}` : ''}`, title: meta ? String(meta.name || '').trim() || 'This coffee' : 'This coffee' }); if (!S) return null;
+                const S = this.storyStart({ fam: meta && this.famOfCoffee ? this.famOfCoffee(meta) : '', sub: `Dial-in${this.dialinMethod ? ` · ${this.dialinMethod}` : ''}${meta && meta.roaster ? ` · ${meta.roaster}` : ''}`, title: meta ? String(meta.name || '').trim() || 'This coffee' : 'This coffee' }); if (!S) return null;
                 const { ctx, k } = S;
                 const L = k.PAD + 76, R = k.W - k.PAD - 10, T = S.y + 60, B = Math.min(T + 880, k.H - 150 - Math.min(series.length, 5) * 118 - 170);
                 const maxN = Math.max(2, ...series.map(s => s.shots.length));
@@ -277,7 +338,7 @@
                 const points = all.filter(p => (!this.sweetMethod || p.b.method === this.sweetMethod) && (this.sweetWho === 'all' || !this.sweetWho || p.who === this.sweetWho));
                 if (points.length < 3) return null;
                 const zone = this.sweetZone(points), meta = this.activeGroup ? this.activeGroup.meta : null;
-                const S = this.storyStart({ sub: `Sweet spot${this.sweetMethod ? ` · ${this.sweetMethod}` : ''}${this.sweetWho && this.sweetWho !== 'all' ? ` · ${this.sweetWho}` : ''}`, title: meta ? String(meta.name || '').trim() || 'This coffee' : 'This coffee' }); if (!S) return null;
+                const S = this.storyStart({ fam: meta && this.famOfCoffee ? this.famOfCoffee(meta) : '', sub: `Sweet spot${this.sweetMethod ? ` · ${this.sweetMethod}` : ''}${this.sweetWho && this.sweetWho !== 'all' ? ` · ${this.sweetWho}` : ''}`, title: meta ? String(meta.name || '').trim() || 'This coffee' : 'This coffee' }); if (!S) return null;
                 const { ctx, k } = S;
                 const L = k.PAD + 104, R = k.W - k.PAD - 10, T = S.y + 60, B = Math.min(T + 900, 1420);
                 const rs = points.map(p => p.ratio), ts = points.map(p => p.time);
@@ -293,13 +354,13 @@
                 if (zone) {
                     const pad = 30, min = 84, cx = (X(zone.r0) + X(zone.r1)) / 2, cy = (Y(zone.t0) + Y(zone.t1)) / 2;
                     const w = Math.max(min, X(zone.r1) - X(zone.r0) + pad * 2), h = Math.max(min, Y(zone.t0) - Y(zone.t1) + pad * 2);
-                    k.round(cx - w / 2, cy - h / 2, w, h, Math.min(38, w / 2, h / 2)); ctx.fillStyle = 'rgba(134,172,136,0.16)'; ctx.fill();
-                    ctx.setLineDash([12, 12]); ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(134,172,136,0.7)'; ctx.stroke(); ctx.setLineDash([]);
+                    k.round(cx - w / 2, cy - h / 2, w, h, Math.min(38, w / 2, h / 2)); ctx.fillStyle = k.nl ? this.hexToRgba(k.accent, 0.16) : 'rgba(134,172,136,0.16)'; ctx.fill();
+                    ctx.setLineDash([12, 12]); ctx.lineWidth = 4; ctx.strokeStyle = k.nl ? this.hexToRgba(k.accent, 0.7) : 'rgba(134,172,136,0.7)'; ctx.stroke(); ctx.setLineDash([]);
                 }
                 points.slice().sort((p, q) => p.rating - q.rating).forEach(p => {
                     const r = p.rating >= 4.5 ? 19 : 15;
                     ctx.beginPath(); ctx.arc(X(p.ratio), Y(p.time), r, 0, Math.PI * 2);
-                    if (p.rating > 0) { ctx.fillStyle = this.ratingColor(p.rating); ctx.fill(); ctx.lineWidth = 5; ctx.strokeStyle = '#161C17'; ctx.stroke(); }
+                    if (p.rating > 0) { ctx.fillStyle = this.ratingColor(p.rating); ctx.fill(); ctx.lineWidth = 5; ctx.strokeStyle = k.nl ? k.bg : '#161C17'; ctx.stroke(); }
                     else { ctx.lineWidth = 4; ctx.strokeStyle = k.muted; ctx.stroke(); }
                 });
                 let y = B + 160;
@@ -325,7 +386,7 @@
                 const A = aSel && this.brews.get(String(aSel.value || '')), B = bSel && this.brews.get(String(bSel.value || ''));
                 if (!A || !B || A === B) return null;
                 const meta = this.activeGroup ? this.activeGroup.meta : null;
-                const S = this.storyStart({ sub: `Compare${meta && meta.roaster ? ` · ${meta.roaster}` : ''}`, title: meta ? String(meta.name || '').trim() || 'Two sessions' : 'Two sessions' }); if (!S) return null;
+                const S = this.storyStart({ fam: meta && this.famOfCoffee ? this.famOfCoffee(meta) : '', sub: `Compare${meta && meta.roaster ? ` · ${meta.roaster}` : ''}`, title: meta ? String(meta.name || '').trim() || 'Two sessions' : 'Two sessions' }); if (!S) return null;
                 const { ctx, k } = S; let y = S.y + 30;
                 const cw = (k.W - k.PAD * 2 - 24) / 2, ch = 210;
                 [[A, 'A', '#4E7B57'], [B, 'B', '#8A63C4']].forEach(([x, tag, col], i) => {
@@ -363,8 +424,8 @@
                 add('Rating', this.normalizeRating(A.rating) || null, this.normalizeRating(B.rating) || null, v => `${this.formatRating(v)}★`);
                 const tw = k.W - k.PAD * 2, rh = 92, cols = [k.PAD + 40, k.PAD + tw * 0.40, k.PAD + tw * 0.66, k.PAD + tw - 40];
                 k.round(k.PAD, y, tw, rh * (rows.length + 1), 40); ctx.fillStyle = k.box; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = k.boxLine; ctx.stroke();
-                ctx.font = k.sans(800, 28); ctx.fillStyle = k.muted;
-                ctx.fillText('A', cols[1], y + 58); ctx.fillText('B', cols[2], y + 58); ctx.textAlign = 'right'; ctx.fillText('A VS B', cols[3], y + 58); ctx.textAlign = 'left';
+                ctx.font = k.nl ? k.sans(700, 30) : k.sans(800, 28); ctx.fillStyle = k.muted;
+                ctx.fillText('A', cols[1], y + 58); ctx.fillText('B', cols[2], y + 58); ctx.textAlign = 'right'; ctx.fillText(k.nl ? 'A vs B' : 'A VS B', cols[3], y + 58); ctx.textAlign = 'left';
                 rows.forEach(([l, av, bv, d], i) => {
                     const ry = y + rh * (i + 1);
                     ctx.strokeStyle = k.boxLine; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(k.PAD, ry); ctx.lineTo(k.PAD + tw, ry); ctx.stroke();
@@ -375,7 +436,7 @@
                 y += rh * (rows.length + 1) + 30;
                 const ta = this.tastedKeys(A), tb = this.tastedKeys(B);
                 if ((ta.length || tb.length) && y < 1560) {
-                    const img = await this.storyShape(this.shapeValues(A), this.shapeValues(B), ta, [900, 700], tea ? 'tea' : 'coffee');
+                    const img = await this.storyShape(this.shapeValues(A), this.shapeValues(B), ta, [900, 700], tea ? 'tea' : 'coffee', k.nl ? k : null);
                     if (img) {
                         const bottom = this.storyDrawFit(S, img, y, 900, Math.min(700, k.H - 130 - y));
                         ctx.font = k.sans(700, 30); ctx.fillStyle = k.ink2; ctx.strokeStyle = k.ink2; ctx.lineWidth = 5;
@@ -397,13 +458,16 @@
                 const onScreen = this.roasterViewActive && this.roasterViewActive() ? this.roasterOpenKind : '';
                 const kind = kindIn === 'tea' || kindIn === 'coffee' ? kindIn : onScreen === 'tea' || onScreen === 'coffee' ? onScreen : (!this.roasterFind(key, 'coffee') && this.roasterFind(key, 'tea') ? 'tea' : 'coffee'), w = this.drinkWords(kind);
                 const r = this.roasterData(kind).byKey.get(key) || this.roasterData().byKey.get(key); if (!r) return null;
-                const S = this.storyStart({ sub: '', title: '' }); if (!S) return null;
+                const S = this.storyStart({ sub: '', title: '', fam: this.famOfRoaster ? this.famOfRoaster(r.name, kind) : '' }); if (!S) return null;
                 const { ctx, k } = S; let y = 330;
                 const set = this.ROASTER_COLORS[r.key] || this.ROASTER_COLORS[RoasterEngine.keyOf(r.name)];
+                const cov = k.nl && r.info && r.info.cover, cp = cov && this.nlTonePal ? this.nlTonePal(this.nlToneKey(cov.hue, 0.012 + 0.12 * Math.max(0.1, (cov.tone ?? 60) / 100)), k.dark) : null;   // v17.5: its picture
                 const g = ctx.createLinearGradient(k.PAD, y, k.PAD + 220, y + 220);
-                g.addColorStop(0, set ? set[0] : `hsl(${r.hue} 44% 60%)`); g.addColorStop(1, set ? set[1] : `hsl(${(r.hue + 24) % 360} 40% 40%)`);
+                g.addColorStop(0, cp ? cp.tileA : set ? set[0] : `hsl(${r.hue} 44% 60%)`); g.addColorStop(1, cp ? cp.tileB : set ? set[1] : `hsl(${(r.hue + 24) % 360} 40% 40%)`);
                 k.round(k.PAD, y, 220, 220, 56); ctx.fillStyle = g; ctx.fill();
-                ctx.font = k.serif(700, 92); ctx.fillStyle = '#FFFFFF'; ctx.textAlign = 'center'; ctx.fillText(this.roasterInitials(r.name), k.PAD + 110, y + 142); ctx.textAlign = 'left';
+                const photo = cov && cov.photo && this.faceUrl ? await this.storyLoadCors(this.faceUrl(cov.photo)) : null;
+                if (photo) { ctx.save(); k.round(k.PAD, y, 220, 220, 56); ctx.clip(); const z = Math.max(220 / photo.naturalWidth, 220 / photo.naturalHeight); ctx.drawImage(photo, k.PAD + (220 - photo.naturalWidth * z) / 2, y + (220 - photo.naturalHeight * z) / 2, photo.naturalWidth * z, photo.naturalHeight * z); ctx.restore(); }
+                else { ctx.font = k.serif(700, 92); ctx.fillStyle = '#FFFFFF'; ctx.textAlign = 'center'; ctx.fillText(this.roasterInitials(r.name), k.PAD + 110, y + 142); ctx.textAlign = 'left'; }
                 y += 220 + 40;
                 const info = r.info || {}, local = (r.localBy || []).includes(this.user);
                 ctx.font = k.sans(600, 36); ctx.fillStyle = k.muted;
@@ -411,12 +475,12 @@
                 if (where || local) { ctx.fillText(k.fit([w.Company, where].filter(Boolean).join(' · '), k.W - k.PAD * 2 - (local ? 260 : 0)), k.PAD, y + 26); }
                 if (local) {
                     const label = 'Local to me', lw = (ctx.font = k.sans(700, 32), ctx.measureText(label).width + 100), lx = k.W - k.PAD - lw;
-                    k.round(lx, y - 22, lw, 64, 32); ctx.fillStyle = 'rgba(134,172,136,0.2)'; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = 'rgba(134,172,136,0.5)'; ctx.stroke();
-                    const pin = await this.storyIcon('i-pin', '#A9CFA9'); if (pin) ctx.drawImage(pin, lx + 22, y - 8, 36, 36);
-                    ctx.fillStyle = '#C5E3C3'; ctx.fillText(label, lx + 66, y + 22);
+                    k.round(lx, y - 22, lw, 64, 32); ctx.fillStyle = k.nl ? k.box : 'rgba(134,172,136,0.2)'; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = k.nl ? k.boxLine : 'rgba(134,172,136,0.5)'; ctx.stroke();
+                    const pin = await this.storyIcon('i-pin', k.nl ? k.accent : '#A9CFA9'); if (pin) ctx.drawImage(pin, lx + 22, y - 8, 36, 36);
+                    ctx.fillStyle = k.nl ? k.ink : '#C5E3C3'; ctx.fillText(label, lx + 66, y + 22);
                 }
                 y += 48;
-                ctx.font = k.serif(600, 96); ctx.fillStyle = k.ink;
+                ctx.font = k.serif(600, 96); ctx.fillStyle = k.nl ? k.name : k.ink;
                 const lines = k.wrap(r.name, k.W - k.PAD * 2, 2); lines.forEach((l, i) => ctx.fillText(l, k.PAD, y + 108 * (i + 1) - 18)); y += 108 * lines.length + 40;
                 const mine = r.people.find(p => p.name === this.user);
                 y = this.storyBoxes(S, [
@@ -425,7 +489,7 @@
                     (mine ? mine.avg : r.avg) ? { big: [[this.formatRating(mine ? mine.avg : r.avg), '★']], small: mine ? 'your average' : 'average' } : null
                 ], y);
                 y += 70;
-                ctx.font = k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText(w.Items.toUpperCase(), k.PAD, y); y += 34;
+                ctx.font = k.nl ? k.sans(700, 34) : k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText(k.nl ? w.Items : w.Items.toUpperCase(), k.PAD, y); y += 34;
                 const list = r.coffees.slice().sort((a, b) => b.sessions - a.sessions || (b.avg || 0) - (a.avg || 0)).slice(0, 6);
                 list.forEach(cf => {
                     if (y > k.H - 140) return;
@@ -456,7 +520,7 @@
                 ctx.font = k.sans(800, 52); ctx.fillStyle = '#F2C94C'; ctx.fillText('Done together', k.PAD + (trophy ? 84 : 0), y + 46);
                 y += 110;
                 const bw = k.W - k.PAD * 2, bh = 64;
-                k.round(k.PAD, y, bw, bh, 32); ctx.fillStyle = 'rgba(255,255,255,0.08)'; ctx.fill();
+                k.round(k.PAD, y, bw, bh, 32); ctx.fillStyle = k.nl ? k.grid : 'rgba(255,255,255,0.08)'; ctx.fill();
                 const segs = this.crewSegs(q), count = this.crewCount(q), countText = `${count.n}${count.rest}`;   // v16.8: as on the card
                 let used = 0;
                 ctx.save(); k.round(k.PAD, y, bw, bh, 32); ctx.clip();
@@ -514,30 +578,31 @@
                 const L = this.levelOf(c), fmt = x => Math.round(x).toLocaleString();
                 const S = this.storyStart({ who }); if (!S) return null;
                 const { ctx, k } = S; let y = 360;
-                const svg = this.levelSvg(L.i, 480).replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ');
+                const svg = (k.nl && this.nlLevelBadge ? this.nlLevelBadge(L.i, 480) : this.levelSvg(L.i, 480)).replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ');   // (v17.5: the numbered badge in the New look)
                 const badge = await this.storyLoad('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
                 if (badge) ctx.drawImage(badge, (k.W - 420) / 2, y, 420, 420);
                 y += 420 + 90;
                 ctx.textAlign = 'center';
-                ctx.font = k.sans(700, 36); ctx.fillStyle = k.muted; ctx.fillText(`${who === this.user ? 'My' : `${who}'s`} level · Level ${L.n}`, k.W / 2, y);
-                ctx.font = k.serif(600, 110); ctx.fillStyle = k.ink; ctx.fillText(k.fit(L.name, k.W - k.PAD * 2), k.W / 2, y + 130);
-                ctx.font = k.sans(700, 54); ctx.fillStyle = '#FFFFFF'; const cr = `${fmt(L.crema)}`; const cw = ctx.measureText(cr).width; ctx.font = k.sans(500, 40); const lw = ctx.measureText(' crema').width;
-                ctx.textAlign = 'left'; ctx.font = k.sans(700, 54); ctx.fillText(cr, (k.W - cw - lw) / 2, y + 230); ctx.font = k.sans(500, 40); ctx.fillStyle = k.ink2; ctx.fillText(' crema', (k.W - cw - lw) / 2 + cw, y + 230);
+                const unit = k.nl ? ' points' : ' crema', tier = this.levelTiers()[L.t].name;
+                ctx.font = k.nl ? k.hand(40) : k.sans(700, 36); ctx.fillStyle = k.nl ? k.accent : k.muted; ctx.fillText(k.nl ? `${who === this.user ? 'My' : `${who}'s`} level · ${tier === 'The top' ? 'Top' : tier}` : `${who === this.user ? 'My' : `${who}'s`} level · Level ${L.n}`, k.W / 2, y);
+                ctx.font = k.serif(600, 110); ctx.fillStyle = k.nl ? k.name : k.ink; ctx.fillText(k.fit(k.nl ? `Level ${L.n}` : L.name, k.W - k.PAD * 2), k.W / 2, y + 130);
+                ctx.font = k.sans(700, 54); ctx.fillStyle = k.nl ? k.ink : '#FFFFFF'; const cr = `${fmt(L.crema)}`; const cw = ctx.measureText(cr).width; ctx.font = k.sans(500, 40); const lw = ctx.measureText(unit).width;
+                ctx.textAlign = 'left'; ctx.font = k.sans(700, 54); ctx.fillText(cr, (k.W - cw - lw) / 2, y + 230); ctx.font = k.sans(500, 40); ctx.fillStyle = k.ink2; ctx.fillText(unit, (k.W - cw - lw) / 2 + cw, y + 230);
                 y += 300;
                 if (L.next) {
                     const bw = k.W - k.PAD * 2 - 120, bx = (k.W - bw) / 2;
-                    k.round(bx, y, bw, 30, 15); ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.fill();
+                    k.round(bx, y, bw, 30, 15); ctx.fillStyle = k.nl ? k.grid : 'rgba(255,255,255,0.1)'; ctx.fill();
                     const T = this.levelTiers()[L.t]; const g = ctx.createLinearGradient(bx, 0, bx + bw, 0); g.addColorStop(0, T.from); g.addColorStop(1, T.to);
                     k.round(bx, y, Math.max(30, bw * L.pct / 100), 30, 15); ctx.fillStyle = g; ctx.fill();
-                    ctx.textAlign = 'center'; ctx.font = k.sans(500, 36); ctx.fillStyle = k.ink2; ctx.fillText(`${fmt(L.next.min - L.crema)} more to ${L.next.name}`, k.W / 2, y + 96); ctx.textAlign = 'left';
+                    ctx.textAlign = 'center'; ctx.font = k.sans(500, 36); ctx.fillStyle = k.ink2; ctx.fillText(k.nl ? `${fmt(L.next.min - L.crema)} more to level ${L.n + 1}` : `${fmt(L.next.min - L.crema)} more to ${L.next.name}`, k.W / 2, y + 96); ctx.textAlign = 'left';
                     y += 150;
-                } else { ctx.textAlign = 'center'; ctx.font = k.sans(500, 38); ctx.fillStyle = k.ink2; ctx.fillText('The top level. Dialed in.', k.W / 2, y + 40); ctx.textAlign = 'left'; y += 110; }
+                } else { ctx.textAlign = 'center'; ctx.font = k.sans(500, 38); ctx.fillStyle = k.ink2; ctx.fillText(k.nl ? 'The top level.' : 'The top level. Dialed in.', k.W / 2, y + 40); ctx.textAlign = 'left'; y += 110; }
                 // the latest achievements unlocked
                 const recent = [];
                 [this.achievementUnlockByBrew, this.achievementUnlockByBean].forEach(map => map && map.forEach(list => list.forEach(u => { if (u.user === who) recent.push(u); })));
                 const latest = recent.sort((a, b) => this.toTime(b.date) - this.toTime(a.date)).slice(0, 3);
                 if (latest.length && y < k.H - 340) {
-                    y += 30; ctx.font = k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText('LATEST ACHIEVEMENTS', k.PAD, y); y += 30;
+                    y += 30; ctx.font = k.nl ? k.sans(700, 34) : k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText(k.nl ? 'Latest achievements' : 'LATEST ACHIEVEMENTS', k.PAD, y); y += 30;
                     latest.forEach(u => {
                         if (y > k.H - 160) return;
                         ctx.strokeStyle = k.boxLine; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(k.PAD, y); ctx.lineTo(k.W - k.PAD, y); ctx.stroke();
@@ -556,16 +621,16 @@
                 const p = this.palateFor(who); if (!p || p.count < 3) return null;
                 const S = this.storyStart({ who, sub: who === this.user ? (p.kind === 'tea' ? 'My tea palate' : 'My palate') : `${who}'s ${p.kind === 'tea' ? 'tea ' : ''}palate` }); if (!S) return null;
                 const { ctx, k } = S; let y = S.y + 20;
-                ctx.font = k.serif(600, 62); ctx.fillStyle = k.ink;
+                ctx.font = k.serif(600, 62); ctx.fillStyle = k.nl ? k.name : k.ink;
                 const lines = k.wrap(this.palateSentence(p), k.W - k.PAD * 2, 5); lines.forEach((l, i) => ctx.fillText(l, k.PAD, y + 74 * (i + 1) - 14)); y += 74 * lines.length + 10;
                 const shape = this.storyAvgShape(this.brewsOf(who).filter(b => this.isTeaBrew(b) === (p.kind === 'tea')));
-                const img = shape ? await this.storyShape(shape.vals, null, shape.tasted, [820, 600], p.kind) : null;
+                const img = shape ? await this.storyShape(shape.vals, null, shape.tasted, [820, 600], p.kind, k) : null;
                 y = img ? this.storyDrawFit(S, img, y + 10, 820, Math.min(600, 1360 - y)) + 10 : y + 30;
                 const groups = [['Origins', p.origins], [p.kind === 'tea' ? 'Processing' : 'Process', p.processes], [p.kind === 'tea' ? 'Type' : 'Roast', p.roasts], ['Methods', p.methods]].filter(([, l]) => l.length);
-                if (p.notes.length) { ctx.font = k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText('NOTES', k.PAD, y + 20); y = this.storyNoteChips(S, p.notes.map(n => n.label), y + 44, 2) + 34; }
+                if (p.notes.length) { ctx.font = k.nl ? k.sans(700, 34) : k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText(k.nl ? 'Notes' : 'NOTES', k.PAD, y + 20); y = this.storyNoteChips(S, p.notes.map(n => n.label), y + 44, 2) + 34; }
                 groups.slice(0, 3).forEach(([label, list]) => {
                     if (y > k.H - 200) return;
-                    ctx.font = k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText(label.toUpperCase(), k.PAD, y + 30);
+                    ctx.font = k.nl ? k.sans(700, 34) : k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText(k.nl ? label : label.toUpperCase(), k.PAD, y + 30);
                     ctx.font = k.sans(600, 38); ctx.fillStyle = k.ink; ctx.fillText(k.fit(list.map(x => x.label).join(' · '), k.W - k.PAD * 2 - 260), k.PAD + 260, y + 30);
                     y += 70;
                 });
@@ -588,7 +653,7 @@
                 y = this.storyBoxes(S, [{ big: [[this.fmtNum(coffee, 1), ' g'], [this.fmtNum(water, 0), ' g']], small: `1:${this.fmtNum(water / coffee, 1)}`, wide: true }, temp ? { big: [[this.fmtNum(temp, 0), '°']], small: 'water temp' } : null, plan.length ? { big: [[this.clock(plan[plan.length - 1].end), '']], small: 'total time' } : null], y);
                 y += 70;
                 if (plan.length) {
-                    ctx.font = k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText('STEPS', k.PAD, y); y += 30;
+                    ctx.font = k.nl ? k.sans(700, 34) : k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText(k.nl ? 'Steps' : 'STEPS', k.PAD, y); y += 30;
                     const rh = Math.min(104, Math.floor((k.H - 160 - y) / Math.min(plan.length, 12)));
                     plan.slice(0, 12).forEach(st => {
                         const kind = (typeof STEP_KINDS !== 'undefined' && STEP_KINDS[st.k]) || { label: st.k, color: '#8A958C' };

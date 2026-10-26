@@ -179,6 +179,7 @@
             },
             // the level on the profile card: the badge, the level, and how far to the next
             levelRowHtml(user) {
+                if (this.newLook && this.newLook() && this.nlLevelRowHtml) return this.nlLevelRowHtml(user);   // v17.5
                 const c = this.cremaOf(user);
                 if (c === null || c === undefined) return '';
                 const L = this.levelOf(c), fmt = x => Math.round(x).toLocaleString();
@@ -189,6 +190,7 @@
                 const m = document.getElementById('level-modal'), body = document.getElementById('level-body');
                 if (!m || !body) return;
                 if (this.nlTint) this.nlTint('#level-modal .modal-card', this.famOfPerson(name));   // v17.2: the person's palate
+                if (this.newLook && this.newLook() && this.nlLevelBody) { body.innerHTML = this.nlLevelBody(name); m.classList.add('active'); return; }   // v17.5
                 const own = name === this.user, c = this.cremaOf(name) || 0, L = this.levelOf(c), fmt = x => Math.round(x).toLocaleString();
                 const whose = own ? 'Your' : `${this.esc(name)}'s`;
                 const tiers = this.levelTiers(), list = this.levelList();

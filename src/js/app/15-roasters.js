@@ -48,6 +48,11 @@
             },
 
             roasterTileHtml(r, big = false) {
+                const cov = this.newLook && this.newLook() && r.info && r.info.cover;   // v17.5: its picture, in the New look
+                if (cov) {
+                    const P = this.nlTonePal(this.nlToneKey(cov.hue, 0.012 + 0.12 * Math.max(0.1, (cov.tone ?? 60) / 100)), this.nlDark());
+                    return `<span class="ro-tile${big ? ' big' : ''}" aria-hidden="true" style="background:linear-gradient(145deg, ${P.tileA}, ${P.tileB})">${cov.photo && this.faceUrl ? `<img src="${this.esc(this.faceUrl(cov.photo))}" alt="" loading="lazy" decoding="async" onerror="this.remove()">` : ''}<b>${this.esc(this.roasterInitials(r.name))}</b></span>`;
+                }
                 return `<span class="ro-tile${big ? ' big' : ''}" aria-hidden="true" style="background:${this.roasterPaint(r).bg}">${this.esc(this.roasterInitials(r.name))}</span>`;
             },
 
@@ -378,6 +383,7 @@
                     ${bestCard}${coffees}${who}${esp}
                     <div class="ro-acts"><button type="button" class="btn-primary" onclick="app.logCoffeeForRoaster('${app.escJs(r.key)}')"><svg class="icon" style="width:16px;height:16px;stroke:currentColor"><use href="#i-plus"/></svg>Add a ${w.item}</button><button type="button" class="btn-outline" onclick="app.showRoasterCoffees('${app.escJs(r.key)}')">All ${w.items}</button></div>`;
                 if (this.nlNavBars) this.nlNavBars();   // v17.4: the New look keeps the Back bar at the top
+                if (this.newLook && this.newLook() && this.nlFitTiles) this.nlFitTiles(document.getElementById('roaster-view'));   // v17.5: "Yesterday" fits its tile
             },
 
             openRoasterEdit(key) {
@@ -386,6 +392,7 @@
                 const f = document.querySelector('#roaster-modal form'), info = r.info || {};
                 f.elements.key.value = r.key; f.elements.location.value = info.location || ''; f.elements.website.value = info.website || ''; f.elements.note.value = info.note || '';
                 document.getElementById('roaster-modal-title').innerText = r.name;
+                if (this.roasterCoverInit && this.newLook && this.newLook()) this.roasterCoverInit(r);   // v17.5: its picture (the New look)
                 this.openModal('roaster-modal');
             },
 
@@ -395,7 +402,12 @@
                 const r = this.roasterData().byKey.get(f.elements.key.value);
                 if (!r) { this.closeModals(); return; }
                 const val = n => String(f.elements[n].value || '').trim().replace(/\s+/g, ' ').slice(0, n === 'note' ? 280 : 120);
-                const ok = this.saveRoasterPrefs(p => { p.info[r.name] = { location: val('location'), website: val('website'), note: val('note'), at: new Date().toISOString() }; });
+                // v17.5: the picture rides along (when it changed, with its own time, so it wins over older pictures anyone set)
+                const nl = !!(this.newLook && this.newLook() && this._rcv && this.beanCoverOut), cov = nl ? this.beanCoverOut('roaster') : null, now = new Date().toISOString();
+                const mine = (RoasterEngine.prefsOf(this, this.user).info || {})[r.name] || {};
+                const keep = mine.cover ? { cover: mine.cover, coverAt: mine.coverAt || mine.at } : {};
+                const pic = nl && JSON.stringify(cov) !== this._rcvStart ? { cover: cov, coverAt: now } : keep;
+                const ok = this.saveRoasterPrefs(p => { p.info[r.name] = { location: val('location'), website: val('website'), note: val('note'), at: now, ...pic }; });
                 this.closeModals();
                 if (ok) { this.renderRoasterPage(); this.showToast('Saved.'); }
             },

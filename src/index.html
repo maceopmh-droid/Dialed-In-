@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v17.4 -->
+<!-- Dialed In v17.5 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="17.4">
+    <meta name="dialed-in-version" content="17.5">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -277,6 +277,19 @@
             <h2 id="roaster-modal-title">Roaster</h2>
             <form onsubmit="app.saveRoasterEdit(event)">
                 <input type="hidden" name="key">
+                <!-- v17.5: the roaster's picture (the New look): a photo, or a color; it stays as chosen -->
+                <div class="nl-only bean-cover roaster-cover" id="roaster-cover">
+                    <label>Picture</label>
+                    <div class="bcv-row">
+                        <span class="bcv-tile" id="rcv-tile"></span>
+                        <div class="bcv-acts">
+                            <button type="button" class="btn-outline bcv-photo" id="rcv-photo" onclick="app.pickCoverPhoto('roaster')">Add a photo</button>
+                            <button type="button" class="btn-outline bcv-remove" id="rcv-remove" onclick="app.removeCoverPhoto('roaster')" hidden>Remove photo</button>
+                        </div>
+                    </div>
+                    <div class="bcv-swatches" id="rcv-swatches" role="radiogroup" aria-label="Color"></div>
+                    <input type="file" id="rcv-input" accept="image/*" hidden onchange="app.coverPhotoPicked(this, 'roaster')">
+                </div>
                 <label>Location</label>
                 <input type="text" name="location" placeholder="e.g., Cincinnati, OH" autocomplete="off">
                 <label>Website</label>
@@ -504,7 +517,7 @@
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v17.4</div>
+            <div class="app-version">Dialed In · v17.5</div>
         </div>
     </div>
 
