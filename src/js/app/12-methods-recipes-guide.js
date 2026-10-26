@@ -24,7 +24,10 @@
                 const form = this.getBrewForm();
                 // numbers a recipe filled in belong to that recipe's method: don't carry cold-brew 100/800 into a pour-over
                 if (form && this.recipeId) { form.dose.value = ''; form.yield.value = ''; }
-                if (this.activeMethod && this.activeMethod !== method) this.methodExtras = {};
+                if (this.activeMethod && this.activeMethod !== method) {   // (v17.1: what went in a tea stays when you switch how it's made)
+                    const mix = this.logKind === 'tea' && this.methodExtras && Array.isArray(this.methodExtras.mix) ? this.methodExtras.mix : null;
+                    this.methodExtras = mix && mix.length ? { mix } : {};
+                }
                 this.recipeId = ''; this.recipeName = ''; this.recipeSteps = null;
                 this.loadEquipmentForMethod(method);
                 this.applyMethodProfile(method);
@@ -37,7 +40,8 @@
             extrasFrom(brew) {
                 const b = brew || {};
                 return { temp: b.temp || '', brewer: b.brewer || '', inverted: !!b.inverted, heat: b.heat || '', preheated: !!b.preheated, steeps: Array.isArray(b.steeps) ? b.steeps.map(Number).filter(v => v > 0) : [],
-                    teabag: !!b.teabag, bags: Number(b.bags) || 0, rinse: !!b.rinse, style: b.style || '', milk: b.milk || '' };   // (v17.0: a tea's steeps, teabags, rinse, matcha style and milk)
+                    teabag: !!b.teabag, bags: Number(b.bags) || 0, rinse: !!b.rinse, style: b.style || '', milk: b.milk || '',
+                    mix: Array.isArray(b.mix) ? b.mix.filter(it => it && it.name).map(it => ({ name: String(it.name), amount: it.amount ?? '', unit: it.unit || 'g', ...(it.ref ? { ref: String(it.ref) } : {}) })) : [] };   // (v17.0: a tea's steeps, teabags, rinse, matcha style and milk; v17.1: what went in the cup)
             },
 
             applyMethodProfile(method) {
@@ -62,7 +66,8 @@
                     teabag: `<label class="method-check"><input type="checkbox" name="teabag"${x.teabag ? ' checked' : ''} onchange="app.setTeabag(this.checked)"> Teabag</label>`,
                     rinse: `<label class="method-check"><input type="checkbox" name="rinse"${x.rinse ? ' checked' : ''} onchange="app.methodExtras.rinse = this.checked"> Rinsed leaves</label>`,
                     style: `<div><label>Style</label><select name="style" onchange="app.setMatchaStyle(this.value)">${MATCHA_STYLES.map(st => `<option value="${st.key}"${st.key === (x.style || 'usucha') ? ' selected' : ''}>${st.label}</option>`).join('')}</select></div>`,
-                    milk: (MATCHA_STYLES.find(st => st.key === (x.style || 'usucha')) || {}).milk ? `<div><label>Milk (ml)</label><input type="number" name="milk" min="0" max="1000" step="any" inputmode="numeric" placeholder="150" value="${this.esc(x.milk)}" oninput="app.methodExtras.milk = this.value"></div>` : '',
+                    mix: p.tea && this.mixFieldHtml ? this.mixFieldHtml(x.mix) : '',   // v17.1
+                    milk: p.minutes || (method === 'Matcha' && (MATCHA_STYLES.find(st => st.key === (x.style || 'usucha')) || {}).milk) ? `<div><label>Milk (ml)</label><input type="number" name="milk" min="0" max="1000" step="any" inputmode="numeric" placeholder="150" value="${this.esc(x.milk)}" oninput="app.methodExtras.milk = this.value"></div>` : '',
                     steeps: p.tea && this.steepsFieldHtml ? this.steepsFieldHtml(x.steeps) : '',   // v17.0
                     heat: `<div><label>Heat</label><select name="heat" onchange="app.methodExtras.heat = this.value">${['', 'Low', 'Medium', 'High'].map(v => `<option value="${v}"${v === x.heat ? ' selected' : ''}>${v || 'Choose…'}</option>`).join('')}</select></div>`,
                     inverted: `<label class="method-check"><input type="checkbox" name="inverted"${x.inverted ? ' checked' : ''} onchange="app.methodExtras.inverted = this.checked"> Inverted</label>`,
@@ -85,13 +90,15 @@
                     else if (k === 'teabag') { if (x.teabag) { const f = this.getBrewForm(); out.teabag = true; out.bags = Math.min(20, Math.max(1, Math.round(Number(f && f.dose ? f.dose.value : 1) || 1))); } }
                     else if (k === 'rinse') { if (x.rinse) out.rinse = true; }
                     else if (k === 'style') { const st = MATCHA_STYLES.find(v => v.key === (x.style || 'usucha')); out.style = st.key; }
-                    else if (k === 'milk') { const st = MATCHA_STYLES.find(v => v.key === (x.style || 'usucha')); const ml = Number(x.milk); if (st && st.milk && ml > 0 && ml <= 1000) out.milk = Math.round(ml); }
+                    else if (k === 'milk') { const st = MATCHA_STYLES.find(v => v.key === (x.style || 'usucha')); const ml = Number(x.milk); if ((p.minutes || (method === 'Matcha' && st && st.milk)) && ml > 0 && ml <= 1000) out.milk = Math.round(ml); }
+                    else if (k === 'mix') { const list = this.cleanMix ? this.cleanMix(x.mix) : []; if (list.length) out.mix = list; }
                     else if (k === 'inverted' || k === 'preheated') out[k] = !!x[k];
                     else if (k === 'steeps') { const list = (Array.isArray(x.steeps) ? x.steeps : []).map(Number).filter(v => v > 0 && v <= 3600).slice(0, 30); if (list.length) out.steeps = list; }   // v17.0
                     else if (x[k]) out[k] = String(x[k]).slice(0, 30);
                 });
                 if (p.recipes && this.recipeName) out.recipeName = String(this.recipeName).slice(0, 60);
                 if (p.hours) out.timeUnit = 'h';
+                if (p.minutes) out.timeUnit = 'm';   // v17.1
                 return out;
             },
 

@@ -174,6 +174,7 @@
                 const s = q.toLowerCase(), seen = new Map(), want = this.beanFormKind ? this.beanFormKind() : 'coffee';
                 this.beans.forEach(b => {
                     if (this.kindOfBean(b) !== want) return;   // v17.0
+                    if (b.blend) return;   // v17.1: someone's own blend isn't a tea to pick from a list
                     const name = String(b.name || '').trim(), roaster = String(b.roaster || '').trim();
                     if (!name || !(name.toLowerCase().includes(s) || roaster.toLowerCase().includes(s))) return;
                     const k = (name + '|' + roaster).toLowerCase();

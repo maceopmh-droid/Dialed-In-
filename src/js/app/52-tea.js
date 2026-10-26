@@ -178,6 +178,8 @@
                 ph('process', '', 'e.g., Pan-fired, Roasted, Aged');
                 form.querySelectorAll('.tea-only').forEach(el => { el.hidden = !tea; });
                 form.querySelectorAll('.coffee-only').forEach(el => { el.hidden = tea; });
+                this.paintBeanBlend();   // v17.1: your own blend needs no brand
+                this.renderBeanIngredients();
                 this.fillRoasterSuggestions(k);
                 const box = form.querySelector('.cs-list'); if (box) box.hidden = true;
             },
@@ -197,6 +199,8 @@
                 const sweet = document.querySelector('[data-detail-tab="sweet"]');
                 if (sweet) sweet.hidden = tea;
                 if (tea && this.detailTab === 'sweet') this.detailTab = 'timeline';
+                const ingBox = document.getElementById('d-ingredients');   // v17.1: what's in a tea
+                if (ingBox) { const html = tea ? this.teaIngredientsHtml(meta) : ''; ingBox.innerHTML = html; ingBox.hidden = !html; }
                 if (!tea) {   // (back to a coffee after a tea: as coffee pages always were)
                     ['d-roast', 'd-process', 'd-origin'].forEach(id => { const el = document.getElementById(id); if (el) el.hidden = false; });
                     const tt = document.getElementById('d-roast'); if (tt) { tt.classList.remove('tea-type-tag'); if (tt.style && tt.style.removeProperty) tt.style.removeProperty('--tt'); }
@@ -206,6 +210,8 @@
                 tag('d-roast', meta.teaType);
                 tag('d-process', meta.process);
                 tag('d-origin', meta.origin);
+                const dr = document.getElementById('d-roaster');
+                if (dr && !String(meta.roaster || '').trim()) dr.textContent = this.teaMakerName(meta);   // "Your blend"
                 const tt = document.getElementById('d-roast');
                 if (tt && tt.style && tt.style.setProperty) { tt.classList.add('tea-type-tag'); tt.style.setProperty('--tt', (this.teaTypeInfo(meta.teaType) || {}).color || '#7FA45B'); }
                 const line = document.getElementById('d-roast-date');
@@ -237,6 +243,7 @@
                     sel.innerHTML = `<option value="">Select Method</option>` + list.map(m => `<option value="${this.esc(m)}">${this.esc(this.methodLabel(m))}</option>`).join('');
                     sel.value = list.includes(keep) ? keep : '';
                 }
+                if (form.dose) form.dose.required = !tea;   // v17.1: a tea's leaf is optional (a cup of several things, a teabag)
                 if (form.grind) {
                     const wrap = form.grind.closest('div');
                     if (wrap) wrap.hidden = tea;
@@ -260,7 +267,7 @@
             // the methods a tea can be made with: matcha only whisked; a leaf tea steeped (Western, Gongfu, Cold Steep);
             // no type set: all four. An older session on another method keeps it in the list.
             teaMethodsFor(type, keep) {
-                const list = type === 'Matcha' ? ['Matcha'] : type && TEA_TYPE_INFO[type] ? LEAF_TEA_METHODS.slice() : TEA_METHODS.slice();
+                const list = type === 'Matcha' ? ['Matcha'] : type === 'Herbal' ? HERBAL_TEA_METHODS.slice() : type && TEA_TYPE_INFO[type] ? LEAF_TEA_METHODS.slice() : TEA_METHODS.slice();
                 if (keep && this.isTeaMethod(keep) && !list.includes(keep)) list.push(keep);
                 return list;
             },
@@ -279,12 +286,14 @@
             teaCarry() {
                 const key = this.activeGroup ? this.beanGroupKey(this.activeGroup.meta) : '';
                 const last = key && this.user ? this.brewsOf(this.user).filter(b => this.isTeaBrew(b) && this.groupKeyOfBrew(b) === key).sort((a, b) => this.toTime(b.date) - this.toTime(a.date))[0] : null;
-                if (!last) return {};
+                if (!last) { const ing = this.teaIngredientsOfActive(); return ing.length ? { mix: ing.map(it => ({ name: it.name, amount: '', unit: this.mixUnitFor(it), ...(it.ref ? { ref: it.ref } : {}) })) } : {}; }
                 const out = {};
                 if (last.teabag) { out.teabag = true; out.bags = Number(last.bags) || 1; }
                 if (last.rinse) out.rinse = true;
                 if (last.style) out.style = String(last.style);
                 if (last.milk) out.milk = String(last.milk);
+                const mix = this.cleanMix(last.mix);   // v17.1: the same things in the cup, the same amounts
+                if (mix.length) out.mix = mix.map(it => ({ ...it, amount: it.amount ?? '' }));
                 return out;
             },
             // ---- teabags: the leaf field counts bags instead of weighing grams (saved as bags, with no leaf weight)
@@ -303,9 +312,11 @@
                 const p = this.methodProfile(method), form = this.getBrewForm(), lbl = document.getElementById('lbl-dose');
                 if (!form || !form.dose || !lbl) return;
                 const on = !!(p.tea && p.extras.includes('teabag') && this.methodExtras && this.methodExtras.teabag);
-                lbl.textContent = on ? 'Teabags' : p.dose;
+                const mix = p.tea && !on ? this.cleanMix(this.methodExtras && this.methodExtras.mix) : [];   // v17.1: a cup of several things: its total
+                const grams = this.mixGrams(mix);
+                lbl.textContent = on ? 'Teabags' : mix.length >= 2 ? 'Total (g)' : p.dose;
                 form.dose.step = on ? '1' : 'any';   // (as the form has it: any decimal, 18.25 g)
-                form.dose.placeholder = on ? '1' : '';
+                form.dose.placeholder = on ? '1' : mix.length ? (grams ? String(grams) : 'optional') : '';
                 if (on && !(Number(form.dose.value) > 0)) form.dose.value = String(this.methodExtras.bags || 1);
             },
             setMatchaStyle(key) {
@@ -315,6 +326,145 @@
             },
             matchaStyle(b) { return MATCHA_STYLES.find(st => st.key === (b && b.style)) || null; },
             teaRatio(method, style) { const st = method === 'Matcha' ? MATCHA_STYLES.find(v => v.key === (style || 'usucha')) : null; return st ? st.ratio : this.methodProfile(method).ratio; },
+
+            // ===================== v17.1: herbal teas, your own blends, and what went in each cup =====================
+            // A tea can list what's in it (ingredients: names, a shelf tea linked by id), and be your own blend (no brand).
+            // A cup can list what went in it with amounts (mix: name, amount, unit), e.g. 1 bag of a lemon ginger tea,
+            // 2 g of home-grown lemon balm and 1 g of echinacea root, then a teaspoon of honey.
+            isBlendTea(bean) { return Boolean(bean && bean.kind === 'tea' && (bean.blend || this.cleanIngredients(bean.ingredients).length >= 2)); },
+            cleanIngredients(list) {
+                const seen = new Set(), out = [];
+                (Array.isArray(list) ? list : []).forEach(it => {
+                    const name = String((it && typeof it === 'object' ? it.name : it) || '').trim().replace(/\s+/g, ' ').slice(0, 60);
+                    if (!name || seen.has(name.toLowerCase()) || out.length >= 20) return;
+                    seen.add(name.toLowerCase());
+                    out.push(it && it.ref ? { name, ref: String(it.ref).slice(0, 80) } : { name });
+                });
+                return out;
+            },
+            cleanMix(list) {
+                const out = [];
+                (Array.isArray(list) ? list : []).forEach(it => {
+                    const name = String((it && it.name) || '').trim().replace(/\s+/g, ' ').slice(0, 60);
+                    if (!name || out.length >= 20) return;
+                    const o = { name }, a = Number(it.amount);
+                    if (it.amount !== '' && it.amount != null && a > 0 && a <= 5000) { o.amount = Math.round(a * 100) / 100; o.unit = MIX_UNITS.includes(it.unit) ? it.unit : 'g'; }
+                    if (it.ref) o.ref = String(it.ref).slice(0, 80);
+                    out.push(o);
+                });
+                return out;
+            },
+            mixGrams(list) { return Math.round((Array.isArray(list) ? list : []).reduce((s, it) => s + (it && (it.unit || 'g') === 'g' && Number(it.amount) > 0 ? Number(it.amount) : 0), 0) * 10) / 10; },
+            mixItemText(it) {
+                const a = Number(it.amount);
+                if (!(a > 0)) return it.name;
+                const plural = { bag: 'bags', slice: 'slices', pinch: 'pinches' }, u = it.unit || 'g';
+                return `${it.name} ${this.fmtNum(a, 2)} ${a > 1 && plural[u] ? plural[u] : u}`;
+            },
+            // the usual unit for an ingredient: what you used last time, a teabag tea in bags, honey in teaspoons...
+            mixUnitFor(it) {
+                const name = String(it && it.name || '').toLowerCase();
+                let last = '';
+                this.brewsOf(this.user).forEach(b => (Array.isArray(b.mix) ? b.mix : []).forEach(m => { if (m && String(m.name || '').toLowerCase() === name && m.unit && !last) last = m.unit; }));
+                if (last && MIX_UNITS.includes(last)) return last;
+                if (it && it.ref) { const used = this.brewsOf(this.user).find(b => String(b.beanId) === String(it.ref) && b.teabag); if (used) return 'bag'; }
+                return { honey: 'tsp', sugar: 'tsp', lemon: 'slice', ginger: 'slice', mint: 'pinch', milk: 'ml' }[name] || 'g';
+            },
+            teaIngredientsOfActive() {
+                const g = this.activeGroup && this.activeGroup.meta;
+                return this.cleanIngredients((g && g.ingredients) || ((this.beans.get(String(this.activeId)) || {}).ingredients));
+            },
+            // the company line: the brand, or "Your blend" / "Julian's blend" for your own
+            teaMakerName(bean) {
+                if (!bean) return '';
+                const r = String(bean.roaster || '').trim();
+                if (r) return r;
+                if (bean.kind === 'tea' && bean.blend) { const o = String(bean.owner || bean.user || ''); return o && o === this.user ? 'Your blend' : `${o || 'Their'}'s blend`.replace("Their's", 'Their'); }
+                return '';
+            },
+            // names to pick from: the teas on the shelf, then everything anyone has put in a tea or a cup
+            teaNameSuggestions(skipId) {
+                const names = new Map();
+                this.beans.forEach(b => { if (this.isTeaBean(b) && String(b.id) !== String(skipId || '') && b.name) names.set(String(b.name).toLowerCase(), String(b.name)); });
+                this.beans.forEach(b => this.cleanIngredients(b.ingredients).forEach(it => { if (!names.has(it.name.toLowerCase())) names.set(it.name.toLowerCase(), it.name); }));
+                this.brews.forEach(b => this.cleanMix(b.mix).forEach(it => { if (!names.has(it.name.toLowerCase())) names.set(it.name.toLowerCase(), it.name); }));
+                return [...names.values()].slice(0, 80);
+            },
+            shelfTeaNamed(name, skipId) {
+                const n = String(name || '').trim().toLowerCase();
+                if (!n) return null;
+                return [...this.beans.values()].find(b => this.isTeaBean(b) && String(b.id) !== String(skipId || '') && String(b.name || '').trim().toLowerCase() === n) || null;
+            },
+
+            // ---- the cup: "In this cup" on the Log
+            mixFieldHtml(list) {
+                const items = Array.isArray(list) ? list : [];
+                const ing = this.teaIngredientsOfActive();
+                if (!items.length && !ing.length && !this.mixOpen) return `<div class="mix-field mix-closed"><button type="button" class="mix-open" onclick="app.openMix()">+ What went in <span>(herbs, honey, lemon…)</span></button></div>`;
+                const rows = items.map((it, i) => `<div class="mix-row"><span class="mix-name">${this.esc(it.name)}</span><input type="number" inputmode="decimal" min="0" step="any" placeholder="–" value="${this.esc(it.amount ?? '')}" aria-label="How much ${this.esc(it.name)}" oninput="app.setMixAmount(${i}, this.value)"><select aria-label="Unit for ${this.esc(it.name)}" onchange="app.setMixUnit(${i}, this.value)">${MIX_UNITS.map(u => `<option value="${u}"${u === (it.unit || 'g') ? ' selected' : ''}>${u}</option>`).join('')}</select><button type="button" class="mix-x" aria-label="Remove ${this.esc(it.name)}" onclick="app.removeMix(${i})"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button></div>`).join('');
+                const have = new Set(items.map(it => it.name.toLowerCase()));
+                const sugg = [...ing.map(x => x.name), ...MIX_ADDINS].filter((n, i, a) => !have.has(n.toLowerCase()) && a.findIndex(m => m.toLowerCase() === n.toLowerCase()) === i).slice(0, 8);
+                return `<div class="mix-field"><label>In this cup</label>${rows ? `<div class="mix-rows">${rows}</div>` : ''}<div class="mix-add">${sugg.map(n => `<button type="button" class="mix-sugg" onclick="app.addMix('${this.escJs(n)}')">+ ${this.esc(n)}</button>`).join('')}<span class="mix-new"><input type="text" list="mix-names" maxlength="60" placeholder="Something else" aria-label="Add something else to this cup" onkeydown="if (event.key === 'Enter') { event.preventDefault(); app.addMixFromInput(this); }"><button type="button" class="steep-add-btn" onclick="app.addMixFromInput(this.previousElementSibling)">Add</button></span></div><datalist id="mix-names">${this.teaNameSuggestions(this.activeId).map(n => `<option value="${this.esc(n)}"></option>`).join('')}</datalist></div>`;
+            },
+            openMix() { this.mixOpen = true; this.renderMethodExtras(this.activeMethod); const el = document.querySelector('#method-extras .mix-new input'); if (el) el.focus(); },
+            addMix(name) {
+                const n = String(name || '').trim().slice(0, 60); if (!n) return;
+                this.methodExtras.mix = Array.isArray(this.methodExtras.mix) ? this.methodExtras.mix : [];
+                if (this.methodExtras.mix.some(it => it.name.toLowerCase() === n.toLowerCase())) return;
+                const shelf = this.shelfTeaNamed(n, this.activeId), ing = this.teaIngredientsOfActive().find(it => it.name.toLowerCase() === n.toLowerCase());
+                const ref = (ing && ing.ref) || (shelf ? String(shelf.id) : '');
+                const it = { name: shelf ? String(shelf.name) : n, amount: '', ...(ref ? { ref } : {}) };
+                it.unit = this.mixUnitFor(it);
+                this.methodExtras.mix.push(it);
+                this.mixOpen = true;
+                this.renderMethodExtras(this.activeMethod);
+                const rows = document.querySelectorAll('#method-extras .mix-row input[type="number"]'); if (rows.length) rows[rows.length - 1].focus();
+            },
+            addMixFromInput(input) { if (!input) return; const v = input.value; input.value = ''; this.addMix(v); },
+            removeMix(i) { const l = this.methodExtras.mix || []; l.splice(i, 1); this.renderMethodExtras(this.activeMethod); },
+            setMixAmount(i, v) { const it = (this.methodExtras.mix || [])[i]; if (it) it.amount = v; this.paintTeabag(this.activeMethod); },
+            setMixUnit(i, u) { const it = (this.methodExtras.mix || [])[i]; if (it) it.unit = MIX_UNITS.includes(u) ? u : 'g'; this.paintTeabag(this.activeMethod); },
+            // a tea's leaf weight: counted teabags save none; typed in wins; else the grams of what went in
+            teaDoseFor(method, form) {
+                const x = this.methodExtras || {}, v = this.asNumber(form && form.dose ? form.dose.value : 0, 0);
+                if (x.teabag && this.methodProfile(method).extras.includes('teabag')) return 0;
+                return v > 0 ? v : this.mixGrams(x.mix);
+            },
+
+            // ---- the add form: your own blend (no brand) and what's in it
+            paintBeanBlend() {
+                const form = this.getBeanForm(); if (!form || !form.roaster) return;
+                const tea = this.beanFormKind() === 'tea', blend = tea && form.elements.blend && form.elements.blend.checked;
+                form.roaster.required = !blend;
+                form.roaster.disabled = !!blend;
+                if (blend) form.roaster.value = '';
+                form.roaster.placeholder = blend ? 'Your own blend' : (tea ? 'e.g., Mountain Leaf Tea Co.' : '');
+            },
+            setBeanBlend(on) { this.paintBeanBlend(); if (on && !this.beanIngredients.length) { const el = document.querySelector('#bean-ingredients input'); if (el) el.focus(); } },
+            renderBeanIngredients() {
+                const box = document.getElementById('bean-ingredients'); if (!box) return;
+                const list = this.beanIngredients = this.cleanIngredients(this.beanIngredients);
+                const id = this.getBeanForm() && this.getBeanForm().elements.id ? this.getBeanForm().elements.id.value : '';
+                const chips = list.map((it, i) => `<button type="button" class="ing-chip" onclick="app.removeBeanIngredient(${i})" aria-label="Remove ${this.esc(it.name)}">${it.ref ? '<svg class="icon" aria-hidden="true"><use href="#i-teabag"/></svg>' : ''}<b>${this.esc(it.name)}</b><svg class="icon ing-x" aria-hidden="true"><use href="#i-x"/></svg></button>`).join('');
+                box.innerHTML = `${chips ? `<div class="ing-chips">${chips}</div>` : ''}<span class="mix-new"><input type="text" list="ing-names" maxlength="60" placeholder="${list.length ? 'Add another' : 'e.g., Lemon balm, Echinacea root'}" aria-label="Add an ingredient" onkeydown="if (event.key === 'Enter') { event.preventDefault(); app.addBeanIngredientFromInput(this); }"><button type="button" class="steep-add-btn" onclick="app.addBeanIngredientFromInput(this.previousElementSibling)">Add</button></span><datalist id="ing-names">${this.teaNameSuggestions(id).map(n => `<option value="${this.esc(n)}"></option>`).join('')}</datalist><p class="steeps-hint">One of your teas counts too: it links to its page.</p>`;
+            },
+            addBeanIngredientFromInput(input) {
+                if (!input) return;
+                const n = String(input.value || '').trim(); input.value = '';
+                if (!n) return;
+                const form = this.getBeanForm(), id = form && form.elements.id ? form.elements.id.value : '';
+                const shelf = this.shelfTeaNamed(n, id);
+                this.beanIngredients = this.cleanIngredients([...(this.beanIngredients || []), shelf ? { name: String(shelf.name), ref: String(shelf.id) } : { name: n }]);
+                this.renderBeanIngredients();
+                const el = document.querySelector('#bean-ingredients input'); if (el) el.focus();
+            },
+            removeBeanIngredient(i) { (this.beanIngredients || []).splice(i, 1); this.renderBeanIngredients(); },
+            // the tea page: what's in it, each shelf tea a link to its page
+            teaIngredientsHtml(bean) {
+                const list = this.cleanIngredients(bean && bean.ingredients);
+                if (!list.length) return '';
+                return `<div class="tea-ing" aria-label="What's in it"><span>In it</span>${list.map(it => it.ref && this.beans.has(String(it.ref)) ? `<button type="button" class="tea-ing-link" onclick="app.openFeedTarget('${this.escJs(it.ref)}')">${this.esc(it.name)}</button>` : `<b>${this.esc(it.name)}</b>`).join('<i>·</i>')}</div>`;
+            },
             teaTypeOfActive() { const g = this.activeGroup && this.activeGroup.meta; return (g && g.teaType) || ((this.beans.get(String(this.activeId)) || {}).teaType) || ''; },
             teaTempHint() { const info = this.teaTypeInfo(this.teaTypeOfActive()); return info ? info.temp : 85; },
 
@@ -365,6 +515,7 @@
                 const time = this.num(b.time), p = this.methodProfile(b.method);
                 if (!(time > 0)) return '';
                 if (p.hours || b.timeUnit === 'h') return `${this.fmtNum(time, 1)} h`;
+                if (p.minutes || b.timeUnit === 'm') return `${this.fmtNum(time, 1)} min`;   // v17.1: a simmer
                 return this.fmtSteep(time);
             },
             teaStripHtml(b) {
@@ -373,19 +524,25 @@
                 const hours = p.hours || b.timeUnit === 'h';
                 const ratio = dose > 0 && yld > 0 ? `1:${this.fmtNum(yld / dose, 0)}` : '';
                 const cell = (v, label, sub) => `<div class="sc-cell"><b>${v}</b><span>${this.esc(label)}${sub ? ` · <em>${this.esc(sub)}</em>` : ''}</span></div>`;
-                const t = !(time > 0) ? '–' : hours ? `${this.esc(this.fmtNum(time, 1))}<small>h</small>` : time >= 60 ? this.esc(this.clock(time)) : `${this.esc(this.fmtNum(time))}<small>s</small>`;
-                const stepLabel = b.method === 'Matcha' ? 'Whisk' : steeps.length > 1 ? `${steeps.length} steeps` : 'Steep';   // (the first steep's time, and how many)
+                const mins = p.minutes || b.timeUnit === 'm';
+                const t = !(time > 0) ? '–' : hours ? `${this.esc(this.fmtNum(time, 1))}<small>h</small>` : mins ? `${this.esc(this.fmtNum(time, 1))}<small>min</small>` : time >= 60 ? this.esc(this.clock(time)) : `${this.esc(this.fmtNum(time))}<small>s</small>`;
+                const stepLabel = b.method === 'Matcha' ? 'Whisk' : mins ? 'Simmer' : steeps.length > 1 ? `${steeps.length} steeps` : 'Steep';   // (the first steep's time, and how many)
                 const bags = b.teabag ? Math.max(1, Number(b.bags) || 1) : 0;
-                const leaf = bags ? cell(`${bags}<small>${bags === 1 ? 'bag' : 'bags'}</small>`, 'Teabag') : cell(dose > 0 ? `${this.esc(this.fmtNum(dose, 1))}<small>g</small>` : '–', b.method === 'Matcha' ? 'Matcha' : 'Leaf');
+                const blend = this.isBlendTea(this.beans.get(String(b.beanId)));   // v17.1: a blend's leaf is its total
+                const leaf = bags ? cell(`${bags}<small>${bags === 1 ? 'bag' : 'bags'}</small>`, 'Teabag') : cell(dose > 0 ? `${this.esc(this.fmtNum(dose, 1))}<small>g</small>` : '–', b.method === 'Matcha' ? 'Matcha' : blend ? 'Blend' : 'Leaf');
                 return `<div class="sc-strip feed-card-metrics sc-tea">${leaf}${cell(yld > 0 ? `${this.esc(this.fmtNum(yld, 0))}<small>ml</small>` : '–', 'Water', ratio)}${cell(t, stepLabel, '')}${cell(temp > 0 ? `${this.esc(this.fmtNum(temp, 0))}<small>°C</small>` : '–', 'Temp')}</div>`;
             },
             teaRecipeLine(b) {
                 const parts = [], steeps = this.teaStepsOf(b);
                 const bags = b.teabag ? Math.max(1, Number(b.bags) || 1) : 0, st = b.method === 'Matcha' ? this.matchaStyle(b) : null;
                 if (st) parts.push(st.short);
-                if (bags) parts.push(`${bags} ${bags === 1 ? 'bag' : 'bags'}${this.num(b.yield) > 0 ? ` in ${this.fmtNum(b.yield, 0)} ml` : ''}`);
-                else if (this.num(b.dose) > 0 || this.num(b.yield) > 0) parts.push(`${this.fmtNum(b.dose)} g in ${this.fmtNum(b.yield, 0)} ml`);
-                if (st && st.milk && this.num(b.milk) > 0) parts.push(`${this.fmtNum(b.milk, 0)} ml milk`);
+                // what went in: the teabags (or the leaf), then each thing in the cup, then the water (v17.1)
+                const mix = this.cleanMix(b.mix);
+                const leaf = bags ? `${bags} ${bags === 1 ? 'bag' : 'bags'}` : !mix.length && this.num(b.dose) > 0 ? `${this.fmtNum(b.dose)} g` : '';
+                const what = [leaf, ...mix.map(it => this.mixItemText(it))].filter(Boolean).join(' + ');
+                const water = this.num(b.yield) > 0 ? `${this.fmtNum(b.yield, 0)} ml` : '';
+                if (what || water) parts.push(what && water ? `${what} in ${water}` : what || water);
+                if (this.num(b.milk) > 0 && ((st && st.milk) || this.methodProfile(b.method).minutes)) parts.push(`${this.fmtNum(b.milk, 0)} ml milk`);
                 if (this.num(b.temp) > 0) parts.push(`${this.fmtNum(b.temp, 0)}°C`);
                 const t = this.teaTimeText(b);
                 if (t) parts.push(steeps.length > 1 ? `${t.replace(' ', ' ')}, ${steeps.length} steeps` : t.replace(' ', ' '));
@@ -397,7 +554,7 @@
             teaFromBrew(b) {
                 const bean = this.beans.get(String(b.beanId)) || {};
                 return { id: String(b.id), method: b.method || '', dose: this.num(b.dose), water: this.num(b.yield), time: this.num(b.time), temp: this.num(b.temp), steeps: this.teaStepsOf(b),
-                    bags: b.teabag ? Math.max(1, Number(b.bags) || 1) : 0, style: b.style || '', milk: this.num(b.milk),
+                    bags: b.teabag ? Math.max(1, Number(b.bags) || 1) : 0, style: b.style || '', milk: this.num(b.milk), mix: this.cleanMix(b.mix), minutes: b.timeUnit === 'm',
                     values: this.shapeValues(b), tasted: this.tastedKeys(b), notes: this.extractFlavors(b), rating: this.normalizeRating(b.rating), type: bean.teaType || '',
                     key: this.groupKeyOfBrew(b), owner: this.getBrewOwner(b), date: b.date };
             },
@@ -405,8 +562,8 @@
                 const form = this.getBrewForm(), x = this.methodExtras || {};
                 const n = name => (form && form[name] && form[name].value !== '' ? Number(form[name].value) : 0);
                 const method = form && form.method ? form.method.value : '', bagsOn = !!(x.teabag && this.methodProfile(method).extras.includes('teabag'));
-                return { id: form && form.elements.id ? String(form.elements.id.value || '') : '', method, dose: bagsOn ? 0 : n('dose'), water: n('yield'), time: n('time'), temp: this.tempC(x.temp),
-                    bags: bagsOn ? Math.max(1, Math.round(n('dose')) || 1) : 0, style: method === 'Matcha' ? (x.style || 'usucha') : '', milk: Number(x.milk) || 0,
+                return { id: form && form.elements.id ? String(form.elements.id.value || '') : '', method, dose: bagsOn ? 0 : (n('dose') || this.mixGrams(x.mix)), water: n('yield'), time: n('time'), temp: this.tempC(x.temp),
+                    bags: bagsOn ? Math.max(1, Math.round(n('dose')) || 1) : 0, style: method === 'Matcha' ? (x.style || 'usucha') : '', milk: Number(x.milk) || 0, mix: this.cleanMix(x.mix),
                     steeps: Array.isArray(x.steeps) ? x.steeps : [], values: this.formTasteValues(), tasted: [...this.tasteTouched], notes: [...this.selFlavors],
                     rating: form && form.rating ? this.normalizeRating(form.rating.value) : 0, type: this.teaTypeOfActive(), key: this.activeGroup ? this.beanGroupKey(this.activeGroup.meta) : '', owner: this.user, date: new Date().toISOString() };
             },
@@ -436,7 +593,7 @@
                 over.forEach(t => ev.push({ side: 'over', text: t }));
                 under.forEach(t => ev.push({ side: 'under', text: t }));
                 if (c.rating > 0) ev.push({ side: 'ok', text: `${this.fmtNum(c.rating)}★` });
-                const fmtT = s => p.hours ? `${this.fmtNum(s, 1)} h` : this.fmtSteep(s);
+                const fmtT = s => p.hours ? `${this.fmtNum(s, 1)} h` : p.minutes ? `${this.fmtNum(s, 1)} min` : this.fmtSteep(s);
                 const aType = t => `${/^[aeiou]/i.test(t) ? 'an' : 'a'} ${t.toLowerCase()}`;   // "an oolong", "a green"
 
                 if (ref) ctx.push(['Your best on this tea', `${this.teaRecipeLine(ref)} · ${this.fmtNum(this.normalizeRating(ref.rating))}★`]);
@@ -446,13 +603,14 @@
                 const gongfu = c.method === 'Gongfu', last = c.steeps.length ? c.steeps[c.steeps.length - 1] : c.time;
                 if (gongfu && last > 0) why.push(`Gongfu: each next steep a few seconds longer (about ${this.fmtSteep(Math.round(last + 4))} after ${this.fmtSteep(last)}).`);
                 if (c.rating >= 4.5 && !over.length && !under.length) {
-                    k.mode = 'hold'; k.head = 'Repeat it exactly.'; k.next = this.teaRecipeLine({ ...c, yield: c.water, timeUnit: p.hours ? 'h' : '' });
+                    k.mode = 'hold'; k.head = 'Repeat it exactly.'; k.next = this.teaRecipeLine({ ...c, yield: c.water, timeUnit: p.hours ? 'h' : p.minutes ? 'm' : '', teabag: c.bags > 0 });
                     why.unshift('Your notes don\'t flag anything to fix.');
                     k.conf = ref && c.rating > this.normalizeRating(ref.rating) ? 'a new best' : '';
                     return k;
                 }
                 const matcha = c.method === 'Matcha', st = matcha ? (MATCHA_STYLES.find(v => v.key === (c.style || 'usucha')) || MATCHA_STYLES[0]) : null;
-                const target = this.teaRatio(c.method, c.style), what = matcha ? 'matcha' : 'leaf';
+                const target = this.teaRatio(c.method, c.style), blendCup = (c.mix || []).length >= 2;
+                const what = matcha ? 'matcha' : blendCup ? 'of the blend' : c.type === 'Herbal' ? 'herbs' : 'leaf', verb = p.minutes ? 'Simmer' : 'Steep';
                 const how = matcha ? `${st.short.toLowerCase()} matcha` : c.method.toLowerCase();
                 if (matcha) ctx.push([`Usual for ${st.short === 'Usucha' || st.short === 'Koicha' ? st.short.toLowerCase() : `a matcha ${st.short.toLowerCase()}`}`, st.usual]);
                 if (over.length) {
@@ -474,13 +632,13 @@
                         k.head = `Try cooler water: about ${info.temp}°C.`; k.next = `${info.temp}°C`;
                         why.unshift(`Bitter or drying usually means the water was too hot for ${aType(c.type)} tea (${this.fmtNum(c.temp, 0)}°C this time).`);
                     } else if (c.time > 0) {
-                        const t = p.hours ? Math.max(1, Math.round(c.time * 0.75 * 2) / 2) : Math.max(5, Math.round(c.time * 0.75));
-                        k.head = `Steep shorter: about ${fmtT(t)}.`; k.next = fmtT(t);
-                        why.unshift('Bitterness and astringency build the longer the leaf sits.');
+                        const t = p.hours || p.minutes ? Math.max(p.minutes ? 0.5 : 1, Math.round(c.time * 0.75 * 2) / 2) : Math.max(5, Math.round(c.time * 0.75));
+                        k.head = `${verb} shorter: about ${fmtT(t)}.`; k.next = fmtT(t);
+                        why.unshift(`Bitterness and astringency build the longer the ${c.type === 'Herbal' ? 'herbs sit' : 'leaf sits'}.`);
                     } else if (c.dose > 0) {
                         const d = Math.max(0.5, Math.round(c.dose * 0.8 * 2) / 2);
                         k.head = `Use a little less leaf: about ${this.fmtNum(d)} g.`; k.next = `${this.fmtNum(d)} g`;
-                    } else k.head = 'Cooler water or a shorter steep should soften it.';
+                    } else k.head = p.minutes ? 'A shorter simmer should soften it.' : 'Cooler water or a shorter steep should soften it.';
                     return k;
                 }
                 if (under.length) {
@@ -499,12 +657,12 @@
                         k.head = d ? `Use a little more matcha: about ${this.fmtNum(d)} g.` : 'A little more matcha should fill it out.'; k.next = d ? `${this.fmtNum(d)} g` : '';
                         if (st.milk && c.milk > 0) why.unshift(`With ${this.fmtNum(c.milk, 0)} ml of milk, a stronger matcha shot keeps the tea from getting lost.`);
                     } else if (c.time > 0) {
-                        const t = p.hours ? Math.round(c.time * 1.3 * 2) / 2 : Math.round(c.time * 1.3);
-                        k.head = `Steep longer: about ${fmtT(t)}.`; k.next = fmtT(t);
-                        why.unshift('More time pulls more body and sweetness out of the leaf.');
+                        const t = p.hours || p.minutes ? Math.round(c.time * 1.3 * 2) / 2 : Math.round(c.time * 1.3);
+                        k.head = `${verb} longer: about ${fmtT(t)}.`; k.next = fmtT(t);
+                        why.unshift(`More time pulls more body and flavor out of the ${c.type === 'Herbal' ? 'herbs' : blendCup ? 'blend' : 'leaf'}.`);
                     } else if (c.temp > 0 && info && c.temp < info.temp - 5) {
                         k.head = `Try hotter water: about ${info.temp}°C.`; k.next = `${info.temp}°C`;
-                    } else k.head = 'More leaf or a longer steep should fill it out.';
+                    } else k.head = `More ${what} or a longer ${verb.toLowerCase()} should fill it out.`;
                     return k;
                 }
                 if (on('balance') && v('balance') <= 3 && info && ['Oolong', 'Black', 'Pu-erh'].includes(c.type) && c.temp > 0 && c.temp < info.temp - 4) {

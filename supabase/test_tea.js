@@ -65,7 +65,24 @@ push('aidan', { type: 'bean', id: 't-longjing', kind: 'coffee', name: 'Hacked', 
 ok(one(`select kind || '|' || name from coffees where legacy_id = 't-longjing'`) === 'tea|Long Jing', 'someone else can\'t change it into a coffee (or rename it)');
 // types: only the seven, written the app's way
 const types = JSON.parse(one(`select jsonb_build_array(internal.tea_type('green'), internal.tea_type(' OOLONG '), internal.tea_type('pu-erh'), internal.tea_type('Matcha'), internal.tea_type('herbal'), internal.tea_type('rooibos'), internal.tea_type(''), internal.tea_type(null))`));
-ok(JSON.stringify(types) === JSON.stringify(['Green', 'Oolong', 'Pu-erh', 'Matcha', null, null, null, null]), `tea types: the seven, nothing else (no herbal or rooibos: ${JSON.stringify(types)})`);
+ok(JSON.stringify(types) === JSON.stringify(['Green', 'Oolong', 'Pu-erh', 'Matcha', 'Herbal', null, null, null]), `tea types: the eight, written the app's way (rooibos is herbal's job, not its own type: ${JSON.stringify(types)})`);
+
+// v17.1: your own blend (no brand) and what's in it, a shelf tea linked by id
+r = push('maceo', { type: 'bean', id: 't-blend', kind: 'tea', teaType: 'Herbal', blend: true, name: 'Garden Immunity', roaster: '', ingredients: [{ name: ' Lemon balm ', ref: '' }, { name: 'Echinacea root' }, { name: 'Lemon Ginger', ref: 't-pukka' }, { name: '' }, 'junk'], user: 'Maceo', owner: 'Maceo' });
+ok(!r.err, `a blend saves (${(r.err || 'ok').split('\n')[0]})`);
+ok(one(`select kind || '|' || tea_type || '|' || coalesce(roaster_text, 'none') || '|' || tea::text from coffees where legacy_id = 't-blend'`) === 'tea|Herbal|none|{"blend": true, "ingredients": [{"name": "Lemon balm"}, {"name": "Echinacea root"}, {"ref": "t-pukka", "name": "Lemon Ginger"}]}',
+   'stored as an herbal tea with no brand: the blend flag and three ingredients (blank ones dropped, names trimmed, the shelf tea\'s id kept)');
+let bl = beanIn(pull('aidan'), 't-blend');
+ok(bl && bl.blend === true && bl.roaster === '' && JSON.stringify(bl.ingredients) === '[{"name":"Lemon balm"},{"name":"Echinacea root"},{"ref":"t-pukka","name":"Lemon Ginger"}]', `a friend gets it back as your blend, with what's in it (${bl && JSON.stringify({ blend: bl.blend, ing: bl.ingredients })})`);
+push('maceo', { type: 'bean', id: 't-blend', kind: 'tea', teaType: 'Herbal', name: 'Garden Immunity', roaster: 'Unknown Brand', likes: [], user: 'Maceo', owner: 'Maceo' });
+ok(one(`select jsonb_array_length(tea->'ingredients')::text || '|' || (tea->>'blend') from coffees where legacy_id = 't-blend'`) === '3|true', 'a save from v17.0 (no "ingredients") leaves the blend and its ingredients alone');
+push('maceo', { type: 'bean', id: 't-blend', kind: 'tea', teaType: 'Herbal', name: 'Garden Immunity', roaster: '', ingredients: [], user: 'Maceo', owner: 'Maceo' });
+ok(one(`select coalesce(tea::text, 'none') from coffees where legacy_id = 't-blend'`) === 'none', 'clearing it (not a blend, nothing listed) leaves nothing behind');
+push('maceo', { type: 'bean', id: 't-many', kind: 'tea', name: 'Many', roaster: 'X', ingredients: Array.from({ length: 30 }, (_, i) => ({ name: 'x'.repeat(100) + i })), user: 'Maceo', owner: 'Maceo' });
+ok(one(`select jsonb_array_length(tea->'ingredients')::text || '|' || max(char_length(e->>'name'))::text from coffees, jsonb_array_elements(tea->'ingredients') e where legacy_id = 't-many' group by tea`) === '20|60', 'at most 20 ingredients, 60 letters each');
+push('maceo', { type: 'bean', id: 't-blend2', kind: 'tea', teaType: 'Herbal', blend: true, name: 'Long Jing Garden', roaster: '', ingredients: [{ name: 'Mint' }], user: 'Maceo', owner: 'Maceo' });
+ok(!(call('aidan', `select coffee_catalog('long jing garden', 8);`) || []).some(x => x.name === 'Long Jing Garden'), 'someone\'s own blend never shows up in the shared list of coffees and teas');
+ok(!('ingredients' in (beanIn(pull('aidan'), 'b-alch') || {})) && !('blend' in (beanIn(pull('aidan'), 'b-alch') || {})), 'a coffee still comes back exactly as before (no blend, no ingredients)');
 push('maceo', { type: 'bean', id: 't-odd', kind: 'tea', teaType: 'Hot chocolate', name: 'Mystery', roaster: 'Somewhere', user: 'Maceo', owner: 'Maceo' });
 ok(one(`select kind || '|' || coalesce(tea_type, 'none') from coffees where legacy_id = 't-odd'`) === 'tea|none', 'a type that isn\'t a tea type is dropped (the tea is kept)');
 push('maceo', { type: 'bean', id: 't-noname', kind: 'tea', name: '', roaster: 'Somewhere', user: 'Maceo', owner: 'Maceo' });
@@ -80,6 +97,14 @@ ok(s && s.method === 'Gongfu' && s.dose === 5 && s.yield === 100 && s.time === 1
    `it comes back with leaf, water, temperature and every steep (${s && JSON.stringify({ method: s.method, dose: s.dose, yield: s.yield, time: s.time, temp: s.temp, steeps: s.steeps })})`);
 ok(s && !s.grind && s.acidity === 3 && JSON.stringify(s.tasted) === '["acidity","sweetness","finish"]', 'no grind; its taste (astringency in the acidity slot) and the sliders tasted');
 ok(one(`select (coffee_id is not null)::text || '|' || (extras ? 'steeps')::text from sessions where legacy_id = '1762000000001'`) === 'true|true', 'linked to the tea; the steeps kept with the session');
+// v17.1: a cup of several things, simmered (minutes): what went in, with amounts, comes back as saved
+r = push('maceo', { type: 'brew', id: '1762000000002', beanId: 't-blend', method: 'Simmered', grind: '', dose: 3, yield: 400, time: 12, timeUnit: 'm', milk: 0, rating: 4,
+  mix: [{ name: 'Lemon Ginger', amount: 1, unit: 'bag', ref: 't-pukka' }, { name: 'Lemon balm', amount: 2, unit: 'g' }, { name: 'Echinacea root', amount: 1, unit: 'g' }, { name: 'Honey', amount: 1, unit: 'tsp' }],
+  user: 'Maceo', owner: 'Maceo', audience: 'friends', date: '2026-10-25T20:00:00Z' });
+ok(!r.err, `a simmered blend saves (${(r.err || 'ok').split('\n')[0]})`);
+const s2 = brewIn(pull('aidan'), '1762000000002');
+ok(s2 && s2.method === 'Simmered' && s2.time === 12 && s2.timeUnit === 'm' && Array.isArray(s2.mix) && s2.mix.length === 4 && s2.mix[0].unit === 'bag' && s2.mix[1].amount === 2 && s2.mix[3].name === 'Honey',
+   `it comes back with every thing in the cup and its amount, timed in minutes (${s2 && JSON.stringify({ m: s2.method, t: s2.time, u: s2.timeUnit, mix: s2.mix })})`);
 
 // the shared list of coffees (typing a new one suggests ones people logged): teas carry their kind and never merge with coffees
 push('aidan', { type: 'bean', id: 't-longjing-a', kind: 'tea', teaType: 'Green', name: 'Long Jing', roaster: 'Mountain Leaf Tea Co.', user: 'Aidan', owner: 'Aidan' });

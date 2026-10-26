@@ -184,7 +184,7 @@
                         <div class="lib-name" style="font-size:1.5rem; font-weight:700;">
                             ${this.esc(bean.name || '')}
                         </div>
-                        ${bean.roaster ? `<div class="lib-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(bean.roaster)}"${teaShelf ? ' data-kind="tea"' : ''} onclick="app.openRoasterFrom(this, event)">${this.esc(bean.roaster)}</span></div>` : '<div class="lib-roaster"></div>'}
+                        ${bean.roaster ? `<div class="lib-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(bean.roaster)}"${teaShelf ? ' data-kind="tea"' : ''} onclick="app.openRoasterFrom(this, event)">${this.esc(bean.roaster)}</span></div>` : `<div class="lib-roaster">${this.esc(this.teaMakerName(bean))}</div>`}
                         <div style="margin-bottom:12px;">
                             ${teaShelf && bean.teaType ? `<span class="tag tea-type-tag" style="--tt:${(this.teaTypeInfo(bean.teaType) || {}).color || '#7FA45B'}">${this.esc(bean.teaType)}</span>` : ''}
                             ${bean.variety ? `<span class="tag">${this.esc(bean.variety)}</span>` : ''}

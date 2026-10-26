@@ -46,3 +46,36 @@
         /* v17.0: °F typed into the water temperature, shown as °C */
         #method-extras .temp-f { display: block; margin-top: 4px; font-size: 0.78rem; color: var(--text-faint); }
         #method-extras .temp-f:empty { display: none; }
+
+        /* ===== v17.1: herbal teas, your own blends, what went in each cup ===== */
+        /* the Log: "In this cup", one row per thing with its amount */
+        #method-extras .mix-field { grid-column: 1 / -1; }
+        .mix-closed { margin-top: 2px; }
+        .mix-open { background: none; border: 0; padding: 6px 0; font: inherit; font-size: 0.92rem; font-weight: 650; color: var(--matcha-ink, var(--matcha)); cursor: pointer; }
+        .mix-open span { font-weight: 500; color: var(--text-faint); }
+        .mix-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+        .mix-row { display: grid; grid-template-columns: minmax(0, 1fr) 72px 78px 32px; gap: 8px; align-items: center; }
+        .mix-row .mix-name { font-weight: 650; font-size: 0.95rem; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .mix-row input, .mix-row select { margin: 0; min-height: 40px; padding-left: 10px; padding-right: 6px; }
+        .mix-x { width: 32px; height: 32px; border-radius: 50%; border: 0; background: rgba(var(--hair-rgb), 0.07); color: var(--text-faint); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+        .mix-x .icon { width: 14px; height: 14px; }
+        .mix-add { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        .mix-sugg { min-height: 34px; padding: 0 12px; border-radius: 999px; border: 1px dashed rgba(var(--hair-rgb), 0.22); background: none; color: var(--ink); font: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+        .mix-new { display: inline-flex; gap: 6px; align-items: center; flex: 1 1 180px; min-width: 0; }
+        .mix-new input { margin: 0; min-width: 0; flex: 1; }
+        .steep-add-btn { min-height: 40px; padding: 0 14px; border-radius: 12px; border: 1px solid rgba(var(--hair-rgb), 0.14); background: rgba(var(--glass-rgb), 0.8); color: var(--ink); font: inherit; font-weight: 650; cursor: pointer; }
+        /* the add form: what's in a tea */
+        .bean-blend { margin: 12px 0 2px; }
+        .lbl-opt { text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--text-faint); }
+        .ing-field { margin-bottom: 4px; }
+        .ing-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+        .ing-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 10px; border-radius: 999px; border: 1px solid rgba(var(--hair-rgb), 0.12); background: rgba(var(--glass-rgb), 0.8); color: var(--ink); font: inherit; font-size: 0.9rem; cursor: pointer; }
+        .ing-chip b { font-weight: 650; }
+        .ing-chip .icon { width: 14px; height: 14px; color: var(--matcha); }
+        .ing-chip .ing-x { color: var(--text-faint); }
+        /* the tea page: "In it" */
+        #d-ingredients .tea-ing { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 6px; margin: 2px 0 12px; font-size: 0.92rem; color: var(--ink); }
+        #d-ingredients .tea-ing > span { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); margin-right: 4px; }
+        #d-ingredients .tea-ing b { font-weight: 600; }
+        #d-ingredients .tea-ing i { font-style: normal; color: var(--text-faint); }
+        #d-ingredients .tea-ing-link { background: none; border: 0; padding: 0; font: inherit; font-weight: 650; color: var(--matcha-ink, var(--matcha)); text-decoration: underline; text-decoration-color: rgba(var(--matcha-rgb), 0.35); text-underline-offset: 3px; cursor: pointer; }

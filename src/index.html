@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v17.0 -->
+<!-- Dialed In v17.1 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="17.0">
+    <meta name="dialed-in-version" content="17.1">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -314,6 +314,7 @@
                 <span class="tag" id="d-process">-</span>
                 <span class="tag" id="d-roast">-</span>
             </div>
+            <div id="d-ingredients" hidden></div>
             <div id="d-top-flavors" class="dh-flavors"></div>
 
             <div style="display:grid; grid-template-columns:1fr auto; gap:8px;">
@@ -495,7 +496,7 @@
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v17.0</div>
+            <div class="app-version">Dialed In · v17.1</div>
         </div>
     </div>
 
@@ -528,7 +529,12 @@
                         <option value="Black">Black</option>
                         <option value="Pu-erh">Pu-erh</option>
                         <option value="Matcha">Matcha</option>
+                        <option value="Herbal">Herbal</option>
                     </select>
+                    <!-- v17.1: your own blend (no brand), and what's in a tea -->
+                    <label class="method-check bean-blend"><input type="checkbox" name="blend" onchange="app.setBeanBlend(this.checked)"> My own blend (no brand)</label>
+                    <label>What's in it <span class="lbl-opt">(optional)</span></label>
+                    <div id="bean-ingredients" class="ing-field"></div>
                 </div>
                 
                 <label id="lbl-variety">Variety</label>

@@ -68,7 +68,7 @@
                                 <div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(log.method)}"/></svg>${this.esc(this.methodLabel(log.method || (tea ? 'Western' : 'Espresso')))}</div><button type="button" class="feed-share" onclick="app.shareItem('session', '${app.escJs(id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>
                             </div>
                             <div class="sc-title">
-                                <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(roasterName)}"${tea ? ' data-kind="tea"' : ''} onclick="app.openRoasterFrom(this, event)">${this.esc(roasterName)}</span></div>` : ''}</div>
+                                <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(roasterName)}"${tea ? ' data-kind="tea"' : ''} onclick="app.openRoasterFrom(this, event)">${this.esc(roasterName)}</span></div>` : (bean && this.teaMakerName(bean) ? `<div class="sc-roaster">${this.esc(this.teaMakerName(bean))}</div>` : '')}</div>
                                 ${rating > 0 ? `<div class="sc-rate"><span class="star-meter" style="--fill:${this.starFill(rating)}%;--whole:${this.starWhole(rating)};--frac:${this.starFrac(rating)}"></span><b>${this.esc(this.formatRating(rating))}</b></div>` : ''}
                             </div>
                             ${this.recipeStripHtml(log)}

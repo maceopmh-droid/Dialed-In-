@@ -452,7 +452,7 @@
                                 ${entry.community ? this.communityFollowHtml(owner) : ''}<div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(brew.method)}"/></svg>${this.esc(this.methodLabel(brew.method) || 'Espresso')}</div><button type="button" class="feed-share" onclick="app.shareItem('session', '${app.escJs(brew.id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>
                             </div>
                             <div class="sc-title">
-                                <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(roasterName)}"${this.isTeaBrew(brew) ? ' data-kind="tea"' : ''} onclick="app.openRoasterFrom(this, event)">${this.esc(roasterName)}</span></div>` : ''}${(tag => tag ? `<div class="sc-tags">${tag}</div>` : '')(this.helpTagHtml ? this.helpTagHtml(brew) : '')}</div>
+                                <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(roasterName)}"${this.isTeaBrew(brew) ? ' data-kind="tea"' : ''} onclick="app.openRoasterFrom(this, event)">${this.esc(roasterName)}</span></div>` : (bean && this.teaMakerName(bean) ? `<div class="sc-roaster">${this.esc(this.teaMakerName(bean))}</div>` : '')}${(tag => tag ? `<div class="sc-tags">${tag}</div>` : '')(this.helpTagHtml ? this.helpTagHtml(brew) : '')}</div>
                                 ${rating > 0 ? `<div class="sc-rate"><span class="star-meter" style="--fill:${this.starFill(rating)}%;--whole:${this.starWhole(rating)};--frac:${this.starFrac(rating)}"></span><b>${this.esc(this.formatRating(rating).replace('/5', ''))}</b></div>` : ''}
                             </div>
                             ${this.recipeStripHtml(brew)}
@@ -498,6 +498,7 @@
                     const st = b.method === 'Matcha' && this.matchaStyle ? this.matchaStyle(b) : null;
                     if (st) out.push(st.milk && Number(b.milk) > 0 ? `${st.short} · ${this.fmtNum(b.milk, 0)} ml milk` : st.short);
                     if (b.rinse) out.push('Rinsed');
+                    if (this.cleanMix) this.cleanMix(b.mix).forEach(it => out.push(this.mixItemText(it)));   // v17.1: what went in the cup
                 }
                 return out;
             },
@@ -524,7 +525,7 @@
                                 <div class="feed-type">${this.esc(entry.kindLabel || 'Bean')}</div><button type="button" class="feed-share" onclick="event.stopPropagation(); app.openCoffeeStory('${app.escJs(bean.id)}')" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>
                             </div>
                             <div class="feed-card-title" style="margin-top:11px">${this.esc(bean.name || beanName)}</div>
-                            ${bean.roaster ? `<div class="fb-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(bean.roaster)}"${teaBean ? ' data-kind="tea"' : ''} onclick="app.openRoasterFrom(this, event)">${this.esc(bean.roaster)}</span></div>` : ''}
+                            ${bean.roaster ? `<div class="fb-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(bean.roaster)}"${teaBean ? ' data-kind="tea"' : ''} onclick="app.openRoasterFrom(this, event)">${this.esc(bean.roaster)}</span></div>` : (this.teaMakerName(bean) ? `<div class="fb-roaster">${this.esc(this.teaMakerName(bean))}</div>` : '')}
                             ${topTags.length ? `<div class="fb-tags">${topTags.map(tag => `<span class="tag">${this.esc(tag)}</span>`).join('')}</div>` : ''}
                             ${this.renderThread('bean', { ...bean, comments }, { inputId: `feed-comment-input-bean-${bean.id}`, lead: `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('bean', bean.id)}"${this.likePopStyle('bean', bean.id)} onclick="app.toggleBeanLike('${app.escJs(bean.id)}', event)" title="Like bean">
                                     <svg class="heart-icon"><use href="#i-heart"/></svg>
