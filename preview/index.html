@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v17.2 -->
+<!-- Dialed In v17.3 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="17.2">
+    <meta name="dialed-in-version" content="17.3">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -31,10 +31,19 @@
     try {
         var look = 'classic';
         try { look = localStorage.getItem('dialed_look') === 'new' ? 'new' : 'classic'; } catch (e) {}
+        // v17.3: a safety net. Each start in the New look is counted until the app has been up a few seconds; after two starts
+        // in a row that never got that far (a phone that couldn't draw it), this one opens in the classic look and says so
+        if (look === 'new') {
+            try {
+                var tries = Number(localStorage.getItem('dialed_look_boot')) || 0;
+                if (tries >= 2) { look = 'classic'; localStorage.setItem('dialed_look', 'classic'); localStorage.setItem('dialed_look_boot', '0'); localStorage.setItem('dialed_look_fell', '1'); }
+                else localStorage.setItem('dialed_look_boot', String(tries + 1));
+            } catch (e) {}
+        }
         var paint = function () { document.documentElement.setAttribute('data-look', look); };
         window.__dialedLook = {
             get pref() { return look; },
-            set: function (p) { look = p === 'new' ? 'new' : 'classic'; try { localStorage.setItem('dialed_look', look); } catch (e) {} paint(); },
+            set: function (p) { look = p === 'new' ? 'new' : 'classic'; try { localStorage.setItem('dialed_look', look); localStorage.setItem('dialed_look_boot', '0'); } catch (e) {} paint(); },
             isNew: function () { return document.documentElement.getAttribute('data-look') === 'new'; }
         };
         paint();
@@ -4219,10 +4228,13 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] .nl-ago { font-size: 12px; font-weight: 650; letter-spacing: 0.07em; text-transform: uppercase; color: rgba(255, 255, 255, 0.86); white-space: nowrap; }
         html[data-look="new"] .nl-who.flat .nl-ago { color: var(--l); }
         html[data-look="new"] .nl-tright { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
-        html[data-look="new"] .nl-mpill { height: 36px; padding: 0 14px 0 11px; border-radius: 18px; display: inline-flex; align-items: center; gap: 7px; font-size: 15px; font-weight: 650; color: var(--k); white-space: nowrap; background: color-mix(in srgb, var(--c) 84%, transparent); border: 1px solid var(--hl); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); text-shadow: none; flex: 0 0 auto; }
+        html[data-look="new"] .nl-mpill { height: 36px; padding: 0 14px 0 11px; border-radius: 18px; display: inline-flex; align-items: center; gap: 7px; font-size: 15px; font-weight: 650; color: var(--k); white-space: nowrap; background: color-mix(in srgb, var(--c) 88%, transparent); border: 1px solid var(--hl); text-shadow: none; flex: 0 0 auto; }
         html[data-look="new"] .nl-mpill .nl-ic { width: 18px; height: 18px; }
         html[data-look="new"] .flat .nl-mpill, html[data-look="new"] .nl-mpill.solid { background: var(--pill); -webkit-backdrop-filter: none; backdrop-filter: none; }
-        html[data-look="new"] .nl-glass { width: 40px; height: 40px; min-width: 0; min-height: 0; margin: 0; padding: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--c) 84%, transparent); border: 1px solid var(--hl); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); color: var(--t); flex: 0 0 auto; box-shadow: none; cursor: pointer; }
+        html[data-look="new"] .nl-glass { width: 40px; height: 40px; min-width: 0; min-height: 0; margin: 0; padding: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--c) 88%, transparent); border: 1px solid var(--hl); color: var(--t); flex: 0 0 auto; box-shadow: none; cursor: pointer; }
+        /* (frosted glass only where there are a few: the Session screen's top buttons. A feed card's pills are solid, so a
+           long feed doesn't stack hundreds of blurred layers, which an iPhone runs out of memory on) */
+        html[data-look="new"] #session-view .nls-top .nl-glass { -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); background: color-mix(in srgb, var(--c) 84%, transparent); }
         html[data-look="new"] .flat .nl-glass { background: var(--pill); -webkit-backdrop-filter: none; backdrop-filter: none; }
         html[data-look="new"] .nl-tiles { display: grid; grid-template-columns: 1.6fr 0.85fr 1.1fr; gap: 8px; margin-top: 16px; }
         html[data-look="new"] .nl-tiles.t1 { grid-template-columns: minmax(0, 1fr); }
@@ -4492,7 +4504,7 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] .nl-lfaces .dh-faces { display: flex; }
         html[data-look="new"] .nl-lfaces .dh-faces i { width: 24px !important; height: 24px !important; font-size: 10px !important; margin-left: -8px !important; border: 1.5px solid rgba(255, 255, 255, 0.9) !important; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-style: normal; font-weight: 700; color: #fff; background-size: cover; box-shadow: none !important; }
         html[data-look="new"] .nl-lfaces .dh-faces i:first-child { margin-left: 0 !important; }
-        html[data-look="new"] .nl-fresh { position: absolute; top: 10px; left: 10px; z-index: 2; height: 24px; padding: 0 9px; border-radius: 12px; font-size: 12px; font-weight: 650; display: flex; align-items: center; background: color-mix(in srgb, var(--c) 84%, transparent); color: var(--k); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1px solid var(--hl); }
+        html[data-look="new"] .nl-fresh { position: absolute; top: 10px; left: 10px; z-index: 2; height: 24px; padding: 0 9px; border-radius: 12px; font-size: 12px; font-weight: 650; display: flex; align-items: center; background: color-mix(in srgb, var(--c) 88%, transparent); color: var(--k); border: 1px solid var(--hl); }
         /* Mine / Everyone's, and the soft controls on app screens */
         html[data-look="new"] .seg-control { background: var(--nl-surface2) !important; border: 0 !important; box-shadow: none !important; border-radius: 22px !important; padding: 4px !important; gap: 6px; }
         html[data-look="new"] .seg-control button { height: 36px; min-height: 36px; border-radius: 18px !important; font-size: 14px !important; font-weight: 650 !important; letter-spacing: 0 !important; text-transform: none !important; color: var(--nl-muted) !important; background: none !important; box-shadow: none !important; border: 0 !important; }
@@ -5310,7 +5322,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v17.2</div>
+            <div class="app-version">Dialed In · v17.3</div>
         </div>
     </div>
 
@@ -24017,6 +24029,15 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
             // after every draw: shapes, names, and the Session screen if it's open
             nlAfterRender() {
+                if (!this._nlFellChecked) {   // v17.3: the New look couldn't open on this phone last time (theme-boot turned it off)
+                    this._nlFellChecked = true;
+                    let fell = false; try { fell = localStorage.getItem('dialed_look_fell') === '1'; if (fell) localStorage.removeItem('dialed_look_fell'); } catch (e) {}
+                    if (fell && this.showToast) setTimeout(() => this.showToast('The New look didn\'t open on this phone, so it\'s off for now. Settings, Appearance turns it back on.'), 1500);
+                }
+                if (this.newLook() && !this._nlBootOk) {   // up and drawing: this start counts as a good one
+                    this._nlBootOk = true;
+                    setTimeout(() => { try { localStorage.setItem('dialed_look_boot', '0'); } catch (e) {} }, 8000);
+                }
                 if (!this.newLook()) { const bd = typeof document !== 'undefined' ? document.body : null; if (bd && bd.hasAttribute && bd.hasAttribute('data-nltab')) bd.removeAttribute('data-nltab'); const g = typeof document !== 'undefined' && document.getElementById ? document.getElementById('grid') : null; if (g && g.hasAttribute && g.hasAttribute('data-fam')) g.removeAttribute('data-fam'); return; }
                 if (document.body.getAttribute('data-nltab') !== this.tab) document.body.setAttribute('data-nltab', this.tab);
                 const grid = document.getElementById('grid');
