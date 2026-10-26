@@ -69,10 +69,13 @@
         html[data-look="new"] .nl-ago { font-size: 12px; font-weight: 650; letter-spacing: 0.07em; text-transform: uppercase; color: rgba(255, 255, 255, 0.86); white-space: nowrap; }
         html[data-look="new"] .nl-who.flat .nl-ago { color: var(--l); }
         html[data-look="new"] .nl-tright { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
-        html[data-look="new"] .nl-mpill { height: 36px; padding: 0 14px 0 11px; border-radius: 18px; display: inline-flex; align-items: center; gap: 7px; font-size: 15px; font-weight: 650; color: var(--k); white-space: nowrap; background: color-mix(in srgb, var(--c) 84%, transparent); border: 1px solid var(--hl); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); text-shadow: none; flex: 0 0 auto; }
+        html[data-look="new"] .nl-mpill { height: 36px; padding: 0 14px 0 11px; border-radius: 18px; display: inline-flex; align-items: center; gap: 7px; font-size: 15px; font-weight: 650; color: var(--k); white-space: nowrap; background: color-mix(in srgb, var(--c) 88%, transparent); border: 1px solid var(--hl); text-shadow: none; flex: 0 0 auto; }
         html[data-look="new"] .nl-mpill .nl-ic { width: 18px; height: 18px; }
         html[data-look="new"] .flat .nl-mpill, html[data-look="new"] .nl-mpill.solid { background: var(--pill); -webkit-backdrop-filter: none; backdrop-filter: none; }
-        html[data-look="new"] .nl-glass { width: 40px; height: 40px; min-width: 0; min-height: 0; margin: 0; padding: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--c) 84%, transparent); border: 1px solid var(--hl); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); color: var(--t); flex: 0 0 auto; box-shadow: none; cursor: pointer; }
+        html[data-look="new"] .nl-glass { width: 40px; height: 40px; min-width: 0; min-height: 0; margin: 0; padding: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--c) 88%, transparent); border: 1px solid var(--hl); color: var(--t); flex: 0 0 auto; box-shadow: none; cursor: pointer; }
+        /* (frosted glass only where there are a few: the Session screen's top buttons. A feed card's pills are solid, so a
+           long feed doesn't stack hundreds of blurred layers, which an iPhone runs out of memory on) */
+        html[data-look="new"] #session-view .nls-top .nl-glass { -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); background: color-mix(in srgb, var(--c) 84%, transparent); }
         html[data-look="new"] .flat .nl-glass { background: var(--pill); -webkit-backdrop-filter: none; backdrop-filter: none; }
         html[data-look="new"] .nl-tiles { display: grid; grid-template-columns: 1.6fr 0.85fr 1.1fr; gap: 8px; margin-top: 16px; }
         html[data-look="new"] .nl-tiles.t1 { grid-template-columns: minmax(0, 1fr); }
@@ -342,7 +345,7 @@
         html[data-look="new"] .nl-lfaces .dh-faces { display: flex; }
         html[data-look="new"] .nl-lfaces .dh-faces i { width: 24px !important; height: 24px !important; font-size: 10px !important; margin-left: -8px !important; border: 1.5px solid rgba(255, 255, 255, 0.9) !important; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-style: normal; font-weight: 700; color: #fff; background-size: cover; box-shadow: none !important; }
         html[data-look="new"] .nl-lfaces .dh-faces i:first-child { margin-left: 0 !important; }
-        html[data-look="new"] .nl-fresh { position: absolute; top: 10px; left: 10px; z-index: 2; height: 24px; padding: 0 9px; border-radius: 12px; font-size: 12px; font-weight: 650; display: flex; align-items: center; background: color-mix(in srgb, var(--c) 84%, transparent); color: var(--k); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1px solid var(--hl); }
+        html[data-look="new"] .nl-fresh { position: absolute; top: 10px; left: 10px; z-index: 2; height: 24px; padding: 0 9px; border-radius: 12px; font-size: 12px; font-weight: 650; display: flex; align-items: center; background: color-mix(in srgb, var(--c) 88%, transparent); color: var(--k); border: 1px solid var(--hl); }
         /* Mine / Everyone's, and the soft controls on app screens */
         html[data-look="new"] .seg-control { background: var(--nl-surface2) !important; border: 0 !important; box-shadow: none !important; border-radius: 22px !important; padding: 4px !important; gap: 6px; }
         html[data-look="new"] .seg-control button { height: 36px; min-height: 36px; border-radius: 18px !important; font-size: 14px !important; font-weight: 650 !important; letter-spacing: 0 !important; text-transform: none !important; color: var(--nl-muted) !important; background: none !important; box-shadow: none !important; border: 0 !important; }

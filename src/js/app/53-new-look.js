@@ -268,6 +268,15 @@
 
             // after every draw: shapes, names, and the Session screen if it's open
             nlAfterRender() {
+                if (!this._nlFellChecked) {   // v17.3: the New look couldn't open on this phone last time (theme-boot turned it off)
+                    this._nlFellChecked = true;
+                    let fell = false; try { fell = localStorage.getItem('dialed_look_fell') === '1'; if (fell) localStorage.removeItem('dialed_look_fell'); } catch (e) {}
+                    if (fell && this.showToast) setTimeout(() => this.showToast('The New look didn\'t open on this phone, so it\'s off for now. Settings, Appearance turns it back on.'), 1500);
+                }
+                if (this.newLook() && !this._nlBootOk) {   // up and drawing: this start counts as a good one
+                    this._nlBootOk = true;
+                    setTimeout(() => { try { localStorage.setItem('dialed_look_boot', '0'); } catch (e) {} }, 8000);
+                }
                 if (!this.newLook()) { const bd = typeof document !== 'undefined' ? document.body : null; if (bd && bd.hasAttribute && bd.hasAttribute('data-nltab')) bd.removeAttribute('data-nltab'); const g = typeof document !== 'undefined' && document.getElementById ? document.getElementById('grid') : null; if (g && g.hasAttribute && g.hasAttribute('data-fam')) g.removeAttribute('data-fam'); return; }
                 if (document.body.getAttribute('data-nltab') !== this.tab) document.body.setAttribute('data-nltab', this.tab);
                 const grid = document.getElementById('grid');
