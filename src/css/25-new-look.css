@@ -133,8 +133,9 @@
         html[data-look="new"][data-theme="light"] .nl-card { box-shadow: var(--nl-shadow); }
         html[data-look="new"] .nl-ph { position: relative; height: 372px; overflow: hidden; }
         html[data-look="new"] .nl-photo { width: 100%; height: 100%; object-fit: cover; display: block; }
+        html[data-look="new"] .nl-ph .nl-photo { object-position: 50% 78%; }   /* (v17.5: the photo sits higher, its subject clear of the fade) */
         html[data-look="new"] .nl-ph.is-broken .nl-photo { display: none; }
-        html[data-look="new"] .nl-fade { position: absolute; left: 0; right: 0; bottom: 0; height: 200px; background: linear-gradient(to bottom, color-mix(in srgb, var(--c) 0%, transparent), color-mix(in srgb, var(--c) 88%, transparent) 64%, var(--c)); pointer-events: none; }
+        html[data-look="new"] .nl-fade { position: absolute; left: 0; right: 0; bottom: 0; height: 180px; background: linear-gradient(to bottom, color-mix(in srgb, var(--c) 0%, transparent), color-mix(in srgb, var(--c) 88%, transparent) 64%, var(--c)); pointer-events: none; }
         html[data-look="new"] .nl-fade.short { height: 90px; }
         html[data-look="new"] .nl-ctop { position: absolute; left: 14px; right: 12px; top: 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; z-index: 2; }
         html[data-look="new"] .nl-flattop .nl-ctop { position: static; padding: 14px 12px 4px 14px; }
@@ -312,7 +313,7 @@
         html[data-look="new"] body.bars-tucked .header-sticky { transform: none !important; clip-path: inset(0 0 calc(100% - var(--safe-top, 0px)) 0); }
         html[data-look="new"] .header-sticky .header-top { transition: opacity 0.2s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
         html[data-look="new"] body.bars-tucked .header-sticky .header-top { opacity: 0; transform: translateY(-12px); pointer-events: none; }
-        html[data-look="new"] .header-top { height: 60px; min-height: 60px; margin: 0 !important; display: flex !important; flex-direction: row !important; align-items: center !important; gap: 10px; }
+        html[data-look="new"] .header-top { height: 60px; min-height: 60px; margin: 0 !important; display: flex !important; flex-direction: row !important; align-items: center !important; gap: 10px; box-sizing: border-box; padding-top: 10px !important; }   /* (v17.5: the row sits 5 px lower, clear of the iPhone's blur at the very top; the bar keeps its height) */
         html[data-look="new"] .header-top > div:first-child { flex: 1 1 auto; min-width: 0; }
         html[data-look="new"] #view-title { font-family: var(--nl-serif) !important; font-weight: 500 !important; font-size: 30px !important; line-height: 1.1; letter-spacing: -0.012em !important; color: var(--n, var(--nl-ink)); margin: 0 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: none !important; }
         html[data-look="new"] #view-title .drink-title { font: inherit !important; color: inherit !important; background: none !important; border: 0 !important; padding: 0 !important; margin: 0 !important; box-shadow: none !important; display: inline-flex; align-items: center; gap: 4px; letter-spacing: inherit !important; text-transform: none !important; min-height: 0 !important; height: auto !important; }
@@ -349,18 +350,20 @@
         html[data-look="new"] #grid.feed-list { padding: 0 0 calc(120px + var(--safe-bottom, 0px)) !important; max-width: 640px; margin: 0 auto; display: block !important; }
         html[data-look="new"] #grid.feed-list > * { margin-left: 0; margin-right: 0; }
         /* tab bar: a floating capsule, icons only (their names stay for VoiceOver), matcha + */
-        html[data-look="new"] #mobile-nav { left: 28px !important; right: 28px !important; width: auto !important; max-width: none !important; transform: none !important; bottom: calc(22px + var(--safe-bottom, 0px)) !important; height: 66px !important; border-radius: 33px !important; background: var(--nl-tab) !important; -webkit-backdrop-filter: blur(18px) !important; backdrop-filter: blur(18px) !important; border: 1px solid var(--nl-tabline) !important; box-shadow: none !important; justify-content: space-around !important; padding: 0 6px; }
+        html[data-look="new"] #mobile-nav { left: 22px !important; right: 22px !important; width: auto !important; max-width: none !important; transform: none !important; bottom: max(10px, calc(var(--safe-bottom, 0px) - 8px)) !important; height: 60px !important; border-radius: 30px !important; background: var(--nl-tab) !important; -webkit-backdrop-filter: blur(18px) !important; backdrop-filter: blur(18px) !important; border: 1px solid var(--nl-tabline) !important; box-shadow: none !important; justify-content: space-around !important; padding: 0 6px; }
         html[data-look="new"][data-theme="light"] #mobile-nav { box-shadow: 0 8px 24px rgba(22, 32, 24, 0.1) !important; }
-        html[data-look="new"] .mob-item { font-size: 0 !important; gap: 0 !important; letter-spacing: 0 !important; color: var(--nl-muted) !important; height: 66px; justify-content: center; background: none !important; box-shadow: none !important; border: 0 !important; flex: 0 0 52px; }
-        html[data-look="new"] .mob-item .icon { width: 24px !important; height: 24px !important; filter: none !important; }
+        html[data-look="new"] .mob-item { font-size: 0 !important; gap: 0 !important; letter-spacing: 0 !important; color: var(--nl-muted) !important; height: 60px; justify-content: center; background: none !important; box-shadow: none !important; border: 0 !important; flex: 0 0 54px; }
+        html[data-look="new"] .mob-item .icon { width: 27px !important; height: 27px !important; filter: none !important; }
         html[data-look="new"] .mob-item.active { color: var(--nl-matcha) !important; }
         html[data-look="new"] .mob-item.active::before, html[data-look="new"] .mob-item.active::after { display: none !important; }
-        html[data-look="new"] .mob-fab { width: 52px !important; height: 52px !important; margin: 0 !important; background: var(--nl-matcha) !important; color: var(--nl-onmatcha) !important; box-shadow: none !important; }
-        html[data-look="new"] .mob-fab .icon { width: 26px !important; height: 26px !important; }
+        html[data-look="new"] .mob-fab { width: 46px !important; height: 46px !important; margin: 0 !important; background: var(--nl-matcha) !important; color: var(--nl-onmatcha) !important; box-shadow: none !important; }
+        html[data-look="new"] .mob-fab .icon { width: 24px !important; height: 24px !important; }
         /* scrolling down makes the whole bar a little smaller, evenly (nothing inside moves on its own) */
         html[data-look="new"] #mobile-nav { transform-origin: 50% 100%; transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important; }
-        html[data-look="new"] body.bars-tucked #mobile-nav { height: 66px !important; max-width: none !important; transform: translateY(8px) scale(0.86) !important; }
-        html[data-look="new"] body.bars-tucked .mob-fab { width: 52px !important; height: 52px !important; }
+        html[data-look="new"] body.bars-tucked #mobile-nav { height: 60px !important; max-width: none !important; transform: translateY(6px) scale(0.88) !important; }
+        html[data-look="new"] body.bars-tucked .mob-fab { width: 46px !important; height: 46px !important; }
+        /* v17.5: Achievements live on your profile (More), not in the top bar */
+        html[data-look="new"] .header-controls .locker-btn { display: none !important; }
 
         /* goal cards (yours and Everyone's): app colors */
         html[data-look="new"] .crew-quest { position: relative; border-radius: 28px !important; padding: 16px 16px 14px !important; margin: 4px 0 18px !important; background: var(--nl-surface) !important; border: 0 !important; color: var(--nl-ink); box-shadow: var(--nl-shadow) !important; overflow: hidden; }
@@ -686,3 +689,65 @@
         html[data-look="new"] #brew-modal .ns:not(.set) .ns-track input[type="range"]::-moz-range-thumb { background: var(--box, var(--nl-surface)) !important; border: 3px solid rgb(var(--c-rgb, 125, 137, 132)) !important; }
         html[data-look="new"] #detail-view #d-lens { margin-top: 22px; }
         html[data-look="new"] .more-t small { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.35; }   /* (v17.4: "September: ready to reveal" in full) */
+        /* v17.5: the Session screen's shapes: stop it turning, look straight down (two quiet round buttons in its corner) */
+        html[data-look="new"] .nl-spinwrap { position: relative; width: 100%; }
+        html[data-look="new"] .nls-bigshape .nl-spinwrap { max-width: 380px; margin: 0 auto; }
+        html[data-look="new"] .nl-spinctl { position: absolute; top: 6px; right: 6px; display: flex; gap: 8px; z-index: 2; }
+        html[data-look="new"] .nl-spinctl button { width: 36px; height: 36px; min-height: 0; padding: 0; margin: 0; border-radius: 18px !important; display: grid; place-items: center; background: var(--pill) !important; color: var(--t) !important; border: 1px solid var(--hl) !important; box-shadow: none !important; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        html[data-look="new"] .nl-spinctl button[aria-pressed="true"] { background: var(--n) !important; color: var(--c) !important; border-color: transparent !important; }
+        html[data-look="new"] .nl-spinctl .nl-ic { width: 18px; height: 18px; }
+        html[data-look="new"] .nls-taste .nl-spinctl { top: 0; right: 0; }
+        /* v17.5: everyone's picture has a ring in their own color again (--ring comes from a rule per person, #nl-rings) */
+        /* (a thin gap between the picture and its ring, so a ring the same color as the picture still shows; the gap is see-through) */
+        html[data-look="new"] .nl-pfp { border: 0 !important; outline: 2px solid var(--ring, rgba(255, 255, 255, 0.9)); outline-offset: 2px; box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3) !important; }
+        html[data-look="new"] .nl-who.flat .nl-pfp { box-shadow: none !important; outline-color: var(--ring, transparent); }
+        html[data-look="new"] :is(.nl-av, .cmt-avatar, .person-dot, .pp-dot, .feed-avatar, .aw-face) { box-shadow: none !important; outline: 2px solid var(--ring, transparent); outline-offset: 2px; }
+        html[data-look="new"] .nl-av.s28, html[data-look="new"] .nl-card .cmt.reply .cmt-avatar { outline-width: 1.5px; outline-offset: 1.5px; }
+        html[data-look="new"] .profile-view .person-chip .person-dot { outline-width: 1.5px; outline-offset: 2px; }
+        html[data-look="new"] :is(.dh-faces i, .cq-face b) { box-shadow: 0 0 0 2px var(--c, var(--surface)), 0 0 0 3.5px var(--ring, transparent) !important; }
+        html[data-look="new"] .thread-faces i { box-shadow: 0 0 0 2px var(--ring, transparent) !important; }
+        html[data-look="new"] .profile-view .hero-avatar { border: 0 !important; outline: 3px solid var(--ring, var(--hl)); outline-offset: 3px; }
+        /* v17.5: open, the comment pill grows down into the box that holds the comments (as it used to) */
+        html[data-look="new"] .nl-card .thread.compact.open .thread-row { align-items: stretch; }
+        html[data-look="new"] .nl-card .thread.compact.open .thread-toggle { align-self: stretch !important; height: auto; min-height: 48px; border-radius: 24px 24px 0 0 !important; border-color: transparent !important; position: relative; }
+        html[data-look="new"] .nl-card .thread.compact.open .thread-toggle::before { display: block !important; content: '' !important; position: absolute; left: -20px; bottom: 0; width: 20px; height: 20px; pointer-events: none; background: radial-gradient(circle at 0 0, transparent 19.5px, var(--pill) 20px); }
+        html[data-look="new"] .nl-card .thread.compact.open .thread-body { background: var(--pill); border-radius: 22px 0 22px 22px; padding: 6px 16px 16px; margin: 0; }
+        /* v17.5: an achievement on a card is its own little card in the earner's color (tap: their achievements) */
+        html[data-look="new"] .nl-ach { display: flex; align-items: center; gap: 12px; width: 100%; margin: 14px 0 0; padding: 12px 12px 12px 12px; min-height: 0; border-radius: 18px !important; background: color-mix(in srgb, var(--ac) 20%, var(--c)) !important; border: 1px solid color-mix(in srgb, var(--ac) 42%, transparent) !important; box-shadow: none !important; color: var(--t) !important; text-align: left; font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        html[data-look="new"][data-theme="light"] .nl-ach { background: color-mix(in srgb, var(--ac) 14%, #fff) !important; }
+        html[data-look="new"] .nl-ach-ic { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--ac); color: #fff; }
+        html[data-look="new"] .nl-ach-ic .icon { width: 20px; height: 20px; stroke: currentColor; }
+        html[data-look="new"] .nl-ach-t { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+        html[data-look="new"] .nl-ach-t small { font-size: 12px; font-weight: 650; color: var(--l); }
+        html[data-look="new"] .nl-ach-t b { font-size: 16px; font-weight: 700; color: var(--t); line-height: 1.25; }
+        html[data-look="new"] .nl-ach-t span { font-size: 14px; color: var(--l); line-height: 1.3; }
+        html[data-look="new"] .nl-ach-go { flex: none; width: 18px; height: 18px; transform: rotate(-90deg); color: var(--l); stroke: currentColor; }
+        /* v17.5: a roaster's photo fills its tile (its initials stay underneath for when there's none) */
+        html[data-look="new"] .ro-tile img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; display: block; -webkit-touch-callout: none; }
+        html[data-look="new"] .ro-tile b { font-weight: inherit; position: relative; z-index: 1; }
+        html[data-look="new"] #roaster-modal .bean-cover { margin: 0 0 4px; }
+        /* v17.5: levels, simpler: a numbered round badge in its tier's colors, "Level 14 · Gold", points */
+        html[data-look="new"] .nl-lvl-row { gap: 14px; }
+        html[data-look="new"] .nl-lvl-badge { flex: none; display: block; }
+        html[data-look="new"] .nl-lvl-row .lvl-top { align-items: center; }
+        html[data-look="new"] .nl-lvl-row .lvl-top b { font-family: var(--nl-serif); font-weight: 500; font-size: 20px; letter-spacing: -0.01em; color: var(--t, var(--nl-ink)); }
+        html[data-look="new"] .nl-lvl-row .lvl-top em { font-size: 13px; font-weight: 650; color: var(--l, var(--nl-muted)); }
+        html[data-look="new"] .nl-lvl-row .lvl-bar, html[data-look="new"] .nl-lvl-hero .lvl-bar { background: color-mix(in srgb, var(--t, var(--nl-ink)) 12%, transparent); }
+        html[data-look="new"] .nl-lvl-row .lvl-bar i, html[data-look="new"] .nl-lvl-hero .lvl-bar i { background: var(--k, var(--nl-matcha)); }
+        html[data-look="new"] .nl-lvl-row .lvl-count { font-size: 13px; color: var(--l, var(--nl-muted)); }
+        html[data-look="new"] .nl-lvl-hero .nl-lvl-badge { margin: 0 auto 12px; }
+        html[data-look="new"] .nl-lvl-hero .lvl-crema { color: var(--l); font-size: 15px; }
+        html[data-look="new"] .nl-lvl-hero .lvl-crema b { color: var(--t); }
+        html[data-look="new"] .nl-lvl-tier { display: flex; align-items: center; gap: 12px; padding: 9px 8px; border-top: 1px solid var(--hl); color: var(--t); }
+        html[data-look="new"] .nl-lvl-tier span { flex: 1; display: flex; flex-direction: column; }
+        html[data-look="new"] .nl-lvl-tier b { font-size: 15px; font-weight: 650; }
+        html[data-look="new"] .nl-lvl-tier small { font-size: 13px; color: var(--l); }
+        html[data-look="new"] .nl-lvl-tier em { font-style: normal; font-size: 13px; color: var(--l); font-variant-numeric: tabular-nums; }
+        html[data-look="new"] .nl-lvl-tier.on { background: var(--pill); border-radius: 14px; border-top-color: transparent; }
+        html[data-look="new"] .nl-lvl-tier.on + .nl-lvl-tier { border-top-color: transparent; }
+        html[data-look="new"] .nl-lvl-tier.locked .nl-lvl-badge { opacity: 0.55; }
+        /* v17.5: a date field's text sits in the middle of its box on iPhone (it hugged the top) */
+        html[data-look="new"] .modal-card input[type="date"] { -webkit-appearance: none; appearance: none; display: block; height: 50px; min-height: 50px; line-height: 48px; padding-top: 0 !important; padding-bottom: 0 !important; text-align: left; }
+        html[data-look="new"] .modal-card input[type="date"]::-webkit-date-and-time-value { text-align: left; margin: 0; line-height: 48px; min-height: 48px; }
+        html[data-look="new"] .modal-card input[type="date"]::-webkit-datetime-edit { padding: 0; line-height: 48px; }
+        html[data-look="new"] #roaster-modal form > label { margin: 18px 0 8px !important; }

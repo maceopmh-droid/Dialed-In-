@@ -224,6 +224,32 @@
                     u.strokeStyle = COLORS[TOPK]; seg(u, [0, 0, 0], [0, 2, 0]);
                     u.setLineDash([]); u.globalAlpha = 1;
                 }
+                // v17.5: no box, but a quiet measure: a circle where every taste would reach at 10 (its back half behind the shape,
+                // its front half in front) and the center line, up to where complexity would reach at 10 (hidden inside the shape,
+                // so you see how far above its top it still goes). No numbers.
+                if (opts.lines === false && opts.ring) {
+                    const n = 120, cz0 = depth([0, 0, 0]), ring = []; for (let j = 0; j < n; j++) { const a = (j / n) * 2 * Math.PI; ring.push([Math.cos(a), 0, Math.sin(a)]); }
+                    const col = th.ink;
+                    if (opts.ring === 'disc') { u.save(); u.globalAlpha = 0.08; u.fillStyle = col; loop(u, ring, true); u.fill(); u.restore(); }
+                    [u, o].forEach((cx, i) => {
+                        cx.save(); cx.strokeStyle = col; cx.globalAlpha = i ? 0.34 : 0.22; cx.lineWidth = 1.25; cx.beginPath(); let pen = false;
+                        for (let j = 0; j < n; j++) {   // (each little piece goes to one half, so the two halves meet without a gap)
+                            const p = ring[j], q = ring[(j + 1) % n], back = (depth(p) + depth(q)) / 2 < cz0;
+                            if ((i === 0) === back) { const a = proj(p), b = proj(q); if (!pen) { cx.moveTo(a[0], a[1]); pen = true; } cx.lineTo(b[0], b[1]); } else pen = false;
+                        }
+                        cx.stroke(); cx.restore();
+                    });
+                    if (opts.ring === 'axis') { u.save(); u.strokeStyle = col; u.globalAlpha = 0.26; u.lineWidth = 1.25; seg(u, [0, 0, 0], [0, 2, 0]); u.restore(); }
+                    else if (opts.ring === 'disc') {   // (Maceo: "more natural": a soft stem in complexity's green that fades out as it rises toward 10)
+                        const A = proj([0, 0, 0]), B = proj([0, 2, 0]), gr = u.createLinearGradient(A[0], A[1], B[0], B[1]);
+                        const tint = COLORS[TOPK].replace('#', ''), rgb = [0, 2, 4].map(i => parseInt(tint.slice(i, i + 2), 16)).join(',');
+                        gr.addColorStop(0, `rgba(${rgb},0.55)`); gr.addColorStop(0.55, `rgba(${rgb},0.22)`); gr.addColorStop(1, `rgba(${rgb},0)`);
+                        // tapered like a stem: wider where it leaves the shape, a hair at its tip
+                        const dx = B[0] - A[0], dy = B[1] - A[1], L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L, w0 = 1.5, w1 = 0.25;
+                        u.save(); u.fillStyle = gr; u.shadowColor = `rgba(${rgb},0.4)`; u.shadowBlur = 5;
+                        u.beginPath(); u.moveTo(A[0] + nx * w0, A[1] + ny * w0); u.lineTo(B[0] + nx * w1, B[1] + ny * w1); u.lineTo(B[0] - nx * w1, B[1] - ny * w1); u.lineTo(A[0] - nx * w0, A[1] - ny * w0); u.closePath(); u.fill(); u.restore();
+                    }
+                }
                 const NSAMP = 90, foot = []; for (let j = 0; j < NSAMP; j++) foot.push(surf(vals, (j / NSAMP) * 2 * Math.PI, 0, sm));
                 u.save(); u.shadowColor = 'rgba(10,20,12,0.35)'; u.shadowBlur = 20; u.fillStyle = 'rgba(30,45,32,0.16)'; loop(u, foot, true); u.fill(); u.restore();
                 if (ghost) {
@@ -364,7 +390,7 @@
                 const probe = document.createElement('canvas');
                 if (!probe || typeof probe.getContext !== 'function') return '';
                 const th = opts.theme || themeColors();   // (v15.2: the shot card is always dark)
-                const key = [W, H, dpr, th.dark ? 'd' : 'l', FLOOR.concat(TOPK).map(k => val(vals, k)).join(','), ghost ? FLOOR.concat(TOPK).map(k => val(ghost, k)).join(',') : '-', opts.labels === false ? 'n' : 'y', opts.setKey || '', prefs.smooth ? 's' : 'f', namesOf(opts) === TEA_NAMES ? 't' : 'c'].join('|');
+                const key = [W, H, dpr, th.dark ? 'd' : 'l', FLOOR.concat(TOPK).map(k => val(vals, k)).join(','), ghost ? FLOOR.concat(TOPK).map(k => val(ghost, k)).join(',') : '-', opts.labels === false ? 'n' : 'y', opts.setKey || '', prefs.smooth ? 's' : 'f', namesOf(opts) === TEA_NAMES ? 't' : 'c', opts.lines === false ? 'nolines' : '', opts.ring || '', opts.fit ? `fit${opts.cy ?? ''}` : '', th.surface || ''].join('|');
                 if (cache.has(key)) return cache.get(key);
                 try {
                     const { under, glc, over, out, gl } = sharedR();
@@ -373,7 +399,9 @@
                     if (!u || !o || !x) return '';
                     if (gl) {
                         const yaw = opts.yaw ?? -0.72, pitch = opts.pitch ?? 0.5;
-                        const { MVP, MV } = matrices(W, H, yaw, pitch, opts.zoom || 1);
+                        let zoom = opts.zoom || 1, lookY = 1;
+                        if (opts.fit) { const both = ghost ? Object.fromEntries(FLOOR.concat(TOPK).map(k => [k, Math.max(val(vals, k), val(ghost, k))])) : vals; const f = fitView({ opts, pitch }, both, W, H, zoom); zoom = f.zoom; lookY = f.lookY; }   // (a second shape is framed too)   // v17.5: framed like the turning ones
+                        const { MVP, MV } = matrices(W, H, yaw, pitch, zoom, lookY);
                         gl.upload(vals, prefs.smooth); gl.draw(MVP, MV, th.dark);
                         overlay(u, o, vals, ghost, MVP, MV, W, H, dpr, pitch, th, opts);
                         x.clearRect(0, 0, out.width, out.height); x.drawImage(under, 0, 0); x.drawImage(glc, 0, 0); x.drawImage(over, 0, 0);
@@ -415,12 +443,14 @@
             // breathing as it spins); worked out again only when the shape, the canvas or the tilt changes.
             const fits = new Map();
             function fitView(sp, vals, W, H, zoom0) {
-                const sm = prefs.smooth, fill = sp.opts.fill || 0.86, cap = sp.opts.fitCap || 4.6;
-                const key = `${W}x${H}|${sp.pitch.toFixed(3)}|${sm}|${fill}|${zoom0}|${FLOOR.concat(TOPK).map(k => val(vals, k)).join(',')}`;
+                const sm = prefs.smooth, fill = sp.opts.fill || 0.86, cap = sp.opts.fitCap || 4.6, ring = sp.opts.ring || '';
+                const cy = sp.opts.cy ?? 0.5, padB = sp.opts.padB ?? 0;   // v17.5: where its middle goes (0 top, 1 bottom), never past the bottom edge
+                const key = `${W}x${H}|${sp.pitch.toFixed(3)}|${sm}|${fill}|${zoom0}|${ring}|${cy}|${padB}|${FLOOR.concat(TOPK).map(k => val(vals, k)).join(',')}`;
                 if (fits.has(key)) return fits.get(key);
                 const hh = heightOf(vals);
                 let rMax = 0.03; for (let j = 0; j < 72; j++) rMax = Math.max(rMax, radius(vals, (j / 72) * 2 * Math.PI, sm));
-                const pts = [[0, hh, 0]];
+                if (ring) rMax = Math.max(rMax, 1);   // (the circle at 10 is part of the picture)
+                const pts = [[0, ring === 'axis' ? Math.max(hh, 2) : ring === 'disc' ? Math.max(hh, 1.55) : hh, 0]];   // (the soft stem fades out near its top: it needn't all fit)
                 [0, 0.2, 0.4, 0.6, 0.8].forEach(t => { const r = rMax * profile(t, sm); for (let j = 0; j < 36; j++) { const a = (j / 36) * 2 * Math.PI; pts.push([r * Math.cos(a), hh * t, r * Math.sin(a)]); } });
                 const box = (z, ly) => {
                     const { MVP } = matrices(W, H, 0, sp.pitch, z, ly);
@@ -437,7 +467,12 @@
                     const b2 = box(zoom, lookY);
                     const a = M.apply(b2.MVP, [0, lookY, 0]), c = M.apply(b2.MVP, [0, lookY + 0.1, 0]);
                     const ppu = ((1 - (a[1] / a[3] * 0.5 + 0.5)) - (1 - (c[1] / c[3] * 0.5 + 0.5))) * H / 0.1;   // (pixels per unit of height, near the middle)
-                    if (ppu > 0.01) lookY += (H / 2 - (b2.y0 + b2.y1) / 2) / ppu;
+                    if (ppu > 0.01) {
+                        let dy = H * cy - (b2.y0 + b2.y1) / 2;   // its middle at cy…
+                        if (b2.y1 + dy > H - padB) dy = H - padB - b2.y1;   // …unless that puts its bottom past the edge
+                        if (b2.y0 + dy < 0) dy = -b2.y0;
+                        lookY += dy / ppu;
+                    }
                 }
                 const out = { zoom, lookY };
                 fits.set(key, out); if (fits.size > 300) fits.delete(fits.keys().next().value);
@@ -477,7 +512,11 @@
                     if (!sp.near || hidden) { sp.last = 0; return; }
                     if (!sp.seen && sp.sig) { sp.last = 0; return; }   // (drawn once just below the screen; it turns once it's on it)
                     const dt = sp.last ? Math.min(0.2, (ts - sp.last) / 1000) : 0;   // (a slow phone still turns at the same speed)
-                    const turn = sp.opts.spin !== false && prefs.spin && !reduceMotion() && !sp.dragging && performance.now() - sp.idleSince > (sp.opts.interactive ? 2500 : 0);
+                    if (sp.pitchTo !== undefined) {   // v17.5: easing to the top view (or back)
+                        const d = sp.pitchTo - sp.pitch;
+                        if (Math.abs(d) < 0.003) { sp.pitch = sp.pitchTo; sp.pitchTo = undefined; } else { sp.pitch += d * Math.min(1, (dt || 0.016) * 9); any = true; }
+                    }
+                    const turn = sp.opts.spin !== false && prefs.spin && !reduceMotion() && !sp.dragging && !sp.paused && performance.now() - sp.idleSince > (sp.opts.interactive ? 2500 : 0);
                     if (turn || sp.dragging || !sp.sig) any = true;   // (nothing moving and already drawn: the loop can rest)
                     if (turn) { if (sp.last && ts - sp.drawn < (sp.opts.fps ? 1000 / sp.opts.fps : 0)) return; sp.yaw += dt * (sp.opts.speed || 0.45); }
                     if (sp.opts.id) { yaws.set(sp.opts.id, sp.yaw); if (yaws.size > 400) yaws.delete(yaws.keys().next().value); }   // (a card drawn again carries on from the same angle)
@@ -510,7 +549,9 @@
                 }
                 canvas.setAttribute('role', 'img');
                 spins.add(sp); wakeSpins();
-                return { redraw() { sp.sig = ''; wakeSpins(); }, destroy() { unwatch(sp); }, state() { return { yaw: sp.yaw, pitch: sp.pitch, near: sp.near, drawn: sp.drawn, dragging: sp.dragging }; } };
+                return { redraw() { sp.sig = ''; wakeSpins(); }, destroy() { unwatch(sp); }, state() { return { yaw: sp.yaw, pitch: sp.pitch, near: sp.near, drawn: sp.drawn, dragging: sp.dragging, paused: !!sp.paused, top: sp.top || false }; },
+                    pause(on) { sp.paused = !!on; sp.idleSince = 0; wakeSpins(); },   // v17.5: stop turning (and go on again)
+                    view(top) { sp.top = !!top; sp.pitchTo = top ? Math.PI / 2 - 0.001 : (opts.pitch ?? 0.5); wakeSpins(); } };   // looking straight down, or back to the side
             }
             function spinCount() { return [...spins].filter(sp => sp.canvas.isConnected).length; }
             return { createView, snapshot, spin, spinCount, setPref, prefs, FLOOR, TOPK, NAMES, TEA_NAMES, COLORS, KEYS: FLOOR.concat(TOPK) };

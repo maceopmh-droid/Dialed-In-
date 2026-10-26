@@ -96,6 +96,15 @@
 
             // ---- saved roaster records live in each person's gear record: { merged: [[a, b, at]], notSame: [[a, b, at]], fav: [key], local: [[key, at]], info: { key: { location, website, note, at } } }
             const prefsOf = (ctx, user) => { const g = ctx.gearByUser && ctx.gearByUser.get(String(user || '')); const r = g && g.roasters && typeof g.roasters === 'object' ? g.roasters : {}; return { merged: Array.isArray(r.merged) ? r.merged : [], notSame: Array.isArray(r.notSame) ? r.notSame : [], fav: Array.isArray(r.fav) ? r.fav : [], local: Array.isArray(r.local) ? r.local : [], localOff: Array.isArray(r.localOff) ? r.localOff : [], info: r.info && typeof r.info === 'object' ? r.info : {} }; };
+            // a saved picture, checked: a hue 0-359, a strength 0-100, a photo only as a path in someone's own folder of pictures
+            const coverOk = c => {
+                if (!c || typeof c !== 'object') return null;
+                const hue = typeof c.hue === 'number' && c.hue >= 0 && c.hue <= 360 ? Math.round(c.hue) % 360 : null;
+                if (hue === null) return null;
+                const tone = typeof c.tone === 'number' && c.tone >= 0 && c.tone <= 100 ? Math.round(c.tone) : 60;
+                const photo = typeof c.photo === 'string' && /^[0-9a-f-]{36}\/[A-Za-z0-9_-]{6,64}\.(jpg|png)$/.test(c.photo) ? c.photo : '';
+                return photo ? { hue, tone, photo } : { hue, tone };
+            };
             const allPrefs = ctx => [...(ctx.gearByUser ? ctx.gearByUser.keys() : [])].map(u => ({ user: u, ...prefsOf(ctx, u) }));
 
             function build(ctx) {
@@ -126,6 +135,10 @@
                 // v15.8: each person's own "Local to me", with when they ticked it ([name, at]; a bare name counts from the start)
                 const localSince = {}; prefs.forEach(p => { const m = new Map(); p.local.forEach(e => { const nm = Array.isArray(e) ? e[0] : e; if (!nm) return; const c = clusterOf(nm), at = Array.isArray(e) ? (Date.parse(e[1] || 0) || 0) : 0; m.set(c, m.has(c) ? Math.min(m.get(c), at) : at); }); localSince[p.user] = m; });
                 const info = {}; prefs.forEach(p => Object.entries(p.info).forEach(([k, v]) => { if (!v || typeof v !== 'object') return; const c = clusterOf(k); const at = Date.parse(v.at || 0) || 0; if (!info[c] || at >= info[c].atMs) info[c] = { location: tidy(v.location), website: tidy(v.website), note: tidy(v.note), atMs: at }; }));
+                // v17.5: a roaster's picture (a color, maybe a photo): the newest one anyone set, kept apart from the other details
+                // so someone editing the website later doesn't take it away
+                const covers = {}; prefs.forEach(p => Object.entries(p.info).forEach(([k, v]) => { const cv = v && typeof v === 'object' ? coverOk(v.cover) : null; if (!cv) return; const c = clusterOf(k), at = Date.parse(v.coverAt || v.at || 0) || 0; if (!covers[c] || at >= covers[c].atMs) covers[c] = { cover: cv, atMs: at }; }));
+                Object.entries(covers).forEach(([c, x]) => { info[c] = info[c] || { location: '', website: '', note: '', atMs: 0 }; info[c].cover = x.cover; });
                 roasters.forEach(r => { r.info = info[r.key] || null; r.favBy = Object.keys(favBy).filter(u => favBy[u].has(r.key)); r.localBy = Object.keys(localSince).filter(u => localSince[u].has(r.key)); r.localSince = Object.fromEntries(r.localBy.map(u => [u, localSince[u].get(r.key)])); });
                 const byKey = new Map(roasters.map(r => [r.key, r]));
                 // look-alike names that nobody has merged or said aren't the same

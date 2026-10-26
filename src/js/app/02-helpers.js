@@ -76,6 +76,11 @@
                 if (diff < hour) return `${Math.floor(diff / min)}m ago`;
                 if (diff < day) return `${Math.floor(diff / hour)}h ago`;
                 if (diff < 7 * day) return `${Math.floor(diff / day)}d ago`;
+                if (this.newLook && this.newLook()) {   // v17.5: "Oct 15" in the New look everywhere (profile, notifications, lists), never 10/15/2026
+                    const d = new Date(ts), o = { month: 'short', day: 'numeric' };
+                    if (d.getFullYear() !== new Date().getFullYear()) o.year = 'numeric';
+                    try { return d.toLocaleDateString(undefined, o); } catch (e) { /* the plain one below */ }
+                }
                 return new Date(ts).toLocaleDateString();
             },
 

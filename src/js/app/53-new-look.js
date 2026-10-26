@@ -104,6 +104,7 @@
                 const rk = this.roasterKey ? this.roasterKey(name) : String(name || '').toLowerCase();
                 return this.nlFamOf(`r:${rk}`, () => {
                     const r = this.roasterData ? this.roasterData().byKey.get(rk) : null;
+                    if (r && r.info && r.info.cover) return this.nlToneKey(r.info.cover.hue, 0.012 + 0.12 * Math.max(0.1, (r.info.cover.tone ?? 60) / 100));   // v17.5: its picture
                     const set = r && this.ROASTER_COLORS && (this.ROASTER_COLORS[r.key] || (typeof RoasterEngine !== 'undefined' && this.ROASTER_COLORS[RoasterEngine.keyOf(r.name)]));
                     if (set) return this.nlToneOfHex(set[1]);
                     const hue = r ? r.hue : (typeof RoasterEngine !== 'undefined' ? RoasterEngine.hashHue(rk) : this.nlNameHue(rk));
@@ -245,8 +246,25 @@
             // ---- v17.4: a flavor shape that turns: on a card on its own (no box or lines), on the Session screen under a finger
             // too. One shared renderer draws them all, only near the screen (FlavorShape.spin).
             nlSpinHtml(brew, fam, o = {}) {
-                return `<canvas class="nl-spin ${o.drag ? 'nl-drag' : 'nl-auto'}${o.cls ? ' ' + o.cls : ''}" data-nl-spin="${this.esc(brew.id)}" data-nl-fam="${this.esc(fam)}"${o.pg ? ' data-nl-pg="1"' : ''}${o.labels ? ' data-nl-labels="1"' : ''}${o.lines ? ' data-nl-lines="1"' : ''} width="0" height="0" aria-label="Flavor shape"></canvas>`;
+                const cv = `<canvas class="nl-spin ${o.drag ? 'nl-drag' : 'nl-auto'}${o.cls ? ' ' + o.cls : ''}" data-nl-spin="${this.esc(brew.id)}" data-nl-fam="${this.esc(fam)}"${o.pg ? ' data-nl-pg="1"' : ''}${o.labels ? ' data-nl-labels="1"' : ''}${o.lines ? ' data-nl-lines="1"' : ''} width="0" height="0" aria-label="Flavor shape"></canvas>`;
+                if (!o.drag) return cv;
+                // v17.5: on the Session screen you can stop it turning and look straight down on it
+                return `<div class="nl-spinwrap">${cv}<div class="nl-spinctl"><button type="button" class="nl-sc-pause" aria-label="Stop turning" aria-pressed="false" onclick="app.nlSpinCtl(this, 'pause')">${this.NL_IC_PAUSE}</button><button type="button" class="nl-sc-top" aria-label="Look from the top" aria-pressed="false" onclick="app.nlSpinCtl(this, 'top')">${this.NL_IC_TOP}</button></div></div>`;
             },
+            NL_IC_PAUSE: '<svg viewBox="0 0 24 24" class="nl-ic" aria-hidden="true"><rect x="7" y="6" width="3.2" height="12" rx="1.2" fill="currentColor"/><rect x="13.8" y="6" width="3.2" height="12" rx="1.2" fill="currentColor"/></svg>',
+            NL_IC_PLAY: '<svg viewBox="0 0 24 24" class="nl-ic" aria-hidden="true"><path d="M8.5 6.2v11.6c0 .6.7 1 1.2.7l9-5.8c.5-.3.5-1.1 0-1.4l-9-5.8c-.5-.3-1.2.1-1.2.7z" fill="currentColor"/></svg>',
+            NL_IC_TOP: '<svg viewBox="0 0 24 24" class="nl-ic" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/></svg>',
+            NL_IC_SIDE: '<svg viewBox="0 0 24 24" class="nl-ic" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="16" rx="7.5" ry="3"/><path d="M12 4v12"/></svg>',
+            nlSpinCtl(btn, what) {
+                const wrap = btn && btn.closest ? btn.closest('.nl-spinwrap') : null, c = wrap && wrap.querySelector('canvas'), h = c && c._nlSpin;
+                if (!h || !h.state) return;
+                const st = h.state();
+                if (what === 'pause') { const on = !st.paused; h.pause(on); btn.setAttribute('aria-pressed', String(on)); btn.setAttribute('aria-label', on ? 'Turn again' : 'Stop turning'); btn.innerHTML = on ? this.NL_IC_PLAY : this.NL_IC_PAUSE; }
+                else { const on = !st.top; h.view(on); btn.setAttribute('aria-pressed', String(on)); btn.setAttribute('aria-label', on ? 'Look from the side' : 'Look from the top'); btn.innerHTML = on ? this.NL_IC_SIDE : this.NL_IC_TOP; }
+                if (this.haptic) this.haptic('tick');
+            },
+            // v17.5: the quiet measure on a turning shape: a circle at 10 and the center line ('axis'), or just the circle ('ring')
+            NL_RING: 'disc',
             nlFillSpins(root) {
                 if (typeof FlavorShape === 'undefined' || !FlavorShape.spin || typeof document === 'undefined') return;
                 const scope = root || document;
@@ -261,7 +279,9 @@
                         id: `${id}|${c.className}`, values: () => this.shapeValues(brew()), isSet: k => tasted().includes(k),
                         names: this.kindOfBrew(first) === 'tea' ? 'tea' : null,
                         theme: () => { const d = this.nlDark() ? 'd' : 'l'; return themes[d] || (themes[d] = this.nlShapeTheme(fam, pg)); },
-                        labels, lines: c.hasAttribute('data-nl-lines'), interactive: drag, fit: !labels, zoom: labels ? 1.08 : 1, fps: drag ? 0 : 30, speed: 0.45
+                        labels, lines: c.hasAttribute('data-nl-lines'), interactive: drag, fit: !labels, zoom: labels ? 1.08 : 1, fps: drag ? 0 : 30, speed: 0.45,
+                        // v17.5: the measure (not in the boxed view), and where it sits: a card's shape lower, on its bottom edge
+                        ring: labels ? '' : this.NL_RING, ...(c.classList.contains('nl-mini') ? { cy: 0.7, padB: 2 } : c.classList.contains('nl-bigspin') ? { cy: 0.6, padB: 4 } : c.classList.contains('nls-shape') ? { cy: 0.55, padB: 6 } : {})
                     });
                 });
             },
@@ -315,6 +335,14 @@
                     if (over()) { row.classList.add('nl-tight'); if (over()) row.classList.add('nl-tighter'); }
                     row.setAttribute('data-nl-fitted', '1');
                 });
+                // v17.5: a word in a stat tile ("Yesterday" on the roaster page) shrinks until it fits its tile
+                (root || document).querySelectorAll('.stat-num.word:not([data-nl-fitted])').forEach(el => {
+                    if (!el.getClientRects().length) return;
+                    el.style.fontSize = '';
+                    let z = parseFloat(getComputedStyle(el).fontSize) || 14;
+                    while (z > 10 && el.scrollWidth > el.clientWidth + 1) { z -= 0.5; el.style.fontSize = `${z}px`; }
+                    el.setAttribute('data-nl-fitted', '1');
+                });
             },
 
             // after every draw: shapes, names, and the Session screen if it's open
@@ -335,6 +363,7 @@
                 const pf = this.tab === 'profile' && this.profileUser ? this.famOfPerson(this.profileUser) : null;
                 tinted().forEach((el, i) => { if (!el) return; const want = i === 0 ? pf : null; if (want) { if (el.getAttribute('data-fam') !== want) el.setAttribute('data-fam', want); } else if (el.hasAttribute('data-fam')) el.removeAttribute('data-fam'); });
                 this.nlExtras(true);
+                this.nlRingRules();
                 this.nlFillShapes();
                 this.nlFillSpins();
                 this.nlFitNames();
@@ -346,10 +375,41 @@
                     this._nlMO = new MutationObserver(() => {
                         if (queued || !this.newLook()) return;
                         queued = true;
-                        requestAnimationFrame(() => { queued = false; if (this.newLook()) { this.nlFillShapes(); this.nlFillSpins(); this.nlFitNames(); this.nlFitTiles(); } });
+                        requestAnimationFrame(() => { queued = false; if (this.newLook()) { this.nlRingRules(); this.nlFillShapes(); this.nlFillSpins(); this.nlFitNames(); this.nlFitTiles(); } });
                     });
                     this._nlMO.observe(document.body, { childList: true, subtree: true });
                 }
+            },
+
+            // ===================== v17.5: levels, simpler (the New look) =====================
+            // A level is a number on a round badge in its tier's colors (Bronze, Silver, Gold, Platinum, Top); points, not crema;
+            // the same words for tea and coffee. The levels and what earns points are the app's own (43-levels.js).
+            nlLevelBadge(i, size = 40) {
+                const T = this.levelTiers()[this.levelList()[i].t], id = `nlb${i}-${(this._nlbN = (this._nlbN || 0) + 1)}`, n = i + 1;
+                return `<svg class="nl-lvl-badge" viewBox="0 0 40 40" width="${size}" height="${size}" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${T.from}"/><stop offset="1" stop-color="${T.to}"/></linearGradient></defs><circle cx="20" cy="20" r="${T.ring ? 17 : 19}" fill="url(#${id})"/>${T.ring ? `<circle cx="20" cy="20" r="18.6" fill="none" stroke="${T.ring}" stroke-width="2.2"/>` : ''}<text x="20" y="20.5" text-anchor="middle" dominant-baseline="central" fill="${T.ink}" font-family="Georgia, 'Times New Roman', serif" font-size="${n > 9 ? 17 : 19}" font-weight="600">${n}</text></svg>`;
+            },
+            nlTierName(L) { const t = this.levelTiers()[L.t].name; return t === 'The top' ? 'Top' : t; },
+            nlLevelRowHtml(user) {
+                const c = this.cremaOf(user);
+                if (c === null || c === undefined) return '';
+                const L = this.levelOf(c), fmt = x => Math.round(x).toLocaleString();
+                return `<button type="button" class="lvl-row nl-lvl-row" data-name="${this.esc(user)}" onclick="app.openLevel(this.getAttribute('data-name'))" aria-label="Level ${L.n}, ${this.esc(this.nlTierName(L))}. ${fmt(L.crema)} points">${this.nlLevelBadge(L.i, 44)}<span class="lvl-main"><span class="lvl-top"><b>Level ${L.n}</b><em>${this.esc(this.nlTierName(L))}</em></span><span class="lvl-bar"><i style="width:${L.pct.toFixed(1)}%"></i></span><small class="lvl-count">${fmt(L.crema)} points${L.next ? ` · ${fmt(L.next.min - L.crema)} to level ${L.n + 1}` : ' · the top level'}</small></span></button>`;
+            },
+            nlLevelBody(name) {
+                const own = name === this.user, L = this.levelOf(this.cremaOf(name) || 0), fmt = x => Math.round(x).toLocaleString(), list = this.levelList();
+                const word = { coffee: 'A coffee or tea you hadn’t had before', roaster: 'A new roaster or tea brand', local: 'A session from a roaster or brand you marked local' };
+                const tiers = this.levelTiers().map((T, t) => { const lv = list.map((x, i) => [x, i]).filter(([x]) => x.t === t); return { T, t, first: lv[0][1] + 1, last: lv[lv.length - 1][1] + 1, from: lv[0][0].min }; });
+                const ladder = `<div class="lvl-sec"><div class="lvl-cap">Levels</div>${tiers.map(x => `<div class="nl-lvl-tier${x.t === L.t ? ' on' : ''}${x.t > L.t ? ' locked' : ''}">${this.nlLevelBadge(x.first - 1, 30)}<span><b>${this.esc(x.T.name === 'The top' ? 'Top' : x.T.name)}</b><small>${x.first === x.last ? `Level ${x.first}` : `Levels ${x.first}–${x.last}`}</small></span><em>${fmt(x.from)}</em></div>`).join('')}</div>`;
+                const how = `<div class="lvl-sec"><div class="lvl-cap">How to earn points</div>${this.cremaRules().map(r => `<div class="lvl-line"><span>${this.esc(word[r[0]] || r[1])}${r[3] ? `<small> · ${this.esc(r[3])}</small>` : ''}</span><b>+${r[2]}</b></div>`).join('')}</div>`;
+                const share = own && this.openLevelStory ? '<button type="button" class="btn-outline lvl-share" onclick="app.openLevelStory()"><svg class="icon"><use href="#i-share-2"/></svg>Share</button>' : '';
+                return `<div class="lvl-hero nl-lvl-hero">${this.nlLevelBadge(L.i, 92)}<div class="lvl-kicker">${own ? 'Your level' : `${this.esc(name)}'s level`}</div><h3>Level ${L.n}</h3><div class="lvl-crema">${this.esc(this.nlTierName(L))} · <b>${fmt(L.crema)}</b> points</div>${L.next ? `<div class="lvl-bar big"><i style="width:${L.pct.toFixed(1)}%"></i></div><div class="lvl-next">${fmt(L.next.min - L.crema)} more to level ${L.n + 1}</div>` : '<div class="lvl-next">The top level.</div>'}${share}</div>${ladder}${how}`;
+            },
+
+            // v17.5: an achievement on a card: its own little card in the color of whoever earned it; tap it for their achievements
+            nlUnlockHtml(u) {
+                if (!u || !u.definition) return '';
+                const d = u.definition, who = u.user || '', lv = d.thresholds.length > 1 ? ` · Level ${u.level}` : '';
+                return `<button type="button" class="nl-ach" style="--ac:${this.esc(this.getUserColor(who))}" onclick="event.stopPropagation(); app.openAchievementLocker('${app.escJs(who)}')" aria-label="${this.esc(`${who === this.user ? 'You' : who} unlocked ${d.title}${lv}. Open achievements`)}"><span class="nl-ach-ic"><svg class="icon"><use href="#i-trophy"/></svg></span><span class="nl-ach-t"><small>Achievement unlocked</small><b>${this.esc(d.title)}${this.esc(lv)}</b><span>${this.esc(who === this.user ? 'You' : who)} ${this.esc(d.sentence(u.threshold))}</span></span><svg class="icon nl-ach-go" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>`;
             },
 
             // ===================== the feed card =====================
@@ -415,7 +475,7 @@
                             ${this.nlWords(brew)}
                             ${this.nlNotesHtml(brew)}
                             ${this.nlHelpfulHtml(brew, fam)}
-                            ${unlocks.map(u => `<div class="nl-unlock">${this.esc(this.formatAchievementLine(u, u.user === this.user))}</div>`).join('')}
+                            ${unlocks.map(u => this.nlUnlockHtml(u)).join('')}
                             ${this.nlSocial('brew', brew, likes, `app.toggleLike('${app.escJs(brew.id)}', event)`)}
                         </div>
                     </article>`;
@@ -621,6 +681,47 @@
                 ['detail-view', 'roaster-view', 'session-view'].forEach(id => { const sc = document.getElementById(id); if (sc) { this.nlBindNav(sc); this.nlNavPaint(sc, true); } });
                 this.nlExtras(nl);
             },
+            // v17.5: typing a comment (the New look): once the keyboard is up, the box sits just above it. iPhone sometimes threw it
+            // to the top of the screen (or left it under the keyboard); this puts it back where you'd expect, and leaves it alone
+            // when it's already in view.
+            bindCommentKeyboard() {
+                if (this._ckb || typeof document === 'undefined' || typeof window === 'undefined' || !window.visualViewport) return;
+                this._ckb = true;
+                const vv = window.visualViewport;
+                let target = null, t = 0;
+                const place = () => {
+                    if (!target || document.activeElement !== target || !(this.newLook && this.newLook())) return;
+                    const sc = target.closest('#session-view, #detail-view, #roaster-view, #main-content');
+                    if (!sc) return;
+                    if (window.scrollY) window.scrollTo(0, 0);
+                    const r = target.getBoundingClientRect(), bottom = vv.offsetTop + vv.height;
+                    const head = sc.id === 'main-content' ? document.querySelector('.header-sticky') : sc.querySelector('.nl-navbar');
+                    const top = vv.offsetTop + (head ? Math.max(0, head.getBoundingClientRect().bottom) : 60) + 8;
+                    if (r.bottom <= bottom - 8 && r.top >= top) return;   // (in view: leave it)
+                    sc.scrollTop += r.top - (bottom - 14 - r.height);
+                };
+                document.addEventListener('focusin', e => { const el = e.target; if (!el || !el.classList || !el.classList.contains('comment-input')) return; target = el; clearTimeout(t); t = setTimeout(place, 340); });
+                vv.addEventListener('resize', () => { if (target) { clearTimeout(t); t = setTimeout(place, 80); } });
+                document.addEventListener('focusout', e => { if (e.target === target) { target = null; clearTimeout(t); } });
+            },
+            // v17.5: a ring in each person's own color around their picture: one style rule per person (by name), written when a
+            // new name shows up on screen, so a redraw never loses it and a changed color updates it
+            nlRingRules() {
+                if (typeof document === 'undefined' || typeof document.querySelectorAll !== 'function' || !document.head) return;
+                const seen = this._nlRings || (this._nlRings = new Map());
+                let changed = false;
+                document.querySelectorAll('[data-face], .cmt-avatar[data-profile], .feed-avatar[data-profile]').forEach(el => {
+                    const n = String(el.getAttribute('data-face') || el.getAttribute('data-profile') || '').trim();
+                    if (!n || seen.size > 400) return;
+                    const c = this.normalizeHexColor(this.getUserColor(n)) || '';
+                    if (seen.get(n) !== c) { seen.set(n, c); changed = true; }
+                });
+                if (!changed) return;
+                let st = document.getElementById('nl-rings');
+                if (!st) { st = document.createElement('style'); st.id = 'nl-rings'; document.head.appendChild(st); }
+                const q = v => '"' + String(v).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+                st.textContent = [...seen].filter(([, c]) => c).map(([n, c]) => `html[data-look="new"] [data-face=${q(n)}], html[data-look="new"] .cmt-avatar[data-profile=${q(n)}] { --ring: ${c}; }`).join('\n');
+            },
             // v17.4: Settings on every page (the coffee and roaster pages' bars too) and the Achievement Locker's Done at its top:
             // put in for the New look only, and taken out again for the classic look (which stays exactly as it was)
             nlExtras(nl) {
@@ -764,13 +865,17 @@
                 ctx.fillStyle = P.c; ctx.fillRect(0, 0, W, H);
                 // the photo (top 58%) melting into the card's color, or the flavor shape
                 const tasted = this.tastedKeys(b);
-                const shapeUrl = tasted.length && typeof FlavorShape !== 'undefined' ? FlavorShape.snapshot(this.shapeValues(b), null, { width: 600, height: 450, zoom: 1.12, labels: false, isSet: k => tasted.includes(k), setKey: `${tasted.join(',')}|nl-share-${fam}`, names: tea ? 'tea' : null, theme: this.nlShapeTheme(fam, false) }) : '';
+                const shapeUrl = tasted.length && typeof FlavorShape !== 'undefined' ? FlavorShape.snapshot(this.shapeValues(b), null, { width: 600, height: 450, zoom: 1, labels: false, lines: false, ring: this.NL_RING, fit: true, isSet: k => tasted.includes(k), setKey: `${tasted.join(',')}|nl-share-${fam}`, names: tea ? 'tea' : null, theme: this.nlShapeTheme(fam, false) }) : '';   // (v17.5: as on the cards: no box, the measure)
                 const loadImg = src => new Promise(ok => { if (!src) return ok(null); const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; });
                 const shapeImg = await loadImg(shapeUrl);
                 const top = H * 0.58;
                 if (photo) {
+                    // (v17.5: kept inside the top part, so no strip of photo shows under the fade, and sitting a little high, its
+                    // subject clear of the fade, as on the card)
                     const r = Math.max(W / photo.width, top / photo.height), w = photo.width * r, h = photo.height * r;
-                    ctx.drawImage(photo, (W - w) / 2, (top - h) / 2, w, h);
+                    ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, top); ctx.clip();
+                    ctx.drawImage(photo, (W - w) / 2, (top - h) * 0.78, w, h);
+                    ctx.restore();
                     const g = ctx.createLinearGradient(0, H * 0.30, 0, H * 0.59);
                     g.addColorStop(0, rgba(P.c, 0)); g.addColorStop(0.64, rgba(P.c, 0.88)); g.addColorStop(1, P.c);
                     ctx.fillStyle = g; ctx.fillRect(0, H * 0.30, W, H * 0.30);
@@ -840,6 +945,6 @@
                 }
                 // Dialed In, and the mini shape
                 ctx.font = hand(X(12)); ctx.fillStyle = P.k; ctx.fillText('Dialed In', left, H - X(16));
-                if (shapeImg && photo) { const h = X(40), w = h * shapeImg.width / shapeImg.height; ctx.drawImage(shapeImg, W - X(14) - w, H - X(12) - h, w, h); }
+                if (shapeImg && photo) { const below = y + (notes.length ? X(20) : 0) + X(6), h = Math.max(X(40), Math.min(X(74), H - X(10) - below)), w = h * shapeImg.width / shapeImg.height; ctx.drawImage(shapeImg, W - X(10) - w, H - X(10) - h, w, h); }   // (v17.5: as big as the room under the notes allows)
                 return c;
             },

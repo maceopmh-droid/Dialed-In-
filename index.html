@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v17.4 -->
+<!-- Dialed In v17.5 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="17.4">
+    <meta name="dialed-in-version" content="17.5">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -4292,8 +4292,9 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"][data-theme="light"] .nl-card { box-shadow: var(--nl-shadow); }
         html[data-look="new"] .nl-ph { position: relative; height: 372px; overflow: hidden; }
         html[data-look="new"] .nl-photo { width: 100%; height: 100%; object-fit: cover; display: block; }
+        html[data-look="new"] .nl-ph .nl-photo { object-position: 50% 78%; }   /* (v17.5: the photo sits higher, its subject clear of the fade) */
         html[data-look="new"] .nl-ph.is-broken .nl-photo { display: none; }
-        html[data-look="new"] .nl-fade { position: absolute; left: 0; right: 0; bottom: 0; height: 200px; background: linear-gradient(to bottom, color-mix(in srgb, var(--c) 0%, transparent), color-mix(in srgb, var(--c) 88%, transparent) 64%, var(--c)); pointer-events: none; }
+        html[data-look="new"] .nl-fade { position: absolute; left: 0; right: 0; bottom: 0; height: 180px; background: linear-gradient(to bottom, color-mix(in srgb, var(--c) 0%, transparent), color-mix(in srgb, var(--c) 88%, transparent) 64%, var(--c)); pointer-events: none; }
         html[data-look="new"] .nl-fade.short { height: 90px; }
         html[data-look="new"] .nl-ctop { position: absolute; left: 14px; right: 12px; top: 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; z-index: 2; }
         html[data-look="new"] .nl-flattop .nl-ctop { position: static; padding: 14px 12px 4px 14px; }
@@ -4471,7 +4472,7 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] body.bars-tucked .header-sticky { transform: none !important; clip-path: inset(0 0 calc(100% - var(--safe-top, 0px)) 0); }
         html[data-look="new"] .header-sticky .header-top { transition: opacity 0.2s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
         html[data-look="new"] body.bars-tucked .header-sticky .header-top { opacity: 0; transform: translateY(-12px); pointer-events: none; }
-        html[data-look="new"] .header-top { height: 60px; min-height: 60px; margin: 0 !important; display: flex !important; flex-direction: row !important; align-items: center !important; gap: 10px; }
+        html[data-look="new"] .header-top { height: 60px; min-height: 60px; margin: 0 !important; display: flex !important; flex-direction: row !important; align-items: center !important; gap: 10px; box-sizing: border-box; padding-top: 10px !important; }   /* (v17.5: the row sits 5 px lower, clear of the iPhone's blur at the very top; the bar keeps its height) */
         html[data-look="new"] .header-top > div:first-child { flex: 1 1 auto; min-width: 0; }
         html[data-look="new"] #view-title { font-family: var(--nl-serif) !important; font-weight: 500 !important; font-size: 30px !important; line-height: 1.1; letter-spacing: -0.012em !important; color: var(--n, var(--nl-ink)); margin: 0 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: none !important; }
         html[data-look="new"] #view-title .drink-title { font: inherit !important; color: inherit !important; background: none !important; border: 0 !important; padding: 0 !important; margin: 0 !important; box-shadow: none !important; display: inline-flex; align-items: center; gap: 4px; letter-spacing: inherit !important; text-transform: none !important; min-height: 0 !important; height: auto !important; }
@@ -4508,18 +4509,20 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] #grid.feed-list { padding: 0 0 calc(120px + var(--safe-bottom, 0px)) !important; max-width: 640px; margin: 0 auto; display: block !important; }
         html[data-look="new"] #grid.feed-list > * { margin-left: 0; margin-right: 0; }
         /* tab bar: a floating capsule, icons only (their names stay for VoiceOver), matcha + */
-        html[data-look="new"] #mobile-nav { left: 28px !important; right: 28px !important; width: auto !important; max-width: none !important; transform: none !important; bottom: calc(22px + var(--safe-bottom, 0px)) !important; height: 66px !important; border-radius: 33px !important; background: var(--nl-tab) !important; -webkit-backdrop-filter: blur(18px) !important; backdrop-filter: blur(18px) !important; border: 1px solid var(--nl-tabline) !important; box-shadow: none !important; justify-content: space-around !important; padding: 0 6px; }
+        html[data-look="new"] #mobile-nav { left: 22px !important; right: 22px !important; width: auto !important; max-width: none !important; transform: none !important; bottom: max(10px, calc(var(--safe-bottom, 0px) - 8px)) !important; height: 60px !important; border-radius: 30px !important; background: var(--nl-tab) !important; -webkit-backdrop-filter: blur(18px) !important; backdrop-filter: blur(18px) !important; border: 1px solid var(--nl-tabline) !important; box-shadow: none !important; justify-content: space-around !important; padding: 0 6px; }
         html[data-look="new"][data-theme="light"] #mobile-nav { box-shadow: 0 8px 24px rgba(22, 32, 24, 0.1) !important; }
-        html[data-look="new"] .mob-item { font-size: 0 !important; gap: 0 !important; letter-spacing: 0 !important; color: var(--nl-muted) !important; height: 66px; justify-content: center; background: none !important; box-shadow: none !important; border: 0 !important; flex: 0 0 52px; }
-        html[data-look="new"] .mob-item .icon { width: 24px !important; height: 24px !important; filter: none !important; }
+        html[data-look="new"] .mob-item { font-size: 0 !important; gap: 0 !important; letter-spacing: 0 !important; color: var(--nl-muted) !important; height: 60px; justify-content: center; background: none !important; box-shadow: none !important; border: 0 !important; flex: 0 0 54px; }
+        html[data-look="new"] .mob-item .icon { width: 27px !important; height: 27px !important; filter: none !important; }
         html[data-look="new"] .mob-item.active { color: var(--nl-matcha) !important; }
         html[data-look="new"] .mob-item.active::before, html[data-look="new"] .mob-item.active::after { display: none !important; }
-        html[data-look="new"] .mob-fab { width: 52px !important; height: 52px !important; margin: 0 !important; background: var(--nl-matcha) !important; color: var(--nl-onmatcha) !important; box-shadow: none !important; }
-        html[data-look="new"] .mob-fab .icon { width: 26px !important; height: 26px !important; }
+        html[data-look="new"] .mob-fab { width: 46px !important; height: 46px !important; margin: 0 !important; background: var(--nl-matcha) !important; color: var(--nl-onmatcha) !important; box-shadow: none !important; }
+        html[data-look="new"] .mob-fab .icon { width: 24px !important; height: 24px !important; }
         /* scrolling down makes the whole bar a little smaller, evenly (nothing inside moves on its own) */
         html[data-look="new"] #mobile-nav { transform-origin: 50% 100%; transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important; }
-        html[data-look="new"] body.bars-tucked #mobile-nav { height: 66px !important; max-width: none !important; transform: translateY(8px) scale(0.86) !important; }
-        html[data-look="new"] body.bars-tucked .mob-fab { width: 52px !important; height: 52px !important; }
+        html[data-look="new"] body.bars-tucked #mobile-nav { height: 60px !important; max-width: none !important; transform: translateY(6px) scale(0.88) !important; }
+        html[data-look="new"] body.bars-tucked .mob-fab { width: 46px !important; height: 46px !important; }
+        /* v17.5: Achievements live on your profile (More), not in the top bar */
+        html[data-look="new"] .header-controls .locker-btn { display: none !important; }
 
         /* goal cards (yours and Everyone's): app colors */
         html[data-look="new"] .crew-quest { position: relative; border-radius: 28px !important; padding: 16px 16px 14px !important; margin: 4px 0 18px !important; background: var(--nl-surface) !important; border: 0 !important; color: var(--nl-ink); box-shadow: var(--nl-shadow) !important; overflow: hidden; }
@@ -4845,6 +4848,68 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] #brew-modal .ns:not(.set) .ns-track input[type="range"]::-moz-range-thumb { background: var(--box, var(--nl-surface)) !important; border: 3px solid rgb(var(--c-rgb, 125, 137, 132)) !important; }
         html[data-look="new"] #detail-view #d-lens { margin-top: 22px; }
         html[data-look="new"] .more-t small { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.35; }   /* (v17.4: "September: ready to reveal" in full) */
+        /* v17.5: the Session screen's shapes: stop it turning, look straight down (two quiet round buttons in its corner) */
+        html[data-look="new"] .nl-spinwrap { position: relative; width: 100%; }
+        html[data-look="new"] .nls-bigshape .nl-spinwrap { max-width: 380px; margin: 0 auto; }
+        html[data-look="new"] .nl-spinctl { position: absolute; top: 6px; right: 6px; display: flex; gap: 8px; z-index: 2; }
+        html[data-look="new"] .nl-spinctl button { width: 36px; height: 36px; min-height: 0; padding: 0; margin: 0; border-radius: 18px !important; display: grid; place-items: center; background: var(--pill) !important; color: var(--t) !important; border: 1px solid var(--hl) !important; box-shadow: none !important; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        html[data-look="new"] .nl-spinctl button[aria-pressed="true"] { background: var(--n) !important; color: var(--c) !important; border-color: transparent !important; }
+        html[data-look="new"] .nl-spinctl .nl-ic { width: 18px; height: 18px; }
+        html[data-look="new"] .nls-taste .nl-spinctl { top: 0; right: 0; }
+        /* v17.5: everyone's picture has a ring in their own color again (--ring comes from a rule per person, #nl-rings) */
+        /* (a thin gap between the picture and its ring, so a ring the same color as the picture still shows; the gap is see-through) */
+        html[data-look="new"] .nl-pfp { border: 0 !important; outline: 2px solid var(--ring, rgba(255, 255, 255, 0.9)); outline-offset: 2px; box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3) !important; }
+        html[data-look="new"] .nl-who.flat .nl-pfp { box-shadow: none !important; outline-color: var(--ring, transparent); }
+        html[data-look="new"] :is(.nl-av, .cmt-avatar, .person-dot, .pp-dot, .feed-avatar, .aw-face) { box-shadow: none !important; outline: 2px solid var(--ring, transparent); outline-offset: 2px; }
+        html[data-look="new"] .nl-av.s28, html[data-look="new"] .nl-card .cmt.reply .cmt-avatar { outline-width: 1.5px; outline-offset: 1.5px; }
+        html[data-look="new"] .profile-view .person-chip .person-dot { outline-width: 1.5px; outline-offset: 2px; }
+        html[data-look="new"] :is(.dh-faces i, .cq-face b) { box-shadow: 0 0 0 2px var(--c, var(--surface)), 0 0 0 3.5px var(--ring, transparent) !important; }
+        html[data-look="new"] .thread-faces i { box-shadow: 0 0 0 2px var(--ring, transparent) !important; }
+        html[data-look="new"] .profile-view .hero-avatar { border: 0 !important; outline: 3px solid var(--ring, var(--hl)); outline-offset: 3px; }
+        /* v17.5: open, the comment pill grows down into the box that holds the comments (as it used to) */
+        html[data-look="new"] .nl-card .thread.compact.open .thread-row { align-items: stretch; }
+        html[data-look="new"] .nl-card .thread.compact.open .thread-toggle { align-self: stretch !important; height: auto; min-height: 48px; border-radius: 24px 24px 0 0 !important; border-color: transparent !important; position: relative; }
+        html[data-look="new"] .nl-card .thread.compact.open .thread-toggle::before { display: block !important; content: '' !important; position: absolute; left: -20px; bottom: 0; width: 20px; height: 20px; pointer-events: none; background: radial-gradient(circle at 0 0, transparent 19.5px, var(--pill) 20px); }
+        html[data-look="new"] .nl-card .thread.compact.open .thread-body { background: var(--pill); border-radius: 22px 0 22px 22px; padding: 6px 16px 16px; margin: 0; }
+        /* v17.5: an achievement on a card is its own little card in the earner's color (tap: their achievements) */
+        html[data-look="new"] .nl-ach { display: flex; align-items: center; gap: 12px; width: 100%; margin: 14px 0 0; padding: 12px 12px 12px 12px; min-height: 0; border-radius: 18px !important; background: color-mix(in srgb, var(--ac) 20%, var(--c)) !important; border: 1px solid color-mix(in srgb, var(--ac) 42%, transparent) !important; box-shadow: none !important; color: var(--t) !important; text-align: left; font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        html[data-look="new"][data-theme="light"] .nl-ach { background: color-mix(in srgb, var(--ac) 14%, #fff) !important; }
+        html[data-look="new"] .nl-ach-ic { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--ac); color: #fff; }
+        html[data-look="new"] .nl-ach-ic .icon { width: 20px; height: 20px; stroke: currentColor; }
+        html[data-look="new"] .nl-ach-t { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+        html[data-look="new"] .nl-ach-t small { font-size: 12px; font-weight: 650; color: var(--l); }
+        html[data-look="new"] .nl-ach-t b { font-size: 16px; font-weight: 700; color: var(--t); line-height: 1.25; }
+        html[data-look="new"] .nl-ach-t span { font-size: 14px; color: var(--l); line-height: 1.3; }
+        html[data-look="new"] .nl-ach-go { flex: none; width: 18px; height: 18px; transform: rotate(-90deg); color: var(--l); stroke: currentColor; }
+        /* v17.5: a roaster's photo fills its tile (its initials stay underneath for when there's none) */
+        html[data-look="new"] .ro-tile img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; display: block; -webkit-touch-callout: none; }
+        html[data-look="new"] .ro-tile b { font-weight: inherit; position: relative; z-index: 1; }
+        html[data-look="new"] #roaster-modal .bean-cover { margin: 0 0 4px; }
+        /* v17.5: levels, simpler: a numbered round badge in its tier's colors, "Level 14 · Gold", points */
+        html[data-look="new"] .nl-lvl-row { gap: 14px; }
+        html[data-look="new"] .nl-lvl-badge { flex: none; display: block; }
+        html[data-look="new"] .nl-lvl-row .lvl-top { align-items: center; }
+        html[data-look="new"] .nl-lvl-row .lvl-top b { font-family: var(--nl-serif); font-weight: 500; font-size: 20px; letter-spacing: -0.01em; color: var(--t, var(--nl-ink)); }
+        html[data-look="new"] .nl-lvl-row .lvl-top em { font-size: 13px; font-weight: 650; color: var(--l, var(--nl-muted)); }
+        html[data-look="new"] .nl-lvl-row .lvl-bar, html[data-look="new"] .nl-lvl-hero .lvl-bar { background: color-mix(in srgb, var(--t, var(--nl-ink)) 12%, transparent); }
+        html[data-look="new"] .nl-lvl-row .lvl-bar i, html[data-look="new"] .nl-lvl-hero .lvl-bar i { background: var(--k, var(--nl-matcha)); }
+        html[data-look="new"] .nl-lvl-row .lvl-count { font-size: 13px; color: var(--l, var(--nl-muted)); }
+        html[data-look="new"] .nl-lvl-hero .nl-lvl-badge { margin: 0 auto 12px; }
+        html[data-look="new"] .nl-lvl-hero .lvl-crema { color: var(--l); font-size: 15px; }
+        html[data-look="new"] .nl-lvl-hero .lvl-crema b { color: var(--t); }
+        html[data-look="new"] .nl-lvl-tier { display: flex; align-items: center; gap: 12px; padding: 9px 8px; border-top: 1px solid var(--hl); color: var(--t); }
+        html[data-look="new"] .nl-lvl-tier span { flex: 1; display: flex; flex-direction: column; }
+        html[data-look="new"] .nl-lvl-tier b { font-size: 15px; font-weight: 650; }
+        html[data-look="new"] .nl-lvl-tier small { font-size: 13px; color: var(--l); }
+        html[data-look="new"] .nl-lvl-tier em { font-style: normal; font-size: 13px; color: var(--l); font-variant-numeric: tabular-nums; }
+        html[data-look="new"] .nl-lvl-tier.on { background: var(--pill); border-radius: 14px; border-top-color: transparent; }
+        html[data-look="new"] .nl-lvl-tier.on + .nl-lvl-tier { border-top-color: transparent; }
+        html[data-look="new"] .nl-lvl-tier.locked .nl-lvl-badge { opacity: 0.55; }
+        /* v17.5: a date field's text sits in the middle of its box on iPhone (it hugged the top) */
+        html[data-look="new"] .modal-card input[type="date"] { -webkit-appearance: none; appearance: none; display: block; height: 50px; min-height: 50px; line-height: 48px; padding-top: 0 !important; padding-bottom: 0 !important; text-align: left; }
+        html[data-look="new"] .modal-card input[type="date"]::-webkit-date-and-time-value { text-align: left; margin: 0; line-height: 48px; min-height: 48px; }
+        html[data-look="new"] .modal-card input[type="date"]::-webkit-datetime-edit { padding: 0; line-height: 48px; }
+        html[data-look="new"] #roaster-modal form > label { margin: 18px 0 8px !important; }
     </style>
 </head>
 <body>
@@ -5236,6 +5301,19 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
             <h2 id="roaster-modal-title">Roaster</h2>
             <form onsubmit="app.saveRoasterEdit(event)">
                 <input type="hidden" name="key">
+                <!-- v17.5: the roaster's picture (the New look): a photo, or a color; it stays as chosen -->
+                <div class="nl-only bean-cover roaster-cover" id="roaster-cover">
+                    <label>Picture</label>
+                    <div class="bcv-row">
+                        <span class="bcv-tile" id="rcv-tile"></span>
+                        <div class="bcv-acts">
+                            <button type="button" class="btn-outline bcv-photo" id="rcv-photo" onclick="app.pickCoverPhoto('roaster')">Add a photo</button>
+                            <button type="button" class="btn-outline bcv-remove" id="rcv-remove" onclick="app.removeCoverPhoto('roaster')" hidden>Remove photo</button>
+                        </div>
+                    </div>
+                    <div class="bcv-swatches" id="rcv-swatches" role="radiogroup" aria-label="Color"></div>
+                    <input type="file" id="rcv-input" accept="image/*" hidden onchange="app.coverPhotoPicked(this, 'roaster')">
+                </div>
                 <label>Location</label>
                 <input type="text" name="location" placeholder="e.g., Cincinnati, OH" autocomplete="off">
                 <label>Website</label>
@@ -5463,7 +5541,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v17.4</div>
+            <div class="app-version">Dialed In · v17.5</div>
         </div>
     </div>
 
@@ -6082,6 +6160,32 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                     u.strokeStyle = COLORS[TOPK]; seg(u, [0, 0, 0], [0, 2, 0]);
                     u.setLineDash([]); u.globalAlpha = 1;
                 }
+                // v17.5: no box, but a quiet measure: a circle where every taste would reach at 10 (its back half behind the shape,
+                // its front half in front) and the center line, up to where complexity would reach at 10 (hidden inside the shape,
+                // so you see how far above its top it still goes). No numbers.
+                if (opts.lines === false && opts.ring) {
+                    const n = 120, cz0 = depth([0, 0, 0]), ring = []; for (let j = 0; j < n; j++) { const a = (j / n) * 2 * Math.PI; ring.push([Math.cos(a), 0, Math.sin(a)]); }
+                    const col = th.ink;
+                    if (opts.ring === 'disc') { u.save(); u.globalAlpha = 0.08; u.fillStyle = col; loop(u, ring, true); u.fill(); u.restore(); }
+                    [u, o].forEach((cx, i) => {
+                        cx.save(); cx.strokeStyle = col; cx.globalAlpha = i ? 0.34 : 0.22; cx.lineWidth = 1.25; cx.beginPath(); let pen = false;
+                        for (let j = 0; j < n; j++) {   // (each little piece goes to one half, so the two halves meet without a gap)
+                            const p = ring[j], q = ring[(j + 1) % n], back = (depth(p) + depth(q)) / 2 < cz0;
+                            if ((i === 0) === back) { const a = proj(p), b = proj(q); if (!pen) { cx.moveTo(a[0], a[1]); pen = true; } cx.lineTo(b[0], b[1]); } else pen = false;
+                        }
+                        cx.stroke(); cx.restore();
+                    });
+                    if (opts.ring === 'axis') { u.save(); u.strokeStyle = col; u.globalAlpha = 0.26; u.lineWidth = 1.25; seg(u, [0, 0, 0], [0, 2, 0]); u.restore(); }
+                    else if (opts.ring === 'disc') {   // (Maceo: "more natural": a soft stem in complexity's green that fades out as it rises toward 10)
+                        const A = proj([0, 0, 0]), B = proj([0, 2, 0]), gr = u.createLinearGradient(A[0], A[1], B[0], B[1]);
+                        const tint = COLORS[TOPK].replace('#', ''), rgb = [0, 2, 4].map(i => parseInt(tint.slice(i, i + 2), 16)).join(',');
+                        gr.addColorStop(0, `rgba(${rgb},0.55)`); gr.addColorStop(0.55, `rgba(${rgb},0.22)`); gr.addColorStop(1, `rgba(${rgb},0)`);
+                        // tapered like a stem: wider where it leaves the shape, a hair at its tip
+                        const dx = B[0] - A[0], dy = B[1] - A[1], L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L, w0 = 1.5, w1 = 0.25;
+                        u.save(); u.fillStyle = gr; u.shadowColor = `rgba(${rgb},0.4)`; u.shadowBlur = 5;
+                        u.beginPath(); u.moveTo(A[0] + nx * w0, A[1] + ny * w0); u.lineTo(B[0] + nx * w1, B[1] + ny * w1); u.lineTo(B[0] - nx * w1, B[1] - ny * w1); u.lineTo(A[0] - nx * w0, A[1] - ny * w0); u.closePath(); u.fill(); u.restore();
+                    }
+                }
                 const NSAMP = 90, foot = []; for (let j = 0; j < NSAMP; j++) foot.push(surf(vals, (j / NSAMP) * 2 * Math.PI, 0, sm));
                 u.save(); u.shadowColor = 'rgba(10,20,12,0.35)'; u.shadowBlur = 20; u.fillStyle = 'rgba(30,45,32,0.16)'; loop(u, foot, true); u.fill(); u.restore();
                 if (ghost) {
@@ -6222,7 +6326,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 const probe = document.createElement('canvas');
                 if (!probe || typeof probe.getContext !== 'function') return '';
                 const th = opts.theme || themeColors();   // (v15.2: the shot card is always dark)
-                const key = [W, H, dpr, th.dark ? 'd' : 'l', FLOOR.concat(TOPK).map(k => val(vals, k)).join(','), ghost ? FLOOR.concat(TOPK).map(k => val(ghost, k)).join(',') : '-', opts.labels === false ? 'n' : 'y', opts.setKey || '', prefs.smooth ? 's' : 'f', namesOf(opts) === TEA_NAMES ? 't' : 'c'].join('|');
+                const key = [W, H, dpr, th.dark ? 'd' : 'l', FLOOR.concat(TOPK).map(k => val(vals, k)).join(','), ghost ? FLOOR.concat(TOPK).map(k => val(ghost, k)).join(',') : '-', opts.labels === false ? 'n' : 'y', opts.setKey || '', prefs.smooth ? 's' : 'f', namesOf(opts) === TEA_NAMES ? 't' : 'c', opts.lines === false ? 'nolines' : '', opts.ring || '', opts.fit ? `fit${opts.cy ?? ''}` : '', th.surface || ''].join('|');
                 if (cache.has(key)) return cache.get(key);
                 try {
                     const { under, glc, over, out, gl } = sharedR();
@@ -6231,7 +6335,9 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                     if (!u || !o || !x) return '';
                     if (gl) {
                         const yaw = opts.yaw ?? -0.72, pitch = opts.pitch ?? 0.5;
-                        const { MVP, MV } = matrices(W, H, yaw, pitch, opts.zoom || 1);
+                        let zoom = opts.zoom || 1, lookY = 1;
+                        if (opts.fit) { const both = ghost ? Object.fromEntries(FLOOR.concat(TOPK).map(k => [k, Math.max(val(vals, k), val(ghost, k))])) : vals; const f = fitView({ opts, pitch }, both, W, H, zoom); zoom = f.zoom; lookY = f.lookY; }   // (a second shape is framed too)   // v17.5: framed like the turning ones
+                        const { MVP, MV } = matrices(W, H, yaw, pitch, zoom, lookY);
                         gl.upload(vals, prefs.smooth); gl.draw(MVP, MV, th.dark);
                         overlay(u, o, vals, ghost, MVP, MV, W, H, dpr, pitch, th, opts);
                         x.clearRect(0, 0, out.width, out.height); x.drawImage(under, 0, 0); x.drawImage(glc, 0, 0); x.drawImage(over, 0, 0);
@@ -6273,12 +6379,14 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
             // breathing as it spins); worked out again only when the shape, the canvas or the tilt changes.
             const fits = new Map();
             function fitView(sp, vals, W, H, zoom0) {
-                const sm = prefs.smooth, fill = sp.opts.fill || 0.86, cap = sp.opts.fitCap || 4.6;
-                const key = `${W}x${H}|${sp.pitch.toFixed(3)}|${sm}|${fill}|${zoom0}|${FLOOR.concat(TOPK).map(k => val(vals, k)).join(',')}`;
+                const sm = prefs.smooth, fill = sp.opts.fill || 0.86, cap = sp.opts.fitCap || 4.6, ring = sp.opts.ring || '';
+                const cy = sp.opts.cy ?? 0.5, padB = sp.opts.padB ?? 0;   // v17.5: where its middle goes (0 top, 1 bottom), never past the bottom edge
+                const key = `${W}x${H}|${sp.pitch.toFixed(3)}|${sm}|${fill}|${zoom0}|${ring}|${cy}|${padB}|${FLOOR.concat(TOPK).map(k => val(vals, k)).join(',')}`;
                 if (fits.has(key)) return fits.get(key);
                 const hh = heightOf(vals);
                 let rMax = 0.03; for (let j = 0; j < 72; j++) rMax = Math.max(rMax, radius(vals, (j / 72) * 2 * Math.PI, sm));
-                const pts = [[0, hh, 0]];
+                if (ring) rMax = Math.max(rMax, 1);   // (the circle at 10 is part of the picture)
+                const pts = [[0, ring === 'axis' ? Math.max(hh, 2) : ring === 'disc' ? Math.max(hh, 1.55) : hh, 0]];   // (the soft stem fades out near its top: it needn't all fit)
                 [0, 0.2, 0.4, 0.6, 0.8].forEach(t => { const r = rMax * profile(t, sm); for (let j = 0; j < 36; j++) { const a = (j / 36) * 2 * Math.PI; pts.push([r * Math.cos(a), hh * t, r * Math.sin(a)]); } });
                 const box = (z, ly) => {
                     const { MVP } = matrices(W, H, 0, sp.pitch, z, ly);
@@ -6295,7 +6403,12 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                     const b2 = box(zoom, lookY);
                     const a = M.apply(b2.MVP, [0, lookY, 0]), c = M.apply(b2.MVP, [0, lookY + 0.1, 0]);
                     const ppu = ((1 - (a[1] / a[3] * 0.5 + 0.5)) - (1 - (c[1] / c[3] * 0.5 + 0.5))) * H / 0.1;   // (pixels per unit of height, near the middle)
-                    if (ppu > 0.01) lookY += (H / 2 - (b2.y0 + b2.y1) / 2) / ppu;
+                    if (ppu > 0.01) {
+                        let dy = H * cy - (b2.y0 + b2.y1) / 2;   // its middle at cy…
+                        if (b2.y1 + dy > H - padB) dy = H - padB - b2.y1;   // …unless that puts its bottom past the edge
+                        if (b2.y0 + dy < 0) dy = -b2.y0;
+                        lookY += dy / ppu;
+                    }
                 }
                 const out = { zoom, lookY };
                 fits.set(key, out); if (fits.size > 300) fits.delete(fits.keys().next().value);
@@ -6335,7 +6448,11 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                     if (!sp.near || hidden) { sp.last = 0; return; }
                     if (!sp.seen && sp.sig) { sp.last = 0; return; }   // (drawn once just below the screen; it turns once it's on it)
                     const dt = sp.last ? Math.min(0.2, (ts - sp.last) / 1000) : 0;   // (a slow phone still turns at the same speed)
-                    const turn = sp.opts.spin !== false && prefs.spin && !reduceMotion() && !sp.dragging && performance.now() - sp.idleSince > (sp.opts.interactive ? 2500 : 0);
+                    if (sp.pitchTo !== undefined) {   // v17.5: easing to the top view (or back)
+                        const d = sp.pitchTo - sp.pitch;
+                        if (Math.abs(d) < 0.003) { sp.pitch = sp.pitchTo; sp.pitchTo = undefined; } else { sp.pitch += d * Math.min(1, (dt || 0.016) * 9); any = true; }
+                    }
+                    const turn = sp.opts.spin !== false && prefs.spin && !reduceMotion() && !sp.dragging && !sp.paused && performance.now() - sp.idleSince > (sp.opts.interactive ? 2500 : 0);
                     if (turn || sp.dragging || !sp.sig) any = true;   // (nothing moving and already drawn: the loop can rest)
                     if (turn) { if (sp.last && ts - sp.drawn < (sp.opts.fps ? 1000 / sp.opts.fps : 0)) return; sp.yaw += dt * (sp.opts.speed || 0.45); }
                     if (sp.opts.id) { yaws.set(sp.opts.id, sp.yaw); if (yaws.size > 400) yaws.delete(yaws.keys().next().value); }   // (a card drawn again carries on from the same angle)
@@ -6368,7 +6485,9 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 }
                 canvas.setAttribute('role', 'img');
                 spins.add(sp); wakeSpins();
-                return { redraw() { sp.sig = ''; wakeSpins(); }, destroy() { unwatch(sp); }, state() { return { yaw: sp.yaw, pitch: sp.pitch, near: sp.near, drawn: sp.drawn, dragging: sp.dragging }; } };
+                return { redraw() { sp.sig = ''; wakeSpins(); }, destroy() { unwatch(sp); }, state() { return { yaw: sp.yaw, pitch: sp.pitch, near: sp.near, drawn: sp.drawn, dragging: sp.dragging, paused: !!sp.paused, top: sp.top || false }; },
+                    pause(on) { sp.paused = !!on; sp.idleSince = 0; wakeSpins(); },   // v17.5: stop turning (and go on again)
+                    view(top) { sp.top = !!top; sp.pitchTo = top ? Math.PI / 2 - 0.001 : (opts.pitch ?? 0.5); wakeSpins(); } };   // looking straight down, or back to the side
             }
             function spinCount() { return [...spins].filter(sp => sp.canvas.isConnected).length; }
             return { createView, snapshot, spin, spinCount, setPref, prefs, FLOOR, TOPK, NAMES, TEA_NAMES, COLORS, KEYS: FLOOR.concat(TOPK) };
@@ -6701,6 +6820,15 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
             // ---- saved roaster records live in each person's gear record: { merged: [[a, b, at]], notSame: [[a, b, at]], fav: [key], local: [[key, at]], info: { key: { location, website, note, at } } }
             const prefsOf = (ctx, user) => { const g = ctx.gearByUser && ctx.gearByUser.get(String(user || '')); const r = g && g.roasters && typeof g.roasters === 'object' ? g.roasters : {}; return { merged: Array.isArray(r.merged) ? r.merged : [], notSame: Array.isArray(r.notSame) ? r.notSame : [], fav: Array.isArray(r.fav) ? r.fav : [], local: Array.isArray(r.local) ? r.local : [], localOff: Array.isArray(r.localOff) ? r.localOff : [], info: r.info && typeof r.info === 'object' ? r.info : {} }; };
+            // a saved picture, checked: a hue 0-359, a strength 0-100, a photo only as a path in someone's own folder of pictures
+            const coverOk = c => {
+                if (!c || typeof c !== 'object') return null;
+                const hue = typeof c.hue === 'number' && c.hue >= 0 && c.hue <= 360 ? Math.round(c.hue) % 360 : null;
+                if (hue === null) return null;
+                const tone = typeof c.tone === 'number' && c.tone >= 0 && c.tone <= 100 ? Math.round(c.tone) : 60;
+                const photo = typeof c.photo === 'string' && /^[0-9a-f-]{36}\/[A-Za-z0-9_-]{6,64}\.(jpg|png)$/.test(c.photo) ? c.photo : '';
+                return photo ? { hue, tone, photo } : { hue, tone };
+            };
             const allPrefs = ctx => [...(ctx.gearByUser ? ctx.gearByUser.keys() : [])].map(u => ({ user: u, ...prefsOf(ctx, u) }));
 
             function build(ctx) {
@@ -6731,6 +6859,10 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 // v15.8: each person's own "Local to me", with when they ticked it ([name, at]; a bare name counts from the start)
                 const localSince = {}; prefs.forEach(p => { const m = new Map(); p.local.forEach(e => { const nm = Array.isArray(e) ? e[0] : e; if (!nm) return; const c = clusterOf(nm), at = Array.isArray(e) ? (Date.parse(e[1] || 0) || 0) : 0; m.set(c, m.has(c) ? Math.min(m.get(c), at) : at); }); localSince[p.user] = m; });
                 const info = {}; prefs.forEach(p => Object.entries(p.info).forEach(([k, v]) => { if (!v || typeof v !== 'object') return; const c = clusterOf(k); const at = Date.parse(v.at || 0) || 0; if (!info[c] || at >= info[c].atMs) info[c] = { location: tidy(v.location), website: tidy(v.website), note: tidy(v.note), atMs: at }; }));
+                // v17.5: a roaster's picture (a color, maybe a photo): the newest one anyone set, kept apart from the other details
+                // so someone editing the website later doesn't take it away
+                const covers = {}; prefs.forEach(p => Object.entries(p.info).forEach(([k, v]) => { const cv = v && typeof v === 'object' ? coverOk(v.cover) : null; if (!cv) return; const c = clusterOf(k), at = Date.parse(v.coverAt || v.at || 0) || 0; if (!covers[c] || at >= covers[c].atMs) covers[c] = { cover: cv, atMs: at }; }));
+                Object.entries(covers).forEach(([c, x]) => { info[c] = info[c] || { location: '', website: '', note: '', atMs: 0 }; info[c].cover = x.cover; });
                 roasters.forEach(r => { r.info = info[r.key] || null; r.favBy = Object.keys(favBy).filter(u => favBy[u].has(r.key)); r.localBy = Object.keys(localSince).filter(u => localSince[u].has(r.key)); r.localSince = Object.fromEntries(r.localBy.map(u => [u, localSince[u].get(r.key)])); });
                 const byKey = new Map(roasters.map(r => [r.key, r]));
                 // look-alike names that nobody has merged or said aren't the same
@@ -7346,6 +7478,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (this.bindTabTaps) this.bindTabTaps();   // v14.8
                 if (this.bindGestures) this.bindGestures();   // v16.4: swipe back, swipe a sheet away, swipe between Mine/All and the feed's tabs
                 if (this.bindTyping) this.bindTyping();   // v15.0: while the keyboard is up
+                if (this.bindCommentKeyboard) this.bindCommentKeyboard();   // v17.5: a comment box stays just above the keyboard
                 this.bindRatingSlider();
                 this.setTab(this.tab);
                 this.outboxReady = this.loadOutbox();
@@ -7490,6 +7623,11 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (diff < hour) return `${Math.floor(diff / min)}m ago`;
                 if (diff < day) return `${Math.floor(diff / hour)}h ago`;
                 if (diff < 7 * day) return `${Math.floor(diff / day)}d ago`;
+                if (this.newLook && this.newLook()) {   // v17.5: "Oct 15" in the New look everywhere (profile, notifications, lists), never 10/15/2026
+                    const d = new Date(ts), o = { month: 'short', day: 'numeric' };
+                    if (d.getFullYear() !== new Date().getFullYear()) o.year = 'numeric';
+                    try { return d.toLocaleDateString(undefined, o); } catch (e) { /* the plain one below */ }
+                }
                 return new Date(ts).toLocaleDateString();
             },
 
@@ -13112,6 +13250,11 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             },
 
             roasterTileHtml(r, big = false) {
+                const cov = this.newLook && this.newLook() && r.info && r.info.cover;   // v17.5: its picture, in the New look
+                if (cov) {
+                    const P = this.nlTonePal(this.nlToneKey(cov.hue, 0.012 + 0.12 * Math.max(0.1, (cov.tone ?? 60) / 100)), this.nlDark());
+                    return `<span class="ro-tile${big ? ' big' : ''}" aria-hidden="true" style="background:linear-gradient(145deg, ${P.tileA}, ${P.tileB})">${cov.photo && this.faceUrl ? `<img src="${this.esc(this.faceUrl(cov.photo))}" alt="" loading="lazy" decoding="async" onerror="this.remove()">` : ''}<b>${this.esc(this.roasterInitials(r.name))}</b></span>`;
+                }
                 return `<span class="ro-tile${big ? ' big' : ''}" aria-hidden="true" style="background:${this.roasterPaint(r).bg}">${this.esc(this.roasterInitials(r.name))}</span>`;
             },
 
@@ -13442,6 +13585,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     ${bestCard}${coffees}${who}${esp}
                     <div class="ro-acts"><button type="button" class="btn-primary" onclick="app.logCoffeeForRoaster('${app.escJs(r.key)}')"><svg class="icon" style="width:16px;height:16px;stroke:currentColor"><use href="#i-plus"/></svg>Add a ${w.item}</button><button type="button" class="btn-outline" onclick="app.showRoasterCoffees('${app.escJs(r.key)}')">All ${w.items}</button></div>`;
                 if (this.nlNavBars) this.nlNavBars();   // v17.4: the New look keeps the Back bar at the top
+                if (this.newLook && this.newLook() && this.nlFitTiles) this.nlFitTiles(document.getElementById('roaster-view'));   // v17.5: "Yesterday" fits its tile
             },
 
             openRoasterEdit(key) {
@@ -13450,6 +13594,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const f = document.querySelector('#roaster-modal form'), info = r.info || {};
                 f.elements.key.value = r.key; f.elements.location.value = info.location || ''; f.elements.website.value = info.website || ''; f.elements.note.value = info.note || '';
                 document.getElementById('roaster-modal-title').innerText = r.name;
+                if (this.roasterCoverInit && this.newLook && this.newLook()) this.roasterCoverInit(r);   // v17.5: its picture (the New look)
                 this.openModal('roaster-modal');
             },
 
@@ -13459,7 +13604,12 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const r = this.roasterData().byKey.get(f.elements.key.value);
                 if (!r) { this.closeModals(); return; }
                 const val = n => String(f.elements[n].value || '').trim().replace(/\s+/g, ' ').slice(0, n === 'note' ? 280 : 120);
-                const ok = this.saveRoasterPrefs(p => { p.info[r.name] = { location: val('location'), website: val('website'), note: val('note'), at: new Date().toISOString() }; });
+                // v17.5: the picture rides along (when it changed, with its own time, so it wins over older pictures anyone set)
+                const nl = !!(this.newLook && this.newLook() && this._rcv && this.beanCoverOut), cov = nl ? this.beanCoverOut('roaster') : null, now = new Date().toISOString();
+                const mine = (RoasterEngine.prefsOf(this, this.user).info || {})[r.name] || {};
+                const keep = mine.cover ? { cover: mine.cover, coverAt: mine.coverAt || mine.at } : {};
+                const pic = nl && JSON.stringify(cov) !== this._rcvStart ? { cover: cov, coverAt: now } : keep;
+                const ok = this.saveRoasterPrefs(p => { p.info[r.name] = { location: val('location'), website: val('website'), note: val('note'), at: now, ...pic }; });
                 this.closeModals();
                 if (ok) { this.renderRoasterPage(); this.showToast('Saved.'); }
             },
@@ -14936,9 +15086,12 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const pickLabel = master ? 'Master recipe' : `${best ? 'Best-rated' : 'Latest'} ${this.shotWord(pick && pick.method)}`;
                 const methods = [...new Set(list.map(b => b.method).filter(Boolean))];
                 const avg = key => list.reduce((s, b) => s + (b[key] === undefined || b[key] === '' ? 5 : this.num(b[key])), 0) / list.length;
-                const bars = [['Acidity', 'acidity'], ['Sweetness', 'sweetness'], ['Body', 'body'], ['Finish', 'finish'], ['Complexity', 'balance']].map(([label, key]) => {
-                    const v = avg(key);
-                    return `<div class="taste-bar"><span>${label}</span><div class="taste-track"><div class="taste-fill" style="width:${Math.max(0, Math.min(100, v * 10))}%; background:${this.esc(color)};"></div></div><span>${this.esc(this.fmtNum(v))}</span></div>`;
+                // v17.5: in the New look each bar wears its taste's color (sweetness red, acidity yellow…), all six tastes, in tea words for a tea
+                const nl = !!(this.newLook && this.newLook()), kind = nl && list[0] && this.kindOfBrew ? this.kindOfBrew(list[0]) : 'coffee';
+                const rows = nl ? ['acidity', 'sweetness', 'body', 'finish', 'bitterness', 'balance'].map(k => [this.tasteLabel ? this.tasteLabel(k, kind) : k, k]) : [['Acidity', 'acidity'], ['Sweetness', 'sweetness'], ['Body', 'body'], ['Finish', 'finish'], ['Complexity', 'balance']];
+                const bars = rows.map(([label, key]) => {
+                    const v = avg(key), fill = nl && typeof FlavorShape !== 'undefined' && FlavorShape.COLORS && FlavorShape.COLORS[key] ? FlavorShape.COLORS[key] : color;
+                    return `<div class="taste-bar"><span>${label}</span><div class="taste-track"><div class="taste-fill" style="width:${Math.max(0, Math.min(100, v * 10))}%; background:${this.esc(fill)};"></div></div><span>${this.esc(this.fmtNum(v))}</span></div>`;
                 }).join('');
                 const flavors = this.getTopFlavors(list, 3);
                 const avgRating = this.calculateAverageRating(list);
@@ -21642,6 +21795,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             },
             // the level on the profile card: the badge, the level, and how far to the next
             levelRowHtml(user) {
+                if (this.newLook && this.newLook() && this.nlLevelRowHtml) return this.nlLevelRowHtml(user);   // v17.5
                 const c = this.cremaOf(user);
                 if (c === null || c === undefined) return '';
                 const L = this.levelOf(c), fmt = x => Math.round(x).toLocaleString();
@@ -21652,6 +21806,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const m = document.getElementById('level-modal'), body = document.getElementById('level-body');
                 if (!m || !body) return;
                 if (this.nlTint) this.nlTint('#level-modal .modal-card', this.famOfPerson(name));   // v17.2: the person's palate
+                if (this.newLook && this.newLook() && this.nlLevelBody) { body.innerHTML = this.nlLevelBody(name); m.classList.add('active'); return; }   // v17.5
                 const own = name === this.user, c = this.cremaOf(name) || 0, L = this.levelOf(c), fmt = x => Math.round(x).toLocaleString();
                 const whose = own ? 'Your' : `${this.esc(name)}'s`;
                 const tiers = this.levelTiers(), list = this.levelList();
@@ -22260,8 +22415,9 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             // recipe. Each opens the same Share sheet as the shot card: the picture is made first, so Share image opens the
             // share sheet straight from the tap; a coffee and a roaster also keep Share link. Never a grind setting (it only
             // means something on your own grinder).
-            storyKit(ctx) {
+            storyKit(ctx, fam) {
                 const sans = (w, z) => `${w} ${z}px -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Inter, sans-serif`;
+                const nl = !!(this.newLook && this.newLook() && this.nlPal);
                 const serif = (w, z) => `${w} ${z}px ui-serif, -apple-system-ui-serif, "New York", "Iowan Old Style", Georgia, serif`;
                 const wrap = (text, maxW, maxLines) => {
                     const words = String(text || '').split(/\s+/).filter(Boolean), lines = [];
@@ -22280,14 +22436,22 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 };
                 const round = (x, y, w, h, r) => { r = Math.max(0, Math.min(r, w / 2, h / 2)); ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); };
                 const fit = (text, maxW) => this.fitText(ctx, String(text || ''), maxW);
-                return { sans, serif, wrap, round, fit, W: 1080, H: 1920, PAD: 78, ink: '#E8EEE8', ink2: '#C2CBC3', muted: '#8D978E', faint: '#5F6A61', box: 'rgba(255,255,255,0.07)', boxLine: 'rgba(255,255,255,0.08)', grid: 'rgba(255,255,255,0.09)' };
+                const base = { sans, serif, wrap, round, fit, W: 1080, H: 1920, PAD: 78, ink: '#E8EEE8', ink2: '#C2CBC3', muted: '#8D978E', faint: '#5F6A61', box: 'rgba(255,255,255,0.07)', boxLine: 'rgba(255,255,255,0.08)', grid: 'rgba(255,255,255,0.09)' };
+                if (!nl) return base;
+                // v17.5: the New look's share pictures: the thing's own colors (in the phone's light or dark), Roboto Slab for
+                // names and roasters, the serif for titles, soft tiles
+                const P = this.nlPal(fam || 'app'), mix = (a, b, t) => this.hexMix(a, b, t), rgba = (hx, a) => this.hexToRgba(hx, a);
+                return { ...base, nl: true, P, hand: z => `600 ${z}px "Roboto Slab NL", "Roboto Slab", Georgia, serif`, serif: (w, z) => `500 ${z}px ui-serif, -apple-system-ui-serif, "New York", "Iowan Old Style", Georgia, serif`,
+                    bg: P.c, ink: P.t, ink2: mix(P.t, P.l, 0.35), muted: P.l, faint: mix(P.l, P.c, 0.45), name: P.n, accent: P.k,
+                    box: P.dark ? rgba(P.n, 0.08) : 'rgba(255,255,255,0.55)', boxLine: P.dark ? rgba(P.n, 0.15) : 'rgba(255,255,255,0.75)', grid: rgba(P.t, 0.1), dark: P.dark };
             },
 
             // the canvas, the background, who and when, and a title (a small line over a big one); returns where the title ends
-            storyStart({ who = this.user, date = Date.now(), sub = '', title = '', titleLines = 2, titleSize = 93 } = {}) {
+            storyStart({ who = this.user, date = Date.now(), sub = '', title = '', titleLines = 2, titleSize = 93, fam = '' } = {}) {
                 const c = document.createElement('canvas'); c.width = 1080; c.height = 1920;
                 const ctx = c.getContext('2d'); if (!ctx) return null;
-                const k = this.storyKit(ctx), { W, H, PAD } = k;
+                const k = this.storyKit(ctx, fam || (this.famOfPerson ? this.famOfPerson(who) : 'app')), { W, H, PAD } = k;
+                if (k.nl) return this.storyStartNew({ c, ctx, k, who, date, sub, title, titleLines, titleSize });
                 const g = ctx.createRadialGradient(W / 2, H * 0.42, 0, W / 2, H * 0.42, H * 0.75);
                 g.addColorStop(0, '#1E2620'); g.addColorStop(0.6, '#121713'); g.addColorStop(1, '#0C100D');
                 ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
@@ -22303,6 +22467,37 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (title) {
                     ctx.font = k.serif(600, titleSize); ctx.fillStyle = k.ink;
                     const LH = Math.round(titleSize * 1.12), lines = k.wrap(title, W - PAD * 2, titleLines);
+                    lines.forEach((l, i) => ctx.fillText(l, PAD, y + LH * (i + 1) - Math.round(titleSize * 0.2)));
+                    y += LH * lines.length;
+                }
+                return { c, ctx, k, y };
+            },
+
+            // v17.5: the New look's start: its color, the person (picture with a ring in their color, name in Roboto Slab), the
+            // small line in the accent, the title in the serif, and Dialed In
+            storyStartNew({ c, ctx, k, who, date, sub, title, titleLines, titleSize }) {
+                const { W, H, PAD, P } = k;
+                ctx.fillStyle = k.bg; ctx.fillRect(0, 0, W, H);
+                const g = ctx.createRadialGradient(W * 0.5, H * 0.3, 0, W * 0.5, H * 0.3, H * 0.8);
+                g.addColorStop(0, this.hexToRgba(P.dark ? '#FFFFFF' : '#FFFFFF', P.dark ? 0.05 : 0.22)); g.addColorStop(1, this.hexToRgba('#000000', 0));
+                ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+                const topY = 210;
+                if (who) {
+                    const col = this.getUserColor(who) || '#5B7FA6';
+                    ctx.fillStyle = col; ctx.beginPath(); ctx.arc(PAD + 34, topY - 14, 34, 0, Math.PI * 2); ctx.fill();
+                    ctx.lineWidth = 6; ctx.strokeStyle = this.hexMix(col, P.c, 0.35); ctx.beginPath(); ctx.arc(PAD + 34, topY - 14, 41, 0, Math.PI * 2); ctx.stroke();
+                    ctx.fillStyle = '#FFFFFF'; ctx.font = k.sans(700, 32); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(this.feedInitial(who), PAD + 34, topY - 12);
+                    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+                    ctx.font = k.hand(40); ctx.fillStyle = this.nameColor ? this.nameColor(who, P.c) : k.name; ctx.fillText(k.fit(who, W - PAD * 2 - 420), PAD + 96, topY - 4);
+                    const when = date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+                    if (when) { ctx.font = k.sans(600, 30); ctx.fillStyle = k.muted; ctx.fillText(when, PAD + 96, topY + 36); }
+                }
+                ctx.font = k.hand(40); ctx.textAlign = 'right'; ctx.fillStyle = k.accent; ctx.fillText('Dialed In', W - PAD, topY - 4); ctx.textAlign = 'left';
+                let y = topY + 130;
+                if (sub) { ctx.fillStyle = k.accent; ctx.font = k.hand(40); ctx.fillText(k.fit(sub, W - PAD * 2), PAD, y); y += 26; }
+                if (title) {
+                    ctx.font = k.serif(500, titleSize); ctx.fillStyle = k.name;
+                    const LH = Math.round(titleSize * 1.08), lines = k.wrap(title, W - PAD * 2, titleLines);
                     lines.forEach((l, i) => ctx.fillText(l, PAD, y + LH * (i + 1) - Math.round(titleSize * 0.2)));
                     y += LH * lines.length;
                 }
@@ -22325,10 +22520,10 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     while (z > 30 && width(z) > room) z -= 2;
                     big.forEach((part, i) => {
                         if (i) { ctx.font = k.sans(700, z - 5); ctx.fillStyle = k.ink; ctx.fillText(' → ', tx, by); tx += ctx.measureText(' → ').width; }
-                        ctx.font = k.sans(700, z); ctx.fillStyle = '#FFFFFF'; ctx.fillText(part[0], tx, by); tx += ctx.measureText(part[0]).width;
-                        if (part[1]) { ctx.font = k.sans(600, Math.round(z * 0.65)); ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fillText(part[1], tx, by); tx += ctx.measureText(part[1]).width; }
+                        ctx.font = k.sans(700, z); ctx.fillStyle = k.nl ? k.ink : '#FFFFFF'; ctx.fillText(part[0], tx, by); tx += ctx.measureText(part[0]).width;
+                        if (part[1]) { ctx.font = k.sans(600, Math.round(z * 0.65)); ctx.fillStyle = k.nl ? k.muted : 'rgba(255,255,255,0.7)'; ctx.fillText(part[1], tx, by); tx += ctx.measureText(part[1]).width; }
                     });
-                    ctx.font = k.sans(600, 31); ctx.fillStyle = 'rgba(255,255,255,0.62)'; ctx.fillText(k.fit(bx.small || '', room), x + 33, y + 118);
+                    ctx.font = k.sans(600, 31); ctx.fillStyle = k.nl ? k.muted : 'rgba(255,255,255,0.62)'; ctx.fillText(k.fit(bx.small || '', room), x + 33, y + 118);
                     x += bw + gap;
                 });
                 return y + bh;
@@ -22339,6 +22534,17 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const { ctx, k } = S; if (!notes.length) return y;
                 const h = 70, gap = 16; let x = k.PAD, row = 0;
                 ctx.font = k.sans(600, 34);
+                if (k.nl && this.noteToneKey && this.nlTonePal) {   // v17.5: as the cards show them
+                    for (const n of notes) {
+                        const tp = this.nlTonePal(this.noteToneKey(n, 'coffee'), k.dark), w = Math.min(k.W - k.PAD * 2, ctx.measureText(n).width + 56);
+                        if (x + w > k.W - k.PAD) { row++; x = k.PAD; if (row >= maxRows) break; }
+                        const yy = y + row * (h + gap);
+                        k.round(x, yy, w, h, 22); ctx.fillStyle = tp ? (k.dark ? tp.chipBg : tp.chipBgL || tp.chipBg) : k.box; ctx.fill();
+                        ctx.fillStyle = tp ? (k.dark ? tp.chipFg : tp.chipFgL || tp.chipFg) : k.ink; ctx.fillText(k.fit(n, w - 56), x + 28, yy + 47);
+                        x += w + gap;
+                    }
+                    return y + (row + 1) * (h + gap) - gap;
+                }
                 for (const n of notes) {
                     const at = this.noteLocate ? this.noteLocate(n) : null, hex = at && at.f >= 0 ? at.color : '#7D8984';
                     const w = Math.min(k.W - k.PAD * 2, ctx.measureText(n).width + 56);
@@ -22356,6 +22562,11 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 return `rgba(${[0, 2, 4].map(i => parseInt(s.slice(i, i + 2), 16)).join(',')},${a})`;
             },
 
+            // v17.5: a picture from the photo store, fetched first so the share picture can still be saved (a picture straight
+            // from another site would lock the canvas)
+            async storyLoadCors(url) {
+                try { const r = await fetch(url, { mode: 'cors' }); if (!r.ok) return null; const b = await r.blob(); const u = URL.createObjectURL(b); const img = await this.storyLoad(u); setTimeout(() => URL.revokeObjectURL(u), 4000); return img; } catch (e) { return null; }
+            },
             storyLoad(src) { return new Promise(ok => { if (!src) return ok(null); const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; }); },
 
             // an icon from the app's set, drawn white (or a color) at any size
@@ -22367,8 +22578,13 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 return this.storyLoad('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
             },
 
-            storyShape(vals, ghost, tasted, size = [900, 660], kind = 'coffee') {
+            storyShape(vals, ghost, tasted, size = [900, 660], kind = 'coffee', k = null) {
                 if (!vals || typeof FlavorShape === 'undefined') return Promise.resolve(null);
+                if (k && k.nl) {   // v17.5: as on the cards: the shape, the circle at 10 and the center line; no box, no numbers
+                    let url = '';
+                    try { url = FlavorShape.snapshot(vals, ghost || null, { width: Math.round(size[0] / 2.25), height: Math.round(size[1] / 2.25), dpr: 2.25, labels: false, lines: false, ring: this.NL_RING || 'axis', fit: true, isSet: x => tasted.includes(x), setKey: 'story-nl-' + tasted.join(',') + (k.P ? k.P.c : ''), names: kind === 'tea' ? 'tea' : null, theme: { line: k.grid, muted: k.muted, ink: k.ink, surface: k.bg, dark: k.dark } }); } catch (e) { url = ''; }
+                    return this.storyLoad(url);
+                }
                 const theme = { line: '#3A443B', muted: '#8D978E', ink: '#E8EEE8', surface: '#141915', dark: true };
                 let url = '';
                 try { url = FlavorShape.snapshot(vals, ghost || null, { width: Math.round(size[0] / 2.25), height: Math.round(size[1] / 2.25), zoom: 1.12, isSet: k => tasted.includes(k), setKey: 'story-' + tasted.join(','), theme, dpr: 2.4, names: kind === 'tea' ? 'tea' : null }); } catch (e) { url = ''; }
@@ -22452,12 +22668,12 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const D = this.storyCoffeeData(beanId, who); if (!D) return null;
                 const b = D.bean, sub = [String(b.roaster || '').trim() || this.teaMakerName(b), b.origin].map(x => String(x || '').trim()).filter(Boolean).join(' · ');   // (v17.1: "Your blend")
                 const tea = this.isTeaBean(b);   // v17.0: a tea's picture
-                const S = this.storyStart({ who, sub, title: String(b.name || '').trim() || (tea ? 'A tea' : 'A coffee') }); if (!S) return null;
+                const S = this.storyStart({ who, sub, title: String(b.name || '').trim() || (tea ? 'A tea' : 'A coffee'), fam: this.famOfCoffee ? this.famOfCoffee(b) : '' }); if (!S) return null;
                 const { ctx, k } = S; let y = S.y;
                 const facts = (tea ? [b.teaType ? `${b.teaType} tea` : '', b.process, b.variety] : [b.process, b.roast ? `${b.roast} roast` : '', b.variety]).map(x => String(x || '').trim()).filter(Boolean).join(' · ');
                 if (facts) { ctx.font = k.sans(500, 36); ctx.fillStyle = k.ink2; ctx.fillText(k.fit(facts, k.W - k.PAD * 2), k.PAD, y + 46); y += 66; }
                 const chipsH = D.notes.length ? (D.notes.length > 3 ? 172 : 86) + 44 : 0, boxY = k.H - 150 - chipsH - 150;
-                const img = D.shape ? await this.storyShape(D.shape.vals, null, D.shape.tasted, [940, 760], tea ? 'tea' : 'coffee') : null;
+                const img = D.shape ? await this.storyShape(D.shape.vals, null, D.shape.tasted, [940, 760], tea ? 'tea' : 'coffee', k) : null;
                 if (img) this.storyDrawFit(S, img, y + 30 + Math.max(0, (boxY - y - 70 - Math.min(760, boxY - y - 70)) / 2), 940, Math.min(760, boxY - y - 70));
                 y = boxY;
                 const best = D.best, dose = best ? Number(best.dose) || 0 : 0, out = best ? Number(best.yield) || 0 : 0, t = best ? Number(best.time) || 0 : 0;
@@ -22485,7 +22701,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const meta = this.activeGroup ? this.activeGroup.meta : null;
                 const used = new Set();
                 series.forEach(s => { let c = this.getUserColor(s.owner); if (used.has(String(c).toLowerCase())) c = (this.beanPalette || []).find(p => !used.has(String(p).toLowerCase())) || c; used.add(String(c).toLowerCase()); s.color = c; });
-                const S = this.storyStart({ sub: `Dial-in${this.dialinMethod ? ` · ${this.dialinMethod}` : ''}${meta && meta.roaster ? ` · ${meta.roaster}` : ''}`, title: meta ? String(meta.name || '').trim() || 'This coffee' : 'This coffee' }); if (!S) return null;
+                const S = this.storyStart({ fam: meta && this.famOfCoffee ? this.famOfCoffee(meta) : '', sub: `Dial-in${this.dialinMethod ? ` · ${this.dialinMethod}` : ''}${meta && meta.roaster ? ` · ${meta.roaster}` : ''}`, title: meta ? String(meta.name || '').trim() || 'This coffee' : 'This coffee' }); if (!S) return null;
                 const { ctx, k } = S;
                 const L = k.PAD + 76, R = k.W - k.PAD - 10, T = S.y + 60, B = Math.min(T + 880, k.H - 150 - Math.min(series.length, 5) * 118 - 170);
                 const maxN = Math.max(2, ...series.map(s => s.shots.length));
@@ -22533,7 +22749,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const points = all.filter(p => (!this.sweetMethod || p.b.method === this.sweetMethod) && (this.sweetWho === 'all' || !this.sweetWho || p.who === this.sweetWho));
                 if (points.length < 3) return null;
                 const zone = this.sweetZone(points), meta = this.activeGroup ? this.activeGroup.meta : null;
-                const S = this.storyStart({ sub: `Sweet spot${this.sweetMethod ? ` · ${this.sweetMethod}` : ''}${this.sweetWho && this.sweetWho !== 'all' ? ` · ${this.sweetWho}` : ''}`, title: meta ? String(meta.name || '').trim() || 'This coffee' : 'This coffee' }); if (!S) return null;
+                const S = this.storyStart({ fam: meta && this.famOfCoffee ? this.famOfCoffee(meta) : '', sub: `Sweet spot${this.sweetMethod ? ` · ${this.sweetMethod}` : ''}${this.sweetWho && this.sweetWho !== 'all' ? ` · ${this.sweetWho}` : ''}`, title: meta ? String(meta.name || '').trim() || 'This coffee' : 'This coffee' }); if (!S) return null;
                 const { ctx, k } = S;
                 const L = k.PAD + 104, R = k.W - k.PAD - 10, T = S.y + 60, B = Math.min(T + 900, 1420);
                 const rs = points.map(p => p.ratio), ts = points.map(p => p.time);
@@ -22549,13 +22765,13 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (zone) {
                     const pad = 30, min = 84, cx = (X(zone.r0) + X(zone.r1)) / 2, cy = (Y(zone.t0) + Y(zone.t1)) / 2;
                     const w = Math.max(min, X(zone.r1) - X(zone.r0) + pad * 2), h = Math.max(min, Y(zone.t0) - Y(zone.t1) + pad * 2);
-                    k.round(cx - w / 2, cy - h / 2, w, h, Math.min(38, w / 2, h / 2)); ctx.fillStyle = 'rgba(134,172,136,0.16)'; ctx.fill();
-                    ctx.setLineDash([12, 12]); ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(134,172,136,0.7)'; ctx.stroke(); ctx.setLineDash([]);
+                    k.round(cx - w / 2, cy - h / 2, w, h, Math.min(38, w / 2, h / 2)); ctx.fillStyle = k.nl ? this.hexToRgba(k.accent, 0.16) : 'rgba(134,172,136,0.16)'; ctx.fill();
+                    ctx.setLineDash([12, 12]); ctx.lineWidth = 4; ctx.strokeStyle = k.nl ? this.hexToRgba(k.accent, 0.7) : 'rgba(134,172,136,0.7)'; ctx.stroke(); ctx.setLineDash([]);
                 }
                 points.slice().sort((p, q) => p.rating - q.rating).forEach(p => {
                     const r = p.rating >= 4.5 ? 19 : 15;
                     ctx.beginPath(); ctx.arc(X(p.ratio), Y(p.time), r, 0, Math.PI * 2);
-                    if (p.rating > 0) { ctx.fillStyle = this.ratingColor(p.rating); ctx.fill(); ctx.lineWidth = 5; ctx.strokeStyle = '#161C17'; ctx.stroke(); }
+                    if (p.rating > 0) { ctx.fillStyle = this.ratingColor(p.rating); ctx.fill(); ctx.lineWidth = 5; ctx.strokeStyle = k.nl ? k.bg : '#161C17'; ctx.stroke(); }
                     else { ctx.lineWidth = 4; ctx.strokeStyle = k.muted; ctx.stroke(); }
                 });
                 let y = B + 160;
@@ -22581,7 +22797,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const A = aSel && this.brews.get(String(aSel.value || '')), B = bSel && this.brews.get(String(bSel.value || ''));
                 if (!A || !B || A === B) return null;
                 const meta = this.activeGroup ? this.activeGroup.meta : null;
-                const S = this.storyStart({ sub: `Compare${meta && meta.roaster ? ` · ${meta.roaster}` : ''}`, title: meta ? String(meta.name || '').trim() || 'Two sessions' : 'Two sessions' }); if (!S) return null;
+                const S = this.storyStart({ fam: meta && this.famOfCoffee ? this.famOfCoffee(meta) : '', sub: `Compare${meta && meta.roaster ? ` · ${meta.roaster}` : ''}`, title: meta ? String(meta.name || '').trim() || 'Two sessions' : 'Two sessions' }); if (!S) return null;
                 const { ctx, k } = S; let y = S.y + 30;
                 const cw = (k.W - k.PAD * 2 - 24) / 2, ch = 210;
                 [[A, 'A', '#4E7B57'], [B, 'B', '#8A63C4']].forEach(([x, tag, col], i) => {
@@ -22619,8 +22835,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 add('Rating', this.normalizeRating(A.rating) || null, this.normalizeRating(B.rating) || null, v => `${this.formatRating(v)}★`);
                 const tw = k.W - k.PAD * 2, rh = 92, cols = [k.PAD + 40, k.PAD + tw * 0.40, k.PAD + tw * 0.66, k.PAD + tw - 40];
                 k.round(k.PAD, y, tw, rh * (rows.length + 1), 40); ctx.fillStyle = k.box; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = k.boxLine; ctx.stroke();
-                ctx.font = k.sans(800, 28); ctx.fillStyle = k.muted;
-                ctx.fillText('A', cols[1], y + 58); ctx.fillText('B', cols[2], y + 58); ctx.textAlign = 'right'; ctx.fillText('A VS B', cols[3], y + 58); ctx.textAlign = 'left';
+                ctx.font = k.nl ? k.sans(700, 30) : k.sans(800, 28); ctx.fillStyle = k.muted;
+                ctx.fillText('A', cols[1], y + 58); ctx.fillText('B', cols[2], y + 58); ctx.textAlign = 'right'; ctx.fillText(k.nl ? 'A vs B' : 'A VS B', cols[3], y + 58); ctx.textAlign = 'left';
                 rows.forEach(([l, av, bv, d], i) => {
                     const ry = y + rh * (i + 1);
                     ctx.strokeStyle = k.boxLine; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(k.PAD, ry); ctx.lineTo(k.PAD + tw, ry); ctx.stroke();
@@ -22631,7 +22847,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 y += rh * (rows.length + 1) + 30;
                 const ta = this.tastedKeys(A), tb = this.tastedKeys(B);
                 if ((ta.length || tb.length) && y < 1560) {
-                    const img = await this.storyShape(this.shapeValues(A), this.shapeValues(B), ta, [900, 700], tea ? 'tea' : 'coffee');
+                    const img = await this.storyShape(this.shapeValues(A), this.shapeValues(B), ta, [900, 700], tea ? 'tea' : 'coffee', k.nl ? k : null);
                     if (img) {
                         const bottom = this.storyDrawFit(S, img, y, 900, Math.min(700, k.H - 130 - y));
                         ctx.font = k.sans(700, 30); ctx.fillStyle = k.ink2; ctx.strokeStyle = k.ink2; ctx.lineWidth = 5;
@@ -22653,13 +22869,16 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const onScreen = this.roasterViewActive && this.roasterViewActive() ? this.roasterOpenKind : '';
                 const kind = kindIn === 'tea' || kindIn === 'coffee' ? kindIn : onScreen === 'tea' || onScreen === 'coffee' ? onScreen : (!this.roasterFind(key, 'coffee') && this.roasterFind(key, 'tea') ? 'tea' : 'coffee'), w = this.drinkWords(kind);
                 const r = this.roasterData(kind).byKey.get(key) || this.roasterData().byKey.get(key); if (!r) return null;
-                const S = this.storyStart({ sub: '', title: '' }); if (!S) return null;
+                const S = this.storyStart({ sub: '', title: '', fam: this.famOfRoaster ? this.famOfRoaster(r.name, kind) : '' }); if (!S) return null;
                 const { ctx, k } = S; let y = 330;
                 const set = this.ROASTER_COLORS[r.key] || this.ROASTER_COLORS[RoasterEngine.keyOf(r.name)];
+                const cov = k.nl && r.info && r.info.cover, cp = cov && this.nlTonePal ? this.nlTonePal(this.nlToneKey(cov.hue, 0.012 + 0.12 * Math.max(0.1, (cov.tone ?? 60) / 100)), k.dark) : null;   // v17.5: its picture
                 const g = ctx.createLinearGradient(k.PAD, y, k.PAD + 220, y + 220);
-                g.addColorStop(0, set ? set[0] : `hsl(${r.hue} 44% 60%)`); g.addColorStop(1, set ? set[1] : `hsl(${(r.hue + 24) % 360} 40% 40%)`);
+                g.addColorStop(0, cp ? cp.tileA : set ? set[0] : `hsl(${r.hue} 44% 60%)`); g.addColorStop(1, cp ? cp.tileB : set ? set[1] : `hsl(${(r.hue + 24) % 360} 40% 40%)`);
                 k.round(k.PAD, y, 220, 220, 56); ctx.fillStyle = g; ctx.fill();
-                ctx.font = k.serif(700, 92); ctx.fillStyle = '#FFFFFF'; ctx.textAlign = 'center'; ctx.fillText(this.roasterInitials(r.name), k.PAD + 110, y + 142); ctx.textAlign = 'left';
+                const photo = cov && cov.photo && this.faceUrl ? await this.storyLoadCors(this.faceUrl(cov.photo)) : null;
+                if (photo) { ctx.save(); k.round(k.PAD, y, 220, 220, 56); ctx.clip(); const z = Math.max(220 / photo.naturalWidth, 220 / photo.naturalHeight); ctx.drawImage(photo, k.PAD + (220 - photo.naturalWidth * z) / 2, y + (220 - photo.naturalHeight * z) / 2, photo.naturalWidth * z, photo.naturalHeight * z); ctx.restore(); }
+                else { ctx.font = k.serif(700, 92); ctx.fillStyle = '#FFFFFF'; ctx.textAlign = 'center'; ctx.fillText(this.roasterInitials(r.name), k.PAD + 110, y + 142); ctx.textAlign = 'left'; }
                 y += 220 + 40;
                 const info = r.info || {}, local = (r.localBy || []).includes(this.user);
                 ctx.font = k.sans(600, 36); ctx.fillStyle = k.muted;
@@ -22667,12 +22886,12 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (where || local) { ctx.fillText(k.fit([w.Company, where].filter(Boolean).join(' · '), k.W - k.PAD * 2 - (local ? 260 : 0)), k.PAD, y + 26); }
                 if (local) {
                     const label = 'Local to me', lw = (ctx.font = k.sans(700, 32), ctx.measureText(label).width + 100), lx = k.W - k.PAD - lw;
-                    k.round(lx, y - 22, lw, 64, 32); ctx.fillStyle = 'rgba(134,172,136,0.2)'; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = 'rgba(134,172,136,0.5)'; ctx.stroke();
-                    const pin = await this.storyIcon('i-pin', '#A9CFA9'); if (pin) ctx.drawImage(pin, lx + 22, y - 8, 36, 36);
-                    ctx.fillStyle = '#C5E3C3'; ctx.fillText(label, lx + 66, y + 22);
+                    k.round(lx, y - 22, lw, 64, 32); ctx.fillStyle = k.nl ? k.box : 'rgba(134,172,136,0.2)'; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = k.nl ? k.boxLine : 'rgba(134,172,136,0.5)'; ctx.stroke();
+                    const pin = await this.storyIcon('i-pin', k.nl ? k.accent : '#A9CFA9'); if (pin) ctx.drawImage(pin, lx + 22, y - 8, 36, 36);
+                    ctx.fillStyle = k.nl ? k.ink : '#C5E3C3'; ctx.fillText(label, lx + 66, y + 22);
                 }
                 y += 48;
-                ctx.font = k.serif(600, 96); ctx.fillStyle = k.ink;
+                ctx.font = k.serif(600, 96); ctx.fillStyle = k.nl ? k.name : k.ink;
                 const lines = k.wrap(r.name, k.W - k.PAD * 2, 2); lines.forEach((l, i) => ctx.fillText(l, k.PAD, y + 108 * (i + 1) - 18)); y += 108 * lines.length + 40;
                 const mine = r.people.find(p => p.name === this.user);
                 y = this.storyBoxes(S, [
@@ -22681,7 +22900,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     (mine ? mine.avg : r.avg) ? { big: [[this.formatRating(mine ? mine.avg : r.avg), '★']], small: mine ? 'your average' : 'average' } : null
                 ], y);
                 y += 70;
-                ctx.font = k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText(w.Items.toUpperCase(), k.PAD, y); y += 34;
+                ctx.font = k.nl ? k.sans(700, 34) : k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText(k.nl ? w.Items : w.Items.toUpperCase(), k.PAD, y); y += 34;
                 const list = r.coffees.slice().sort((a, b) => b.sessions - a.sessions || (b.avg || 0) - (a.avg || 0)).slice(0, 6);
                 list.forEach(cf => {
                     if (y > k.H - 140) return;
@@ -22712,7 +22931,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 ctx.font = k.sans(800, 52); ctx.fillStyle = '#F2C94C'; ctx.fillText('Done together', k.PAD + (trophy ? 84 : 0), y + 46);
                 y += 110;
                 const bw = k.W - k.PAD * 2, bh = 64;
-                k.round(k.PAD, y, bw, bh, 32); ctx.fillStyle = 'rgba(255,255,255,0.08)'; ctx.fill();
+                k.round(k.PAD, y, bw, bh, 32); ctx.fillStyle = k.nl ? k.grid : 'rgba(255,255,255,0.08)'; ctx.fill();
                 const segs = this.crewSegs(q), count = this.crewCount(q), countText = `${count.n}${count.rest}`;   // v16.8: as on the card
                 let used = 0;
                 ctx.save(); k.round(k.PAD, y, bw, bh, 32); ctx.clip();
@@ -22770,30 +22989,31 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const L = this.levelOf(c), fmt = x => Math.round(x).toLocaleString();
                 const S = this.storyStart({ who }); if (!S) return null;
                 const { ctx, k } = S; let y = 360;
-                const svg = this.levelSvg(L.i, 480).replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ');
+                const svg = (k.nl && this.nlLevelBadge ? this.nlLevelBadge(L.i, 480) : this.levelSvg(L.i, 480)).replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ');   // (v17.5: the numbered badge in the New look)
                 const badge = await this.storyLoad('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
                 if (badge) ctx.drawImage(badge, (k.W - 420) / 2, y, 420, 420);
                 y += 420 + 90;
                 ctx.textAlign = 'center';
-                ctx.font = k.sans(700, 36); ctx.fillStyle = k.muted; ctx.fillText(`${who === this.user ? 'My' : `${who}'s`} level · Level ${L.n}`, k.W / 2, y);
-                ctx.font = k.serif(600, 110); ctx.fillStyle = k.ink; ctx.fillText(k.fit(L.name, k.W - k.PAD * 2), k.W / 2, y + 130);
-                ctx.font = k.sans(700, 54); ctx.fillStyle = '#FFFFFF'; const cr = `${fmt(L.crema)}`; const cw = ctx.measureText(cr).width; ctx.font = k.sans(500, 40); const lw = ctx.measureText(' crema').width;
-                ctx.textAlign = 'left'; ctx.font = k.sans(700, 54); ctx.fillText(cr, (k.W - cw - lw) / 2, y + 230); ctx.font = k.sans(500, 40); ctx.fillStyle = k.ink2; ctx.fillText(' crema', (k.W - cw - lw) / 2 + cw, y + 230);
+                const unit = k.nl ? ' points' : ' crema', tier = this.levelTiers()[L.t].name;
+                ctx.font = k.nl ? k.hand(40) : k.sans(700, 36); ctx.fillStyle = k.nl ? k.accent : k.muted; ctx.fillText(k.nl ? `${who === this.user ? 'My' : `${who}'s`} level · ${tier === 'The top' ? 'Top' : tier}` : `${who === this.user ? 'My' : `${who}'s`} level · Level ${L.n}`, k.W / 2, y);
+                ctx.font = k.serif(600, 110); ctx.fillStyle = k.nl ? k.name : k.ink; ctx.fillText(k.fit(k.nl ? `Level ${L.n}` : L.name, k.W - k.PAD * 2), k.W / 2, y + 130);
+                ctx.font = k.sans(700, 54); ctx.fillStyle = k.nl ? k.ink : '#FFFFFF'; const cr = `${fmt(L.crema)}`; const cw = ctx.measureText(cr).width; ctx.font = k.sans(500, 40); const lw = ctx.measureText(unit).width;
+                ctx.textAlign = 'left'; ctx.font = k.sans(700, 54); ctx.fillText(cr, (k.W - cw - lw) / 2, y + 230); ctx.font = k.sans(500, 40); ctx.fillStyle = k.ink2; ctx.fillText(unit, (k.W - cw - lw) / 2 + cw, y + 230);
                 y += 300;
                 if (L.next) {
                     const bw = k.W - k.PAD * 2 - 120, bx = (k.W - bw) / 2;
-                    k.round(bx, y, bw, 30, 15); ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.fill();
+                    k.round(bx, y, bw, 30, 15); ctx.fillStyle = k.nl ? k.grid : 'rgba(255,255,255,0.1)'; ctx.fill();
                     const T = this.levelTiers()[L.t]; const g = ctx.createLinearGradient(bx, 0, bx + bw, 0); g.addColorStop(0, T.from); g.addColorStop(1, T.to);
                     k.round(bx, y, Math.max(30, bw * L.pct / 100), 30, 15); ctx.fillStyle = g; ctx.fill();
-                    ctx.textAlign = 'center'; ctx.font = k.sans(500, 36); ctx.fillStyle = k.ink2; ctx.fillText(`${fmt(L.next.min - L.crema)} more to ${L.next.name}`, k.W / 2, y + 96); ctx.textAlign = 'left';
+                    ctx.textAlign = 'center'; ctx.font = k.sans(500, 36); ctx.fillStyle = k.ink2; ctx.fillText(k.nl ? `${fmt(L.next.min - L.crema)} more to level ${L.n + 1}` : `${fmt(L.next.min - L.crema)} more to ${L.next.name}`, k.W / 2, y + 96); ctx.textAlign = 'left';
                     y += 150;
-                } else { ctx.textAlign = 'center'; ctx.font = k.sans(500, 38); ctx.fillStyle = k.ink2; ctx.fillText('The top level. Dialed in.', k.W / 2, y + 40); ctx.textAlign = 'left'; y += 110; }
+                } else { ctx.textAlign = 'center'; ctx.font = k.sans(500, 38); ctx.fillStyle = k.ink2; ctx.fillText(k.nl ? 'The top level.' : 'The top level. Dialed in.', k.W / 2, y + 40); ctx.textAlign = 'left'; y += 110; }
                 // the latest achievements unlocked
                 const recent = [];
                 [this.achievementUnlockByBrew, this.achievementUnlockByBean].forEach(map => map && map.forEach(list => list.forEach(u => { if (u.user === who) recent.push(u); })));
                 const latest = recent.sort((a, b) => this.toTime(b.date) - this.toTime(a.date)).slice(0, 3);
                 if (latest.length && y < k.H - 340) {
-                    y += 30; ctx.font = k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText('LATEST ACHIEVEMENTS', k.PAD, y); y += 30;
+                    y += 30; ctx.font = k.nl ? k.sans(700, 34) : k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText(k.nl ? 'Latest achievements' : 'LATEST ACHIEVEMENTS', k.PAD, y); y += 30;
                     latest.forEach(u => {
                         if (y > k.H - 160) return;
                         ctx.strokeStyle = k.boxLine; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(k.PAD, y); ctx.lineTo(k.W - k.PAD, y); ctx.stroke();
@@ -22812,16 +23032,16 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const p = this.palateFor(who); if (!p || p.count < 3) return null;
                 const S = this.storyStart({ who, sub: who === this.user ? (p.kind === 'tea' ? 'My tea palate' : 'My palate') : `${who}'s ${p.kind === 'tea' ? 'tea ' : ''}palate` }); if (!S) return null;
                 const { ctx, k } = S; let y = S.y + 20;
-                ctx.font = k.serif(600, 62); ctx.fillStyle = k.ink;
+                ctx.font = k.serif(600, 62); ctx.fillStyle = k.nl ? k.name : k.ink;
                 const lines = k.wrap(this.palateSentence(p), k.W - k.PAD * 2, 5); lines.forEach((l, i) => ctx.fillText(l, k.PAD, y + 74 * (i + 1) - 14)); y += 74 * lines.length + 10;
                 const shape = this.storyAvgShape(this.brewsOf(who).filter(b => this.isTeaBrew(b) === (p.kind === 'tea')));
-                const img = shape ? await this.storyShape(shape.vals, null, shape.tasted, [820, 600], p.kind) : null;
+                const img = shape ? await this.storyShape(shape.vals, null, shape.tasted, [820, 600], p.kind, k) : null;
                 y = img ? this.storyDrawFit(S, img, y + 10, 820, Math.min(600, 1360 - y)) + 10 : y + 30;
                 const groups = [['Origins', p.origins], [p.kind === 'tea' ? 'Processing' : 'Process', p.processes], [p.kind === 'tea' ? 'Type' : 'Roast', p.roasts], ['Methods', p.methods]].filter(([, l]) => l.length);
-                if (p.notes.length) { ctx.font = k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText('NOTES', k.PAD, y + 20); y = this.storyNoteChips(S, p.notes.map(n => n.label), y + 44, 2) + 34; }
+                if (p.notes.length) { ctx.font = k.nl ? k.sans(700, 34) : k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText(k.nl ? 'Notes' : 'NOTES', k.PAD, y + 20); y = this.storyNoteChips(S, p.notes.map(n => n.label), y + 44, 2) + 34; }
                 groups.slice(0, 3).forEach(([label, list]) => {
                     if (y > k.H - 200) return;
-                    ctx.font = k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText(label.toUpperCase(), k.PAD, y + 30);
+                    ctx.font = k.nl ? k.sans(700, 34) : k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText(k.nl ? label : label.toUpperCase(), k.PAD, y + 30);
                     ctx.font = k.sans(600, 38); ctx.fillStyle = k.ink; ctx.fillText(k.fit(list.map(x => x.label).join(' · '), k.W - k.PAD * 2 - 260), k.PAD + 260, y + 30);
                     y += 70;
                 });
@@ -22844,7 +23064,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 y = this.storyBoxes(S, [{ big: [[this.fmtNum(coffee, 1), ' g'], [this.fmtNum(water, 0), ' g']], small: `1:${this.fmtNum(water / coffee, 1)}`, wide: true }, temp ? { big: [[this.fmtNum(temp, 0), '°']], small: 'water temp' } : null, plan.length ? { big: [[this.clock(plan[plan.length - 1].end), '']], small: 'total time' } : null], y);
                 y += 70;
                 if (plan.length) {
-                    ctx.font = k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText('STEPS', k.PAD, y); y += 30;
+                    ctx.font = k.nl ? k.sans(700, 34) : k.sans(800, 30); ctx.fillStyle = k.muted; ctx.fillText(k.nl ? 'Steps' : 'STEPS', k.PAD, y); y += 30;
                     const rh = Math.min(104, Math.floor((k.H - 160 - y) / Math.min(plan.length, 12)));
                     plan.slice(0, 12).forEach(st => {
                         const kind = (typeof STEP_KINDS !== 'undefined' && STEP_KINDS[st.k]) || { label: st.k, color: '#8A958C' };
@@ -24189,6 +24409,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const rk = this.roasterKey ? this.roasterKey(name) : String(name || '').toLowerCase();
                 return this.nlFamOf(`r:${rk}`, () => {
                     const r = this.roasterData ? this.roasterData().byKey.get(rk) : null;
+                    if (r && r.info && r.info.cover) return this.nlToneKey(r.info.cover.hue, 0.012 + 0.12 * Math.max(0.1, (r.info.cover.tone ?? 60) / 100));   // v17.5: its picture
                     const set = r && this.ROASTER_COLORS && (this.ROASTER_COLORS[r.key] || (typeof RoasterEngine !== 'undefined' && this.ROASTER_COLORS[RoasterEngine.keyOf(r.name)]));
                     if (set) return this.nlToneOfHex(set[1]);
                     const hue = r ? r.hue : (typeof RoasterEngine !== 'undefined' ? RoasterEngine.hashHue(rk) : this.nlNameHue(rk));
@@ -24330,8 +24551,25 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             // ---- v17.4: a flavor shape that turns: on a card on its own (no box or lines), on the Session screen under a finger
             // too. One shared renderer draws them all, only near the screen (FlavorShape.spin).
             nlSpinHtml(brew, fam, o = {}) {
-                return `<canvas class="nl-spin ${o.drag ? 'nl-drag' : 'nl-auto'}${o.cls ? ' ' + o.cls : ''}" data-nl-spin="${this.esc(brew.id)}" data-nl-fam="${this.esc(fam)}"${o.pg ? ' data-nl-pg="1"' : ''}${o.labels ? ' data-nl-labels="1"' : ''}${o.lines ? ' data-nl-lines="1"' : ''} width="0" height="0" aria-label="Flavor shape"></canvas>`;
+                const cv = `<canvas class="nl-spin ${o.drag ? 'nl-drag' : 'nl-auto'}${o.cls ? ' ' + o.cls : ''}" data-nl-spin="${this.esc(brew.id)}" data-nl-fam="${this.esc(fam)}"${o.pg ? ' data-nl-pg="1"' : ''}${o.labels ? ' data-nl-labels="1"' : ''}${o.lines ? ' data-nl-lines="1"' : ''} width="0" height="0" aria-label="Flavor shape"></canvas>`;
+                if (!o.drag) return cv;
+                // v17.5: on the Session screen you can stop it turning and look straight down on it
+                return `<div class="nl-spinwrap">${cv}<div class="nl-spinctl"><button type="button" class="nl-sc-pause" aria-label="Stop turning" aria-pressed="false" onclick="app.nlSpinCtl(this, 'pause')">${this.NL_IC_PAUSE}</button><button type="button" class="nl-sc-top" aria-label="Look from the top" aria-pressed="false" onclick="app.nlSpinCtl(this, 'top')">${this.NL_IC_TOP}</button></div></div>`;
             },
+            NL_IC_PAUSE: '<svg viewBox="0 0 24 24" class="nl-ic" aria-hidden="true"><rect x="7" y="6" width="3.2" height="12" rx="1.2" fill="currentColor"/><rect x="13.8" y="6" width="3.2" height="12" rx="1.2" fill="currentColor"/></svg>',
+            NL_IC_PLAY: '<svg viewBox="0 0 24 24" class="nl-ic" aria-hidden="true"><path d="M8.5 6.2v11.6c0 .6.7 1 1.2.7l9-5.8c.5-.3.5-1.1 0-1.4l-9-5.8c-.5-.3-1.2.1-1.2.7z" fill="currentColor"/></svg>',
+            NL_IC_TOP: '<svg viewBox="0 0 24 24" class="nl-ic" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/></svg>',
+            NL_IC_SIDE: '<svg viewBox="0 0 24 24" class="nl-ic" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="16" rx="7.5" ry="3"/><path d="M12 4v12"/></svg>',
+            nlSpinCtl(btn, what) {
+                const wrap = btn && btn.closest ? btn.closest('.nl-spinwrap') : null, c = wrap && wrap.querySelector('canvas'), h = c && c._nlSpin;
+                if (!h || !h.state) return;
+                const st = h.state();
+                if (what === 'pause') { const on = !st.paused; h.pause(on); btn.setAttribute('aria-pressed', String(on)); btn.setAttribute('aria-label', on ? 'Turn again' : 'Stop turning'); btn.innerHTML = on ? this.NL_IC_PLAY : this.NL_IC_PAUSE; }
+                else { const on = !st.top; h.view(on); btn.setAttribute('aria-pressed', String(on)); btn.setAttribute('aria-label', on ? 'Look from the side' : 'Look from the top'); btn.innerHTML = on ? this.NL_IC_SIDE : this.NL_IC_TOP; }
+                if (this.haptic) this.haptic('tick');
+            },
+            // v17.5: the quiet measure on a turning shape: a circle at 10 and the center line ('axis'), or just the circle ('ring')
+            NL_RING: 'disc',
             nlFillSpins(root) {
                 if (typeof FlavorShape === 'undefined' || !FlavorShape.spin || typeof document === 'undefined') return;
                 const scope = root || document;
@@ -24346,7 +24584,9 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         id: `${id}|${c.className}`, values: () => this.shapeValues(brew()), isSet: k => tasted().includes(k),
                         names: this.kindOfBrew(first) === 'tea' ? 'tea' : null,
                         theme: () => { const d = this.nlDark() ? 'd' : 'l'; return themes[d] || (themes[d] = this.nlShapeTheme(fam, pg)); },
-                        labels, lines: c.hasAttribute('data-nl-lines'), interactive: drag, fit: !labels, zoom: labels ? 1.08 : 1, fps: drag ? 0 : 30, speed: 0.45
+                        labels, lines: c.hasAttribute('data-nl-lines'), interactive: drag, fit: !labels, zoom: labels ? 1.08 : 1, fps: drag ? 0 : 30, speed: 0.45,
+                        // v17.5: the measure (not in the boxed view), and where it sits: a card's shape lower, on its bottom edge
+                        ring: labels ? '' : this.NL_RING, ...(c.classList.contains('nl-mini') ? { cy: 0.7, padB: 2 } : c.classList.contains('nl-bigspin') ? { cy: 0.6, padB: 4 } : c.classList.contains('nls-shape') ? { cy: 0.55, padB: 6 } : {})
                     });
                 });
             },
@@ -24400,6 +24640,14 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     if (over()) { row.classList.add('nl-tight'); if (over()) row.classList.add('nl-tighter'); }
                     row.setAttribute('data-nl-fitted', '1');
                 });
+                // v17.5: a word in a stat tile ("Yesterday" on the roaster page) shrinks until it fits its tile
+                (root || document).querySelectorAll('.stat-num.word:not([data-nl-fitted])').forEach(el => {
+                    if (!el.getClientRects().length) return;
+                    el.style.fontSize = '';
+                    let z = parseFloat(getComputedStyle(el).fontSize) || 14;
+                    while (z > 10 && el.scrollWidth > el.clientWidth + 1) { z -= 0.5; el.style.fontSize = `${z}px`; }
+                    el.setAttribute('data-nl-fitted', '1');
+                });
             },
 
             // after every draw: shapes, names, and the Session screen if it's open
@@ -24420,6 +24668,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const pf = this.tab === 'profile' && this.profileUser ? this.famOfPerson(this.profileUser) : null;
                 tinted().forEach((el, i) => { if (!el) return; const want = i === 0 ? pf : null; if (want) { if (el.getAttribute('data-fam') !== want) el.setAttribute('data-fam', want); } else if (el.hasAttribute('data-fam')) el.removeAttribute('data-fam'); });
                 this.nlExtras(true);
+                this.nlRingRules();
                 this.nlFillShapes();
                 this.nlFillSpins();
                 this.nlFitNames();
@@ -24431,10 +24680,41 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     this._nlMO = new MutationObserver(() => {
                         if (queued || !this.newLook()) return;
                         queued = true;
-                        requestAnimationFrame(() => { queued = false; if (this.newLook()) { this.nlFillShapes(); this.nlFillSpins(); this.nlFitNames(); this.nlFitTiles(); } });
+                        requestAnimationFrame(() => { queued = false; if (this.newLook()) { this.nlRingRules(); this.nlFillShapes(); this.nlFillSpins(); this.nlFitNames(); this.nlFitTiles(); } });
                     });
                     this._nlMO.observe(document.body, { childList: true, subtree: true });
                 }
+            },
+
+            // ===================== v17.5: levels, simpler (the New look) =====================
+            // A level is a number on a round badge in its tier's colors (Bronze, Silver, Gold, Platinum, Top); points, not crema;
+            // the same words for tea and coffee. The levels and what earns points are the app's own (43-levels.js).
+            nlLevelBadge(i, size = 40) {
+                const T = this.levelTiers()[this.levelList()[i].t], id = `nlb${i}-${(this._nlbN = (this._nlbN || 0) + 1)}`, n = i + 1;
+                return `<svg class="nl-lvl-badge" viewBox="0 0 40 40" width="${size}" height="${size}" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${T.from}"/><stop offset="1" stop-color="${T.to}"/></linearGradient></defs><circle cx="20" cy="20" r="${T.ring ? 17 : 19}" fill="url(#${id})"/>${T.ring ? `<circle cx="20" cy="20" r="18.6" fill="none" stroke="${T.ring}" stroke-width="2.2"/>` : ''}<text x="20" y="20.5" text-anchor="middle" dominant-baseline="central" fill="${T.ink}" font-family="Georgia, 'Times New Roman', serif" font-size="${n > 9 ? 17 : 19}" font-weight="600">${n}</text></svg>`;
+            },
+            nlTierName(L) { const t = this.levelTiers()[L.t].name; return t === 'The top' ? 'Top' : t; },
+            nlLevelRowHtml(user) {
+                const c = this.cremaOf(user);
+                if (c === null || c === undefined) return '';
+                const L = this.levelOf(c), fmt = x => Math.round(x).toLocaleString();
+                return `<button type="button" class="lvl-row nl-lvl-row" data-name="${this.esc(user)}" onclick="app.openLevel(this.getAttribute('data-name'))" aria-label="Level ${L.n}, ${this.esc(this.nlTierName(L))}. ${fmt(L.crema)} points">${this.nlLevelBadge(L.i, 44)}<span class="lvl-main"><span class="lvl-top"><b>Level ${L.n}</b><em>${this.esc(this.nlTierName(L))}</em></span><span class="lvl-bar"><i style="width:${L.pct.toFixed(1)}%"></i></span><small class="lvl-count">${fmt(L.crema)} points${L.next ? ` · ${fmt(L.next.min - L.crema)} to level ${L.n + 1}` : ' · the top level'}</small></span></button>`;
+            },
+            nlLevelBody(name) {
+                const own = name === this.user, L = this.levelOf(this.cremaOf(name) || 0), fmt = x => Math.round(x).toLocaleString(), list = this.levelList();
+                const word = { coffee: 'A coffee or tea you hadn’t had before', roaster: 'A new roaster or tea brand', local: 'A session from a roaster or brand you marked local' };
+                const tiers = this.levelTiers().map((T, t) => { const lv = list.map((x, i) => [x, i]).filter(([x]) => x.t === t); return { T, t, first: lv[0][1] + 1, last: lv[lv.length - 1][1] + 1, from: lv[0][0].min }; });
+                const ladder = `<div class="lvl-sec"><div class="lvl-cap">Levels</div>${tiers.map(x => `<div class="nl-lvl-tier${x.t === L.t ? ' on' : ''}${x.t > L.t ? ' locked' : ''}">${this.nlLevelBadge(x.first - 1, 30)}<span><b>${this.esc(x.T.name === 'The top' ? 'Top' : x.T.name)}</b><small>${x.first === x.last ? `Level ${x.first}` : `Levels ${x.first}–${x.last}`}</small></span><em>${fmt(x.from)}</em></div>`).join('')}</div>`;
+                const how = `<div class="lvl-sec"><div class="lvl-cap">How to earn points</div>${this.cremaRules().map(r => `<div class="lvl-line"><span>${this.esc(word[r[0]] || r[1])}${r[3] ? `<small> · ${this.esc(r[3])}</small>` : ''}</span><b>+${r[2]}</b></div>`).join('')}</div>`;
+                const share = own && this.openLevelStory ? '<button type="button" class="btn-outline lvl-share" onclick="app.openLevelStory()"><svg class="icon"><use href="#i-share-2"/></svg>Share</button>' : '';
+                return `<div class="lvl-hero nl-lvl-hero">${this.nlLevelBadge(L.i, 92)}<div class="lvl-kicker">${own ? 'Your level' : `${this.esc(name)}'s level`}</div><h3>Level ${L.n}</h3><div class="lvl-crema">${this.esc(this.nlTierName(L))} · <b>${fmt(L.crema)}</b> points</div>${L.next ? `<div class="lvl-bar big"><i style="width:${L.pct.toFixed(1)}%"></i></div><div class="lvl-next">${fmt(L.next.min - L.crema)} more to level ${L.n + 1}</div>` : '<div class="lvl-next">The top level.</div>'}${share}</div>${ladder}${how}`;
+            },
+
+            // v17.5: an achievement on a card: its own little card in the color of whoever earned it; tap it for their achievements
+            nlUnlockHtml(u) {
+                if (!u || !u.definition) return '';
+                const d = u.definition, who = u.user || '', lv = d.thresholds.length > 1 ? ` · Level ${u.level}` : '';
+                return `<button type="button" class="nl-ach" style="--ac:${this.esc(this.getUserColor(who))}" onclick="event.stopPropagation(); app.openAchievementLocker('${app.escJs(who)}')" aria-label="${this.esc(`${who === this.user ? 'You' : who} unlocked ${d.title}${lv}. Open achievements`)}"><span class="nl-ach-ic"><svg class="icon"><use href="#i-trophy"/></svg></span><span class="nl-ach-t"><small>Achievement unlocked</small><b>${this.esc(d.title)}${this.esc(lv)}</b><span>${this.esc(who === this.user ? 'You' : who)} ${this.esc(d.sentence(u.threshold))}</span></span><svg class="icon nl-ach-go" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>`;
             },
 
             // ===================== the feed card =====================
@@ -24500,7 +24780,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                             ${this.nlWords(brew)}
                             ${this.nlNotesHtml(brew)}
                             ${this.nlHelpfulHtml(brew, fam)}
-                            ${unlocks.map(u => `<div class="nl-unlock">${this.esc(this.formatAchievementLine(u, u.user === this.user))}</div>`).join('')}
+                            ${unlocks.map(u => this.nlUnlockHtml(u)).join('')}
                             ${this.nlSocial('brew', brew, likes, `app.toggleLike('${app.escJs(brew.id)}', event)`)}
                         </div>
                     </article>`;
@@ -24706,6 +24986,47 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 ['detail-view', 'roaster-view', 'session-view'].forEach(id => { const sc = document.getElementById(id); if (sc) { this.nlBindNav(sc); this.nlNavPaint(sc, true); } });
                 this.nlExtras(nl);
             },
+            // v17.5: typing a comment (the New look): once the keyboard is up, the box sits just above it. iPhone sometimes threw it
+            // to the top of the screen (or left it under the keyboard); this puts it back where you'd expect, and leaves it alone
+            // when it's already in view.
+            bindCommentKeyboard() {
+                if (this._ckb || typeof document === 'undefined' || typeof window === 'undefined' || !window.visualViewport) return;
+                this._ckb = true;
+                const vv = window.visualViewport;
+                let target = null, t = 0;
+                const place = () => {
+                    if (!target || document.activeElement !== target || !(this.newLook && this.newLook())) return;
+                    const sc = target.closest('#session-view, #detail-view, #roaster-view, #main-content');
+                    if (!sc) return;
+                    if (window.scrollY) window.scrollTo(0, 0);
+                    const r = target.getBoundingClientRect(), bottom = vv.offsetTop + vv.height;
+                    const head = sc.id === 'main-content' ? document.querySelector('.header-sticky') : sc.querySelector('.nl-navbar');
+                    const top = vv.offsetTop + (head ? Math.max(0, head.getBoundingClientRect().bottom) : 60) + 8;
+                    if (r.bottom <= bottom - 8 && r.top >= top) return;   // (in view: leave it)
+                    sc.scrollTop += r.top - (bottom - 14 - r.height);
+                };
+                document.addEventListener('focusin', e => { const el = e.target; if (!el || !el.classList || !el.classList.contains('comment-input')) return; target = el; clearTimeout(t); t = setTimeout(place, 340); });
+                vv.addEventListener('resize', () => { if (target) { clearTimeout(t); t = setTimeout(place, 80); } });
+                document.addEventListener('focusout', e => { if (e.target === target) { target = null; clearTimeout(t); } });
+            },
+            // v17.5: a ring in each person's own color around their picture: one style rule per person (by name), written when a
+            // new name shows up on screen, so a redraw never loses it and a changed color updates it
+            nlRingRules() {
+                if (typeof document === 'undefined' || typeof document.querySelectorAll !== 'function' || !document.head) return;
+                const seen = this._nlRings || (this._nlRings = new Map());
+                let changed = false;
+                document.querySelectorAll('[data-face], .cmt-avatar[data-profile], .feed-avatar[data-profile]').forEach(el => {
+                    const n = String(el.getAttribute('data-face') || el.getAttribute('data-profile') || '').trim();
+                    if (!n || seen.size > 400) return;
+                    const c = this.normalizeHexColor(this.getUserColor(n)) || '';
+                    if (seen.get(n) !== c) { seen.set(n, c); changed = true; }
+                });
+                if (!changed) return;
+                let st = document.getElementById('nl-rings');
+                if (!st) { st = document.createElement('style'); st.id = 'nl-rings'; document.head.appendChild(st); }
+                const q = v => '"' + String(v).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+                st.textContent = [...seen].filter(([, c]) => c).map(([n, c]) => `html[data-look="new"] [data-face=${q(n)}], html[data-look="new"] .cmt-avatar[data-profile=${q(n)}] { --ring: ${c}; }`).join('\n');
+            },
             // v17.4: Settings on every page (the coffee and roaster pages' bars too) and the Achievement Locker's Done at its top:
             // put in for the New look only, and taken out again for the classic look (which stays exactly as it was)
             nlExtras(nl) {
@@ -24849,13 +25170,17 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 ctx.fillStyle = P.c; ctx.fillRect(0, 0, W, H);
                 // the photo (top 58%) melting into the card's color, or the flavor shape
                 const tasted = this.tastedKeys(b);
-                const shapeUrl = tasted.length && typeof FlavorShape !== 'undefined' ? FlavorShape.snapshot(this.shapeValues(b), null, { width: 600, height: 450, zoom: 1.12, labels: false, isSet: k => tasted.includes(k), setKey: `${tasted.join(',')}|nl-share-${fam}`, names: tea ? 'tea' : null, theme: this.nlShapeTheme(fam, false) }) : '';
+                const shapeUrl = tasted.length && typeof FlavorShape !== 'undefined' ? FlavorShape.snapshot(this.shapeValues(b), null, { width: 600, height: 450, zoom: 1, labels: false, lines: false, ring: this.NL_RING, fit: true, isSet: k => tasted.includes(k), setKey: `${tasted.join(',')}|nl-share-${fam}`, names: tea ? 'tea' : null, theme: this.nlShapeTheme(fam, false) }) : '';   // (v17.5: as on the cards: no box, the measure)
                 const loadImg = src => new Promise(ok => { if (!src) return ok(null); const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; });
                 const shapeImg = await loadImg(shapeUrl);
                 const top = H * 0.58;
                 if (photo) {
+                    // (v17.5: kept inside the top part, so no strip of photo shows under the fade, and sitting a little high, its
+                    // subject clear of the fade, as on the card)
                     const r = Math.max(W / photo.width, top / photo.height), w = photo.width * r, h = photo.height * r;
-                    ctx.drawImage(photo, (W - w) / 2, (top - h) / 2, w, h);
+                    ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, top); ctx.clip();
+                    ctx.drawImage(photo, (W - w) / 2, (top - h) * 0.78, w, h);
+                    ctx.restore();
                     const g = ctx.createLinearGradient(0, H * 0.30, 0, H * 0.59);
                     g.addColorStop(0, rgba(P.c, 0)); g.addColorStop(0.64, rgba(P.c, 0.88)); g.addColorStop(1, P.c);
                     ctx.fillStyle = g; ctx.fillRect(0, H * 0.30, W, H * 0.30);
@@ -24925,7 +25250,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 }
                 // Dialed In, and the mini shape
                 ctx.font = hand(X(12)); ctx.fillStyle = P.k; ctx.fillText('Dialed In', left, H - X(16));
-                if (shapeImg && photo) { const h = X(40), w = h * shapeImg.width / shapeImg.height; ctx.drawImage(shapeImg, W - X(14) - w, H - X(12) - h, w, h); }
+                if (shapeImg && photo) { const below = y + (notes.length ? X(20) : 0) + X(6), h = Math.max(X(40), Math.min(X(74), H - X(10) - below)), w = h * shapeImg.width / shapeImg.height; ctx.drawImage(shapeImg, W - X(10) - w, H - X(10) - h, w, h); }   // (v17.5: as big as the room under the notes allows)
                 return c;
             },
             // ===================== v17.4: the New look's colors, without limits =====================
@@ -25116,49 +25441,74 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             },
             // a coffee from before pictures: the color it already wears (its first session's), so editing doesn't change it
             nlBeanHueGuess(bean) { const p = this.nlToneParts(this.coffeeToneKey(bean)); return p ? p.h : 28; },
-            beanCoverNow() {
-                const c = this._bcv || { hue: null, tone: 60, photo: '' };
+            // v17.5: the same Picture editor serves the coffee editor ('bean', #bcv-…) and the roaster editor ('roaster', #rcv-…)
+            cvIds(ctx) { const p = ctx === 'roaster' ? 'rcv' : 'bcv'; return { tile: `${p}-tile`, sw: `${p}-swatches`, photo: `${p}-photo`, rm: `${p}-remove`, input: `${p}-input` }; },
+            cvState(ctx) { return ctx === 'roaster' ? this._rcv : this._bcv; },
+            cvName(ctx) {
+                if (ctx === 'roaster') return this._rcvName || '';
+                const form = this.getBeanForm && this.getBeanForm();
+                return form && form.elements.name ? form.elements.name.value : '';
+            },
+            beanCoverNow(ctx = 'bean') {
+                const c = this.cvState(ctx) || { hue: null, tone: 60, photo: '' };
                 let hue = c.hue;
                 if (hue === null || hue === undefined) {
-                    const form = this.getBeanForm && this.getBeanForm();
-                    const nm = form ? `${(form.elements.roaster || {}).value || ''}|${(form.elements.name || {}).value || ''}` : '';
+                    let nm = '';
+                    if (ctx === 'roaster') nm = this._rcvName || '';
+                    else { const form = this.getBeanForm && this.getBeanForm(); nm = form ? `${(form.elements.roaster || {}).value || ''}|${(form.elements.name || {}).value || ''}` : ''; }
                     hue = this.NL_COVER_HUES[this.nlNameHue(nm) % this.NL_COVER_HUES.length];
                 }
                 return { hue: Math.round(hue) % 360, tone: Math.max(0, Math.min(100, Math.round(c.tone ?? 60))), photo: c.photo || '' };
             },
-            beanCoverOut() { const c = this.beanCoverNow(); return c.photo ? c : { hue: c.hue, tone: c.tone }; },
-            paintBeanCover() {
+            beanCoverOut(ctx = 'bean') { const c = this.beanCoverNow(ctx); return c.photo ? c : { hue: c.hue, tone: c.tone }; },
+            paintBeanCover(ctx = 'bean') {
                 if (typeof document === 'undefined') return;
-                const tile = document.getElementById('bcv-tile'), sw = document.getElementById('bcv-swatches');
+                const ids = this.cvIds(ctx), tile = document.getElementById(ids.tile), sw = document.getElementById(ids.sw);
                 if (!tile || !sw) return;
-                const c = this.beanCoverNow(), form = this.getBeanForm && this.getBeanForm();
-                const name = form && form.elements.name ? form.elements.name.value : '';
+                const c = this.beanCoverNow(ctx), name = this.cvName(ctx);
                 const key = this.nlToneKey(c.hue, 0.012 + 0.12 * Math.max(0.1, c.tone / 100)), P = this.nlTonePal(key, this.nlDark());
                 const words = String(name || '').replace(/[^\p{L}\p{N}\s&]/gu, ' ').split(/\s+/).filter(w => w && w !== '&');
                 const ini = (words.length > 1 ? words[0][0] + words[1][0] : (words[0] || '?').slice(0, 1)).toUpperCase();
-                tile.className = 'bcv-tile nl-cover';
+                tile.className = `${ids.tile.slice(0, 3)}-tile bcv-tile nl-cover`;
                 tile.style.background = `linear-gradient(145deg, ${P.tileA}, ${P.tileB})`;
                 tile.innerHTML = `${c.photo && this.faceUrl ? `<img src="${this.esc(this.faceUrl(c.photo))}" alt="">` : ''}${words.length ? `<b>${this.esc(ini)}</b>` : '<svg class="icon nl-ic"><use href="#i-bean"/></svg>'}`;
                 const near = this.NL_COVER_HUES.reduce((a, h) => (Math.abs(((h - c.hue + 540) % 360) - 180) < Math.abs(((a - c.hue + 540) % 360) - 180) ? h : a), this.NL_COVER_HUES[0]);
-                sw.innerHTML = this.NL_COVER_HUES.map(h => { const k = this.nlToneKey(h, 0.084), q = this.nlTonePal(k, this.nlDark()); return `<button type="button" role="radio" aria-checked="${h === near}" aria-label="Color ${h}" style="background:linear-gradient(145deg, ${q.tileA}, ${q.tileB})" onclick="app.pickCoverHue(${h})"></button>`; }).join('');
-                const photoBtn = document.getElementById('bcv-photo'), rm = document.getElementById('bcv-remove');
+                sw.innerHTML = this.NL_COVER_HUES.map(h => { const k = this.nlToneKey(h, 0.084), q = this.nlTonePal(k, this.nlDark()); return `<button type="button" role="radio" aria-checked="${h === near}" aria-label="Color ${h}" style="background:linear-gradient(145deg, ${q.tileA}, ${q.tileB})" onclick="app.pickCoverHue(${h}, '${app.escJs(ctx)}')"></button>`; }).join('');
+                const photoBtn = document.getElementById(ids.photo), rm = document.getElementById(ids.rm);
                 const canPhoto = !!(typeof Supa !== 'undefined' && Supa.ready && Supa.ready() && this.acctOn && this.acctOn());
-                if (photoBtn) { photoBtn.hidden = !canPhoto; photoBtn.textContent = c.photo ? 'Change photo' : 'Add a photo'; photoBtn.disabled = !!this._bcvBusy; }
+                const busy = ctx === 'roaster' ? this._rcvBusy : this._bcvBusy;
+                if (photoBtn) { photoBtn.hidden = !canPhoto; photoBtn.textContent = c.photo ? 'Change photo' : 'Add a photo'; photoBtn.disabled = !!busy; }
                 if (rm) rm.hidden = !c.photo;
             },
-            pickCoverHue(h) { if (!this._bcv) this._bcv = { tone: 60, photo: '' }; this._bcv.hue = h; this._bcv.tone = 60; this._bcv.picked = true; if (this.haptic) this.haptic('tick'); this.paintBeanCover(); },
-            pickCoverPhoto() { const i = document.getElementById('bcv-input'); if (i) { i.value = ''; i.click(); } },
-            removeCoverPhoto() { if (this._bcv) { this._bcv.photo = ''; this.paintBeanCover(); } },
+            pickCoverHue(h, ctx = 'bean') {
+                const key = ctx === 'roaster' ? '_rcv' : '_bcv';
+                if (!this[key]) this[key] = { tone: 60, photo: '' };
+                this[key].hue = h; this[key].tone = 60; this[key].picked = true;
+                if (this.haptic) this.haptic('tick');
+                this.paintBeanCover(ctx);
+            },
+            pickCoverPhoto(ctx = 'bean') { const i = document.getElementById(this.cvIds(ctx).input); if (i) { i.value = ''; i.click(); } },
+            removeCoverPhoto(ctx = 'bean') { const st = this.cvState(ctx); if (st) { st.photo = ''; this.paintBeanCover(ctx); } },
+            // the roaster editor's Picture (v17.5): starts on the roaster's saved picture, or the color its tile wears now
+            roasterCoverInit(r) {
+                const cov = r && r.info && r.info.cover;
+                this._rcvName = r ? r.name : '';
+                const guess = r ? (this.nlToneParts(this.famOfRoaster(r.name)) || {}).h : null;
+                this._rcv = cov ? { hue: cov.hue, tone: cov.tone ?? 60, photo: cov.photo || '', picked: true } : { hue: guess ?? null, tone: 60, photo: '', picked: false };
+                this._rcvStart = JSON.stringify(this.beanCoverOut('roaster'));
+                this.paintBeanCover('roaster');
+            },
             // a picked photo: the middle square, 480 px, as a JPEG, into your folder of public pictures; its main color becomes
             // the coffee's color (pick a swatch after to change it)
-            async coverPhotoPicked(input) {
+            async coverPhotoPicked(input, ctx = 'bean') {
                 const file = input && input.files && input.files[0];
                 if (input) input.value = '';
                 if (!file) return;
                 const s = typeof Supa !== 'undefined' ? Supa.session() : null;
                 if (!s || !s.user) { this.showToast('Sign in first.'); return; }
-                this._bcvBusy = true; this.paintBeanCover();
-                const btn = document.getElementById('bcv-photo'); if (btn) btn.textContent = 'Uploading…';
+                const stKey = ctx === 'roaster' ? '_rcv' : '_bcv', busyKey = ctx === 'roaster' ? '_rcvBusy' : '_bcvBusy';
+                this[busyKey] = true; this.paintBeanCover(ctx);
+                const btn = document.getElementById(this.cvIds(ctx).photo); if (btn) btn.textContent = 'Uploading…';
                 try {
                     const img = await new Promise((ok, no) => { const u = URL.createObjectURL(file); const i = new Image(); i.onload = () => { URL.revokeObjectURL(u); ok(i); }; i.onerror = () => { URL.revokeObjectURL(u); no(new Error('not a picture')); }; i.src = u; });
                     const side = Math.min(img.naturalWidth, img.naturalHeight), N = 480;
@@ -25170,13 +25520,13 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     const rand = Array.from(crypto.getRandomValues(new Uint8Array(9)), b => b.toString(16).padStart(2, '0')).join('');
                     const path = `${s.user.id}/c${rand}.jpg`;
                     await Supa.call('/storage/v1/object/avatars/' + path, blob, { headers: { 'Content-Type': 'image/jpeg' } });
-                    if (!this._bcv) this._bcv = { tone: 60 };
-                    this._bcv.photo = path;
-                    if (hue) { this._bcv.hue = hue.h; this._bcv.tone = hue.tone; this._bcv.picked = true; }
+                    if (!this[stKey]) this[stKey] = { tone: 60 };
+                    this[stKey].photo = path;
+                    if (hue) { this[stKey].hue = hue.h; this[stKey].tone = hue.tone; this[stKey].picked = true; }
                     this.showToast('Photo added. Save to keep it.');
                 } catch (e) {
                     this.showToast(/not a picture|no picture/.test(String(e && e.message)) ? 'That file isn\'t a picture.' : 'Couldn\'t upload the photo. Check your connection.');
-                } finally { this._bcvBusy = false; this.paintBeanCover(); }
+                } finally { this[busyKey] = false; this.paintBeanCover(ctx); }
             },
             // a photo's main color: the average of its more colorful pixels in OKLab (a grey photo gives a quiet color)
             nlPhotoHue(canvas) {
