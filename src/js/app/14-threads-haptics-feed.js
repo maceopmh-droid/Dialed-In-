@@ -266,7 +266,7 @@
                         <div class="cmt${isReply ? ' reply' : ''}" id="cmt-${this.esc(c.id)}">
                             <div class="cmt-avatar" style="background:${this.esc(color)}" data-profile="${this.esc(c.user)}">${this.esc(this.feedInitial(c.user))}</div>
                             <div class="cmt-main">
-                                <div class="cmt-head"><b data-profile="${this.esc(c.user)}">${this.esc(c.user)}</b><span>${this.esc(this.formatRelativeDate(c.timestamp))}</span>${kind === 'brew' && target.helpfulAnswer && String(target.helpfulAnswer) === String(c.id) ? '<span class="cmt-helpful">Most helpful</span>' : ''}</div>
+                                <div class="cmt-head"><b data-profile="${this.esc(c.user)}">${this.esc(c.user)}</b><span>${this.esc(this.nlAgo && this.newLook && this.newLook() ? this.nlAgo(c.timestamp) : this.formatRelativeDate(c.timestamp))}</span>${kind === 'brew' && target.helpfulAnswer && String(target.helpfulAnswer) === String(c.id) ? '<span class="cmt-helpful">Most helpful</span>' : ''}</div>
                                 <div class="cmt-text">${this.esc(c.text)}</div>
                                 <div class="cmt-actions">
                                     <button type="button" class="cmt-like${liked ? ' liked' : ''}" onclick="app.toggleCommentLike('${app.escJs(kind)}','${app.escJs(id)}','${app.escJs(c.id)}',event)" aria-pressed="${liked}" aria-label="Like comment">

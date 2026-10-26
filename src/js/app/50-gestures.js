@@ -63,7 +63,7 @@
                     }
                     return false;
                 };
-                const blocked = el => !!(el && el.closest && el.closest('input, textarea, select, [contenteditable="true"], canvas, .no-swipe, .wl-wrap'));
+                const blocked = el => !!(el && el.closest && el.closest('input, textarea, select, [contenteditable="true"], canvas:not(.nl-auto), .no-swipe, .wl-wrap'));
                 const scrollerAtTop = (el, stop) => {
                     for (let n = el; n && n.nodeType === 1; n = n.parentElement) {
                         if (n.scrollHeight > n.clientHeight + 2) { const oy = getComputedStyle(n).overflowY; if ((oy === 'auto' || oy === 'scroll') && n.scrollTop > 0) return false; }
@@ -97,7 +97,7 @@
                         return;
                     }
                     const tabs = this.swipeTabs();
-                    if (tabs && !blocked(target) && !sideways(target) && !(target.closest && target.closest('#mobile-nav, .app-header, header'))) g = { kind: 'tabs', el: document.getElementById('grid'), tabs, x0: x, y0: y, t0: Date.now() };
+                    if (tabs && !blocked(target) && !sideways(target) && !(target.closest && target.closest('#mobile-nav, .app-header, header'))) g = { kind: 'tabs', el: document.getElementById('grid'), tabs, x0: x, y0: y, t0: Date.now(), flat: !!(this.newLook && this.newLook()) };
                 }, { passive: true });
 
                 document.addEventListener('touchmove', e => {
@@ -120,7 +120,8 @@
                     else if (g.kind === 'back') g.el.style.transform = `translateX(${g.soft ? Math.max(0, dx) * 0.4 : Math.max(0, dx)}px)`;
                     else if (g.kind === 'tabs') {
                         const i = g.tabs.list.indexOf(g.tabs.now), next = dx < 0 ? i + 1 : i - 1, room = next >= 0 && next < g.tabs.list.length;
-                        g.el.style.transform = `translateX(${dx * (room ? 0.3 : 0.08)}px)`; g.el.style.opacity = String(room ? Math.max(0.55, 1 - Math.abs(dx) / (W() * 1.6)) : 1);
+                        g.el.style.transform = `translateX(${dx * (room ? 0.3 : 0.08)}px)`;
+                        if (!g.flat) g.el.style.opacity = String(room ? Math.max(0.55, 1 - Math.abs(dx) / (W() * 1.6)) : 1);   // (v17.4: the New look only slides; a whole feed see-through is heavy on an iPhone)
                     }
                 }, { passive: false });
 
@@ -162,7 +163,7 @@
                         s.tabs.set(list[next]);
                         const grid = document.getElementById('grid');
                         if (grid) {   // the new list comes in from the side you swiped toward
-                            grid.style.transition = 'none'; grid.style.transform = `translateX(${s.dx < 0 ? 36 : -36}px)`; grid.style.opacity = '0.4';
+                            grid.style.transition = 'none'; grid.style.transform = `translateX(${s.dx < 0 ? 36 : -36}px)`; if (!s.flat) grid.style.opacity = '0.4';
                             requestAnimationFrame(() => requestAnimationFrame(() => { grid.style.transition = ease; grid.style.transform = ''; grid.style.opacity = ''; setTimeout(() => clear(grid), 260); }));
                         }
                         if (this.haptic) this.haptic('tick');

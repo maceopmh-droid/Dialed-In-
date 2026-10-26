@@ -27,6 +27,10 @@
                 if (tab === 'profile' && this.tab !== 'profile') this.profileUser = this.user;
                 const freshRecap = tab === 'profile' && this.tab !== 'profile' && !this._noRecapJump ? this.freshRecap() : null;
                 if (freshRecap) { this.profileSection = 'activity'; this.recapPeriod = freshRecap; this._recapOpen = true; setTimeout(() => { const el = document.getElementById('recap-card'); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); }
+                // v17.4: each tab keeps its own place (the page scrolls inside main-content, shared by every tab, so the
+                // Profile opened as far down as the feed had been scrolled)
+                const sc = document.getElementById('main-content');
+                if (sc && prevTab && prevTab !== tab) (this._tabY || (this._tabY = {}))[prevTab] = sc.scrollTop;
                 this.tab = tab;
                 if (this.setBarsTucked) this.setBarsTucked(false);   // v14.7: a new tab starts with both bars
                 document.querySelectorAll('.nav-btn, .mob-item').forEach(el => el.classList.remove('active'));
@@ -41,6 +45,7 @@
                 this.closeMobileControls();
                 this.updateAchievementCount();
                 this.render();
+                if (sc && prevTab !== tab) { const y = (this._tabY && this._tabY[tab]) || 0; if (sc.scrollTop !== y) { this._barsJump = true; sc.scrollTop = y; } }
                 if (tab === 'feed') this.playCrewLoop();
             },
 

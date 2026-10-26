@@ -34,6 +34,7 @@
                 if (this._feedMode === 'groups') { const id = this.feedGroupId(); if (id) { const st = this.streamState('g:' + id); if (fresh(st)) this.loadGroupFeed(id, false); } }
                 this.render();
                 const g = document.getElementById('grid'); if (g && g.scrollIntoView && window.scrollY > 200) window.scrollTo({ top: 0 });
+                const sc = document.getElementById('main-content'); if (sc && sc.scrollTop > 200) sc.scrollTop = 0;   // (v17.4: the page scrolls in here now; another feed starts at its top)
             },
 
             feedModeHtml() {

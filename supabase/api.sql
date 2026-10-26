@@ -250,6 +250,17 @@ create or replace function internal.tea_details(ev jsonb) returns jsonb language
                      where jsonb_typeof(x) = 'object' and coalesce(btrim(x->>'name'), '') <> '' and o <= 20))), '{}'::jsonb)
 $$;
 
+-- v17.4: a coffee's picture, chosen when it's added or in the coffee editor, so it doesn't change by itself:
+-- {hue: 0-359, tone: 0-100 (how colorful), photo: a picture in the owner's own folder of the public "avatars" bucket}
+alter table coffees add column if not exists cover jsonb;
+create or replace function internal.cover_of(ev jsonb) returns jsonb language sql stable set search_path = public as $$
+  select case when jsonb_typeof(ev->'cover') = 'object' then nullif(jsonb_strip_nulls(jsonb_build_object(
+    'hue', case when jsonb_typeof(ev->'cover'->'hue') = 'number' and (ev->'cover'->>'hue')::numeric between 0 and 360 then round((ev->'cover'->>'hue')::numeric)::int % 360 end,
+    'tone', case when jsonb_typeof(ev->'cover'->'tone') = 'number' and (ev->'cover'->>'tone')::numeric between 0 and 100 then round((ev->'cover'->>'tone')::numeric)::int end,
+    'photo', case when jsonb_typeof(ev->'cover'->'photo') = 'string' and split_part(ev->'cover'->>'photo', '/', 1) = auth.uid()::text
+                   and ev->'cover'->>'photo' ~ '^[0-9a-f-]{36}/[A-Za-z0-9_-]{6,64}\.(jpg|png)$' then ev->'cover'->>'photo' end)), '{}'::jsonb) end
+$$;
+
 create or replace function internal.coffee_json(k coffees) returns jsonb
 language sql stable set search_path = public as $$
   select jsonb_strip_nulls(jsonb_build_object(
@@ -260,6 +271,7 @@ language sql stable set search_path = public as $$
       'variety', coalesce(k.variety, ''), 'roast', coalesce(k.roast, ''), 'roastDate', coalesce(k.roast_date::text, ''),
       'kind', case when k.kind = 'tea' then 'tea' end, 'teaType', case when k.kind = 'tea' then k.tea_type end,   -- (v17.0: only on teas, so a coffee reads as it always did)
       'blend', case when k.kind = 'tea' and k.tea->>'blend' = 'true' then true end, 'ingredients', case when k.kind = 'tea' then k.tea->'ingredients' end,   -- (v17.1)
+      'cover', k.cover,   -- (v17.4)
       'date', k.created_at, 'eventAt', k.updated_at,
       'likes', coalesce((select jsonb_agg(internal.name_of(l.user_id) order by l.created_at) from coffee_likes l where l.coffee_id = k.id), '[]'::jsonb),
       'comments', internal.comments_json(k.id, null),
@@ -763,12 +775,12 @@ begin
   if not found then
     if lower(btrim(coalesce(ev->>'owner', ev->>'user', me_nm))) <> lower(me_nm) then return; end if;   -- someone else's coffee you can't see
     perform internal.rate_hit(me_id, 'coffee');   -- v14.6
-    insert into coffees (legacy_id, owner_id, roaster_id, roaster_text, name, origin, process, variety, roast, roast_date, created_at, kind, tea_type, tea)
+    insert into coffees (legacy_id, owner_id, roaster_id, roaster_text, name, origin, process, variety, roast, roast_date, created_at, kind, tea_type, tea, cover)
     values (ev->>'id', me_id, internal.roaster_for(ev->>'roaster', me_id), nullif(btrim(ev->>'roaster'), ''), coalesce(nullif(btrim(ev->>'name'), ''), case when ev->>'kind' = 'tea' then 'Tea' else 'Coffee' end),
             nullif(btrim(ev->>'origin'), ''), nullif(btrim(ev->>'process'), ''), nullif(btrim(ev->>'variety'), ''), nullif(btrim(ev->>'roast'), ''),
             internal.try_date(ev->>'roastDate'), coalesce(internal.try_ts(ev->>'date'), now()),
             case when ev->>'kind' = 'tea' then 'tea' else 'coffee' end, case when ev->>'kind' = 'tea' then internal.tea_type(ev->>'teaType') end,
-            case when ev->>'kind' = 'tea' then internal.tea_details(ev) end)
+            case when ev->>'kind' = 'tea' then internal.tea_details(ev) end, internal.cover_of(ev))
     returning * into k;
   elsif k.deleted_at is not null then return;                                                         -- deleted stays deleted
   elsif k.owner_id = me_id then                                                    -- only the owner edits a coffee, as in the app today
@@ -779,7 +791,9 @@ begin
       kind = case when not ev ? 'kind' then kind when ev->>'kind' = 'tea' then 'tea' else 'coffee' end,
       tea_type = case when not ev ? 'kind' then tea_type when ev->>'kind' = 'tea' then internal.tea_type(ev->>'teaType') end,
       -- (v17.1: a save from a version before blends has no "ingredients": it leaves them as they were)
-      tea = case when ev->>'kind' is distinct from 'tea' and ev ? 'kind' then null when not ev ? 'ingredients' then tea else internal.tea_details(ev) end
+      tea = case when ev->>'kind' is distinct from 'tea' and ev ? 'kind' then null when not ev ? 'ingredients' then tea else internal.tea_details(ev) end,
+      -- (v17.4: a save from a version before pictures has no "cover": it leaves the picture as it was)
+      cover = case when not ev ? 'cover' then cover else internal.cover_of(ev) end
     where id = k.id;
   end if;
   perform internal.sync_like('coffee', k.id, ev->'likes', me_id, me_nm);
