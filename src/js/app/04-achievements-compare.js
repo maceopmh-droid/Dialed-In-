@@ -170,8 +170,8 @@
                       metric: stats => stats.teaSessions || 0, format: value => `${Math.round(value)}`, sentence: value => (Math.round(value) === 1 ? 'logged a first tea session' : `logged ${Math.round(value)} tea sessions`) },
                     { key: 'tea_explorer', group: 'Tea', desc: 'Different teas tried', title: 'Leaf Explorer', thresholds: [2, 5, 10, 20, 35, 50],
                       metric: stats => (stats.teaSet ? stats.teaSet.size : 0), format: value => `${Math.round(value)}`, sentence: value => `tried ${Math.round(value)} different teas` },
-                    { key: 'tea_types', group: 'Tea', desc: 'Kinds of tea tried (green, white, yellow, oolong, black, pu-erh, matcha)', title: 'Tea Spectrum', thresholds: [2, 4, 7],
-                      metric: stats => (stats.teaTypeSet ? stats.teaTypeSet.size : 0), format: value => `${Math.min(7, Math.round(value))}/7 types`, sentence: value => `tried ${Math.round(value)} kinds of tea` },
+                    { key: 'tea_types', group: 'Tea', desc: 'Kinds of tea tried (green, white, yellow, oolong, black, pu-erh, matcha, herbal)', title: 'Tea Spectrum', thresholds: [2, 4, 8],
+                      metric: stats => (stats.teaTypeSet ? stats.teaTypeSet.size : 0), format: value => `${Math.min(8, Math.round(value))}/8 types`, sentence: value => `tried ${Math.round(value)} kinds of tea` },
                     { key: 'tea_steeps', group: 'Tea', desc: 'Steeps logged, all time', title: 'Steep Count', thresholds: [10, 50, 150, 400, 1000],
                       metric: stats => stats.steepTotal || 0, format: value => `${Math.round(value)}`, sentence: value => `logged ${Math.round(value)} steeps` }
                 ];
@@ -315,6 +315,15 @@
                     if (wa !== null || wb !== null) rows.push(['Water', ml(wa), ml(wb), chip(wa, wb, null)]);
                     const ra = la && wa ? wa / la : null, rb = lb && wb ? wb / lb : null;
                     if (ra || rb) rows.push(['Ratio', ra ? `1:${this.fmtNum(ra, 0)}` : '–', rb ? `1:${this.fmtNum(rb, 0)}` : '–', chip(ra === null ? null : Math.round(ra), rb === null ? null : Math.round(rb), null)]);
+                    // v17.1: what went in each cup, side by side (the first 6 things)
+                    const mixA = this.cleanMix(A.mix), mixB = this.cleanMix(Bv.mix), names = [];
+                    [...mixA, ...mixB].forEach(it => { if (!names.some(n => n.toLowerCase() === it.name.toLowerCase()) && names.length < 6) names.push(it.name); });
+                    names.forEach(n => {
+                        const fa = mixA.find(it => it.name.toLowerCase() === n.toLowerCase()), fb = mixB.find(it => it.name.toLowerCase() === n.toLowerCase());
+                        const txt = it => !it ? '–' : Number(it.amount) > 0 ? `${this.fmtNum(it.amount, 2)} ${it.unit || 'g'}` : 'yes';
+                        const same = fa && fb && (fa.unit || 'g') === (fb.unit || 'g') && Number(fa.amount) > 0 && Number(fb.amount) > 0;
+                        rows.push([this.esc(n), this.esc(txt(fa)), this.esc(txt(fb)), same ? chip(Number(fa.amount), Number(fb.amount), null) : (fa && fb ? '<span class="cmp-d same">both</span>' : '<span class="cmp-d neutral">changed</span>')]);
+                    });
                     const ma = num(A.milk), mb = num(Bv.milk);
                     if (ma !== null || mb !== null) rows.push(['Milk', ml(ma), ml(mb), chip(ma, mb, null)]);
                     if (ta !== null || tb !== null) rows.push(['Temp', deg(ta), deg(tb), chip(ta, tb, null)]);

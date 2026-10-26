@@ -1,26 +1,32 @@
         // ===================== v17.0: tea =====================
         // Coffee stays the main thing; tea is a real second option. A tea is a coffee item with kind 'tea' (saved as such
         // on the backend: coffees.kind / tea_type), its company is its brand (the same roaster field), and a tea session uses
-        // the tea methods below. Only tea: no herbal tisanes or other drinks.
-        const TEA_TYPES = ['Green', 'White', 'Yellow', 'Oolong', 'Black', 'Pu-erh', 'Matcha'];
+        // the tea methods below. Herbal teas count too (v17.1), and a tea can be your own blend of several things; no other drinks.
+        const TEA_TYPES = ['Green', 'White', 'Yellow', 'Oolong', 'Black', 'Pu-erh', 'Matcha', 'Herbal'];
         // what each type usually wants (°C, and a western-style steep in seconds): placeholders and the next-steep advice
         const TEA_TYPE_INFO = {
             Green: { temp: 78, steep: 120, color: '#7FA45B' }, White: { temp: 85, steep: 180, color: '#C9B98F' },
             Yellow: { temp: 78, steep: 150, color: '#D2B04C' }, Oolong: { temp: 92, steep: 180, color: '#B98A4B' },
             Black: { temp: 95, steep: 210, color: '#9A4F3A' }, 'Pu-erh': { temp: 98, steep: 150, color: '#6E4A3A' },
-            Matcha: { temp: 75, steep: 0, color: '#6E9E3F' }
+            Matcha: { temp: 75, steep: 0, color: '#6E9E3F' }, Herbal: { temp: 98, steep: 300, color: '#4E9C88' }
         };
         // the tea methods (same form as coffee: leaf goes where the dose goes, water where the yield goes)
         const TEA_METHOD_PROFILES = {
-            'Western': { dose: 'Leaf (g)', yld: 'Water (ml)', time: 'Steep (s)', ratio: 80, extras: ['teabag', 'temp', 'steeps'], recipes: false, tea: true, hint: 'Teapot, mug or infuser' },
-            'Gongfu': { dose: 'Leaf (g)', yld: 'Water (ml)', time: 'Steep (s)', ratio: 18, extras: ['temp', 'rinse', 'steeps'], recipes: false, tea: true, hint: 'Gaiwan or small pot, many short steeps' },
-            'Matcha': { dose: 'Matcha (g)', yld: 'Water (ml)', time: 'Whisk (s)', ratio: 35, extras: ['style', 'milk', 'temp'], recipes: false, tea: true, hint: 'Whisked' },
-            'Cold Steep': { dose: 'Leaf (g)', yld: 'Water (ml)', time: 'Steep (hours)', ratio: 100, extras: [], recipes: false, tea: true, hours: true, hint: 'Steeped cold in the fridge' }
+            'Western': { dose: 'Leaf (g)', yld: 'Water (ml)', time: 'Steep (s)', ratio: 80, extras: ['teabag', 'temp', 'steeps', 'mix'], recipes: false, tea: true, hint: 'Teapot, mug or infuser' },
+            'Gongfu': { dose: 'Leaf (g)', yld: 'Water (ml)', time: 'Steep (s)', ratio: 18, extras: ['temp', 'rinse', 'steeps', 'mix'], recipes: false, tea: true, hint: 'Gaiwan or small pot, many short steeps' },
+            // v17.1: simmered on the stove (roots and barks like ginger or echinacea, and chai), timed in minutes
+            'Simmered': { dose: 'Leaf (g)', yld: 'Water (ml)', time: 'Minutes', ratio: 60, extras: ['milk', 'mix'], recipes: false, tea: true, minutes: true, hint: 'On the stove: roots, barks, chai' },
+            'Matcha': { dose: 'Matcha (g)', yld: 'Water (ml)', time: 'Whisk (s)', ratio: 35, extras: ['style', 'milk', 'temp', 'mix'], recipes: false, tea: true, hint: 'Whisked' },
+            'Cold Steep': { dose: 'Leaf (g)', yld: 'Water (ml)', time: 'Hours', ratio: 100, extras: ['mix'], recipes: false, tea: true, hours: true, hint: 'Steeped cold in the fridge' }
         };
         Object.assign(METHOD_PROFILES, TEA_METHOD_PROFILES);
         const TEA_METHODS = Object.keys(TEA_METHOD_PROFILES);
         // matcha is powder, so it's only ever whisked; leaf teas are steeped (a tea with no type set gets all four)
-        const LEAF_TEA_METHODS = ['Western', 'Gongfu', 'Cold Steep'];
+        const LEAF_TEA_METHODS = ['Western', 'Gongfu', 'Simmered', 'Cold Steep'];
+        const HERBAL_TEA_METHODS = ['Western', 'Simmered', 'Cold Steep'];
+        // what went into one cup (v17.1): each with an amount; the tea's own ingredients come first, then these
+        const MIX_UNITS = ['g', 'tsp', 'tbsp', 'bag', 'slice', 'pinch', 'ml'];
+        const MIX_ADDINS = ['Honey', 'Lemon', 'Ginger', 'Mint', 'Milk'];
         // how a matcha is made: thin (the everyday bowl), thick (twice the powder, little water), or with milk.
         // ratio: water to powder (a latte's is the matcha shot before the milk)
         const MATCHA_STYLES = [
@@ -48,5 +54,6 @@
             { fam: 'Nutty & toasty', color: '#85604A', groups: [['Nuts', ['Chestnut', 'Almond', 'Walnut']], ['Toasted', ['Toasted rice', 'Biscuit', 'Roasted grain', 'Bread']]] },
             { fam: 'Spice & wood', color: '#A2643A', groups: [['Spice', ['Cinnamon', 'Clove', 'Black pepper', 'Ginger']], ['Wood', ['Cedar', 'Sandalwood', 'Camphor']]] },
             { fam: 'Earthy & smoky', color: '#6B5A4E', groups: [['Earthy', ['Wet earth', 'Forest floor', 'Mushroom', 'Leather']], ['Smoky', ['Pine smoke', 'Charcoal', 'Tobacco']], ['Mineral', ['Wet stone', 'Slate', 'Salty']]] },
+            { fam: 'Herbal', color: '#4E9C88', groups: [['Minty', ['Peppermint', 'Spearmint', 'Lemon balm']], ['Herby', ['Chamomile', 'Lemongrass', 'Licorice', 'Anise']], ['Tart', ['Hibiscus', 'Rosehip', 'Tangy']]] },
             { fam: 'Tastes off', color: '#7D8984', groups: [['Over-steeped', ['Bitter', 'Harsh', 'Drying', 'Stewed']], ['Under-steeped', ['Thin', 'Watery', 'Flat']], ['Stale', ['Papery', 'Musty', 'Dusty']]] }
         ];

@@ -240,6 +240,15 @@ alter table coffees add column if not exists kind text not null default 'coffee'
 alter table coffees add column if not exists tea_type text;
 do $$ begin alter table coffees add constraint coffees_kind check (kind in ('coffee', 'tea'));
 exception when duplicate_object then null; end $$;
+-- v17.1: a tea's own details: your own blend (no brand), and what's in it ({blend, ingredients: [{name, ref}]})
+alter table coffees add column if not exists tea jsonb;
+create or replace function internal.tea_details(ev jsonb) returns jsonb language sql immutable as $$
+  select nullif(jsonb_strip_nulls(jsonb_build_object(
+    'blend', case when ev->>'blend' = 'true' then true end,
+    'ingredients', (select jsonb_agg(jsonb_strip_nulls(jsonb_build_object('name', left(btrim(x->>'name'), 60), 'ref', nullif(left(btrim(coalesce(x->>'ref', '')), 80), ''))) order by o)
+                      from jsonb_array_elements(case when jsonb_typeof(ev->'ingredients') = 'array' then ev->'ingredients' else '[]'::jsonb end) with ordinality t(x, o)
+                     where jsonb_typeof(x) = 'object' and coalesce(btrim(x->>'name'), '') <> '' and o <= 20))), '{}'::jsonb)
+$$;
 
 create or replace function internal.coffee_json(k coffees) returns jsonb
 language sql stable set search_path = public as $$
@@ -250,6 +259,7 @@ language sql stable set search_path = public as $$
       'roaster', coalesce(k.roaster_text, r.name, ''), 'name', k.name, 'origin', coalesce(k.origin, ''), 'process', coalesce(k.process, ''),
       'variety', coalesce(k.variety, ''), 'roast', coalesce(k.roast, ''), 'roastDate', coalesce(k.roast_date::text, ''),
       'kind', case when k.kind = 'tea' then 'tea' end, 'teaType', case when k.kind = 'tea' then k.tea_type end,   -- (v17.0: only on teas, so a coffee reads as it always did)
+      'blend', case when k.kind = 'tea' and k.tea->>'blend' = 'true' then true end, 'ingredients', case when k.kind = 'tea' then k.tea->'ingredients' end,   -- (v17.1)
       'date', k.created_at, 'eventAt', k.updated_at,
       'likes', coalesce((select jsonb_agg(internal.name_of(l.user_id) order by l.created_at) from coffee_likes l where l.coffee_id = k.id), '[]'::jsonb),
       'comments', internal.comments_json(k.id, null),
@@ -741,7 +751,8 @@ end $$;
 -- a tea's type, as the app offers them (anything else is dropped)
 create or replace function internal.tea_type(t text) returns text language sql immutable as $$
   select case lower(btrim(coalesce(t, ''))) when 'green' then 'Green' when 'white' then 'White' when 'yellow' then 'Yellow'
-              when 'oolong' then 'Oolong' when 'black' then 'Black' when 'pu-erh' then 'Pu-erh' when 'matcha' then 'Matcha' end
+              when 'oolong' then 'Oolong' when 'black' then 'Black' when 'pu-erh' then 'Pu-erh' when 'matcha' then 'Matcha'
+              when 'herbal' then 'Herbal' when 'tisane' then 'Herbal' end   -- (v17.1: herbal teas)
 $$;
 
 create or replace function internal.push_bean(ev jsonb, me_id uuid, me_nm text) returns void
@@ -752,11 +763,12 @@ begin
   if not found then
     if lower(btrim(coalesce(ev->>'owner', ev->>'user', me_nm))) <> lower(me_nm) then return; end if;   -- someone else's coffee you can't see
     perform internal.rate_hit(me_id, 'coffee');   -- v14.6
-    insert into coffees (legacy_id, owner_id, roaster_id, roaster_text, name, origin, process, variety, roast, roast_date, created_at, kind, tea_type)
+    insert into coffees (legacy_id, owner_id, roaster_id, roaster_text, name, origin, process, variety, roast, roast_date, created_at, kind, tea_type, tea)
     values (ev->>'id', me_id, internal.roaster_for(ev->>'roaster', me_id), nullif(btrim(ev->>'roaster'), ''), coalesce(nullif(btrim(ev->>'name'), ''), case when ev->>'kind' = 'tea' then 'Tea' else 'Coffee' end),
             nullif(btrim(ev->>'origin'), ''), nullif(btrim(ev->>'process'), ''), nullif(btrim(ev->>'variety'), ''), nullif(btrim(ev->>'roast'), ''),
             internal.try_date(ev->>'roastDate'), coalesce(internal.try_ts(ev->>'date'), now()),
-            case when ev->>'kind' = 'tea' then 'tea' else 'coffee' end, case when ev->>'kind' = 'tea' then internal.tea_type(ev->>'teaType') end)
+            case when ev->>'kind' = 'tea' then 'tea' else 'coffee' end, case when ev->>'kind' = 'tea' then internal.tea_type(ev->>'teaType') end,
+            case when ev->>'kind' = 'tea' then internal.tea_details(ev) end)
     returning * into k;
   elsif k.deleted_at is not null then return;                                                         -- deleted stays deleted
   elsif k.owner_id = me_id then                                                    -- only the owner edits a coffee, as in the app today
@@ -765,7 +777,9 @@ begin
       roast = nullif(btrim(ev->>'roast'), ''), roast_date = internal.try_date(ev->>'roastDate'), updated_at = now(),
       -- (a save from a version before tea has no "kind": it leaves the kind and type as they were)
       kind = case when not ev ? 'kind' then kind when ev->>'kind' = 'tea' then 'tea' else 'coffee' end,
-      tea_type = case when not ev ? 'kind' then tea_type when ev->>'kind' = 'tea' then internal.tea_type(ev->>'teaType') end
+      tea_type = case when not ev ? 'kind' then tea_type when ev->>'kind' = 'tea' then internal.tea_type(ev->>'teaType') end,
+      -- (v17.1: a save from a version before blends has no "ingredients": it leaves them as they were)
+      tea = case when ev->>'kind' is distinct from 'tea' and ev ? 'kind' then null when not ev ? 'ingredients' then tea else internal.tea_details(ev) end
     where id = k.id;
   end if;
   perform internal.sync_like('coffee', k.id, ev->'likes', me_id, me_nm);
@@ -1630,7 +1644,7 @@ begin
            c.kind as kind, mode() within group (order by c.tea_type) as "teaType",   -- (v17.0: teas and coffees never mix)
            count(distinct c.owner_id) as people
     from coffees c join profiles p on p.id = c.owner_id left join roasters r on r.id = c.roaster_id
-    where c.deleted_at is null and btrim(c.name) <> ''
+    where c.deleted_at is null and btrim(c.name) <> '' and coalesce(c.tea->>'blend', '') <> 'true'   -- (v17.1: your own blend stays yours)
       and (c.owner_id = me_id or not p.is_private)
       and not exists (select 1 from blocks b where (b.blocker = me_id and b.blocked = c.owner_id) or (b.blocker = c.owner_id and b.blocked = me_id))
       and (lower(c.name) like pat or lower(coalesce(r.name, c.roaster_text, '')) like pat)

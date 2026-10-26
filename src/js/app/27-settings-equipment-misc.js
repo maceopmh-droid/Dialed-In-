@@ -482,7 +482,7 @@
                     t.int = null;
                     if (this.teaSteepStop && this.teaSteepStop(t)) { this.paintTimer(); this.renderTasteTip(); return; }   // v17.0: a tea steep (each stop is one steep)
                     const input = document.getElementById('time-input');
-                    if (input) input.value = Math.round(t.acc);
+                    if (input) input.value = this.methodProfile(this.activeMethod).minutes ? String(Math.max(0.5, Math.round(t.acc / 30) / 2)) : Math.round(t.acc);   // (v17.1: a simmer is timed in minutes)
                     this.paintTimer();
                     this.renderTasteTip();
                     return;

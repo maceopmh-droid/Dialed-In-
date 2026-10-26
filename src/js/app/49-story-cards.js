@@ -194,7 +194,7 @@
 
             async drawCoffeeStory(beanId, who = this.user) {
                 const D = this.storyCoffeeData(beanId, who); if (!D) return null;
-                const b = D.bean, sub = [b.roaster, b.origin].map(x => String(x || '').trim()).filter(Boolean).join(' · ');
+                const b = D.bean, sub = [String(b.roaster || '').trim() || this.teaMakerName(b), b.origin].map(x => String(x || '').trim()).filter(Boolean).join(' · ');   // (v17.1: "Your blend")
                 const tea = this.isTeaBean(b);   // v17.0: a tea's picture
                 const S = this.storyStart({ who, sub, title: String(b.name || '').trim() || (tea ? 'A tea' : 'A coffee') }); if (!S) return null;
                 const { ctx, k } = S; let y = S.y;

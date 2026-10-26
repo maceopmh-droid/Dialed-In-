@@ -27,7 +27,7 @@
                 return {
                     name: this.getBrewOwner(b) || this.user, color: this.getUserColor(this.getBrewOwner(b) || this.user),
                     date: t ? new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '',
-                    coffee: String(bean.name || '').trim() || (tea ? 'A tea' : 'A coffee'), roaster: String(bean.roaster || '').trim(), origin: [tea ? bean.teaType : '', String(bean.origin || '').trim()].filter(Boolean).join(' · '),
+                    coffee: String(bean.name || '').trim() || (tea ? 'A tea' : 'A coffee'), roaster: String(bean.roaster || '').trim() || this.teaMakerName(bean), origin: [tea ? bean.teaType : '', String(bean.origin || '').trim()].filter(Boolean).join(' · '),
                     boxes, tasted, shape: tasted.length ? this.shapeValues(b) : null, tea,
                     words: this.describeCup(this.shapeValues(b), tasted, notes, this.noteIntensities(b), tea ? 'tea' : 'coffee') || ''
                 };

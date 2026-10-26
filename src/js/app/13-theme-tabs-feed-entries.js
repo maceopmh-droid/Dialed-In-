@@ -45,6 +45,7 @@
 
             beanGroupKey(bean) {
                 if (!bean) return '';
+                if (bean.kind === 'tea' && bean.blend) return `tea|blend|${bean.owner || bean.user || ''}|${bean.name || ''}`.toLowerCase().trim();   // (v17.1: your own blend is yours alone)
                 return `${bean.kind === 'tea' ? 'tea|' : ''}${bean.name || ''}${bean.roaster || ''}`.toLowerCase().trim();   // (v17.0: a tea never merges with a coffee; coffee keys as before)
             },
 
