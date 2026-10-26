@@ -427,6 +427,7 @@
             },
 
             renderFeedSessionCard(entry) {
+                if (this.newLook && this.newLook()) return this.renderFeedSessionCardNew(entry);   // v17.2
                 const brew = this.brews.get(String(entry.brewId || ''));
                 if (!brew) return '';
                 const owner = this.getBrewOwner(brew);
@@ -504,6 +505,7 @@
             },
 
             renderFeedBeanCard(entry) {
+                if (this.newLook && this.newLook()) return this.renderFeedBeanCardNew(entry);   // v17.2
                 const bean = this.beans.get(String(entry.beanId || ''));
                 if (!bean) return '';
                 const owner = String(bean.user || bean.owner || 'Unknown');

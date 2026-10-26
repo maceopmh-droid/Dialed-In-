@@ -17,6 +17,7 @@
             },
 
             subPage() {
+                if (this.sessionViewActive && this.sessionViewActive()) return document.getElementById('session-view');   // v17.2
                 if (this.roasterViewActive && this.roasterViewActive()) return document.getElementById('roaster-view');
                 if (this.isDetailActive && this.isDetailActive()) return document.getElementById('detail-view');
                 return null;
@@ -29,6 +30,7 @@
             },
 
             swipeBack() {
+                if (this.sessionViewActive && this.sessionViewActive()) { this.closeSession(true); return true; }   // v17.2
                 if (this.roasterViewActive && this.roasterViewActive()) { this.goBackPage(); return true; }
                 if (this.isDetailActive && this.isDetailActive()) { this.closeDetail(); return true; }
                 if (this.tab === 'profile' && this.profileUser && this.profileUser !== this.user && this._profBack) {

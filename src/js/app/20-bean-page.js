@@ -43,6 +43,7 @@
 
             // ---- v12.4: a session on the coffee page: the same card as the feed (plus edit / delete on your own)
             renderLogCard(log) {
+                if (this.newLook && this.newLook()) return this.nlLogRow(log);   // v17.2
                 const owner = this.getBrewOwner(log);
                 const color = this.getUserColor(owner, log.actorColor || '');
                 const rating = this.normalizeRating(log.rating);

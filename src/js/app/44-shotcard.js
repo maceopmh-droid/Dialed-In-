@@ -54,6 +54,7 @@
                 return null;
             },
             async drawShotCard(b, photo) {
+                if (this.newLook && this.newLook() && this.drawShotCardNew) return this.drawShotCardNew(b, photo);   // v17.2: the New look's card
                 const D = this.shotCardData(b), W = 1080, H = 1920, PAD = 78;
                 const c = document.createElement('canvas'); c.width = W; c.height = H;
                 const ctx = c.getContext('2d'); if (!ctx) return null;

@@ -301,6 +301,7 @@
                 if (keyedLogs) this.patchKeyed(logBox, logItems, this._logHtml);
                 this.cutLogs(logBox);   // v15.1: the latest five; the rest a tap away
                 this.paintLens();
+                if (this.nlDecorateDetail) this.nlDecorateDetail(group, this.detailAllBrews);   // v17.2 (the New look; tidies up after it otherwise)
             },
 
             refreshDetail() {

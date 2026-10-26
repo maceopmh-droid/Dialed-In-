@@ -8,7 +8,7 @@
                 const safe = (label, fn) => { try { return fn(); } catch (err) { check(false, `${label} threw: ${err && err.message}`); return undefined; } };
                 const bad = s => typeof s !== 'string' || /\bundefined\b|\bNaN\b|\[object Object\]|>null</.test(s);
                 const tick = () => new Promise(r => setTimeout(r, 0));
-                const keep = { section: this.profileSection, tab: this.tab, theme: window.__dialedTheme ? window.__dialedTheme.pref : 'system', profileUser: this.profileUser, threads: new Set(this.openThreads), cardTabs: new Map(this.cardTabs || []), replyTo: this.replyTo, activeId: this.activeId };
+                const keep = { section: this.profileSection, tab: this.tab, theme: window.__dialedTheme ? window.__dialedTheme.pref : 'system', look: window.__dialedLook ? window.__dialedLook.pref : 'classic', profileUser: this.profileUser, threads: new Set(this.openThreads), cardTabs: new Map(this.cardTabs || []), replyTo: this.replyTo, activeId: this.activeId };
                 const realPush = this.push;
                 let pushes = 0;
                 this.push = function () { pushes++; return Promise.resolve(); };
@@ -65,16 +65,22 @@
                         }
                         return [...hits];
                     };
-                    for (const theme of ['light', 'dark']) {
+                    // v17.2: both looks (classic and New) in both themes
+                    for (const look of ['classic', 'new']) for (const theme0 of ['light', 'dark']) {
+                        if (window.__dialedLook) { window.__dialedLook.set(look); this._nlFam = null; }
+                        const theme = theme0, lk = look === 'new' ? 'new look ' : '';
                         safe('theme', () => this.setThemePref(theme));
-                        check(document.documentElement.getAttribute('data-theme') === theme, `theme switches to ${theme}`);
+                        check(document.documentElement.getAttribute('data-theme') === theme, `${lk}theme switches to ${theme}`);
+                        check(document.documentElement.getAttribute('data-look') === look && this.newLook() === (look === 'new'), `the look is ${look}`);
                         for (const tab of ['feed', 'my', 'roasters', 'profile']) {
                             safe('tab', () => this.setTab(tab));
                             const grid = document.getElementById('grid');
-                            check(grid && !bad(grid.innerText), `${theme} ${tab}: no undefined/NaN text`);
-                            check(noOverflow(), `${theme} ${tab}: nothing spills sideways`);
+                            check(grid && !bad(grid.innerText), `${lk}${theme} ${tab}: no undefined/NaN text`);
+                            check(noOverflow(), `${lk}${theme} ${tab}: nothing spills sideways`);
                             const hidden = blockers();
-                            check(!hidden.length, `${theme} ${tab}: no invisible layer blocks taps ${hidden.join(', ')}`);
+                            check(!hidden.length, `${lk}${theme} ${tab}: no invisible layer blocks taps ${hidden.join(', ')}`);
+                            if (look === 'classic') check(!grid.querySelector('.nl-card, .nl-lcard, [data-fam], [data-nf]') && !document.body.hasAttribute('data-nltab'), `classic ${theme} ${tab}: nothing of the new look`);
+                            else if (tab === 'feed' || tab === 'my') check([...grid.querySelectorAll('.nl-card, .nl-lcard')].every(c => /^(app|nutty|fruity|floral|sweet|spice|earthy|fermented|vegetal|herbal)$/.test(c.getAttribute('data-fam') || '')), `new look ${theme} ${tab}: every card has a family`);
                         }
                         for (const name of this.users) {
                             for (const sec of ['overview', 'taste', 'activity']) {
@@ -87,7 +93,52 @@
                         this.profileSection = keep.section || 'overview';
                         await tick();
                     }
+                    if (window.__dialedLook) window.__dialedLook.set('classic');
                     safe('theme', () => this.setThemePref('system'));
+                    // v17.2: the New look's own checks
+                    section = 'new look';
+                    {
+                        let stored = ''; try { window.__dialedLook.set('new'); stored = localStorage.getItem('dialed_look'); } catch (e) {}
+                        check(stored === 'new' && document.documentElement.getAttribute('data-look') === 'new', 'the New look switch is saved and sets data-look');
+                        this._nlFam = null;
+                        check(this.lookFamily([['Sour', 3, 'coffee'], ['Thin', 2, 'coffee']]) === null, 'notes that only taste off give no family');
+                        check(this.lookFamily([['Peach', 1, 'coffee'], ['Cocoa', 3, 'coffee']]) === 'nutty' && this.lookFamily([['Peach', 2, 'coffee'], ['Cocoa', 2, 'coffee']]) === 'fruity', 'the strongest family wins, a tie goes to the first note');
+                        const bn0 = beans[0];
+                        if (bn0) { const fake = { id: 'st-off', beanId: bn0.id, flavors: 'Sour,Thin', method: 'Espresso' }; check(this.famOfBrew(fake) === this.famOfCoffee(bn0), 'a session that only tastes off wears its coffee\'s family'); }
+                        for (const dark of [false, true]) {
+                            document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+                            const cards = Object.values(this.NL_PAL[dark ? 'dark' : 'light']).map(p => p[0]);
+                            (this.users || []).concat(this.knownPeople()).forEach(n => cards.forEach(bg => check(this.nlContrast(this.nameColor(n, bg), bg) >= 4.5, `${n}'s name reads on ${bg} (${dark ? 'dark' : 'light'})`)));
+                        }
+                        safe('theme', () => this.setThemePref(keep.theme === 'dark' ? 'dark' : 'light'));
+                        const sb = brews.find(b => this.beans.has(String(b.beanId))) || brews[0];
+                        if (sb) {
+                            safe('feed', () => this.setTab('feed'));
+                            const card = safe('card', () => this.renderFeedSessionCardNew({ brewId: sb.id, date: sb.date }));
+                            check(typeof card === 'string' && card.includes('nl-card') && card.includes(`onclick="app.openSession('${this.escJs(sb.id)}')"`) && !bad(card), 'a feed card opens the Session screen');
+                            safe('open session', () => this.openSession(sb.id));
+                            const sv = document.getElementById('session-view');
+                            check(this.sessionViewActive() && sv && !bad(sv.innerText), 'the Session screen opens from a card, with no undefined/NaN');
+                            const thCard = (card.match(/data-thread="([^"]+)"/) || [])[1], thSess = sv && sv.querySelector('[data-thread]') ? sv.querySelector('[data-thread]').getAttribute('data-thread') : '';
+                            check(thCard && thCard === thSess, 'the card and the Session screen share one comment thread');
+                            check(noOverflow() && sv.scrollWidth <= window.innerWidth + 2, 'the Session screen fits the screen');
+                            check(this.swipeBack() === true && !this.sessionViewActive(), 'the edge swipe (Back) closes the Session screen');
+                            safe('open from link', () => this.openFeedTarget(sb.beanId, sb.id, true));
+                            check(this.sessionViewActive(), 'a link or notification to a session opens the Session screen');
+                            safe('close', () => this.closeSession(true));
+                            check(!this.sessionViewActive(), 'Back closes it');
+                            safe('coffee page', () => this.openFeedTarget(sb.beanId, '', false));
+                            const row = document.querySelector('#d-logs .nl-logrow');
+                            check(row && /openSession/.test(row.getAttribute('onclick') || ''), 'a session row on the coffee page opens the Session screen');
+                            check(document.getElementById('detail-view').getAttribute('data-fam'), 'the coffee page wears its coffee\'s family');
+                            safe('close', () => this.closeDetail());
+                        }
+                        window.__dialedLook.set('classic'); this.onThemeChange();
+                        safe('classic coffee page', () => sb && this.openFeedTarget(sb.beanId, '', false));
+                        const dv = document.getElementById('detail-view');
+                        check(!dv.hasAttribute('data-fam') && !dv.querySelector('.nl-dphoto, .nl-logrow, [data-nf]'), 'with the switch off, the coffee page is classic again');
+                        safe('close', () => this.closeDetail());
+                    }
                     if (onProgress) onProgress('screens');
                     // 4. every bean page
                     section = 'bean pages';
@@ -350,6 +401,8 @@
                     this.push = realPush;
                     try { this.closeDetail(); } catch (e) {}
                     if (window.__dialedTheme) window.__dialedTheme.set(keep.theme);
+                    if (window.__dialedLook) window.__dialedLook.set(keep.look);   // v17.2
+                    try { this.closeSession(true); } catch (e) {}
                     this.profileUser = keep.profileUser;
                     this.openThreads = keep.threads; this.cardTabs = keep.cardTabs; this.replyTo = keep.replyTo;
                     try { this.setTab(keep.tab); } catch (e) {}

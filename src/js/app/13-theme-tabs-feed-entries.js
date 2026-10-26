@@ -9,6 +9,7 @@
             renderThemeControl() {
                 const pref = window.__dialedTheme ? window.__dialedTheme.pref : 'system';
                 document.querySelectorAll('[data-theme-opt]').forEach(btn => btn.setAttribute('aria-pressed', String(btn.getAttribute('data-theme-opt') === pref)));
+                if (this.renderLookControl) this.renderLookControl();   // v17.2
             },
 
             onThemeChange() {

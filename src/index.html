@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v17.1 -->
+<!-- Dialed In v17.2 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="17.1">
+    <meta name="dialed-in-version" content="17.2">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -70,6 +70,7 @@
 @@include css/22-v166.css
 @@include css/23-v169.css
 @@include css/24-tea.css
+@@include css/25-new-look.css
     </style>
 </head>
 <body>
@@ -473,6 +474,10 @@
                         <button type="button" data-theme-opt="dark" onclick="app.setThemePref('dark')">Dark</button>
                     </div>
                 </div>
+                <div class="set-row set-look">
+                    <span class="set-main"><b>New look</b><small>Turn off to go back to the classic look</small></span>
+                    <button type="button" class="goal-sw" id="set-look-sw" role="switch" aria-checked="false" aria-label="New look" onclick="app.toggleNewLook(this)"></button>
+                </div>
                 <div class="set-row set-color">
                     <span class="set-main"><b>Your color</b><small>Your name and picture in the app</small></span>
                     <span class="set-color-val"><span id="user-color-value" class="user-color-value">#586A58</span><i id="user-color-swatch" class="set-swatch"></i></span>
@@ -496,7 +501,7 @@
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v17.1</div>
+            <div class="app-version">Dialed In · v17.2</div>
         </div>
     </div>
 
@@ -876,6 +881,7 @@
 @@include js/app/50-gestures.js
 @@include js/app/51-shots.js
 @@include js/app/52-tea.js
+@@include js/app/53-new-look.js
 @@include js/app/99-end.js
 @@include js/99-boot.js
     </script>
