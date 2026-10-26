@@ -191,10 +191,11 @@
                 const faces = r.people.slice(0, 3).map((p, i) => `<i data-face="${this.esc(p.name)}" style="background:${this.esc(this.getUserColor(p.name))};z-index:${9 - i}">${this.esc(this.feedInitial(p.name))}</i>`).join('') + (r.people.length > 3 ? `<i class="more">+${r.people.length - 3}</i>` : '');
                 const n = r.coffees.length;
                 const w = this.drinkWords(kind);
-                return `<div class="card ro-card" role="button" tabindex="0" data-roaster-key="${this.esc(r.key)}" onclick="app.openRoaster(this.getAttribute('data-roaster-key'), '${app.escJs(kind)}')">
+                const nl = this.newLook && this.newLook();   // v17.2: the roaster's family, and each coffee's
+                return `<div class="card ro-card"${nl ? ` data-fam="${this.famOfRoaster(r.name, kind)}"` : ''} role="button" tabindex="0" data-roaster-key="${this.esc(r.key)}" onclick="app.openRoaster(this.getAttribute('data-roaster-key'), '${app.escJs(kind)}')">
                     <div class="ro-head">${this.roasterTileHtml(r)}<div class="ro-main"><span class="ro-name">${this.esc(r.name)}</span>${r.rated ? `<div class="ro-rate"><span class="star-meter" style="--fill:${this.starFill(r.avg)}%;--whole:${this.starWhole(r.avg)};--frac:${this.starFrac(r.avg)}"></span><span>${this.esc(RoasterEngine.f1(r.avg))}</span></div>` : ''}</div></div>
                     <div class="ro-meta"><span>${n} ${n === 1 ? w.item : w.items} · ${r.sessions} session${r.sessions === 1 ? '' : 's'}</span>${fav ? '<svg class="icon ro-heart" aria-label="Favorite"><use href="#i-heart"/></svg>' : ''}${local ? '<span class="ro-local-tag"><svg class="icon"><use href="#i-pin"/></svg>Local</span>' : ''}${faces ? `<span class="dh-faces" aria-label="${this.esc(r.people.map(p => p.name).join(', '))}">${faces}</span>` : ''}</div>
-                    <div class="ro-beans" data-total="${n}">${r.coffees.map(c => `<button type="button" class="ro-bean" data-bean="${this.esc(c.beanId)}" onclick="event.stopPropagation(); app.openCoffeeFromRoaster(this.getAttribute('data-bean'))">${this.esc(c.name)}</button>`).join('')}<span class="ro-more" hidden></span></div>
+                    <div class="ro-beans" data-total="${n}">${r.coffees.map(c => `<button type="button" class="ro-bean"${nl && this.beans.get(String(c.beanId)) ? ` data-nf="${this.famOfCoffee(this.beans.get(String(c.beanId)))}"` : ''} data-bean="${this.esc(c.beanId)}" onclick="event.stopPropagation(); app.openCoffeeFromRoaster(this.getAttribute('data-bean'))">${this.esc(c.name)}</button>`).join('')}<span class="ro-more" hidden></span></div>
                 </div>`;
             },
 
@@ -345,6 +346,7 @@
                 const r = this.roasterFind(this.roasterOpen, kind);   // v13.4: still there after a merge from another phone
                 if (!r) { this.goBackPage(); return; }
                 this.roasterOpen = r.key;
+                if (this.newLook && this.newLook()) page.setAttribute('data-fam', this.famOfRoaster(r.name, kind)); else if (page.hasAttribute('data-fam')) page.removeAttribute('data-fam');   // v17.2
                 const esc = s => this.esc(s);
                 const fav = this.user && r.favBy.includes(this.user), local = !!(this.user && (r.localBy || []).includes(this.user));   // v15.8
                 const info = r.info || {};

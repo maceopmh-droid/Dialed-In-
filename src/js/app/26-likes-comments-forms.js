@@ -660,6 +660,7 @@
                     this.showToast('Open a coffee first to log a session.');
                     return;
                 }
+                if (this.nlTint) this.nlTint('#brew-modal .modal-card', this.famOfCoffee(this.beans.get(this.activeId)));   // v17.2: the coffee's colors (the New look)
                 const form = this.getBrewForm();
                 form.reset();
                 this.recipeTyped = new Set(); this._brewFormGen = (this._brewFormGen || 0) + 1;

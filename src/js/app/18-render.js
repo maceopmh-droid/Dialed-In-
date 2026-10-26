@@ -1,4 +1,5 @@
             openFeedTarget(beanId, brewId = '', openComments = false) {
+                if (brewId && this.newLook && this.newLook() && this.brews.has(String(brewId))) { this.openSession(brewId, { comments: openComments }); return; }   // v17.2: a session opens on its own screen
                 const targetBean = this.beans.get(String(beanId || ''));
                 if (!targetBean) {
                     this.showToast('That coffee no longer exists.');
@@ -79,6 +80,7 @@
                 this.restoreDrafts(drafts);
                 this.fillShapeImages();
                 this.updateRecapDot();
+                if (this.nlAfterRender) this.nlAfterRender();   // v17.2 (the New look only)
             },
 
             renderScreen() {
@@ -163,6 +165,7 @@
                     const card = document.createElement('div');
                     card.className = 'card';
                     card.onclick = () => this.openDetail(group, brews);
+                    if (this.newLook && this.newLook()) { this.nlCoffeeTile(card, group, brews, teaShelf); grid.appendChild(card); return; }   // v17.2
 
                     const beanAgeSource = group.addedAt && group.addedAt !== Infinity ? group.addedAt : this.toTime(bean.date);
                     const isNew = beanAgeSource && (Date.now() - beanAgeSource) < (3 * 24 * 60 * 60 * 1000);

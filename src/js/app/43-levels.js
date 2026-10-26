@@ -188,6 +188,7 @@
             openLevel(name) {
                 const m = document.getElementById('level-modal'), body = document.getElementById('level-body');
                 if (!m || !body) return;
+                if (this.nlTint) this.nlTint('#level-modal .modal-card', this.famOfPerson(name));   // v17.2: the person's palate
                 const own = name === this.user, c = this.cremaOf(name) || 0, L = this.levelOf(c), fmt = x => Math.round(x).toLocaleString();
                 const whose = own ? 'Your' : `${this.esc(name)}'s`;
                 const tiers = this.levelTiers(), list = this.levelList();

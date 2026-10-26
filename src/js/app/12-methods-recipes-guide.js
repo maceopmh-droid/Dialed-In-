@@ -291,6 +291,7 @@
             },
 
             openGuide() {
+                if (this.nlTint) this.nlTint('#guide-modal .guide-sheet', this.famOfCoffee(this.beans.get(this.activeId)));   // v17.2
                 const form = this.getBrewForm();
                 const water = form ? Number(form.yield.value) || 0 : 0;
                 const plan = this.stepPlan(this.recipeSteps, water);
