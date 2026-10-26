@@ -176,9 +176,9 @@
                 const bean = beanId ? this.beans.get(String(beanId)) : null;
                 const click = opts.click || (bean ? `app.openFeedTarget('${app.escJs(bean.id)}','',false)` : '');
                 if (!bean) return `<div class="fab-tile empty${opts.small ? ' small' : ''}" ${this.tileAttrs(click)} aria-label="${opts.editable ? 'Add a favorite' : 'Empty slot'}"><span class="fab-art empty">${opts.editable ? '<svg class="icon"><use href="#i-plus"/></svg>' : ''}</span><span class="fab-name">${opts.editable ? 'Add favorite' : '—'}</span></div>`;
-                const art = this.coverArt(bean);
+                const art = this.newLook && this.newLook() && this.nlCoverArt ? this.nlCoverArt(bean) : this.coverArt(bean);   // v17.4: the New look shows the coffee's own picture
                 const r = opts.user ? this.avgRatingFor(opts.user, bean.id) : 0;
-                return `<div class="fab-tile${opts.small ? ' small' : ''}" ${this.tileAttrs(click)} aria-label="${this.esc(this.beanLabel(bean))}"><span class="fab-art" style="background:${art.bg}"><b>${this.esc(art.initials)}</b>${r ? `<em>${this.esc(this.fmtNum(r))}★</em>` : ''}</span><span class="fab-name">${this.esc(bean.name || this.beanLabel(bean))}</span><span class="fab-roaster">${this.esc(bean.roaster || '')}</span></div>`;
+                return `<div class="fab-tile${opts.small ? ' small' : ''}" ${this.tileAttrs(click)} aria-label="${this.esc(this.beanLabel(bean))}"><span class="fab-art" style="background:${art.bg}">${art.img ? `<img class="fab-img" src="${this.esc(art.img)}" alt="" loading="lazy" onerror="this.remove()">` : ''}<b>${this.esc(art.initials)}</b>${r ? `<em>${this.esc(this.fmtNum(r))}★</em>` : ''}</span><span class="fab-name">${this.esc(bean.name || this.beanLabel(bean))}</span><span class="fab-roaster">${this.esc(bean.roaster || '')}</span></div>`;
             },
 
             // v16.7: the profile's tiles (Favorites, Favorite roasters, Coffees) are plain blocks that act as buttons, not

@@ -49,7 +49,7 @@
                         : [who === this.user && this.renderGoalsCard ? this.renderGoalsCard() : '', this.renderFabFour(who), this.profileCoffeesHtml(who), this.renderCalendarCard(who), who !== this.user ? this.renderGearCard(who) : ''];   // v14.6: your goals first (v15.1: the calendar here; achievements in More)
                 const body = cards.filter(Boolean).join('') || '<div class="panel-empty">Nothing here yet. Log a few sessions and this fills in.</div>';
                 grid.innerHTML = [
-                    `<div class="people-switch${this.acctOn() ? ' one-row' : ''}">${this.acctOn() ? `<div class="ps-scroll">${chips}</div>` : chips}${peopleChip}${this.newLook && this.newLook() ? '<button type="button" class="nl-rbtn nl-pset" onclick="app.openSettings()" aria-label="Settings"><svg class="icon"><use href="#i-settings"/></svg></button>' : ''}</div>`,   // v15.0: everyone, in a row that scrolls
+                    `<div class="people-switch${this.acctOn() ? ' one-row' : ''}">${this.acctOn() ? `<div class="ps-scroll">${chips}</div>` : chips}${peopleChip}</div>`,   // v15.0: everyone, in a row that scrolls
                     this.renderProfileHero(who),
                     this.profileNoteHtml ? this.profileNoteHtml(who) : '',
                     tabs,

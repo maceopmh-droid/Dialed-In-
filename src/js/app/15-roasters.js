@@ -377,6 +377,7 @@
                     </section>
                     ${bestCard}${coffees}${who}${esp}
                     <div class="ro-acts"><button type="button" class="btn-primary" onclick="app.logCoffeeForRoaster('${app.escJs(r.key)}')"><svg class="icon" style="width:16px;height:16px;stroke:currentColor"><use href="#i-plus"/></svg>Add a ${w.item}</button><button type="button" class="btn-outline" onclick="app.showRoasterCoffees('${app.escJs(r.key)}')">All ${w.items}</button></div>`;
+                if (this.nlNavBars) this.nlNavBars();   // v17.4: the New look keeps the Back bar at the top
             },
 
             openRoasterEdit(key) {

@@ -44,6 +44,8 @@ jobs:
         run: node supabase/test_shots.js --host localhost --user postgres
       - name: "Tea (v17.0): teas save as teas, tea sessions keep their steeps, teas and coffees never mix"
         run: node supabase/test_tea.js --host localhost --user postgres
+      - name: "A coffee's picture (v17.4): saved as picked, kept by older saves and likes, photos only from your own folder"
+        run: node supabase/test_cover.js --host localhost --user postgres
 
   machine-functions:
     name: Shot Logger machine functions (Deno)

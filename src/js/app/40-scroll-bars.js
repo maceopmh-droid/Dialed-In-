@@ -12,6 +12,7 @@
                     queued = false;
                     const y = sc.scrollTop, max = sc.scrollHeight - sc.clientHeight, dy = y - last;
                     last = y;
+                    if (this._barsJump) { this._barsJump = false; down = up = 0; return; }   // (v17.4: a tab put back at its place isn't a scroll down)
                     if (!phone()) { this.setBarsTucked(false); return; }
                     const head = document.querySelector('.header-sticky');
                     if (y <= (head ? head.offsetHeight : 120)) { down = up = 0; this.setBarsTucked(false); return; }   // near the top

@@ -79,8 +79,9 @@
                             check(noOverflow(), `${lk}${theme} ${tab}: nothing spills sideways`);
                             const hidden = blockers();
                             check(!hidden.length, `${lk}${theme} ${tab}: no invisible layer blocks taps ${hidden.join(', ')}`);
-                            if (look === 'classic') check(!grid.querySelector('.nl-card, .nl-lcard, [data-fam], [data-nf]') && !document.body.hasAttribute('data-nltab'), `classic ${theme} ${tab}: nothing of the new look`);
-                            else if (tab === 'feed' || tab === 'my') check([...grid.querySelectorAll('.nl-card, .nl-lcard')].every(c => /^(app|nutty|fruity|floral|sweet|spice|earthy|fermented|vegetal|herbal)$/.test(c.getAttribute('data-fam') || '')), `new look ${theme} ${tab}: every card has a family`);
+                            if (look === 'classic') check(!grid.querySelector('.nl-card, .nl-ccard, [data-fam], [data-nf]') && !document.body.hasAttribute('data-nltab') && !document.querySelector('#main-content[data-fam], .header-sticky[data-fam]'), `classic ${theme} ${tab}: nothing of the new look`);
+                            else if (tab === 'feed' || tab === 'my') check([...grid.querySelectorAll('.nl-card, .nl-ccard')].every(c => /^(app|t\d+q\d)$/.test(c.getAttribute('data-fam') || '')), `new look ${theme} ${tab}: every card has its colors`);
+                            if (look === 'new') check(document.querySelector('.header-sticky .nl-setbtn') && getComputedStyle(document.querySelector('.header-sticky .nl-setbtn')).display !== 'none', `new look ${theme} ${tab}: Settings is in the top bar`);
                         }
                         for (const name of this.users) {
                             for (const sec of ['overview', 'taste', 'activity']) {
@@ -101,14 +102,26 @@
                         let stored = ''; try { window.__dialedLook.set('new'); stored = localStorage.getItem('dialed_look'); } catch (e) {}
                         check(stored === 'new' && document.documentElement.getAttribute('data-look') === 'new', 'the New look switch is saved and sets data-look');
                         this._nlFam = null;
-                        check(this.lookFamily([['Sour', 3, 'coffee'], ['Thin', 2, 'coffee']]) === null, 'notes that only taste off give no family');
-                        check(this.lookFamily([['Peach', 1, 'coffee'], ['Cocoa', 3, 'coffee']]) === 'nutty' && this.lookFamily([['Peach', 2, 'coffee'], ['Cocoa', 2, 'coffee']]) === 'fruity', 'the strongest family wins, a tie goes to the first note');
+                        // v17.4: colors without limits
+                        check(this.toneOfNotes([['Sour', 3, 'coffee'], ['Thin', 2, 'coffee']]) === null, 'notes that only taste off give no color');
+                        const hueOf = k => (this.nlToneParts(k) || {}).h;
+                        check(Math.abs(hueOf(this.noteToneKey('Lemon', 'coffee')) - 100) <= 5 && Math.abs(hueOf(this.noteToneKey('Blueberry', 'coffee')) - 270) <= 5 && Math.abs(hueOf(this.noteToneKey('Peppermint', 'tea')) - 165) <= 5, 'each note has its own color (Lemon yellow, Blueberry blue-violet, Peppermint mint)');
+                        const mixK = this.toneOfNotes([['Raspberry', 3, 'coffee'], ['Cocoa nib', 1, 'coffee']]), rasp = this.toneOfNotes([['Raspberry', 3, 'coffee']]);
+                        check(mixK && rasp && mixK !== rasp && Math.abs(hueOf(mixK) - hueOf(rasp)) <= 40, 'a session wears the blend of its notes, led by the strongest');
                         const bn0 = beans[0];
-                        if (bn0) { const fake = { id: 'st-off', beanId: bn0.id, flavors: 'Sour,Thin', method: 'Espresso' }; check(this.famOfBrew(fake) === this.famOfCoffee(bn0), 'a session that only tastes off wears its coffee\'s family'); }
+                        if (bn0) { const fake = { id: 'st-off', beanId: bn0.id, flavors: 'Sour,Thin', method: 'Espresso' }; check(this.famOfBrew(fake) === this.famOfCoffee(bn0), 'a session that only tastes off wears its coffee\'s colors'); }
+                        check(/^t215q/.test(this.coffeeToneKey({ id: 'st-cover', name: 'Self test', roaster: 'Self test', cover: { hue: 215, tone: 60 } })), 'a coffee wears the color of its picture');
+                        const tones = new Set(brews.map(b => this.famOfBrew(b)));
+                        check(brews.length < 40 || tones.size >= 12, `sessions come in many colors (${tones.size} different)`);
+                        const keys = []; for (let h = 0; h < 360; h += 15) for (const q of [1, 3, 5, 7, 9]) keys.push(`t${h}q${q}`);
                         for (const dark of [false, true]) {
                             document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-                            const cards = Object.values(this.NL_PAL[dark ? 'dark' : 'light']).map(p => p[0]);
-                            (this.users || []).concat(this.knownPeople()).forEach(n => cards.forEach(bg => check(this.nlContrast(this.nameColor(n, bg), bg) >= 4.5, `${n}'s name reads on ${bg} (${dark ? 'dark' : 'light'})`)));
+                            const weak = keys.filter(k => { const P = this.nlTonePal(k, dark); return this.nlContrast(P.t, P.c) < 7 || this.nlContrast(P.n, P.c) < 4.5 || this.nlContrast(P.l, P.c) < 4.5 || this.nlContrast(P.k, P.c) < 4.5; });
+                            check(!weak.length, `every color's text reads on its card (${dark ? 'dark' : 'light'})${weak.length ? ': ' + weak.slice(0, 6).join(', ') : ''}`);
+                            const cards = keys.filter((k, i) => i % 7 === 0).map(k => this.nlTonePal(k, dark).c).concat(Object.values(this.NL_PAL[dark ? 'dark' : 'light']).map(p => p[0]));
+                            const people = (this.users || []).concat(this.knownPeople());
+                            const unread = []; people.forEach(n => cards.forEach(bg => { if (this.nlContrast(this.nameColor(n, bg), bg) < 4.5) unread.push(`${n} on ${bg}`); }));
+                            check(!unread.length, `every name reads on every card color (${dark ? 'dark' : 'light'})${unread.length ? ': ' + unread.slice(0, 4).join(', ') : ''}`);
                         }
                         safe('theme', () => this.setThemePref(keep.theme === 'dark' ? 'dark' : 'light'));
                         const sb = brews.find(b => this.beans.has(String(b.beanId))) || brews[0];
@@ -122,6 +135,8 @@
                             const thCard = (card.match(/data-thread="([^"]+)"/) || [])[1], thSess = sv && sv.querySelector('[data-thread]') ? sv.querySelector('[data-thread]').getAttribute('data-thread') : '';
                             check(thCard && thCard === thSess, 'the card and the Session screen share one comment thread');
                             check(noOverflow() && sv.scrollWidth <= window.innerWidth + 2, 'the Session screen fits the screen');
+                            check(!!(sv && sv.querySelector('.nls-top.nl-navbar')), 'the Session screen keeps its Back bar at the top');   // v17.4
+                            if (this.tastedKeys(sb).length) check(!!sv.querySelector('canvas.nl-drag[data-nl-spin]'), 'its flavor shape turns under a finger');
                             check(this.swipeBack() === true && !this.sessionViewActive(), 'the edge swipe (Back) closes the Session screen');
                             safe('open from link', () => this.openFeedTarget(sb.beanId, sb.id, true));
                             check(this.sessionViewActive(), 'a link or notification to a session opens the Session screen');
@@ -136,7 +151,7 @@
                         window.__dialedLook.set('classic'); this.onThemeChange();
                         safe('classic coffee page', () => sb && this.openFeedTarget(sb.beanId, '', false));
                         const dv = document.getElementById('detail-view');
-                        check(!dv.hasAttribute('data-fam') && !dv.querySelector('.nl-dphoto, .nl-logrow, [data-nf]'), 'with the switch off, the coffee page is classic again');
+                        check(!dv.hasAttribute('data-fam') && !dv.querySelector('.nl-dphoto, .nl-logrow, .nl-dcover, .nl-navbar, [data-nf]') && !!dv.querySelector('.detail-hero > .dh-top'), 'with the switch off, the coffee page is classic again');
                         safe('close', () => this.closeDetail());
                     }
                     if (onProgress) onProgress('screens');

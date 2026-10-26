@@ -174,6 +174,8 @@
                     roastDate: String((overrides.roastDate ?? bean.roastDate ?? '')).trim(),
                     wantToTry: this.normalizeLikeList(overrides.wantToTry ?? bean.wantToTry, owner)
                 };
+                const cover = overrides.cover !== undefined ? overrides.cover : bean.cover;   // v17.4: the coffee's picture rides along on every save
+                if (cover && typeof cover === 'object' && Object.keys(cover).length) payload.cover = cover;
                 return payload;
             },
 
@@ -313,7 +315,8 @@
                     kind,
                     teaType: kind === 'tea' && form.elements.teaType ? form.elements.teaType.value : '',
                     blend: kind === 'tea' && form.elements.blend ? form.elements.blend.checked : false,   // v17.1
-                    ingredients: kind === 'tea' ? this.cleanIngredients(this.beanIngredients) : []
+                    ingredients: kind === 'tea' ? this.cleanIngredients(this.beanIngredients) : [],
+                    ...(this.beanCoverOut ? { cover: this.beanCoverOut() } : {})   // v17.4
                 });
                 if (!payload) return;
                 if (!existing && kind !== this.drinkNow()) { this.drink = kind; safeSet('dialed_drink', kind); this.paintDrinkChrome(); }   // (a new tea from coffee mode: you land where it is)
@@ -559,6 +562,7 @@
                 form.roast.value = bean.roast || 'Light';
                 if (form.roastDate) form.roastDate.value = bean.roastDate || '';
                 document.getElementById('bean-modal-title').innerText = kind === 'tea' ? 'Edit Tea' : 'Edit Coffee';
+                if (this.beanCoverInit) this.beanCoverInit(bean);   // v17.4
                 this.openModal('bean-modal');
             },
 
@@ -652,6 +656,7 @@
                 if (form.roaster) form.roaster.disabled = false;
                 this.setBeanKind(kind === 'tea' || kind === 'coffee' ? kind : this.drinkNow());   // v17.0: starts on what's on screen
                 if (this.bindCoffeeSuggest) { this.bindCoffeeSuggest(); const box = form.querySelector('.cs-list'); if (box) box.hidden = true; }   // v15.1
+                if (this.beanCoverInit) this.beanCoverInit(null);   // v17.4: a new coffee's picture (the New look)
                 this.openModal('bean-modal');
             },
 

@@ -46,7 +46,10 @@
 
             nlDark() { return document.documentElement.getAttribute('data-theme') === 'dark'; },
             nlPal(fam) {
-                const dark = this.nlDark(), P = this.NL_PAL[dark ? 'dark' : 'light'], p = P[fam] || P.app;
+                const dark = this.nlDark();
+                const tp = this.nlTonePal && this.nlTonePal(fam, dark);   // v17.4: any hue
+                if (tp) return { c: tp.c, t: tp.t, k: tp.k, n: tp.n, l: tp.l, pg: dark ? this.hexMix(tp.c, '#000000', 0.18) : this.hexMix(tp.c, '#ffffff', 0.45), dark };
+                const P = this.NL_PAL[dark ? 'dark' : 'light'], p = P[fam] || P.app;
                 const pg = fam === 'app' || !P[fam] ? (dark ? '#0C100D' : '#F3EEE4') : (dark ? this.hexMix(p[0], '#000000', 0.18) : this.hexMix(p[0], '#ffffff', 0.45));
                 return { c: p[0], t: p[1], k: p[2], n: p[3], l: p[4], pg, dark };
             },
@@ -90,32 +93,25 @@
                 if (!cache.has(key)) cache.set(key, work() || 'app');
                 return cache.get(key);
             },
+            // v17.4: a session wears the blend of its own notes (its coffee's colors when it has none); a coffee its picture's
+            // color; a roaster its own color (the one on its tile); a person theirs. Only a session's colors follow what's in it.
             famOfBrew(brew) {
                 if (!brew) return 'app';
-                return this.nlFamOf(`b:${brew.id}`, () => this.lookFamily(this.brewNoteList(brew)) || (this.beans.get(String(brew.beanId)) ? this.famOfCoffee(this.beans.get(String(brew.beanId))) : 'app'));
+                return this.nlFamOf(`b:${brew.id}`, () => this.toneOfNotes(this.brewNoteList(brew)) || (this.beans.get(String(brew.beanId)) ? this.famOfCoffee(this.beans.get(String(brew.beanId))) : 'app'));
             },
-            // a coffee: every session of it anyone can see (by the coffee, not one bag)
-            famOfCoffee(bean) {
-                if (!bean) return 'app';
-                const key = this.beanGroupKey(bean);
-                return this.nlFamOf(`c:${key}`, () => {
-                    const brews = [...this.brews.values()].filter(b => { const bn = this.beans.get(String(b.beanId)); return bn && this.beanGroupKey(bn) === key; }).sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
-                    return this.lookFamily(brews.flatMap(b => this.brewNoteList(b)));
-                });
-            },
+            famOfCoffee(bean) { return bean ? this.coffeeToneKey(bean) : 'app'; },
             famOfRoaster(name, kind) {
                 const rk = this.roasterKey ? this.roasterKey(name) : String(name || '').toLowerCase();
-                return this.nlFamOf(`r:${kind || ''}:${rk}`, () => {
-                    const brews = [...this.brews.values()].filter(b => { const bn = this.beans.get(String(b.beanId)); return bn && (this.roasterKey ? this.roasterKey(bn.roaster) : String(bn.roaster || '').toLowerCase()) === rk && (!kind || (kind === 'tea') === this.isTeaBean(bn)); }).sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
-                    return this.lookFamily(brews.flatMap(b => this.brewNoteList(b)));
+                return this.nlFamOf(`r:${rk}`, () => {
+                    const r = this.roasterData ? this.roasterData().byKey.get(rk) : null;
+                    const set = r && this.ROASTER_COLORS && (this.ROASTER_COLORS[r.key] || (typeof RoasterEngine !== 'undefined' && this.ROASTER_COLORS[RoasterEngine.keyOf(r.name)]));
+                    if (set) return this.nlToneOfHex(set[1]);
+                    const hue = r ? r.hue : (typeof RoasterEngine !== 'undefined' ? RoasterEngine.hashHue(rk) : this.nlNameHue(rk));
+                    return this.nlToneOfHex(this.hslHex ? this.hslHex(hue, 44, 50) : '#7A8A7C');
                 });
             },
-            famOfPerson(name) {
-                return this.nlFamOf(`p:${name}`, () => {
-                    const brews = [...this.brews.values()].filter(b => this.getBrewOwner(b) === name).sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
-                    return this.lookFamily(brews.flatMap(b => this.brewNoteList(b)));
-                });
-            },
+            famOfPerson(name) { return this.nlFamOf(`p:${name}`, () => this.nlToneOfHex(this.getUserColor(name))); },
+            hslHex(h, s, l) { s /= 100; l /= 100; const k = n => (n + h / 30) % 12, a = s * Math.min(l, 1 - l), f = n => Math.round(255 * (l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1)))).toString(16).padStart(2, '0'); return `#${f(0)}${f(8)}${f(4)}`; },
 
             // ---- a person's name, in their own color made to read on what's behind it (at least 4.5:1)
             nlLum(hex) {
@@ -142,7 +138,7 @@
 
             // ---- small things are pills: a note with its three strength pills
             nlNote(name, strength, kind, cls = '') {
-                const f = this.noteFam(name, kind) || 'off', s = Math.max(1, Math.min(3, Number(strength) || 2));
+                const f = this.noteToneKey ? this.noteToneKey(name, kind) : (this.noteFam(name, kind) || 'off'), s = Math.max(1, Math.min(3, Number(strength) || 2));   // (v17.4: each note in its own color)
                 return `<span class="nl-nt${cls ? ' ' + cls : ''}" data-nf="${f}">${this.esc(name)}<span class="nl-lv" role="img" aria-label="${['a hint', 'some', 'lots'][s - 1]}">${[1, 2, 3].map(i => `<i${i <= s ? ' class="on"' : ''}></i>`).join('')}</span></span>`;
             },
             nlNotesHtml(brew, cls = '', chipCls = '') {
@@ -223,9 +219,10 @@
             nlShapeImg(brew, fam, o = {}) {
                 return `<img class="${o.cls || 'nl-shape'}" alt="${this.esc(o.alt || 'Flavor shape')}" data-nl-shape="${this.esc(brew.id)}" data-nl-fam="${this.esc(fam)}"${o.labels ? ' data-nl-labels="1"' : ''}${o.pg ? ' data-nl-pg="1"' : ''}${o.w ? ` data-nl-w="${o.w}" data-nl-h="${o.h}"` : ''}>`;
             },
-            nlShapeTheme(fam, onPage) {
+            nlShapeTheme(fam, where) {   // where: true = on the page, 'box' = in a box (the labels' outline is the color behind them)
                 const p = this.nlPal(fam), s = String(this.normalizeHexColor(p.n) || '#888888').slice(1), rgb = [0, 2, 4].map(i => parseInt(s.slice(i, i + 2), 16)).join(',');
-                return { line: `rgba(${rgb},0.22)`, muted: p.l, ink: p.t, surface: onPage ? p.pg : p.c, dark: p.dark };
+                const box = fam === 'app' ? p.c : p.dark ? this.hexMix(p.c, '#ffffff', 0.03) : this.hexMix(p.c, '#ffffff', 0.88);   // (the same mix as --box)
+                return { line: `rgba(${rgb},0.22)`, muted: p.l, ink: p.t, surface: where === 'box' ? box : where ? p.pg : p.c, dark: p.dark };
             },
             nlFillShapes(root) {
                 if (typeof FlavorShape === 'undefined' || typeof document === 'undefined') return;
@@ -245,6 +242,30 @@
                 imgs.forEach(img => this._nlShapeIO.observe(img));
             },
 
+            // ---- v17.4: a flavor shape that turns: on a card on its own (no box or lines), on the Session screen under a finger
+            // too. One shared renderer draws them all, only near the screen (FlavorShape.spin).
+            nlSpinHtml(brew, fam, o = {}) {
+                return `<canvas class="nl-spin ${o.drag ? 'nl-drag' : 'nl-auto'}${o.cls ? ' ' + o.cls : ''}" data-nl-spin="${this.esc(brew.id)}" data-nl-fam="${this.esc(fam)}"${o.pg ? ' data-nl-pg="1"' : ''}${o.labels ? ' data-nl-labels="1"' : ''}${o.lines ? ' data-nl-lines="1"' : ''} width="0" height="0" aria-label="Flavor shape"></canvas>`;
+            },
+            nlFillSpins(root) {
+                if (typeof FlavorShape === 'undefined' || !FlavorShape.spin || typeof document === 'undefined') return;
+                const scope = root || document;
+                if (!scope.querySelectorAll) return;
+                scope.querySelectorAll('canvas[data-nl-spin]').forEach(c => {
+                    if (c._nlSpin) return;
+                    const id = c.getAttribute('data-nl-spin'), first = this.brews.get(id);
+                    if (!first) return;
+                    const fam = c.getAttribute('data-nl-fam') || 'app', pg = c.closest('.nl-box') ? 'box' : c.hasAttribute('data-nl-pg'), labels = c.hasAttribute('data-nl-labels'), drag = c.classList.contains('nl-drag');
+                    const brew = () => this.brews.get(id) || first, tasted = () => this.tastedKeys(brew()), themes = {};
+                    c._nlSpin = FlavorShape.spin(c, {
+                        id: `${id}|${c.className}`, values: () => this.shapeValues(brew()), isSet: k => tasted().includes(k),
+                        names: this.kindOfBrew(first) === 'tea' ? 'tea' : null,
+                        theme: () => { const d = this.nlDark() ? 'd' : 'l'; return themes[d] || (themes[d] = this.nlShapeTheme(fam, pg)); },
+                        labels, lines: c.hasAttribute('data-nl-lines'), interactive: drag, fit: !labels, zoom: labels ? 1.08 : 1, fps: drag ? 0 : 30, speed: 0.45
+                    });
+                });
+            },
+
             // a first guess at the coffee name's size from its length (the fit pass below checks it on screen)
             nlNameSize(name, width, max, min, lines) {
                 const t = String(name || ''), em = 0.5, longest = Math.max(1, ...t.split(/\s+/).map(w => w.length));
@@ -253,16 +274,46 @@
                 return size;
             },
             // the coffee name shrinks to fit: 44 down to 34 on a card (two lines), 60 down to 40 on the Session screen
+            // v17.4: a name stays on one line when it can (down to the last number); on a card, when it would run into the turning
+            // shape beside it, the shape moves up (out of its way) first. Only a name too long even then takes two lines.
             nlFitNames(root) {
                 if (typeof document === 'undefined') return;
                 (root || document).querySelectorAll('[data-nl-fit]:not([data-nl-fitted])').forEach(el => {
                     if (!el.getClientRects().length) return;
-                    const [max, min, lines] = el.getAttribute('data-nl-fit').split(',').map(Number);
-                    let size = Math.min(max, parseFloat(el.style.fontSize) || max); el.style.fontSize = `${size}px`;
-                    const lh = () => parseFloat(getComputedStyle(el).lineHeight) || size * 1.02;
-                    const wordSplit = () => { el.style.overflowWrap = 'normal'; el.style.wordBreak = 'normal'; const s = el.scrollWidth > el.clientWidth + 1; el.style.overflowWrap = ''; el.style.wordBreak = ''; return s; };
-                    while (size > min && (el.scrollHeight > lh() * lines + 2 || wordSplit())) { size -= 2; el.style.fontSize = `${size}px`; }
+                    const [max, min, lines, one = min] = el.getAttribute('data-nl-fit').split(',').map(Number);
+                    const row = el.closest ? el.closest('.nl-titlerow') : null, mini = row && row.querySelector('.nl-mini');
+                    const set = z => { el.style.fontSize = `${z}px`; };
+                    const oneLine = to => {   // the biggest size from max down to `to` that fits on one line, or false
+                        el.style.whiteSpace = 'nowrap'; el.style.display = 'block';
+                        let z = max; set(z);
+                        while (z > to && el.scrollWidth > el.clientWidth + 1) { z -= 2; set(z); }
+                        if (el.scrollWidth <= el.clientWidth + 1) return true;
+                        el.style.whiteSpace = ''; el.style.display = ''; return false;
+                    };
+                    if (row) row.classList.remove('shape-up');
+                    let fits = oneLine(mini ? Math.max(min, max - 10) : one);   // (beside the shape it shrinks only a little before the shape moves)
+                    // (the roaster's line shares that room with the name: if it would be cut, the shape moves up too)
+                    const ro = mini ? row.querySelector('.nl-roast') : null, roCut = () => { if (!ro) return false; ro.style.whiteSpace = 'nowrap'; const cut = ro.scrollWidth > ro.clientWidth + 1; ro.style.whiteSpace = ''; return cut; };
+                    if (mini && (!fits || roCut())) { row.classList.add('shape-up'); fits = oneLine(one); }
+                    if (!fits) {
+                        let size = max; set(size);
+                        const lh = () => parseFloat(getComputedStyle(el).lineHeight) || size * 1.02;
+                        const wordSplit = () => { el.style.overflowWrap = 'normal'; el.style.wordBreak = 'normal'; const s = el.scrollWidth > el.clientWidth + 1; el.style.overflowWrap = ''; el.style.wordBreak = ''; return s; };
+                        while (size > min && (el.scrollHeight > lh() * lines + 2 || wordSplit())) { size -= 2; set(size); }
+                    }
                     el.setAttribute('data-nl-fitted', '1');
+                });
+            },
+
+            // v17.4: a row of tiles whose numbers don't all fit goes a size smaller (twice at most), never cut with "…"
+            nlFitTiles(root) {
+                if (typeof document === 'undefined') return;
+                (root || document).querySelectorAll('.nl-tiles:not([data-nl-fitted])').forEach(row => {
+                    if (!row.getClientRects().length) return;
+                    const over = () => [...row.querySelectorAll('.nl-sv, .nl-sl')].some(v => v.scrollWidth > v.clientWidth + 1);
+                    row.classList.remove('nl-tight', 'nl-tighter');
+                    if (over()) { row.classList.add('nl-tight'); if (over()) row.classList.add('nl-tighter'); }
+                    row.setAttribute('data-nl-fitted', '1');
                 });
             },
 
@@ -277,12 +328,17 @@
                     this._nlBootOk = true;
                     setTimeout(() => { try { localStorage.setItem('dialed_look_boot', '0'); } catch (e) {} }, 8000);
                 }
-                if (!this.newLook()) { const bd = typeof document !== 'undefined' ? document.body : null; if (bd && bd.hasAttribute && bd.hasAttribute('data-nltab')) bd.removeAttribute('data-nltab'); const g = typeof document !== 'undefined' && document.getElementById ? document.getElementById('grid') : null; if (g && g.hasAttribute && g.hasAttribute('data-fam')) g.removeAttribute('data-fam'); return; }
+                const tinted = () => typeof document !== 'undefined' && document.getElementById ? [document.getElementById('main-content'), document.getElementById('grid'), document.querySelector ? document.querySelector('.header-sticky') : null] : [];
+                if (!this.newLook()) { const bd = typeof document !== 'undefined' ? document.body : null; if (bd && bd.hasAttribute && bd.hasAttribute('data-nltab')) bd.removeAttribute('data-nltab'); tinted().forEach(el => { if (el && el.hasAttribute && el.hasAttribute('data-fam')) el.removeAttribute('data-fam'); }); this.nlExtras(false); return; }
                 if (document.body.getAttribute('data-nltab') !== this.tab) document.body.setAttribute('data-nltab', this.tab);
-                const grid = document.getElementById('grid');
-                if (grid) { if (this.tab === 'profile' && this.profileUser) grid.setAttribute('data-fam', this.famOfPerson(this.profileUser)); else if (grid.hasAttribute('data-fam')) grid.removeAttribute('data-fam'); }
+                // a profile (and its top bar) wears the person's colors
+                const pf = this.tab === 'profile' && this.profileUser ? this.famOfPerson(this.profileUser) : null;
+                tinted().forEach((el, i) => { if (!el) return; const want = i === 0 ? pf : null; if (want) { if (el.getAttribute('data-fam') !== want) el.setAttribute('data-fam', want); } else if (el.hasAttribute('data-fam')) el.removeAttribute('data-fam'); });
+                this.nlExtras(true);
                 this.nlFillShapes();
+                this.nlFillSpins();
                 this.nlFitNames();
+                this.nlFitTiles();
                 if (this.sessionViewActive()) this.renderSession(true);
                 // cards drawn later (the rest of the feed, a patched row) get their shapes and name sizes too
                 if (!this._nlMO && typeof MutationObserver === 'function') {
@@ -290,7 +346,7 @@
                     this._nlMO = new MutationObserver(() => {
                         if (queued || !this.newLook()) return;
                         queued = true;
-                        requestAnimationFrame(() => { queued = false; if (this.newLook()) { this.nlFillShapes(); this.nlFitNames(); } });
+                        requestAnimationFrame(() => { queued = false; if (this.newLook()) { this.nlFillShapes(); this.nlFillSpins(); this.nlFitNames(); this.nlFitTiles(); } });
                     });
                     this._nlMO.observe(document.body, { childList: true, subtree: true });
                 }
@@ -298,7 +354,16 @@
 
             // ===================== the feed card =====================
             nlWho(person, date, onPhoto, bg) {
-                return `<div class="nl-who${onPhoto ? '' : ' flat'}">${this.nlAvatar(person)}<span class="nl-stack">${onPhoto ? `<span class="nl-sig" data-profile="${this.esc(person)}">${this.esc(person)}</span>` : this.nlSig(person, bg)}<span class="nl-ago" data-time="${this.esc(String(date || ''))}">${this.esc(this.formatRelativeDate(date))}</span></span></div>`;
+                return `<div class="nl-who${onPhoto ? '' : ' flat'}">${this.nlAvatar(person)}<span class="nl-stack">${onPhoto ? `<span class="nl-sig" data-profile="${this.esc(person)}">${this.esc(person)}</span>` : this.nlSig(person, bg)}<span class="nl-ago" data-time="${this.esc(String(date || ''))}">${this.esc(this.nlAgo(date))}</span></span></div>`;
+            },
+            // "3h ago" within a week, then "Oct 15" ("Oct 15, 2025" another year), never 10/15/2026
+            nlAgo(value) {
+                const ts = this.toTime(value);
+                if (!ts) return '';
+                if (Date.now() - ts < 7 * 864e5) return this.formatRelativeDate(value);
+                const d = new Date(ts), o = { month: 'short', day: 'numeric' };
+                if (d.getFullYear() !== new Date().getFullYear()) o.year = 'numeric';
+                try { return d.toLocaleDateString(undefined, o); } catch (e) { return d.toDateString().slice(4, 10); }
             },
             nlMethodPill(method, solid) {
                 return `<span class="nl-mpill${solid ? ' solid' : ''}"><svg class="nl-ic"><use href="${this.methodIconUse(method)}"/></svg>${this.esc(this.methodLabel(method) || 'Espresso')}</span>`;
@@ -317,7 +382,7 @@
                 if (!brew.helpfulAnswer || !Array.isArray(brew.comments)) return '';
                 const c = brew.comments.find(x => x && String(x.id) === String(brew.helpfulAnswer));
                 if (!c || !c.text) return '';
-                return `<div class="nl-helpful"><div class="nl-helpful-who">${this.nlAvatar(c.user, 'nl-av s28')}${this.nlSig(c.user, this.nlPal(fam).c, 'nl-sig', 23)}<span class="nl-badge"><svg class="nl-ic"><use href="#i-check"/></svg>Most helpful</span></div><p>${this.esc(c.text)}</p></div>`;
+                return `<div class="nl-helpful"><div class="nl-helpful-who">${this.nlAvatar(c.user, 'nl-av s28')}${this.nlSig(c.user, this.nlPal(fam).c, 'nl-sig', 16)}<span class="nl-badge"><svg class="nl-ic"><use href="#i-check"/></svg>Most helpful</span></div><p>${this.esc(c.text)}</p></div>`;
             },
             nlSocial(kind, item, likes, likeFn) {
                 return this.renderThread(kind, item, { inputId: `feed-comment-input-${kind}-${item.id}`, lead: `<button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass(kind, item.id)}"${this.likePopStyle(kind, item.id)} onclick="${likeFn}" aria-label="Like" title="Like"><svg class="heart-icon"><use href="#i-heart"/></svg></button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}` });
@@ -335,7 +400,7 @@
                 const right = `<div class="nl-tright">${entry.community ? this.communityFollowHtml(owner) : ''}${this.nlMethodPill(brew.method)}<button type="button" class="nl-glass" onclick="app.shareItem('session', '${app.escJs(brew.id)}', event)" aria-label="Share"><svg class="nl-ic"><use href="#i-share-2"/></svg></button></div>`;
                 const top = onPhoto => `<div class="nl-ctop${onPhoto ? '' : ' flat'}">${this.nlWho(owner, entry.date || brew.date, onPhoto, pal.c)}${right}</div>`;
                 const media = ph ? `<div class="nl-ph session-photo-wrap">${this.nlPhotoImg(ph)}<div class="nl-fade"></div>${top(true)}</div>`
-                    : shape ? `<div class="nl-ph nl-shapemedia flat">${this.nlShapeImg(brew, fam, { w: 300, h: 220 })}<div class="nl-fade short"></div>${top(false)}</div>`
+                    : shape ? `<div class="nl-ph nl-shapemedia flat">${this.nlSpinHtml(brew, fam, { cls: 'nl-bigspin' })}<div class="nl-fade short"></div>${top(false)}</div>`
                     : `<div class="nl-flattop">${top(false)}</div>`;
                 const steeps = tea ? this.teaStepsOf(brew) : [];
                 const help = this.helpTagHtml ? this.helpTagHtml(brew) : '';
@@ -344,7 +409,7 @@
                         ${media}
                         <div class="nl-body">
                             ${help ? `<div class="nl-help">${help}</div>` : ''}
-                            <div class="nl-titlerow"><div class="nl-titles">${this.nlRoasterHtml(bean, tea)}<h2 class="nl-name" data-nl-fit="44,34,2" style="font-size:${this.nlNameSize(coffeeName, ph && shape ? 214 : 318, 44, 34, 2)}px">${this.esc(coffeeName)}</h2></div>${ph && shape ? this.nlShapeImg(brew, fam, { cls: 'nl-mini', w: 150, h: 120 }) : ''}</div>
+                            <div class="nl-titlerow${ph && shape ? ' has-mini' : ''}"><div class="nl-titles">${this.nlRoasterHtml(bean, tea)}<h2 class="nl-name" data-nl-fit="44,28,3,28" style="font-size:${this.nlNameSize(coffeeName, ph && shape ? 190 : 322, 44, 34, 2)}px"${bean ? ` role="link" tabindex="0" onclick="event.stopPropagation(); app.openFeedTarget('${app.escJs(bean.id)}','',false)"` : ''}>${this.esc(coffeeName)}</h2></div>${ph && shape ? this.nlSpinHtml(brew, fam, { cls: 'nl-mini' }) : ''}</div>
                             ${this.nlTilesHtml(this.nlCardTiles(brew))}
                             ${steeps.length > 1 ? `<div class="nl-steeps">${steeps.map(s => `<span class="nl-badge">${this.esc(this.fmtSteep(s).replace(/s$/, ' s'))}</span>`).join('')}</div>` : ''}
                             ${this.nlWords(brew)}
@@ -365,19 +430,20 @@
                 const comments = this.normalizeCommentList(bean.comments, `bean-${bean.id}`, bean.date);
                 const key = this.beanGroupKey(bean);
                 const brews = [...this.brews.values()].filter(b => { const bn = this.beans.get(String(b.beanId)); return bn && this.beanGroupKey(bn) === key; }).sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
-                const withPhoto = brews.find(b => this.nlPhoto(b)), withShape = brews.find(b => this.nlHasShape(b));
-                const ph = withPhoto ? this.nlPhoto(withPhoto) : null;
+                const withShape = brews.find(b => this.nlHasShape(b));
+                const cov = this.coverOf(this.coverBean(bean) || bean), coverUrl = cov && cov.photo && this.faceUrl ? this.faceUrl(cov.photo) : '';   // v17.4: its own picture
+                const ph = coverUrl ? { src: coverUrl, fallbacks: [coverUrl] } : null;
                 const right = `<div class="nl-tright"><span class="nl-mpill">${this.esc(entry.kindLabel || (tea ? 'New tea' : 'New coffee'))}</span><button type="button" class="nl-glass" onclick="event.stopPropagation(); app.openCoffeeStory('${app.escJs(bean.id)}')" aria-label="Share"><svg class="nl-ic"><use href="#i-share-2"/></svg></button></div>`;
                 const top = onPhoto => `<div class="nl-ctop${onPhoto ? '' : ' flat'}">${this.nlWho(owner, entry.date || bean.date, onPhoto, pal.c)}${right}</div>`;
                 const media = ph ? `<div class="nl-ph session-photo-wrap">${this.nlPhotoImg(ph, 'nl-photo', 'Coffee photo')}<div class="nl-fade"></div>${top(true)}</div>`
-                    : withShape ? `<div class="nl-ph nl-shapemedia flat">${this.nlShapeImg(withShape, fam, { w: 300, h: 220 })}<div class="nl-fade short"></div>${top(false)}</div>`
+                    : withShape ? `<div class="nl-ph nl-shapemedia flat">${this.nlSpinHtml(withShape, fam, { cls: 'nl-bigspin' })}<div class="nl-fade short"></div>${top(false)}</div>`
                     : `<div class="nl-flattop">${top(false)}</div>`;
                 const tags = [tea ? bean.teaType : '', bean.variety, bean.origin, bean.process].filter(Boolean).slice(0, 3);
                 return `
                     <article class="nl-card ${ph ? 'has-photo' : withShape ? 'has-shape' : 'is-flat'}" data-fam="${fam}" onclick="app.openFeedTarget('${app.escJs(bean.id)}','',false)">
                         ${media}
                         <div class="nl-body">
-                            <div class="nl-titlerow"><div class="nl-titles">${this.nlRoasterHtml(bean, tea)}<h2 class="nl-name" data-nl-fit="44,34,2" style="font-size:${this.nlNameSize(bean.name, 318, 44, 34, 2)}px">${this.esc(bean.name || (tea ? 'Tea' : 'Coffee'))}</h2></div></div>
+                            <div class="nl-titlerow nl-beanrow">${ph ? '' : this.nlCoverHtml(bean, 'nl-cover nl-bcover')}<div class="nl-titles">${this.nlRoasterHtml(bean, tea)}<h2 class="nl-name" data-nl-fit="44,28,3,28" style="font-size:${this.nlNameSize(bean.name, 322, 44, 34, 2)}px">${this.esc(bean.name || (tea ? 'Tea' : 'Coffee'))}</h2></div></div>
                             ${tags.length ? `<div class="nl-badges">${tags.map(t => `<span class="nl-badge">${this.esc(t)}</span>`).join('')}</div>` : ''}
                             ${this.nlSocial('bean', { ...bean, comments }, likes, `app.toggleBeanLike('${app.escJs(bean.id)}', event)`)}
                         </div>
@@ -426,7 +492,7 @@
                 const bags = tea && b.teabag ? Math.max(1, Number(b.bags) || 1) : 0;
                 if (bags) tiles.push(this.nlTile(`${bags}${this.nlU(bags === 1 ? ' bag' : ' bags')}`, 'teabag'));
                 else if (dose > 0) tiles.push(this.nlTile(`${this.esc(this.fmtNum(dose, 1))}${this.nlU(' g')}`, tea ? (b.method === 'Matcha' ? 'matcha' : 'leaf') : 'dose'));
-                if (yld > 0) tiles.push(this.nlTile(`${this.esc(this.fmtNum(yld, tea ? 0 : 1))}${this.nlU(tea ? ' ml' : ' g')}`, tea ? 'water' : 'yield'));
+                if (yld > 0) tiles.push(this.nlTile(`${this.esc(this.fmtNum(yld, tea ? 0 : 1))}${this.nlU(tea ? ' ml' : ' g')}`, tea || (b.method && b.method !== 'Espresso') ? 'water' : 'pull'));   // (the words the Log form uses)
                 if (dose > 0 && yld > 0) tiles.push(this.nlTile(tea ? `1:${this.esc(this.fmtNum(yld / dose, 0))}` : this.esc(this.fmtRatio(yld / dose)), 'ratio'));
                 const t = this.nlTimeVal(b);
                 if (t) tiles.push(this.nlTile(t, tea ? (b.method === 'Matcha' ? 'whisk' : 'steep') : 'time'));
@@ -450,7 +516,10 @@
                 page.innerHTML = html;
                 if (drafts && this.restoreDrafts) this.restoreDrafts(drafts);
                 this.nlFillShapes(page);
+                this.nlFillSpins(page);
                 this.nlFitNames(page);
+                this.nlFitTiles(page);
+                this.nlBindNav(v); this.nlNavPaint(v, !soft);
             },
 
             sessionHtml(brew) {
@@ -462,10 +531,9 @@
                 const more = mine || this.acctOn() ? `<button type="button" class="nl-glass" onclick="app.nlSessionMore(event)" aria-label="More">${this.NL_MORE}</button>` : '';
                 const hero = `
                     <div class="nls-hero ${ph ? 'has-photo' : shape ? 'has-shape' : 'is-flat'}">
-                        ${ph ? `${this.nlPhotoImg(ph, 'nls-photo')}<div class="nl-pfade"></div>` : shape ? `<div class="nls-bigshape">${this.nlShapeImg(brew, fam, { cls: 'nls-shape', w: 360, h: 280, pg: true })}</div>` : ''}
-                        <div class="nls-top"><button type="button" class="nl-glass" onclick="app.closeSession()" aria-label="Back"><svg class="nl-ic"><use href="#i-arrow-left"/></svg></button><div class="nl-tright"><button type="button" class="nl-glass" onclick="app.shareItem('session', '${app.escJs(id)}', event)" aria-label="Share"><svg class="nl-ic"><use href="#i-share-2"/></svg></button>${more}</div></div>
+                        ${ph ? `${this.nlPhotoImg(ph, 'nls-photo')}<div class="nl-pfade"></div>` : shape ? `<div class="nls-bigshape">${this.nlSpinHtml(brew, fam, { cls: 'nls-shape', pg: true, drag: true })}</div>` : ''}
                         <div class="nls-id">
-                            <div class="nls-whorow">${this.nlWho(owner, brew.date, false, pal.pg)}${this.nlMethodPill(brew.method, true)}</div>
+                            <div class="nls-whorow">${this.nlWho(owner, brew.date, !!ph && pal.dark, pal.pg)}${this.nlMethodPill(brew.method, true)}</div>
                             ${this.nlRoasterHtml(bean, tea, 'nl-roast nls-roast')}
                             <h1 class="nl-name nls-name" data-nl-fit="60,40,3" style="font-size:${this.nlNameSize(name, 354, 60, 40, 3)}px" role="link" tabindex="0" onclick="app.nlSessionCoffee()">${this.esc(name)}</h1>
                             ${rating > 0 ? `<div class="nls-rate">${this.nlStarsHtml(rating, 20)}<b>${this.esc(this.fmtNum(rating, 1))}</b></div>` : ''}
@@ -477,12 +545,13 @@
                 const sec = (h, body, extra = '') => body ? `<section class="nls-sec"${extra}>${h ? `<h3 class="nl-h3">${h}</h3>` : ''}${body}</section>` : '';
                 const words = this.getBrewNotes(brew);
                 const tasted = this.tastedKeys(brew);
-                const taste = shape || tasted.length ? `<div class="nl-box nls-taste">${shape ? this.nlShapeImg(brew, fam, { cls: 'nls-tshape', labels: true, w: 320, h: 240 }) : ''}${(d => d ? `<p class="nls-desc">${this.esc(d)}</p>` : '')(this.describeCup(this.shapeValues(brew), tasted, this.extractFlavors(brew), this.noteIntensities(brew), kind))}${tasted.map(k => { const val = this.tasteValue(brew, k); return `<div class="nl-srow"><span>${this.esc(this.tasteLabel(k, kind))}</span><span class="nl-bar"><i style="width:${Math.max(4, val * 10)}%;background:${FlavorShape.COLORS[k]}"></i></span><span class="nl-num">${this.esc(this.fmtNum(val, 1))}</span></div>`; }).join('')}</div>` : '';
+                const taste = shape || tasted.length ? `<div class="nl-box nls-taste">${shape ? this.nlSpinHtml(brew, fam, { cls: 'nls-tshape', labels: true, lines: true, drag: true }) : ''}${(d => d ? `<p class="nls-desc">${this.esc(d)}</p>` : '')(this.describeCup(this.shapeValues(brew), tasted, this.extractFlavors(brew), this.noteIntensities(brew), kind))}${tasted.map(k => { const val = this.tasteValue(brew, k); return `<div class="nl-srow"><span>${this.esc(this.tasteLabel(k, kind))}</span><span class="nl-bar"><i style="width:${Math.max(4, val * 10)}%;background:${FlavorShape.COLORS[k]}"></i></span><span class="nl-num">${this.esc(this.fmtNum(val, 1))}</span></div>`; }).join('')}</div>` : '';
                 const prev = this.previousBrewFor(brew);
                 const vs = prev ? `<div class="nl-box nls-vs">${this.renderVsPane(brew)}</div>` : '';
                 const next = `<div class="nls-next">${this.renderNextPane(brew)}</div>`;
                 const comments = this.normalizeCommentList(brew.comments, `brew-${id}`, brew.date);
-                return `
+                const bar = `<div class="nls-top nl-navbar"${ph ? ' data-photo' : ''}><button type="button" class="nl-glass" onclick="app.closeSession()" aria-label="Back"><svg class="nl-ic"><use href="#i-arrow-left"/></svg></button><div class="nl-tright"><button type="button" class="nl-glass" onclick="app.shareItem('session', '${app.escJs(id)}', event)" aria-label="Share"><svg class="nl-ic"><use href="#i-share-2"/></svg></button>${more}<button type="button" class="nl-glass" onclick="app.openSettings()" aria-label="Settings"><svg class="nl-ic"><use href="#i-gear"/></svg></button></div></div>`;
+                return `${bar}
                     <div class="nls-wrap" data-card-brew="${this.esc(id)}">
                         ${hero}
                         <section class="nls-sec nls-first">${this.nlTilesHtml(tiles, 'nls-tiles')}${badges.length ? `<div class="nls-badges">${badges.map(([ic, t]) => `<span class="nl-badge lg">${this.esc(t)}</span>`).join('')}</div>` : ''}</section>
@@ -490,7 +559,7 @@
                         ${sec('Flavors', this.nlNotesHtml(brew, 'wrap', 'lg'))}
                         ${this.hasShotPane && this.hasShotPane(brew) ? sec('The shot <span>· from the Shot Logger</span>', `<div class="nl-box nls-shot">${this.renderShotPane(brew)}</div>`) : ''}
                         ${sec('Taste', taste)}
-                        ${sec(prev ? `Vs. last time <span>· ${this.esc(this.shortDate(prev.date))}</span>` : '', vs)}
+                        ${sec(prev ? 'Vs. last time' : '', vs)}
                         ${sec('', next)}
                         <section class="nls-sec nls-social">
                             <div class="nls-likes"><div class="thread-lead"><button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('brew', id)}"${this.likePopStyle('brew', id)} onclick="app.toggleLike('${app.escJs(id)}', event)" aria-label="Like" title="Like"><svg class="heart-icon"><use href="#i-heart"/></svg></button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}</div></div>
@@ -519,7 +588,7 @@
                 m.innerHTML = mine
                     ? `<button type="button" role="menuitem" onclick="app.nlMoreGo('edit')"><svg class="nl-ic"><use href="#i-edit-2"/></svg>Edit</button><button type="button" role="menuitem" class="danger" onclick="app.nlMoreGo('delete')"><svg class="nl-ic"><use href="#i-trash-2"/></svg>Delete</button>`
                     : `<button type="button" role="menuitem" onclick="app.nlMoreGo('report')"><svg class="nl-ic"><use href="#i-flag"/></svg>Report</button>`;
-                document.getElementById('session-view').appendChild(m);
+                (document.getElementById('nls-page') || document.getElementById('session-view')).appendChild(m);
                 setTimeout(() => document.addEventListener('click', function off(e) { if (!m.contains(e.target)) { m.remove(); document.removeEventListener('click', off, true); } }, true), 0);
                 m.setAttribute('data-id', id);
             },
@@ -532,6 +601,65 @@
                 else if (what === 'report') this.reportItem('session', id);
             },
 
+            // ---- v17.4: pages about one thing (a coffee, a roaster, a session) keep their Back bar at the top, like the tabs'
+            // top bar: clear over a photo, the page's color once you scroll, tucked away scrolling down (the strip behind the
+            // clock stays), back when you scroll up. In the classic look the coffee page's bar goes back where it was.
+            nlNavBars() {
+                if (typeof document === 'undefined' || !document.getElementById) return;
+                try { this.nlNavBarsNow(); } catch (err) { console.warn('new look bars', err); }
+            },
+            nlNavBarsNow() {
+                const nl = this.newLook();
+                const dv = document.getElementById('detail-view'), hero = dv && dv.querySelector ? dv.querySelector('.detail-hero') : null;
+                const top = dv && dv.querySelector ? dv.querySelector('.dh-top:not(.ro-top)') : null;
+                if (dv && hero && top) {
+                    if (nl) { if (top.parentElement !== dv) dv.insertBefore(top, dv.firstChild); top.classList.add('nl-navbar'); if (hero.classList && hero.classList.contains('nl-has-photo')) top.setAttribute('data-photo', ''); else top.removeAttribute('data-photo'); }
+                    else { if (top.parentElement !== hero) hero.insertBefore(top, hero.firstChild); top.classList.remove('nl-navbar', 'nl-solid', 'nl-tucked'); top.removeAttribute('data-photo'); }
+                }
+                const ro = document.querySelector ? document.querySelector('#ro-page > .ro-top') : null;
+                if (ro) ro.classList.toggle('nl-navbar', nl);
+                ['detail-view', 'roaster-view', 'session-view'].forEach(id => { const sc = document.getElementById(id); if (sc) { this.nlBindNav(sc); this.nlNavPaint(sc, true); } });
+                this.nlExtras(nl);
+            },
+            // v17.4: Settings on every page (the coffee and roaster pages' bars too) and the Achievement Locker's Done at its top:
+            // put in for the New look only, and taken out again for the classic look (which stays exactly as it was)
+            nlExtras(nl) {
+                if (typeof document === 'undefined' || typeof document.querySelectorAll !== 'function') return;
+                document.querySelectorAll('#detail-view .dh-top .dh-actions, #ro-page > .ro-top .dh-actions').forEach(a => {
+                    const has = [...a.children].find(c => c.classList.contains('nl-navset'));
+                    if (nl && !has) { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn-clean nl-navset'; b.setAttribute('aria-label', 'Settings'); b.setAttribute('onclick', 'app.openSettings()'); b.innerHTML = '<svg class="icon"><use href="#i-gear"/></svg>'; a.appendChild(b); }
+                    else if (!nl && has) has.remove();
+                });
+                const card = document.querySelector('#achievement-modal .modal-card'), done = card && card.querySelector('.nl-ach-done');
+                if (card && nl && !done) { const b = document.createElement('button'); b.type = 'button'; b.className = 'set-done nl-ach-done'; b.textContent = 'Done'; b.setAttribute('onclick', 'app.closeModals()'); const h = card.querySelector('h2'); if (h) h.after(b); else card.prepend(b); }
+                else if (card && !nl && done) done.remove();
+            },
+            nlNavPaint(sc, reset) {
+                const bar = sc && sc.querySelector ? sc.querySelector('.nl-navbar') : null;
+                if (!bar) return;
+                if (reset) { bar.classList.remove('nl-tucked'); sc._nlNavY = sc.scrollTop; sc._nlDown = sc._nlUp = 0; }
+                bar.classList.toggle('nl-solid', sc.scrollTop > (bar.hasAttribute('data-photo') ? 230 : 4));
+            },
+            nlBindNav(sc) {
+                if (!sc || sc._nlNav || typeof sc.addEventListener !== 'function') return;
+                sc._nlNav = true;
+                let queued = false;
+                const update = () => {
+                    queued = false;
+                    if (!this.newLook()) return;
+                    const bar = sc.querySelector('.nl-navbar');
+                    if (!bar) return;
+                    const y = sc.scrollTop, max = sc.scrollHeight - sc.clientHeight, dy = y - (sc._nlNavY || 0);
+                    sc._nlNavY = y;
+                    this.nlNavPaint(sc);
+                    if (y <= 90) { sc._nlDown = sc._nlUp = 0; bar.classList.remove('nl-tucked'); return; }   // near the top it always shows
+                    if (y >= max - 2) return;   // (the bounce at the bottom isn't a scroll back up)
+                    if (dy > 0) { sc._nlDown = (sc._nlDown || 0) + dy; sc._nlUp = 0; if (sc._nlDown > 12) bar.classList.add('nl-tucked'); }
+                    else if (dy < 0) { sc._nlUp = (sc._nlUp || 0) - dy; sc._nlDown = 0; if (sc._nlUp > 8) bar.classList.remove('nl-tucked'); }
+                };
+                sc.addEventListener('scroll', () => { if (!queued) { queued = true; (typeof requestAnimationFrame === 'function' ? requestAnimationFrame : f => setTimeout(f, 16))(update); } }, { passive: true });
+            },
+
             // a sheet or page in one thing's colors (the New look); with it off, nothing is left behind
             nlTint(sel, fam) {
                 const el = typeof document !== 'undefined' && typeof document.querySelector === 'function' ? document.querySelector(sel) : null;
@@ -539,31 +667,33 @@
                 if (this.newLook()) el.setAttribute('data-fam', fam || 'app'); else if (el.getAttribute && el.getAttribute('data-fam') !== null && el.removeAttribute) el.removeAttribute('data-fam');
             },
 
-            // ===================== Coffees: a tile per coffee, in its family =====================
+            // ===================== Coffees: a card per coffee, like a roaster's (v17.4) =====================
+            // its picture (a photo or its color, chosen once), the roaster in handwriting, the name, its rating, how many sessions
+            // and from where, who drinks it, and the notes most tasted; the card wears the picture's color
             nlCoffeeTile(card, group, brews, teaShelf) {
                 const bean = group.meta, fam = this.famOfCoffee(bean);
-                const sorted = [...brews].sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
-                const withPhoto = sorted.find(b => this.nlPhoto(b)), withShape = sorted.find(b => this.nlHasShape(b));
-                const ph = withPhoto ? this.nlPhoto(withPhoto) : null;
                 const added = group.addedAt && group.addedAt !== Infinity ? group.addedAt : this.toTime(bean.date);
                 const isNew = added && (Date.now() - added) < 3 * 864e5;
                 if (isNew) this.nextFreshExpiry = Math.min(this.nextFreshExpiry, added + 3 * 864e5);
                 const avg = this.calculateAverageRating(brews), n = brews.length;
-                const notes = this.lookTopNotes(brews, 2);
-                card.className = 'nl-lcard';
+                const notes = this.lookTopNotes(brews, 3);
+                const where = [teaShelf ? bean.teaType : '', bean.origin, bean.process].filter(Boolean).join(' · ');
+                card.className = 'nl-ccard';
                 card.setAttribute('data-fam', fam);
                 card.setAttribute('role', 'button'); card.setAttribute('tabindex', '0');
                 const faces = this.coffeeFacesHtml(group, brews);
                 card.innerHTML = `
-                    ${ph ? `<div class="nl-lph session-photo-wrap">${this.nlPhotoImg(ph, 'nl-photo', bean.name || '')}<div class="nl-fade"></div></div>` : withShape ? `<div class="nl-lshape">${this.nlShapeImg(withShape, fam, { cls: 'nl-shape', w: 300, h: 220 })}</div>` : '<div class="nl-lnone"></div>'}
-                    ${faces ? `<div class="nl-lfaces">${faces}</div>` : ''}
-                    ${isNew ? `<div class="nl-fresh">New</div>` : ''}
-                    <div class="nl-lb">
-                        ${this.nlRoasterHtml(bean, teaShelf)}
-                        <div class="nl-lname">${this.esc(bean.name || '')}</div>
-                        <div class="nl-lmeta">${avg > 0 ? `<b>${this.esc(this.fmtNum(avg, 1))}</b> <span class="nl-gold">★</span> · ` : ''}${n} session${n === 1 ? '' : 's'}</div>
-                        ${notes.length ? `<div class="nl-notes">${notes.map(([nm, s, k]) => this.nlNote(nm, s, k)).join('')}</div>` : ''}
-                    </div>`;
+                    <div class="nl-chead">
+                        ${this.nlCoverHtml(bean, 'nl-cover')}
+                        <div class="nl-cmain">
+                            ${this.nlRoasterHtml(bean, teaShelf, 'nl-roast nl-croast')}
+                            <div class="nl-cname">${this.esc(bean.name || '')}</div>
+                            ${avg > 0 ? `<div class="nl-crate"><span class="star-meter" style="--fill:${this.starFill(avg)}%;--whole:${this.starWhole(avg)};--frac:${this.starFrac(avg)}"></span><b>${this.esc(this.formatRating(avg))}</b></div>` : ''}
+                        </div>
+                        ${isNew ? `<span class="nl-fresh">New</span>` : ''}
+                    </div>
+                    <div class="nl-cmeta"><span>${n} session${n === 1 ? '' : 's'}${where ? ` · ${this.esc(where)}` : ''}</span>${faces}</div>
+                    ${notes.length ? `<div class="nl-notes">${notes.map(([nm, st, k]) => this.nlNote(nm, st, k)).join('')}</div>` : ''}`;
             },
 
             // the notes most tasted across sessions, strongest first: [[name, strength, kind]]
@@ -581,32 +711,39 @@
                 if (!this.newLook()) {
                     if (view.getAttribute && view.getAttribute('data-fam') !== null && view.removeAttribute) view.removeAttribute('data-fam');
                     if (photo && photo.remove) photo.remove();
+                    const tile = hero.querySelector ? hero.querySelector('.nl-dcover') : null; if (tile && tile.remove) tile.remove();
                     if (hero.classList) hero.classList.remove('nl-has-photo');
+                    ['d-origin', 'd-process', 'd-roast'].forEach(id => { const el = document.getElementById(id); if (el && el.hidden && String(el.textContent || '').trim() === '-') el.hidden = false; });
+                    if (view.querySelector('.nl-navbar')) this.nlNavBars();   // (the bar goes back into the hero)
                     return;
                 }
                 const bean = group.meta, fam = this.famOfCoffee(bean);
                 view.setAttribute('data-fam', fam);
-                const sorted = [...(brews || [])].sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
-                const withPhoto = sorted.find(b => this.nlPhoto(b));
-                const ph = withPhoto ? this.nlPhoto(withPhoto) : null;
+                // v17.4: the coffee's own picture leads: its photo (chosen once, it doesn't change with each session), or its
+                // color tile beside the name, like a roaster's page
+                const cov = this.coverOf(this.coverBean(bean) || bean), coverUrl = cov && cov.photo && this.faceUrl ? this.faceUrl(cov.photo) : '';
                 if (photo) photo.remove();
-                if (ph) { hero.insertAdjacentHTML('afterbegin', `<div class="nl-dphoto session-photo-wrap">${this.nlPhotoImg(ph, 'nl-photo', `Latest session of ${bean.name || 'this coffee'}`)}<div class="nl-pfade"></div></div>`); }
-                hero.classList.toggle('nl-has-photo', !!ph);
+                const oldTile = hero.querySelector('.nl-dcover'); if (oldTile) oldTile.remove();
+                if (coverUrl) hero.insertAdjacentHTML('afterbegin', `<div class="nl-dphoto"><img class="nl-photo" src="${this.esc(coverUrl)}" alt="${this.esc(bean.name || '')}" decoding="async" onerror="this.parentNode.classList.add('is-broken')"><div class="nl-pfade"></div></div>`);
+                else { const ro = document.getElementById('d-roaster'); if (ro) ro.insertAdjacentHTML('beforebegin', this.nlCoverHtml(bean, 'nl-cover nl-dcover')); }
+                hero.classList.toggle('nl-has-photo', !!coverUrl);
+                ['d-origin', 'd-process', 'd-roast'].forEach(id => { const el = document.getElementById(id); if (el && String(el.textContent || '').trim() === '-') el.hidden = true; });   // (no "-" chips for what isn't filled in)
                 const notes = this.lookTopNotes(this.detailBrews || brews || [], 3);
                 const top = document.getElementById('d-top-flavors');
                 if (top) top.innerHTML = notes.map(([n, s, k]) => this.nlNote(n, s, k, 'lg')).join('');
                 this.nlFillShapes(view);
+                this.nlNavBars();
             },
 
             // a session on the coffee page: one row (who, when, the numbers, their words); tap it for the Session screen
             nlLogRow(log) {
                 const owner = this.getBrewOwner(log), fam = this.famOfBrew(log), ph = this.nlPhoto(log), r = this.normalizeRating(log.rating);
                 const dose = this.num(log.dose), yld = this.num(log.yield), tea = this.isTeaBrew(log);
-                const t = this.nlTimeVal(log).replace(/<small>\s*/g, '').replace(/<\/small>/g, '');
+                const t = this.nlTimeVal(log).replace(/<\/?small>/g, '');   // ("30 s", like the tiles)
                 const spec = [dose > 0 && yld > 0 ? `${this.fmtNum(dose, 1)} g → ${this.fmtNum(yld, tea ? 0 : 1)} ${tea ? 'ml' : 'g'}` : '', t].filter(Boolean).join(' · ');
                 const words = this.getBrewNotes(log);
                 const thumb = ph ? `<span class="nl-thumb session-photo-wrap">${this.nlPhotoImg(ph, 'nl-photo', '')}</span>` : this.nlHasShape(log) ? `<span class="nl-thumb nl-thumb-shape" data-fam="${fam}">${this.nlShapeImg(log, fam, { cls: 'nl-shape', w: 150, h: 120 })}</span>` : `<span class="nl-thumb nl-thumb-method" data-fam="${fam}"><svg class="nl-ic"><use href="${this.methodIconUse(log.method)}"/></svg></span>`;
-                return `<div class="nl-logrow" role="button" tabindex="0" onclick="app.openSession('${app.escJs(log.id)}')">${thumb}<div class="nl-lr-main"><div class="nl-lr-top">${this.nlSig(owner, null, 'nl-sig', 24)}<span class="nl-ago">${this.esc(this.formatRelativeDate(log.date))}</span></div><b>${this.esc(spec || this.methodLabel(log.method) || '')}${r > 0 ? ` <span class="nl-gold">· ${this.esc(this.fmtNum(r, 1))} ★</span>` : ''}</b>${words || log.method ? `<small>${!tea && log.method && log.method !== 'Espresso' ? `${this.esc(this.methodLabel(log.method))} · ` : tea ? `${this.esc(this.methodLabel(log.method))} · ` : ''}${words ? `“${this.esc(this.shortText(words, 70))}”` : ''}</small>` : ''}</div></div>`;
+                return `<div class="nl-logrow" role="button" tabindex="0" onclick="app.openSession('${app.escJs(log.id)}')">${thumb}<div class="nl-lr-main"><div class="nl-lr-top">${this.nlSig(owner, null, 'nl-sig', 16)}<span class="nl-ago" data-time="${this.esc(String(log.date || ''))}">${this.esc(this.nlAgo(log.date))}</span></div><b>${this.esc(spec || this.methodLabel(log.method) || '')}${r > 0 ? ` <span class="nl-gold">· ${this.esc(this.fmtNum(r, 1))} ★</span>` : ''}</b>${words || log.method ? `<small>${!tea && log.method && log.method !== 'Espresso' ? `${this.esc(this.methodLabel(log.method))} · ` : tea ? `${this.esc(this.methodLabel(log.method))} · ` : ''}${words ? `“${this.esc(this.shortText(words, 70))}”` : ''}</small>` : ''}</div></div>`;
             },
 
             // ===================== the share image (1080 x 1920): the card's anatomy =====================
@@ -616,11 +753,11 @@
                 const W = 1080, H = 1920, s = W / 282, X = v => Math.round(v * s);
                 const c = document.createElement('canvas'); c.width = W; c.height = H;
                 const ctx = c.getContext('2d'); if (!ctx) return null;
-                try { if (document.fonts && document.fonts.load) await Promise.all([document.fonts.load(`600 ${X(21)}px Caveat`), document.fonts.load(`500 ${X(32)}px ui-serif`)]); } catch (e) {}
+                try { if (document.fonts && document.fonts.load) await Promise.all([document.fonts.load(`600 ${X(14)}px "Roboto Slab NL"`), document.fonts.load(`500 ${X(32)}px ui-serif`)]); } catch (e) {}
                 const fam = this.famOfBrew(b), P = this.nlPal(fam), bean = this.beans.get(String(b.beanId || '')) || {}, tea = this.isTeaBrew(b);
                 const sans = (w, z) => `${w} ${z}px -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Inter, sans-serif`;
                 const serif = (w, z) => `${w} ${z}px ui-serif, -apple-system-ui-serif, "New York", "Iowan Old Style", Georgia, serif`;
-                const hand = z => `600 ${z}px Caveat, "Bradley Hand", cursive`;
+                const hand = z => `600 ${z}px "Roboto Slab NL", "Roboto Slab", Georgia, serif`;   // (v17.4: Roboto Slab in place of the handwriting)
                 const rgba = (hex, a) => { const h = String(this.normalizeHexColor(hex) || '#000000').slice(1); return `rgba(${parseInt(h.slice(0, 2), 16)},${parseInt(h.slice(2, 4), 16)},${parseInt(h.slice(4, 6), 16)},${a})`; };
                 const rr = (x, y, w, h, r) => { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); };
                 const fit = (text, font, maxW) => { ctx.font = font; let t = String(text || ''); if (ctx.measureText(t).width <= maxW) return t; while (t.length > 1 && ctx.measureText(t + '…').width > maxW) t = t.slice(0, -1); return t.trimEnd() + '…'; };
@@ -650,7 +787,7 @@
                 ctx.shadowBlur = 0; ctx.fillStyle = '#FFFFFF'; ctx.font = sans(700, X(11)); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                 ctx.fillText(this.feedInitial(owner), X(24), X(24.5));
                 if (photo) { ctx.shadowColor = 'rgba(0,0,0,0.4)'; ctx.shadowBlur = X(6); }
-                ctx.textAlign = 'left'; ctx.font = hand(X(21)); ctx.fillStyle = photo ? '#FFFFFF' : this.nameColor(owner, P.c);
+                ctx.textAlign = 'left'; ctx.font = hand(X(14)); ctx.fillStyle = photo ? '#FFFFFF' : this.nameColor(owner, P.c);
                 ctx.fillText(owner, X(42), X(25));
                 ctx.restore();
                 // roaster, name
@@ -658,7 +795,7 @@
                 const left = X(14), maxW = W - X(28);
                 ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
                 const maker = String(bean.roaster || '').trim() || (this.teaMakerName ? this.teaMakerName(bean) : '');
-                if (maker) { ctx.font = hand(X(19)); ctx.fillStyle = P.k; ctx.fillText(fit(maker, hand(X(19)), maxW), left, y + X(17)); y += X(21); }
+                if (maker) { ctx.font = hand(X(13)); ctx.fillStyle = P.k; ctx.fillText(fit(maker, hand(X(13)), maxW), left, y + X(14)); y += X(19); }
                 let nz = X(32); const name = String(bean.name || '').trim() || (tea ? 'Tea' : 'Coffee');
                 ctx.font = serif(500, nz); while (nz > X(22) && ctx.measureText(name).width > maxW) { nz -= X(1); ctx.font = serif(500, nz); }
                 ctx.fillStyle = P.n; ctx.fillText(fit(name, serif(500, nz), maxW), left, y + nz * 0.92); y += nz * 1.12;
@@ -695,14 +832,14 @@
                 if (notes.length) {
                     y += X(8); let x = left; ctx.font = sans(650, X(10));
                     for (const [n, , k] of notes) {
-                        const f = this.noteFam(n, k) || 'off', ch = this.NL_CHIP[f] || this.NL_CHIP.off, w = ctx.measureText(n).width + X(12);
+                        const tk = this.noteToneKey(n, k), tp = this.nlTonePal(tk, true), ch = tp ? [tp.chipBg, tp.chipFg] : this.NL_CHIP.off, w = ctx.measureText(n).width + X(12);
                         if (x + w > left + maxW) break;
                         rr(x, y, w, X(20), X(6)); ctx.fillStyle = P.dark ? ch[0] : 'rgba(255,255,255,0.68)'; ctx.fill();
                         ctx.fillStyle = ch[1]; ctx.fillText(n, x + X(6), y + X(13.5)); x += w + X(4);
                     }
                 }
                 // Dialed In, and the mini shape
-                ctx.font = hand(X(18)); ctx.fillStyle = P.k; ctx.fillText('Dialed In', left, H - X(16));
+                ctx.font = hand(X(12)); ctx.fillStyle = P.k; ctx.fillText('Dialed In', left, H - X(16));
                 if (shapeImg && photo) { const h = X(40), w = h * shapeImg.width / shapeImg.height; ctx.drawImage(shapeImg, W - X(14) - w, H - X(12) - h, w, h); }
                 return c;
             },

@@ -151,24 +151,31 @@
                 ['aPos', 'aNor', 'aCol'].forEach((name, i) => { const loc = gl.getAttribLocation(prog, name); gl.bindBuffer(gl.ARRAY_BUFFER, bufs[i]); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 3, gl.FLOAT, false, 0, 0); });
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bIdx);
                 gl.bindVertexArray(null);
-                let count = 0, key = '';
+                let count = 0, key = '', cur = { vao, count: 0 };
+                // v17.4: a few shapes' meshes stay on the card (the feed's turning shapes share this one renderer), the oldest go
+                const kept = new Map(), KEEP = 10;
                 return {
                     upload(vals, sm = true) {
                         const k = (sm ? 's' : 'f') + FLOOR.concat(TOPK).map(x => val(vals, x).toFixed(3)).join(',');
                         if (k === key) return;
                         key = k;
+                        if (kept.has(k)) { cur = kept.get(k); kept.delete(k); kept.set(k, cur); count = cur.count; return; }
                         const m = sm ? mesh(vals) : facets(vals);
-                        gl.bindVertexArray(vao);
-                        [m.pos, m.nor, m.col].forEach((arr, i) => { gl.bindBuffer(gl.ARRAY_BUFFER, bufs[i]); gl.bufferData(gl.ARRAY_BUFFER, arr, gl.DYNAMIC_DRAW); });
-                        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bIdx); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, m.idx, gl.DYNAMIC_DRAW);
+                        const one = { vao: gl.createVertexArray(), bufs: [gl.createBuffer(), gl.createBuffer(), gl.createBuffer()], idx: gl.createBuffer(), count: m.idx.length };
+                        gl.bindVertexArray(one.vao);
+                        ['aPos', 'aNor', 'aCol'].forEach((name, i) => { const loc = gl.getAttribLocation(prog, name); gl.bindBuffer(gl.ARRAY_BUFFER, one.bufs[i]); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 3, gl.FLOAT, false, 0, 0); });
+                        [m.pos, m.nor, m.col].forEach((arr, i) => { gl.bindBuffer(gl.ARRAY_BUFFER, one.bufs[i]); gl.bufferData(gl.ARRAY_BUFFER, arr, gl.STATIC_DRAW); });
+                        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, one.idx); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, m.idx, gl.STATIC_DRAW);
                         gl.bindVertexArray(null);
-                        count = m.idx.length;
+                        kept.set(k, one); cur = one; count = one.count;
+                        while (kept.size > KEEP) { const [ok, old] = kept.entries().next().value; kept.delete(ok); gl.deleteVertexArray(old.vao); old.bufs.forEach(b => gl.deleteBuffer(b)); gl.deleteBuffer(old.idx); }
                     },
-                    draw(MVP, MV, dark) {
-                        gl.viewport(0, 0, canvas.width, canvas.height);
+                    // (vw, vh: draw into the lower-left corner of a bigger canvas; the shared renderer draws shapes of any size)
+                    draw(MVP, MV, dark, vw, vh) {
+                        gl.viewport(0, 0, vw || canvas.width, vh || canvas.height);
                         gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
                         if (!count) return;
-                        gl.useProgram(prog); gl.bindVertexArray(vao);
+                        gl.useProgram(prog); gl.bindVertexArray(cur.vao);
                         gl.uniformMatrix4fv(u.mvp, false, MVP); gl.uniformMatrix4fv(u.mv, false, MV); gl.uniform1f(u.dark, dark ? 1 : 0);
                         gl.enable(gl.DEPTH_TEST); gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); gl.enable(gl.CULL_FACE); gl.depthMask(true);
                         gl.cullFace(gl.FRONT); gl.uniform1f(u.alpha, 0.45); gl.drawElements(gl.TRIANGLES, count, gl.UNSIGNED_INT, 0);
@@ -203,18 +210,20 @@
                     u.save(); u.shadowColor = 'rgba(10,20,12,0.35)'; u.shadowBlur = 26; u.fillStyle = 'rgba(30,45,32,0.18)'; loop(u, ft, true); u.fill(); u.restore();
                     return;
                 }
-                const rc = 1 / Math.cos(SEG / 2);
-                u.strokeStyle = th.line; u.lineWidth = 0.8; u.globalAlpha = 0.6;
-                for (let ring = 1; ring <= 4; ring++) { const rr = (ring / 5) * rc, pts = []; for (let j = 0; j < N; j++) { const a = (j + 0.5) * SEG; pts.push([rr * Math.cos(a), 0, rr * Math.sin(a)]); } loop(u, pts, true); u.stroke(); }
-                u.globalAlpha = 1;
-                const C = []; for (let j = 0; j < N; j++) { const a = (j + 0.5) * SEG; C.push([rc * Math.cos(a), 0, rc * Math.sin(a)]); }
-                for (let j = 0; j < N; j++) C.push([C[j][0], 2, C[j][2]]);
-                const E = []; for (let j = 0; j < N; j++) E.push([j, (j + 1) % N], [N + j, N + (j + 1) % N], [j, N + j]);
-                E.forEach(([a, b]) => { const back = (depth(C[a]) + depth(C[b])) / 2 < cz; const cx = back ? u : o; cx.strokeStyle = back ? th.line : th.muted; cx.globalAlpha = back ? 1 : 0.4; cx.lineWidth = 1.1; seg(cx, C[a], C[b]); cx.globalAlpha = 1; });
-                u.setLineDash([3, 4]); u.lineWidth = 1.2;
-                FLOOR.forEach((k, i) => { u.strokeStyle = COLORS[k]; u.globalAlpha = 0.7; seg(u, [0, 0, 0], [Math.cos(i * SEG), 0, Math.sin(i * SEG)]); });
-                u.strokeStyle = COLORS[TOPK]; seg(u, [0, 0, 0], [0, 2, 0]);
-                u.setLineDash([]); u.globalAlpha = 1;
+                if (opts.lines !== false) {   // (v17.4: a feed card's turning shape has no box, rings or axes)
+                    const rc = 1 / Math.cos(SEG / 2);
+                    u.strokeStyle = th.line; u.lineWidth = 0.8; u.globalAlpha = 0.6;
+                    for (let ring = 1; ring <= 4; ring++) { const rr = (ring / 5) * rc, pts = []; for (let j = 0; j < N; j++) { const a = (j + 0.5) * SEG; pts.push([rr * Math.cos(a), 0, rr * Math.sin(a)]); } loop(u, pts, true); u.stroke(); }
+                    u.globalAlpha = 1;
+                    const C = []; for (let j = 0; j < N; j++) { const a = (j + 0.5) * SEG; C.push([rc * Math.cos(a), 0, rc * Math.sin(a)]); }
+                    for (let j = 0; j < N; j++) C.push([C[j][0], 2, C[j][2]]);
+                    const E = []; for (let j = 0; j < N; j++) E.push([j, (j + 1) % N], [N + j, N + (j + 1) % N], [j, N + j]);
+                    E.forEach(([a, b]) => { const back = (depth(C[a]) + depth(C[b])) / 2 < cz; const cx = back ? u : o; cx.strokeStyle = back ? th.line : th.muted; cx.globalAlpha = back ? 1 : 0.4; cx.lineWidth = 1.1; seg(cx, C[a], C[b]); cx.globalAlpha = 1; });
+                    u.setLineDash([3, 4]); u.lineWidth = 1.2;
+                    FLOOR.forEach((k, i) => { u.strokeStyle = COLORS[k]; u.globalAlpha = 0.7; seg(u, [0, 0, 0], [Math.cos(i * SEG), 0, Math.sin(i * SEG)]); });
+                    u.strokeStyle = COLORS[TOPK]; seg(u, [0, 0, 0], [0, 2, 0]);
+                    u.setLineDash([]); u.globalAlpha = 1;
+                }
                 const NSAMP = 90, foot = []; for (let j = 0; j < NSAMP; j++) foot.push(surf(vals, (j / NSAMP) * 2 * Math.PI, 0, sm));
                 u.save(); u.shadowColor = 'rgba(10,20,12,0.35)'; u.shadowBlur = 20; u.fillStyle = 'rgba(30,45,32,0.16)'; loop(u, foot, true); u.fill(); u.restore();
                 if (ghost) {
@@ -358,8 +367,7 @@
                 const key = [W, H, dpr, th.dark ? 'd' : 'l', FLOOR.concat(TOPK).map(k => val(vals, k)).join(','), ghost ? FLOOR.concat(TOPK).map(k => val(ghost, k)).join(',') : '-', opts.labels === false ? 'n' : 'y', opts.setKey || '', prefs.smooth ? 's' : 'f', namesOf(opts) === TEA_NAMES ? 't' : 'c'].join('|');
                 if (cache.has(key)) return cache.get(key);
                 try {
-                    if (!shared) { const under = document.createElement('canvas'), glc = document.createElement('canvas'), over = document.createElement('canvas'), out = document.createElement('canvas'); shared = { under, glc, over, out, gl: makeGL(glc) }; }
-                    const { under, glc, over, out, gl } = shared;
+                    const { under, glc, over, out, gl } = sharedR();
                     [under, glc, over, out].forEach(c => { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); });
                     const u = under.getContext('2d'), o = over.getContext('2d'), x = out.getContext('2d');
                     if (!u || !o || !x) return '';
@@ -378,6 +386,133 @@
                     return url;
                 } catch (err) { console.warn('Flavor shape snapshot failed', err); return ''; }
             }
-            return { createView, snapshot, setPref, prefs, FLOOR, TOPK, NAMES, TEA_NAMES, COLORS, KEYS: FLOOR.concat(TOPK) };
+            // ---- v17.4: shapes that turn on their own (a feed card's) or under a finger (the Session screen's). Every one is
+            // drawn by the one shared WebGL renderer above into its own small canvas, only while it's on or near the screen
+            // (an iPhone allows only a few WebGL pages at once, and memory is tight); off screen its canvas is emptied.
+            const spins = new Set(), yaws = new Map(), byCanvas = new WeakMap(), nears = new Map(); let spinning = false, seenIO = null;
+            // watchers shared by all of them: near the screen (draw it; leaving, its pixels go), one per scrolling page so the
+            // margin reaches below what it shows, and on the screen (it turns)
+            const SCROLLERS = '#main-content, #session-view, #detail-view, #roaster-view, .modal-card';
+            function nearIO(canvas) {
+                if (typeof IntersectionObserver !== 'function') return null;
+                const root = (canvas.closest && canvas.closest(SCROLLERS)) || null;
+                if (!nears.has(root)) nears.set(root, new IntersectionObserver(es => es.forEach(e => { const sp = byCanvas.get(e.target); if (!sp) return; sp.near = e.isIntersecting; if (sp.near) { sp.sig = ''; wakeSpins(); } else if (!sp.opts.keep) { e.target.width = 0; e.target.height = 0; sp.sig = ''; } }), { root, rootMargin: '260px 0px' }));
+                return nears.get(root);
+            }
+            function seenWatch() {
+                if (!seenIO && typeof IntersectionObserver === 'function') seenIO = new IntersectionObserver(es => es.forEach(e => { const sp = byCanvas.get(e.target); if (!sp) return; sp.seen = e.isIntersecting; if (sp.seen) wakeSpins(); }));
+                return seenIO;
+            }
+            function unwatch(sp) { spins.delete(sp); if (sp.nio) sp.nio.unobserve(sp.canvas); if (seenIO) seenIO.unobserve(sp.canvas); }
+            const reduceMotion = () => !!(typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches);
+            function sharedR() {
+                if (!shared) { const under = document.createElement('canvas'), glc = document.createElement('canvas'), over = document.createElement('canvas'), out = document.createElement('canvas'); shared = { under, glc, over, out, gl: makeGL(glc) }; }
+                return shared;
+            }
+            // v17.4: no box: the camera frames the shape itself. It measures the shape's outline on screen (every way it can
+            // turn: the floor's widest point swept round, its height, the dots' room) and fills `fill` of the canvas with it,
+            // centred, so a tall shape is never cut at the bottom and a small one isn't lost. The same for every turn (no
+            // breathing as it spins); worked out again only when the shape, the canvas or the tilt changes.
+            const fits = new Map();
+            function fitView(sp, vals, W, H, zoom0) {
+                const sm = prefs.smooth, fill = sp.opts.fill || 0.86, cap = sp.opts.fitCap || 4.6;
+                const key = `${W}x${H}|${sp.pitch.toFixed(3)}|${sm}|${fill}|${zoom0}|${FLOOR.concat(TOPK).map(k => val(vals, k)).join(',')}`;
+                if (fits.has(key)) return fits.get(key);
+                const hh = heightOf(vals);
+                let rMax = 0.03; for (let j = 0; j < 72; j++) rMax = Math.max(rMax, radius(vals, (j / 72) * 2 * Math.PI, sm));
+                const pts = [[0, hh, 0]];
+                [0, 0.2, 0.4, 0.6, 0.8].forEach(t => { const r = rMax * profile(t, sm); for (let j = 0; j < 36; j++) { const a = (j / 36) * 2 * Math.PI; pts.push([r * Math.cos(a), hh * t, r * Math.sin(a)]); } });
+                const box = (z, ly) => {
+                    const { MVP } = matrices(W, H, 0, sp.pitch, z, ly);
+                    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+                    pts.forEach(p => { const c = M.apply(MVP, p); const x = (c[0] / c[3] * 0.5 + 0.5) * W, y = (1 - (c[1] / c[3] * 0.5 + 0.5)) * H; x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); });
+                    const pad = 7;   // (the dots on the floor and the top point stick out a little)
+                    return { x0: x0 - pad, x1: x1 + pad, y0: y0 - pad, y1: y1 + pad, MVP };
+                };
+                let zoom = zoom0, lookY = hh * 0.45;
+                for (let pass = 0; pass < 3; pass++) {
+                    const b = box(zoom, lookY);
+                    const s = Math.min((fill * W) / Math.max(1, b.x1 - b.x0), (fill * H) / Math.max(1, b.y1 - b.y0));
+                    zoom = Math.min(cap * zoom0, Math.max(0.3 * zoom0, zoom * s));
+                    const b2 = box(zoom, lookY);
+                    const a = M.apply(b2.MVP, [0, lookY, 0]), c = M.apply(b2.MVP, [0, lookY + 0.1, 0]);
+                    const ppu = ((1 - (a[1] / a[3] * 0.5 + 0.5)) - (1 - (c[1] / c[3] * 0.5 + 0.5))) * H / 0.1;   // (pixels per unit of height, near the middle)
+                    if (ppu > 0.01) lookY += (H / 2 - (b2.y0 + b2.y1) / 2) / ppu;
+                }
+                const out = { zoom, lookY };
+                fits.set(key, out); if (fits.size > 300) fits.delete(fits.keys().next().value);
+                return out;
+            }
+            function spinDraw(sp) {
+                const c = sp.canvas, W = Math.round(c.clientWidth), H = Math.round(c.clientHeight);
+                if (!W || !H) return false;
+                const dpr = Math.min(2, window.devicePixelRatio || 1), vw = Math.round(W * dpr), vh = Math.round(H * dpr);
+                const R = sharedR(), { under, glc, over, gl } = R;
+                if (!gl) {   // no WebGL: the flat top view, once
+                    if (c.width !== vw || c.height !== vh) { c.width = vw; c.height = vh; }
+                    flat(c.getContext('2d'), sp.vals(), null, W, H, dpr, sp.theme(), namesOf(sp.opts)); return true;
+                }
+                [under, glc, over].forEach(x => { if (x.width < vw || x.height < vh) { x.width = Math.max(x.width, vw); x.height = Math.max(x.height, vh); } });
+                const u = under.getContext('2d'), o = over.getContext('2d'), th = sp.theme();
+                if (!u || !o) return false;
+                const vals = sp.vals();
+                let zoom = sp.opts.zoom || 1, lookY = sp.opts.lookY ?? 1;
+                if (sp.opts.fit) { const f = fitView(sp, vals, W, H, zoom); zoom = f.zoom; lookY = f.lookY; }
+                const { MVP, MV } = matrices(W, H, sp.yaw, sp.pitch, zoom, lookY);
+                gl.upload(vals, prefs.smooth); gl.draw(MVP, MV, th.dark, vw, vh);
+                overlay(u, o, vals, null, MVP, MV, W, H, dpr, sp.pitch, th, sp.opts);
+                if (c.width !== vw || c.height !== vh) { c.width = vw; c.height = vh; }
+                const x = c.getContext('2d');
+                x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, vw, vh);
+                x.drawImage(under, 0, 0, vw, vh, 0, 0, vw, vh); x.drawImage(glc, 0, glc.height - vh, vw, vh, 0, 0, vw, vh); x.drawImage(over, 0, 0, vw, vh, 0, 0, vw, vh);
+                c.setAttribute('aria-label', `Flavor shape: ${FLOOR.concat(TOPK).map(k => `${namesOf(sp.opts)[k]} ${sp.opts.isSet && !sp.opts.isSet(k) ? 'not set' : Math.round(val(vals, k))}`).join(', ')}`);
+                return true;
+            }
+            function spinTick(ts) {
+                let any = false;
+                const hidden = typeof document !== 'undefined' && document.hidden;
+                spins.forEach(sp => {
+                    if (!sp.canvas.isConnected) { if (++sp.gone > 120) unwatch(sp); return; }
+                    sp.gone = 0;
+                    if (!sp.near || hidden) { sp.last = 0; return; }
+                    if (!sp.seen && sp.sig) { sp.last = 0; return; }   // (drawn once just below the screen; it turns once it's on it)
+                    const dt = sp.last ? Math.min(0.2, (ts - sp.last) / 1000) : 0;   // (a slow phone still turns at the same speed)
+                    const turn = sp.opts.spin !== false && prefs.spin && !reduceMotion() && !sp.dragging && performance.now() - sp.idleSince > (sp.opts.interactive ? 2500 : 0);
+                    if (turn || sp.dragging || !sp.sig) any = true;   // (nothing moving and already drawn: the loop can rest)
+                    if (turn) { if (sp.last && ts - sp.drawn < (sp.opts.fps ? 1000 / sp.opts.fps : 0)) return; sp.yaw += dt * (sp.opts.speed || 0.45); }
+                    if (sp.opts.id) { yaws.set(sp.opts.id, sp.yaw); if (yaws.size > 400) yaws.delete(yaws.keys().next().value); }   // (a card drawn again carries on from the same angle)
+                    sp.last = ts;
+                    const sig = `${sp.yaw.toFixed(4)}|${sp.pitch.toFixed(4)}|${sp.canvas.clientWidth}x${sp.canvas.clientHeight}|${prefs.smooth}|${sp.key()}`;
+                    if (sig !== sp.sig && spinDraw(sp)) { sp.sig = sig; sp.drawn = ts; }
+                });
+                if (any || [...spins].some(sp => !sp.canvas.isConnected)) raf(spinTick); else spinning = false;
+            }
+            function wakeSpins() { if (!spinning) { spinning = true; raf(spinTick); } }
+            if (typeof document !== 'undefined' && document.addEventListener) document.addEventListener('visibilitychange', () => { if (!document.hidden) wakeSpins(); });
+            // spin(canvas, { values: () => vals, isSet, names, theme: () => colors, zoom, pitch, yaw, speed, fps, labels, lines, interactive })
+            function spin(canvas, opts = {}) {
+                if (!canvas || typeof canvas.getContext !== 'function') return { redraw() {}, destroy() {} };
+                const sp = { canvas, opts, yaw: opts.id && yaws.has(opts.id) ? yaws.get(opts.id) : (opts.yaw ?? -0.72), pitch: opts.pitch ?? 0.5, near: false, last: 0, drawn: 0, sig: '', gone: 0, dragging: false, idleSince: 0,
+                    vals: () => (typeof opts.values === 'function' ? opts.values() : opts.values) || {},
+                    theme: () => (typeof opts.theme === 'function' ? opts.theme() : opts.theme) || themeColors(),
+                    key: () => { const v = sp.vals(), t = sp.theme(); return FLOOR.concat(TOPK).map(k => val(v, k)).join(',') + (opts.isSet ? FLOOR.concat(TOPK).map(k => opts.isSet(k) ? 1 : 0).join('') : '') + t.surface + t.dark; } };
+                sp.nio = nearIO(canvas);
+                if (sp.nio && seenWatch()) { byCanvas.set(canvas, sp); sp.nio.observe(canvas); seenIO.observe(canvas); }
+                else { sp.near = true; sp.seen = true; }
+                if (opts.interactive) {
+                    canvas.style.touchAction = 'pan-y';
+                    let px = 0, py = 0;
+                    canvas.addEventListener('pointerdown', e => { e.stopPropagation(); sp.dragging = true; px = e.clientX; py = e.clientY; try { canvas.setPointerCapture(e.pointerId); } catch (err) {} wakeSpins(); });
+                    canvas.addEventListener('pointermove', e => { if (!sp.dragging) return; sp.yaw += (e.clientX - px) * 0.012; if (e.pointerType === 'mouse') sp.pitch = clamp(sp.pitch + (e.clientY - py) * 0.008, 0.05, Math.PI / 2); px = e.clientX; py = e.clientY; wakeSpins(); });
+                    const end = () => { sp.dragging = false; sp.idleSince = performance.now(); clearTimeout(sp.resume); sp.resume = setTimeout(wakeSpins, 2600); wakeSpins(); };
+                    canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end); canvas.addEventListener('lostpointercapture', end);
+                    canvas.addEventListener('click', e => e.stopPropagation());
+                }
+                canvas.setAttribute('role', 'img');
+                spins.add(sp); wakeSpins();
+                return { redraw() { sp.sig = ''; wakeSpins(); }, destroy() { unwatch(sp); }, state() { return { yaw: sp.yaw, pitch: sp.pitch, near: sp.near, drawn: sp.drawn, dragging: sp.dragging }; } };
+            }
+            function spinCount() { return [...spins].filter(sp => sp.canvas.isConnected).length; }
+            return { createView, snapshot, spin, spinCount, setPref, prefs, FLOOR, TOPK, NAMES, TEA_NAMES, COLORS, KEYS: FLOOR.concat(TOPK) };
         })();
 

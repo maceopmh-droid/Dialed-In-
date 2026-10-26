@@ -242,6 +242,11 @@
                 document.querySelectorAll('.insight-tab').forEach(btn => btn.classList.remove('active'));
                 const active = document.querySelector(`[data-detail-tab="${tab}"]`);
                 if (active) active.classList.add('active');
+                if (active && this.newLook && this.newLook()) {   // v17.4: the picked tab slides fully into view (Sweet spot sits past the edge)
+                    const sc = active.parentElement, ar = active.getBoundingClientRect(), sr = sc.getBoundingClientRect();
+                    const by = ar.right > sr.right - 16 ? ar.right - sr.right + 16 : ar.left < sr.left + 16 ? ar.left - sr.left - 16 : 0;
+                    if (by && sr.width) { try { sc.scrollBy({ left: by, behavior: 'smooth' }); } catch (e) { sc.scrollLeft += by; } }
+                }
                 const timeline = document.getElementById('d-timeline-pane');
                 const compare = document.getElementById('d-compare-pane');
                 if (timeline) timeline.style.display = tab === 'timeline' ? 'block' : 'none';

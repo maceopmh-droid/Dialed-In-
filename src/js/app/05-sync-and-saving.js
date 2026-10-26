@@ -327,8 +327,8 @@
 
             // Keeps "5m ago" labels current without rebuilding the feed.
             refreshTimeLabels() {
-                document.querySelectorAll('#grid .feed-time[data-time]').forEach(el => {
-                    const text = this.formatRelativeDate(el.getAttribute('data-time'));
+                document.querySelectorAll('#grid .feed-time[data-time], .nl-ago[data-time]').forEach(el => {
+                    const text = el.classList.contains('nl-ago') && this.nlAgo ? this.nlAgo(el.getAttribute('data-time')) : this.formatRelativeDate(el.getAttribute('data-time'));
                     if (el.textContent !== text) el.textContent = text;
                 });
             },
