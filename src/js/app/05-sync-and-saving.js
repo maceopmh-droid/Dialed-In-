@@ -576,6 +576,7 @@
             },
 
             process(raw) {
+                this._nlDataGen = (this._nlDataGen || 0) + 1;   // v17.2: the New look works its colors out again
                 const items = Array.isArray(raw) ? raw : [];
                 const events = [...items]
                     .sort((a, b) => this.toTime(a.eventAt || a.date) - this.toTime(b.eventAt || b.date))

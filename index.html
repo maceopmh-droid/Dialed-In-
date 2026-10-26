@@ -8772,6 +8772,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             },
 
             process(raw) {
+                this._nlDataGen = (this._nlDataGen || 0) + 1;   // v17.2: the New look works its colors out again
                 const items = Array.isArray(raw) ? raw : [];
                 const events = [...items]
                     .sort((a, b) => this.toTime(a.eventAt || a.date) - this.toTime(b.eventAt || b.date))
@@ -21471,6 +21472,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 return null;
             },
             async drawShotCard(b, photo) {
+                if (this.newLook && this.newLook() && this.drawShotCardNew) return this.drawShotCardNew(b, photo);   // v17.2: the New look's card
                 const D = this.shotCardData(b), W = 1080, H = 1920, PAD = 78;
                 const c = document.createElement('canvas'); c.width = W; c.height = H;
                 const ctx = c.getContext('2d'); if (!ctx) return null;
@@ -24345,6 +24347,104 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const words = this.getBrewNotes(log);
                 const thumb = ph ? `<span class="nl-thumb session-photo-wrap">${this.nlPhotoImg(ph, 'nl-photo', '')}</span>` : this.nlHasShape(log) ? `<span class="nl-thumb nl-thumb-shape" data-fam="${fam}">${this.nlShapeImg(log, fam, { cls: 'nl-shape', w: 150, h: 120 })}</span>` : `<span class="nl-thumb nl-thumb-method" data-fam="${fam}"><svg class="nl-ic"><use href="${this.methodIconUse(log.method)}"/></svg></span>`;
                 return `<div class="nl-logrow" role="button" tabindex="0" onclick="app.openSession('${app.escJs(log.id)}')">${thumb}<div class="nl-lr-main"><div class="nl-lr-top">${this.nlSig(owner, null, 'nl-sig', 24)}<span class="nl-ago">${this.esc(this.formatRelativeDate(log.date))}</span></div><b>${this.esc(spec || this.methodLabel(log.method) || '')}${r > 0 ? ` <span class="nl-gold">· ${this.esc(this.fmtNum(r, 1))} ★</span>` : ''}</b>${words || log.method ? `<small>${!tea && log.method && log.method !== 'Espresso' ? `${this.esc(this.methodLabel(log.method))} · ` : tea ? `${this.esc(this.methodLabel(log.method))} · ` : ''}${words ? `“${this.esc(this.shortText(words, 70))}”` : ''}</small>` : ''}</div></div>`;
+            },
+
+            // ===================== the share image (1080 x 1920): the card's anatomy =====================
+            // photo with its fade (or the shape), who, the roaster in handwriting, the name in serif, three tiles, their own
+            // words, the notes, and Dialed In with the mini shape. Never the grind. Colors: the session's family, this theme.
+            async drawShotCardNew(b, photo) {
+                const W = 1080, H = 1920, s = W / 282, X = v => Math.round(v * s);
+                const c = document.createElement('canvas'); c.width = W; c.height = H;
+                const ctx = c.getContext('2d'); if (!ctx) return null;
+                try { if (document.fonts && document.fonts.load) await Promise.all([document.fonts.load(`600 ${X(21)}px Caveat`), document.fonts.load(`500 ${X(32)}px ui-serif`)]); } catch (e) {}
+                const fam = this.famOfBrew(b), P = this.nlPal(fam), bean = this.beans.get(String(b.beanId || '')) || {}, tea = this.isTeaBrew(b);
+                const sans = (w, z) => `${w} ${z}px -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Inter, sans-serif`;
+                const serif = (w, z) => `${w} ${z}px ui-serif, -apple-system-ui-serif, "New York", "Iowan Old Style", Georgia, serif`;
+                const hand = z => `600 ${z}px Caveat, "Bradley Hand", cursive`;
+                const rgba = (hex, a) => { const h = String(this.normalizeHexColor(hex) || '#000000').slice(1); return `rgba(${parseInt(h.slice(0, 2), 16)},${parseInt(h.slice(2, 4), 16)},${parseInt(h.slice(4, 6), 16)},${a})`; };
+                const rr = (x, y, w, h, r) => { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); };
+                const fit = (text, font, maxW) => { ctx.font = font; let t = String(text || ''); if (ctx.measureText(t).width <= maxW) return t; while (t.length > 1 && ctx.measureText(t + '…').width > maxW) t = t.slice(0, -1); return t.trimEnd() + '…'; };
+                ctx.fillStyle = P.c; ctx.fillRect(0, 0, W, H);
+                // the photo (top 58%) melting into the card's color, or the flavor shape
+                const tasted = this.tastedKeys(b);
+                const shapeUrl = tasted.length && typeof FlavorShape !== 'undefined' ? FlavorShape.snapshot(this.shapeValues(b), null, { width: 600, height: 450, zoom: 1.12, labels: false, isSet: k => tasted.includes(k), setKey: `${tasted.join(',')}|nl-share-${fam}`, names: tea ? 'tea' : null, theme: this.nlShapeTheme(fam, false) }) : '';
+                const loadImg = src => new Promise(ok => { if (!src) return ok(null); const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; });
+                const shapeImg = await loadImg(shapeUrl);
+                const top = H * 0.58;
+                if (photo) {
+                    const r = Math.max(W / photo.width, top / photo.height), w = photo.width * r, h = photo.height * r;
+                    ctx.drawImage(photo, (W - w) / 2, (top - h) / 2, w, h);
+                    const g = ctx.createLinearGradient(0, H * 0.30, 0, H * 0.59);
+                    g.addColorStop(0, rgba(P.c, 0)); g.addColorStop(0.64, rgba(P.c, 0.88)); g.addColorStop(1, P.c);
+                    ctx.fillStyle = g; ctx.fillRect(0, H * 0.30, W, H * 0.30);
+                } else if (shapeImg) {
+                    const h = X(190), w = h * shapeImg.width / shapeImg.height;
+                    ctx.drawImage(shapeImg, (W - w) / 2, X(48), w, h);
+                }
+                // who
+                const owner = this.getBrewOwner(b) || this.user;
+                ctx.save();
+                if (photo) { ctx.shadowColor = 'rgba(0,0,0,0.4)'; ctx.shadowBlur = X(6); }
+                ctx.fillStyle = this.getUserColor(owner); ctx.beginPath(); ctx.arc(X(24), X(24), X(12), 0, Math.PI * 2); ctx.fill();
+                ctx.lineWidth = X(1.5); ctx.strokeStyle = photo ? '#FFFFFF' : rgba(P.n, 0.25); ctx.stroke();
+                ctx.shadowBlur = 0; ctx.fillStyle = '#FFFFFF'; ctx.font = sans(700, X(11)); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(this.feedInitial(owner), X(24), X(24.5));
+                if (photo) { ctx.shadowColor = 'rgba(0,0,0,0.4)'; ctx.shadowBlur = X(6); }
+                ctx.textAlign = 'left'; ctx.font = hand(X(21)); ctx.fillStyle = photo ? '#FFFFFF' : this.nameColor(owner, P.c);
+                ctx.fillText(owner, X(42), X(25));
+                ctx.restore();
+                // roaster, name
+                let y = H * 0.52;
+                const left = X(14), maxW = W - X(28);
+                ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+                const maker = String(bean.roaster || '').trim() || (this.teaMakerName ? this.teaMakerName(bean) : '');
+                if (maker) { ctx.font = hand(X(19)); ctx.fillStyle = P.k; ctx.fillText(fit(maker, hand(X(19)), maxW), left, y + X(17)); y += X(21); }
+                let nz = X(32); const name = String(bean.name || '').trim() || (tea ? 'Tea' : 'Coffee');
+                ctx.font = serif(500, nz); while (nz > X(22) && ctx.measureText(name).width > maxW) { nz -= X(1); ctx.font = serif(500, nz); }
+                ctx.fillStyle = P.n; ctx.fillText(fit(name, serif(500, nz), maxW), left, y + nz * 0.92); y += nz * 1.12;
+                // three tiles (the card's: in → out, time, rating; tea: leaf · water, temp, steeps or rating)
+                const tiles = this.nlCardTiles(b).map(h => { const d = document.createElement('div'); d.innerHTML = h; const sv = d.querySelector('.nl-sv'), sl = d.querySelector('.nl-sl'); return { v: sv ? sv.textContent.replace(/\s+/g, ' ').trim() : '', l: sl ? sl.textContent.trim() : '' }; });
+                if (tiles.length) {
+                    y += X(10);
+                    const gap = X(5), fr = tiles.length === 3 ? [1.6, 0.85, 1.1] : tiles.map(() => 1), tot = fr.reduce((a, v) => a + v, 0), tw = maxW - gap * (tiles.length - 1), th = X(38);
+                    let x = left;
+                    tiles.forEach((t, i) => {
+                        const w = tw * fr[i] / tot;
+                        rr(x, y, w, th, X(11)); ctx.fillStyle = P.dark ? rgba(P.n, 0.08) : 'rgba(255,255,255,0.55)'; ctx.fill();
+                        ctx.lineWidth = X(1); ctx.strokeStyle = P.dark ? rgba(P.n, 0.15) : 'rgba(255,255,255,0.7)'; ctx.stroke();
+                        ctx.fillStyle = P.t; ctx.fillText(fit(t.v.replace(' ★', '★'), sans(700, X(14)), w - X(14)), x + X(8), y + X(18));
+                        if (/★/.test(t.v)) { /* the star in gold */ ctx.font = sans(700, X(14)); const vv = fit(t.v.replace(' ★', '★'), sans(700, X(14)), w - X(14)), wv = ctx.measureText(vv.replace('★', '')).width; ctx.fillStyle = this.nlDark() ? '#EBBE5C' : '#C08A2B'; ctx.fillText('★', x + X(8) + wv, y + X(18)); }
+                        ctx.font = sans(500, X(10)); ctx.fillStyle = P.l; ctx.fillText(fit(t.l, sans(500, X(10)), w - X(14)), x + X(8), y + X(31));
+                        x += w + gap;
+                    });
+                    y += th;
+                }
+                // their own words
+                const words = this.getBrewNotes(b);
+                if (words) {
+                    y += X(10); ctx.font = sans(400, X(11.5)); ctx.fillStyle = P.t;
+                    const lines = [], parts = `“${words}”`.split(/\s+/); let cur = '';
+                    parts.forEach(w => { const t = cur ? cur + ' ' + w : w; if (ctx.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; } else cur = t; });
+                    if (cur) lines.push(cur);
+                    const shown = lines.slice(0, 4); if (lines.length > 4) shown[3] = fit(shown[3] + '…', sans(400, X(11.5)), maxW);
+                    shown.forEach((l, i) => ctx.fillText(l, left, y + X(11) + i * X(16)));
+                    y += shown.length * X(16);
+                }
+                // notes as chips, one line
+                const notes = this.brewNoteList(b);
+                if (notes.length) {
+                    y += X(8); let x = left; ctx.font = sans(650, X(10));
+                    for (const [n, , k] of notes) {
+                        const f = this.noteFam(n, k) || 'off', ch = this.NL_CHIP[f] || this.NL_CHIP.off, w = ctx.measureText(n).width + X(12);
+                        if (x + w > left + maxW) break;
+                        rr(x, y, w, X(20), X(6)); ctx.fillStyle = P.dark ? ch[0] : 'rgba(255,255,255,0.68)'; ctx.fill();
+                        ctx.fillStyle = ch[1]; ctx.fillText(n, x + X(6), y + X(13.5)); x += w + X(4);
+                    }
+                }
+                // Dialed In, and the mini shape
+                ctx.font = hand(X(18)); ctx.fillStyle = P.k; ctx.fillText('Dialed In', left, H - X(16));
+                if (shapeImg && photo) { const h = X(40), w = h * shapeImg.width / shapeImg.height; ctx.drawImage(shapeImg, W - X(14) - w, H - X(12) - h, w, h); }
+                return c;
             },
         };
         window.onload = () => app.init();
