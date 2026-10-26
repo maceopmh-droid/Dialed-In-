@@ -22,10 +22,19 @@
     try {
         var look = 'classic';
         try { look = localStorage.getItem('dialed_look') === 'new' ? 'new' : 'classic'; } catch (e) {}
+        // v17.3: a safety net. Each start in the New look is counted until the app has been up a few seconds; after two starts
+        // in a row that never got that far (a phone that couldn't draw it), this one opens in the classic look and says so
+        if (look === 'new') {
+            try {
+                var tries = Number(localStorage.getItem('dialed_look_boot')) || 0;
+                if (tries >= 2) { look = 'classic'; localStorage.setItem('dialed_look', 'classic'); localStorage.setItem('dialed_look_boot', '0'); localStorage.setItem('dialed_look_fell', '1'); }
+                else localStorage.setItem('dialed_look_boot', String(tries + 1));
+            } catch (e) {}
+        }
         var paint = function () { document.documentElement.setAttribute('data-look', look); };
         window.__dialedLook = {
             get pref() { return look; },
-            set: function (p) { look = p === 'new' ? 'new' : 'classic'; try { localStorage.setItem('dialed_look', look); } catch (e) {} paint(); },
+            set: function (p) { look = p === 'new' ? 'new' : 'classic'; try { localStorage.setItem('dialed_look', look); localStorage.setItem('dialed_look_boot', '0'); } catch (e) {} paint(); },
             isNew: function () { return document.documentElement.getAttribute('data-look') === 'new'; }
         };
         paint();
