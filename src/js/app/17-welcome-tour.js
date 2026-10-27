@@ -349,6 +349,7 @@
             // ---- the tour: a spotlight on each place, over the real app
             tourSteps() {
                 const desk = window.matchMedia && window.matchMedia('(min-width: 769px)').matches;
+                const nl = !desk && !!(this.newLook && this.newLook());   // v18.7: the New look's Settings is the gear at the top
                 const nav = tab => desk ? `#sidebar .nav-btn[data-tab="${tab}"]` : `#mobile-nav .mob-item[data-tab="${tab}"]`;
                 return [
                     { sel: nav('feed'), tab: 'feed', title: 'Feed', text: 'Following is the people you follow, Community is your groups (with a weekly goal), and Discover is everyone. Like, comment, or ask for help dialing in. Your welcome post is already up.' },
@@ -357,7 +358,7 @@
                     { sel: nav('roasters'), tab: 'roasters', title: 'Roasters', text: 'Every roaster you and your people have brewed, with their coffees, ratings and how their espresso runs.' },
                     { sel: desk ? '#sidebar .nav-btn:not([data-tab]):not(.settings-nav-btn)' : '#mobile-nav .mob-fab', tab: 'my', title: 'Add a coffee', text: 'New bag? Add it here, then log sessions on it. Each session keeps its bag\'s roast date.' },
                     { sel: nav('profile'), tab: 'profile', title: 'Profile', text: 'Your level and crema, your stats and taste, and More: achievements, monthly awards and recaps. Anyone else\'s is a tap away.' },
-                    { sel: desk ? '#sidebar .settings-nav-btn' : '#mobile-controls-btn', tab: 'feed', title: 'Settings', text: desk ? 'Light or dark, your profile picture, notifications and privacy. Something broken? Report a bug here.' : 'Sorting, filters and Settings: light or dark, your profile picture, notifications and privacy. Something broken? Report a bug here.' }
+                    { sel: desk ? '#sidebar .settings-nav-btn' : (nl ? '.header-controls .nl-setbtn' : '#mobile-controls-btn'), tab: 'feed', title: 'Settings', text: desk || nl ? 'Light or dark, your profile picture, notifications and privacy. Something broken? Report a bug here.' : 'Sorting, filters and Settings: light or dark, your profile picture, notifications and privacy. Something broken? Report a bug here.' }
                 ];
             },
 
@@ -400,7 +401,12 @@
                     return;
                 }
                 const st = t.steps[t.i];
-                if (st.tab && this.tab !== st.tab) this.setTab(st.tab);
+                if (st.tab && this.tab !== st.tab) {
+                    this.setTab(st.tab);
+                    // v18.7: placed again once the new tab has settled (the New look's bar is still moving right after a switch,
+                    // which put the bubble over the very button it points at)
+                    const at = t.i; setTimeout(() => { if (this.tour === t && t.i === at) this.renderTour(); }, 400);
+                }
                 const target = st.sel ? document.querySelector(st.sel) : null;
                 const r = target ? target.getBoundingClientRect() : null;
                 const pad = 6;
@@ -416,7 +422,7 @@
                 const W = window.innerWidth, H = window.innerHeight, bw = bub.offsetWidth, bh = bub.offsetHeight;
                 let left, top;
                 if (!r || !r.width) { left = (W - bw) / 2; top = (H - bh) / 2; }
-                else if (r.right < W * 0.35 && r.height < 90) { left = r.right + 18; top = r.top + r.height / 2 - bh / 2; }   // the sidebar: to its right
+                else if (r.right < W * 0.35 && r.height < 90 && target.closest && target.closest('#sidebar')) { left = r.right + 18; top = r.top + r.height / 2 - bh / 2; }   // the sidebar: to its right (v18.7: only the sidebar; the New look's leftmost tab is on the bottom bar)
                 else if (r.top > H / 2) { left = r.left + r.width / 2 - bw / 2; top = r.top - pad - 14 - bh; }                 // the bottom bar: above
                 else { left = r.left + r.width / 2 - bw / 2; top = r.bottom + pad + 14; }                                       // the top: below
                 bub.style.left = `${Math.max(16, Math.min(W - bw - 16, left))}px`;
