@@ -26,11 +26,15 @@ where c.created_at > '2026-10-26' order by c.created_at;
 select 'session ' || left(coalesce(s.legacy_id, '-'), 14) || ' of ' || split_part(internal.name_of(s.owner_id), ' ', 1) || ': updated ' || to_char(s.updated_at at time zone 'America/Chicago', 'MM-DD HH24:MI')
        || ', comments now ' || (select count(*) from comments x where x.session_id = s.id and x.deleted_at is null)
 from sessions s where exists (select 1 from notifications n where n.session_id = s.id and n.kind in ('comment', 'reply') and n.created_at > '2026-10-26');
+
+select 'role settings: ' || coalesce((select string_agg(rolname || '=' || array_to_string(rolconfig, ';'), ' ') from pg_roles where rolname in ('authenticated', 'anon', 'authenticator') and rolconfig is not null), 'none');
 commit;
 -- what each of the three gets from the app's sync (as them, read only)
 begin read only;
 select set_config('request.jwt.claims', json_build_object('sub', (select auth_id from profiles where split_part(internal.name_of(id), ' ', 1) = 'Julian' limit 1), 'role', 'authenticated')::text, true) is not null as ok \gset
 set local role authenticated;
+select 'Julian''s sync timing: version ' || round(extract(epoch from (clock_timestamp() - t0)) * 1000) || ' ms' from (select clock_timestamp() t0, data_version() v) q;
+select 'Julian''s sync timing: pull ' || round(extract(epoch from (clock_timestamp() - t0)) * 1000) || ' ms, ' || round(octet_length(j::text) / 1024.0) || ' KB, ' || jsonb_array_length(j) || ' records' from (select clock_timestamp() t0, pull_events() j) q;
 select 'Julian''s sync: comments since Oct 26 by ' || u || ': ' || n from (select coalesce(c->>'user', '?') u, count(*) n
 from (select pull_events() as j) pe, jsonb_array_elements(j) e, jsonb_array_elements(case when jsonb_typeof(e->'comments') = 'array' then e->'comments' else '[]'::jsonb end) c
 where (c->>'timestamp')::timestamptz > '2026-10-26' group by 1) q order by 1;
@@ -40,6 +44,8 @@ commit;
 begin read only;
 select set_config('request.jwt.claims', json_build_object('sub', (select auth_id from profiles where split_part(internal.name_of(id), ' ', 1) = 'Aidan' limit 1), 'role', 'authenticated')::text, true) is not null as ok \gset
 set local role authenticated;
+select 'Aidan''s sync timing: version ' || round(extract(epoch from (clock_timestamp() - t0)) * 1000) || ' ms' from (select clock_timestamp() t0, data_version() v) q;
+select 'Aidan''s sync timing: pull ' || round(extract(epoch from (clock_timestamp() - t0)) * 1000) || ' ms, ' || round(octet_length(j::text) / 1024.0) || ' KB, ' || jsonb_array_length(j) || ' records' from (select clock_timestamp() t0, pull_events() j) q;
 select 'Aidan''s sync: comments since Oct 26 by ' || u || ': ' || n from (select coalesce(c->>'user', '?') u, count(*) n
 from (select pull_events() as j) pe, jsonb_array_elements(j) e, jsonb_array_elements(case when jsonb_typeof(e->'comments') = 'array' then e->'comments' else '[]'::jsonb end) c
 where (c->>'timestamp')::timestamptz > '2026-10-26' group by 1) q order by 1;
@@ -49,6 +55,8 @@ commit;
 begin read only;
 select set_config('request.jwt.claims', json_build_object('sub', (select auth_id from profiles where split_part(internal.name_of(id), ' ', 1) = 'Maceo' limit 1), 'role', 'authenticated')::text, true) is not null as ok \gset
 set local role authenticated;
+select 'Maceo''s sync timing: version ' || round(extract(epoch from (clock_timestamp() - t0)) * 1000) || ' ms' from (select clock_timestamp() t0, data_version() v) q;
+select 'Maceo''s sync timing: pull ' || round(extract(epoch from (clock_timestamp() - t0)) * 1000) || ' ms, ' || round(octet_length(j::text) / 1024.0) || ' KB, ' || jsonb_array_length(j) || ' records' from (select clock_timestamp() t0, pull_events() j) q;
 select 'Maceo''s sync: comments since Oct 26 by ' || u || ': ' || n from (select coalesce(c->>'user', '?') u, count(*) n
 from (select pull_events() as j) pe, jsonb_array_elements(j) e, jsonb_array_elements(case when jsonb_typeof(e->'comments') = 'array' then e->'comments' else '[]'::jsonb end) c
 where (c->>'timestamp')::timestamptz > '2026-10-26' group by 1) q order by 1;
