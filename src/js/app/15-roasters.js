@@ -398,6 +398,7 @@
 
             saveRoasterEdit(ev) {
                 if (ev) ev.preventDefault();
+                if (this._rcvBusy) { this.showToast('The photo is still uploading. Save when it\'s done.'); return; }   // v18.6
                 const f = document.querySelector('#roaster-modal form');
                 const r = this.roasterData().byKey.get(f.elements.key.value);
                 if (!r) { this.closeModals(); return; }

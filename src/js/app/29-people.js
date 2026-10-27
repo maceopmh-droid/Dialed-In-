@@ -142,7 +142,7 @@
                 try {
                     const res = await Supa.rpc(call[0], call[1]);
                     if (action === 'follow') this.showToast(res === 'requested' ? `Asked to follow ${name}.` : `Following ${name}.`);
-                    else if (action === 'block') this.showToast(`Blocked ${name}.`);
+                    else if (action === 'block') { this.showToast(`Blocked ${name}.`); if (this.forgetPerson) this.forgetPerson(name); }
                     if (this.haptic) this.haptic('tick');
                     await this.loadPeople(true);
                     if (st.results) st.results = st.results.map(p => String(p.name).toLowerCase() === String(name).toLowerCase() ? { ...p, you: this.relationTo(name).you } : p).filter(p => action !== 'block' || p.name !== name);

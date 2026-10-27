@@ -64,12 +64,12 @@
                     newcoffee: { add: true, min: 2, max: 12, fb: () => 2, title: t => `Open something new: ${t} coffees you haven't brewed before`, unit: 'new coffees', count: each(b => hist().first.has(String(b.id))) },
                     comments: { add: true, min: 3, max: 60, fb: p => 2 * p, title: t => `Hype squad: ${t} comments on each other's sessions`, unit: 'comments', window: true,
                         count: (list, a, b) => {
-                            const inCrew = this.crewFilter(), give = [];
+                            const inCrew = this.crewFilter(), names = this.crewNames ? this.crewNames() : null, give = [];   // (v18.6: comments by the crew)
                             this.brews.forEach(x => {
                                 if (!inCrew(x)) return;
                                 (Array.isArray(x.comments) ? x.comments : []).forEach(c => {
                                     const who = c && String(c.user || ''), t = c ? this.toTime(c.timestamp) : 0;
-                                    if (!who || who === own(x) || this.goalExcluded(who) || !(t >= a && t < b)) return;
+                                    if (!who || who === own(x) || this.goalExcluded(who) || (names && !names.has(who)) || !(t >= a && t < b)) return;
                                     give.push(who);
                                 });
                             });

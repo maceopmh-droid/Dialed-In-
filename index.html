@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v18.5 -->
+<!-- Dialed In v18.6 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="18.5">
+    <meta name="dialed-in-version" content="18.6">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -2295,7 +2295,7 @@
         .fab-sheet .sheet-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
         .fab-sheet h2 { margin: 0; font-size: 1.25rem; }
         .fab-sheet .sheet-head p { margin: 3px 0 0; font-size: 0.82rem; color: var(--text-muted); }
-        .fab-list { display: grid; gap: 8px; max-height: 60vh; overflow-y: auto; }
+        .fab-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; max-height: 60vh; overflow-y: auto; }   /* (v18.6: a long name no longer widens the rows past the sheet) */
         .fab-pick { display: flex; align-items: center; gap: 12px; width: 100%; padding: 8px; border-radius: 16px; border: 1px solid rgba(var(--hair-rgb), 0.07); background: rgba(var(--glass-rgb), 0.85); text-align: left; cursor: pointer; color: inherit; font: inherit; min-height: 56px; }
         .fab-pick.current { border-color: rgba(var(--matcha-rgb), 0.55); background: rgba(var(--matcha-rgb), 0.1); }
         .fab-art.mini { width: 44px; height: 44px; aspect-ratio: auto; border-radius: 12px; flex-shrink: 0; }
@@ -2377,6 +2377,7 @@
         .method-extras { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem; margin-top: 1.2rem; align-items: end; }
         .method-check { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--ink-2); min-height: 44px; text-transform: none; letter-spacing: 0; }
         .method-check input { width: 20px; height: 20px; accent-color: var(--matcha); }
+        .modal-card label.method-check { display: flex; text-transform: none; letter-spacing: 0; }   /* v18.6: the form's label rule had made it a block, so a long one wrapped under its box */
         .recipe-card { margin: 1.2rem 0; padding: 16px; border-radius: 22px; background: linear-gradient(180deg, rgba(var(--glass-rgb), 0.9), rgba(var(--glass-rgb), 0.7)); border: 1px solid rgba(var(--hair-rgb), 0.07); box-shadow: var(--shadow-soft); }
         .rc-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
         .rc-head h3 { margin: 0; font-size: 1.05rem; }
@@ -4235,6 +4236,8 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] .nl-tright { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
         html[data-look="new"] .nl-mpill { height: 36px; padding: 0 14px 0 11px; border-radius: 18px; display: inline-flex; align-items: center; gap: 7px; font-size: 15px; font-weight: 650; color: var(--k); white-space: nowrap; background: color-mix(in srgb, var(--c) 88%, transparent); border: 1px solid var(--hl); text-shadow: none; flex: 0 0 auto; }
         html[data-look="new"] .nl-mpill .nl-ic { width: 18px; height: 18px; }
+        html[data-look="new"] .nl-mpill.compact { width: 36px; padding: 0; justify-content: center; }   /* (v18.6: beside a Follow button) */
+        html[data-look="new"] .nl-who .nl-sig { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }   /* (a long name ends in … rather than running under the buttons) */
         html[data-look="new"] .flat .nl-mpill, html[data-look="new"] .nl-mpill.solid { background: var(--pill); -webkit-backdrop-filter: none; backdrop-filter: none; }
         html[data-look="new"] .nl-glass { width: 40px; height: 40px; min-width: 0; min-height: 0; margin: 0; padding: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--c) 88%, transparent); border: 1px solid var(--hl); color: var(--t); flex: 0 0 auto; box-shadow: none; cursor: pointer; }
         /* (frosted glass only where there are a few: the Session screen's top buttons. A feed card's pills are solid, so a
@@ -4680,7 +4683,7 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
 
         /* ---- Profile: tinted in the person's palate ---- */
         html[data-look="new"] #main-content[data-fam] { background: var(--pg); color: var(--t); }
-        html[data-look="new"] #main-content[data-fam] #grid.profile-view { background: transparent; color: var(--t); padding-bottom: calc(120px + var(--safe-bottom, 0px)) !important; min-height: 100vh; }
+        html[data-look="new"] #main-content[data-fam] #grid.profile-view { background: transparent; color: var(--t); padding-bottom: calc(120px + var(--safe-bottom, 0px)) !important; min-height: 100vh; align-content: start; }   /* (v18.6: a short profile stretched its rows apart to fill the screen) */
         html[data-look="new"] .profile-view .stat-row { display: flex !important; gap: 8px; }
         html[data-look="new"] .profile-view .stat-row .stat-box { flex: 1 1 0; min-width: 0; }
         /* (the top bar says Profile, with Achievements and Settings; the people are the first row, scrolling sideways) */
@@ -4769,13 +4772,19 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] .modal-card label, html[data-look="new"] .modal-card .lbl { font-size: 13px !important; font-weight: 600 !important; letter-spacing: 0 !important; text-transform: none !important; color: var(--l, var(--nl-muted)) !important; }
         html[data-look="new"] .modal-card input[type="text"], html[data-look="new"] .modal-card input[type="number"], html[data-look="new"] .modal-card input[type="date"], html[data-look="new"] .modal-card input[type="search"], html[data-look="new"] .modal-card input[type="email"], html[data-look="new"] .modal-card select, html[data-look="new"] .modal-card textarea, html[data-look="new"] .pp-search { min-height: 50px; border-radius: 14px !important; background: var(--pill, var(--nl-surface2)) !important; border: 1px solid var(--hl, var(--nl-line)) !important; box-shadow: none !important; color: var(--t, var(--nl-ink)) !important; font-size: 16px !important; padding: 0 14px; }
         html[data-look="new"] .modal-card textarea { padding: 13px 14px; line-height: 1.45; resize: none; }
+        /* v18.6: the profile's Equipment box (it sits outside the sheets) gets the same fields, and its button stays on one line */
+        html[data-look="new"] .gear-locker input[type="text"], html[data-look="new"] .gear-locker select { min-height: 50px; border-radius: 14px !important; background: var(--pill, var(--nl-surface2)) !important; border: 1px solid var(--hl, var(--nl-line)) !important; box-shadow: none !important; color: var(--t, var(--nl-ink)) !important; font-size: 16px !important; padding: 0 14px; }
+        html[data-look="new"] .gear-locker input[type="text"]::placeholder { color: var(--ph, var(--nl-faint)) !important; }
+        html[data-look="new"] .gear-locker #equipment-save-btn, html[data-look="new"] .gear-locker #equipment-cancel-btn { white-space: nowrap; min-height: 48px; padding-left: 12px !important; padding-right: 12px !important; }
         /* v17.4: Add coffee: the same room above every field (the classic rule left some labels touching the field above) */
         html[data-look="new"] #bean-modal form label:not(.method-check) { margin: 18px 0 8px !important; }
         html[data-look="new"] #bean-modal form > div[style*="grid"] { row-gap: 18px !important; margin-top: 18px; }
         html[data-look="new"] #bean-modal form > div[style*="grid"]:first-of-type { margin-top: 0; }
         html[data-look="new"] #bean-modal form > div[style*="grid"] label { margin-top: 0 !important; }
         html[data-look="new"] .modal-card input::placeholder, html[data-look="new"] .modal-card textarea::placeholder { color: var(--ph, var(--nl-faint)) !important; }
-        html[data-look="new"] #brew-modal input[name="dose"], html[data-look="new"] #brew-modal input[name="yield"], html[data-look="new"] #brew-modal input[name="time"] { height: 64px; font-size: 26px !important; font-weight: 700; letter-spacing: -0.01em; }
+        html[data-look="new"] #brew-modal input[name="dose"], html[data-look="new"] #brew-modal input[name="yield"], html[data-look="new"] #brew-modal input[name="time"], html[data-look="new"] #brew-modal #recipe-ratio { height: 64px; font-size: 26px !important; font-weight: 700; letter-spacing: -0.01em; }   /* (v18.6: the recipe's ratio the same size as dose and water beside it) */
+        html[data-look="new"] #brew-modal .rc-ratio-in span { font-size: 22px; }
+        html[data-look="new"] #brew-modal .equipment-summary { padding: 12px 16px !important; margin-top: 8px; font-size: 14px; line-height: 1.35; font-weight: 600; }   /* (v18.6: it was a box with no room, the words on its edges) */
         /* Log a session: the coffee's colors */
         html[data-look="new"] #brew-modal-title { text-align: left; }
         html[data-look="new"] #brew-modal .timer-hero { background: var(--box) !important; border: 1px solid var(--hl) !important; border-radius: 22px !important; box-shadow: none !important; }
@@ -4832,7 +4841,7 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         /* v17.4: the coffee page's hero has no line under Log / Clone (it touched the buttons) */
         html[data-look="new"] #detail-view .detail-hero { border-bottom: 0 !important; }
         /* v17.4: a coffee's whole name under its tile (no "Gesha Village Lo…"), and its roaster on up to two lines */
-        html[data-look="new"] .fab-tile .fab-name { display: block; -webkit-line-clamp: unset; overflow: visible; overflow-wrap: break-word; hyphens: auto; line-height: 1.18; }
+        html[data-look="new"] .fab-tile .fab-name { display: block; -webkit-line-clamp: unset; overflow: visible; overflow-wrap: break-word; -webkit-hyphens: auto; hyphens: auto; line-height: 1.18; }
         html[data-look="new"] .fab-tile .fab-roaster { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.25; margin-top: 1px; overflow-wrap: break-word; }
         /* v17.4: "Pin as master recipe?" is the same switch as "Ask for help" and Settings (its dark knob was hard to see);
            the rating's "Skip Rating" button only once there's a rating to skip */
@@ -4922,6 +4931,12 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] .bcv-swatches .bcv-auto { background: conic-gradient(from 200deg, #E7A08C, #E9C77E, #B9CC8C, #8FC2B4, #9DB0DA, #C3A2D6, #E7A08C) !important; position: relative; }
         html[data-look="new"] .bcv-swatches .bcv-auto::after { content: ''; position: absolute; inset: 22%; border-radius: 50%; background: var(--c, #1b1f1c); }
         html[data-look="new"] .bcv-hint { margin: 10px 0 0; font-size: 13.5px; line-height: 1.35; color: var(--l, var(--nl-muted)); }
+        /* v18.6: rating numbers in gold were too faint on light cards; a deeper gold for text only (stars and bars keep the brighter gold) */
+        html[data-look="new"][data-theme="light"] { --nl-gold-ink: #9A6A14; }
+        html[data-look="new"][data-theme="dark"] { --nl-gold-ink: var(--nl-gold); }
+        html[data-look="new"] .ro-cof-n, html[data-look="new"] .fp-side, html[data-look="new"] .cmp-rating, html[data-look="new"] .sc-rate b, html[data-look="new"] .ro-hero .stat-num small, html[data-look="new"] .card-rating, html[data-look="new"] .rating-score { color: var(--nl-gold-ink); }
+        html[data-look="new"] .steeps-hint, html[data-look="new"] .lbl-opt { color: var(--nl-muted); }
+        html[data-look="new"] .ro-rate { color: var(--t, var(--nl-ink)); font-size: 14px; font-weight: 700; }   /* (a roaster's number reads like a coffee card's) */
     </style>
 </head>
 <body>
@@ -5405,7 +5420,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
             <div id="d-everyone-pane" class="detail-extra-pane"></div>
             <div id="d-compare-pane" class="compare-panel">
                 <div class="sweet-card cmp-wrap">
-                    <div class="sw-head"><h3>Compare</h3><button type="button" class="story-share" aria-label="Share this comparison as a picture" onclick="event.stopPropagation(); app.openCompareStory()"><svg class="icon"><use href="#i-share-2"/></svg></button><p>Any two sessions side by side. Starts with the latest against the best-rated.</p></div>
+                    <div class="sw-head"><h3>Compare</h3><button type="button" class="story-share" id="compare-share" aria-label="Share this comparison as a picture" onclick="event.stopPropagation(); app.openCompareStory()"><svg class="icon"><use href="#i-share-2"/></svg></button><p>Any two sessions side by side. Starts with the latest against the best-rated.</p></div>
                     <div class="cmp-pickers">
                         <label class="cmp-pick a"><span>A</span><select id="compare-a-select" onchange="app.renderComparePanel()"></select></label>
                         <label class="cmp-pick b"><span>B</span><select id="compare-b-select" onchange="app.renderComparePanel()"></select></label>
@@ -5553,7 +5568,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v18.5</div>
+            <div class="app-version">Dialed In · v18.6</div>
         </div>
     </div>
 
@@ -5613,8 +5628,8 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 <input type="text" name="variety" placeholder="e.g., Gesha, SL28, Bourbon...">
                 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem;">
-                    <div><label>Origin</label><input type="text" name="origin"></div>
-                    <div><label id="lbl-process">Process</label><input type="text" name="process"></div>
+                    <div><label>Origin</label><input type="text" name="origin" placeholder="e.g., Ethiopia, Colombia"></div>
+                    <div><label id="lbl-process">Process</label><input type="text" name="process" placeholder="e.g., Washed, Natural, Honey"></div>
                 </div>
                 
                 <div class="coffee-only">
@@ -5847,9 +5862,9 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
 
                 <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.2rem;">
-                    <div><label id="master-lbl-dose">Dose (g)</label><input type="number" step="0.1" name="dose" required></div>
-                    <div><label id="master-lbl-yield">Pull (g)</label><input type="number" step="0.1" name="yield" required></div>
-                    <div><label id="master-lbl-time">Time (s)</label><input type="number" name="time" required></div>
+                    <div><label id="master-lbl-dose">Dose (g)</label><input type="number" step="any" min="0" inputmode="decimal" name="dose" required></div>
+                    <div><label id="master-lbl-yield">Pull (g)</label><input type="number" step="any" min="0" inputmode="decimal" name="yield" required></div>
+                    <div><label id="master-lbl-time">Time (s)</label><input type="number" step="any" min="0" inputmode="decimal" name="time" required></div>
                 </div>
 
                 <label>Equipment Used</label>
@@ -6452,13 +6467,17 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 c.setAttribute('aria-label', `Flavor shape: ${FLOOR.concat(TOPK).map(k => `${namesOf(sp.opts)[k]} ${sp.opts.isSet && !sp.opts.isSet(k) ? 'not set' : Math.round(val(vals, k))}`).join(', ')}`);
                 return true;
             }
+            // v18.6: a full page (a session, a coffee, a roaster) covers the main screen: its shapes stop turning behind it
+            const COVERS = '#session-view.active, #detail-view.active, #roaster-view.active';
             function spinTick(ts) {
-                let any = false;
+                let any = false, behind = false;
                 const hidden = typeof document !== 'undefined' && document.hidden;
+                const covered = typeof document !== 'undefined' && typeof document.querySelector === 'function' && !!document.querySelector(COVERS);
                 spins.forEach(sp => {
                     if (!sp.canvas.isConnected) { if (++sp.gone > 120) unwatch(sp); return; }
                     sp.gone = 0;
                     if (!sp.near || hidden) { sp.last = 0; return; }
+                    if (covered && sp.inMain) { sp.last = 0; behind = true; return; }
                     if (!sp.seen && sp.sig) { sp.last = 0; return; }   // (drawn once just below the screen; it turns once it's on it)
                     const dt = sp.last ? Math.min(0.2, (ts - sp.last) / 1000) : 0;   // (a slow phone still turns at the same speed)
                     if (sp.pitchTo !== undefined) {   // v17.5: easing to the top view (or back)
@@ -6473,7 +6492,9 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                     const sig = `${sp.yaw.toFixed(4)}|${sp.pitch.toFixed(4)}|${sp.canvas.clientWidth}x${sp.canvas.clientHeight}|${prefs.smooth}|${sp.key()}`;
                     if (sig !== sp.sig && spinDraw(sp)) { sp.sig = sig; sp.drawn = ts; }
                 });
-                if (any || [...spins].some(sp => !sp.canvas.isConnected)) raf(spinTick); else spinning = false;
+                if (any || [...spins].some(sp => !sp.canvas.isConnected)) raf(spinTick);
+                else if (behind) setTimeout(() => raf(spinTick), 300);   // (they go on again once the page closes)
+                else spinning = false;
             }
             function wakeSpins() { if (!spinning) { spinning = true; raf(spinTick); } }
             if (typeof document !== 'undefined' && document.addEventListener) document.addEventListener('visibilitychange', () => { if (!document.hidden) wakeSpins(); });
@@ -6484,6 +6505,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                     vals: () => (typeof opts.values === 'function' ? opts.values() : opts.values) || {},
                     theme: () => (typeof opts.theme === 'function' ? opts.theme() : opts.theme) || themeColors(),
                     key: () => { const v = sp.vals(), t = sp.theme(); return FLOOR.concat(TOPK).map(k => val(v, k)).join(',') + (opts.isSet ? FLOOR.concat(TOPK).map(k => opts.isSet(k) ? 1 : 0).join('') : '') + t.surface + t.dark; } };
+                sp.inMain = !!(canvas.closest && canvas.closest('#main-content'));
                 sp.nio = nearIO(canvas);
                 if (sp.nio && seenWatch()) { byCanvas.set(canvas, sp); sp.nio.observe(canvas); seenIO.observe(canvas); }
                 else { sp.near = true; sp.seen = true; }
@@ -7663,7 +7685,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             feedInitial(name) {
                 const text = String(name || '').trim();
                 if (!text) return '?';
-                return text.charAt(0).toUpperCase();
+                return (Array.from(text)[0] || '?').toUpperCase();   // (v18.6: a whole character: an emoji's first half drew a broken box)
             },
 
             esc(value) {
@@ -8496,6 +8518,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const results = document.getElementById('compare-results');
                 if (!aSel || !bSel || !results) return;
                 const brews = [...this.detailBrews].sort((a, b) => this.localTime(b.date) - this.localTime(a.date));
+                const share = document.getElementById('compare-share');
+                if (share && share.style) share.style.display = brews.length < 2 ? 'none' : '';   // v18.6: nothing to share until there are two
                 if (brews.length < 2) {
                     aSel.innerHTML = bSel.innerHTML = brews.length ? `<option value="${this.esc(brews[0].id)}">${this.esc(this.shortDate(brews[0].date))}</option>` : '<option value="">No sessions</option>';
                     results.innerHTML = '<div class="panel-empty">Log at least two sessions of this coffee to compare them.</div>';
@@ -8618,7 +8642,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         isMaster: false,
                         notes: '',
                         flavors: this.extractFlavors(mine),
-                        equipment: kept.length ? kept : (this.lastEquipment[mine.method || ''] || [])
+                        equipment: kept.length ? kept : (this.lastEquipment[mine.method || ''] || []),
+                        ...this.cloneExtras(mine)   // v18.6: the method's own settings too (brewer, temperature, teabags, inverted…)
                     });
                     this.showToast('Session cloned. Timer and weights are ready for a live brew.');
                     return;
@@ -8635,9 +8660,18 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     isMaster: false,
                     notes: '',
                     flavors: [],
-                    equipment: this.lastEquipment[theirs.method || ''] || []
+                    equipment: this.lastEquipment[theirs.method || ''] || [],
+                    ...this.cloneExtras(theirs, true)   // v18.6: their method's settings (temperature, teabags…), not their brewer
                 });
                 this.showToast(`You haven't brewed this one yet, so this copies ${who}'s latest recipe. Grind is left blank (different grinders).`);
+            },
+
+            // v18.6: what Clone carries of a session's method settings: not its steeps (a new cup is timed afresh) and, from
+            // someone else's session, not their brewer (your own gear)
+            cloneExtras(b, theirs = false) {
+                const x = this.extrasFrom ? this.extrasFrom(b) : {};
+                delete x.steeps; if (theirs) delete x.brewer;
+                return Object.fromEntries(Object.entries(x).filter(([, v]) => !(v === '' || v === false || v === 0 || v == null || (Array.isArray(v) && !v.length))));
             },
 
             extractFlavors(brew) {
@@ -8799,7 +8833,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     return;
                 }
                 if (event.type === 'bean') {
-                    this.beans.set(event.id, event);
+                    const { cmtGone, ...bean } = event;   // (v18.6: a save's list of removed comments isn't part of the coffee)
+                    this.beans.set(event.id, bean);
                     return;
                 }
                 if (event.type === 'brew') {
@@ -8815,6 +8850,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         user: owner,
                         owner
                     };
+                    delete next.cmtGone;   // (v18.6: a save's list of removed comments isn't part of the session)
                     this.brews.set(event.id, next);
                     return;
                 }
@@ -8879,6 +8915,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         this.syncedOnce = true;
                         this.updateBadge('synced');
                         this.redrawAfterSync(false);
+                        if (this.checkNotifications) this.checkNotifications();   // v18.6: the bell's count too (follows and likes on your comments elsewhere don't change your circle's data)
                         return;
                     }
                     this.lastFullReply = Array.isArray(json) ? text : '';
@@ -9308,6 +9345,13 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             async push(payload, opts = {}) {
                 if (payload && Array.isArray(payload.comments)) payload = { ...payload, commentMeta: this.commentMetaOf(payload.comments) };
                 const prev = this.recordOf(payload);
+                // v18.6: the comments this save removes, by name (the server deletes exactly these: an owner's Delete on
+                // someone else's comment sticks, and a copy that just hadn't seen a comment made elsewhere deletes nothing)
+                if (payload && (payload.type === 'brew' || payload.type === 'bean') && Array.isArray(payload.comments)) {
+                    const keep = new Set(payload.comments.map(c => String(c && c.id)));
+                    const gone = (prev && Array.isArray(prev.comments) ? prev.comments : []).map(c => String(c && c.id || '')).filter(id => id && !keep.has(id));
+                    payload = { ...payload, cmtGone: gone };
+                }
                 const nowMs = Date.now();
                 // v13.4: never older than the version it was made from
                 const eventAt = new Date(prev && prev.eventAt && this.toTime(prev.eventAt) >= nowMs ? this.toTime(prev.eventAt) + 1 : nowMs).toISOString();
@@ -9397,6 +9441,11 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     for (let i = ob.length - 1; i >= 0; i--) if (gone(ob[i])) ob.splice(i, 1);
                 }
                 const at = ob.findIndex(x => x.k === k);
+                // v18.6: an unsent save replaced by a newer one hands on the comments it removed
+                if (at >= 0 && !ob[at].landedAt && Array.isArray(ob[at].ev.cmtGone) && Array.isArray(ev.cmtGone)) {
+                    const keep = new Set((ev.comments || []).map(c => String(c && c.id)));
+                    ev.cmtGone = [...new Set([...ob[at].ev.cmtGone, ...ev.cmtGone])].filter(id => !keep.has(id));
+                }
                 // (a gear record nobody has saved yet starts from {}, so two first saves at once still merge)
                 const base = ev.type === 'brew' || ev.type === 'bean' || ev.type === 'gear' ? (prev ? JSON.parse(JSON.stringify(prev)) : (ev.type === 'gear' ? {} : null)) : null;
                 // not confirmed yet: the first edit's starting point stays the base. If the earlier version was already sent it may
@@ -10641,9 +10690,16 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
             crewFilter() {
                 if (!(this.acctOn && this.acctOn())) return () => true;
-                if (this._crewScope) { const sc = this._crewScope; return b => sc.names.has(this.getBrewOwner(b)) && !(this.isCommunity && this.isCommunity('brew', b.id)); }
+                // (v18.6: an "Only me" session counts for nobody: the others' phones can't see it, so goals and awards came
+                // out different on each phone)
+                if (this._crewScope) { const sc = this._crewScope; return b => sc.names.has(this.getBrewOwner(b)) && b.audience !== 'only_me' && !(this.isCommunity && this.isCommunity('brew', b.id)); }
                 const crew = new Set(this.knownPeople());
-                return b => crew.has(this.getBrewOwner(b)) && !(this.isCommunity && this.isCommunity('brew', b.id));
+                return b => crew.has(this.getBrewOwner(b)) && b.audience !== 'only_me' && !(this.isCommunity && this.isCommunity('brew', b.id));
+            },
+            // v18.6: who's in the crew (likes and comments from anyone else don't count toward its awards and goals)
+            crewNames() {
+                if (!(this.acctOn && this.acctOn())) return null;
+                return this._crewScope ? this._crewScope.names : new Set(this.knownPeople());
             },
             crewSessionsBetween(a, b) { return this.sessionsBetween(a, b).filter(this.crewFilter()); },
 
@@ -11003,9 +11059,13 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const img = a.nodeName === 'IMG';
                 const shape = img && a.hasAttribute('data-shape-for') && a.getAttribute('data-shape-for') === b.getAttribute('data-shape-for');
                 const photo = img && a.hasAttribute('data-fallbacks') && a.getAttribute('data-fallbacks') === b.getAttribute('data-fallbacks');
-                for (const { name } of [...a.attributes]) if (!b.hasAttribute(name) && !(shape && name === 'src')) a.removeAttribute(name);
+                // (v18.6: a canvas's size is its renderer's: setting it back to the markup's 0 x 0 wiped a drawn shape, and one
+                // that isn't turning — Reduce Motion — was never drawn again)
+                const cv = a.nodeName === 'CANVAS', own = name => cv && (name === 'width' || name === 'height' || name === 'aria-label' || name === 'role' || name === 'style');
+                for (const { name } of [...a.attributes]) if (!b.hasAttribute(name) && !(shape && name === 'src') && !own(name)) a.removeAttribute(name);
                 for (const { name, value } of [...b.attributes]) {
                     if (photo && (name === 'src' || name === 'data-fallback-index')) continue;
+                    if (own(name)) continue;
                     if (a.getAttribute(name) !== value) a.setAttribute(name, value);
                 }
                 // a centered initial stays as it is when it's the same letter
@@ -11205,7 +11265,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const invite = sg && sg.invite ? `<button type="button" class="cq-invite" data-g="${this.esc(String(sg.id))}" onclick="app.shareCommunity(this.getAttribute('data-g'), event)"><svg class="icon"><use href="#i-share-2"/></svg>Invite</button>` : '';
                 return `
                     <section class="feed-card crew-quest${q.done ? ' done' : ''}" aria-label="${this._crewScope ? 'Community goal' : 'Group goal'}">
-                        <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-target"/></svg>${this._crewScope ? 'Community goal' : 'Group goal'} · this week</span><span class="cq-right"><span class="cq-left">${this.esc(left)}</span>${invite}${q.done && this.storyShareBtn ? this.storyShareBtn('app.openGoalStory()', 'Share the finished goal as a picture') : ''}</span></div>
+                        <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-target"/></svg>${this._crewScope ? 'Community goal' : 'Group goal'} · this week</span><span class="cq-right"><span class="cq-left">${this.esc(left)}</span>${invite}${q.done && this.storyShareBtn ? this.storyShareBtn(`app.openGoalStory('${app.escJs(this.storyScopeKeep ? this.storyScopeKeep() : '')}')`, 'Share the finished goal as a picture') : ''}</span></div>
                         <div class="cq-title">${this.esc(q.title)}</div>
                         ${bar}
                         <div class="cq-meta"><span><b>${count.n}</b>${this.esc(count.rest)}${q.detail ? ` · ${this.esc(q.detail)}` : ''}</span></div>
@@ -11276,9 +11336,12 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 byPerson.forEach((rows, p) => { const r = rows.map(x => this.normalizeRating(x.rating)).filter(v => v > 0); if (r.length >= 3) avg.set(p, r.reduce((s, v) => s + v, 0) / r.length); });
                 if (avg.size >= 2) add('critic', 'Toughest Critic', 'i-search', '#8A63C4', top(avg, 0, true), v => `averages ${this.fmtNum(v, 1)}★`);
                 const likes = new Map(), comments = new Map();
-                list.forEach(x => (Array.isArray(x.likes) ? x.likes : []).forEach(n => { const name = String(n || '').trim(); if (name && name !== owner(x)) likes.set(name, (likes.get(name) || 0) + 1); }));
+                // (v18.6: likes and comments by the crew, on the crew's own sessions and coffees: someone from Discover or a
+                // person you merely follow could win them)
+                const crewN = this.crewNames(), inCrew = n => !crewN || crewN.has(n), crewBrew = this.crewFilter();
+                list.forEach(x => (Array.isArray(x.likes) ? x.likes : []).forEach(n => { const name = String(n || '').trim(); if (name && name !== owner(x) && inCrew(name)) likes.set(name, (likes.get(name) || 0) + 1); }));
                 const inMonth = ts => { const t = this.localTime(ts); return t >= a && t < b; };
-                [...this.brews.values(), ...this.beans.values()].forEach(x => this.normalizeCommentList(x.comments, `aw-${x.id}`, x.date).forEach(c => { if (inMonth(c.timestamp)) comments.set(c.user, (comments.get(c.user) || 0) + 1); }));
+                [...[...this.brews.values()].filter(crewBrew), ...[...this.beans.values()].filter(k => inCrew(String(k.user || k.owner || '')))].forEach(x => this.normalizeCommentList(x.comments, `aw-${x.id}`, x.date).forEach(c => { if (inMonth(c.timestamp) && inCrew(c.user)) comments.set(c.user, (comments.get(c.user) || 0) + 1); }));
                 add('hype', 'Hype Man', 'i-heart', '#D9534F', top(likes, 2), v => `${v} likes given`);
                 add('chatter', 'Chatterbox', 'i-message-square', '#3F8FB0', top(comments, 2), v => `${v} comments`);
                 add('photo', 'Photographer', 'i-camera', '#7D6A58', top(tally(x => x.photo ? 1 : 0), 2), v => `${v} sessions with photos`);
@@ -11562,7 +11625,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const revealing = revealT >= 0 && revealT < awards.length * 150 + 1200 && this.motionOK();
                 return `
                     <div class="profile-card crew-awards${revealing ? ' revealing' : ''}${open ? '' : ' folded'}" id="crew-awards" style="--n:${awards.length}${revealing ? `;--aw-at:${-revealT}ms` : ''}">
-                        ${head(`Final · ${awards.length} award${awards.length === 1 ? '' : 's'}`, this.storyShareBtn ? this.storyShareBtn('app.openAwardsStory()', 'Share these awards as a picture') : '')}
+                        ${head(`Final · ${awards.length} award${awards.length === 1 ? '' : 's'}`, this.storyShareBtn ? this.storyShareBtn(`app.openAwardsStory('${app.escJs(this.storyScopeKeep ? this.storyScopeKeep() : '')}')`, 'Share these awards as a picture') : '')}
                         ${champ}
                         ${open ? `<div class="aw-grid">${this.awardTilesHtml(awards, false, { rivalry: aw => this.awardRivalry(aw, prevBy.get(aw.key)) })}</div>${raceHtml}` : ''}
                     </div>`;
@@ -11899,6 +11962,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 // numbers a recipe filled in belong to that recipe's method: don't carry cold-brew 100/800 into a pour-over
                 if (form && this.recipeId) { form.dose.value = ''; form.yield.value = ''; }
                 if (this.activeMethod && this.activeMethod !== method) {   // (v17.1: what went in a tea stays when you switch how it's made)
+                    // v18.6: a teabag count in the leaf field isn't grams: it goes when the teabags do
+                    if (form && form.dose && this.methodExtras && this.methodExtras.teabag) form.dose.value = '';
                     const mix = this.logKind === 'tea' && this.methodExtras && Array.isArray(this.methodExtras.mix) ? this.methodExtras.mix : null;
                     this.methodExtras = mix && mix.length ? { mix } : {};
                 }
@@ -13208,7 +13273,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (!entries.length) {
                     grid.innerHTML = this.acctOn()
                         ? this.feedModeHtml() + '<div class="comm-empty">Nothing here yet. Follow people (Profiles, then People) or see what everyone is brewing in Community.</div>'
-                        : '<div style="text-align:center; color:#999; padding:3rem;">No feed activity yet.</div>';
+                        : '<div style="text-align:center; color:var(--text-muted); padding:3rem;">No feed activity yet.</div>';
                     if (grid.removeAttribute) grid.removeAttribute('data-view');
                     this._feedHtml = null;
                     return;
@@ -13632,6 +13697,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
             saveRoasterEdit(ev) {
                 if (ev) ev.preventDefault();
+                if (this._rcvBusy) { this.showToast('The photo is still uploading. Save when it\'s done.'); return; }   // v18.6
                 const f = document.querySelector('#roaster-modal form');
                 const r = this.roasterData().byKey.get(f.elements.key.value);
                 if (!r) { this.closeModals(); return; }
@@ -13717,6 +13783,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             closeBrewModal() {
                 if (this.brewFormDirty() && !confirm('Discard this session? What you entered will be lost.')) return;
                 this.closeModals();
+                if (this.timer && this.resetTimer) this.resetTimer();   // v18.6: a discarded session's timer stops too (it ran on into the next one)
             },
 
             brewFormKey(e) {
@@ -14555,7 +14622,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     const message = (searchQuery || this.currentMethodFilter !== 'all' || this.roasterFilter)
                         ? `No ${dw.items} match your filters.`
                         : `No ${dw.items} yet. Add your first one with the + button.`;
-                    grid.innerHTML = `<div style="text-align:center; color:#999; padding:3rem;">${message}</div>`;
+                    grid.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:3rem;">${message}</div>`;
                 }
                 if (this.tab === 'my' && grid.insertAdjacentHTML) grid.insertAdjacentHTML('afterbegin', this.coffeeScopeHtml() + this.roasterFilterHtml());
             },
@@ -15169,7 +15236,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     const rated = s.ratings.filter(Boolean);
                     const n = s.shots.length;
                     const status = s.dialedAt >= 0
-                        ? `Dialed in on session ${s.dialedAt + 1} · ${s.how === 'pinned as Master' ? 'Master' : 'first 4.5★'}`
+                        ? `Dialed in on session ${s.dialedAt + 1} · ${s.how === 'pinned as Master' ? 'Master' : 'first 4.5★+'}`
                         : (rated.length ? `Best so far ${this.fmtNum(Math.max(...rated))}★` : 'No ratings yet');
                     return `<div class="di-row"><i style="background:${this.esc(s.color)}"></i><b>${this.esc(s.owner)}</b><span>${this.esc(status)}</span><em>${n} session${n === 1 ? '' : 's'}</em></div>`;
                 }).join('');
@@ -15366,7 +15433,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     const bean = this.beans.get(String(b.beanId));
                     if (bean) {
                         this.originList(bean.origin).forEach(o => bump(dims.origins, o, w));
-                        bump(dims.processes, this.normalizeTag(bean.process), w);
+                        [...new Set(String(bean.process || '').split(/\s*(?:,|&|\+|\/)\s*/).map(x => this.normalizeTag(x)).filter(Boolean))].forEach(x => bump(dims.processes, x, w));   // (v18.6: "Washed, Fermented" is two: the palate listed "Washed · Washed, Fermented")
                         bump(dims.roasts, String((k === 'tea' ? bean.teaType : bean.roast) || '').trim(), w);   // (a tea's type where a coffee's roast goes)
                         bump(dims.varieties, this.normalizeTag(bean.variety), w);
                     }
@@ -15886,10 +15953,10 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 });
                 s.newBeans = [...firstSeen.values()].filter(inRange).length;
                 const myKeys = new Set(brews.map(b => this.groupKeyOfBrew(b)));
-                const buddies = new Map();
+                const buddies = new Map(), crewOK = this.crewFilter ? this.crewFilter() : () => true;   // (v18.6: a brew buddy from your crew, not a stranger from Discover)
                 this.brews.forEach(b => {
                     const owner = this.getBrewOwner(b);
-                    if (owner === user || !inRange(this.toTime(b.date)) || !myKeys.has(this.groupKeyOfBrew(b))) return;
+                    if (owner === user || !inRange(this.toTime(b.date)) || !myKeys.has(this.groupKeyOfBrew(b)) || !crewOK(b)) return;
                     buddies.set(owner, (buddies.get(owner) || 0) + 1);
                 });
                 const buddy = [...buddies.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0];
@@ -15993,8 +16060,11 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
             wrappedData(user, year) {
                 const [a, b] = [new Date(year, 0, 1).getTime(), new Date(year + 1, 0, 1).getTime()];
-                const all = this.sessionsBetween(a, b).sort((u, v) => this.localTime(u.date) - this.localTime(v.date));
                 const owner = x => this.getBrewOwner(x);
+                // (v18.6: everyone else here is your crew, not every stranger whose session happens to be on the phone from
+                // Discover, a coffee's Everyone or a profile)
+                const crewOK = this.crewFilter ? this.crewFilter() : () => true;
+                const all = this.sessionsBetween(a, b).filter(x => owner(x) === user || crewOK(x)).sort((u, v) => this.localTime(u.date) - this.localTime(v.date));
                 const mine = all.filter(x => owner(x) === user);
                 const D = { user, year, color: this.getUserColor(user), count: mine.length };
                 if (!mine.length) return D;
@@ -17874,6 +17944,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
             handleBeanSubmit(event) {
                 event.preventDefault();
+                if (this._bcvBusy) { this.showToast('The photo is still uploading. Save when it\'s done.'); return; }   // v18.6: saved now, the coffee lost it
                 const form = event.target;
                 const id = form.elements.id.value || `${Date.now()}`;
                 const existing = this.beans.get(id);
@@ -18064,7 +18135,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
                     const label = document.createElement('label');
                     label.className = 'equipment-select-label';
-                    label.innerHTML = `<strong>${this.esc(eq.name)}</strong> <span style="color:#999; font-size:0.75rem;">(${this.esc(eq.type)})</span>`;
+                    label.innerHTML = `<strong>${this.esc(eq.name)}</strong> <span style="color:var(--text-muted); font-size:0.75rem;">(${this.esc(eq.type)})</span>`;
 
                     item.appendChild(checkbox);
                     item.appendChild(label);
@@ -18161,6 +18232,15 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 this.openModal('bean-modal');
             },
 
+            // v18.6: a blend cup's saved leaf weight is the total of what went in; opened again, the field stays empty so the
+            // total follows the ingredients (kept as typed, it won over a changed amount)
+            blendDoseOpen(form) {
+                const mix = this.cleanMix ? this.cleanMix(this.methodExtras && this.methodExtras.mix) : [];
+                if (!form || !form.dose || mix.length < 2 || !this.mixGrams) return;
+                const total = this.mixGrams(mix), v = Number(form.dose.value);
+                if (total > 0 && Math.abs(v - total) < 0.01) form.dose.value = '';
+            },
+
             editBrew(id) {
                 const brew = this.brews.get(id);
                 if (!brew) return;
@@ -18170,6 +18250,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 }
 
                 const form = this.getBrewForm();
+                if (this.timer && !this.timer.on) this.resetTimer();   // v18.6: an old session doesn't pick up a stopped timer's leftover time
                 this._shotForm = null; if (this.clearShotLogHead) this.clearShotLogHead();   // v16.9
                 if (this.applyLogKind) this.applyLogKind(this.kindOfBrew(brew), brew.method);   // v17.0
                 this.recipeTyped = new Set(['dose', 'yield']); this._brewFormGen = (this._brewFormGen || 0) + 1;   // an old session's numbers are measurements
@@ -18194,6 +18275,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 this.selFlavors = this.extractFlavors(brew);
                 this.resetTasteForm(brew);
                 this.methodExtras = this.extrasFrom(brew); this.recipeName = brew.recipeName || ''; this.recipeId = ''; this.recipeSteps = null;
+                this.blendDoseOpen(form);
                 this.applyMethodProfile(brew.method);
                 this.bindTasteSliders();
                 this.renderTasteSection();
@@ -18304,6 +18386,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     this.selFlavors = Array.isArray(prefill.flavors) ? [...prefill.flavors] : this.extractFlavors(prefill);
                     this.resetTasteForm(prefill);
                     this.methodExtras = this.extrasFrom(prefill); this.recipeName = prefill.recipeName || ''; this.recipeId = '';
+                    this.blendDoseOpen(form);
                     this.draftPhoto = this.normalizePhoto(prefill.photo);
                     this.renderDraftPhoto();
                 }
@@ -18551,7 +18634,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (!list) return;
                 list.innerHTML = '';
                 if (!this.equipment.length) {
-                    list.innerHTML = '<div style="text-align:center; color:#999; padding:1rem; font-size:0.85rem;">No equipment added yet</div>';
+                    list.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:1rem; font-size:0.85rem;">No equipment added yet</div>';
                     return;
                 }
 
@@ -18629,7 +18712,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
                     const label = document.createElement('label');
                     label.className = 'equipment-select-label';
-                    label.innerHTML = `<strong>${this.esc(eq.name)}</strong> <span style="color:#999; font-size:0.75rem;">(${this.esc(eq.type)})</span>`;
+                    label.innerHTML = `<strong>${this.esc(eq.name)}</strong> <span style="color:var(--text-muted); font-size:0.75rem;">(${this.esc(eq.type)})</span>`;
 
                     item.appendChild(checkbox);
                     item.appendChild(label);
@@ -18817,7 +18900,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     t.int = null;
                     if (this.teaSteepStop && this.teaSteepStop(t)) { this.paintTimer(); this.renderTasteTip(); return; }   // v17.0: a tea steep (each stop is one steep)
                     const input = document.getElementById('time-input');
-                    if (input) input.value = this.methodProfile(this.activeMethod).minutes ? String(Math.max(0.5, Math.round(t.acc / 30) / 2)) : Math.round(t.acc);   // (v17.1: a simmer is timed in minutes)
+                    const prof = this.methodProfile(this.activeMethod);
+                    if (input) input.value = prof.hours ? String(Math.max(0.5, Math.round(t.acc / 1800) / 2)) : prof.minutes ? String(Math.max(0.5, Math.round(t.acc / 30) / 2)) : Math.round(t.acc);   // (v17.1: a simmer is timed in minutes; v18.6: a cold brew or cold steep in hours, to the half hour)
                     this.paintTimer();
                     this.renderTasteTip();
                     return;
@@ -18925,7 +19009,17 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const s = this.wl; if (!s) return;
                 s.path = path;
                 const sess = Supa.session();
-                if (sess && sess.refresh_token && !sess.profile) { s.step = path === 'back' ? 'claim' : 'name'; this.renderWelcome(); return; }
+                if (sess && sess.refresh_token && !sess.profile) {
+                    // v18.6: signed in but no profile on this phone: maybe it just didn't come back when signing in (a dropped
+                    // connection), so ask once before the claim or name step (both would say the account already has one)
+                    const next = () => { s.step = path === 'back' ? 'claim' : 'name'; this.renderWelcome(); };
+                    Supa.rpc('my_profile').then(p => {
+                        if (!p) { next(); return; }
+                        Supa.store(Supa.SESSION, { ...Supa.session(), profile: p });
+                        this.acctReady(p, null);
+                    }).catch(next);
+                    return;
+                }
                 s.email = s.email || (sess && sess.user && sess.user.email) || '';
                 s.step = 'email';
                 this.renderWelcome();
@@ -19320,7 +19414,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 try {
                     const res = await Supa.rpc(call[0], call[1]);
                     if (action === 'follow') this.showToast(res === 'requested' ? `Asked to follow ${name}.` : `Following ${name}.`);
-                    else if (action === 'block') this.showToast(`Blocked ${name}.`);
+                    else if (action === 'block') { this.showToast(`Blocked ${name}.`); if (this.forgetPerson) this.forgetPerson(name); }
                     if (this.haptic) this.haptic('tick');
                     await this.loadPeople(true);
                     if (st.results) st.results = st.results.map(p => String(p.name).toLowerCase() === String(name).toLowerCase() ? { ...p, you: this.relationTo(name).you } : p).filter(p => action !== 'block' || p.name !== name);
@@ -19537,6 +19631,20 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
 
             isCommunity(type, id) { return Boolean(this.communityIds && this.communityIds.has(`${type}:${id}`)); },
 
+            // v18.6: someone just blocked: their sessions, coffees and comments leave the Discover, community, profile and
+            // coffee copies on this phone now (not when those feeds next reload)
+            forgetPerson(name) {
+                const n = String(name || '').toLowerCase(); if (!n) return;
+                const theirs = e => String(e.owner || e.user || '').toLowerCase() === n;
+                const clean = list => (list || []).filter(e => !((e.type === 'brew' || e.type === 'bean') && theirs(e)))
+                    .map(e => (Array.isArray(e.comments) && e.comments.some(c => String(c && c.user || '').toLowerCase() === n) ? { ...e, comments: e.comments.filter(c => String(c && c.user || '').toLowerCase() !== n) } : e));
+                Object.values(this._streams || {}).forEach(st => { st.events = clean(st.events); });
+                if (this.profState) { const p = this.profState(); p.events = clean(p.events); }
+                if (this._coffeeComm) this._coffeeComm.events = clean(this._coffeeComm.events);
+                this.process(this.cloud.events);
+                this._feedHtml = null; this.render();
+            },
+
             // your own like or comment on one of these sessions: keep its copy up to date (your circle's sync won't bring it back)
             noteCommunityPush(event) {
                 if (!event || !this.isCommunity(event.type, event.id)) return;
@@ -19649,14 +19757,18 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             async loadNotifications(max = 50) {
                 if (!this.acctOn() || !Supa.ready()) return null;
                 const st = this.notifState();
-                if (st.loading) return st;
-                st.loading = true;
-                try {
+                // v18.6: a load already on its way is waited for (opening the bell from a phone notification right after
+                // the app starts found the small unread-count load running and stayed on its spinner); then the full list
+                // is fetched if that one was only the count
+                if (st.loading) { try { await st.loading; } catch (e) { /* the next one tries again */ } if (max <= 1 || st.full) return st; }
+                const run = (async () => {
                     const r = await Supa.rpc('my_notifications', { max_count: max });
                     st.unread = Number(r && r.unread) || 0;
-                    if (max > 1 || !st.items) st.items = r && Array.isArray(r.items) ? r.items : [];
+                    if (max > 1 || !st.items) { st.items = r && Array.isArray(r.items) ? r.items : []; st.full = max > 1; }
                     st.at = Date.now();
-                } finally { st.loading = false; }
+                })();
+                st.loading = run;
+                try { await run; } finally { if (st.loading === run) st.loading = null; }
                 this.paintNotifButton();
                 return st;
             },
@@ -19735,7 +19847,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (n.kind === 'joined_group') { this.closeNotifications(); this.openPeople(); return; }
                 const brew = n.session ? this.brews.get(String(n.session)) : null;
                 const beanId = brew ? brew.beanId : (n.sessionCoffee || n.coffee || '');
-                if (n.session && !brew && n.who && this.openAnyProfile) { this.closeNotifications(); this.openAnyProfile(n.who); return; }   // v14.5: someone else's session outside your circle (a help answer): their profile
+                if (n.session && !brew && (n.sessionOwner || n.who) && this.openAnyProfile) { this.closeNotifications(); this.openAnyProfile(n.sessionOwner || n.who); return; }   // v14.5: someone else's session outside your circle (a help answer): their profile (v18.6: the session's owner, whose profile has it)
                 if (!beanId || (n.session && !brew && !this.beans.has(String(beanId)))) { this.showToast('That isn\'t on this phone anymore.'); return; }
                 this.closeNotifications();
                 if (n.comment && n.session) this.openThreads.add(this.threadKey('brew', n.session));
@@ -19995,6 +20107,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (!name || name === 'Unknown') return;
                 if (!this.acctOn() && !(this.knownPeople().includes(name) || this.hasLoggedData(name))) return;
                 ['people-modal', 'notif-modal', 'review-modal'].forEach(id => { const m = document.getElementById(id); if (m) m.classList.remove('active'); });
+                if (this.sessionViewActive && this.sessionViewActive()) this.closeSession(true);   // v18.6: a name on the Session screen (the profile opened hidden behind it)
                 // a name on a coffee or roaster page: leave the page for the profile (it would otherwise stay on top)
                 const dv = document.getElementById('detail-view');
                 if (dv && dv.classList.contains('active')) { dv.classList.remove('active'); this.openCommentId = null; this.navStack = []; }
@@ -22344,12 +22457,12 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     newcoffee: { add: true, min: 2, max: 12, fb: () => 2, title: t => `Open something new: ${t} coffees you haven't brewed before`, unit: 'new coffees', count: each(b => hist().first.has(String(b.id))) },
                     comments: { add: true, min: 3, max: 60, fb: p => 2 * p, title: t => `Hype squad: ${t} comments on each other's sessions`, unit: 'comments', window: true,
                         count: (list, a, b) => {
-                            const inCrew = this.crewFilter(), give = [];
+                            const inCrew = this.crewFilter(), names = this.crewNames ? this.crewNames() : null, give = [];   // (v18.6: comments by the crew)
                             this.brews.forEach(x => {
                                 if (!inCrew(x)) return;
                                 (Array.isArray(x.comments) ? x.comments : []).forEach(c => {
                                     const who = c && String(c.user || ''), t = c ? this.toTime(c.timestamp) : 0;
-                                    if (!who || who === own(x) || this.goalExcluded(who) || !(t >= a && t < b)) return;
+                                    if (!who || who === own(x) || this.goalExcluded(who) || (names && !names.has(who)) || !(t >= a && t < b)) return;
                                     give.push(who);
                                 });
                             });
@@ -22728,6 +22841,9 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 }
             },
 
+            // "Oct 3", or "Dec 20, 2025" from another year (v18.6: a compare across years read as the same year)
+            storyDay(t) { const d = new Date(t), o = { month: 'short', day: 'numeric' }; if (d.getFullYear() !== new Date().getFullYear()) o.year = 'numeric'; return d.toLocaleDateString('en-US', o); },
+
             storyShareBtn(onclick, label = 'Share as a picture') {
                 return `<button type="button" class="story-share" aria-label="${this.esc(label)}" onclick="event.stopPropagation(); ${onclick}"><svg class="icon"><use href="#i-share-2"/></svg></button>`;
             },
@@ -22889,7 +23005,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     ctx.font = k.sans(800, 30); ctx.fillStyle = k.muted; ctx.textAlign = 'right'; ctx.fillText(tag, cx + cw - 30, y + 52); ctx.textAlign = 'left';
                     ctx.beginPath(); ctx.arc(cx + 50, y + 52 - 12, 12, 0, Math.PI * 2); ctx.fillStyle = this.getUserColor(who); ctx.fill();
                     ctx.font = k.sans(700, 40); ctx.fillStyle = k.ink; ctx.fillText(k.fit(who, cw - 140), cx + 74, y + 52);
-                    ctx.font = k.sans(500, 33); ctx.fillStyle = k.ink2; ctx.fillText(k.fit(`${new Date(this.localTime(x.date)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}${x.method ? ` · ${x.method}` : ''}`, cw - 80), cx + 40, y + 112);
+                    ctx.font = k.sans(500, 33); ctx.fillStyle = k.ink2; ctx.fillText(k.fit(`${this.storyDay(this.localTime(x.date))}${x.method ? ` · ${x.method}` : ''}`, cw - 80), cx + 40, y + 112);
                     ctx.font = k.sans(700, 44); ctx.fillStyle = '#E3B341'; ctx.fillText(r ? '★'.repeat(Math.round(r)) : '', cx + 40, y + 176);
                     if (r) { const sw = ctx.measureText('★'.repeat(Math.round(r))).width; ctx.fillStyle = k.ink; ctx.font = k.sans(700, 40); ctx.fillText(this.formatRating(r), cx + 52 + sw, y + 174); }
                     else { ctx.font = k.sans(600, 34); ctx.fillStyle = k.muted; ctx.fillText('Unrated', cx + 40, y + 174); }
@@ -23002,9 +23118,19 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             },
 
             // ---- 6. a finished group goal: the bar, everyone's part, the week
-            async drawGoalStory() {
-                const q = this.crewQuest(); if (!q || !q.done) return null;
-                const scope = this._crewScope;
+            // v18.6: a share button remembers the circle its card was drawn for (a community, Friends); the picture is worked out
+            // in that circle, before anything waits (a redraw meanwhile mustn't change it)
+            storyScopeKeep() { const sc = this._crewScope; if (!sc) return ''; (this._storyScopes || (this._storyScopes = {}))[sc.id] = sc; return sc.id; },
+            inStoryScope(sid, fn) {
+                if (!sid) return fn();
+                const sc = (this._storyScopes || {})[sid]; if (!sc) return fn();
+                const was = this._crewScope; this._crewScope = sc;
+                try { return fn(); } finally { this._crewScope = was; }
+            },
+            async drawGoalStory(sid = '') {
+                const pre = this.inStoryScope(sid, () => { const q = this.crewQuest(); return q && q.done ? { q, scope: this._crewScope, segs: this.crewSegs(q), count: this.crewCount(q), won: this.questsWon ? this.questsWon() : 0 } : null; });
+                if (!pre) return null;
+                const { q, scope } = pre;
                 const fmt = t => new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                 const S = this.storyStart({ sub: `${scope ? (scope.id === 'friends' ? 'Friends' : scope.name) : 'Group goal'} · ${fmt(q.start)} – ${fmt(q.end - 1)}`, title: q.title, titleLines: 3, titleSize: 84 }); if (!S) return null;
                 const { ctx, k } = S; let y = S.y + 70;
@@ -23014,7 +23140,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 y += 110;
                 const bw = k.W - k.PAD * 2, bh = 64;
                 k.round(k.PAD, y, bw, bh, 32); ctx.fillStyle = k.nl ? k.grid : 'rgba(255,255,255,0.08)'; ctx.fill();
-                const segs = this.crewSegs(q), count = this.crewCount(q), countText = `${count.n}${count.rest}`;   // v16.8: as on the card
+                const segs = pre.segs, count = pre.count, countText = `${count.n}${count.rest}`;   // v16.8: as on the card
                 let used = 0;
                 ctx.save(); k.round(k.PAD, y, bw, bh, 32); ctx.clip();
                 segs.forEach(s => { const w = Math.max(0, Math.min(1 - used, s.w)); if (w <= 0) return; ctx.fillStyle = this.getUserColor(s.p); ctx.fillRect(k.PAD + used * bw, y, w * bw + 1, bh); used += w; });
@@ -23033,20 +23159,19 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     ctx.font = k.sans(700, 36); ctx.fillStyle = k.ink; ctx.fillText(k.fit(p, size + gap - 20), cx, cy + size / 2 + 60);
                     ctx.font = k.sans(500, 32); ctx.fillStyle = k.muted; ctx.fillText(`${n} ${q.type === 'everyone' || q.unit === 'sessions' ? `session${n === 1 ? '' : 's'}` : ''}`.trim(), cx, cy + size / 2 + 104); ctx.textAlign = 'left';
                 });
-                const won = this.questsWon ? this.questsWon() : 0;
+                const won = pre.won;
                 if (won) { ctx.font = k.sans(600, 36); ctx.fillStyle = k.ink2; ctx.fillText(`${won} goal${won === 1 ? '' : 's'} reached together`, k.PAD, k.H - 170); }
                 return S.c;
             },
 
-            openGoalStory() { return this.openStory({ draw: () => this.drawGoalStory(), slug: 'group-goal', alt: 'Your finished group goal as a Story picture' }); },
+            openGoalStory(sid = '') { return this.openStory({ draw: () => this.drawGoalStory(sid), slug: 'group-goal', alt: 'Your finished group goal as a Story picture' }); },
 
             // ---- 7. a month's awards (the month the Awards card shows, once it's open)
-            async drawAwardsStory(key) {
+            async drawAwardsStory(key, sid = '') {
                 const k0 = String(key || this.awardsMonth || ''); if (!k0 || (this.monthLocked && this.monthLocked(k0))) return null;
                 const [yy, mm] = k0.split('-').map(Number);
-                const awards = this.crewAwardsMemo ? this.crewAwardsMemo(yy, mm - 1) : this.crewAwards(yy, mm - 1);
+                const { awards, scope } = this.inStoryScope(sid, () => ({ awards: this.crewAwardsMemo ? this.crewAwardsMemo(yy, mm - 1) : this.crewAwards(yy, mm - 1), scope: this._crewScope }));
                 if (!awards || !awards.length) return null;
-                const scope = this._crewScope;
                 const S = this.storyStart({ date: 0, sub: `Monthly awards${scope ? ` · ${scope.id === 'friends' ? 'Friends' : scope.name}` : ''}`, title: this.monthName(k0, true) }); if (!S) return null;
                 const { ctx, k } = S; let y = S.y + 40;
                 const list = awards.slice(0, 8), cols = 2, gap = 24, cw = (k.W - k.PAD * 2 - gap) / cols, ch = Math.min(300, Math.floor((k.H - 150 - y - gap * 3) / 4));
@@ -23063,7 +23188,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 return S.c;
             },
 
-            openAwardsStory() { const key = this.awardsMonth; return this.openStory({ draw: () => this.drawAwardsStory(key), slug: `awards-${key}`, alt: 'This month\'s awards as a Story picture' }); },
+            openAwardsStory(sid = '') { const key = this.awardsMonth; return this.openStory({ draw: () => this.drawAwardsStory(key, sid), slug: `awards-${key}`, alt: 'This month\'s awards as a Story picture' }); },
 
             // ---- 8. your level: the badge, the crema, what's next, and your latest achievements
             async drawLevelStory(who = this.user) {
@@ -23100,7 +23225,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                         if (y > k.H - 160) return;
                         ctx.strokeStyle = k.boxLine; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(k.PAD, y); ctx.lineTo(k.W - k.PAD, y); ctx.stroke();
                         ctx.font = k.sans(700, 38); ctx.fillStyle = k.ink; ctx.fillText(k.fit(`${u.definition.title}${u.definition.thresholds.length > 1 ? ` · Level ${u.level}` : ''}`, k.W - k.PAD * 2 - 200), k.PAD, y + 64);
-                        ctx.textAlign = 'right'; ctx.font = k.sans(500, 32); ctx.fillStyle = k.muted; ctx.fillText(new Date(this.toTime(u.date)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), k.W - k.PAD, y + 64); ctx.textAlign = 'left';
+                        ctx.textAlign = 'right'; ctx.font = k.sans(500, 32); ctx.fillStyle = k.muted; ctx.fillText(this.storyDay(this.toTime(u.date)), k.W - k.PAD, y + 64); ctx.textAlign = 'left';
                         y += 100;
                     });
                 }
@@ -23815,8 +23940,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 ph('roaster', '', 'e.g., Mountain Leaf Tea Co.');
                 ph('name', '', 'e.g., Long Jing, Darjeeling');
                 ph('variety', 'e.g., Gesha, SL28, Bourbon...', 'e.g., Longjing #43, Yabukita');
-                ph('origin', '', 'e.g., Zhejiang, China');
-                ph('process', '', 'e.g., Pan-fired, Roasted, Aged');
+                ph('origin', 'e.g., Ethiopia, Colombia', 'e.g., Zhejiang, China');
+                ph('process', 'e.g., Washed, Natural, Honey', 'e.g., Pan-fired, Roasted, Aged');
                 form.querySelectorAll('.tea-only').forEach(el => { el.hidden = !tea; });
                 form.querySelectorAll('.coffee-only').forEach(el => { el.hidden = tea; });
                 this.paintBeanBlend();   // v17.1: your own blend needs no brand
@@ -24853,8 +24978,11 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (d.getFullYear() !== new Date().getFullYear()) o.year = 'numeric';
                 try { return d.toLocaleDateString(undefined, o); } catch (e) { return d.toDateString().slice(4, 10); }
             },
-            nlMethodPill(method, solid) {
-                return `<span class="nl-mpill${solid ? ' solid' : ''}"><svg class="nl-ic"><use href="${this.methodIconUse(method)}"/></svg>${this.esc(this.methodLabel(method) || 'Espresso')}</span>`;
+            nlMethodPill(method, solid, compact) {
+                const label = this.methodLabel(method) || 'Espresso';
+                // (v18.6: compact, just its icon, beside a Follow button: the three crowded the name)
+                if (compact) return `<span class="nl-mpill compact${solid ? ' solid' : ''}" role="img" aria-label="${this.esc(label)}" title="${this.esc(label)}"><svg class="nl-ic"><use href="${this.methodIconUse(method)}"/></svg></span>`;
+                return `<span class="nl-mpill${solid ? ' solid' : ''}"><svg class="nl-ic"><use href="${this.methodIconUse(method)}"/></svg>${this.esc(label)}</span>`;
             },
             nlRoasterHtml(bean, tea, cls = 'nl-roast') {
                 if (!bean) return '';
@@ -24885,7 +25013,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const likes = this.normalizeLikeList(brew.likes, owner);
                 const unlocks = this.achievementUnlockByBrew.get(String(brew.id)) || [];
                 const ph = this.nlPhoto(brew), shape = this.nlHasShape(brew);
-                const right = `<div class="nl-tright">${entry.community ? this.communityFollowHtml(owner) : ''}${this.nlMethodPill(brew.method)}<button type="button" class="nl-glass" onclick="app.shareItem('session', '${app.escJs(brew.id)}', event)" aria-label="Share"><svg class="nl-ic"><use href="#i-share-2"/></svg></button></div>`;
+                const follow = entry.community ? this.communityFollowHtml(owner) : '';
+                const right = `<div class="nl-tright">${follow}${this.nlMethodPill(brew.method, false, !!follow)}<button type="button" class="nl-glass" onclick="app.shareItem('session', '${app.escJs(brew.id)}', event)" aria-label="Share"><svg class="nl-ic"><use href="#i-share-2"/></svg></button></div>`;
                 const top = onPhoto => `<div class="nl-ctop${onPhoto ? '' : ' flat'}">${this.nlWho(owner, entry.date || brew.date, onPhoto, pal.c)}${right}</div>`;
                 const media = ph ? `<div class="nl-ph session-photo-wrap">${this.nlPhotoImg(ph)}<div class="nl-fade"></div>${top(true)}</div>`
                     : shape ? `<div class="nl-ph nl-shapemedia flat">${this.nlSpinHtml(brew, fam, { cls: 'nl-bigspin' })}<div class="nl-fade short"></div>${top(false)}</div>`
@@ -24920,7 +25049,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const brews = [...this.brews.values()].filter(b => { const bn = this.beans.get(String(b.beanId)); return bn && this.beanGroupKey(bn) === key; }).sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
                 const withShape = brews.find(b => this.nlHasShape(b));
                 const cov = this.coverOf(this.coverBean(bean) || bean), coverUrl = cov && cov.photo && this.faceUrl ? this.faceUrl(cov.photo) : '';   // v17.4: its own picture
-                const ph = coverUrl ? { src: coverUrl, fallbacks: [coverUrl] } : null;
+                const ph = coverUrl && !(this._brokenPhotos && this._brokenPhotos.has(coverUrl)) ? { src: coverUrl, fallbacks: [coverUrl] } : null;   // (v18.6: one that won't load is drawn without it, like a session's)
                 const right = `<div class="nl-tright"><span class="nl-mpill">${this.esc(entry.kindLabel || (tea ? 'New tea' : 'New coffee'))}</span><button type="button" class="nl-glass" onclick="event.stopPropagation(); app.openCoffeeStory('${app.escJs(bean.id)}')" aria-label="Share"><svg class="nl-ic"><use href="#i-share-2"/></svg></button></div>`;
                 const top = onPhoto => `<div class="nl-ctop${onPhoto ? '' : ' flat'}">${this.nlWho(owner, entry.date || bean.date, onPhoto, pal.c)}${right}</div>`;
                 const media = ph ? `<div class="nl-ph session-photo-wrap">${this.nlPhotoImg(ph, 'nl-photo', 'Coffee photo')}<div class="nl-fade"></div>${top(true)}</div>`
@@ -24953,10 +25082,11 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     document.body.appendChild(v);
                 }
                 this._sessionId = String(brewId);
-                this._nlsHtml = '';
+                this._nlsHtml = ''; this._nlsKey = '';
                 v.classList.remove('closing'); v.hidden = false;
                 v.classList.add('active'); v.setAttribute('aria-hidden', 'false');
                 document.body.classList.add('nls-open');
+                v.scrollTop = 0;   // (before drawing: the bar's look is read from where the page is; the last session's spot made it solid for a moment)
                 this.renderSession();
                 v.scrollTop = 0;
                 if (opts.comments) setTimeout(() => {
@@ -24969,7 +25099,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (!this.sessionViewActive()) return;
                 const v = document.getElementById('session-view');
                 document.body.classList.remove('nls-open');
-                const done = () => { v.classList.remove('active', 'closing'); v.setAttribute('aria-hidden', 'true'); v.hidden = true; v.style.transform = ''; this._sessionId = ''; const pg = document.getElementById('nls-page'); if (pg) pg.innerHTML = ''; this._nlsHtml = ''; };
+                const done = () => { v.classList.remove('active', 'closing'); v.setAttribute('aria-hidden', 'true'); v.hidden = true; v.style.transform = ''; this._sessionId = ''; const pg = document.getElementById('nls-page'); if (pg) pg.innerHTML = ''; this._nlsHtml = ''; this._nlsKey = ''; };
                 if (instant) { done(); return; }
                 v.classList.add('closing');
                 setTimeout(done, 200);
@@ -24998,8 +25128,16 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (soft && act && v.contains(act) && /^(INPUT|TEXTAREA)$/.test(act.tagName)) { this._nlsStale = true; if (!this._nlsBlur) { this._nlsBlur = true; v.addEventListener('focusout', () => { setTimeout(() => { if (this._nlsStale && this.sessionViewActive()) { this._nlsStale = false; this.renderSession(true); } }, 50); }); } return; }
                 const html = this.sessionHtml(brew);
                 if (soft && html === this._nlsHtml) return;
+                // v18.6: when only the "5m ago" labels moved on, they change in place: redrawing the page every minute undid a
+                // paused or top-view shape, closed the ⋯ menu and cut off a drag
+                const AGO = />(Just now|\d+[mhd] ago)</g, key = html.replace(AGO, '><');
+                if (soft && key === this._nlsKey && page.firstChild) {
+                    const fresh = [...html.matchAll(AGO)].map(m => m[1]);
+                    const els = [...page.querySelectorAll('*')].filter(el => el.childElementCount === 0 && /^(Just now|\d+[mhd] ago)$/.test(el.textContent));
+                    if (els.length === fresh.length) { els.forEach((el, i) => { if (el.textContent !== fresh[i]) el.textContent = fresh[i]; }); this._nlsHtml = html; return; }
+                }
                 const drafts = soft && this.captureDrafts ? this.captureDrafts() : null;
-                this._nlsHtml = html;
+                this._nlsHtml = html; this._nlsKey = key;
                 page.setAttribute('data-fam', this.famOfBrew(brew));
                 page.innerHTML = html;
                 if (drafts && this.restoreDrafts) this.restoreDrafts(drafts);
@@ -25077,7 +25215,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     ? `<button type="button" role="menuitem" onclick="app.nlMoreGo('edit')"><svg class="nl-ic"><use href="#i-edit-2"/></svg>Edit</button><button type="button" role="menuitem" class="danger" onclick="app.nlMoreGo('delete')"><svg class="nl-ic"><use href="#i-trash-2"/></svg>Delete</button>`
                     : `<button type="button" role="menuitem" onclick="app.nlMoreGo('report')"><svg class="nl-ic"><use href="#i-flag"/></svg>Report</button>`;
                 (document.getElementById('nls-page') || document.getElementById('session-view')).appendChild(m);
-                setTimeout(() => document.addEventListener('click', function off(e) { if (!m.contains(e.target)) { m.remove(); document.removeEventListener('click', off, true); } }, true), 0);
+                // (v18.6: a second tap on ⋯ closes it; it used to reopen at once)
+                setTimeout(() => document.addEventListener('click', function off(e) { if (!m.contains(e.target)) { m.remove(); document.removeEventListener('click', off, true); if (e.target.closest && e.target.closest('[onclick^="app.nlSessionMore"]')) { e.stopPropagation(); e.preventDefault(); } } }, true), 0);
                 m.setAttribute('data-id', id);
             },
             nlMoreGo(what) {
@@ -25233,6 +25372,15 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             },
 
             // ===================== the coffee page: tinted, its photo leading =====================
+            // v18.6: the coffee page's photo didn't load: the page is laid out again without it (it kept the photo's layout,
+            // with the name sliding up under the clear Back bar)
+            nlDetailPhotoErr(img) {
+                const src = img && img.getAttribute('src'); if (!src) return;
+                (this._brokenPhotos || (this._brokenPhotos = new Set())).add(src);
+                if (this.isDetailActive && this.isDetailActive() && this.activeGroup) this.nlDecorateDetail(this.activeGroup, this.detailAllBrews || []);
+                if (this.nlNavBars) this.nlNavBars();
+            },
+
             nlDecorateDetail(group, brews) {
                 const view = typeof document !== 'undefined' && document.getElementById ? document.getElementById('detail-view') : null, hero = view && typeof view.querySelector === 'function' ? view.querySelector('.detail-hero') : null;
                 if (!view || !hero) return;
@@ -25250,10 +25398,11 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 view.setAttribute('data-fam', fam);
                 // v17.4: the coffee's own picture leads: its photo (chosen once, it doesn't change with each session), or its
                 // color tile beside the name, like a roaster's page
-                const cov = this.coverOf(this.coverBean(bean) || bean), coverUrl = cov && cov.photo && this.faceUrl ? this.faceUrl(cov.photo) : '';
+                const cov = this.coverOf(this.coverBean(bean) || bean), coverUrl0 = cov && cov.photo && this.faceUrl ? this.faceUrl(cov.photo) : '';
+                const coverUrl = coverUrl0 && !(this._brokenPhotos && this._brokenPhotos.has(coverUrl0)) ? coverUrl0 : '';   // (v18.6: one that won't load: the color tile instead)
                 if (photo) photo.remove();
                 const oldTile = hero.querySelector('.nl-dcover'); if (oldTile) oldTile.remove();
-                if (coverUrl) hero.insertAdjacentHTML('afterbegin', `<div class="nl-dphoto"><img class="nl-photo" src="${this.esc(coverUrl)}" alt="${this.esc(bean.name || '')}" decoding="async" onerror="this.parentNode.classList.add('is-broken')"><div class="nl-pfade"></div></div>`);
+                if (coverUrl) hero.insertAdjacentHTML('afterbegin', `<div class="nl-dphoto"><img class="nl-photo" src="${this.esc(coverUrl)}" alt="${this.esc(bean.name || '')}" decoding="async" onerror="app.nlDetailPhotoErr(this)"><div class="nl-pfade"></div></div>`);
                 else { const ro = document.getElementById('d-roaster'); if (ro) ro.insertAdjacentHTML('beforebegin', this.nlCoverHtml(bean, 'nl-cover nl-dcover')); }
                 hero.classList.toggle('nl-has-photo', !!coverUrl);
                 ['d-origin', 'd-process', 'd-roast'].forEach(id => { const el = document.getElementById(id); if (el && String(el.textContent || '').trim() === '-') el.hidden = true; });   // (no "-" chips for what isn't filled in)
@@ -25586,6 +25735,13 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             nlNameHue(text) { let h = 0; for (const ch of String(text || '').toLowerCase()) h = (h * 31 + ch.charCodeAt(0)) | 0; return Math.abs(h) % 360; },
             // v17.7: a coffee wears the color picked in its editor, or (the default, "Tasting color") the color of its first
             // tasted session, Dialed In's green until then. A photo doesn't change it.
+            // a coffee's two letters: the first two words' first letters ("Maceo's Blend" is MB: an apostrophe is part of its
+            // word, v18.6), whole letters only (an accented or emoji first character isn't cut in half)
+            nlInitials(name) {
+                const words = String(name || '').replace(/['\u2019]/g, '').replace(/[^\p{L}\p{N}\s&]/gu, ' ').split(/\s+/).filter(w => w && w !== '&');
+                const first = w => Array.from(w)[0] || '';
+                return (words.length > 1 ? first(words[0]) + first(words[1]) : first(words[0] || '?')).toUpperCase() || '?';
+            },
             coffeeToneKey(bean) {
                 if (!bean) return 'app';
                 const cb = this.coverBean(bean), cov = this.coverOf(cb);
@@ -25608,8 +25764,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             nlCoverArt(bean) {
                 const cb = this.coverBean(bean) || bean, cov = this.coverOf(cb), key = this.coffeeToneKey(bean);
                 const P = this.nlTonePal(key, this.nlDark());
-                const words = String(bean && bean.name || '').replace(/[^\p{L}\p{N}\s&]/gu, ' ').split(/\s+/).filter(w => w && w !== '&');
-                const initials = (words.length > 1 ? words[0][0] + words[1][0] : (words[0] || '?').slice(0, 1)).toUpperCase();
+                const initials = this.nlInitials(bean && bean.name);
                 return { key, bg: `linear-gradient(145deg, ${P ? P.tileA : '#99AA99'}, ${P ? P.tileB : '#557755'})`, initials, img: cov && cov.photo && this.faceUrl ? this.faceUrl(cov.photo) : '' };
             },
             // ...as a tile (like a roaster's)
@@ -25669,11 +25824,10 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const c = this.beanCoverNow(ctx), name = this.cvName(ctx);
                 const tasteKey = c.auto ? (this._bcvBean && this.coffeeTasteKey(this._bcvBean)) || 'app' : '';
                 const key = c.auto ? tasteKey : this.nlToneKey(c.hue, 0.012 + 0.12 * Math.max(0.1, c.tone / 100)), P = this.nlTonePal(key, this.nlDark()) || { tileA: '#A9C2A8', tileB: '#5E7F62' };
-                const words = String(name || '').replace(/[^\p{L}\p{N}\s&]/gu, ' ').split(/\s+/).filter(w => w && w !== '&');
-                const ini = (words.length > 1 ? words[0][0] + words[1][0] : (words[0] || '?').slice(0, 1)).toUpperCase();
+                const ini = this.nlInitials(name), named = /[\p{L}\p{N}]/u.test(String(name || ''));
                 tile.className = `${ids.tile.slice(0, 3)}-tile bcv-tile nl-cover`;
                 tile.style.background = `linear-gradient(145deg, ${P.tileA}, ${P.tileB})`;
-                tile.innerHTML = `${c.photo && this.faceUrl ? `<img src="${this.esc(this.faceUrl(c.photo))}" alt="">` : ''}${words.length ? `<b>${this.esc(ini)}</b>` : '<svg class="icon nl-ic"><use href="#i-bean"/></svg>'}`;
+                tile.innerHTML = `${c.photo && this.faceUrl ? `<img src="${this.esc(this.faceUrl(c.photo))}" alt="">` : ''}${named ? `<b>${this.esc(ini)}</b>` : '<svg class="icon nl-ic"><use href="#i-bean"/></svg>'}`;
                 const near = this.NL_COVER_HUES.reduce((a, h) => (Math.abs(((h - c.hue + 540) % 360) - 180) < Math.abs(((a - c.hue + 540) % 360) - 180) ? h : a), this.NL_COVER_HUES[0]);
                 const auto = ctx !== 'roaster' ? `<button type="button" role="radio" class="bcv-auto" aria-checked="${!!c.auto}" aria-label="Tasting color" title="Tasting color" onclick="app.pickCoverAuto()"></button>` : '';
                 sw.innerHTML = auto + this.NL_COVER_HUES.map(h => { const k = this.nlToneKey(h, 0.084), q = this.nlTonePal(k, this.nlDark()); return `<button type="button" role="radio" aria-checked="${!c.auto && h === near}" aria-label="Color ${h}" style="background:linear-gradient(145deg, ${q.tileA}, ${q.tileB})" onclick="app.pickCoverHue(${h}, '${app.escJs(ctx)}')"></button>`; }).join('');
@@ -25720,6 +25874,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (!s || !s.user) { this.showToast('Sign in first.'); return; }
                 const stKey = ctx === 'roaster' ? '_rcv' : '_bcv', busyKey = ctx === 'roaster' ? '_rcvBusy' : '_bcvBusy';
                 this[busyKey] = true; this.paintBeanCover(ctx);
+                const startedFor = this[stKey];   // (v18.6: the editor this photo was picked in; another one opened meanwhile doesn't get it)
                 const btn = document.getElementById(this.cvIds(ctx).photo); if (btn) btn.textContent = 'Uploading…';
                 try {
                     const img = await new Promise((ok, no) => { const u = URL.createObjectURL(file); const i = new Image(); i.onload = () => { URL.revokeObjectURL(u); ok(i); }; i.onerror = () => { URL.revokeObjectURL(u); no(new Error('not a picture')); }; i.src = u; });
@@ -25731,6 +25886,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     const rand = Array.from(crypto.getRandomValues(new Uint8Array(9)), b => b.toString(16).padStart(2, '0')).join('');
                     const path = `${s.user.id}/c${rand}.jpg`;
                     await Supa.call('/storage/v1/object/avatars/' + path, blob, { headers: { 'Content-Type': 'image/jpeg' } });
+                    if (this[stKey] !== startedFor) return;
                     if (!this[stKey]) this[stKey] = { tone: 60 };
                     this[stKey].photo = path;
                     // (v17.7: the photo doesn't change the color)

@@ -10,8 +10,11 @@
 
             wrappedData(user, year) {
                 const [a, b] = [new Date(year, 0, 1).getTime(), new Date(year + 1, 0, 1).getTime()];
-                const all = this.sessionsBetween(a, b).sort((u, v) => this.localTime(u.date) - this.localTime(v.date));
                 const owner = x => this.getBrewOwner(x);
+                // (v18.6: everyone else here is your crew, not every stranger whose session happens to be on the phone from
+                // Discover, a coffee's Everyone or a profile)
+                const crewOK = this.crewFilter ? this.crewFilter() : () => true;
+                const all = this.sessionsBetween(a, b).filter(x => owner(x) === user || crewOK(x)).sort((u, v) => this.localTime(u.date) - this.localTime(v.date));
                 const mine = all.filter(x => owner(x) === user);
                 const D = { user, year, color: this.getUserColor(user), count: mine.length };
                 if (!mine.length) return D;

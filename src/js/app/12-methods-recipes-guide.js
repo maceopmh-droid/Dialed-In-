@@ -25,6 +25,8 @@
                 // numbers a recipe filled in belong to that recipe's method: don't carry cold-brew 100/800 into a pour-over
                 if (form && this.recipeId) { form.dose.value = ''; form.yield.value = ''; }
                 if (this.activeMethod && this.activeMethod !== method) {   // (v17.1: what went in a tea stays when you switch how it's made)
+                    // v18.6: a teabag count in the leaf field isn't grams: it goes when the teabags do
+                    if (form && form.dose && this.methodExtras && this.methodExtras.teabag) form.dose.value = '';
                     const mix = this.logKind === 'tea' && this.methodExtras && Array.isArray(this.methodExtras.mix) ? this.methodExtras.mix : null;
                     this.methodExtras = mix && mix.length ? { mix } : {};
                 }

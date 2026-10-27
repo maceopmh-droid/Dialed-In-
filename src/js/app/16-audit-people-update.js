@@ -31,6 +31,7 @@
             closeBrewModal() {
                 if (this.brewFormDirty() && !confirm('Discard this session? What you entered will be lost.')) return;
                 this.closeModals();
+                if (this.timer && this.resetTimer) this.resetTimer();   // v18.6: a discarded session's timer stops too (it ran on into the next one)
             },
 
             brewFormKey(e) {

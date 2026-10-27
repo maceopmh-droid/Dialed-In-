@@ -126,7 +126,8 @@
                     return;
                 }
                 if (event.type === 'bean') {
-                    this.beans.set(event.id, event);
+                    const { cmtGone, ...bean } = event;   // (v18.6: a save's list of removed comments isn't part of the coffee)
+                    this.beans.set(event.id, bean);
                     return;
                 }
                 if (event.type === 'brew') {
@@ -142,6 +143,7 @@
                         user: owner,
                         owner
                     };
+                    delete next.cmtGone;   // (v18.6: a save's list of removed comments isn't part of the session)
                     this.brews.set(event.id, next);
                     return;
                 }
@@ -206,6 +208,7 @@
                         this.syncedOnce = true;
                         this.updateBadge('synced');
                         this.redrawAfterSync(false);
+                        if (this.checkNotifications) this.checkNotifications();   // v18.6: the bell's count too (follows and likes on your comments elsewhere don't change your circle's data)
                         return;
                     }
                     this.lastFullReply = Array.isArray(json) ? text : '';
@@ -635,6 +638,13 @@
             async push(payload, opts = {}) {
                 if (payload && Array.isArray(payload.comments)) payload = { ...payload, commentMeta: this.commentMetaOf(payload.comments) };
                 const prev = this.recordOf(payload);
+                // v18.6: the comments this save removes, by name (the server deletes exactly these: an owner's Delete on
+                // someone else's comment sticks, and a copy that just hadn't seen a comment made elsewhere deletes nothing)
+                if (payload && (payload.type === 'brew' || payload.type === 'bean') && Array.isArray(payload.comments)) {
+                    const keep = new Set(payload.comments.map(c => String(c && c.id)));
+                    const gone = (prev && Array.isArray(prev.comments) ? prev.comments : []).map(c => String(c && c.id || '')).filter(id => id && !keep.has(id));
+                    payload = { ...payload, cmtGone: gone };
+                }
                 const nowMs = Date.now();
                 // v13.4: never older than the version it was made from
                 const eventAt = new Date(prev && prev.eventAt && this.toTime(prev.eventAt) >= nowMs ? this.toTime(prev.eventAt) + 1 : nowMs).toISOString();
@@ -724,6 +734,11 @@
                     for (let i = ob.length - 1; i >= 0; i--) if (gone(ob[i])) ob.splice(i, 1);
                 }
                 const at = ob.findIndex(x => x.k === k);
+                // v18.6: an unsent save replaced by a newer one hands on the comments it removed
+                if (at >= 0 && !ob[at].landedAt && Array.isArray(ob[at].ev.cmtGone) && Array.isArray(ev.cmtGone)) {
+                    const keep = new Set((ev.comments || []).map(c => String(c && c.id)));
+                    ev.cmtGone = [...new Set([...ob[at].ev.cmtGone, ...ev.cmtGone])].filter(id => !keep.has(id));
+                }
                 // (a gear record nobody has saved yet starts from {}, so two first saves at once still merge)
                 const base = ev.type === 'brew' || ev.type === 'bean' || ev.type === 'gear' ? (prev ? JSON.parse(JSON.stringify(prev)) : (ev.type === 'gear' ? {} : null)) : null;
                 // not confirmed yet: the first edit's starting point stays the base. If the earlier version was already sent it may

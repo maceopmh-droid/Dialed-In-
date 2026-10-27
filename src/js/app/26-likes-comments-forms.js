@@ -279,6 +279,7 @@
 
             handleBeanSubmit(event) {
                 event.preventDefault();
+                if (this._bcvBusy) { this.showToast('The photo is still uploading. Save when it\'s done.'); return; }   // v18.6: saved now, the coffee lost it
                 const form = event.target;
                 const id = form.elements.id.value || `${Date.now()}`;
                 const existing = this.beans.get(id);
@@ -469,7 +470,7 @@
 
                     const label = document.createElement('label');
                     label.className = 'equipment-select-label';
-                    label.innerHTML = `<strong>${this.esc(eq.name)}</strong> <span style="color:#999; font-size:0.75rem;">(${this.esc(eq.type)})</span>`;
+                    label.innerHTML = `<strong>${this.esc(eq.name)}</strong> <span style="color:var(--text-muted); font-size:0.75rem;">(${this.esc(eq.type)})</span>`;
 
                     item.appendChild(checkbox);
                     item.appendChild(label);
@@ -566,6 +567,15 @@
                 this.openModal('bean-modal');
             },
 
+            // v18.6: a blend cup's saved leaf weight is the total of what went in; opened again, the field stays empty so the
+            // total follows the ingredients (kept as typed, it won over a changed amount)
+            blendDoseOpen(form) {
+                const mix = this.cleanMix ? this.cleanMix(this.methodExtras && this.methodExtras.mix) : [];
+                if (!form || !form.dose || mix.length < 2 || !this.mixGrams) return;
+                const total = this.mixGrams(mix), v = Number(form.dose.value);
+                if (total > 0 && Math.abs(v - total) < 0.01) form.dose.value = '';
+            },
+
             editBrew(id) {
                 const brew = this.brews.get(id);
                 if (!brew) return;
@@ -575,6 +585,7 @@
                 }
 
                 const form = this.getBrewForm();
+                if (this.timer && !this.timer.on) this.resetTimer();   // v18.6: an old session doesn't pick up a stopped timer's leftover time
                 this._shotForm = null; if (this.clearShotLogHead) this.clearShotLogHead();   // v16.9
                 if (this.applyLogKind) this.applyLogKind(this.kindOfBrew(brew), brew.method);   // v17.0
                 this.recipeTyped = new Set(['dose', 'yield']); this._brewFormGen = (this._brewFormGen || 0) + 1;   // an old session's numbers are measurements
@@ -599,6 +610,7 @@
                 this.selFlavors = this.extractFlavors(brew);
                 this.resetTasteForm(brew);
                 this.methodExtras = this.extrasFrom(brew); this.recipeName = brew.recipeName || ''; this.recipeId = ''; this.recipeSteps = null;
+                this.blendDoseOpen(form);
                 this.applyMethodProfile(brew.method);
                 this.bindTasteSliders();
                 this.renderTasteSection();
@@ -709,6 +721,7 @@
                     this.selFlavors = Array.isArray(prefill.flavors) ? [...prefill.flavors] : this.extractFlavors(prefill);
                     this.resetTasteForm(prefill);
                     this.methodExtras = this.extrasFrom(prefill); this.recipeName = prefill.recipeName || ''; this.recipeId = '';
+                    this.blendDoseOpen(form);
                     this.draftPhoto = this.normalizePhoto(prefill.photo);
                     this.renderDraftPhoto();
                 }

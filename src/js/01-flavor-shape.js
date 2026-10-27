@@ -503,13 +503,17 @@
                 c.setAttribute('aria-label', `Flavor shape: ${FLOOR.concat(TOPK).map(k => `${namesOf(sp.opts)[k]} ${sp.opts.isSet && !sp.opts.isSet(k) ? 'not set' : Math.round(val(vals, k))}`).join(', ')}`);
                 return true;
             }
+            // v18.6: a full page (a session, a coffee, a roaster) covers the main screen: its shapes stop turning behind it
+            const COVERS = '#session-view.active, #detail-view.active, #roaster-view.active';
             function spinTick(ts) {
-                let any = false;
+                let any = false, behind = false;
                 const hidden = typeof document !== 'undefined' && document.hidden;
+                const covered = typeof document !== 'undefined' && typeof document.querySelector === 'function' && !!document.querySelector(COVERS);
                 spins.forEach(sp => {
                     if (!sp.canvas.isConnected) { if (++sp.gone > 120) unwatch(sp); return; }
                     sp.gone = 0;
                     if (!sp.near || hidden) { sp.last = 0; return; }
+                    if (covered && sp.inMain) { sp.last = 0; behind = true; return; }
                     if (!sp.seen && sp.sig) { sp.last = 0; return; }   // (drawn once just below the screen; it turns once it's on it)
                     const dt = sp.last ? Math.min(0.2, (ts - sp.last) / 1000) : 0;   // (a slow phone still turns at the same speed)
                     if (sp.pitchTo !== undefined) {   // v17.5: easing to the top view (or back)
@@ -524,7 +528,9 @@
                     const sig = `${sp.yaw.toFixed(4)}|${sp.pitch.toFixed(4)}|${sp.canvas.clientWidth}x${sp.canvas.clientHeight}|${prefs.smooth}|${sp.key()}`;
                     if (sig !== sp.sig && spinDraw(sp)) { sp.sig = sig; sp.drawn = ts; }
                 });
-                if (any || [...spins].some(sp => !sp.canvas.isConnected)) raf(spinTick); else spinning = false;
+                if (any || [...spins].some(sp => !sp.canvas.isConnected)) raf(spinTick);
+                else if (behind) setTimeout(() => raf(spinTick), 300);   // (they go on again once the page closes)
+                else spinning = false;
             }
             function wakeSpins() { if (!spinning) { spinning = true; raf(spinTick); } }
             if (typeof document !== 'undefined' && document.addEventListener) document.addEventListener('visibilitychange', () => { if (!document.hidden) wakeSpins(); });
@@ -535,6 +541,7 @@
                     vals: () => (typeof opts.values === 'function' ? opts.values() : opts.values) || {},
                     theme: () => (typeof opts.theme === 'function' ? opts.theme() : opts.theme) || themeColors(),
                     key: () => { const v = sp.vals(), t = sp.theme(); return FLOOR.concat(TOPK).map(k => val(v, k)).join(',') + (opts.isSet ? FLOOR.concat(TOPK).map(k => opts.isSet(k) ? 1 : 0).join('') : '') + t.surface + t.dark; } };
+                sp.inMain = !!(canvas.closest && canvas.closest('#main-content'));
                 sp.nio = nearIO(canvas);
                 if (sp.nio && seenWatch()) { byCanvas.set(canvas, sp); sp.nio.observe(canvas); seenIO.observe(canvas); }
                 else { sp.near = true; sp.seen = true; }

@@ -171,6 +171,13 @@
             nlNameHue(text) { let h = 0; for (const ch of String(text || '').toLowerCase()) h = (h * 31 + ch.charCodeAt(0)) | 0; return Math.abs(h) % 360; },
             // v17.7: a coffee wears the color picked in its editor, or (the default, "Tasting color") the color of its first
             // tasted session, Dialed In's green until then. A photo doesn't change it.
+            // a coffee's two letters: the first two words' first letters ("Maceo's Blend" is MB: an apostrophe is part of its
+            // word, v18.6), whole letters only (an accented or emoji first character isn't cut in half)
+            nlInitials(name) {
+                const words = String(name || '').replace(/['\u2019]/g, '').replace(/[^\p{L}\p{N}\s&]/gu, ' ').split(/\s+/).filter(w => w && w !== '&');
+                const first = w => Array.from(w)[0] || '';
+                return (words.length > 1 ? first(words[0]) + first(words[1]) : first(words[0] || '?')).toUpperCase() || '?';
+            },
             coffeeToneKey(bean) {
                 if (!bean) return 'app';
                 const cb = this.coverBean(bean), cov = this.coverOf(cb);
@@ -193,8 +200,7 @@
             nlCoverArt(bean) {
                 const cb = this.coverBean(bean) || bean, cov = this.coverOf(cb), key = this.coffeeToneKey(bean);
                 const P = this.nlTonePal(key, this.nlDark());
-                const words = String(bean && bean.name || '').replace(/[^\p{L}\p{N}\s&]/gu, ' ').split(/\s+/).filter(w => w && w !== '&');
-                const initials = (words.length > 1 ? words[0][0] + words[1][0] : (words[0] || '?').slice(0, 1)).toUpperCase();
+                const initials = this.nlInitials(bean && bean.name);
                 return { key, bg: `linear-gradient(145deg, ${P ? P.tileA : '#99AA99'}, ${P ? P.tileB : '#557755'})`, initials, img: cov && cov.photo && this.faceUrl ? this.faceUrl(cov.photo) : '' };
             },
             // ...as a tile (like a roaster's)
@@ -254,11 +260,10 @@
                 const c = this.beanCoverNow(ctx), name = this.cvName(ctx);
                 const tasteKey = c.auto ? (this._bcvBean && this.coffeeTasteKey(this._bcvBean)) || 'app' : '';
                 const key = c.auto ? tasteKey : this.nlToneKey(c.hue, 0.012 + 0.12 * Math.max(0.1, c.tone / 100)), P = this.nlTonePal(key, this.nlDark()) || { tileA: '#A9C2A8', tileB: '#5E7F62' };
-                const words = String(name || '').replace(/[^\p{L}\p{N}\s&]/gu, ' ').split(/\s+/).filter(w => w && w !== '&');
-                const ini = (words.length > 1 ? words[0][0] + words[1][0] : (words[0] || '?').slice(0, 1)).toUpperCase();
+                const ini = this.nlInitials(name), named = /[\p{L}\p{N}]/u.test(String(name || ''));
                 tile.className = `${ids.tile.slice(0, 3)}-tile bcv-tile nl-cover`;
                 tile.style.background = `linear-gradient(145deg, ${P.tileA}, ${P.tileB})`;
-                tile.innerHTML = `${c.photo && this.faceUrl ? `<img src="${this.esc(this.faceUrl(c.photo))}" alt="">` : ''}${words.length ? `<b>${this.esc(ini)}</b>` : '<svg class="icon nl-ic"><use href="#i-bean"/></svg>'}`;
+                tile.innerHTML = `${c.photo && this.faceUrl ? `<img src="${this.esc(this.faceUrl(c.photo))}" alt="">` : ''}${named ? `<b>${this.esc(ini)}</b>` : '<svg class="icon nl-ic"><use href="#i-bean"/></svg>'}`;
                 const near = this.NL_COVER_HUES.reduce((a, h) => (Math.abs(((h - c.hue + 540) % 360) - 180) < Math.abs(((a - c.hue + 540) % 360) - 180) ? h : a), this.NL_COVER_HUES[0]);
                 const auto = ctx !== 'roaster' ? `<button type="button" role="radio" class="bcv-auto" aria-checked="${!!c.auto}" aria-label="Tasting color" title="Tasting color" onclick="app.pickCoverAuto()"></button>` : '';
                 sw.innerHTML = auto + this.NL_COVER_HUES.map(h => { const k = this.nlToneKey(h, 0.084), q = this.nlTonePal(k, this.nlDark()); return `<button type="button" role="radio" aria-checked="${!c.auto && h === near}" aria-label="Color ${h}" style="background:linear-gradient(145deg, ${q.tileA}, ${q.tileB})" onclick="app.pickCoverHue(${h}, '${app.escJs(ctx)}')"></button>`; }).join('');
@@ -305,6 +310,7 @@
                 if (!s || !s.user) { this.showToast('Sign in first.'); return; }
                 const stKey = ctx === 'roaster' ? '_rcv' : '_bcv', busyKey = ctx === 'roaster' ? '_rcvBusy' : '_bcvBusy';
                 this[busyKey] = true; this.paintBeanCover(ctx);
+                const startedFor = this[stKey];   // (v18.6: the editor this photo was picked in; another one opened meanwhile doesn't get it)
                 const btn = document.getElementById(this.cvIds(ctx).photo); if (btn) btn.textContent = 'Uploading…';
                 try {
                     const img = await new Promise((ok, no) => { const u = URL.createObjectURL(file); const i = new Image(); i.onload = () => { URL.revokeObjectURL(u); ok(i); }; i.onerror = () => { URL.revokeObjectURL(u); no(new Error('not a picture')); }; i.src = u; });
@@ -316,6 +322,7 @@
                     const rand = Array.from(crypto.getRandomValues(new Uint8Array(9)), b => b.toString(16).padStart(2, '0')).join('');
                     const path = `${s.user.id}/c${rand}.jpg`;
                     await Supa.call('/storage/v1/object/avatars/' + path, blob, { headers: { 'Content-Type': 'image/jpeg' } });
+                    if (this[stKey] !== startedFor) return;
                     if (!this[stKey]) this[stKey] = { tone: 60 };
                     this[stKey].photo = path;
                     // (v17.7: the photo doesn't change the color)

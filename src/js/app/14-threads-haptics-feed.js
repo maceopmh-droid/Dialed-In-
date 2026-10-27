@@ -552,7 +552,7 @@
                 if (!entries.length) {
                     grid.innerHTML = this.acctOn()
                         ? this.feedModeHtml() + '<div class="comm-empty">Nothing here yet. Follow people (Profiles, then People) or see what everyone is brewing in Community.</div>'
-                        : '<div style="text-align:center; color:#999; padding:3rem;">No feed activity yet.</div>';
+                        : '<div style="text-align:center; color:var(--text-muted); padding:3rem;">No feed activity yet.</div>';
                     if (grid.removeAttribute) grid.removeAttribute('data-view');
                     this._feedHtml = null;
                     return;

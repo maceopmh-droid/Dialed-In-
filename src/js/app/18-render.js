@@ -214,7 +214,7 @@
                     const message = (searchQuery || this.currentMethodFilter !== 'all' || this.roasterFilter)
                         ? `No ${dw.items} match your filters.`
                         : `No ${dw.items} yet. Add your first one with the + button.`;
-                    grid.innerHTML = `<div style="text-align:center; color:#999; padding:3rem;">${message}</div>`;
+                    grid.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:3rem;">${message}</div>`;
                 }
                 if (this.tab === 'my' && grid.insertAdjacentHTML) grid.insertAdjacentHTML('afterbegin', this.coffeeScopeHtml() + this.roasterFilterHtml());
             },

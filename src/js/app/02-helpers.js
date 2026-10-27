@@ -87,7 +87,7 @@
             feedInitial(name) {
                 const text = String(name || '').trim();
                 if (!text) return '?';
-                return text.charAt(0).toUpperCase();
+                return (Array.from(text)[0] || '?').toUpperCase();   // (v18.6: a whole character: an emoji's first half drew a broken box)
             },
 
             esc(value) {

@@ -233,7 +233,7 @@ create or replace function internal.comments_json(cof uuid, ses uuid) returns js
 language sql stable set search_path = public as $$
   select coalesce(jsonb_agg(internal.comment_build(c,
       (select coalesce(substr(p.legacy_ref, strpos(p.legacy_ref, '#') + 1), p.id::text) from comments p where p.id = c.parent_id),
-      (select jsonb_agg(internal.name_of(l.user_id) order by l.created_at, l.user_id) from comment_likes l where l.comment_id = c.id))
+      (select jsonb_agg(internal.name_of(l.user_id) order by l.created_at, l.user_id) from comment_likes l where l.comment_id = c.id and not (l.user_id = any((select private.my_blocked_ids())::uuid[]))))
     order by c.created_at, c.legacy_ref, c.id), '[]'::jsonb)
   from comments c
   where c.deleted_at is null and ((cof is not null and c.coffee_id = cof) or (ses is not null and c.session_id = ses))
@@ -318,11 +318,38 @@ $$;
 create or replace function internal.session_json(s sessions) returns jsonb
 language sql stable set search_path = public as $$
   select internal.session_build(s, k, n, p,
-      (select jsonb_agg(internal.name_of(l.user_id) order by l.created_at, l.user_id) from likes l where l.session_id = s.id),
+      (select jsonb_agg(internal.name_of(l.user_id) order by l.created_at, l.user_id) from likes l where l.session_id = s.id and not (l.user_id = any((select private.my_blocked_ids())::uuid[]))),
       internal.comments_json(null, s.id),
       (select o.joined_at from profiles o where o.id = s.owner_id))
   from (select 1) one left join coffees k on k.id = s.coffee_id
        left join session_notes n on n.session_id = s.id left join session_photos p on p.session_id = s.id;
+$$;
+
+-- v18.5: many sessions at once in the app's format, built in one pass (pull_events, the feeds and profile pages).
+-- Asking session by session ran the row rules' "who's close to me" lookups again for every session, note, photo, like
+-- and comment (a sync took 4-5 seconds, a Community page 1-3). The same rows (the caller's row rules still decide), the
+-- same format, built by the same session_build; newest first.
+create or replace function internal.sessions_json(ids uuid[]) returns jsonb
+language sql stable set search_path = public as $$
+  with ss as materialized (select s from sessions s where s.id = any(ids)),
+       cs as materialized (select c from comments c where c.deleted_at is null and c.session_id in (select (ss.s).id from ss)
+                            and (c.author_id = (select me()) or not internal.unseen('comment', c.id))),   -- v14.5: reported
+       cl as (select l.comment_id, jsonb_agg(internal.name_of(l.user_id) order by l.created_at, l.user_id) as j
+                from comment_likes l where l.comment_id in (select (cs.c).id from cs)
+                 and not (l.user_id = any((select private.my_blocked_ids())::uuid[])) group by l.comment_id),   -- (v18.6: not from someone blocked)
+       cj as (select (cs.c).session_id as session_id,
+                     jsonb_agg(internal.comment_build(cs.c, coalesce(substr(pc.legacy_ref, strpos(pc.legacy_ref, '#') + 1), pc.id::text), cl.j)
+                               order by (cs.c).created_at, (cs.c).legacy_ref, (cs.c).id) as j
+                from cs left join comments pc on pc.id = (cs.c).parent_id left join cl on cl.comment_id = (cs.c).id
+               group by (cs.c).session_id),
+       lj as (select l.session_id, jsonb_agg(internal.name_of(l.user_id) order by l.created_at, l.user_id) as j
+                from likes l where l.session_id in (select (ss.s).id from ss)
+                 and not (l.user_id = any((select private.my_blocked_ids())::uuid[])) group by l.session_id)
+  select coalesce(jsonb_agg(internal.session_build(ss.s, k, n, p, lj.j, cj.j, o.joined_at) order by (ss.s).brewed_at desc, (ss.s).id), '[]'::jsonb)
+  from ss left join coffees k on k.id = (ss.s).coffee_id
+          left join session_notes n on n.session_id = (ss.s).id left join session_photos p on p.session_id = (ss.s).id
+          left join profiles o on o.id = (ss.s).owner_id
+          left join lj on lj.session_id = (ss.s).id left join cj on cj.session_id = (ss.s).id;
 $$;
 
 create or replace function pull_events() returns jsonb
@@ -343,29 +370,10 @@ begin
     and (k.owner_id = any(circle) or exists (select 1 from sessions s where s.coffee_id = k.id and s.deleted_at is null and s.owner_id = any(circle)));
 
   -- sessions (notes and photos only when their own toggle lets you see them; the row rules handle that).
-  -- v18.3: built in one pass instead of one session at a time. Asking per session ran the row rules' "who's close to
-  -- me" lookups again for every session, note, photo, like and comment: with ~300 sessions a sync took 4-5 seconds
-  -- and, with a few phones at once, went past the server's 8-second limit, so phones kept their old copy. The same
-  -- rows (the row rules still decide), the same order, the same format, built by the same session_build.
-  out := out || coalesce((
-    with ss as materialized (select s from sessions s where s.deleted_at is null and s.owner_id = any(circle)
-                              and (s.owner_id = me_id or not internal.unseen('session', s.id))),
-         cs as materialized (select c from comments c where c.deleted_at is null and c.session_id in (select (ss.s).id from ss)
-                              and (c.author_id = me_id or not internal.unseen('comment', c.id))),   -- v14.5: reported
-         cl as (select l.comment_id, jsonb_agg(internal.name_of(l.user_id) order by l.created_at, l.user_id) as j
-                  from comment_likes l where l.comment_id in (select (cs.c).id from cs) group by l.comment_id),
-         cj as (select (cs.c).session_id as session_id,
-                       jsonb_agg(internal.comment_build(cs.c, coalesce(substr(pc.legacy_ref, strpos(pc.legacy_ref, '#') + 1), pc.id::text), cl.j)
-                                 order by (cs.c).created_at, (cs.c).legacy_ref, (cs.c).id) as j
-                  from cs left join comments pc on pc.id = (cs.c).parent_id left join cl on cl.comment_id = (cs.c).id
-                 group by (cs.c).session_id),
-         lj as (select l.session_id, jsonb_agg(internal.name_of(l.user_id) order by l.created_at, l.user_id) as j
-                  from likes l where l.session_id in (select (ss.s).id from ss) group by l.session_id)
-    select jsonb_agg(internal.session_build(ss.s, k, n, p, lj.j, cj.j, o.joined_at))
-    from ss left join coffees k on k.id = (ss.s).coffee_id
-            left join session_notes n on n.session_id = (ss.s).id left join session_photos p on p.session_id = (ss.s).id
-            left join profiles o on o.id = (ss.s).owner_id
-            left join lj on lj.session_id = (ss.s).id left join cj on cj.session_id = (ss.s).id), '[]'::jsonb);
+  -- v18.3: built in one pass (internal.sessions_json) instead of one session at a time: asking per session ran the row
+  -- rules' lookups again for every session, note, photo, like and comment, and a sync passed the server's 8-second limit.
+  out := out || internal.sessions_json(array(select s.id from sessions s where s.deleted_at is null and s.owner_id = any(circle)
+                                               and (s.owner_id = me_id or not internal.unseen('session', s.id))));
 
   -- your gear in full
   out := out || coalesce((select jsonb_agg(jsonb_build_object('type', 'gear', 'id', 'gear-' || internal.name_of(me_id),
@@ -450,7 +458,7 @@ begin
   return jsonb_build_object(
     'events', coalesce((select jsonb_agg(internal.coffee_json(k)) from coffees k
                         where k.deleted_at is null and k.id in (select s.coffee_id from sessions s where s.id = any(ids))), '[]'::jsonb)
-           || coalesce((select jsonb_agg(internal.session_json(s) order by s.brewed_at desc) from sessions s where s.id = any(ids)), '[]'::jsonb),
+           || internal.sessions_json(ids),
     'next', case when array_length(ids, 1) = lim then oldest end);
 end $$;
 
@@ -536,7 +544,7 @@ begin
     'events', case when ids is null then '[]'::jsonb else
                 coalesce((select jsonb_agg(internal.coffee_json(k)) from coffees k
                           where k.deleted_at is null and k.id in (select s.coffee_id from sessions s where s.id = any(ids))), '[]'::jsonb)
-             || coalesce((select jsonb_agg(internal.session_json(s)) from sessions s where s.id = any(ids)), '[]'::jsonb) end,
+             || internal.sessions_json(ids) end,
     'order', coalesce((select jsonb_agg(coalesce(s.legacy_id, s.id::text) order by array_position(ids, s.id)) from sessions s where s.id = any(ids)), '[]'::jsonb),   -- the ranking
     'next', case when (pg + 1) * lim < total then pg + 1 end,
     'asOf', t0, 'total', total);
@@ -592,7 +600,7 @@ begin
     'events', case when ids is null then '[]'::jsonb else
                 coalesce((select jsonb_agg(internal.coffee_json(k)) from coffees k
                           where k.deleted_at is null and k.id in (select s.coffee_id from sessions s where s.id = any(ids))), '[]'::jsonb)
-             || coalesce((select jsonb_agg(internal.session_json(s) order by s.brewed_at desc, s.id) from sessions s where s.id = any(ids)), '[]'::jsonb) end,
+             || internal.sessions_json(ids) end,
     'next', case when coalesce(array_length(ids, 1), 0) = lim then oldest end,
     'summary', summary);
 end $$;
@@ -625,6 +633,8 @@ revoke all on highlight_months from anon, authenticated;
 create or replace function internal.make_highlights(m date) returns void
 language plpgsql security definer set search_path = public as $$
 declare taken uuid[]; m1 date := (m + interval '1 month')::date; r record;
+        -- v18.6: the month in Central time (the app's home), not UTC (Oct 31 evening sessions landed in November)
+        ma timestamptz := (m::timestamp at time zone 'America/Chicago'); mb timestamptz := (m1::timestamp at time zone 'America/Chicago');
 begin
   perform pg_advisory_xact_lock(hashtext('highlights:' || m::text));
   if exists (select 1 from highlight_months where month = m) then return; end if;
@@ -634,11 +644,11 @@ begin
            coalesce(nullif(lower(btrim(k.roaster_text)), ''), '?') || '|' || coalesce(nullif(lower(btrim(k.name)), ''), s.coffee_id::text) as ckey, k.name as cname,
            nullif(lower(btrim(split_part(coalesce(k.origin, ''), ',', 1))), '') as origin
     from sessions s left join coffees k on k.id = s.coffee_id
-    where s.deleted_at is null and s.audience = 'everyone' and s.brewed_at >= m and s.brewed_at < m1
+    where s.deleted_at is null and s.audience = 'everyone' and s.brewed_at >= ma and s.brewed_at < mb
       and not exists (select 1 from reports x where x.target_type = 'session' and x.target_id = s.id and x.status in ('hidden', 'removed'));
   -- best first month
   select p.owner_id, count(*) as n into r from hl_pool p join profiles o on o.id = p.owner_id
-  where o.joined_at >= m and o.joined_at < m1 and not (p.owner_id = any(taken))
+  where o.joined_at >= ma and o.joined_at < mb and not (p.owner_id = any(taken))
   group by p.owner_id having count(*) >= 3 order by count(*) desc, avg(coalesce(p.rating, 0)) desc, p.owner_id limit 1;
   if found then insert into highlights (month, kind, profile_id, detail) values (m, 'first_month', r.owner_id, jsonb_build_object('sessions', r.n)); taken := taken || r.owner_id; end if;
   -- most improved on one coffee
@@ -653,7 +663,8 @@ begin
   if found then insert into highlights (month, kind, profile_id, session_id, detail) values (m, 'improved', r.owner_id, r.best_id, jsonb_build_object('coffee', r.cname, 'from', r.first_r, 'to', r.best_r)); taken := taken || r.owner_id; end if;
   -- most helpful
   select c.author_id, count(*) as n into r from comments c join sessions s on s.id = c.session_id
-  where c.most_helpful and c.deleted_at is null and c.created_at >= m and c.created_at < m1 and s.audience = 'everyone' and not (c.author_id = any(taken))
+  where (c.most_helpful or s.extras->>'helpfulAnswer' = coalesce(substr(c.legacy_ref, strpos(c.legacy_ref, '#') + 1), c.id::text))   -- (v18.6: the app marks it on the session)
+    and c.deleted_at is null and c.created_at >= ma and c.created_at < mb and s.audience = 'everyone' and not (c.author_id = any(taken))
   group by c.author_id order by count(*) desc, c.author_id limit 1;
   if found then insert into highlights (month, kind, profile_id, detail) values (m, 'helpful', r.author_id, jsonb_build_object('answers', r.n)); taken := taken || r.author_id; end if;
   -- most origins explored
@@ -670,10 +681,11 @@ end $$;
 
 create or replace function monthly_highlights(month date default null) returns jsonb
 language plpgsql security definer set search_path = public as $$
-declare me_id uuid := me(); m date := date_trunc('month', coalesce(monthly_highlights.month, (now() - interval '1 month')::date))::date;
+declare me_id uuid := me(); here timestamp := now() at time zone 'America/Chicago';   -- (v18.6: months in Central time)
+        m date := date_trunc('month', coalesce(monthly_highlights.month, (here - interval '1 month')::date))::date;
 begin
   if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
-  if m >= date_trunc('month', now())::date then raise exception 'That month isn''t over yet.' using errcode = '22023'; end if;
+  if m >= date_trunc('month', here)::date then raise exception 'That month isn''t over yet.' using errcode = '22023'; end if;
   if not exists (select 1 from highlight_months where highlight_months.month = m) then perform internal.make_highlights(m); end if;
   return jsonb_build_object('month', m, 'items', coalesce((select jsonb_agg(jsonb_strip_nulls(jsonb_build_object(
       'kind', h.kind, 'name', internal.name_of(h.profile_id), 'color', internal.color_of(h.profile_id),
@@ -755,8 +767,26 @@ create or replace function internal.with_comment_meta(list jsonb, meta jsonb) re
                      else c end order by n) from jsonb_array_elements(list) with ordinality as x(c, n)), '[]'::jsonb) end;
 $$;
 
+-- v18.6: comments a save removed (the app lists them as cmtGone): your own, or anyone's on your own session or coffee
+-- (an owner tidying their page); replies go with them. Runs as the definer because the row rules only let people
+-- delete their own comments, so it checks who's asking itself.
+create or replace function internal.drop_comments(kind text, target uuid, rec text, gone jsonb, me_id uuid) returns void
+language plpgsql security definer set search_path = public as $$
+declare owner uuid;
+begin
+  if me_id is null or me_id is distinct from me() or jsonb_typeof(gone) <> 'array' or jsonb_array_length(gone) = 0 then return; end if;
+  owner := case when kind = 'session' then (select owner_id from sessions where id = target) else (select owner_id from coffees where id = target) end;
+  delete from comments c
+   where (case when kind = 'session' then c.session_id = target else c.coffee_id = target end)
+     and (c.author_id = me_id or owner = me_id)
+     and (c.legacy_ref in (select rec || '#' || x from jsonb_array_elements_text(gone) x)
+          or (c.legacy_ref is null and c.id::text in (select x from jsonb_array_elements_text(gone) x)));
+end $$;
+revoke all on function internal.drop_comments(text, uuid, text, jsonb, uuid) from public;
+
 -- your comments (and your likes on any comment) on a coffee or session
-create or replace function internal.sync_comments(kind text, target uuid, rec text, list jsonb, me_id uuid, me_nm text) returns void
+drop function if exists internal.sync_comments(text, uuid, text, jsonb, uuid, text);
+create or replace function internal.sync_comments(kind text, target uuid, rec text, list jsonb, me_id uuid, me_nm text, gone jsonb default null) returns void
 language plpgsql set search_path = public as $$
 declare c jsonb; ref text; cid uuid; mine text[] := '{}';
 begin
@@ -777,9 +807,15 @@ begin
       where comments.author_id = me_id;
     end if;
   end loop;
-  -- your comments that the app no longer has were removed
-  if kind = 'session' then delete from comments where session_id = target and author_id = me_id and not (legacy_ref = any(mine));
-  else delete from comments where coffee_id = target and author_id = me_id and not (legacy_ref = any(mine)); end if;
+  if gone is null then
+    -- (an app from before v18.6) your comments that the app no longer has were removed
+    if kind = 'session' then delete from comments where session_id = target and author_id = me_id and not (legacy_ref = any(mine));
+    else delete from comments where coffee_id = target and author_id = me_id and not (legacy_ref = any(mine)); end if;
+  else
+    -- v18.6: only the comments this save removed. A copy that simply hadn't seen a comment made on another phone no
+    -- longer deletes it, and an owner's Delete on someone else's comment sticks.
+    perform internal.drop_comments(kind, target, rec, gone, me_id);
+  end if;
   -- your likes on comments
   for c in select * from jsonb_array_elements(list) loop
     select id into cid from comments where legacy_ref = rec || '#' || (c->>'id');
@@ -836,7 +872,7 @@ begin
     where id = k.id;
   end if;
   perform internal.sync_like('coffee', k.id, ev->'likes', me_id, me_nm);
-  perform internal.sync_comments('coffee', k.id, ev->>'id', internal.with_comment_meta(ev->'comments', ev->'commentMeta'), me_id, me_nm);
+  perform internal.sync_comments('coffee', k.id, ev->>'id', internal.with_comment_meta(ev->'comments', ev->'commentMeta'), me_id, me_nm, case when jsonb_typeof(ev->'cmtGone') = 'array' then ev->'cmtGone' end);
   if internal.has_name(ev->'wantToTry', me_nm) then insert into want_to_try (owner_id, coffee_id) values (me_id, k.id) on conflict do nothing;
   else delete from want_to_try where owner_id = me_id and coffee_id = k.id; end if;
 end $$;
@@ -850,7 +886,7 @@ create or replace function internal.session_fields(ev jsonb) returns jsonb langu
        'complexity', case when coalesce(ev->>'complexity', '') <> '' then ev->'complexity' end)),
     'extras', ev - array['type', 'id', 'beanId', 'method', 'grind', 'dose', 'yield', 'time', 'acidity', 'sweetness', 'body', 'finish', 'balance', 'bitterness',
        'complexity', 'isMaster', 'masterProfile', 'notes', 'note', 'observations', 'observation', 'tastingNotes', 'user', 'owner', 'date', 'actor', 'actorColor',
-       'rating', 'likes', 'comments', 'photo', 'equipment', 'equipmentSnapshot', 'eventAt', 'commentMeta', 'tasted', 'flavorNotes', 'audience', 'noteAudience', 'photoAudience', 'helpWanted', 'newHere', 'baseAt'],
+       'rating', 'likes', 'comments', 'photo', 'equipment', 'equipmentSnapshot', 'eventAt', 'commentMeta', 'cmtGone', 'tasted', 'flavorNotes', 'audience', 'noteAudience', 'photoAudience', 'helpWanted', 'newHere', 'baseAt'],
     'equipment', jsonb_build_object('ids', coalesce(ev->'equipment', '[]'::jsonb), 'snapshot', coalesce(ev->'equipmentSnapshot', '[]'::jsonb)),
     'master', case when coalesce(ev->>'isMaster', 'false') = 'true' or jsonb_typeof(ev->'masterProfile') = 'object'
                    then jsonb_build_object('isMaster', coalesce(ev->>'isMaster', 'false') = 'true', 'profile', case when jsonb_typeof(ev->'masterProfile') = 'object' then ev->'masterProfile' end) end,
@@ -914,7 +950,7 @@ begin
     elsif f->>'keep' is null and (jsonb_typeof(ev->'photo') is null or jsonb_typeof(ev->'photo') = 'null') then delete from session_photos where session_id = s.id; end if;
   end if;
   perform internal.sync_like('session', s.id, ev->'likes', me_id, me_nm);
-  perform internal.sync_comments('session', s.id, ev->>'id', internal.with_comment_meta(ev->'comments', ev->'commentMeta'), me_id, me_nm);
+  perform internal.sync_comments('session', s.id, ev->>'id', internal.with_comment_meta(ev->'comments', ev->'commentMeta'), me_id, me_nm, case when jsonb_typeof(ev->'cmtGone') = 'array' then ev->'cmtGone' end);
 end $$;
 
 create or replace function internal.push_gear(ev jsonb, me_id uuid, me_nm text) returns void
@@ -1225,7 +1261,8 @@ create or replace function internal.on_like() returns trigger language plpgsql s
 begin
   if tg_table_name = 'likes' then perform internal.notify((select owner_id from sessions where id = new.session_id), new.user_id, 'like', new.session_id);
   elsif tg_table_name = 'coffee_likes' then perform internal.notify((select owner_id from coffees where id = new.coffee_id), new.user_id, 'like', null, new.coffee_id);
-  else perform internal.notify((select author_id from comments where id = new.comment_id), new.user_id, 'comment_like', null, null, new.comment_id); end if;
+  else perform internal.notify((select author_id from comments where id = new.comment_id), new.user_id, 'comment_like',   -- (v18.6: with the comment's session or coffee, so a tap opens it)
+                              (select session_id from comments where id = new.comment_id), (select coffee_id from comments where id = new.comment_id), new.comment_id); end if;
   return null;
 end $$;
 
@@ -1258,18 +1295,24 @@ drop trigger if exists notify_comment on comments;      create trigger notify_co
 drop trigger if exists notify_follow on follows;        create trigger notify_follow after insert or update of status on follows for each row execute function internal.on_follow();
 drop trigger if exists notify_join on group_members;    create trigger notify_join after insert on group_members for each row execute function internal.on_join();
 
--- your newest notifications (newest first) and how many are unread
+-- your newest notifications (newest first) and how many are unread. v18.6: a like on your comment (saved without its
+-- session or coffee before v18.6) is about the comment's session or coffee; whose session it is comes along, so a tap
+-- can open their profile when the session isn't on your phone; nothing from someone blocked either way.
 create or replace function my_notifications(max_count int default 50) returns jsonb
 language sql stable set search_path = public as $$
   select jsonb_build_object(
-    'unread', (select count(*) from notifications where user_id = me() and read_at is null),
+    'unread', (select count(*) from notifications where user_id = me() and read_at is null and not private.blocked_either(user_id, actor_id)),
     'items', coalesce((select jsonb_agg(jsonb_strip_nulls(jsonb_build_object('id', n.id, 'kind', n.kind, 'who', internal.name_of(n.actor_id), 'color', internal.color_of(n.actor_id), 'at', n.created_at, 'read', n.read_at is not null,
-               'session', (select coalesce(legacy_id, id::text) from sessions where id = n.session_id),
-               'sessionCoffee', (select coalesce(k.legacy_id, k.id::text) from sessions s join coffees k on k.id = s.coffee_id where s.id = n.session_id),
-               'coffee', (select coalesce(legacy_id, id::text) from coffees where id = n.coffee_id),
+               'session', (select coalesce(legacy_id, id::text) from sessions where id = n.sid),
+               'sessionCoffee', (select coalesce(k.legacy_id, k.id::text) from sessions s join coffees k on k.id = s.coffee_id where s.id = n.sid),
+               'sessionOwner', (select internal.name_of(owner_id) from sessions where id = n.sid),
+               'coffee', (select coalesce(legacy_id, id::text) from coffees where id = n.cid),
                'comment', (select left(body, 140) from comments where id = n.comment_id and deleted_at is null),
                'group', (select name from groups where id = n.group_id))) order by n.id desc)
-             from (select * from notifications where user_id = me() order by id desc limit greatest(1, least(coalesce(max_count, 50), 200))) n), '[]'::jsonb));
+             from (select x.*, coalesce(x.session_id, (select c.session_id from comments c where c.id = x.comment_id)) as sid,
+                          coalesce(x.coffee_id, (select c.coffee_id from comments c where c.id = x.comment_id)) as cid
+                   from notifications x where x.user_id = me() and not private.blocked_either(x.user_id, x.actor_id)
+                   order by x.id desc limit greatest(1, least(coalesce(max_count, 50), 200))) n), '[]'::jsonb));
 $$;
 
 create or replace function mark_notifications_read(up_to bigint default null) returns int
@@ -1376,7 +1419,7 @@ begin
     'events', coalesce((select jsonb_agg(internal.coffee_json(k)) from coffees k
                         where k.deleted_at is null and (k.id = any(coalesce((select array_agg(s.coffee_id) from sessions s where s.id = any(ids)), '{}'))
                                                         or coalesce(k.legacy_id, k.id::text) in (select jsonb_array_elements_text(gear->'fabFour')))), '[]'::jsonb)
-           || coalesce((select jsonb_agg(internal.session_json(s) order by s.brewed_at desc) from sessions s where s.id = any(ids)), '[]'::jsonb)
+           || internal.sessions_json(ids)
            || jsonb_build_array(gear),
     'next', case when array_length(ids, 1) = lim then oldest end);
 end $$;

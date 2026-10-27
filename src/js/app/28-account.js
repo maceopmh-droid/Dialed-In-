@@ -8,7 +8,17 @@
                 const s = this.wl; if (!s) return;
                 s.path = path;
                 const sess = Supa.session();
-                if (sess && sess.refresh_token && !sess.profile) { s.step = path === 'back' ? 'claim' : 'name'; this.renderWelcome(); return; }
+                if (sess && sess.refresh_token && !sess.profile) {
+                    // v18.6: signed in but no profile on this phone: maybe it just didn't come back when signing in (a dropped
+                    // connection), so ask once before the claim or name step (both would say the account already has one)
+                    const next = () => { s.step = path === 'back' ? 'claim' : 'name'; this.renderWelcome(); };
+                    Supa.rpc('my_profile').then(p => {
+                        if (!p) { next(); return; }
+                        Supa.store(Supa.SESSION, { ...Supa.session(), profile: p });
+                        this.acctReady(p, null);
+                    }).catch(next);
+                    return;
+                }
                 s.email = s.email || (sess && sess.user && sess.user.email) || '';
                 s.step = 'email';
                 this.renderWelcome();
