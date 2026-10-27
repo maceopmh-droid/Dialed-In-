@@ -29,15 +29,15 @@ jobs:
           q() { curl -sS -G "https://api.supabase.com/v1/projects/$PROJECT_REF/analytics/endpoints/logs" -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
                   --data-urlencode "sql=$1" --data-urlencode "iso_timestamp_start=$start" --data-urlencode "iso_timestamp_end=$end"; }
           {
-            echo "pull_events calls by hour (UTC) and status:"
-            q "select format_timestamp('%H', timestamp_trunc(t.timestamp, hour)) as hr, response.status_code as code, count(*) as n from edge_logs t cross join unnest(t.metadata) as m cross join unnest(m.request) as request cross join unnest(m.response) as response where request.path like '%rpc/pull_events%' group by hr, code order by hr, code" | jq -c '.result // .' 
-            echo "data_version calls by hour (UTC) and status:"
-            q "select format_timestamp('%H', timestamp_trunc(t.timestamp, hour)) as hr, response.status_code as code, count(*) as n from edge_logs t cross join unnest(t.metadata) as m cross join unnest(m.request) as request cross join unnest(m.response) as response where request.path like '%rpc/data_version%' group by hr, code order by hr, code" | jq -c '.result // .'
-            echo "push_event calls by hour (UTC) and status:"
-            q "select format_timestamp('%H', timestamp_trunc(t.timestamp, hour)) as hr, response.status_code as code, count(*) as n from edge_logs t cross join unnest(t.metadata) as m cross join unnest(m.request) as request cross join unnest(m.response) as response where request.path like '%rpc/push_event%' group by hr, code order by hr, code" | jq -c '.result // .'
+            echo "edge log fields (names only):"
+            q "SELECT groupUniqArray(k) AS keys FROM (SELECT arrayJoin(mapKeys(log_attributes)) AS k FROM logs WHERE source_name = 'edge_logs' AND timestamp > now() - INTERVAL 1 HOUR)" | jq -c '.result // .'
+            for f in pull_events data_version push_event; do
+              echo "$f calls by hour (UTC) and status:"
+              q "SELECT formatDateTime(toStartOfHour(timestamp), '%H') AS hr, log_attributes['response.status_code'] AS code, count() AS n FROM logs WHERE source_name = 'edge_logs' AND log_attributes['request.path'] LIKE '%rpc/$f%' GROUP BY hr, code ORDER BY hr, code" | jq -c '.result // .'
+            done
             echo "photo link calls by hour (UTC) and status:"
-            q "select format_timestamp('%H', timestamp_trunc(t.timestamp, hour)) as hr, response.status_code as code, count(*) as n from edge_logs t cross join unnest(t.metadata) as m cross join unnest(m.request) as request cross join unnest(m.response) as response where request.path like '%object/sign/photos%' group by hr, code order by hr, code" | jq -c '.result // .'
+            q "SELECT formatDateTime(toStartOfHour(timestamp), '%H') AS hr, log_attributes['response.status_code'] AS code, count() AS n FROM logs WHERE source_name = 'edge_logs' AND log_attributes['request.path'] LIKE '%object/sign/photos%' GROUP BY hr, code ORDER BY hr, code" | jq -c '.result // .'
             echo "database statement timeouts by hour (UTC):"
-            q "select format_timestamp('%H', timestamp_trunc(t.timestamp, hour)) as hr, count(*) as n from postgres_logs t where regexp_contains(t.event_message, 'statement timeout') group by hr order by hr" | jq -c '.result // .'
+            q "SELECT formatDateTime(toStartOfHour(timestamp), '%H') AS hr, count() AS n FROM logs WHERE source_name = 'postgres_logs' AND event_message LIKE '%statement timeout%' GROUP BY hr ORDER BY hr" | jq -c '.result // .'
           } > "$RUNNER_TEMP/l.txt" 2>&1
           cat "$RUNNER_TEMP/l.txt"; bash supabase/report.sh "Logs" "$RUNNER_TEMP/l.txt"
