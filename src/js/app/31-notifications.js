@@ -5,14 +5,18 @@
             async loadNotifications(max = 50) {
                 if (!this.acctOn() || !Supa.ready()) return null;
                 const st = this.notifState();
-                if (st.loading) return st;
-                st.loading = true;
-                try {
+                // v18.6: a load already on its way is waited for (opening the bell from a phone notification right after
+                // the app starts found the small unread-count load running and stayed on its spinner); then the full list
+                // is fetched if that one was only the count
+                if (st.loading) { try { await st.loading; } catch (e) { /* the next one tries again */ } if (max <= 1 || st.full) return st; }
+                const run = (async () => {
                     const r = await Supa.rpc('my_notifications', { max_count: max });
                     st.unread = Number(r && r.unread) || 0;
-                    if (max > 1 || !st.items) st.items = r && Array.isArray(r.items) ? r.items : [];
+                    if (max > 1 || !st.items) { st.items = r && Array.isArray(r.items) ? r.items : []; st.full = max > 1; }
                     st.at = Date.now();
-                } finally { st.loading = false; }
+                })();
+                st.loading = run;
+                try { await run; } finally { if (st.loading === run) st.loading = null; }
                 this.paintNotifButton();
                 return st;
             },
@@ -91,7 +95,7 @@
                 if (n.kind === 'joined_group') { this.closeNotifications(); this.openPeople(); return; }
                 const brew = n.session ? this.brews.get(String(n.session)) : null;
                 const beanId = brew ? brew.beanId : (n.sessionCoffee || n.coffee || '');
-                if (n.session && !brew && n.who && this.openAnyProfile) { this.closeNotifications(); this.openAnyProfile(n.who); return; }   // v14.5: someone else's session outside your circle (a help answer): their profile
+                if (n.session && !brew && (n.sessionOwner || n.who) && this.openAnyProfile) { this.closeNotifications(); this.openAnyProfile(n.sessionOwner || n.who); return; }   // v14.5: someone else's session outside your circle (a help answer): their profile (v18.6: the session's owner, whose profile has it)
                 if (!beanId || (n.session && !brew && !this.beans.has(String(beanId)))) { this.showToast('That isn\'t on this phone anymore.'); return; }
                 this.closeNotifications();
                 if (n.comment && n.session) this.openThreads.add(this.threadKey('brew', n.session));

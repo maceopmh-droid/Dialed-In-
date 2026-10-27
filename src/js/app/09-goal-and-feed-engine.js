@@ -53,9 +53,16 @@
 
             crewFilter() {
                 if (!(this.acctOn && this.acctOn())) return () => true;
-                if (this._crewScope) { const sc = this._crewScope; return b => sc.names.has(this.getBrewOwner(b)) && !(this.isCommunity && this.isCommunity('brew', b.id)); }
+                // (v18.6: an "Only me" session counts for nobody: the others' phones can't see it, so goals and awards came
+                // out different on each phone)
+                if (this._crewScope) { const sc = this._crewScope; return b => sc.names.has(this.getBrewOwner(b)) && b.audience !== 'only_me' && !(this.isCommunity && this.isCommunity('brew', b.id)); }
                 const crew = new Set(this.knownPeople());
-                return b => crew.has(this.getBrewOwner(b)) && !(this.isCommunity && this.isCommunity('brew', b.id));
+                return b => crew.has(this.getBrewOwner(b)) && b.audience !== 'only_me' && !(this.isCommunity && this.isCommunity('brew', b.id));
+            },
+            // v18.6: who's in the crew (likes and comments from anyone else don't count toward its awards and goals)
+            crewNames() {
+                if (!(this.acctOn && this.acctOn())) return null;
+                return this._crewScope ? this._crewScope.names : new Set(this.knownPeople());
             },
             crewSessionsBetween(a, b) { return this.sessionsBetween(a, b).filter(this.crewFilter()); },
 
@@ -415,9 +422,13 @@
                 const img = a.nodeName === 'IMG';
                 const shape = img && a.hasAttribute('data-shape-for') && a.getAttribute('data-shape-for') === b.getAttribute('data-shape-for');
                 const photo = img && a.hasAttribute('data-fallbacks') && a.getAttribute('data-fallbacks') === b.getAttribute('data-fallbacks');
-                for (const { name } of [...a.attributes]) if (!b.hasAttribute(name) && !(shape && name === 'src')) a.removeAttribute(name);
+                // (v18.6: a canvas's size is its renderer's: setting it back to the markup's 0 x 0 wiped a drawn shape, and one
+                // that isn't turning — Reduce Motion — was never drawn again)
+                const cv = a.nodeName === 'CANVAS', own = name => cv && (name === 'width' || name === 'height' || name === 'aria-label' || name === 'role' || name === 'style');
+                for (const { name } of [...a.attributes]) if (!b.hasAttribute(name) && !(shape && name === 'src') && !own(name)) a.removeAttribute(name);
                 for (const { name, value } of [...b.attributes]) {
                     if (photo && (name === 'src' || name === 'data-fallback-index')) continue;
+                    if (own(name)) continue;
                     if (a.getAttribute(name) !== value) a.setAttribute(name, value);
                 }
                 // a centered initial stays as it is when it's the same letter
@@ -617,7 +628,7 @@
                 const invite = sg && sg.invite ? `<button type="button" class="cq-invite" data-g="${this.esc(String(sg.id))}" onclick="app.shareCommunity(this.getAttribute('data-g'), event)"><svg class="icon"><use href="#i-share-2"/></svg>Invite</button>` : '';
                 return `
                     <section class="feed-card crew-quest${q.done ? ' done' : ''}" aria-label="${this._crewScope ? 'Community goal' : 'Group goal'}">
-                        <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-target"/></svg>${this._crewScope ? 'Community goal' : 'Group goal'} · this week</span><span class="cq-right"><span class="cq-left">${this.esc(left)}</span>${invite}${q.done && this.storyShareBtn ? this.storyShareBtn('app.openGoalStory()', 'Share the finished goal as a picture') : ''}</span></div>
+                        <div class="cq-top"><span class="cq-kicker"><svg class="icon"><use href="#i-target"/></svg>${this._crewScope ? 'Community goal' : 'Group goal'} · this week</span><span class="cq-right"><span class="cq-left">${this.esc(left)}</span>${invite}${q.done && this.storyShareBtn ? this.storyShareBtn(`app.openGoalStory('${app.escJs(this.storyScopeKeep ? this.storyScopeKeep() : '')}')`, 'Share the finished goal as a picture') : ''}</span></div>
                         <div class="cq-title">${this.esc(q.title)}</div>
                         ${bar}
                         <div class="cq-meta"><span><b>${count.n}</b>${this.esc(count.rest)}${q.detail ? ` · ${this.esc(q.detail)}` : ''}</span></div>

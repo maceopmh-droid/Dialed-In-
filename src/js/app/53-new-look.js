@@ -466,8 +466,11 @@
                 if (d.getFullYear() !== new Date().getFullYear()) o.year = 'numeric';
                 try { return d.toLocaleDateString(undefined, o); } catch (e) { return d.toDateString().slice(4, 10); }
             },
-            nlMethodPill(method, solid) {
-                return `<span class="nl-mpill${solid ? ' solid' : ''}"><svg class="nl-ic"><use href="${this.methodIconUse(method)}"/></svg>${this.esc(this.methodLabel(method) || 'Espresso')}</span>`;
+            nlMethodPill(method, solid, compact) {
+                const label = this.methodLabel(method) || 'Espresso';
+                // (v18.6: compact, just its icon, beside a Follow button: the three crowded the name)
+                if (compact) return `<span class="nl-mpill compact${solid ? ' solid' : ''}" role="img" aria-label="${this.esc(label)}" title="${this.esc(label)}"><svg class="nl-ic"><use href="${this.methodIconUse(method)}"/></svg></span>`;
+                return `<span class="nl-mpill${solid ? ' solid' : ''}"><svg class="nl-ic"><use href="${this.methodIconUse(method)}"/></svg>${this.esc(label)}</span>`;
             },
             nlRoasterHtml(bean, tea, cls = 'nl-roast') {
                 if (!bean) return '';
@@ -498,7 +501,8 @@
                 const likes = this.normalizeLikeList(brew.likes, owner);
                 const unlocks = this.achievementUnlockByBrew.get(String(brew.id)) || [];
                 const ph = this.nlPhoto(brew), shape = this.nlHasShape(brew);
-                const right = `<div class="nl-tright">${entry.community ? this.communityFollowHtml(owner) : ''}${this.nlMethodPill(brew.method)}<button type="button" class="nl-glass" onclick="app.shareItem('session', '${app.escJs(brew.id)}', event)" aria-label="Share"><svg class="nl-ic"><use href="#i-share-2"/></svg></button></div>`;
+                const follow = entry.community ? this.communityFollowHtml(owner) : '';
+                const right = `<div class="nl-tright">${follow}${this.nlMethodPill(brew.method, false, !!follow)}<button type="button" class="nl-glass" onclick="app.shareItem('session', '${app.escJs(brew.id)}', event)" aria-label="Share"><svg class="nl-ic"><use href="#i-share-2"/></svg></button></div>`;
                 const top = onPhoto => `<div class="nl-ctop${onPhoto ? '' : ' flat'}">${this.nlWho(owner, entry.date || brew.date, onPhoto, pal.c)}${right}</div>`;
                 const media = ph ? `<div class="nl-ph session-photo-wrap">${this.nlPhotoImg(ph)}<div class="nl-fade"></div>${top(true)}</div>`
                     : shape ? `<div class="nl-ph nl-shapemedia flat">${this.nlSpinHtml(brew, fam, { cls: 'nl-bigspin' })}<div class="nl-fade short"></div>${top(false)}</div>`
@@ -533,7 +537,7 @@
                 const brews = [...this.brews.values()].filter(b => { const bn = this.beans.get(String(b.beanId)); return bn && this.beanGroupKey(bn) === key; }).sort((a, b) => this.toTime(b.date) - this.toTime(a.date));
                 const withShape = brews.find(b => this.nlHasShape(b));
                 const cov = this.coverOf(this.coverBean(bean) || bean), coverUrl = cov && cov.photo && this.faceUrl ? this.faceUrl(cov.photo) : '';   // v17.4: its own picture
-                const ph = coverUrl ? { src: coverUrl, fallbacks: [coverUrl] } : null;
+                const ph = coverUrl && !(this._brokenPhotos && this._brokenPhotos.has(coverUrl)) ? { src: coverUrl, fallbacks: [coverUrl] } : null;   // (v18.6: one that won't load is drawn without it, like a session's)
                 const right = `<div class="nl-tright"><span class="nl-mpill">${this.esc(entry.kindLabel || (tea ? 'New tea' : 'New coffee'))}</span><button type="button" class="nl-glass" onclick="event.stopPropagation(); app.openCoffeeStory('${app.escJs(bean.id)}')" aria-label="Share"><svg class="nl-ic"><use href="#i-share-2"/></svg></button></div>`;
                 const top = onPhoto => `<div class="nl-ctop${onPhoto ? '' : ' flat'}">${this.nlWho(owner, entry.date || bean.date, onPhoto, pal.c)}${right}</div>`;
                 const media = ph ? `<div class="nl-ph session-photo-wrap">${this.nlPhotoImg(ph, 'nl-photo', 'Coffee photo')}<div class="nl-fade"></div>${top(true)}</div>`
@@ -566,10 +570,11 @@
                     document.body.appendChild(v);
                 }
                 this._sessionId = String(brewId);
-                this._nlsHtml = '';
+                this._nlsHtml = ''; this._nlsKey = '';
                 v.classList.remove('closing'); v.hidden = false;
                 v.classList.add('active'); v.setAttribute('aria-hidden', 'false');
                 document.body.classList.add('nls-open');
+                v.scrollTop = 0;   // (before drawing: the bar's look is read from where the page is; the last session's spot made it solid for a moment)
                 this.renderSession();
                 v.scrollTop = 0;
                 if (opts.comments) setTimeout(() => {
@@ -582,7 +587,7 @@
                 if (!this.sessionViewActive()) return;
                 const v = document.getElementById('session-view');
                 document.body.classList.remove('nls-open');
-                const done = () => { v.classList.remove('active', 'closing'); v.setAttribute('aria-hidden', 'true'); v.hidden = true; v.style.transform = ''; this._sessionId = ''; const pg = document.getElementById('nls-page'); if (pg) pg.innerHTML = ''; this._nlsHtml = ''; };
+                const done = () => { v.classList.remove('active', 'closing'); v.setAttribute('aria-hidden', 'true'); v.hidden = true; v.style.transform = ''; this._sessionId = ''; const pg = document.getElementById('nls-page'); if (pg) pg.innerHTML = ''; this._nlsHtml = ''; this._nlsKey = ''; };
                 if (instant) { done(); return; }
                 v.classList.add('closing');
                 setTimeout(done, 200);
@@ -611,8 +616,16 @@
                 if (soft && act && v.contains(act) && /^(INPUT|TEXTAREA)$/.test(act.tagName)) { this._nlsStale = true; if (!this._nlsBlur) { this._nlsBlur = true; v.addEventListener('focusout', () => { setTimeout(() => { if (this._nlsStale && this.sessionViewActive()) { this._nlsStale = false; this.renderSession(true); } }, 50); }); } return; }
                 const html = this.sessionHtml(brew);
                 if (soft && html === this._nlsHtml) return;
+                // v18.6: when only the "5m ago" labels moved on, they change in place: redrawing the page every minute undid a
+                // paused or top-view shape, closed the ⋯ menu and cut off a drag
+                const AGO = />(Just now|\d+[mhd] ago)</g, key = html.replace(AGO, '><');
+                if (soft && key === this._nlsKey && page.firstChild) {
+                    const fresh = [...html.matchAll(AGO)].map(m => m[1]);
+                    const els = [...page.querySelectorAll('*')].filter(el => el.childElementCount === 0 && /^(Just now|\d+[mhd] ago)$/.test(el.textContent));
+                    if (els.length === fresh.length) { els.forEach((el, i) => { if (el.textContent !== fresh[i]) el.textContent = fresh[i]; }); this._nlsHtml = html; return; }
+                }
                 const drafts = soft && this.captureDrafts ? this.captureDrafts() : null;
-                this._nlsHtml = html;
+                this._nlsHtml = html; this._nlsKey = key;
                 page.setAttribute('data-fam', this.famOfBrew(brew));
                 page.innerHTML = html;
                 if (drafts && this.restoreDrafts) this.restoreDrafts(drafts);
@@ -690,7 +703,8 @@
                     ? `<button type="button" role="menuitem" onclick="app.nlMoreGo('edit')"><svg class="nl-ic"><use href="#i-edit-2"/></svg>Edit</button><button type="button" role="menuitem" class="danger" onclick="app.nlMoreGo('delete')"><svg class="nl-ic"><use href="#i-trash-2"/></svg>Delete</button>`
                     : `<button type="button" role="menuitem" onclick="app.nlMoreGo('report')"><svg class="nl-ic"><use href="#i-flag"/></svg>Report</button>`;
                 (document.getElementById('nls-page') || document.getElementById('session-view')).appendChild(m);
-                setTimeout(() => document.addEventListener('click', function off(e) { if (!m.contains(e.target)) { m.remove(); document.removeEventListener('click', off, true); } }, true), 0);
+                // (v18.6: a second tap on ⋯ closes it; it used to reopen at once)
+                setTimeout(() => document.addEventListener('click', function off(e) { if (!m.contains(e.target)) { m.remove(); document.removeEventListener('click', off, true); if (e.target.closest && e.target.closest('[onclick^="app.nlSessionMore"]')) { e.stopPropagation(); e.preventDefault(); } } }, true), 0);
                 m.setAttribute('data-id', id);
             },
             nlMoreGo(what) {
@@ -846,6 +860,15 @@
             },
 
             // ===================== the coffee page: tinted, its photo leading =====================
+            // v18.6: the coffee page's photo didn't load: the page is laid out again without it (it kept the photo's layout,
+            // with the name sliding up under the clear Back bar)
+            nlDetailPhotoErr(img) {
+                const src = img && img.getAttribute('src'); if (!src) return;
+                (this._brokenPhotos || (this._brokenPhotos = new Set())).add(src);
+                if (this.isDetailActive && this.isDetailActive() && this.activeGroup) this.nlDecorateDetail(this.activeGroup, this.detailAllBrews || []);
+                if (this.nlNavBars) this.nlNavBars();
+            },
+
             nlDecorateDetail(group, brews) {
                 const view = typeof document !== 'undefined' && document.getElementById ? document.getElementById('detail-view') : null, hero = view && typeof view.querySelector === 'function' ? view.querySelector('.detail-hero') : null;
                 if (!view || !hero) return;
@@ -863,10 +886,11 @@
                 view.setAttribute('data-fam', fam);
                 // v17.4: the coffee's own picture leads: its photo (chosen once, it doesn't change with each session), or its
                 // color tile beside the name, like a roaster's page
-                const cov = this.coverOf(this.coverBean(bean) || bean), coverUrl = cov && cov.photo && this.faceUrl ? this.faceUrl(cov.photo) : '';
+                const cov = this.coverOf(this.coverBean(bean) || bean), coverUrl0 = cov && cov.photo && this.faceUrl ? this.faceUrl(cov.photo) : '';
+                const coverUrl = coverUrl0 && !(this._brokenPhotos && this._brokenPhotos.has(coverUrl0)) ? coverUrl0 : '';   // (v18.6: one that won't load: the color tile instead)
                 if (photo) photo.remove();
                 const oldTile = hero.querySelector('.nl-dcover'); if (oldTile) oldTile.remove();
-                if (coverUrl) hero.insertAdjacentHTML('afterbegin', `<div class="nl-dphoto"><img class="nl-photo" src="${this.esc(coverUrl)}" alt="${this.esc(bean.name || '')}" decoding="async" onerror="this.parentNode.classList.add('is-broken')"><div class="nl-pfade"></div></div>`);
+                if (coverUrl) hero.insertAdjacentHTML('afterbegin', `<div class="nl-dphoto"><img class="nl-photo" src="${this.esc(coverUrl)}" alt="${this.esc(bean.name || '')}" decoding="async" onerror="app.nlDetailPhotoErr(this)"><div class="nl-pfade"></div></div>`);
                 else { const ro = document.getElementById('d-roaster'); if (ro) ro.insertAdjacentHTML('beforebegin', this.nlCoverHtml(bean, 'nl-cover nl-dcover')); }
                 hero.classList.toggle('nl-has-photo', !!coverUrl);
                 ['d-origin', 'd-process', 'd-roast'].forEach(id => { const el = document.getElementById(id); if (el && String(el.textContent || '').trim() === '-') el.hidden = true; });   // (no "-" chips for what isn't filled in)

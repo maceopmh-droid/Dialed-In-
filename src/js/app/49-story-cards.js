@@ -284,6 +284,9 @@
                 }
             },
 
+            // "Oct 3", or "Dec 20, 2025" from another year (v18.6: a compare across years read as the same year)
+            storyDay(t) { const d = new Date(t), o = { month: 'short', day: 'numeric' }; if (d.getFullYear() !== new Date().getFullYear()) o.year = 'numeric'; return d.toLocaleDateString('en-US', o); },
+
             storyShareBtn(onclick, label = 'Share as a picture') {
                 return `<button type="button" class="story-share" aria-label="${this.esc(label)}" onclick="event.stopPropagation(); ${onclick}"><svg class="icon"><use href="#i-share-2"/></svg></button>`;
             },
@@ -445,7 +448,7 @@
                     ctx.font = k.sans(800, 30); ctx.fillStyle = k.muted; ctx.textAlign = 'right'; ctx.fillText(tag, cx + cw - 30, y + 52); ctx.textAlign = 'left';
                     ctx.beginPath(); ctx.arc(cx + 50, y + 52 - 12, 12, 0, Math.PI * 2); ctx.fillStyle = this.getUserColor(who); ctx.fill();
                     ctx.font = k.sans(700, 40); ctx.fillStyle = k.ink; ctx.fillText(k.fit(who, cw - 140), cx + 74, y + 52);
-                    ctx.font = k.sans(500, 33); ctx.fillStyle = k.ink2; ctx.fillText(k.fit(`${new Date(this.localTime(x.date)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}${x.method ? ` · ${x.method}` : ''}`, cw - 80), cx + 40, y + 112);
+                    ctx.font = k.sans(500, 33); ctx.fillStyle = k.ink2; ctx.fillText(k.fit(`${this.storyDay(this.localTime(x.date))}${x.method ? ` · ${x.method}` : ''}`, cw - 80), cx + 40, y + 112);
                     ctx.font = k.sans(700, 44); ctx.fillStyle = '#E3B341'; ctx.fillText(r ? '★'.repeat(Math.round(r)) : '', cx + 40, y + 176);
                     if (r) { const sw = ctx.measureText('★'.repeat(Math.round(r))).width; ctx.fillStyle = k.ink; ctx.font = k.sans(700, 40); ctx.fillText(this.formatRating(r), cx + 52 + sw, y + 174); }
                     else { ctx.font = k.sans(600, 34); ctx.fillStyle = k.muted; ctx.fillText('Unrated', cx + 40, y + 174); }
@@ -558,9 +561,19 @@
             },
 
             // ---- 6. a finished group goal: the bar, everyone's part, the week
-            async drawGoalStory() {
-                const q = this.crewQuest(); if (!q || !q.done) return null;
-                const scope = this._crewScope;
+            // v18.6: a share button remembers the circle its card was drawn for (a community, Friends); the picture is worked out
+            // in that circle, before anything waits (a redraw meanwhile mustn't change it)
+            storyScopeKeep() { const sc = this._crewScope; if (!sc) return ''; (this._storyScopes || (this._storyScopes = {}))[sc.id] = sc; return sc.id; },
+            inStoryScope(sid, fn) {
+                if (!sid) return fn();
+                const sc = (this._storyScopes || {})[sid]; if (!sc) return fn();
+                const was = this._crewScope; this._crewScope = sc;
+                try { return fn(); } finally { this._crewScope = was; }
+            },
+            async drawGoalStory(sid = '') {
+                const pre = this.inStoryScope(sid, () => { const q = this.crewQuest(); return q && q.done ? { q, scope: this._crewScope, segs: this.crewSegs(q), count: this.crewCount(q), won: this.questsWon ? this.questsWon() : 0 } : null; });
+                if (!pre) return null;
+                const { q, scope } = pre;
                 const fmt = t => new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                 const S = this.storyStart({ sub: `${scope ? (scope.id === 'friends' ? 'Friends' : scope.name) : 'Group goal'} · ${fmt(q.start)} – ${fmt(q.end - 1)}`, title: q.title, titleLines: 3, titleSize: 84 }); if (!S) return null;
                 const { ctx, k } = S; let y = S.y + 70;
@@ -570,7 +583,7 @@
                 y += 110;
                 const bw = k.W - k.PAD * 2, bh = 64;
                 k.round(k.PAD, y, bw, bh, 32); ctx.fillStyle = k.nl ? k.grid : 'rgba(255,255,255,0.08)'; ctx.fill();
-                const segs = this.crewSegs(q), count = this.crewCount(q), countText = `${count.n}${count.rest}`;   // v16.8: as on the card
+                const segs = pre.segs, count = pre.count, countText = `${count.n}${count.rest}`;   // v16.8: as on the card
                 let used = 0;
                 ctx.save(); k.round(k.PAD, y, bw, bh, 32); ctx.clip();
                 segs.forEach(s => { const w = Math.max(0, Math.min(1 - used, s.w)); if (w <= 0) return; ctx.fillStyle = this.getUserColor(s.p); ctx.fillRect(k.PAD + used * bw, y, w * bw + 1, bh); used += w; });
@@ -589,20 +602,19 @@
                     ctx.font = k.sans(700, 36); ctx.fillStyle = k.ink; ctx.fillText(k.fit(p, size + gap - 20), cx, cy + size / 2 + 60);
                     ctx.font = k.sans(500, 32); ctx.fillStyle = k.muted; ctx.fillText(`${n} ${q.type === 'everyone' || q.unit === 'sessions' ? `session${n === 1 ? '' : 's'}` : ''}`.trim(), cx, cy + size / 2 + 104); ctx.textAlign = 'left';
                 });
-                const won = this.questsWon ? this.questsWon() : 0;
+                const won = pre.won;
                 if (won) { ctx.font = k.sans(600, 36); ctx.fillStyle = k.ink2; ctx.fillText(`${won} goal${won === 1 ? '' : 's'} reached together`, k.PAD, k.H - 170); }
                 return S.c;
             },
 
-            openGoalStory() { return this.openStory({ draw: () => this.drawGoalStory(), slug: 'group-goal', alt: 'Your finished group goal as a Story picture' }); },
+            openGoalStory(sid = '') { return this.openStory({ draw: () => this.drawGoalStory(sid), slug: 'group-goal', alt: 'Your finished group goal as a Story picture' }); },
 
             // ---- 7. a month's awards (the month the Awards card shows, once it's open)
-            async drawAwardsStory(key) {
+            async drawAwardsStory(key, sid = '') {
                 const k0 = String(key || this.awardsMonth || ''); if (!k0 || (this.monthLocked && this.monthLocked(k0))) return null;
                 const [yy, mm] = k0.split('-').map(Number);
-                const awards = this.crewAwardsMemo ? this.crewAwardsMemo(yy, mm - 1) : this.crewAwards(yy, mm - 1);
+                const { awards, scope } = this.inStoryScope(sid, () => ({ awards: this.crewAwardsMemo ? this.crewAwardsMemo(yy, mm - 1) : this.crewAwards(yy, mm - 1), scope: this._crewScope }));
                 if (!awards || !awards.length) return null;
-                const scope = this._crewScope;
                 const S = this.storyStart({ date: 0, sub: `Monthly awards${scope ? ` · ${scope.id === 'friends' ? 'Friends' : scope.name}` : ''}`, title: this.monthName(k0, true) }); if (!S) return null;
                 const { ctx, k } = S; let y = S.y + 40;
                 const list = awards.slice(0, 8), cols = 2, gap = 24, cw = (k.W - k.PAD * 2 - gap) / cols, ch = Math.min(300, Math.floor((k.H - 150 - y - gap * 3) / 4));
@@ -619,7 +631,7 @@
                 return S.c;
             },
 
-            openAwardsStory() { const key = this.awardsMonth; return this.openStory({ draw: () => this.drawAwardsStory(key), slug: `awards-${key}`, alt: 'This month\'s awards as a Story picture' }); },
+            openAwardsStory(sid = '') { const key = this.awardsMonth; return this.openStory({ draw: () => this.drawAwardsStory(key, sid), slug: `awards-${key}`, alt: 'This month\'s awards as a Story picture' }); },
 
             // ---- 8. your level: the badge, the crema, what's next, and your latest achievements
             async drawLevelStory(who = this.user) {
@@ -656,7 +668,7 @@
                         if (y > k.H - 160) return;
                         ctx.strokeStyle = k.boxLine; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(k.PAD, y); ctx.lineTo(k.W - k.PAD, y); ctx.stroke();
                         ctx.font = k.sans(700, 38); ctx.fillStyle = k.ink; ctx.fillText(k.fit(`${u.definition.title}${u.definition.thresholds.length > 1 ? ` · Level ${u.level}` : ''}`, k.W - k.PAD * 2 - 200), k.PAD, y + 64);
-                        ctx.textAlign = 'right'; ctx.font = k.sans(500, 32); ctx.fillStyle = k.muted; ctx.fillText(new Date(this.toTime(u.date)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), k.W - k.PAD, y + 64); ctx.textAlign = 'left';
+                        ctx.textAlign = 'right'; ctx.font = k.sans(500, 32); ctx.fillStyle = k.muted; ctx.fillText(this.storyDay(this.toTime(u.date)), k.W - k.PAD, y + 64); ctx.textAlign = 'left';
                         y += 100;
                     });
                 }

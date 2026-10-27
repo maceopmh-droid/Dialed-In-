@@ -61,9 +61,12 @@
                 byPerson.forEach((rows, p) => { const r = rows.map(x => this.normalizeRating(x.rating)).filter(v => v > 0); if (r.length >= 3) avg.set(p, r.reduce((s, v) => s + v, 0) / r.length); });
                 if (avg.size >= 2) add('critic', 'Toughest Critic', 'i-search', '#8A63C4', top(avg, 0, true), v => `averages ${this.fmtNum(v, 1)}★`);
                 const likes = new Map(), comments = new Map();
-                list.forEach(x => (Array.isArray(x.likes) ? x.likes : []).forEach(n => { const name = String(n || '').trim(); if (name && name !== owner(x)) likes.set(name, (likes.get(name) || 0) + 1); }));
+                // (v18.6: likes and comments by the crew, on the crew's own sessions and coffees: someone from Discover or a
+                // person you merely follow could win them)
+                const crewN = this.crewNames(), inCrew = n => !crewN || crewN.has(n), crewBrew = this.crewFilter();
+                list.forEach(x => (Array.isArray(x.likes) ? x.likes : []).forEach(n => { const name = String(n || '').trim(); if (name && name !== owner(x) && inCrew(name)) likes.set(name, (likes.get(name) || 0) + 1); }));
                 const inMonth = ts => { const t = this.localTime(ts); return t >= a && t < b; };
-                [...this.brews.values(), ...this.beans.values()].forEach(x => this.normalizeCommentList(x.comments, `aw-${x.id}`, x.date).forEach(c => { if (inMonth(c.timestamp)) comments.set(c.user, (comments.get(c.user) || 0) + 1); }));
+                [...[...this.brews.values()].filter(crewBrew), ...[...this.beans.values()].filter(k => inCrew(String(k.user || k.owner || '')))].forEach(x => this.normalizeCommentList(x.comments, `aw-${x.id}`, x.date).forEach(c => { if (inMonth(c.timestamp) && inCrew(c.user)) comments.set(c.user, (comments.get(c.user) || 0) + 1); }));
                 add('hype', 'Hype Man', 'i-heart', '#D9534F', top(likes, 2), v => `${v} likes given`);
                 add('chatter', 'Chatterbox', 'i-message-square', '#3F8FB0', top(comments, 2), v => `${v} comments`);
                 add('photo', 'Photographer', 'i-camera', '#7D6A58', top(tally(x => x.photo ? 1 : 0), 2), v => `${v} sessions with photos`);
@@ -347,7 +350,7 @@
                 const revealing = revealT >= 0 && revealT < awards.length * 150 + 1200 && this.motionOK();
                 return `
                     <div class="profile-card crew-awards${revealing ? ' revealing' : ''}${open ? '' : ' folded'}" id="crew-awards" style="--n:${awards.length}${revealing ? `;--aw-at:${-revealT}ms` : ''}">
-                        ${head(`Final · ${awards.length} award${awards.length === 1 ? '' : 's'}`, this.storyShareBtn ? this.storyShareBtn('app.openAwardsStory()', 'Share these awards as a picture') : '')}
+                        ${head(`Final · ${awards.length} award${awards.length === 1 ? '' : 's'}`, this.storyShareBtn ? this.storyShareBtn(`app.openAwardsStory('${app.escJs(this.storyScopeKeep ? this.storyScopeKeep() : '')}')`, 'Share these awards as a picture') : '')}
                         ${champ}
                         ${open ? `<div class="aw-grid">${this.awardTilesHtml(awards, false, { rivalry: aw => this.awardRivalry(aw, prevBy.get(aw.key)) })}</div>${raceHtml}` : ''}
                     </div>`;

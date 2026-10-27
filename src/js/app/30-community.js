@@ -137,6 +137,20 @@
 
             isCommunity(type, id) { return Boolean(this.communityIds && this.communityIds.has(`${type}:${id}`)); },
 
+            // v18.6: someone just blocked: their sessions, coffees and comments leave the Discover, community, profile and
+            // coffee copies on this phone now (not when those feeds next reload)
+            forgetPerson(name) {
+                const n = String(name || '').toLowerCase(); if (!n) return;
+                const theirs = e => String(e.owner || e.user || '').toLowerCase() === n;
+                const clean = list => (list || []).filter(e => !((e.type === 'brew' || e.type === 'bean') && theirs(e)))
+                    .map(e => (Array.isArray(e.comments) && e.comments.some(c => String(c && c.user || '').toLowerCase() === n) ? { ...e, comments: e.comments.filter(c => String(c && c.user || '').toLowerCase() !== n) } : e));
+                Object.values(this._streams || {}).forEach(st => { st.events = clean(st.events); });
+                if (this.profState) { const p = this.profState(); p.events = clean(p.events); }
+                if (this._coffeeComm) this._coffeeComm.events = clean(this._coffeeComm.events);
+                this.process(this.cloud.events);
+                this._feedHtml = null; this.render();
+            },
+
             // your own like or comment on one of these sessions: keep its copy up to date (your circle's sync won't bring it back)
             noteCommunityPush(event) {
                 if (!event || !this.isCommunity(event.type, event.id)) return;

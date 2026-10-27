@@ -76,6 +76,8 @@
         html[data-look="new"] .nl-tright { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
         html[data-look="new"] .nl-mpill { height: 36px; padding: 0 14px 0 11px; border-radius: 18px; display: inline-flex; align-items: center; gap: 7px; font-size: 15px; font-weight: 650; color: var(--k); white-space: nowrap; background: color-mix(in srgb, var(--c) 88%, transparent); border: 1px solid var(--hl); text-shadow: none; flex: 0 0 auto; }
         html[data-look="new"] .nl-mpill .nl-ic { width: 18px; height: 18px; }
+        html[data-look="new"] .nl-mpill.compact { width: 36px; padding: 0; justify-content: center; }   /* (v18.6: beside a Follow button) */
+        html[data-look="new"] .nl-who .nl-sig { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }   /* (a long name ends in … rather than running under the buttons) */
         html[data-look="new"] .flat .nl-mpill, html[data-look="new"] .nl-mpill.solid { background: var(--pill); -webkit-backdrop-filter: none; backdrop-filter: none; }
         html[data-look="new"] .nl-glass { width: 40px; height: 40px; min-width: 0; min-height: 0; margin: 0; padding: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--c) 88%, transparent); border: 1px solid var(--hl); color: var(--t); flex: 0 0 auto; box-shadow: none; cursor: pointer; }
         /* (frosted glass only where there are a few: the Session screen's top buttons. A feed card's pills are solid, so a
@@ -521,7 +523,7 @@
 
         /* ---- Profile: tinted in the person's palate ---- */
         html[data-look="new"] #main-content[data-fam] { background: var(--pg); color: var(--t); }
-        html[data-look="new"] #main-content[data-fam] #grid.profile-view { background: transparent; color: var(--t); padding-bottom: calc(120px + var(--safe-bottom, 0px)) !important; min-height: 100vh; }
+        html[data-look="new"] #main-content[data-fam] #grid.profile-view { background: transparent; color: var(--t); padding-bottom: calc(120px + var(--safe-bottom, 0px)) !important; min-height: 100vh; align-content: start; }   /* (v18.6: a short profile stretched its rows apart to fill the screen) */
         html[data-look="new"] .profile-view .stat-row { display: flex !important; gap: 8px; }
         html[data-look="new"] .profile-view .stat-row .stat-box { flex: 1 1 0; min-width: 0; }
         /* (the top bar says Profile, with Achievements and Settings; the people are the first row, scrolling sideways) */
@@ -610,13 +612,21 @@
         html[data-look="new"] .modal-card label, html[data-look="new"] .modal-card .lbl { font-size: 13px !important; font-weight: 600 !important; letter-spacing: 0 !important; text-transform: none !important; color: var(--l, var(--nl-muted)) !important; }
         html[data-look="new"] .modal-card input[type="text"], html[data-look="new"] .modal-card input[type="number"], html[data-look="new"] .modal-card input[type="date"], html[data-look="new"] .modal-card input[type="search"], html[data-look="new"] .modal-card input[type="email"], html[data-look="new"] .modal-card select, html[data-look="new"] .modal-card textarea, html[data-look="new"] .pp-search { min-height: 50px; border-radius: 14px !important; background: var(--pill, var(--nl-surface2)) !important; border: 1px solid var(--hl, var(--nl-line)) !important; box-shadow: none !important; color: var(--t, var(--nl-ink)) !important; font-size: 16px !important; padding: 0 14px; }
         html[data-look="new"] .modal-card textarea { padding: 13px 14px; line-height: 1.45; resize: none; }
+        /* v18.6: the profile's Equipment box (it sits outside the sheets) gets the same fields, and its button stays on one line */
+        html[data-look="new"] .gear-locker input[type="text"], html[data-look="new"] .gear-locker select { min-height: 50px; border-radius: 14px !important; background: var(--pill, var(--nl-surface2)) !important; border: 1px solid var(--hl, var(--nl-line)) !important; box-shadow: none !important; color: var(--t, var(--nl-ink)) !important; font-size: 16px !important; padding: 0 14px; min-width: 0; width: 100%; box-sizing: border-box; }
+        html[data-look="new"] .gear-locker div:has(> #new-equipment-type) { grid-template-columns: minmax(0, 1fr) auto !important; }   /* (v18.6: the kind picker as wide as its longest word, the name takes the rest) */
+        html[data-look="new"] .gear-locker #new-equipment-type { width: auto; }
+        html[data-look="new"] .gear-locker input[type="text"]::placeholder { color: var(--ph, var(--nl-faint)) !important; }
+        html[data-look="new"] .gear-locker #equipment-save-btn, html[data-look="new"] .gear-locker #equipment-cancel-btn { white-space: nowrap; min-height: 48px; padding-left: 12px !important; padding-right: 12px !important; }
         /* v17.4: Add coffee: the same room above every field (the classic rule left some labels touching the field above) */
         html[data-look="new"] #bean-modal form label:not(.method-check) { margin: 18px 0 8px !important; }
         html[data-look="new"] #bean-modal form > div[style*="grid"] { row-gap: 18px !important; margin-top: 18px; }
         html[data-look="new"] #bean-modal form > div[style*="grid"]:first-of-type { margin-top: 0; }
         html[data-look="new"] #bean-modal form > div[style*="grid"] label { margin-top: 0 !important; }
         html[data-look="new"] .modal-card input::placeholder, html[data-look="new"] .modal-card textarea::placeholder { color: var(--ph, var(--nl-faint)) !important; }
-        html[data-look="new"] #brew-modal input[name="dose"], html[data-look="new"] #brew-modal input[name="yield"], html[data-look="new"] #brew-modal input[name="time"] { height: 64px; font-size: 26px !important; font-weight: 700; letter-spacing: -0.01em; }
+        html[data-look="new"] #brew-modal input[name="dose"], html[data-look="new"] #brew-modal input[name="yield"], html[data-look="new"] #brew-modal input[name="time"], html[data-look="new"] #brew-modal #recipe-ratio { height: 64px; font-size: 26px !important; font-weight: 700; letter-spacing: -0.01em; }   /* (v18.6: the recipe's ratio the same size as dose and water beside it) */
+        html[data-look="new"] #brew-modal .rc-ratio-in span { font-size: 22px; }
+        html[data-look="new"] #brew-modal .equipment-summary { padding: 12px 16px !important; margin-top: 8px; font-size: 14px; line-height: 1.35; font-weight: 600; }   /* (v18.6: it was a box with no room, the words on its edges) */
         /* Log a session: the coffee's colors */
         html[data-look="new"] #brew-modal-title { text-align: left; }
         html[data-look="new"] #brew-modal .timer-hero { background: var(--box) !important; border: 1px solid var(--hl) !important; border-radius: 22px !important; box-shadow: none !important; }
@@ -673,7 +683,7 @@
         /* v17.4: the coffee page's hero has no line under Log / Clone (it touched the buttons) */
         html[data-look="new"] #detail-view .detail-hero { border-bottom: 0 !important; }
         /* v17.4: a coffee's whole name under its tile (no "Gesha Village Lo…"), and its roaster on up to two lines */
-        html[data-look="new"] .fab-tile .fab-name { display: block; -webkit-line-clamp: unset; overflow: visible; overflow-wrap: break-word; hyphens: auto; line-height: 1.18; }
+        html[data-look="new"] .fab-tile .fab-name { display: block; -webkit-line-clamp: unset; overflow: visible; overflow-wrap: break-word; -webkit-hyphens: auto; hyphens: auto; line-height: 1.18; }
         html[data-look="new"] .fab-tile .fab-roaster { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.25; margin-top: 1px; overflow-wrap: break-word; }
         /* v17.4: "Pin as master recipe?" is the same switch as "Ask for help" and Settings (its dark knob was hard to see);
            the rating's "Skip Rating" button only once there's a rating to skip */
@@ -763,3 +773,9 @@
         html[data-look="new"] .bcv-swatches .bcv-auto { background: conic-gradient(from 200deg, #E7A08C, #E9C77E, #B9CC8C, #8FC2B4, #9DB0DA, #C3A2D6, #E7A08C) !important; position: relative; }
         html[data-look="new"] .bcv-swatches .bcv-auto::after { content: ''; position: absolute; inset: 22%; border-radius: 50%; background: var(--c, #1b1f1c); }
         html[data-look="new"] .bcv-hint { margin: 10px 0 0; font-size: 13.5px; line-height: 1.35; color: var(--l, var(--nl-muted)); }
+        /* v18.6: rating numbers in gold were too faint on light cards; a deeper gold for text only (stars and bars keep the brighter gold) */
+        html[data-look="new"][data-theme="light"] { --nl-gold-ink: #9A6A14; }
+        html[data-look="new"][data-theme="dark"] { --nl-gold-ink: var(--nl-gold); }
+        html[data-look="new"] .ro-cof-n, html[data-look="new"] .fp-side, html[data-look="new"] .cmp-rating, html[data-look="new"] .sc-rate b, html[data-look="new"] .ro-hero .stat-num small, html[data-look="new"] .card-rating, html[data-look="new"] .rating-score { color: var(--nl-gold-ink); }
+        html[data-look="new"] .steeps-hint, html[data-look="new"] .lbl-opt { color: var(--nl-muted); }
+        html[data-look="new"] .ro-rate { color: var(--t, var(--nl-ink)); font-size: 14px; font-weight: 700; }   /* (a roaster's number reads like a coffee card's) */

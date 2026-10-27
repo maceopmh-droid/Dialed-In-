@@ -216,7 +216,7 @@
                 if (!list) return;
                 list.innerHTML = '';
                 if (!this.equipment.length) {
-                    list.innerHTML = '<div style="text-align:center; color:#999; padding:1rem; font-size:0.85rem;">No equipment added yet</div>';
+                    list.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:1rem; font-size:0.85rem;">No equipment added yet</div>';
                     return;
                 }
 
@@ -294,7 +294,7 @@
 
                     const label = document.createElement('label');
                     label.className = 'equipment-select-label';
-                    label.innerHTML = `<strong>${this.esc(eq.name)}</strong> <span style="color:#999; font-size:0.75rem;">(${this.esc(eq.type)})</span>`;
+                    label.innerHTML = `<strong>${this.esc(eq.name)}</strong> <span style="color:var(--text-muted); font-size:0.75rem;">(${this.esc(eq.type)})</span>`;
 
                     item.appendChild(checkbox);
                     item.appendChild(label);
@@ -482,7 +482,8 @@
                     t.int = null;
                     if (this.teaSteepStop && this.teaSteepStop(t)) { this.paintTimer(); this.renderTasteTip(); return; }   // v17.0: a tea steep (each stop is one steep)
                     const input = document.getElementById('time-input');
-                    if (input) input.value = this.methodProfile(this.activeMethod).minutes ? String(Math.max(0.5, Math.round(t.acc / 30) / 2)) : Math.round(t.acc);   // (v17.1: a simmer is timed in minutes)
+                    const prof = this.methodProfile(this.activeMethod);
+                    if (input) input.value = prof.hours ? String(Math.max(0.5, Math.round(t.acc / 1800) / 2)) : prof.minutes ? String(Math.max(0.5, Math.round(t.acc / 30) / 2)) : Math.round(t.acc);   // (v17.1: a simmer is timed in minutes; v18.6: a cold brew or cold steep in hours, to the half hour)
                     this.paintTimer();
                     this.renderTasteTip();
                     return;

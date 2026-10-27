@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v18.5 -->
+<!-- Dialed In v18.6 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="18.5">
+    <meta name="dialed-in-version" content="18.6">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -369,7 +369,7 @@
             <div id="d-everyone-pane" class="detail-extra-pane"></div>
             <div id="d-compare-pane" class="compare-panel">
                 <div class="sweet-card cmp-wrap">
-                    <div class="sw-head"><h3>Compare</h3><button type="button" class="story-share" aria-label="Share this comparison as a picture" onclick="event.stopPropagation(); app.openCompareStory()"><svg class="icon"><use href="#i-share-2"/></svg></button><p>Any two sessions side by side. Starts with the latest against the best-rated.</p></div>
+                    <div class="sw-head"><h3>Compare</h3><button type="button" class="story-share" id="compare-share" aria-label="Share this comparison as a picture" onclick="event.stopPropagation(); app.openCompareStory()"><svg class="icon"><use href="#i-share-2"/></svg></button><p>Any two sessions side by side. Starts with the latest against the best-rated.</p></div>
                     <div class="cmp-pickers">
                         <label class="cmp-pick a"><span>A</span><select id="compare-a-select" onchange="app.renderComparePanel()"></select></label>
                         <label class="cmp-pick b"><span>B</span><select id="compare-b-select" onchange="app.renderComparePanel()"></select></label>
@@ -517,7 +517,7 @@
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v18.5</div>
+            <div class="app-version">Dialed In · v18.6</div>
         </div>
     </div>
 
@@ -577,8 +577,8 @@
                 <input type="text" name="variety" placeholder="e.g., Gesha, SL28, Bourbon...">
                 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem;">
-                    <div><label>Origin</label><input type="text" name="origin"></div>
-                    <div><label id="lbl-process">Process</label><input type="text" name="process"></div>
+                    <div><label>Origin</label><input type="text" name="origin" placeholder="e.g., Ethiopia, Colombia"></div>
+                    <div><label id="lbl-process">Process</label><input type="text" name="process" placeholder="e.g., Washed, Natural, Honey"></div>
                 </div>
                 
                 <div class="coffee-only">
@@ -811,9 +811,9 @@
                 </div>
 
                 <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.2rem;">
-                    <div><label id="master-lbl-dose">Dose (g)</label><input type="number" step="0.1" name="dose" required></div>
-                    <div><label id="master-lbl-yield">Pull (g)</label><input type="number" step="0.1" name="yield" required></div>
-                    <div><label id="master-lbl-time">Time (s)</label><input type="number" name="time" required></div>
+                    <div><label id="master-lbl-dose">Dose (g)</label><input type="number" step="any" min="0" inputmode="decimal" name="dose" required></div>
+                    <div><label id="master-lbl-yield">Pull (g)</label><input type="number" step="any" min="0" inputmode="decimal" name="yield" required></div>
+                    <div><label id="master-lbl-time">Time (s)</label><input type="number" step="any" min="0" inputmode="decimal" name="time" required></div>
                 </div>
 
                 <label>Equipment Used</label>

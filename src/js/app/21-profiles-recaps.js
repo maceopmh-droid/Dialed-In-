@@ -162,7 +162,7 @@
                     const bean = this.beans.get(String(b.beanId));
                     if (bean) {
                         this.originList(bean.origin).forEach(o => bump(dims.origins, o, w));
-                        bump(dims.processes, this.normalizeTag(bean.process), w);
+                        [...new Set(String(bean.process || '').split(/\s*(?:,|&|\+|\/)\s*/).map(x => this.normalizeTag(x)).filter(Boolean))].forEach(x => bump(dims.processes, x, w));   // (v18.6: "Washed, Fermented" is two: the palate listed "Washed · Washed, Fermented")
                         bump(dims.roasts, String((k === 'tea' ? bean.teaType : bean.roast) || '').trim(), w);   // (a tea's type where a coffee's roast goes)
                         bump(dims.varieties, this.normalizeTag(bean.variety), w);
                     }
@@ -682,10 +682,10 @@
                 });
                 s.newBeans = [...firstSeen.values()].filter(inRange).length;
                 const myKeys = new Set(brews.map(b => this.groupKeyOfBrew(b)));
-                const buddies = new Map();
+                const buddies = new Map(), crewOK = this.crewFilter ? this.crewFilter() : () => true;   // (v18.6: a brew buddy from your crew, not a stranger from Discover)
                 this.brews.forEach(b => {
                     const owner = this.getBrewOwner(b);
-                    if (owner === user || !inRange(this.toTime(b.date)) || !myKeys.has(this.groupKeyOfBrew(b))) return;
+                    if (owner === user || !inRange(this.toTime(b.date)) || !myKeys.has(this.groupKeyOfBrew(b)) || !crewOK(b)) return;
                     buddies.set(owner, (buddies.get(owner) || 0) + 1);
                 });
                 const buddy = [...buddies.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0];

@@ -37,6 +37,7 @@
                 if (!name || name === 'Unknown') return;
                 if (!this.acctOn() && !(this.knownPeople().includes(name) || this.hasLoggedData(name))) return;
                 ['people-modal', 'notif-modal', 'review-modal'].forEach(id => { const m = document.getElementById(id); if (m) m.classList.remove('active'); });
+                if (this.sessionViewActive && this.sessionViewActive()) this.closeSession(true);   // v18.6: a name on the Session screen (the profile opened hidden behind it)
                 // a name on a coffee or roaster page: leave the page for the profile (it would otherwise stay on top)
                 const dv = document.getElementById('detail-view');
                 if (dv && dv.classList.contains('active')) { dv.classList.remove('active'); this.openCommentId = null; this.navStack = []; }

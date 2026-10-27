@@ -174,8 +174,8 @@
                 ph('roaster', '', 'e.g., Mountain Leaf Tea Co.');
                 ph('name', '', 'e.g., Long Jing, Darjeeling');
                 ph('variety', 'e.g., Gesha, SL28, Bourbon...', 'e.g., Longjing #43, Yabukita');
-                ph('origin', '', 'e.g., Zhejiang, China');
-                ph('process', '', 'e.g., Pan-fired, Roasted, Aged');
+                ph('origin', 'e.g., Ethiopia, Colombia', 'e.g., Zhejiang, China');
+                ph('process', 'e.g., Washed, Natural, Honey', 'e.g., Pan-fired, Roasted, Aged');
                 form.querySelectorAll('.tea-only').forEach(el => { el.hidden = !tea; });
                 form.querySelectorAll('.coffee-only').forEach(el => { el.hidden = tea; });
                 this.paintBeanBlend();   // v17.1: your own blend needs no brand

@@ -80,7 +80,7 @@
         .fab-sheet .sheet-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
         .fab-sheet h2 { margin: 0; font-size: 1.25rem; }
         .fab-sheet .sheet-head p { margin: 3px 0 0; font-size: 0.82rem; color: var(--text-muted); }
-        .fab-list { display: grid; gap: 8px; max-height: 60vh; overflow-y: auto; }
+        .fab-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; max-height: 60vh; overflow-y: auto; }   /* (v18.6: a long name no longer widens the rows past the sheet) */
         .fab-pick { display: flex; align-items: center; gap: 12px; width: 100%; padding: 8px; border-radius: 16px; border: 1px solid rgba(var(--hair-rgb), 0.07); background: rgba(var(--glass-rgb), 0.85); text-align: left; cursor: pointer; color: inherit; font: inherit; min-height: 56px; }
         .fab-pick.current { border-color: rgba(var(--matcha-rgb), 0.55); background: rgba(var(--matcha-rgb), 0.1); }
         .fab-art.mini { width: 44px; height: 44px; aspect-ratio: auto; border-radius: 12px; flex-shrink: 0; }
@@ -162,6 +162,7 @@
         .method-extras { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem; margin-top: 1.2rem; align-items: end; }
         .method-check { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--ink-2); min-height: 44px; text-transform: none; letter-spacing: 0; }
         .method-check input { width: 20px; height: 20px; accent-color: var(--matcha); }
+        .modal-card label.method-check { display: flex; text-transform: none; letter-spacing: 0; }   /* v18.6: the form's label rule had made it a block, so a long one wrapped under its box */
         .recipe-card { margin: 1.2rem 0; padding: 16px; border-radius: 22px; background: linear-gradient(180deg, rgba(var(--glass-rgb), 0.9), rgba(var(--glass-rgb), 0.7)); border: 1px solid rgba(var(--hair-rgb), 0.07); box-shadow: var(--shadow-soft); }
         .rc-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
         .rc-head h3 { margin: 0; font-size: 1.05rem; }

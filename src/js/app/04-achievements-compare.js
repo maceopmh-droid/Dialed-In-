@@ -272,6 +272,8 @@
                 const results = document.getElementById('compare-results');
                 if (!aSel || !bSel || !results) return;
                 const brews = [...this.detailBrews].sort((a, b) => this.localTime(b.date) - this.localTime(a.date));
+                const share = document.getElementById('compare-share');
+                if (share && share.style) share.style.display = brews.length < 2 ? 'none' : '';   // v18.6: nothing to share until there are two
                 if (brews.length < 2) {
                     aSel.innerHTML = bSel.innerHTML = brews.length ? `<option value="${this.esc(brews[0].id)}">${this.esc(this.shortDate(brews[0].date))}</option>` : '<option value="">No sessions</option>';
                     results.innerHTML = '<div class="panel-empty">Log at least two sessions of this coffee to compare them.</div>';
@@ -394,7 +396,8 @@
                         isMaster: false,
                         notes: '',
                         flavors: this.extractFlavors(mine),
-                        equipment: kept.length ? kept : (this.lastEquipment[mine.method || ''] || [])
+                        equipment: kept.length ? kept : (this.lastEquipment[mine.method || ''] || []),
+                        ...this.cloneExtras(mine)   // v18.6: the method's own settings too (brewer, temperature, teabags, inverted…)
                     });
                     this.showToast('Session cloned. Timer and weights are ready for a live brew.');
                     return;
@@ -411,9 +414,18 @@
                     isMaster: false,
                     notes: '',
                     flavors: [],
-                    equipment: this.lastEquipment[theirs.method || ''] || []
+                    equipment: this.lastEquipment[theirs.method || ''] || [],
+                    ...this.cloneExtras(theirs, true)   // v18.6: their method's settings (temperature, teabags…), not their brewer
                 });
                 this.showToast(`You haven't brewed this one yet, so this copies ${who}'s latest recipe. Grind is left blank (different grinders).`);
+            },
+
+            // v18.6: what Clone carries of a session's method settings: not its steeps (a new cup is timed afresh) and, from
+            // someone else's session, not their brewer (your own gear)
+            cloneExtras(b, theirs = false) {
+                const x = this.extrasFrom ? this.extrasFrom(b) : {};
+                delete x.steeps; if (theirs) delete x.brewer;
+                return Object.fromEntries(Object.entries(x).filter(([, v]) => !(v === '' || v === false || v === 0 || v == null || (Array.isArray(v) && !v.length))));
             },
 
             extractFlavors(brew) {
