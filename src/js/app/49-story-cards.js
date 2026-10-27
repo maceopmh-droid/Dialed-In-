@@ -101,9 +101,10 @@
                 return { ctx, k, y, get c() { return done || (done = app.storyFinish(c, cc, face)); } };
             },
 
-            // v17.7: Instagram covers about the top and bottom 14% of a story with its own bars, so everything that matters
-            // stays between these two lines (of 1920)
-            STORY_SAFE: [270, 1650],
+            // v17.7: Instagram covers the top of a story with its own bars (and, while posting, the bottom with "Add a caption"),
+            // so everything that matters stays between these two lines (of 1920). (v17.8: lower, from Maceo's story screen:
+            // the image ends above Instagram's bottom buttons on an iPhone, only the caption line sits over it)
+            STORY_SAFE: [250, 1790],
             // the person's real profile picture, read so it can be drawn into the picture (null when they have none)
             async storyFace(name) {
                 try {
