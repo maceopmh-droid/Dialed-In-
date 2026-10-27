@@ -176,7 +176,14 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     // v18.3: links that can't be had right now don't stop the sync (comments and the rest still come in);
                     // those photos wait for the next sync
                     try { out = await this.call('/storage/v1/object/sign/photos', { expiresIn: 7200, paths: batch.map(p => p.slice(3)) }, { signal }); }
-                    catch (e) { if ((signal && signal.aborted) || e.signedOut) throw e; failed++; console.error('Photo links:', e); continue; }
+                    catch (e) {
+                        if ((signal && signal.aborted) || e.signedOut) throw e;
+                        failed++; console.error('Photo links:', e);
+                        // v18.5: they still get an address (one that shows nothing), so the app keeps knowing they have a photo:
+                        // without one, the owner's next save of that session sent "no photo" and the photo was deleted
+                        batch.forEach(p => { if (!this.links.get(p)) this.links.set(p, { url: this.base() + '/storage/v1/object/missing', until: 0 }); });
+                        continue;
+                    }
                     // a link is reused for an hour, so it always has at least an hour left (and the reply text stays the same between syncs)
                     (Array.isArray(out) ? out : []).forEach((r, k) => {
                         const p = 'sb:' + (r && r.path ? r.path : batch[k].slice(3));
