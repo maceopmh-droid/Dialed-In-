@@ -25297,7 +25297,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 // --- under a photo: the shape on the right, just above the coffee's name (beside the roaster)
                 let roomW = maxW;
                 if (photo && shapeImg) {
-                    const bottom = y + (maker ? X(19) : 0) + X(2), h = Math.max(0, Math.min(X(58), bottom - (topY + X(22)))), w = h * shapeImg.width / shapeImg.height;
+                    const bottom = y + (maker ? X(19) : 0) + X(2), h = Math.max(0, Math.min(X(112), bottom - (topY + X(22)))), w = h * shapeImg.width / shapeImg.height;   // (v17.8: bigger)
                     if (h > X(30)) { ctx.drawImage(shapeImg, W - left - w + X(10), bottom - h, w, h); roomW = maxW - w + X(6); }
                 }
                 // --- roaster, name
@@ -25337,16 +25337,14 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     }
                     y += X(20);
                 }
-                // --- the last row: who, with their picture (or initial) in a ring of their color, and their name
+                // --- the last row: who, as their picture (or initial) in a ring of their color (v17.8: no name; Maceo: "get rid of
+                // the name")
                 y += X(14);
-                const ar = X(11), ax = left + ar, ay = y + whoH / 2, col = this.getUserColor(owner) || '#5B7FA6';
+                const ar = X(11), ax = left + ar + X(2.6), ay = y + whoH / 2, col = this.getUserColor(owner) || '#5B7FA6';
                 ctx.beginPath(); ctx.arc(ax, ay, ar + X(2.6), 0, Math.PI * 2); ctx.lineWidth = X(1.3); ctx.strokeStyle = col; ctx.stroke();
                 ctx.beginPath(); ctx.arc(ax, ay, ar, 0, Math.PI * 2); ctx.fillStyle = col; ctx.fill();
                 if (face) { ctx.save(); ctx.beginPath(); ctx.arc(ax, ay, ar, 0, Math.PI * 2); ctx.clip(); const k = Math.max(ar * 2 / face.width, ar * 2 / face.height); ctx.drawImage(face, ax - face.width * k / 2, ay - face.height * k / 2, face.width * k, face.height * k); ctx.restore(); }
-                else { ctx.fillStyle = '#FFFFFF'; ctx.font = sans(700, X(10.5)); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(this.feedInitial(owner), ax, ay + X(0.5)); }
-                ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = hand(X(14)); ctx.fillStyle = this.nameColor(owner, P.c);
-                ctx.fillText(fit(owner, hand(X(14)), maxW - ar * 2 - X(14)), ax + ar + X(9), ay + X(0.5));
-                ctx.textBaseline = 'alphabetic';
+                else { ctx.fillStyle = '#FFFFFF'; ctx.font = sans(700, X(10.5)); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(this.feedInitial(owner), ax, ay + X(0.5)); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; }
                 return c;
             },
             // ===================== v17.4: the New look's colors, without limits =====================
