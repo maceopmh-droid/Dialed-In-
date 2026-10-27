@@ -9,7 +9,7 @@ SELECT replaceRegexpAll(log_attributes['request.path'], '/[^/]*[.](jpg|jpeg|png|
        round(quantile(0.5)(toFloat64OrZero(log_attributes['response.origin_time']))) AS p50,
        round(quantile(0.95)(toFloat64OrZero(log_attributes['response.origin_time']))) AS p95,
        round(max(toFloat64OrZero(log_attributes['response.origin_time']))) AS mx
-FROM logs WHERE source = 'edge_logs' GROUP BY path, m, code ORDER BY code DESC, n DESC LIMIT 70
+FROM logs WHERE source = 'edge_logs' AND log_attributes['request.method'] <> 'OPTIONS' AND (toInt32OrZero(log_attributes['response.status_code']) >= 300 OR toFloat64OrZero(log_attributes['response.origin_time']) > 1500) GROUP BY path, m, code ORDER BY code DESC, n DESC LIMIT 40
 SQL
 read -r -d '' Q2 <<'SQL'
 SELECT log_attributes['parsed.sql_state_code'] AS code,
@@ -20,6 +20,6 @@ SQL
 read -r -d '' Q3 <<'SQL'
 SELECT log_attributes['response.status_code'] AS code, count() AS n FROM logs WHERE source = 'function_edge_logs' GROUP BY code ORDER BY code
 SQL
-echo "API calls in the last ${HOURS:-24} h by call and status, with server time in ms (p50, p95, max):"; q "$Q1"
+echo "API calls in the last ${HOURS:-24} h that failed or took over 1.5 s, by call and status (server ms p50, p95, max):"; q "$Q1"
 echo "database errors in the last ${HOURS:-24} h:"; q "$Q2"
 echo "edge function calls by status:"; q "$Q3"
