@@ -30,14 +30,14 @@ jobs:
                   --data-urlencode "sql=$1" --data-urlencode "iso_timestamp_start=$start" --data-urlencode "iso_timestamp_end=$end"; }
           {
             echo "edge log fields (names only):"
-            q "SELECT groupUniqArray(k) AS keys FROM (SELECT arrayJoin(mapKeys(log_attributes)) AS k FROM logs WHERE source_name = 'edge_logs' AND timestamp > now() - INTERVAL 1 HOUR)" | jq -c '.result // .'
+            q "SELECT groupUniqArray(k) AS keys FROM (SELECT arrayJoin(mapKeys(log_attributes)) AS k FROM logs WHERE source = 'edge_logs' AND timestamp > now() - INTERVAL 1 HOUR)" | jq -c '.result // .'
             for f in pull_events data_version push_event; do
               echo "$f calls by hour (UTC) and status:"
-              q "SELECT formatDateTime(toStartOfHour(timestamp), '%H') AS hr, log_attributes['response.status_code'] AS code, count() AS n FROM logs WHERE source_name = 'edge_logs' AND log_attributes['request.path'] LIKE '%rpc/$f%' GROUP BY hr, code ORDER BY hr, code" | jq -c '.result // .'
+              q "SELECT formatDateTime(toStartOfHour(timestamp), '%H') AS hr, log_attributes['response.status_code'] AS code, count() AS n FROM logs WHERE source = 'edge_logs' AND log_attributes['request.path'] LIKE '%rpc/$f%' GROUP BY hr, code ORDER BY hr, code" | jq -c '.result // .'
             done
             echo "photo link calls by hour (UTC) and status:"
-            q "SELECT formatDateTime(toStartOfHour(timestamp), '%H') AS hr, log_attributes['response.status_code'] AS code, count() AS n FROM logs WHERE source_name = 'edge_logs' AND log_attributes['request.path'] LIKE '%object/sign/photos%' GROUP BY hr, code ORDER BY hr, code" | jq -c '.result // .'
+            q "SELECT formatDateTime(toStartOfHour(timestamp), '%H') AS hr, log_attributes['response.status_code'] AS code, count() AS n FROM logs WHERE source = 'edge_logs' AND log_attributes['request.path'] LIKE '%object/sign/photos%' GROUP BY hr, code ORDER BY hr, code" | jq -c '.result // .'
             echo "database statement timeouts by hour (UTC):"
-            q "SELECT formatDateTime(toStartOfHour(timestamp), '%H') AS hr, count() AS n FROM logs WHERE source_name = 'postgres_logs' AND event_message LIKE '%statement timeout%' GROUP BY hr ORDER BY hr" | jq -c '.result // .'
+            q "SELECT formatDateTime(toStartOfHour(timestamp), '%H') AS hr, count() AS n FROM logs WHERE source = 'postgres_logs' AND log_attributes['parsed.sql_state_code'] = '57014' GROUP BY hr ORDER BY hr" | jq -c '.result // .'
           } > "$RUNNER_TEMP/l.txt" 2>&1
           cat "$RUNNER_TEMP/l.txt"; bash supabase/report.sh "Logs" "$RUNNER_TEMP/l.txt"
