@@ -627,12 +627,12 @@
                 const L = this.levelOf(c), fmt = x => Math.round(x).toLocaleString();
                 const S = this.storyStart({ who }); if (!S) return null;
                 const { ctx, k } = S; let y = 360;
-                const svg = (k.nl && this.nlLevelBadge ? this.nlLevelBadge(L.i, 480) : this.levelSvg(L.i, 480)).replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ');   // (v17.5: the numbered badge in the New look)
+                const svg = (k.nl && this.nlLevelBadge ? this.nlLevelBadge(L.i, 480) : this.levelSvg(L.i, 480)).replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ');   // (v17.9: the New look's badge, its icon)
                 const badge = await this.storyLoad('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
                 if (badge) ctx.drawImage(badge, (k.W - 420) / 2, y, 420, 420);
                 y += 420 + 90;
                 ctx.textAlign = 'center';
-                const unit = k.nl ? ' points' : ' crema', tier = this.levelTiers()[L.t].name;
+                const unit = ' crema', tier = this.levelTiers()[L.t].name;   // (v17.9: crema in the New look again)
                 ctx.font = k.nl ? k.hand(40) : k.sans(700, 36); ctx.fillStyle = k.nl ? k.accent : k.muted; ctx.fillText(k.nl ? `${who === this.user ? 'My' : `${who}'s`} level · ${tier === 'The top' ? 'Top' : tier}` : `${who === this.user ? 'My' : `${who}'s`} level · Level ${L.n}`, k.W / 2, y);
                 ctx.font = k.serif(600, 110); ctx.fillStyle = k.nl ? k.name : k.ink; ctx.fillText(k.fit(k.nl ? `Level ${L.n}` : L.name, k.W - k.PAD * 2), k.W / 2, y + 130);
                 ctx.font = k.sans(700, 54); ctx.fillStyle = k.nl ? k.ink : '#FFFFFF'; const cr = `${fmt(L.crema)}`; const cw = ctx.measureText(cr).width; ctx.font = k.sans(500, 40); const lw = ctx.measureText(unit).width;
@@ -641,7 +641,7 @@
                 if (L.next) {
                     const bw = k.W - k.PAD * 2 - 120, bx = (k.W - bw) / 2;
                     k.round(bx, y, bw, 30, 15); ctx.fillStyle = k.nl ? k.grid : 'rgba(255,255,255,0.1)'; ctx.fill();
-                    const T = this.levelTiers()[L.t]; const g = ctx.createLinearGradient(bx, 0, bx + bw, 0); g.addColorStop(0, T.from); g.addColorStop(1, T.to);
+                    const T = this.levelTiers()[L.t], NT = k.nl && this.NL_TIER_LOOK ? this.NL_TIER_LOOK[L.t] : null; const g = ctx.createLinearGradient(bx, 0, bx + bw, 0); g.addColorStop(0, NT ? NT.ring : T.from); g.addColorStop(1, NT ? (L.t === 4 ? NT.bg : NT.ink) : T.to);
                     k.round(bx, y, Math.max(30, bw * L.pct / 100), 30, 15); ctx.fillStyle = g; ctx.fill();
                     ctx.textAlign = 'center'; ctx.font = k.sans(500, 36); ctx.fillStyle = k.ink2; ctx.fillText(k.nl ? `${fmt(L.next.min - L.crema)} more to level ${L.n + 1}` : `${fmt(L.next.min - L.crema)} more to ${L.next.name}`, k.W / 2, y + 96); ctx.textAlign = 'left';
                     y += 150;
