@@ -32,6 +32,6 @@ jobs:
             echo "photo link calls by hour (UTC) and status:"
             q "SELECT formatDateTime(toStartOfHour(timestamp), '%H') AS hr, log_attributes['response.status_code'] AS code, count() AS n FROM logs WHERE source = 'edge_logs' AND log_attributes['request.path'] LIKE '%object/sign/photos%' GROUP BY hr, code ORDER BY hr, code" | jq -c '.result // .'
             echo "photo link results in the storage logs (status, error code, error name; counts only):"
-            q "SELECT formatDateTime(toStartOfHour(timestamp), '%H') AS hr, log_attributes['res.statusCode'] AS st, log_attributes['error.statusCode'] AS est, log_attributes['error.errorCode'] AS code, log_attributes['error.name'] AS name, count() AS n FROM logs WHERE source = 'storage_logs' AND log_attributes['req.url'] LIKE '%sign/photos%' AND log_attributes['res.statusCode'] <> '200' GROUP BY hr, st, est, code, name ORDER BY hr" | jq -c '.result // .'
+            q "SELECT formatDateTime(toStartOfHour(timestamp), '%H') AS hr, log_attributes['res.statusCode'] AS st, log_attributes['error.statusCode'] AS est, log_attributes['error.errorCode'] AS code, left(replaceRegexpAll(log_attributes['error.message'], '[0-9a-f-]{36}', '<id>'), 80) AS msg, count() AS n FROM logs WHERE source = 'storage_logs' AND log_attributes['error.errorCode'] = 'InvalidJWT' GROUP BY hr, st, est, code, msg ORDER BY hr" | jq -c '.result // .'
           } > "$RUNNER_TEMP/l.txt" 2>&1
           cat "$RUNNER_TEMP/l.txt"; bash supabase/report.sh "Logs" "$RUNNER_TEMP/l.txt"
