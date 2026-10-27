@@ -25,13 +25,7 @@ jobs:
         if: always()
         run: |
           set +e
-          end=$(date -u +%Y-%m-%dT%H:%M:%SZ); start=$(date -u -d '-6 hours' +%Y-%m-%dT%H:%M:%SZ)
-          q() { curl -sS -G "https://api.supabase.com/v1/projects/$PROJECT_REF/analytics/endpoints/logs" -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
-                  --data-urlencode "sql=$1" --data-urlencode "iso_timestamp_start=$start" --data-urlencode "iso_timestamp_end=$end"; }
           {
-            echo "photo link calls by hour (UTC) and status:"
-            q "SELECT formatDateTime(toStartOfHour(timestamp), '%H') AS hr, log_attributes['response.status_code'] AS code, count() AS n FROM logs WHERE source = 'edge_logs' AND log_attributes['request.path'] LIKE '%object/sign/photos%' GROUP BY hr, code ORDER BY hr, code" | jq -c '.result // .'
-            echo "photo link results in the storage logs (status, error code, error name; counts only):"
-            q "SELECT formatDateTime(toStartOfHour(timestamp), '%H') AS hr, log_attributes['res.statusCode'] AS st, log_attributes['error.statusCode'] AS est, log_attributes['error.errorCode'] AS code, left(replaceRegexpAll(log_attributes['error.message'], '[0-9a-f-]{36}', '<id>'), 80) AS msg, count() AS n FROM logs WHERE source = 'storage_logs' AND log_attributes['error.errorCode'] = 'InvalidJWT' GROUP BY hr, st, est, code, msg ORDER BY hr" | jq -c '.result // .'
+            bash supabase/diag_logs.sh
           } > "$RUNNER_TEMP/l.txt" 2>&1
           cat "$RUNNER_TEMP/l.txt"; bash supabase/report.sh "Logs" "$RUNNER_TEMP/l.txt"
