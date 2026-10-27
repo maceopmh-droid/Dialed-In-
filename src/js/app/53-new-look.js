@@ -876,8 +876,9 @@
                 const rr = (x, y, w, h, r) => { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); };
                 const fit = (text, font, maxW) => { ctx.font = font; let t = String(text || ''); if (ctx.measureText(t).width <= maxW) return t; while (t.length > 1 && ctx.measureText(t + '…').width > maxW) t = t.slice(0, -1); return t.trimEnd() + '…'; };
                 ctx.fillStyle = P.c; ctx.fillRect(0, 0, W, H);
-                // v17.7: made for an Instagram story. Everything that matters sits inside its safe area (the top and bottom
-                // ~14% are covered by Instagram's own bars), the person's real profile picture, and nothing overlaps.
+                // v17.7: made for an Instagram story: everything that matters between its bars, nothing overlapping. v17.8 (Maceo's
+                // sketch on the story screen): Dialed In at the top (Instagram already shows who posted it there), the person
+                // with their real picture at the bottom, the shape beside the coffee's name, the words lower down.
                 const SAFE_T = this.STORY_SAFE[0], SAFE_B = this.STORY_SAFE[1], left = X(14), maxW = W - left * 2;
                 const tasted = this.tastedKeys(b);
                 const shapeUrl = tasted.length && typeof FlavorShape !== 'undefined' ? FlavorShape.snapshot(this.shapeValues(b), null, { width: 600, height: 450, zoom: 1, labels: false, lines: false, ring: this.NL_RING, fit: true, isSet: k => tasted.includes(k), setKey: `${tasted.join(',')}|nl-share-${fam}`, names: tea ? 'tea' : null, theme: this.nlShapeTheme(fam, false) }) : '';   // (v17.5: as on the cards: no box, the measure)
@@ -892,9 +893,8 @@
                 const words = this.getBrewNotes(b), notes = this.brewNoteList(b);
                 ctx.font = sans(400, X(11.5));
                 const wrapWords = (n) => { if (!words) return []; const lines = [], parts = `“${words}”`.split(/\s+/); let cur = ''; parts.forEach(w => { const t = cur ? cur + ' ' + w : w; if (ctx.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; } else cur = t; }); if (cur) lines.push(cur); const shown = lines.slice(0, n); if (lines.length > n) shown[n - 1] = fit(shown[n - 1] + '…', sans(400, X(11.5)), maxW); return shown; };
-                const miniH = photo && shapeImg ? X(46) : 0;
-                const footH = Math.max(X(14), miniH);
-                const blockH = lines => (maker ? X(19) : 0) + nz * 1.12 + (tiles.length ? X(10) + X(38) : 0) + (lines ? X(10) + lines * X(16) : 0) + (notes.length ? X(10) + X(20) : 0) + X(12) + footH;
+                const whoH = X(24);
+                const blockH = lines => (maker ? X(19) : 0) + nz * 1.12 + (tiles.length ? X(10) + X(38) : 0) + (lines ? X(10) + lines * X(16) : 0) + (notes.length ? X(10) + X(20) : 0) + X(14) + whoH;
                 let lines = Math.min(3, wrapWords(3).length);
                 const room = photo ? SAFE_B - (SAFE_T + X(150)) : SAFE_B - (SAFE_T + X(40) + X(120));   // (a photo keeps some sky above the words; the big shape some room)
                 while (lines > 1 && blockH(lines) > room) lines--;
@@ -911,31 +911,30 @@
                     const g0 = Math.max(0, y - X(110)), g = ctx.createLinearGradient(0, g0, 0, photoB);
                     g.addColorStop(0, rgba(P.c, 0)); g.addColorStop(0.62, rgba(P.c, 0.88)); g.addColorStop(1, P.c);
                     ctx.fillStyle = g; ctx.fillRect(0, g0, W, photoB - g0 + 1);
-                    const t = ctx.createLinearGradient(0, 0, 0, SAFE_T + X(40));   // (a soft shade behind the name at the top)
+                    const t = ctx.createLinearGradient(0, 0, 0, SAFE_T + X(40));   // (a soft shade behind Dialed In at the top)
                     t.addColorStop(0, 'rgba(0,0,0,0.28)'); t.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = t; ctx.fillRect(0, 0, W, SAFE_T + X(40));
                 }
-                // --- who: their picture (or initial) with a ring in their color, and their name
-                const ay = SAFE_T + X(12), ar = X(11), ax = left + ar;
-                const col = this.getUserColor(owner) || '#5B7FA6';
+                // --- Dialed In, at the top
+                const topY = SAFE_T + X(12);
                 ctx.save();
-                if (photo) { ctx.shadowColor = 'rgba(0,0,0,0.35)'; ctx.shadowBlur = X(5); }
-                ctx.beginPath(); ctx.arc(ax, ay, ar + X(2.6), 0, Math.PI * 2); ctx.lineWidth = X(1.3); ctx.strokeStyle = col; ctx.stroke();
-                ctx.shadowBlur = 0;
-                ctx.beginPath(); ctx.arc(ax, ay, ar, 0, Math.PI * 2); ctx.fillStyle = col; ctx.fill();
-                if (face) { ctx.save(); ctx.beginPath(); ctx.arc(ax, ay, ar, 0, Math.PI * 2); ctx.clip(); const k = Math.max(ar * 2 / face.width, ar * 2 / face.height); ctx.drawImage(face, ax - face.width * k / 2, ay - face.height * k / 2, face.width * k, face.height * k); ctx.restore(); }
-                else { ctx.fillStyle = '#FFFFFF'; ctx.font = sans(700, X(10.5)); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(this.feedInitial(owner), ax, ay + X(0.5)); }
                 if (photo) { ctx.shadowColor = 'rgba(0,0,0,0.45)'; ctx.shadowBlur = X(6); }
-                ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = hand(X(14)); ctx.fillStyle = photo ? '#FFFFFF' : this.nameColor(owner, P.c);
-                ctx.fillText(fit(owner, hand(X(14)), maxW - ar * 2 - X(14)), ax + ar + X(9), ay + X(0.5));
+                ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = hand(X(14)); ctx.fillStyle = photo ? '#FFFFFF' : P.k;
+                ctx.fillText('Dialed In', left, topY);
                 ctx.restore();
                 ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
-                // --- no photo: the big shape between the name and the words
+                // --- no photo: the big shape between Dialed In and the words
                 if (!photo && shapeImg) {
-                    const t0 = ay + ar + X(14), avail = y - X(10) - t0, h = Math.max(0, avail), w = Math.min(maxW, h * shapeImg.width / shapeImg.height), hh = w * shapeImg.height / shapeImg.width;
+                    const t0 = topY + X(20), avail = y - X(10) - t0, h = Math.max(0, avail), w = Math.min(maxW, h * shapeImg.width / shapeImg.height), hh = w * shapeImg.height / shapeImg.width;
                     if (hh > X(40)) ctx.drawImage(shapeImg, (W - w) / 2, t0 + (avail - hh) / 2, w, hh);
                 }
+                // --- under a photo: the shape on the right, just above the coffee's name (beside the roaster)
+                let roomW = maxW;
+                if (photo && shapeImg) {
+                    const bottom = y + (maker ? X(19) : 0) + X(2), h = Math.max(0, Math.min(X(112), bottom - (topY + X(22)))), w = h * shapeImg.width / shapeImg.height;   // (v17.8: bigger)
+                    if (h > X(30)) { ctx.drawImage(shapeImg, W - left - w + X(10), bottom - h, w, h); roomW = maxW - w + X(6); }
+                }
                 // --- roaster, name
-                if (maker) { ctx.font = hand(X(13)); ctx.fillStyle = P.k; ctx.fillText(fit(maker, hand(X(13)), maxW), left, y + X(14)); y += X(19); }
+                if (maker) { ctx.font = hand(X(13)); ctx.fillStyle = P.k; ctx.fillText(fit(maker, hand(X(13)), roomW), left, y + X(14)); y += X(19); }
                 ctx.font = serif(500, nz); ctx.fillStyle = P.n; ctx.fillText(fit(name, serif(500, nz), maxW), left, y + nz * 0.92); y += nz * 1.12;
                 // --- three tiles (the card's: in → out, time, rating; tea: leaf · water, temp, steeps or rating)
                 if (tiles.length) {
@@ -971,9 +970,13 @@
                     }
                     y += X(20);
                 }
-                // --- the last row: Dialed In, and (under a photo) the shape, side by side, never over the chips
-                y += X(12);
-                ctx.font = hand(X(12)); ctx.fillStyle = P.k; ctx.textBaseline = 'middle'; ctx.fillText('Dialed In', left, y + footH / 2); ctx.textBaseline = 'alphabetic';
-                if (miniH) { const h = miniH, w = h * shapeImg.width / shapeImg.height; ctx.drawImage(shapeImg, W - left - w + X(8), y, w, h); }
+                // --- the last row: who, as their picture (or initial) in a ring of their color (v17.8: no name; Maceo: "get rid of
+                // the name")
+                y += X(14);
+                const ar = X(11), ax = left + ar + X(2.6), ay = y + whoH / 2, col = this.getUserColor(owner) || '#5B7FA6';
+                ctx.beginPath(); ctx.arc(ax, ay, ar + X(2.6), 0, Math.PI * 2); ctx.lineWidth = X(1.3); ctx.strokeStyle = col; ctx.stroke();
+                ctx.beginPath(); ctx.arc(ax, ay, ar, 0, Math.PI * 2); ctx.fillStyle = col; ctx.fill();
+                if (face) { ctx.save(); ctx.beginPath(); ctx.arc(ax, ay, ar, 0, Math.PI * 2); ctx.clip(); const k = Math.max(ar * 2 / face.width, ar * 2 / face.height); ctx.drawImage(face, ax - face.width * k / 2, ay - face.height * k / 2, face.width * k, face.height * k); ctx.restore(); }
+                else { ctx.fillStyle = '#FFFFFF'; ctx.font = sans(700, X(10.5)); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(this.feedInitial(owner), ax, ay + X(0.5)); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; }
                 return c;
             },
