@@ -65,14 +65,17 @@
                 const row = (typeof value === 'string') ? { url: value } : value;
                 if (!row || typeof row !== 'object') return null;
                 const rawUrl = String(row.url || row.thumb || row.data || '').trim();
-                const url = this.normalizePhotoUrl(rawUrl);
+                let url = this.normalizePhotoUrl(rawUrl);
+                // v18.5: a photo in storage whose link couldn't be had right now is still a photo (dropping it here made the
+                // owner's next save delete it)
+                if (!url && /^sb:/.test(String(row.path || '')) && typeof Supa !== 'undefined' && Supa.base) url = Supa.base() + '/storage/v1/object/missing';
                 if (!url) return null;
                 if (/^data:image\/[a-z0-9.+-]+;base64,/i.test(url) && url.length > 520000) return null;
                 return {
                     url,
                     fileId: String(row.fileId || this.extractDriveFileId(url) || ''),
                     source: String(row.source || 'library'),
-                    addedAt: row.addedAt || new Date().toISOString(),
+                    addedAt: row.addedAt || '',   // (v18.5: not "now": a time made up on every sync made every unsent edit look changed)
                     ...(row.path ? { path: String(row.path) } : {})   // v14.2: where the new backend stores it (the link expires; this doesn't)
                 };
             },
