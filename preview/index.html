@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v18.3 -->
+<!-- Dialed In v18.4 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="18.3">
+    <meta name="dialed-in-version" content="18.4">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -5553,7 +5553,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v18.3</div>
+            <div class="app-version">Dialed In · v18.4</div>
         </div>
     </div>
 
@@ -6564,7 +6564,9 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (auth) h.Authorization = 'Bearer ' + await this.token();
                 const res = await fetch(this.base() + path, { method, headers: h, ...(body !== undefined ? { body: body instanceof Blob ? body : JSON.stringify(body) } : {}), ...(signal ? { signal } : {}) });
                 const text = await res.text();
-                if (res.status === 401 && auth && !retried) {   // the token ran out on the way (or the phone's clock is off): renew it once and try again
+                // the token ran out on the way (or the phone's clock is off): renew it once and try again. (v18.3: photo storage
+                // says so with a 400 "InvalidJWT", not a 401; unanswered, that failed the whole sync.)
+                if ((res.status === 401 || (res.status === 400 && /InvalidJWT|"exp" claim|jwt expired/i.test(text))) && auth && !retried) {
                     const s = this.session(); if (s && s.refresh_token) this.store(this.SESSION, { ...s, expires_at: 0 });
                     return this.call(path, body, { auth, signal, raw, headers, method, retried: true });
                 }
@@ -6675,9 +6677,14 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const now = Date.now();
                 const want = [...new Set(events.filter(e => e && e.type === 'brew' && e.photo && /^sb:/.test(String(e.photo.path || ''))).map(e => e.photo.path))]
                     .filter(p => !(this.links.get(p) && this.links.get(p).until > now));
+                let failed = 0;
                 for (let i = 0; i < want.length; i += 100) {
                     const batch = want.slice(i, i + 100);
-                    const out = await this.call('/storage/v1/object/sign/photos', { expiresIn: 7200, paths: batch.map(p => p.slice(3)) }, { signal });
+                    let out;
+                    // v18.3: links that can't be had right now don't stop the sync (comments and the rest still come in);
+                    // those photos wait for the next sync
+                    try { out = await this.call('/storage/v1/object/sign/photos', { expiresIn: 7200, paths: batch.map(p => p.slice(3)) }, { signal }); }
+                    catch (e) { if ((signal && signal.aborted) || e.signedOut) throw e; failed++; console.error('Photo links:', e); continue; }
                     // a link is reused for an hour, so it always has at least an hour left (and the reply text stays the same between syncs)
                     (Array.isArray(out) ? out : []).forEach((r, k) => {
                         const p = 'sb:' + (r && r.path ? r.path : batch[k].slice(3));
@@ -6686,7 +6693,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                     });
                 }
                 events.forEach(e => { if (e && e.type === 'brew' && e.photo && this.links.get(e.photo.path)) e.photo = { ...e.photo, url: this.links.get(e.photo.path).url }; });
-                return events;
+                return Object.assign(events, { linksFailed: failed });
             }
         };
 
@@ -6704,7 +6711,9 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 if (!Array.isArray(events)) throw new Error('Unexpected sync response.');
                 await Supa.linkPhotos(events, { signal });
                 const text = JSON.stringify(events);
-                this._last = { v, text, at: Date.now(), who: this.id };   // (a save between the two calls just means one extra download next time)
+                // (a save between the two calls just means one extra download next time; photos still without a link mean
+                // the next sync asks again)
+                this._last = events.linksFailed ? null : { v, text, at: Date.now(), who: this.id };
                 return text;
             },
             async send(ev, { signal } = {}) {
