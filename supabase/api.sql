@@ -216,17 +216,25 @@ language sql stable security definer set search_path = public as $$
 $$;
 
 -- ---------------------------------------------------------------- reading: pull_events()
-create or replace function internal.comments_json(cof uuid, ses uuid) returns jsonb
+-- v18.3: one comment in the app's format, from what the caller may see of it (its parent, its likes). comments_json
+-- (one coffee or session at a time) and pull_events (everything at once) both build comments with it.
+create or replace function internal.comment_build(c comments, parent_ref text, likes jsonb) returns jsonb
 language sql stable set search_path = public as $$
-  select coalesce(jsonb_agg(jsonb_build_object(
+  select jsonb_build_object(
       'id', coalesce(substr(c.legacy_ref, strpos(c.legacy_ref, '#') + 1), c.id::text),
       'user', internal.name_of(c.author_id),
       'text', c.body,
       'timestamp', c.created_at,
-      'parentId', coalesce((select coalesce(substr(p.legacy_ref, strpos(p.legacy_ref, '#') + 1), p.id::text) from comments p where p.id = c.parent_id), ''),
-      'likes', coalesce((select jsonb_agg(internal.name_of(l.user_id) order by l.created_at) from comment_likes l where l.comment_id = c.id), '[]'::jsonb),
-      'audience', c.audience
-    ) order by c.created_at, c.legacy_ref), '[]'::jsonb)
+      'parentId', coalesce(parent_ref, ''),
+      'likes', coalesce(likes, '[]'::jsonb),
+      'audience', c.audience);
+$$;
+create or replace function internal.comments_json(cof uuid, ses uuid) returns jsonb
+language sql stable set search_path = public as $$
+  select coalesce(jsonb_agg(internal.comment_build(c,
+      (select coalesce(substr(p.legacy_ref, strpos(p.legacy_ref, '#') + 1), p.id::text) from comments p where p.id = c.parent_id),
+      (select jsonb_agg(internal.name_of(l.user_id) order by l.created_at, l.user_id) from comment_likes l where l.comment_id = c.id))
+    order by c.created_at, c.legacy_ref, c.id), '[]'::jsonb)
   from comments c
   where c.deleted_at is null and ((cof is not null and c.coffee_id = cof) or (ses is not null and c.session_id = ses))
     and (c.author_id = me() or not internal.unseen('comment', c.id));   -- v14.5: reported
@@ -273,14 +281,16 @@ language sql stable set search_path = public as $$
       'blend', case when k.kind = 'tea' and k.tea->>'blend' = 'true' then true end, 'ingredients', case when k.kind = 'tea' then k.tea->'ingredients' end,   -- (v17.1)
       'cover', k.cover,   -- (v17.4)
       'date', k.created_at, 'eventAt', k.updated_at,
-      'likes', coalesce((select jsonb_agg(internal.name_of(l.user_id) order by l.created_at) from coffee_likes l where l.coffee_id = k.id), '[]'::jsonb),
+      'likes', coalesce((select jsonb_agg(internal.name_of(l.user_id) order by l.created_at, l.user_id) from coffee_likes l where l.coffee_id = k.id), '[]'::jsonb),
       'comments', internal.comments_json(k.id, null),
-      'wantToTry', coalesce((select jsonb_agg(internal.name_of(w.owner_id) order by w.added_at) from want_to_try w where w.coffee_id = k.id), '[]'::jsonb)
+      'wantToTry', coalesce((select jsonb_agg(internal.name_of(w.owner_id) order by w.added_at, w.owner_id) from want_to_try w where w.coffee_id = k.id), '[]'::jsonb)
     ))
   from (select 1) one left join roasters r on r.id = k.roaster_id;
 $$;
 
-create or replace function internal.session_json(s sessions) returns jsonb
+-- v18.3: one session in the app's format, from the parts the caller may see (its coffee, note, photo, likes,
+-- comments and when its owner joined). session_json (one at a time) and pull_events (everything at once) share it.
+create or replace function internal.session_build(s sessions, k coffees, n session_notes, p session_photos, likes_j jsonb, comments_j jsonb, owner_joined timestamptz) returns jsonb
 language sql stable set search_path = public as $$
   select coalesce(s.extras, '{}'::jsonb) || coalesce(s.taste, '{}'::jsonb) || jsonb_strip_nulls(jsonb_build_object(
       'type', 'brew', 'id', coalesce(s.legacy_id, s.id::text),
@@ -295,14 +305,22 @@ language sql stable set search_path = public as $$
                     when p.path like 'drive:%' then jsonb_build_object('fileId', substr(p.path, 7), 'url', 'https://drive.google.com/uc?export=view&id=' || substr(p.path, 7))
                     when p.path like 'sb:%' then jsonb_build_object('path', p.path)   -- in Supabase storage: the app asks for a short-lived link
                     else jsonb_build_object('url', p.path) end,
-      'likes', coalesce((select jsonb_agg(internal.name_of(l.user_id) order by l.created_at) from likes l where l.session_id = s.id), '[]'::jsonb),
-      'comments', internal.comments_json(null, s.id),
+      'likes', coalesce(likes_j, '[]'::jsonb),
+      'comments', coalesce(comments_j, '[]'::jsonb),
       'equipment', coalesce(s.equipment->'ids', '[]'::jsonb), 'equipmentSnapshot', coalesce(s.equipment->'snapshot', '[]'::jsonb),
       'isMaster', coalesce((s.master->>'isMaster')::boolean, false), 'masterProfile', s.master->'profile',
       'date', s.brewed_at, 'eventAt', s.updated_at, 'audience', s.audience, 'noteAudience', n.audience, 'photoAudience', p.audience,
       'helpWanted', case when s.help_wanted then true end,   -- v14.5: "Help me dial this in"
-      'newHere', case when (select o.joined_at from profiles o where o.id = s.owner_id) > now() - interval '14 days' then true end   -- joined in the last two weeks
-    ))
+      'newHere', case when owner_joined > now() - interval '14 days' then true end   -- joined in the last two weeks
+    ));
+$$;
+
+create or replace function internal.session_json(s sessions) returns jsonb
+language sql stable set search_path = public as $$
+  select internal.session_build(s, k, n, p,
+      (select jsonb_agg(internal.name_of(l.user_id) order by l.created_at, l.user_id) from likes l where l.session_id = s.id),
+      internal.comments_json(null, s.id),
+      (select o.joined_at from profiles o where o.id = s.owner_id))
   from (select 1) one left join coffees k on k.id = s.coffee_id
        left join session_notes n on n.session_id = s.id left join session_photos p on p.session_id = s.id;
 $$;
@@ -324,9 +342,30 @@ begin
   where k.deleted_at is null
     and (k.owner_id = any(circle) or exists (select 1 from sessions s where s.coffee_id = k.id and s.deleted_at is null and s.owner_id = any(circle)));
 
-  -- sessions (notes and photos only when their own toggle lets you see them; the row rules handle that)
-  out := out || coalesce((select jsonb_agg(internal.session_json(s)) from sessions s where s.deleted_at is null and s.owner_id = any(circle)
-                          and (s.owner_id = me_id or not internal.unseen('session', s.id))), '[]'::jsonb);
+  -- sessions (notes and photos only when their own toggle lets you see them; the row rules handle that).
+  -- v18.3: built in one pass instead of one session at a time. Asking per session ran the row rules' "who's close to
+  -- me" lookups again for every session, note, photo, like and comment: with ~300 sessions a sync took 4-5 seconds
+  -- and, with a few phones at once, went past the server's 8-second limit, so phones kept their old copy. The same
+  -- rows (the row rules still decide), the same order, the same format, built by the same session_build.
+  out := out || coalesce((
+    with ss as materialized (select s from sessions s where s.deleted_at is null and s.owner_id = any(circle)
+                              and (s.owner_id = me_id or not internal.unseen('session', s.id))),
+         cs as materialized (select c from comments c where c.deleted_at is null and c.session_id in (select (ss.s).id from ss)
+                              and (c.author_id = me_id or not internal.unseen('comment', c.id))),   -- v14.5: reported
+         cl as (select l.comment_id, jsonb_agg(internal.name_of(l.user_id) order by l.created_at, l.user_id) as j
+                  from comment_likes l where l.comment_id in (select (cs.c).id from cs) group by l.comment_id),
+         cj as (select (cs.c).session_id as session_id,
+                       jsonb_agg(internal.comment_build(cs.c, coalesce(substr(pc.legacy_ref, strpos(pc.legacy_ref, '#') + 1), pc.id::text), cl.j)
+                                 order by (cs.c).created_at, (cs.c).legacy_ref, (cs.c).id) as j
+                  from cs left join comments pc on pc.id = (cs.c).parent_id left join cl on cl.comment_id = (cs.c).id
+                 group by (cs.c).session_id),
+         lj as (select l.session_id, jsonb_agg(internal.name_of(l.user_id) order by l.created_at, l.user_id) as j
+                  from likes l where l.session_id in (select (ss.s).id from ss) group by l.session_id)
+    select jsonb_agg(internal.session_build(ss.s, k, n, p, lj.j, cj.j, o.joined_at))
+    from ss left join coffees k on k.id = (ss.s).coffee_id
+            left join session_notes n on n.session_id = (ss.s).id left join session_photos p on p.session_id = (ss.s).id
+            left join profiles o on o.id = (ss.s).owner_id
+            left join lj on lj.session_id = (ss.s).id left join cj on cj.session_id = (ss.s).id), '[]'::jsonb);
 
   -- your gear in full
   out := out || coalesce((select jsonb_agg(jsonb_build_object('type', 'gear', 'id', 'gear-' || internal.name_of(me_id),

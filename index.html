@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v18.2 -->
+<!-- Dialed In v18.3 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="18.2">
+    <meta name="dialed-in-version" content="18.3">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -4633,6 +4633,7 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] #detail-view label[style*="uppercase"] { font-size: 19px !important; font-weight: 650 !important; letter-spacing: -0.01em !important; text-transform: none !important; color: var(--t) !important; margin: 24px 0 12px !important; }
         html[data-look="new"] [data-fam] .profile-card, html[data-look="new"] [data-fam] .sweet-card, html[data-look="new"] [data-fam] .bean-flavor, html[data-look="new"] [data-fam] .master-pill, html[data-look="new"] [data-fam] .side-card, html[data-look="new"] [data-fam] .dialin-wrap, html[data-look="new"] [data-fam] .compare-box { background: var(--box) !important; border: 1px solid var(--hl) !important; border-radius: 22px !important; box-shadow: none !important; color: var(--t) !important; }
         html[data-look="new"][data-theme="light"] [data-fam] .profile-card, html[data-look="new"][data-theme="light"] [data-fam] .sweet-card, html[data-look="new"][data-theme="light"] [data-fam] .bean-flavor, html[data-look="new"][data-theme="light"] [data-fam] .master-pill { border-color: color-mix(in srgb, var(--t) 9%, transparent) !important; }
+        html[data-look="new"] [data-fam] .more-panel > .profile-card { background: none !important; border: 0 !important; border-radius: 0 !important; padding: 0 !important; margin: 0 !important; }   /* (v18.3: Recaps and Monthly awards open inside their row, not in a second box) */
         html[data-look="new"] [data-fam] .profile-card .label, html[data-look="new"] [data-fam] .sweet-card h3, html[data-look="new"] [data-fam] .bean-flavor h3 { font-size: 19px !important; font-weight: 650 !important; letter-spacing: -0.01em !important; text-transform: none !important; color: var(--t) !important; }
         html[data-look="new"] [data-fam] .text-muted, html[data-look="new"] [data-fam] .muted, html[data-look="new"] [data-fam] small, html[data-look="new"] [data-fam] .sw-head p { color: var(--l); }
         html[data-look="new"] [data-fam] .chip-btn, html[data-look="new"] [data-fam] .circle-pick button, html[data-look="new"] [data-fam] .lens-chip { background: var(--pill) !important; color: var(--t) !important; border: 0 !important; box-shadow: none !important; border-radius: 17px !important; text-transform: none !important; letter-spacing: 0 !important; font-weight: 600 !important; }
@@ -5552,7 +5553,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v18.2</div>
+            <div class="app-version">Dialed In · v18.3</div>
         </div>
     </div>
 
