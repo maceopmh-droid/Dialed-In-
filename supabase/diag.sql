@@ -29,23 +29,29 @@ from sessions s where exists (select 1 from notifications n where n.session_id =
 commit;
 -- what each of the three gets from the app's sync (as them, read only)
 begin read only;
-select set_config('request.jwt.claims', json_build_object('sub', (select auth_id from profiles where split_part(internal.name_of(id), ' ', 1) = 'Julian' limit 1), 'role', 'authenticated')::text, true);
+select set_config('request.jwt.claims', json_build_object('sub', (select auth_id from profiles where split_part(internal.name_of(id), ' ', 1) = 'Julian' limit 1), 'role', 'authenticated')::text, true) is not null as ok \gset
 set local role authenticated;
-select 'Julian''s sync: comments since Oct 26 by ' || coalesce(c->>'user', '?') || ': ' || count(*)
-from jsonb_array_elements(pull_events()) e, jsonb_array_elements(case when jsonb_typeof(e->'comments') = 'array' then e->'comments' else '[]'::jsonb end) c
-where (c->>'timestamp')::timestamptz > '2026-10-26' group by 1 order by 1;
+select 'Julian''s sync: comments since Oct 26 by ' || u || ': ' || n from (select coalesce(c->>'user', '?') u, count(*) n
+from (select pull_events() as j) pe, jsonb_array_elements(j) e, jsonb_array_elements(case when jsonb_typeof(e->'comments') = 'array' then e->'comments' else '[]'::jsonb end) c
+where (c->>'timestamp')::timestamptz > '2026-10-26' group by 1) q order by 1;
+select 'Julian''s sync, session ' || (e->>'id') || ': ' || jsonb_array_length(e->'comments') || ' comments (' || coalesce((select string_agg(c->>'user' || ' ' || left(c->>'id', 8), ', ') from jsonb_array_elements(e->'comments') c), '') || '), eventAt ' || (e->>'eventAt')
+from (select pull_events() as j) pe, jsonb_array_elements(j) e where e->>'type' = 'brew' and e->>'id' in ('1793111136906', '1793103631862', '1793027400981');
 commit;
 begin read only;
-select set_config('request.jwt.claims', json_build_object('sub', (select auth_id from profiles where split_part(internal.name_of(id), ' ', 1) = 'Aidan' limit 1), 'role', 'authenticated')::text, true);
+select set_config('request.jwt.claims', json_build_object('sub', (select auth_id from profiles where split_part(internal.name_of(id), ' ', 1) = 'Aidan' limit 1), 'role', 'authenticated')::text, true) is not null as ok \gset
 set local role authenticated;
-select 'Aidan''s sync: comments since Oct 26 by ' || coalesce(c->>'user', '?') || ': ' || count(*)
-from jsonb_array_elements(pull_events()) e, jsonb_array_elements(case when jsonb_typeof(e->'comments') = 'array' then e->'comments' else '[]'::jsonb end) c
-where (c->>'timestamp')::timestamptz > '2026-10-26' group by 1 order by 1;
+select 'Aidan''s sync: comments since Oct 26 by ' || u || ': ' || n from (select coalesce(c->>'user', '?') u, count(*) n
+from (select pull_events() as j) pe, jsonb_array_elements(j) e, jsonb_array_elements(case when jsonb_typeof(e->'comments') = 'array' then e->'comments' else '[]'::jsonb end) c
+where (c->>'timestamp')::timestamptz > '2026-10-26' group by 1) q order by 1;
+select 'Aidan''s sync, session ' || (e->>'id') || ': ' || jsonb_array_length(e->'comments') || ' comments (' || coalesce((select string_agg(c->>'user' || ' ' || left(c->>'id', 8), ', ') from jsonb_array_elements(e->'comments') c), '') || '), eventAt ' || (e->>'eventAt')
+from (select pull_events() as j) pe, jsonb_array_elements(j) e where e->>'type' = 'brew' and e->>'id' in ('1793111136906', '1793103631862', '1793027400981');
 commit;
 begin read only;
-select set_config('request.jwt.claims', json_build_object('sub', (select auth_id from profiles where split_part(internal.name_of(id), ' ', 1) = 'Maceo' limit 1), 'role', 'authenticated')::text, true);
+select set_config('request.jwt.claims', json_build_object('sub', (select auth_id from profiles where split_part(internal.name_of(id), ' ', 1) = 'Maceo' limit 1), 'role', 'authenticated')::text, true) is not null as ok \gset
 set local role authenticated;
-select 'Maceo''s sync: comments since Oct 26 by ' || coalesce(c->>'user', '?') || ': ' || count(*)
-from jsonb_array_elements(pull_events()) e, jsonb_array_elements(case when jsonb_typeof(e->'comments') = 'array' then e->'comments' else '[]'::jsonb end) c
-where (c->>'timestamp')::timestamptz > '2026-10-26' group by 1 order by 1;
+select 'Maceo''s sync: comments since Oct 26 by ' || u || ': ' || n from (select coalesce(c->>'user', '?') u, count(*) n
+from (select pull_events() as j) pe, jsonb_array_elements(j) e, jsonb_array_elements(case when jsonb_typeof(e->'comments') = 'array' then e->'comments' else '[]'::jsonb end) c
+where (c->>'timestamp')::timestamptz > '2026-10-26' group by 1) q order by 1;
+select 'Maceo''s sync, session ' || (e->>'id') || ': ' || jsonb_array_length(e->'comments') || ' comments (' || coalesce((select string_agg(c->>'user' || ' ' || left(c->>'id', 8), ', ') from jsonb_array_elements(e->'comments') c), '') || '), eventAt ' || (e->>'eventAt')
+from (select pull_events() as j) pe, jsonb_array_elements(j) e where e->>'type' = 'brew' and e->>'id' in ('1793111136906', '1793103631862', '1793027400981');
 commit;
