@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v18.0 -->
+<!-- Dialed In v18.1 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="18.0">
+    <meta name="dialed-in-version" content="18.1">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -5552,7 +5552,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v18.0</div>
+            <div class="app-version">Dialed In · v18.1</div>
         </div>
     </div>
 
@@ -24760,16 +24760,38 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 { bg: '#D3E5DD', ink: '#2A574C', ring: '#90B7AA' },   // Platinum: sage
                 { bg: '#8DB791', ink: '#0B160D', ring: '#EFE6D2' }    // Top: matcha, a cream ring
             ],
+            // v18.1: the New look's own level icons (Maceo: "a bit less coffee centric… some are still ugly and unclear without
+            // the description"): plain pictures anyone reads at a glance, a little coffee and tea in them. [name, the icon in a
+            // 24-unit square]; the classic look keeps its own (43-levels.js)
+            NL_LEVEL_ICONS: [
+                ["Sprout", "<path d=\"M12 20.5V11.5\"/><path d=\"M12 11.5C12 7.6 14.6 5 18.8 5c0 4.1-2.7 6.5-6.8 6.5Z\"/><path d=\"M12 14c0-3.3-2.3-5.6-6.2-5.6 0 3.4 2.4 5.6 6.2 5.6Z\"/><path d=\"M8.5 20.5h7\"/>"],
+                ["Leaf", "<path d=\"M5.5 18.5C5.5 10 10.5 5 18.5 5c0 8.3-5 13.5-13 13.5Z\"/><path d=\"M5.5 18.5 14 10\"/>"],
+                ["First Cup", "<path d=\"M5 10.5h11V14a5.5 5.5 0 0 1-5.5 5.5A5.5 5.5 0 0 1 5 14Z\"/><path d=\"M16 11.5h1.2a2.6 2.6 0 0 1 0 5.2H16\"/><path d=\"M8.6 3.6c-.9 1.1.9 2.1 0 3.3M12.2 3.6c-.9 1.1.9 2.1 0 3.3\"/>"],
+                ["Morning Ritual", "<path d=\"M3.5 18.5h17\"/><path d=\"M7.5 18.5a4.5 4.5 0 0 1 9 0\"/><path d=\"M12 12.2v-2.4M15.2 13.1l1.2-2.1M8.8 13.1l-1.2-2.1M17.4 15.4l2.1-1.2M6.6 15.4l-2.1-1.2\"/>"],
+                ["Regular", "<rect x=\"4\" y=\"5.5\" width=\"16\" height=\"14.5\" rx=\"2.6\"/><path d=\"M4 10h16M8.5 3.5v4M15.5 3.5v4\"/><path d=\"M9 15l2.1 2.1L15.3 13\"/>"],
+                ["Timed", "<circle cx=\"12\" cy=\"13.5\" r=\"7\"/><path d=\"M12 13.5V9.6\"/><path d=\"M9.8 3.5h4.4M12 3.5v3\"/><path d=\"M17.6 7.7l1.5-1.5\"/>"],
+                ["Steady Pour", "<path d=\"M12 3.5c3.4 4.1 6.2 7.5 6.2 10.7a6.2 6.2 0 0 1-12.4 0c0-3.2 2.8-6.6 6.2-10.7Z\"/><path d=\"M9.3 14.6a2.9 2.9 0 0 0 2.5 2.8\"/>"],
+                ["Warmed Up", "<path d=\"M12 20.8c3.5 0 6.1-2.5 6.1-5.9 0-3.6-2.5-5.6-3.9-8.4-.6 1.8-1.5 2.9-2.8 3.4.3-2.6-.6-5.1-2.4-6.6.1 3.3-1.7 5.2-3.2 7.4-.9 1.3-1.9 2.6-1.9 4.2 0 3.4 2.6 5.9 6.1 5.9Z\"/><path d=\"M12 20.8a2.6 2.6 0 0 1-2.6-2.6c0-1.6 1.3-2.6 2.6-4.3 1.3 1.7 2.6 2.7 2.6 4.3a2.6 2.6 0 0 1-2.6 2.6Z\"/>"],
+                ["Explorer", "<circle cx=\"12\" cy=\"12\" r=\"8.5\"/><path d=\"M15.6 8.4l-2.1 5.1-5.1 2.1 2.1-5.1Z\"/>"],
+                ["Fine-Tuner", "<path d=\"M4 7h9.2M16.8 7H20M4 12h3.2M10.8 12H20M4 17h11.2M18.8 17H20\"/><circle cx=\"15\" cy=\"7\" r=\"1.9\"/><circle cx=\"9\" cy=\"12\" r=\"1.9\"/><circle cx=\"17\" cy=\"17\" r=\"1.9\"/>"],
+                ["Connoisseur", "<path d=\"M12 3.8l2.5 5.1 5.6.8-4.05 3.95.96 5.6L12 16.6l-5.01 2.65.96-5.6L3.9 9.7l5.6-.8Z\"/>"],
+                ["Devoted", "<path d=\"M12 19.6S4.4 15.1 4.4 9.6A4.1 4.1 0 0 1 12 7.4a4.1 4.1 0 0 1 7.6 2.2c0 5.5-7.6 10-7.6 10Z\"/>"],
+                ["Medalist", "<circle cx=\"12\" cy=\"15.2\" r=\"4.8\"/><path d=\"M8.7 3.6l2.3 6.8M15.3 3.6 13 10.4\"/><path d=\"M8 3.6h8\"/><circle cx=\"12\" cy=\"15.2\" r=\"1.6\"/>"],
+                ["Summit", "<path d=\"M3.2 19.8l6.6-10.6 3.9 6.1 2.4-3.6 4.7 8.1Z\"/><path d=\"M9.8 9.2V4.1l3.6 1.5-3.6 1.6\"/>"],
+                ["Master", "<path d=\"M4.3 17 3.6 7.8l4.6 4 3.8-6.1 3.8 6.1 4.6-4-.7 9.2Z\"/><path d=\"M4.6 20h14.8\"/>"],
+                ["Legend", "<path d=\"M8 3.8h8v5.4a4 4 0 0 1-8 0Z\"/><path d=\"M8 5.4H5.4a2.6 2.6 0 0 0 2.8 3.9M16 5.4h2.6a2.6 2.6 0 0 1-2.8 3.9\"/><path d=\"M12 13.2v3.4M9.4 16.6h5.2M8.4 20.2h7.2\"/><path d=\"M9.4 16.6l-1 3.6M14.6 16.6l1 3.6\"/>"],
+                ["Dialed In", "<path d=\"M4.4 16.4a7.6 7.6 0 0 1 15.2 0\"/><path d=\"M12 16.4l3.9-4.6\"/><circle cx=\"12\" cy=\"16.4\" r=\"1.4\" fill=\"currentColor\"/><path d=\"M6.4 11.1l1.1 1M12 8.8v1.5M17.6 11.1l-1.1 1\"/>"]
+            ],
             // each icon's drawn box (x, y, width, height) and the middle of its ink, in its 24-unit square (measured by drawing it)
-            NL_LVL_BOX: [[6.35, 5.1, 11.3, 13.8, 12.02, 12.01], [5.6, 4.2, 13.5, 16.1, 12.33, 10.36], [3.8, 3.35, 17.05, 17.95, 12.15, 11.44], [4.2, 3.5, 15.6, 15.7, 12.12, 12.8], [4, 4, 16, 16, 11.97, 11.98], [5.1, 4.3, 13.8, 15.4, 11.77, 11.76], [4.75, 1.8, 16.65, 18.2, 12.26, 11.9], [7, 2.8, 10, 17.35, 11.88, 13.45], [7, 2.8, 10, 17.35, 11.89, 12.64], [7, 2.8, 10, 17.35, 11.98, 12.68], [6.4, 3.2, 13.6, 17.8, 12.21, 11.67], [4.4, 3.8, 15.2, 17.4, 11.97, 11.45], [5.2, 2.8, 15.1, 18.4, 12.44, 14.12], [5.4, 1.7, 15.6, 19.4, 12.62, 11.96], [4.25, 4.25, 15.55, 15.55, 10.3, 10.31], [4.1, 3.8, 15.8, 16.6, 11.98, 10.76], [3.6, 7, 16.8, 10.5, 12.2, 11.85]],
+            NL_LVL_BOX: [[5, 4.2, 14.6, 17.1, 12.25, 12.04], [4.7, 4.2, 14.6, 15.1, 11.66, 12.07], [4.2, 2.8, 16.4, 17.5, 11.89, 12.68], [2.7, 9, 18.6, 10.3, 11.97, 15.59], [3.2, 2.7, 17.6, 18.1, 11.99, 11.96], [4.2, 2.7, 15.7, 18.6, 12.3, 11.81], [5, 2.7, 14, 18.5, 11.79, 13.12], [3.1, 2.5, 15.8, 19.1, 11.2, 13.57], [2.7, 2.7, 18.6, 18.6, 11.97, 11.97], [3.2, 4.3, 17.6, 15.4, 12.44, 11.98], [3.1, 3, 17.8, 17.05, 11.98, 12.32], [3.6, 4.6, 16.8, 15.8, 11.97, 11.3], [6.4, 2.8, 11.2, 18, 11.98, 11.9], [2.4, 3.3, 19.2, 17.3, 11.82, 14.3], [2.8, 4.9, 18.4, 15.9, 11.98, 13.89], [4.2, 3, 15.6, 18, 11.97, 11.05], [3.6, 8, 16.8, 10.6, 12.21, 12.91]],
             nlLevelBadge(i, size = 40) {
-                const L = this.levelList()[i], C = this.NL_TIER_LOOK[L.t] || this.NL_TIER_LOOK[0], box = this.NL_LVL_BOX[i];
+                const L = this.levelList()[i], C = this.NL_TIER_LOOK[L.t] || this.NL_TIER_LOOK[0], box = this.NL_LVL_BOX[i], art = this.NL_LEVEL_ICONS[i];
                 let icon = '';
-                if (L.g && box) {
+                if (art && box) {
                     const [x, y, w, h, mx, my] = box;
                     const cx = (x + w / 2) * 0.75 + mx * 0.25, cy = (y + h / 2) * 0.75 + my * 0.25;   // (the box's middle, nudged a little toward where the ink is)
                     const k = Math.min(17 / Math.sqrt(w * h), 21 / Math.max(w, h));   // (about the same weight for every icon, none too big)
-                    icon = `<g transform="translate(20 20) scale(${k.toFixed(3)}) translate(${(-cx).toFixed(2)} ${(-cy).toFixed(2)})" fill="none" stroke="${C.ink}" color="${C.ink}" stroke-width="${(1.9 / k).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round">${L.g}</g>`;
+                    icon = `<g transform="translate(20 20) scale(${k.toFixed(3)}) translate(${(-cx).toFixed(2)} ${(-cy).toFixed(2)})" fill="none" stroke="${C.ink}" color="${C.ink}" stroke-width="${(1.9 / k).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round">${art[1]}</g>`;
                 }
                 return `<svg class="nl-lvl-badge" viewBox="0 0 40 40" width="${size}" height="${size}" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="${C.bg}"/><circle cx="20" cy="20" r="${L.t === 4 ? 18.6 : 19}" fill="none" stroke="${C.ring}" stroke-width="${L.t === 4 ? 1.8 : 1.1}"/>${icon}</svg>`;
             },
@@ -24778,7 +24800,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 const c = this.cremaOf(user);
                 if (c === null || c === undefined) return '';
                 const L = this.levelOf(c), fmt = x => Math.round(x).toLocaleString();
-                return `<button type="button" class="lvl-row nl-lvl-row" data-name="${this.esc(user)}" onclick="app.openLevel(this.getAttribute('data-name'))" aria-label="Level ${L.n}, ${this.esc(this.nlTierName(L))}. ${fmt(L.crema)} crema">${this.nlLevelBadge(L.i, 44)}<span class="lvl-main"><span class="lvl-top"><b>Level ${L.n}</b><em>${this.esc(this.nlTierName(L))}</em></span><span class="lvl-bar"><i style="width:${L.pct.toFixed(1)}%"></i></span><small class="lvl-count">${fmt(L.crema)} crema${L.next ? ` · ${fmt(L.next.min - L.crema)} to level ${L.n + 1}` : ' · the top level'}</small></span></button>`;
+                return `<button type="button" class="lvl-row nl-lvl-row" data-name="${this.esc(user)}" onclick="app.openLevel(this.getAttribute('data-name'))" aria-label="Level ${L.n}${this.NL_LEVEL_ICONS[L.i] ? ` (${this.esc(this.NL_LEVEL_ICONS[L.i][0])})` : ''}, ${this.esc(this.nlTierName(L))}. ${fmt(L.crema)} crema">${this.nlLevelBadge(L.i, 44)}<span class="lvl-main"><span class="lvl-top"><b>Level ${L.n}</b><em>${this.esc(this.nlTierName(L))}</em></span><span class="lvl-bar"><i style="width:${L.pct.toFixed(1)}%"></i></span><small class="lvl-count">${fmt(L.crema)} crema${L.next ? ` · ${fmt(L.next.min - L.crema)} to level ${L.n + 1}` : ' · the top level'}</small></span></button>`;
             },
             nlLevelBody(name) {
                 const own = name === this.user, L = this.levelOf(this.cremaOf(name) || 0), fmt = x => Math.round(x).toLocaleString(), list = this.levelList();
