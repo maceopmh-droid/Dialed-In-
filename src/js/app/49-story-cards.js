@@ -633,8 +633,8 @@
                 y += 420 + 90;
                 ctx.textAlign = 'center';
                 const unit = ' crema', tier = this.levelTiers()[L.t].name;   // (v17.9: crema in the New look again)
-                ctx.font = k.nl ? k.hand(40) : k.sans(700, 36); ctx.fillStyle = k.nl ? k.accent : k.muted; ctx.fillText(k.nl ? `${who === this.user ? 'My' : `${who}'s`} level · ${tier === 'The top' ? 'Top' : tier}` : `${who === this.user ? 'My' : `${who}'s`} level · Level ${L.n}`, k.W / 2, y);
-                ctx.font = k.serif(600, 110); ctx.fillStyle = k.nl ? k.name : k.ink; ctx.fillText(k.fit(k.nl ? `Level ${L.n}` : L.name, k.W - k.PAD * 2), k.W / 2, y + 130);
+                ctx.font = k.nl ? k.hand(40) : k.sans(700, 36); ctx.fillStyle = k.nl ? k.accent : k.muted; ctx.fillText(k.nl ? `${who === this.user ? 'My' : `${who}'s`} level · Level ${L.n} · ${tier === 'The top' ? 'Top' : tier}` : `${who === this.user ? 'My' : `${who}'s`} level · Level ${L.n}`, k.W / 2, y);
+                ctx.font = k.serif(600, 110); ctx.fillStyle = k.nl ? k.name : k.ink; ctx.fillText(k.fit(k.nl && this.nlLevelName ? this.nlLevelName(L.i) : L.name, k.W - k.PAD * 2), k.W / 2, y + 130);   // (v18.1: its name)
                 ctx.font = k.sans(700, 54); ctx.fillStyle = k.nl ? k.ink : '#FFFFFF'; const cr = `${fmt(L.crema)}`; const cw = ctx.measureText(cr).width; ctx.font = k.sans(500, 40); const lw = ctx.measureText(unit).width;
                 ctx.textAlign = 'left'; ctx.font = k.sans(700, 54); ctx.fillText(cr, (k.W - cw - lw) / 2, y + 230); ctx.font = k.sans(500, 40); ctx.fillStyle = k.ink2; ctx.fillText(unit, (k.W - cw - lw) / 2 + cw, y + 230);
                 y += 300;
