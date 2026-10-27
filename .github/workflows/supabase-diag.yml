@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      PROJECT_REF: glombusdjwlrgjihnylk
     steps:
       - uses: actions/checkout@v4
       - name: Find the database
@@ -19,3 +21,23 @@ jobs:
           set +e
           psql "$DB_URL" -v ON_ERROR_STOP=1 -Atq -c "set default_transaction_read_only = on;" -f supabase/diag.sql > "$RUNNER_TEMP/d.txt" 2>&1; rc=$?
           cat "$RUNNER_TEMP/d.txt"; bash supabase/report.sh "Diag" "$RUNNER_TEMP/d.txt"; exit $rc
+      - name: Server logs (counts only)
+        if: always()
+        run: |
+          set +e
+          end=$(date -u +%Y-%m-%dT%H:%M:%SZ); start=$(date -u -d '-6 hours' +%Y-%m-%dT%H:%M:%SZ)
+          q() { curl -sS -G "https://api.supabase.com/v1/projects/$PROJECT_REF/analytics/endpoints/logs.all" -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+                  --data-urlencode "sql=$1" --data-urlencode "iso_timestamp_start=$start" --data-urlencode "iso_timestamp_end=$end"; }
+          {
+            echo "pull_events calls by hour (UTC) and status:"
+            q "select format_timestamp('%H', timestamp_trunc(t.timestamp, hour)) as hr, response.status_code as code, count(*) as n from edge_logs t cross join unnest(t.metadata) as m cross join unnest(m.request) as request cross join unnest(m.response) as response where request.path like '%rpc/pull_events%' group by hr, code order by hr, code" | jq -c '.result // .' 
+            echo "data_version calls by hour (UTC) and status:"
+            q "select format_timestamp('%H', timestamp_trunc(t.timestamp, hour)) as hr, response.status_code as code, count(*) as n from edge_logs t cross join unnest(t.metadata) as m cross join unnest(m.request) as request cross join unnest(m.response) as response where request.path like '%rpc/data_version%' group by hr, code order by hr, code" | jq -c '.result // .'
+            echo "push_event calls by hour (UTC) and status:"
+            q "select format_timestamp('%H', timestamp_trunc(t.timestamp, hour)) as hr, response.status_code as code, count(*) as n from edge_logs t cross join unnest(t.metadata) as m cross join unnest(m.request) as request cross join unnest(m.response) as response where request.path like '%rpc/push_event%' group by hr, code order by hr, code" | jq -c '.result // .'
+            echo "photo link calls by hour (UTC) and status:"
+            q "select format_timestamp('%H', timestamp_trunc(t.timestamp, hour)) as hr, response.status_code as code, count(*) as n from edge_logs t cross join unnest(t.metadata) as m cross join unnest(m.request) as request cross join unnest(m.response) as response where request.path like '%object/sign/photos%' group by hr, code order by hr, code" | jq -c '.result // .'
+            echo "database statement timeouts by hour (UTC):"
+            q "select format_timestamp('%H', timestamp_trunc(t.timestamp, hour)) as hr, count(*) as n from postgres_logs t where regexp_contains(t.event_message, 'statement timeout') group by hr order by hr" | jq -c '.result // .'
+          } > "$RUNNER_TEMP/l.txt" 2>&1
+          cat "$RUNNER_TEMP/l.txt"; bash supabase/report.sh "Logs" "$RUNNER_TEMP/l.txt"
