@@ -1,21 +1,51 @@
--- read only: friendships, recent comments and saves, colors (first names, counts, dates; never text people wrote)
+-- read only: why a comment that sent a notification isn't seen (first names, counts, times; never text people wrote)
 begin read only;
-select 'profiles (first name, joined, color): ' || string_agg(split_part(internal.name_of(id), ' ', 1) || ' ' || coalesce(to_char(joined_at, 'MM-DD'), '-') || ' ' || coalesce(color, 'none'), ', ' order by joined_at nulls first) from profiles;
-select 'follows of ' || split_part(internal.name_of(a.id), ' ', 1) || ': ' || coalesce((select string_agg(split_part(internal.name_of(f.followee), ' ', 1) || '(' || f.status || case when private.is_friend(a.id, f.followee) then ', friend' else '' end || ')', ', ')
-  from follows f where f.follower = a.id), 'none')
-from profiles a where split_part(internal.name_of(a.id), ' ', 1) in ('Maceo', 'Aidan', 'Julian', 'Yihuan', 'Maceo2', 'Bella') order by 1;
-select 'comments since Oct 15: ' || count(*) from comments where created_at > '2026-10-15';
-select 'comment ' || to_char(c.created_at, 'MM-DD HH24:MI') || ' by ' || split_part(internal.name_of(c.author_id), ' ', 1) || ' on '
-       || coalesce(split_part(internal.name_of(s.owner_id), ' ', 1) || '''s session (' || s.audience || case when s.help_wanted then ', help' else '' end || ')', 'a coffee') || ', audience ' || c.audience
-       || case when c.deleted_at is not null then ' [deleted]' else '' end
-from comments c left join sessions s on s.id = c.session_id where c.created_at > '2026-10-15' order by c.created_at;
-select 'comment saves counted by the rate limit since Oct 15: ' || coalesce((select string_agg(x, ', ') from (select split_part(internal.name_of(r.profile_id), ' ', 1) || ' ' || count(*) as x from internal.rate_log r where r.kind = 'comment' and r.at > '2026-10-15' group by r.profile_id) q), 'none');
-select 'sessions without an app id (the app can''t comment on them): ' || count(*) from sessions where legacy_id is null and deleted_at is null;
-select 'sessions made since Oct 15 by ' || split_part(internal.name_of(s.owner_id), ' ', 1) || ': ' || count(*) || ' (' || string_agg(distinct s.audience::text, '/') || ')' from sessions s where s.created_at > '2026-10-15' group by s.owner_id order by 1;
-select 'rate log by kind since Oct 15: ' || coalesce((select string_agg(kind || ' ' || n || ' (last ' || last || ')', ', ') from (select kind, count(*) n, to_char(max(at), 'MM-DD HH24:MI') last from internal.rate_log where at > '2026-10-15' group by kind) q), 'none');
-select 'latest session saves: ' || coalesce((select string_agg(x, ', ') from (select split_part(internal.name_of(owner_id), ' ', 1) || ' ' || to_char(max(updated_at), 'MM-DD HH24:MI') x from sessions group by owner_id order by max(updated_at) desc limit 6) q), 'none');
-select 'notifications since Oct 16 by kind: ' || coalesce((select string_agg(kind || ' ' || n || ' (last ' || last || ')', ', ') from (select kind, count(*) n, to_char(max(created_at), 'MM-DD HH24:MI') last from notifications where created_at > '2026-10-16' group by kind) q), 'none');
-select 'push set up: url ' || (exists (select 1 from backend_state where key = 'push_url'))::text || ', pg_net ' || (exists (select 1 from pg_extension where extname = 'pg_net'))::text || ', phones ' || (select count(*) from push_subscriptions);
-select 'rate_hit owner ' || proowner::regrole::text || ' definer ' || prosecdef::text from pg_proc where proname = 'rate_hit';
-select 'now ' || to_char(now(), 'MM-DD HH24:MI TZ');
+select 'now ' || to_char(now() at time zone 'America/Chicago', 'MM-DD HH24:MI') || ' Chicago';
+select 'new comments saved (rate log) since Oct 26 by ' || split_part(internal.name_of(r.profile_id), ' ', 1) || ': ' || count(*) || ', last '
+       || to_char(max(r.at) at time zone 'America/Chicago', 'MM-DD HH24:MI')
+from internal.rate_log r where r.kind = 'comment' and r.at > '2026-10-26' group by r.profile_id order by 1;
+select 'comment rows now, written since Oct 26 by ' || split_part(internal.name_of(c.author_id), ' ', 1) || ': ' || count(*) || ' (deleted ' || count(c.deleted_at) || ')'
+from comments c where c.created_at > '2026-10-26' group by c.author_id order by 1;
+select 'comment/reply notifications since Oct 26: ' || coalesce((select string_agg(x, ', ') from (
+  select split_part(internal.name_of(n.actor_id), ' ', 1) || '->' || split_part(internal.name_of(n.user_id), ' ', 1) || ' ' || n.kind || ' ' || count(*)
+         || ' (last ' || to_char(max(n.created_at) at time zone 'America/Chicago', 'MM-DD HH24:MI') || ')' x
+  from notifications n where n.kind in ('comment', 'reply') and n.created_at > '2026-10-26' group by n.actor_id, n.user_id, n.kind) q), 'none');
+-- every comment since Oct 26: where it is and who the rules let see it
+select 'c ' || left(c.id::text, 6) || ' ' || to_char(c.created_at at time zone 'America/Chicago', 'MM-DD HH24:MI') || ' by ' || split_part(internal.name_of(c.author_id), ' ', 1)
+       || ' on ' || coalesce(split_part(internal.name_of(s.owner_id), ' ', 1) || '''s session ' || left(coalesce(s.legacy_id, '-'), 14) || ' (' || s.audience || case when s.deleted_at is not null then ', session deleted' else '' end || ')',
+                             split_part(internal.name_of(k.owner_id), ' ', 1) || '''s coffee', '?')
+       || ', ' || c.audience || case when c.parent_id is not null then ', reply' else '' end || case when c.deleted_at is not null then ' [deleted]' else '' end
+       || ', ref ok ' || (c.legacy_ref like coalesce(s.legacy_id, k.legacy_id, '?') || '#%')::text
+       || ', reports ' || (select count(*) from reports r where r.target_id = c.id)
+       || ', notified ' || (select count(*) from notifications n where n.comment_id = c.id)
+       || ', sees: ' || coalesce((select string_agg(split_part(internal.name_of(p.id), ' ', 1), '/' order by 1) from profiles p
+                                   where split_part(internal.name_of(p.id), ' ', 1) in ('Maceo', 'Aidan', 'Julian') and private.can_see_comment(p.id, c)), 'nobody')
+from comments c left join sessions s on s.id = c.session_id left join coffees k on k.id = c.coffee_id
+where c.created_at > '2026-10-26' order by c.created_at;
+-- latest saves of sessions that got comments since Oct 26 (owner's saves move updated_at)
+select 'session ' || left(coalesce(s.legacy_id, '-'), 14) || ' of ' || split_part(internal.name_of(s.owner_id), ' ', 1) || ': updated ' || to_char(s.updated_at at time zone 'America/Chicago', 'MM-DD HH24:MI')
+       || ', comments now ' || (select count(*) from comments x where x.session_id = s.id and x.deleted_at is null)
+from sessions s where exists (select 1 from notifications n where n.session_id = s.id and n.kind in ('comment', 'reply') and n.created_at > '2026-10-26');
+commit;
+-- what each of the three gets from the app's sync (as them, read only)
+begin read only;
+select set_config('request.jwt.claims', json_build_object('sub', (select auth_id from profiles where split_part(internal.name_of(id), ' ', 1) = 'Julian' limit 1), 'role', 'authenticated')::text, true);
+set local role authenticated;
+select 'Julian''s sync: comments since Oct 26 by ' || coalesce(c->>'user', '?') || ': ' || count(*)
+from jsonb_array_elements(pull_events()) e, jsonb_array_elements(case when jsonb_typeof(e->'comments') = 'array' then e->'comments' else '[]'::jsonb end) c
+where (c->>'timestamp')::timestamptz > '2026-10-26' group by 1 order by 1;
+commit;
+begin read only;
+select set_config('request.jwt.claims', json_build_object('sub', (select auth_id from profiles where split_part(internal.name_of(id), ' ', 1) = 'Aidan' limit 1), 'role', 'authenticated')::text, true);
+set local role authenticated;
+select 'Aidan''s sync: comments since Oct 26 by ' || coalesce(c->>'user', '?') || ': ' || count(*)
+from jsonb_array_elements(pull_events()) e, jsonb_array_elements(case when jsonb_typeof(e->'comments') = 'array' then e->'comments' else '[]'::jsonb end) c
+where (c->>'timestamp')::timestamptz > '2026-10-26' group by 1 order by 1;
+commit;
+begin read only;
+select set_config('request.jwt.claims', json_build_object('sub', (select auth_id from profiles where split_part(internal.name_of(id), ' ', 1) = 'Maceo' limit 1), 'role', 'authenticated')::text, true);
+set local role authenticated;
+select 'Maceo''s sync: comments since Oct 26 by ' || coalesce(c->>'user', '?') || ': ' || count(*)
+from jsonb_array_elements(pull_events()) e, jsonb_array_elements(case when jsonb_typeof(e->'comments') = 'array' then e->'comments' else '[]'::jsonb end) c
+where (c->>'timestamp')::timestamptz > '2026-10-26' group by 1 order by 1;
 commit;
