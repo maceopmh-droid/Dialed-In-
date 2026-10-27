@@ -39,8 +39,13 @@
             storyStart({ who = this.user, date = Date.now(), sub = '', title = '', titleLines = 2, titleSize = 93, fam = '' } = {}) {
                 const c = document.createElement('canvas'); c.width = 1080; c.height = 1920;
                 const ctx = c.getContext('2d'); if (!ctx) return null;
-                const k = this.storyKit(ctx, fam || (this.famOfPerson ? this.famOfPerson(who) : 'app')), { W, H, PAD } = k;
-                if (k.nl) return this.storyStartNew({ c, ctx, k, who, date, sub, title, titleLines, titleSize });
+                // (v17.7: in the New look the picture's words and shapes go on a layer of their own, fitted into Instagram's safe
+                // area at the end; the background stays full size)
+                const nl = !!(this.newLook && this.newLook() && this.nlPal), cc = nl ? document.createElement('canvas') : null;
+                if (cc) { cc.width = c.width; cc.height = c.height; }
+                const cx = (cc && cc.getContext('2d')) || ctx;
+                const k = this.storyKit(cx, fam || (this.famOfPerson ? this.famOfPerson(who) : 'app')), { W, H, PAD } = k;
+                if (k.nl) return this.storyStartNew({ c, ctx, cc: cx === ctx ? null : cc, cx, k, who, date, sub, title, titleLines, titleSize });
                 const g = ctx.createRadialGradient(W / 2, H * 0.42, 0, W / 2, H * 0.42, H * 0.75);
                 g.addColorStop(0, '#1E2620'); g.addColorStop(0.6, '#121713'); g.addColorStop(1, '#0C100D');
                 ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
@@ -64,12 +69,12 @@
 
             // v17.5: the New look's start: its color, the person (picture with a ring in their color, name in Roboto Slab), the
             // small line in the accent, the title in the serif, and Dialed In
-            storyStartNew({ c, ctx, k, who, date, sub, title, titleLines, titleSize }) {
-                const { W, H, PAD, P } = k;
-                ctx.fillStyle = k.bg; ctx.fillRect(0, 0, W, H);
-                const g = ctx.createRadialGradient(W * 0.5, H * 0.3, 0, W * 0.5, H * 0.3, H * 0.8);
+            storyStartNew({ c, ctx: bg, cc, cx, k, who, date, sub, title, titleLines, titleSize }) {
+                const { W, H, PAD, P } = k, ctx = cx;
+                bg.fillStyle = k.bg; bg.fillRect(0, 0, W, H);
+                const g = bg.createRadialGradient(W * 0.5, H * 0.3, 0, W * 0.5, H * 0.3, H * 0.8);
                 g.addColorStop(0, this.hexToRgba(P.dark ? '#FFFFFF' : '#FFFFFF', P.dark ? 0.05 : 0.22)); g.addColorStop(1, this.hexToRgba('#000000', 0));
-                ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+                bg.fillStyle = g; bg.fillRect(0, 0, W, H);
                 const topY = 210;
                 if (who) {
                     const col = this.getUserColor(who) || '#5B7FA6';
@@ -90,7 +95,50 @@
                     lines.forEach((l, i) => ctx.fillText(l, PAD, y + LH * (i + 1) - Math.round(titleSize * 0.2)));
                     y += LH * lines.length;
                 }
-                return { c, ctx, k, y };
+                if (!cc) return { c, ctx, k, y };
+                const app = this, face = who ? { who, x: PAD + 34, y: topY - 14, r: 34 } : null;
+                let done = null;
+                return { ctx, k, y, get c() { return done || (done = app.storyFinish(c, cc, face)); } };
+            },
+
+            // v17.7: Instagram covers about the top and bottom 14% of a story with its own bars, so everything that matters
+            // stays between these two lines (of 1920)
+            STORY_SAFE: [270, 1650],
+            // the person's real profile picture, read so it can be drawn into the picture (null when they have none)
+            async storyFace(name) {
+                try {
+                    if (!name || !this.faceStore || !this.faceUrl || typeof Supa === 'undefined' || !Supa.ready || !Supa.ready()) return null;
+                    const key = String(name).toLowerCase(), wait = ms => new Promise(r => setTimeout(() => r(null), ms));
+                    let have = this.faceStore().get(key);
+                    if (!have && Supa.rpc) {
+                        const list = await Promise.race([Promise.resolve(Supa.rpc('faces', { names: [name] })).catch(() => null), wait(2500)]);
+                        const x = Array.isArray(list) ? list.find(f => String(f.name || '').toLowerCase() === key) : null;
+                        have = [(x && x.avatar) || '', Date.now()];
+                    }
+                    const path = have && have[0];
+                    return path ? await Promise.race([this.storyLoadCors(this.faceUrl(path)), wait(5000)]) : null;
+                } catch (e) { return null; }
+            },
+            // the finished picture: the person's picture in its circle, then the words and shapes fitted between the safe
+            // lines (moved down or up when they fit, made a little smaller only when they don't), on the full background
+            async storyFinish(c, cc, face) {
+                const cx = cc.getContext('2d'), W = cc.width, H = cc.height, [T, B] = this.STORY_SAFE;
+                if (face) {
+                    const img = await this.storyFace(face.who);
+                    if (img) { const iw0 = img.naturalWidth || img.width, ih0 = img.naturalHeight || img.height, z = Math.max(face.r * 2 / iw0, face.r * 2 / ih0); cx.save(); cx.beginPath(); cx.arc(face.x, face.y, face.r, 0, Math.PI * 2); cx.clip(); cx.drawImage(img, face.x - iw0 * z / 2, face.y - ih0 * z / 2, iw0 * z, ih0 * z); cx.restore(); }
+                }
+                let top = -1, bot = -1;
+                try {
+                    const d = cx.getImageData(0, 0, W, H).data;
+                    const row = y => { for (let x = 0; x < W; x += 3) if (d[(y * W + x) * 4 + 3] > 10) return true; return false; };
+                    for (let y = 0; y < H; y += 2) if (row(y)) { top = y; break; }
+                    for (let y = H - 1; y >= 0; y -= 2) if (row(y)) { bot = y; break; }
+                } catch (e) { top = -1; }
+                const out = c.getContext('2d');
+                if (top < 0) { out.drawImage(cc, 0, 0); return c; }
+                const h = bot - top + 1, s = Math.min(1, (B - T) / h), at = Math.min(Math.max(top, T), B - h * s);
+                out.drawImage(cc, W / 2 * (1 - s), at - top * s, W * s, H * s);
+                return c;
             },
 
             // number boxes: [{ big: [[text, unit], ...], small }] (the shot card's), one row across
@@ -461,7 +509,7 @@
                 const S = this.storyStart({ sub: '', title: '', fam: this.famOfRoaster ? this.famOfRoaster(r.name, kind) : '' }); if (!S) return null;
                 const { ctx, k } = S; let y = 330;
                 const set = this.ROASTER_COLORS[r.key] || this.ROASTER_COLORS[RoasterEngine.keyOf(r.name)];
-                const cov = k.nl && r.info && r.info.cover, cp = cov && this.nlTonePal ? this.nlTonePal(this.nlToneKey(cov.hue, 0.012 + 0.12 * Math.max(0.1, (cov.tone ?? 60) / 100)), k.dark) : null;   // v17.5: its picture
+                const cov = k.nl && r.info && r.info.cover, cp = k.nl && this.nlTonePal && this.famOfRoaster ? this.nlTonePal(this.famOfRoaster(r.name, kind), k.dark) : null;   // (v17.7: its own color, never one from a photo)   // v17.5: its picture
                 const g = ctx.createLinearGradient(k.PAD, y, k.PAD + 220, y + 220);
                 g.addColorStop(0, cp ? cp.tileA : set ? set[0] : `hsl(${r.hue} 44% 60%)`); g.addColorStop(1, cp ? cp.tileB : set ? set[1] : `hsl(${(r.hue + 24) % 360} 40% 40%)`);
                 k.round(k.PAD, y, 220, 220, 56); ctx.fillStyle = g; ctx.fill();

@@ -145,9 +145,17 @@
             coverOf(bean) {
                 if (!bean) return null;
                 const c = bean.cover && typeof bean.cover === 'object' ? bean.cover : null;
-                if (c && (Number.isFinite(Number(c.hue)) || c.photo)) return { hue: Number.isFinite(Number(c.hue)) ? Number(c.hue) : null, tone: Number.isFinite(Number(c.tone)) ? Number(c.tone) : 60, photo: c.photo ? String(c.photo) : '' };
+                if (c && (Number.isFinite(Number(c.hue)) || c.photo)) { const o = { hue: Number.isFinite(Number(c.hue)) ? Number(c.hue) : null, tone: Number.isFinite(Number(c.tone)) ? Number(c.tone) : 60, photo: c.photo ? String(c.photo) : '' }; o.auto = c.auto === true || this.coverFromPhoto(o) || this.coverFromName(o, bean); return o; }   // (v17.7: auto = "Tasting color")
                 return null;
             },
+            // v17.7: a photo never sets the color (Maceo: "adding a photo changes the color… it shouldn't"). Versions 17.4 to
+            // 17.6 took a color from the photo; such a color (a photo, and not one of the editor's colors at its usual strength)
+            // is left out, so the coffee or roaster wears its own color again
+            coverFromPhoto(cov) { return !!(cov && cov.photo && Number.isFinite(Number(cov.hue)) && !(this.NL_COVER_HUES.includes(Math.round(Number(cov.hue))) && Math.round(Number(cov.tone ?? 60)) === 60)); },
+            // ...and a color 17.4 to 17.6 gave a new coffee from its name when none was picked (Tasting color is the default now)
+            coverFromName(cov, bean) { return !!(cov && bean && !cov.photo && Number.isFinite(Number(cov.hue)) && Math.round(Number(cov.tone ?? 60)) === 60 && Math.round(Number(cov.hue)) === this.NL_COVER_HUES[this.nlNameHue(`${bean.roaster || ''}|${bean.name || ''}`) % this.NL_COVER_HUES.length]); },
+            // the color picked for a coffee or roaster ({ hue, tone }), or null (its own color: tasting, or the roaster's)
+            coverPicked(cov) { return cov && Number.isFinite(Number(cov.hue)) && cov.auto !== true && !this.coverFromPhoto(cov) ? { hue: Number(cov.hue), tone: Number(cov.tone ?? 60) } : null; },
             // the coffee's group: the first bag added that has a picture (everyone sees the same one), else the first bag
             coverBean(bean) {
                 if (!bean) return null;
@@ -161,17 +169,25 @@
                 return cache.get(ck) || bean;
             },
             nlNameHue(text) { let h = 0; for (const ch of String(text || '').toLowerCase()) h = (h * 31 + ch.charCodeAt(0)) | 0; return Math.abs(h) % 360; },
+            // v17.7: a coffee wears the color picked in its editor, or (the default, "Tasting color") the color of its first
+            // tasted session, Dialed In's green until then. A photo doesn't change it.
             coffeeToneKey(bean) {
                 if (!bean) return 'app';
                 const cb = this.coverBean(bean), cov = this.coverOf(cb);
-                const teaB = !!(this.isTeaBean && this.isTeaBean(bean));
-                if (cov && cov.hue !== null) return this.nlToneKey(cov.hue, (0.012 + 0.12 * Math.max(0.1, Math.min(1, cov.tone / 100))) * (teaB ? 1.2 : 1));   // (v17.6: a tea a little brighter)
+                const teaB = !!(this.isTeaBean && this.isTeaBean(bean)), toneC = t => (0.012 + 0.12 * Math.max(0.1, Math.min(1, t / 100))) * (teaB ? 1.2 : 1);   // (a tea a little brighter)
+                if (cov && cov.hue !== null && !cov.auto) return this.nlToneKey(cov.hue, toneC(cov.tone));
+                return this.coffeeTasteKey(bean) || 'app';
+            },
+            // the color of a coffee's first session that has notes ('' when none yet)
+            coffeeTasteKey(bean) {
+                if (!bean) return '';
                 const key = this.beanGroupKey(bean);
-                return this.nlFamOf(`ct:${key}`, () => {
+                const got = this.nlFamOf(`ct2:${key}`, () => {
                     const first = [...this.brews.values()].filter(b => { const bn = this.beans.get(String(b.beanId)); return bn && this.beanGroupKey(bn) === key; }).sort((a, b) => this.toTime(a.date) - this.toTime(b.date))
                         .find(b => this.toneOfNotes(this.brewNoteList(b)));
-                    return (first && this.toneOfNotes(this.brewNoteList(first))) || this.nlToneKey(this.nlNameHue(`${bean.roaster || ''}|${bean.name || ''}`), teaB ? 0.12 : 0.09);
+                    return (first && this.toneOfNotes(this.brewNoteList(first))) || 'none';
                 });
+                return got === 'none' ? '' : got;
             },
             // a coffee's picture: its color (a gradient), the name's first letters, and its photo if it has one
             nlCoverArt(bean) {
@@ -193,9 +209,10 @@
             // a color from its name (it follows the name as you type until you pick one), and keeps whatever is chosen.
             beanCoverInit(bean) {
                 const cov = bean ? this.coverOf(bean) : null;
-                this._bcv = cov ? { hue: cov.hue !== null ? cov.hue : this.NL_COVER_HUES[this.nlNameHue(`${bean.roaster || ''}|${bean.name || ''}`) % this.NL_COVER_HUES.length], tone: cov.tone, photo: cov.photo, picked: true }
-                    : bean ? { hue: this.nlBeanHueGuess(bean), tone: 60, photo: '', picked: false }
-                    : { hue: null, tone: 60, photo: '', picked: false };
+                this._bcvBean = bean || null;
+                // (v17.7: "Tasting color" unless a color was picked)
+                this._bcv = cov && cov.hue !== null && !cov.auto ? { hue: cov.hue, tone: cov.tone, photo: cov.photo, picked: true, auto: false }
+                    : { hue: null, tone: 60, photo: cov ? cov.photo : '', picked: !!cov, auto: true };
                 const form = this.getBeanForm && this.getBeanForm();
                 if (form && !form._bcvBound) {   // the name and roaster steer a new coffee's color until one is picked
                     form._bcvBound = true;
@@ -215,6 +232,7 @@
             },
             beanCoverNow(ctx = 'bean') {
                 const c = this.cvState(ctx) || { hue: null, tone: 60, photo: '' };
+                if (ctx !== 'roaster' && c.auto) return { auto: true, hue: null, tone: 60, photo: c.photo || '' };
                 let hue = c.hue;
                 if (hue === null || hue === undefined) {
                     let nm = '';
@@ -224,20 +242,28 @@
                 }
                 return { hue: Math.round(hue) % 360, tone: Math.max(0, Math.min(100, Math.round(c.tone ?? 60))), photo: c.photo || '' };
             },
-            beanCoverOut(ctx = 'bean') { const c = this.beanCoverNow(ctx); return c.photo ? c : { hue: c.hue, tone: c.tone }; },
+            beanCoverOut(ctx = 'bean') {
+                const c = this.beanCoverNow(ctx);
+                if (c.auto) return c.photo ? { auto: true, photo: c.photo } : { auto: true };
+                return c.photo ? { hue: c.hue, tone: c.tone, photo: c.photo } : { hue: c.hue, tone: c.tone };
+            },
             paintBeanCover(ctx = 'bean') {
                 if (typeof document === 'undefined') return;
                 const ids = this.cvIds(ctx), tile = document.getElementById(ids.tile), sw = document.getElementById(ids.sw);
                 if (!tile || !sw) return;
                 const c = this.beanCoverNow(ctx), name = this.cvName(ctx);
-                const key = this.nlToneKey(c.hue, 0.012 + 0.12 * Math.max(0.1, c.tone / 100)), P = this.nlTonePal(key, this.nlDark());
+                const tasteKey = c.auto ? (this._bcvBean && this.coffeeTasteKey(this._bcvBean)) || 'app' : '';
+                const key = c.auto ? tasteKey : this.nlToneKey(c.hue, 0.012 + 0.12 * Math.max(0.1, c.tone / 100)), P = this.nlTonePal(key, this.nlDark()) || { tileA: '#A9C2A8', tileB: '#5E7F62' };
                 const words = String(name || '').replace(/[^\p{L}\p{N}\s&]/gu, ' ').split(/\s+/).filter(w => w && w !== '&');
                 const ini = (words.length > 1 ? words[0][0] + words[1][0] : (words[0] || '?').slice(0, 1)).toUpperCase();
                 tile.className = `${ids.tile.slice(0, 3)}-tile bcv-tile nl-cover`;
                 tile.style.background = `linear-gradient(145deg, ${P.tileA}, ${P.tileB})`;
                 tile.innerHTML = `${c.photo && this.faceUrl ? `<img src="${this.esc(this.faceUrl(c.photo))}" alt="">` : ''}${words.length ? `<b>${this.esc(ini)}</b>` : '<svg class="icon nl-ic"><use href="#i-bean"/></svg>'}`;
                 const near = this.NL_COVER_HUES.reduce((a, h) => (Math.abs(((h - c.hue + 540) % 360) - 180) < Math.abs(((a - c.hue + 540) % 360) - 180) ? h : a), this.NL_COVER_HUES[0]);
-                sw.innerHTML = this.NL_COVER_HUES.map(h => { const k = this.nlToneKey(h, 0.084), q = this.nlTonePal(k, this.nlDark()); return `<button type="button" role="radio" aria-checked="${h === near}" aria-label="Color ${h}" style="background:linear-gradient(145deg, ${q.tileA}, ${q.tileB})" onclick="app.pickCoverHue(${h}, '${app.escJs(ctx)}')"></button>`; }).join('');
+                const auto = ctx !== 'roaster' ? `<button type="button" role="radio" class="bcv-auto" aria-checked="${!!c.auto}" aria-label="Tasting color" title="Tasting color" onclick="app.pickCoverAuto()"></button>` : '';
+                sw.innerHTML = auto + this.NL_COVER_HUES.map(h => { const k = this.nlToneKey(h, 0.084), q = this.nlTonePal(k, this.nlDark()); return `<button type="button" role="radio" aria-checked="${!c.auto && h === near}" aria-label="Color ${h}" style="background:linear-gradient(145deg, ${q.tileA}, ${q.tileB})" onclick="app.pickCoverHue(${h}, '${app.escJs(ctx)}')"></button>`; }).join('');
+                const hint = document.getElementById(`${ids.sw}-hint`);
+                if (hint) { const first = this._bcvBean && this.coffeeTasteKey(this._bcvBean); hint.hidden = !(ctx !== 'roaster' && c.auto); hint.textContent = first ? 'Tasting color: from its first tasted session.' : 'Tasting color: from its first tasted session (Dialed In green until then).'; }
                 const photoBtn = document.getElementById(ids.photo), rm = document.getElementById(ids.rm);
                 const canPhoto = !!(typeof Supa !== 'undefined' && Supa.ready && Supa.ready() && this.acctOn && this.acctOn());
                 const busy = ctx === 'roaster' ? this._rcvBusy : this._bcvBusy;
@@ -247,9 +273,15 @@
             pickCoverHue(h, ctx = 'bean') {
                 const key = ctx === 'roaster' ? '_rcv' : '_bcv';
                 if (!this[key]) this[key] = { tone: 60, photo: '' };
-                this[key].hue = h; this[key].tone = 60; this[key].picked = true;
+                this[key].hue = h; this[key].tone = 60; this[key].picked = true; this[key].auto = false;
                 if (this.haptic) this.haptic('tick');
                 this.paintBeanCover(ctx);
+            },
+            pickCoverAuto() {
+                if (!this._bcv) this._bcv = { tone: 60, photo: '' };
+                this._bcv.auto = true; this._bcv.picked = true; this._bcv.hue = null;
+                if (this.haptic) this.haptic('tick');
+                this.paintBeanCover('bean');
             },
             pickCoverPhoto(ctx = 'bean') { const i = document.getElementById(this.cvIds(ctx).input); if (i) { i.value = ''; i.click(); } },
             removeCoverPhoto(ctx = 'bean') { const st = this.cvState(ctx); if (st) { st.photo = ''; this.paintBeanCover(ctx); } },
@@ -258,7 +290,8 @@
                 const cov = r && r.info && r.info.cover;
                 this._rcvName = r ? r.name : '';
                 const guess = r ? (this.nlToneParts(this.famOfRoaster(r.name)) || {}).h : null;
-                this._rcv = cov ? { hue: cov.hue, tone: cov.tone ?? 60, photo: cov.photo || '', picked: true } : { hue: guess ?? null, tone: 60, photo: '', picked: false };
+                const pk = this.coverPicked(cov);
+                this._rcv = pk ? { hue: pk.hue, tone: pk.tone, photo: cov.photo || '', picked: true } : { hue: guess ?? null, tone: 60, photo: (cov && cov.photo) || '', picked: false };
                 this._rcvStart = JSON.stringify(this.beanCoverOut('roaster'));
                 this.paintBeanCover('roaster');
             },
@@ -278,7 +311,6 @@
                     const side = Math.min(img.naturalWidth, img.naturalHeight), N = 480;
                     const c = document.createElement('canvas'); c.width = N; c.height = N;
                     const x = c.getContext('2d'); x.drawImage(img, (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side, 0, 0, N, N);
-                    const hue = this.nlPhotoHue(c);
                     const blob = await new Promise(ok => c.toBlob(ok, 'image/jpeg', 0.86));
                     if (!blob) throw new Error('no picture');
                     const rand = Array.from(crypto.getRandomValues(new Uint8Array(9)), b => b.toString(16).padStart(2, '0')).join('');
@@ -286,22 +318,9 @@
                     await Supa.call('/storage/v1/object/avatars/' + path, blob, { headers: { 'Content-Type': 'image/jpeg' } });
                     if (!this[stKey]) this[stKey] = { tone: 60 };
                     this[stKey].photo = path;
-                    if (hue) { this[stKey].hue = hue.h; this[stKey].tone = hue.tone; this[stKey].picked = true; }
+                    // (v17.7: the photo doesn't change the color)
                     this.showToast('Photo added. Save to keep it.');
                 } catch (e) {
                     this.showToast(/not a picture|no picture/.test(String(e && e.message)) ? 'That file isn\'t a picture.' : 'Couldn\'t upload the photo. Check your connection.');
                 } finally { this[busyKey] = false; this.paintBeanCover(ctx); }
-            },
-            // a photo's main color: the average of its more colorful pixels in OKLab (a grey photo gives a quiet color)
-            nlPhotoHue(canvas) {
-                try {
-                    const n = 24, t = document.createElement('canvas'); t.width = n; t.height = n;
-                    const x = t.getContext('2d'); x.drawImage(canvas, 0, 0, n, n);
-                    const d = x.getImageData(0, 0, n, n).data;
-                    let A = 0, B = 0, W = 0;
-                    for (let i = 0; i < d.length; i += 4) { const hx = '#' + [d[i], d[i + 1], d[i + 2]].map(v => v.toString(16).padStart(2, '0')).join(''); const o = this.nlHexOk(hx); if (o.L < 0.15 || o.L > 0.97) continue; const w = o.C; A += w * o.C * Math.cos(o.h * Math.PI / 180); B += w * o.C * Math.sin(o.h * Math.PI / 180); W += w; }
-                    if (!W) return null;
-                    const h = ((Math.atan2(B, A) * 180 / Math.PI) + 360) % 360, C = Math.hypot(A, B) / W;
-                    return { h: Math.round(h), tone: Math.round(Math.max(25, Math.min(90, (C - 0.012) / 0.12 * 100))) };
-                } catch (e) { return null; }
             },

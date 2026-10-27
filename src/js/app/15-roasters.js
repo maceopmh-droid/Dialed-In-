@@ -50,7 +50,7 @@
             roasterTileHtml(r, big = false) {
                 const cov = this.newLook && this.newLook() && r.info && r.info.cover;   // v17.5: its picture, in the New look
                 if (cov) {
-                    const P = this.nlTonePal(this.nlToneKey(cov.hue, 0.012 + 0.12 * Math.max(0.1, (cov.tone ?? 60) / 100)), this.nlDark());
+                    const P = this.nlTonePal(this.famOfRoaster(r.name), this.nlDark()) || { tileA: '#A9C2A8', tileB: '#5E7F62' };   // (v17.7: the roaster's own color; a photo doesn't change it)
                     return `<span class="ro-tile${big ? ' big' : ''}" aria-hidden="true" style="background:linear-gradient(145deg, ${P.tileA}, ${P.tileB})">${cov.photo && this.faceUrl ? `<img src="${this.esc(this.faceUrl(cov.photo))}" alt="" loading="lazy" decoding="async" onerror="this.remove()">` : ''}<b>${this.esc(this.roasterInitials(r.name))}</b></span>`;
                 }
                 return `<span class="ro-tile${big ? ' big' : ''}" aria-hidden="true" style="background:${this.roasterPaint(r).bg}">${this.esc(this.roasterInitials(r.name))}</span>`;

@@ -758,3 +758,7 @@
         html[data-look="new"] .nl-lr-coffee { font-family: var(--nl-hand); font-weight: 600; font-size: 16px; line-height: 1.15; color: var(--n); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         /* v17.6: a long name beside a coffee's tile wraps into two even lines, smaller, instead of one word a line */
         html[data-look="new"] .nl-name { text-wrap: balance; }
+        /* v17.7: the coffee editor's "Tasting color" (the first swatch): soft note colors around a ring */
+        html[data-look="new"] .bcv-swatches .bcv-auto { background: conic-gradient(from 200deg, #E7A08C, #E9C77E, #B9CC8C, #8FC2B4, #9DB0DA, #C3A2D6, #E7A08C) !important; position: relative; }
+        html[data-look="new"] .bcv-swatches .bcv-auto::after { content: ''; position: absolute; inset: 22%; border-radius: 50%; background: var(--c, #1b1f1c); }
+        html[data-look="new"] .bcv-hint { margin: 10px 0 0; font-size: 13.5px; line-height: 1.35; color: var(--l, var(--nl-muted)); }
