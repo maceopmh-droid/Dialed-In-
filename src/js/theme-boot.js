@@ -19,9 +19,19 @@
         if (mq && mq.addEventListener) mq.addEventListener('change', onChange); else if (mq && mq.addListener) mq.addListener(onChange);
     } catch (e) {}
     // v17.2: the New look (Settings, Appearance), saved per phone; classic unless it's switched on
+    // v18.7: someone new (a phone that has never opened Dialed In) starts in the New look; phones already using the app keep
+    // the look they have (anyone who never switched stays classic)
     try {
         var look = 'classic';
-        try { look = localStorage.getItem('dialed_look') === 'new' ? 'new' : 'classic'; } catch (e) {}
+        try {
+            var saved = localStorage.getItem('dialed_look');
+            if (saved === null) {
+                var used = false;
+                for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i) || ''; if (k.indexOf('dialed_') === 0 && k !== 'dialed_supabase') { used = true; break; } }
+                if (!used) { saved = 'new'; localStorage.setItem('dialed_look', 'new'); }
+            }
+            look = saved === 'new' ? 'new' : 'classic';
+        } catch (e) {}
         // v17.3: a safety net. Each start in the New look is counted until the app has been up a few seconds; after two starts
         // in a row that never got that far (a phone that couldn't draw it), this one opens in the classic look and says so
         if (look === 'new') {

@@ -779,3 +779,5 @@
         html[data-look="new"] .ro-cof-n, html[data-look="new"] .fp-side, html[data-look="new"] .cmp-rating, html[data-look="new"] .sc-rate b, html[data-look="new"] .ro-hero .stat-num small, html[data-look="new"] .card-rating, html[data-look="new"] .rating-score { color: var(--nl-gold-ink); }
         html[data-look="new"] .steeps-hint, html[data-look="new"] .lbl-opt { color: var(--nl-muted); }
         html[data-look="new"] .ro-rate { color: var(--t, var(--nl-ink)); font-size: 14px; font-weight: 700; }   /* (a roaster's number reads like a coffee card's) */
+        /* v18.7: the welcome's step headings in the New look's serif, like its page and sheet titles (new people start in the New look) */
+        html[data-look="new"] .wl-h2 { font-family: var(--nl-serif); font-weight: 500; letter-spacing: -0.012em; }
