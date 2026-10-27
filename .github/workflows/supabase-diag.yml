@@ -29,15 +29,11 @@ jobs:
           q() { curl -sS -G "https://api.supabase.com/v1/projects/$PROJECT_REF/analytics/endpoints/logs" -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
                   --data-urlencode "sql=$1" --data-urlencode "iso_timestamp_start=$start" --data-urlencode "iso_timestamp_end=$end"; }
           {
-            echo "edge log fields (names only):"
-            q "SELECT groupUniqArray(k) AS keys FROM (SELECT arrayJoin(mapKeys(log_attributes)) AS k FROM logs WHERE source = 'edge_logs' AND timestamp > now() - INTERVAL 1 HOUR)" | jq -c '.result // .'
-            for f in pull_events data_version push_event; do
-              echo "$f calls by hour (UTC) and status:"
-              q "SELECT formatDateTime(toStartOfHour(timestamp), '%H') AS hr, log_attributes['response.status_code'] AS code, count() AS n FROM logs WHERE source = 'edge_logs' AND log_attributes['request.path'] LIKE '%rpc/$f%' GROUP BY hr, code ORDER BY hr, code" | jq -c '.result // .'
-            done
             echo "photo link calls by hour (UTC) and status:"
             q "SELECT formatDateTime(toStartOfHour(timestamp), '%H') AS hr, log_attributes['response.status_code'] AS code, count() AS n FROM logs WHERE source = 'edge_logs' AND log_attributes['request.path'] LIKE '%object/sign/photos%' GROUP BY hr, code ORDER BY hr, code" | jq -c '.result // .'
-            echo "database statement timeouts by hour (UTC):"
-            q "SELECT formatDateTime(toStartOfHour(timestamp), '%H') AS hr, count() AS n FROM logs WHERE source = 'postgres_logs' AND log_attributes['parsed.sql_state_code'] = '57014' GROUP BY hr ORDER BY hr" | jq -c '.result // .'
+            echo "storage log fields (names only):"
+            q "SELECT groupUniqArray(k) AS keys FROM (SELECT arrayJoin(mapKeys(log_attributes)) AS k FROM logs WHERE source = 'storage_logs' AND timestamp > now() - INTERVAL 6 HOUR)" | jq -c '.result // .'
+            echo "storage messages for failed photo links, by kind (counts only):"
+            q "SELECT multiIf(event_message ILIKE '%jwt%' OR event_message ILIKE '%token%', 'sign-in token', event_message ILIKE '%invalid key%' OR event_message ILIKE '%invalidkey%', 'invalid name', event_message ILIKE '%not found%' OR event_message ILIKE '%not exist%', 'not found', event_message ILIKE '%too large%' OR event_message ILIKE '%limit%', 'too many', event_message ILIKE '%validation%' OR event_message ILIKE '%body%', 'bad request body', 'other') AS kind, count() AS n FROM logs WHERE source = 'storage_logs' AND event_message ILIKE '%sign%' AND (event_message ILIKE '%400%' OR event_message ILIKE '%error%') GROUP BY kind" | jq -c '.result // .'
           } > "$RUNNER_TEMP/l.txt" 2>&1
           cat "$RUNNER_TEMP/l.txt"; bash supabase/report.sh "Logs" "$RUNNER_TEMP/l.txt"
