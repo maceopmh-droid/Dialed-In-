@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v18.1 -->
+<!-- Dialed In v18.2 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="18.1">
+    <meta name="dialed-in-version" content="18.2">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -5552,7 +5552,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v18.1</div>
+            <div class="app-version">Dialed In · v18.2</div>
         </div>
     </div>
 
@@ -23057,8 +23057,8 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 y += 420 + 90;
                 ctx.textAlign = 'center';
                 const unit = ' crema', tier = this.levelTiers()[L.t].name;   // (v17.9: crema in the New look again)
-                ctx.font = k.nl ? k.hand(40) : k.sans(700, 36); ctx.fillStyle = k.nl ? k.accent : k.muted; ctx.fillText(k.nl ? `${who === this.user ? 'My' : `${who}'s`} level · ${tier === 'The top' ? 'Top' : tier}` : `${who === this.user ? 'My' : `${who}'s`} level · Level ${L.n}`, k.W / 2, y);
-                ctx.font = k.serif(600, 110); ctx.fillStyle = k.nl ? k.name : k.ink; ctx.fillText(k.fit(k.nl ? `Level ${L.n}` : L.name, k.W - k.PAD * 2), k.W / 2, y + 130);
+                ctx.font = k.nl ? k.hand(40) : k.sans(700, 36); ctx.fillStyle = k.nl ? k.accent : k.muted; ctx.fillText(k.nl ? `${who === this.user ? 'My' : `${who}'s`} level · Level ${L.n} · ${tier === 'The top' ? 'Top' : tier}` : `${who === this.user ? 'My' : `${who}'s`} level · Level ${L.n}`, k.W / 2, y);
+                ctx.font = k.serif(600, 110); ctx.fillStyle = k.nl ? k.name : k.ink; ctx.fillText(k.fit(k.nl && this.nlLevelName ? this.nlLevelName(L.i) : L.name, k.W - k.PAD * 2), k.W / 2, y + 130);   // (v18.1: its name)
                 ctx.font = k.sans(700, 54); ctx.fillStyle = k.nl ? k.ink : '#FFFFFF'; const cr = `${fmt(L.crema)}`; const cw = ctx.measureText(cr).width; ctx.font = k.sans(500, 40); const lw = ctx.measureText(unit).width;
                 ctx.textAlign = 'left'; ctx.font = k.sans(700, 54); ctx.fillText(cr, (k.W - cw - lw) / 2, y + 230); ctx.font = k.sans(500, 40); ctx.fillStyle = k.ink2; ctx.fillText(unit, (k.W - cw - lw) / 2 + cw, y + 230);
                 y += 300;
@@ -24795,21 +24795,22 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
                 }
                 return `<svg class="nl-lvl-badge" viewBox="0 0 40 40" width="${size}" height="${size}" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="${C.bg}"/><circle cx="20" cy="20" r="${L.t === 4 ? 18.6 : 19}" fill="none" stroke="${C.ring}" stroke-width="${L.t === 4 ? 1.8 : 1.1}"/>${icon}</svg>`;
             },
+            nlLevelName(i) { const a = this.NL_LEVEL_ICONS[i]; return a ? a[0] : (this.levelList()[i] || {}).name || ''; },   // (v18.1: shown with the level)
             nlTierName(L) { const t = this.levelTiers()[L.t].name; return t === 'The top' ? 'Top' : t; },
             nlLevelRowHtml(user) {
                 const c = this.cremaOf(user);
                 if (c === null || c === undefined) return '';
                 const L = this.levelOf(c), fmt = x => Math.round(x).toLocaleString();
-                return `<button type="button" class="lvl-row nl-lvl-row" data-name="${this.esc(user)}" onclick="app.openLevel(this.getAttribute('data-name'))" aria-label="Level ${L.n}${this.NL_LEVEL_ICONS[L.i] ? ` (${this.esc(this.NL_LEVEL_ICONS[L.i][0])})` : ''}, ${this.esc(this.nlTierName(L))}. ${fmt(L.crema)} crema">${this.nlLevelBadge(L.i, 44)}<span class="lvl-main"><span class="lvl-top"><b>Level ${L.n}</b><em>${this.esc(this.nlTierName(L))}</em></span><span class="lvl-bar"><i style="width:${L.pct.toFixed(1)}%"></i></span><small class="lvl-count">${fmt(L.crema)} crema${L.next ? ` · ${fmt(L.next.min - L.crema)} to level ${L.n + 1}` : ' · the top level'}</small></span></button>`;
+                return `<button type="button" class="lvl-row nl-lvl-row" data-name="${this.esc(user)}" onclick="app.openLevel(this.getAttribute('data-name'))" aria-label="Level ${L.n}${this.NL_LEVEL_ICONS[L.i] ? ` (${this.esc(this.NL_LEVEL_ICONS[L.i][0])})` : ''}, ${this.esc(this.nlTierName(L))}. ${fmt(L.crema)} crema">${this.nlLevelBadge(L.i, 44)}<span class="lvl-main"><span class="lvl-top"><b>${this.esc(this.nlLevelName(L.i))}</b><em>Level ${L.n} · ${this.esc(this.nlTierName(L))}</em></span><span class="lvl-bar"><i style="width:${L.pct.toFixed(1)}%"></i></span><small class="lvl-count">${fmt(L.crema)} crema${L.next ? ` · ${fmt(L.next.min - L.crema)} to level ${L.n + 1}` : ' · the top level'}</small></span></button>`;
             },
             nlLevelBody(name) {
                 const own = name === this.user, L = this.levelOf(this.cremaOf(name) || 0), fmt = x => Math.round(x).toLocaleString(), list = this.levelList();
                 const word = { coffee: 'A coffee or tea you hadn’t had before', roaster: 'A new roaster or tea brand', local: 'A session from a roaster or brand you marked local' };
-                const tiers = this.levelTiers().map((T, t) => { const lv = list.map((x, i) => [x, i]).filter(([x]) => x.t === t); return { T, t, first: lv[0][1] + 1, last: lv[lv.length - 1][1] + 1, from: lv[0][0].min }; });
-                const ladder = `<div class="lvl-sec"><div class="lvl-cap">Levels</div>${tiers.map(x => `<div class="nl-lvl-tier${x.t === L.t ? ' on' : ''}${x.t > L.t ? ' locked' : ''}">${this.nlLevelBadge(x.first - 1, 30)}<span><b>${this.esc(x.T.name === 'The top' ? 'Top' : x.T.name)}</b><small>${x.first === x.last ? `Level ${x.first}` : `Levels ${x.first}–${x.last}`}</small></span><em>${fmt(x.from)}</em></div>`).join('')}</div>`;
+                const tierOf = t => { const n = this.levelTiers()[t].name; return n === 'The top' ? 'Top' : n; };
+                const ladder = `<div class="lvl-sec"><div class="lvl-cap">Levels</div>${list.map((x, i) => `<div class="nl-lvl-tier${i === L.i ? ' on' : ''}${i > L.i ? ' locked' : ''}">${this.nlLevelBadge(i, 34)}<span><b>${this.esc(this.nlLevelName(i))}</b><small>Level ${i + 1} · ${this.esc(tierOf(x.t))}</small></span><em>${fmt(x.min)}</em></div>`).join('')}</div>`;   // (v18.1: every level, by name)
                 const how = `<div class="lvl-sec"><div class="lvl-cap">How to earn crema</div>${this.cremaRules().map(r => `<div class="lvl-line"><span>${this.esc(word[r[0]] || r[1])}${r[3] ? `<small> · ${this.esc(r[3])}</small>` : ''}</span><b>+${r[2]}</b></div>`).join('')}</div>`;
                 const share = own && this.openLevelStory ? '<button type="button" class="btn-outline lvl-share" onclick="app.openLevelStory()"><svg class="icon"><use href="#i-share-2"/></svg>Share</button>' : '';
-                return `<div class="lvl-hero nl-lvl-hero">${this.nlLevelBadge(L.i, 92)}<div class="lvl-kicker">${own ? 'Your level' : `${this.esc(name)}'s level`}</div><h3>Level ${L.n}</h3><div class="lvl-crema">${this.esc(this.nlTierName(L))} · <b>${fmt(L.crema)}</b> crema</div>${L.next ? `<div class="lvl-bar big"><i style="width:${L.pct.toFixed(1)}%"></i></div><div class="lvl-next">${fmt(L.next.min - L.crema)} more to level ${L.n + 1}</div>` : '<div class="lvl-next">The top level.</div>'}${share}</div>${ladder}${how}`;
+                return `<div class="lvl-hero nl-lvl-hero">${this.nlLevelBadge(L.i, 92)}<div class="lvl-kicker">${own ? 'Your level' : `${this.esc(name)}'s level`}</div><h3>${this.esc(this.nlLevelName(L.i))}</h3><div class="lvl-crema">Level ${L.n} · ${this.esc(this.nlTierName(L))} · <b>${fmt(L.crema)}</b> crema</div>${L.next ? `<div class="lvl-bar big"><i style="width:${L.pct.toFixed(1)}%"></i></div><div class="lvl-next">${fmt(L.next.min - L.crema)} more to level ${L.n + 1}</div>` : '<div class="lvl-next">The top level.</div>'}${share}</div>${ladder}${how}`;
             },
 
             // v17.5: an achievement on a card: its own little card in the color of whoever earned it; tap it for their achievements
