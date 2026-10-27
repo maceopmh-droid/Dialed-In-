@@ -26,7 +26,7 @@ jobs:
         run: |
           set +e
           end=$(date -u +%Y-%m-%dT%H:%M:%SZ); start=$(date -u -d '-6 hours' +%Y-%m-%dT%H:%M:%SZ)
-          q() { curl -sS -G "https://api.supabase.com/v1/projects/$PROJECT_REF/analytics/endpoints/logs.all" -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+          q() { curl -sS -G "https://api.supabase.com/v1/projects/$PROJECT_REF/analytics/endpoints/logs" -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
                   --data-urlencode "sql=$1" --data-urlencode "iso_timestamp_start=$start" --data-urlencode "iso_timestamp_end=$end"; }
           {
             echo "pull_events calls by hour (UTC) and status:"
