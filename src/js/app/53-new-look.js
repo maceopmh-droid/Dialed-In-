@@ -915,7 +915,7 @@
                     t.addColorStop(0, 'rgba(0,0,0,0.28)'); t.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = t; ctx.fillRect(0, 0, W, SAFE_T + X(40));
                 }
                 // --- Dialed In, at the top
-                const topY = SAFE_T + X(12);
+                const topY = SAFE_T + X(9);
                 ctx.save();
                 if (photo) { ctx.shadowColor = 'rgba(0,0,0,0.45)'; ctx.shadowBlur = X(6); }
                 ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = hand(X(14)); ctx.fillStyle = photo ? '#FFFFFF' : P.k;
@@ -971,12 +971,18 @@
                     y += X(20);
                 }
                 // --- the last row: who, as their picture (or initial) in a ring of their color (v17.8: no name; Maceo: "get rid of
-                // the name")
+                // the name"), and the session's date beside it (v17.9)
                 y += X(14);
                 const ar = X(11), ax = left + ar + X(2.6), ay = y + whoH / 2, col = this.getUserColor(owner) || '#5B7FA6';
                 ctx.beginPath(); ctx.arc(ax, ay, ar + X(2.6), 0, Math.PI * 2); ctx.lineWidth = X(1.3); ctx.strokeStyle = col; ctx.stroke();
                 ctx.beginPath(); ctx.arc(ax, ay, ar, 0, Math.PI * 2); ctx.fillStyle = col; ctx.fill();
                 if (face) { ctx.save(); ctx.beginPath(); ctx.arc(ax, ay, ar, 0, Math.PI * 2); ctx.clip(); const k = Math.max(ar * 2 / face.width, ar * 2 / face.height); ctx.drawImage(face, ax - face.width * k / 2, ay - face.height * k / 2, face.width * k, face.height * k); ctx.restore(); }
                 else { ctx.fillStyle = '#FFFFFF'; ctx.font = sans(700, X(10.5)); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(this.feedInitial(owner), ax, ay + X(0.5)); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; }
+                const t = this.toTime(b.date);
+                if (t) {
+                    const d = new Date(t), o = { month: 'short', day: 'numeric' }; if (d.getFullYear() !== new Date().getFullYear()) o.year = 'numeric';
+                    let when = ''; try { when = d.toLocaleDateString('en-US', o); } catch (e) { when = ''; }
+                    if (when) { ctx.font = sans(600, X(12)); ctx.fillStyle = P.l; ctx.textBaseline = 'middle'; ctx.fillText(when, ax + ar + X(9), ay + X(0.5)); ctx.textBaseline = 'alphabetic'; }
+                }
                 return c;
             },
