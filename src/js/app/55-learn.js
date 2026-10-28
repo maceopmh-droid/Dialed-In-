@@ -180,8 +180,10 @@
             lxOverview() {
                 const st = this.lxState();
                 if (st.ov && Date.now() - st.ovAt < 600000) return st.ov;
-                if (!st.ovBusy && this.lxCommOk()) {
-                    st.ovBusy = Supa.rpc('learn_overview', {}).then(r => { st.ov = (r && r.kinds) || {}; st.ovAt = Date.now(); }).catch(() => { st.ovAt = Date.now() - 540000; })
+                // (at most one try a minute, so a backend that can't answer doesn't keep the screen drawing)
+                if (!st.ovBusy && this.lxCommOk() && Date.now() - (st.ovTry || 0) > 60000) {
+                    st.ovTry = Date.now();
+                    st.ovBusy = Supa.rpc('learn_overview', {}).then(r => { st.ov = (r && r.kinds) || {}; st.ovAt = Date.now(); st.ovFailed = false; }).catch(() => { st.ovFailed = true; })
                         .finally(() => { st.ovBusy = null; this.lxRefresh('ov'); });
                 }
                 return st.ov;
@@ -297,7 +299,7 @@
             // Most brewed on Dialed In: the top three kinds (that have a page) by sessions, from 2 people and 2 coffees
             lxMostSec(ov) {
                 if (!this.lxCommOk()) return null;
-                if (!ov) return { key: 'home.most', open: true, title: 'Most brewed on Dialed In', body: this.loadingBlockHtml('lx-loading') };
+                if (!ov) return this.lxState().ovFailed ? null : { key: 'home.most', open: true, title: 'Most brewed on Dialed In', body: this.loadingBlockHtml('lx-loading') };
                 const rows = Object.entries(ov).map(([k, v]) => { const [kind, id] = k.split(':'); return { kind, id, s: v[0], p: v[1], c: v[2] }; })
                     .filter(x => x.p >= 2 && x.c >= 2 && this.lxHasPage(x.kind, x.id)).sort((a, b) => b.s - a.s || a.id.localeCompare(b.id)).slice(0, 3);
                 if (!rows.length) return null;
@@ -454,7 +456,7 @@
                 const mapBody = `<div class="lx-mapbox" data-fam="fruity">${this.lxWorldSvg({ hot: sel, pages })}<div class="lx-legend"><span><i class="lx-lg-on"></i>Grows coffee</span><span><i class="lx-lg-tropic"></i>Tropics</span></div></div>`;
                 const chips = `<div class="lx-chips" role="tablist" aria-label="Continents">${[['', 'All'], ...LearnEngine.CONTINENTS.map(k => [k, k])].map(([k, l]) => `<button type="button" class="lx-chip${k === cont ? ' on' : ''}" aria-pressed="${k === cont}" onclick="app.lxSetCont('${app.escJs(k)}')">${this.esc(l)}</button>`).join('')}</div>`;
                 const fresh = this.lxFreshNow();
-                const freshBody = fresh.length ? `<div class="lx-box"><p class="lx-p lx-small">${this.esc(this.lxMonthWord())}: an estimate from harvest months, plus the few months a crop takes to reach roasters. Look for new-crop bags from these:</p><div class="lx-tags">${fresh.map(f => this.lxLinkTag('origin', f.code, f.allYear ? `${this.lxName('origin', f.code)}, all year` : this.lxName('origin', f.code))).join('')}</div></div>` : '';
+                const freshBody = fresh.length ? `<div class="lx-box"><p class="lx-p lx-small">${this.esc(this.lxMonthWord())}: an estimate from harvest months, plus the few months a crop takes to reach roasters. Look for new-crop bags from these:</p><div class="lx-tags">${fresh.map(f => this.lxLinkTag('origin', f.code, f.allYear ? `${this.lxName('origin', f.code)}, most of the year` : this.lxName('origin', f.code))).join('')}</div></div>` : '';
                 const n = code => { const x = ov[`origin:${code}`]; return x ? x[2] : 0; };
                 const list = all.filter(x => !sel || sel.has(x.code)).map(x => ({ x, n: n(x.code), s: (ov[`origin:${x.code}`] || [0])[0], page: pages.has(x.code) }))
                     .sort((a, b) => b.s - a.s || (b.page - a.page) || a.x.name.localeCompare(b.x.name));

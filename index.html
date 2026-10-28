@@ -27332,8 +27332,10 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             lxOverview() {
                 const st = this.lxState();
                 if (st.ov && Date.now() - st.ovAt < 600000) return st.ov;
-                if (!st.ovBusy && this.lxCommOk()) {
-                    st.ovBusy = Supa.rpc('learn_overview', {}).then(r => { st.ov = (r && r.kinds) || {}; st.ovAt = Date.now(); }).catch(() => { st.ovAt = Date.now() - 540000; })
+                // (at most one try a minute, so a backend that can't answer doesn't keep the screen drawing)
+                if (!st.ovBusy && this.lxCommOk() && Date.now() - (st.ovTry || 0) > 60000) {
+                    st.ovTry = Date.now();
+                    st.ovBusy = Supa.rpc('learn_overview', {}).then(r => { st.ov = (r && r.kinds) || {}; st.ovAt = Date.now(); st.ovFailed = false; }).catch(() => { st.ovFailed = true; })
                         .finally(() => { st.ovBusy = null; this.lxRefresh('ov'); });
                 }
                 return st.ov;
@@ -27449,7 +27451,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             // Most brewed on Dialed In: the top three kinds (that have a page) by sessions, from 2 people and 2 coffees
             lxMostSec(ov) {
                 if (!this.lxCommOk()) return null;
-                if (!ov) return { key: 'home.most', open: true, title: 'Most brewed on Dialed In', body: this.loadingBlockHtml('lx-loading') };
+                if (!ov) return this.lxState().ovFailed ? null : { key: 'home.most', open: true, title: 'Most brewed on Dialed In', body: this.loadingBlockHtml('lx-loading') };
                 const rows = Object.entries(ov).map(([k, v]) => { const [kind, id] = k.split(':'); return { kind, id, s: v[0], p: v[1], c: v[2] }; })
                     .filter(x => x.p >= 2 && x.c >= 2 && this.lxHasPage(x.kind, x.id)).sort((a, b) => b.s - a.s || a.id.localeCompare(b.id)).slice(0, 3);
                 if (!rows.length) return null;
@@ -27606,7 +27608,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const mapBody = `<div class="lx-mapbox" data-fam="fruity">${this.lxWorldSvg({ hot: sel, pages })}<div class="lx-legend"><span><i class="lx-lg-on"></i>Grows coffee</span><span><i class="lx-lg-tropic"></i>Tropics</span></div></div>`;
                 const chips = `<div class="lx-chips" role="tablist" aria-label="Continents">${[['', 'All'], ...LearnEngine.CONTINENTS.map(k => [k, k])].map(([k, l]) => `<button type="button" class="lx-chip${k === cont ? ' on' : ''}" aria-pressed="${k === cont}" onclick="app.lxSetCont('${app.escJs(k)}')">${this.esc(l)}</button>`).join('')}</div>`;
                 const fresh = this.lxFreshNow();
-                const freshBody = fresh.length ? `<div class="lx-box"><p class="lx-p lx-small">${this.esc(this.lxMonthWord())}: an estimate from harvest months, plus the few months a crop takes to reach roasters. Look for new-crop bags from these:</p><div class="lx-tags">${fresh.map(f => this.lxLinkTag('origin', f.code, f.allYear ? `${this.lxName('origin', f.code)}, all year` : this.lxName('origin', f.code))).join('')}</div></div>` : '';
+                const freshBody = fresh.length ? `<div class="lx-box"><p class="lx-p lx-small">${this.esc(this.lxMonthWord())}: an estimate from harvest months, plus the few months a crop takes to reach roasters. Look for new-crop bags from these:</p><div class="lx-tags">${fresh.map(f => this.lxLinkTag('origin', f.code, f.allYear ? `${this.lxName('origin', f.code)}, most of the year` : this.lxName('origin', f.code))).join('')}</div></div>` : '';
                 const n = code => { const x = ov[`origin:${code}`]; return x ? x[2] : 0; };
                 const list = all.filter(x => !sel || sel.has(x.code)).map(x => ({ x, n: n(x.code), s: (ov[`origin:${x.code}`] || [0])[0], page: pages.has(x.code) }))
                     .sort((a, b) => b.s - a.s || (b.page - a.page) || a.x.name.localeCompare(b.x.name));
@@ -28136,14 +28138,14 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     const chips = [], hints = [];
                     (f.chips || []).forEach(ch => {
                         if (ch.t === 'ok') { const page = this.lxHasPage(ch.kind === 'decaf' ? 'decaf' : ch.kind, ch.id); const inner = `${this.lxIc('i-check-c', 15)}${this.esc(ch.name)}${ch.meta ? ` <span class="lx-rcm">· ${this.esc(ch.meta)}</span>` : ''}`; chips.push(page ? `<button type="button" class="lx-rc" onclick="${this.lxGo(ch.kind, ch.id)}" aria-label="${this.esc(ch.name)}: read about it">${inner}</button>` : `<span class="lx-rc">${inner}</span>`); }
-                        else if (ch.t === 'warn') { chips.push(`<span class="lx-rc warn">${this.lxIc('i-alert', 15)}${this.esc(ch.name)}</span>`); hints.push(ch.hint); if (ch.suggestId && !kept(k)) chips.push(`<span class="lx-rc q">${this.lxIc('i-info', 15)}${this.esc(this.lxName('variety', ch.suggestId))}?</span><button type="button" class="lx-badge" onclick="app.lxFormSet('${k}', '${app.escJs(this.lxName('variety', ch.suggestId))}')">Yes</button><button type="button" class="lx-badge lx-muted" onclick="app.lxFormKeep('${k}')">Keep as typed</button>`); }
-                        else if (ch.t === 'q' && !kept(k)) chips.push(`<span class="lx-rc q">${this.lxIc('i-info', 15)}${this.esc(ch.name)}?</span><button type="button" class="lx-badge" onclick="app.lxFormFix('${k}', '${app.escJs(ch.typed || '')}', '${app.escJs(ch.name)}')">Yes</button><button type="button" class="lx-badge lx-muted" onclick="app.lxFormKeep('${k}')">Keep as typed</button>`);
-                        else if (ch.t === 'ask' && !kept(k)) chips.push(`<span class="lx-rc q">${this.lxIc('i-info', 15)}${this.esc(ch.options.map(x => x.name).join(' or '))}?</span>${ch.options.map(x => `<button type="button" class="lx-badge" onclick="app.lxFormAsk('${k}', '${app.escJs(ch.id)}', '${app.escJs(x.id)}')">${this.esc(x.name)}</button>`).join('')}`);
+                        else if (ch.t === 'warn') { chips.push(`<span class="lx-rc warn">${this.lxIc('i-alert', 15)}${this.esc(ch.name)}</span>`); hints.push(ch.hint); if (ch.suggestId && !kept(k)) chips.push(`<span class="lx-rc q">${this.lxIc('i-info', 15)}${this.esc(this.lxName('variety', ch.suggestId))}?</span><button type="button" class="lx-badge" onclick="app.lxFormSet('${app.escJs(k)}', '${app.escJs(this.lxName('variety', ch.suggestId))}')">Yes</button><button type="button" class="lx-badge lx-muted" onclick="app.lxFormKeep('${app.escJs(k)}')">Keep as typed</button>`); }
+                        else if (ch.t === 'q' && !kept(k)) chips.push(`<span class="lx-rc q">${this.lxIc('i-info', 15)}${this.esc(ch.name)}?</span><button type="button" class="lx-badge" onclick="app.lxFormFix('${app.escJs(k)}', '${app.escJs(ch.typed || '')}', '${app.escJs(ch.name)}')">Yes</button><button type="button" class="lx-badge lx-muted" onclick="app.lxFormKeep('${app.escJs(k)}')">Keep as typed</button>`);
+                        else if (ch.t === 'ask' && !kept(k)) chips.push(`<span class="lx-rc q">${this.lxIc('i-info', 15)}${this.esc(ch.options.map(x => x.name).join(' or '))}?</span>${ch.options.map(x => `<button type="button" class="lx-badge" onclick="app.lxFormAsk('${app.escJs(k)}', '${app.escJs(ch.id)}', '${app.escJs(x.id)}')">${this.esc(x.name)}</button>`).join('')}`);
                         else if (ch.t === 'info') chips.push(`<span class="lx-rc info">${this.esc(ch.name)}</span>`);
                     });
                     if (f.hint) hints.push(f.hint);
                     const HINT = { 'colombia-var': 'In the Variety box, “Colombia” means the variety bred there, not the country.', 'java-var': 'In the Variety box, “Java” means the variety, not the Indonesian island.', 'single-origin': '“Single origin” means it all comes from one place. The variety is the kind of coffee tree, like Gesha or SL28. If the bag doesn’t say, leave this empty.', arabica: '“Arabica” is the coffee species, not a variety. If the bag names no variety, leave this empty.', blend: '“Blend” means several coffees mixed. The variety is the kind of coffee tree, like Gesha or SL28.' };
-                    const fr = !text && friends[k] ? `<div class="lx-friend">${this.lxIc('i-users', 20)}<span>${this.esc(friends[k].who)} logged this coffee as <b>${this.esc(friends[k].value)}</b>.</span><button type="button" class="lx-badge lx-use" onclick="app.lxFormSet('${k}', '${app.escJs(friends[k].value)}')">Use it</button></div>` : '';
+                    const fr = !text && friends[k] ? `<div class="lx-friend">${this.lxIc('i-users', 20)}<span>${this.esc(friends[k].who)} logged this coffee as <b>${this.esc(friends[k].value)}</b>.</span><button type="button" class="lx-badge lx-use" onclick="app.lxFormSet('${app.escJs(k)}', '${app.escJs(friends[k].value)}')">Use it</button></div>` : '';
                     box.innerHTML = `${chips.length ? `<div class="lx-recog">${chips.join('')}</div>` : ''}${[...new Set(hints)].filter(h => HINT[h]).map(h => `<p class="lx-note lx-hint">${this.esc(HINT[h])}</p>`).join('')}${fr}`;
                 });
                 if (dec) {
@@ -28225,7 +28227,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 }
                 const st = (this._lxPassSt || (this._lxPassSt = {}))[user] || { tab: 'countries', sel: '' };
                 const tab = st.tab;
-                const seg = `<div class="lx-seg lx-seg3" role="tablist">${[['countries', 'Countries', P.countries.size], ['varieties', 'Varieties', P.varieties.size], ['processes', 'Processes', P.processes.size]].map(([k, l, n]) => `<button type="button" class="${k === tab ? 'on' : ''}" aria-pressed="${k === tab}" onclick="app.lxPassTab('${app.escJs(user)}', '${k}')">${l} · ${n}</button>`).join('')}</div>`;
+                const seg = `<div class="lx-seg lx-seg3" role="tablist">${[['countries', 'Countries', P.countries.size], ['varieties', 'Varieties', P.varieties.size], ['processes', 'Processes', P.processes.size]].map(([k, l, n]) => `<button type="button" class="${k === tab ? 'on' : ''}" aria-pressed="${k === tab}" onclick="app.lxPassTab('${app.escJs(user)}', '${app.escJs(k)}')">${l} · ${n}</button>`).join('')}</div>`;
                 let view = '';
                 const listFor = (x, label, kind, id) => `<div class="cm-list lx-plist"><div class="cm-list-h">${esc(label)} · ${this.lxPlural(x.coffees.length, 'coffee')}</div>${x.coffees.slice().sort((a, b) => (b.rn ? b.rs / b.rn : 0) - (a.rn ? a.rs / a.rn : 0) || b.n - a.n).map(c => `<button type="button" class="cm-row" onclick="app.openFeedTarget('${app.escJs(c.id)}', '', false)"><span><b>${esc(c.bean.name || 'Coffee')}</b><small>${esc(c.bean.roaster || '')}</small></span>${c.rn ? `<em>${this.formatRating(c.rs / c.rn)}★</em>` : ''}</button>`).join('')}${kind && this.lxHasPage(kind, id) ? `<button type="button" class="lx-textbtn" onclick="${this.lxGo(kind, id)}">About ${esc(label)} ›</button>` : ''}</div>`;
                 const shy = t => String(t).split(' ').map(w => { if (w.length <= 7) return w; let at = -1, mid = w.length / 2; for (let i = 3; i <= w.length - 3; i++) if (/[aeiouy]/i.test(w[i - 1]) && !/[aeiouy]/i.test(w[i]) && (at < 0 || Math.abs(i - mid) < Math.abs(at - mid))) at = i; return at > 0 ? w.slice(0, at) + '\u00AD' + w.slice(at) : w; }).join(' ');
@@ -28240,7 +28242,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     const belt = typeof WORLD_MAP !== 'undefined' ? (WORLD_MAP.belt || []).map(y => `<line class="cm-tropic" x1="0" x2="${WORLD_MAP.w}" y1="${y}" y2="${y}"/>`).join('') : '';
                     const map = typeof WORLD_MAP !== 'undefined' ? `<svg class="cm-svg lx-pmapsvg" viewBox="0 34 ${WORLD_MAP.w} ${WORLD_MAP.h - 70}" role="img" aria-label="Map of the countries ${own ? 'your' : 'their'} coffees came from" onclick="app.lxPassMapTap(event, '${app.escJs(user)}')">${paths}${dot}${belt}${selLine}</svg>` : '';
                     const order = [...P.countries.values()].sort((a, b) => b.n - a.n || this.lxName('origin', a.k).localeCompare(this.lxName('origin', b.k)));
-                    const stamps = `<div class="lx-stamps">${order.map(x => stamp(x.k, this.lxName('origin', x.k), x.n, `app.lxPassSel('${app.escJs(user)}', '${x.k}')`, x.k === sel)).join('')}</div>`;
+                    const stamps = `<div class="lx-stamps">${order.map(x => stamp(x.k, this.lxName('origin', x.k), x.n, `app.lxPassSel('${app.escJs(user)}', '${app.escJs(x.k)}')`, x.k === sel)).join('')}</div>`;
                     const nC = LearnEngine.allCountries().length, nK = LearnEngine.CONTINENTS.length;
                     const sum = `<div class="lx-hr"></div><div class="lx-psum"><span>${P.countries.size} of ${nC} coffee countries</span><span class="lx-muted">${P.continents.size} of ${nK} continents</span></div><div class="lx-prog"><i style="width:${Math.max(2, Math.round(100 * P.countries.size / nC))}%"></i></div>`;
                     view = `${map}${stamps}${sel ? listFor(P.countries.get(sel), this.lxName('origin', sel), 'origin', sel) : ''}${sum}<p class="lx-note">Numbers are ${own ? 'your' : 'their'} sessions. Tap a stamp, or a country on the map, for ${own ? 'your' : 'their'} coffees from there. A blend counts for each of its countries.</p>`;
