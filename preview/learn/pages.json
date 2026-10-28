@@ -1,0 +1,2301 @@
+{
+  "about": "Learn's pages, release 1 (Oct 2026). Written fresh from the sources in sources.json; each fact lists the sources it comes from. Honesty labels: proven, tendency (strong tendency), trade (trade description), anecdotal, unproven.",
+  "entries": [
+    {
+      "id": "caturra",
+      "kind": "variety",
+      "name": "Caturra",
+      "tint": "sweet",
+      "also": [
+        "Yellow Caturra",
+        "Red Caturra",
+        "Caturra Rojo",
+        "Caturra Amarillo"
+      ],
+      "kicker": "Variety · Bourbon family",
+      "summary": "A compact mutation of Bourbon found in Brazil.",
+      "lede": "A small, sturdy mutation of Bourbon found in Brazil about a century ago. It reached Central America in the 1940s and was once thought to make up nearly half of Colombia's coffee.",
+      "ledeSrc": [
+        "wcr-caturra"
+      ],
+      "facts": [
+        {
+          "value": "1915–18",
+          "label": "found in Minas Gerais, Brazil",
+          "src": [
+            "wcr-caturra"
+          ]
+        },
+        {
+          "value": "One gene",
+          "label": "apart from Bourbon: a mutation that makes it a dwarf",
+          "src": [
+            "wcr-caturra",
+            "cafeimports-pink-2023"
+          ]
+        },
+        {
+          "value": "Grown high",
+          "label": "does best high up; WCR rates its cup good",
+          "src": [
+            "wcr-caturra"
+          ]
+        },
+        {
+          "value": "Weak to rust",
+          "label": "why Colombia replanted with resistant kinds",
+          "src": [
+            "wcr-caturra",
+            "gcr-castillo"
+          ]
+        }
+      ],
+      "taste": {
+        "notes": [
+          "Floral",
+          "Cocoa",
+          "Caramel"
+        ],
+        "text": "That's how one participant in a Colombian trial described a good Caturra, next to Castillo's fruit, dark chocolate and roasted nut. Few sources say more, so treat it as a hint and trust what people here taste.",
+        "label": "trade",
+        "evidence": "In the few trials there are, where it's grown and how it's handled moved the cup as much as the variety did, or more.",
+        "src": [
+          "gcr-castillo",
+          "dcn-sheridan-2015"
+        ]
+      },
+      "family": {
+        "parent": "bourbon",
+        "children": [
+          "catuai",
+          "catimor"
+        ]
+      },
+      "sections": [
+        {
+          "key": "family",
+          "title": "The family",
+          "teaser": "A dwarf Bourbon; a parent of Catuaí and the Catimors",
+          "body": [
+            "Caturra is a natural mutation of Bourbon. A single gene makes the tree a dwarf; otherwise the two are so close genetically that they're told apart by how the plant grows.",
+            "It's a parent of Catuaí (Mundo Novo × Caturra, crossed in Brazil in 1949) and of the Catimors (Timor Hybrid × Caturra), the group that carried leaf-rust resistance into many modern varieties."
+          ],
+          "src": [
+            "wcr-caturra",
+            "cafeimports-pink-2023",
+            "wcr-catuai",
+            "wcr-t8667"
+          ]
+        },
+        {
+          "key": "history",
+          "title": "History",
+          "teaser": "Brazil around 1915, Guatemala in the 1940s, then Central America and Colombia",
+          "body": [
+            "Caturra was found in Minas Gerais, Brazil, between 1915 and 1918; its name comes from a Guaraní word for “small”. It reached Guatemala in the 1940s, though it wasn't widely planted there for about 30 years; it later spread to Costa Rica, Honduras and Panama, and was once thought to make up nearly half of Colombia's coffee.",
+            "Leaf rust changed that. By 2015 Colombia had replaced about 3.3 billion trees with rust-resistant varieties such as Castillo."
+          ],
+          "src": [
+            "wcr-caturra",
+            "gcr-castillo"
+          ]
+        },
+        {
+          "key": "growing",
+          "title": "Growing it",
+          "teaser": "Compact, medium yield, very weak to leaf rust",
+          "body": [
+            "A dwarf tree with green leaf tips, average-size beans and a medium yield. It's very susceptible to coffee leaf rust, a fungus that can cause severe crop losses.",
+            "World Coffee Research calls it standard quality in Central America and rates its cup potential up high as good; it does best above about 1,600 m (5,250 ft) near the equator."
+          ],
+          "src": [
+            "wcr-caturra"
+          ]
+        }
+      ],
+      "related": [
+        "bourbon",
+        "catuai",
+        "pacas",
+        "villa-sarchi",
+        "castillo"
+      ],
+      "sources": [
+        "wcr-caturra",
+        "gcr-castillo",
+        "dcn-sheridan-2015",
+        "cafeimports-pink-2023",
+        "wcr-catuai",
+        "wcr-t8667"
+      ],
+      "updated": "2026-10-28"
+    },
+    {
+      "id": "gesha",
+      "kind": "variety",
+      "name": "Gesha",
+      "tint": "floral",
+      "also": [
+        "Geisha",
+        "Panama Geisha",
+        "T2722"
+      ],
+      "kicker": "Variety · Ethiopian landrace",
+      "summary": "An Ethiopian coffee that became the star of Panama's auctions.",
+      "lede": "A tall, low-yielding coffee collected from Ethiopia's forests in the 1930s. It passed through research stations in Tanzania and Costa Rica and sat ignored in Panama for decades, until a farm there entered it in a competition in the mid-2000s.",
+      "ledeSrc": [
+        "wcr-geisha"
+      ],
+      "facts": [
+        {
+          "value": "1930s",
+          "label": "collected from Ethiopia's coffee forests",
+          "src": [
+            "wcr-geisha"
+          ]
+        },
+        {
+          "value": "T2722",
+          "label": "its number at CATIE, Costa Rica, from 1953",
+          "src": [
+            "wcr-geisha"
+          ]
+        },
+        {
+          "value": "39%",
+          "label": "of 88 coffees sold as Gesha matched it by DNA",
+          "src": [
+            "dcn-genetic-2020",
+            "wcr-conformity"
+          ]
+        },
+        {
+          "value": "$30,204",
+          "label": "a kilo: the record lot, Best of Panama 2025",
+          "src": [
+            "sprudge-2025"
+          ]
+        }
+      ],
+      "taste": {
+        "notes": [
+          "Floral",
+          "Jasmine",
+          "Peach"
+        ],
+        "text": "World Coffee Research describes delicate floral, jasmine and peach-like aromas from Gesha that's well grown, high up. One roaster describes Panamanian Gesha as light and tea-like in body.",
+        "label": "tendency",
+        "evidence": "That's for the true Panama line, grown high. Many coffees sold as Gesha are something else by DNA.",
+        "src": [
+          "wcr-geisha",
+          "dcn-genetic-2020",
+          "ozone-geisha"
+        ]
+      },
+      "myths": [
+        {
+          "claim": "Every “Gesha” is the famous Panama coffee.",
+          "text": "In a 2020 DNA study, only 39% of 88 samples sold as Gesha matched the reference Gesha. The name is also used for other, mostly Ethiopian coffees.",
+          "label": "unproven",
+          "src": [
+            "dcn-genetic-2020",
+            "wcr-geisha"
+          ]
+        }
+      ],
+      "sections": [
+        {
+          "key": "family",
+          "title": "The family",
+          "teaser": "An Ethiopian landrace, outside the Typica and Bourbon lines",
+          "body": [
+            "World Coffee Research places Gesha among the Ethiopian landraces: coffees collected from Ethiopia, Arabica's main center of genetic diversity. The Panama line descends from one accession, T2722, and is uniform.",
+            "Gesha Village, a farm in Ethiopia, grows its own selections from the Gori Gesha forest, sold under names like “Gesha 1931”. No DNA comparison with the Panama line was found."
+          ],
+          "src": [
+            "wcr-geisha",
+            "scalabrin-2020",
+            "roasterspack-geshavillage",
+            "baristamag-geshavillage"
+          ]
+        },
+        {
+          "key": "history",
+          "title": "History",
+          "teaser": "Ethiopia, Tanzania, Costa Rica, Panama, then a record in the mid-2000s",
+          "body": [
+            "Seeds were collected in Ethiopia's coffee forests in the 1930s (sources give different years) and grown at the Lyamungu research station in Tanzania. In 1953 they went to CATIE in Costa Rica, where they were logged as T2722.",
+            "In the 1960s CATIE spread it around Panama for its tolerance of leaf rust, but farmers didn't take to it: its branches are brittle.",
+            "In the mid-2000s the Peterson family of Hacienda La Esmeralda in Boquete entered it in the Best of Panama competition, and it set a record of over $20 a pound. Prices kept climbing: a washed Gesha from La Esmeralda sold for $30,204 a kilo at Best of Panama 2025."
+          ],
+          "src": [
+            "wcr-geisha",
+            "sprudge-2025"
+          ]
+        },
+        {
+          "key": "growing",
+          "title": "Growing it",
+          "teaser": "Tall, low yield, needs altitude",
+          "body": [
+            "A tall tree with green or bronze leaf tips and average beans. Yield is low, and the first crop comes in its fourth year. It has intermediate resistance to leaf rust and is susceptible to coffee berry disease and nematodes (tiny worms that attack the roots).",
+            "World Coffee Research recommends high altitude, above 1,600 m (5,250 ft) near the equator, and rates its cup potential there as exceptional."
+          ],
+          "src": [
+            "wcr-geisha"
+          ]
+        },
+        {
+          "key": "name",
+          "title": "Gesha or Geisha?",
+          "teaser": "Same coffee, two spellings",
+          "body": [
+            "“Geisha” is how it first appeared in records. Many people now write “Gesha”, after the area in Ethiopia it's named for."
+          ],
+          "src": [
+            "wcr-geisha",
+            "coffeehunter-eth"
+          ]
+        }
+      ],
+      "related": [
+        "ethiopian-landrace",
+        "gesha-1931",
+        "gori-gesha",
+        "wush-wush"
+      ],
+      "sources": [
+        "wcr-geisha",
+        "dcn-genetic-2020",
+        "wcr-conformity",
+        "sprudge-2025",
+        "scalabrin-2020",
+        "roasterspack-geshavillage",
+        "baristamag-geshavillage",
+        "coffeehunter-eth",
+        "ozone-geisha"
+      ],
+      "updated": "2026-10-28"
+    },
+    {
+      "id": "sl28",
+      "kind": "variety",
+      "name": "SL28",
+      "tint": "fruity",
+      "also": [
+        "SL-28",
+        "S.L. 28"
+      ],
+      "kicker": "Variety · Bourbon family",
+      "summary": "Kenya's famous 1930s selection, from a drought-tolerant tree.",
+      "lede": "One tree picked out in 1935 by Scott Agricultural Laboratories in Kenya, from a drought-tolerant population collected in Tanganyika, today's Tanzania. With SL34 it became one of Kenya's benchmark varieties.",
+      "ledeSrc": [
+        "wcr-sl28",
+        "rave-sl"
+      ],
+      "facts": [
+        {
+          "value": "1935",
+          "label": "picked from a single tree in Kenya",
+          "src": [
+            "wcr-sl28"
+          ]
+        },
+        {
+          "value": "Bourbon",
+          "label": "its family by DNA (SL34 tests as Typica)",
+          "src": [
+            "wcr-sl28",
+            "wcr-sl34"
+          ]
+        },
+        {
+          "value": "60–80 years",
+          "label": "old trees in Kenya still bear coffee",
+          "src": [
+            "wcr-sl28"
+          ]
+        },
+        {
+          "value": "1,200 m+",
+          "label": "where it does best near the equator (3,940 ft)",
+          "src": [
+            "wcr-sl28"
+          ]
+        }
+      ],
+      "taste": {
+        "notes": [
+          "Blackcurrant",
+          "Citrus",
+          "Winey"
+        ],
+        "text": "Roasters describe blackcurrant and dark berry, citrus, a wine-like acidity and a juicy finish. One calls these tendencies rather than a fixed recipe.",
+        "label": "trade",
+        "evidence": "Kenya's altitude and careful washing are part of that taste too. No study has grown and processed SL28 next to other varieties the same way, so the variety's share isn't measured.",
+        "typicalShape": {
+          "acidity": 8,
+          "sweetness": 5,
+          "body": 5,
+          "finish": 6,
+          "bitterness": 5,
+          "balance": 5
+        },
+        "src": [
+          "ozone-sl28",
+          "rave-sl"
+        ]
+      },
+      "myths": [
+        {
+          "claim": "SL28 and SL34 are both “Kenyan Bourbons”.",
+          "text": "By DNA only SL28 sits in the Bourbon group. SL34 tests as Typica, which suggests the “French Mission” label on its mother tree was wrong.",
+          "label": "unproven",
+          "src": [
+            "wcr-sl28",
+            "wcr-sl34"
+          ]
+        }
+      ],
+      "family": {
+        "parent": "bourbon",
+        "children": [
+          "ruiru-11",
+          "batian"
+        ]
+      },
+      "sections": [
+        {
+          "key": "family",
+          "title": "The family",
+          "teaser": "Bourbon by DNA; a parent of Kenya's newer varieties",
+          "body": [
+            "Genetic tests put SL28 in the Bourbon group. Its usual partner on Kenyan bags, SL34, tests as Typica, so the pair aren't one family.",
+            "SL28 is in the ancestry of the newer, disease-resistant Kenyan varieties Ruiru 11 and Batian."
+          ],
+          "src": [
+            "wcr-sl28",
+            "wcr-sl34",
+            "wcr-ruiru11",
+            "wcr-batian"
+          ]
+        },
+        {
+          "key": "history",
+          "title": "History",
+          "teaser": "Scott Labs, 1935, from Tanganyika seed",
+          "body": [
+            "The British colonial government set up Scott Agricultural Laboratories in Kenya in 1922. Between 1935 and 1939 it evaluated 42 trees; SL28 came from one tree of the “Tanganyika Drought Resistant” population, which coffee officer A.D. Trench spotted on a 1931 tour of Tanganyika; seed was brought back to Scott Labs.",
+            "It later spread to Uganda, other parts of Africa and Latin America. In 2017 Dale Harris won the World Barista Championship with a washed SL28 from El Salvador."
+          ],
+          "src": [
+            "wcr-sl28",
+            "ozone-sl28"
+          ]
+        },
+        {
+          "key": "growing",
+          "title": "Growing it",
+          "teaser": "Tall, drought-tolerant, low yield, weak to disease",
+          "body": [
+            "A tall tree whose branches droop with age. Its beans are large and it gives a lot of green coffee per cherry, but its yield is low. It needs little fertilizer and copes with drought, but is susceptible to leaf rust, coffee berry disease and nematodes.",
+            "It's most common in Kenya, Malawi, Uganda and Zimbabwe."
+          ],
+          "src": [
+            "wcr-sl28"
+          ]
+        },
+        {
+          "key": "bag",
+          "title": "On the bag",
+          "teaser": "AA is a size; a Kenyan lot may mix varieties",
+          "body": [
+            "Kenyan grades like AA and AB are bean sizes, not varieties or cup scores. A Kenyan lot sold as SL28 may also contain SL34, Ruiru 11 or Batian, and SL-derived trees have drifted genetically over the years."
+          ],
+          "src": [
+            "ozone-sl28",
+            "sucafina-kenya",
+            "wcr-conformity"
+          ]
+        }
+      ],
+      "related": [
+        "sl34",
+        "batian",
+        "ruiru-11",
+        "bourbon"
+      ],
+      "sources": [
+        "wcr-sl28",
+        "wcr-sl34",
+        "rave-sl",
+        "ozone-sl28",
+        "sucafina-kenya",
+        "wcr-conformity",
+        "wcr-ruiru11",
+        "wcr-batian"
+      ],
+      "updated": "2026-10-28"
+    },
+    {
+      "id": "washed",
+      "kind": "process",
+      "name": "Washed",
+      "tint": "herbal",
+      "also": [
+        "Fully washed",
+        "Wet process",
+        "Lavado"
+      ],
+      "kicker": "Process · a base method",
+      "summary": "Fruit off, fermented, then washed clean before drying.",
+      "lede": "The fruit is pulped off the seed, the sticky layer left behind is fermented away in tanks, and the beans are rinsed before they dry. It's the most common way coffee is processed.",
+      "ledeSrc": [
+        "gimme"
+      ],
+      "map": {
+        "x": 92,
+        "y": 195
+      },
+      "steps": [
+        {
+          "icon": "i-cherry",
+          "text": "Pick ripe cherries",
+          "src": [
+            "gimme"
+          ]
+        },
+        {
+          "icon": "i-drop",
+          "text": "Pulp the fruit off",
+          "src": [
+            "gimme"
+          ]
+        },
+        {
+          "icon": "i-clock",
+          "text": "Ferment 12–72 hours",
+          "src": [
+            "gimme"
+          ]
+        },
+        {
+          "icon": "i-sun2",
+          "text": "Rinse, then dry",
+          "src": [
+            "gimme"
+          ]
+        }
+      ],
+      "stepsText": {
+        "text": "A machine strips off the skin and pulp. The sticky mucilage left on the parchment (the papery shell around the seed) ferments in tanks for 12 to 72 hours while microbes break its sugars down, and then it's rinsed off before the beans dry.",
+        "src": [
+          "gimme",
+          "bernardes-2024"
+        ]
+      },
+      "taste": {
+        "notes": [],
+        "text": "Clean, bright and crisp, with pronounced acidity and a lighter body than a natural.",
+        "label": "tendency",
+        "evidence": "In a Brazilian trial of 11 varieties, washed scored the same as or higher than natural for all 11, by about 0.4 to 6.4 points.",
+        "typicalShape": {
+          "acidity": 7,
+          "sweetness": 5,
+          "body": 4,
+          "finish": 5,
+          "bitterness": 5,
+          "balance": 5
+        },
+        "src": [
+          "royalny-roast",
+          "barbosa-2019"
+        ]
+      },
+      "tips": [
+        {
+          "text": "Some baristas grind washed coffees a little finer than naturals. That's habit, not tested science, so your own best shot wins.",
+          "label": "anecdotal",
+          "src": [
+            "clive"
+          ]
+        }
+      ],
+      "kinds": [
+        {
+          "id": "kenyan-soak",
+          "name": "Kenyan double ferment",
+          "text": "After washing, the beans soak under clean water before drying, a habit from Kenya.",
+          "src": [
+            "barista-double"
+          ]
+        },
+        {
+          "id": "anaerobic",
+          "name": "Anaerobic washed",
+          "text": "Fermented sealed in tanks first, then washed. Leaner and brighter, with a tangy edge.",
+          "src": [
+            "coffeereview-2021"
+          ]
+        },
+        {
+          "id": "extended",
+          "name": "Extended fermentation",
+          "text": "A longer ferment than usual; one Colombian producer goes past 80 hours.",
+          "src": [
+            "pdg-lactic-2023"
+          ]
+        },
+        {
+          "id": "demucilaged",
+          "name": "Demucilaged",
+          "text": "A machine scrubs the sticky fruit off instead of a ferment; in Brazil it's often called semi-washed.",
+          "src": [
+            "coffeereview-honey"
+          ]
+        }
+      ],
+      "myths": [
+        {
+          "claim": "Washed coffee isn't fermented.",
+          "text": "Usually it is: unless a machine scrubs it off, the sticky fruit layer ferments off in tanks before the rinse. Nearly all coffee ferments somewhat on its way to the bag.",
+          "label": "unproven",
+          "src": [
+            "gimme",
+            "cafeimports-anaerobic"
+          ]
+        }
+      ],
+      "sections": [
+        {
+          "key": "roast",
+          "title": "Roasting it",
+          "teaser": "Takes heat well; underdeveloped lots taste sour",
+          "body": [
+            "Washed coffees take heat well and can handle a longer roast. Underdeveloped washed batches taste sour."
+          ],
+          "src": [
+            "royalny-roast"
+          ]
+        }
+      ],
+      "sources": [
+        "gimme",
+        "bernardes-2024",
+        "royalny-roast",
+        "barbosa-2019",
+        "clive",
+        "barista-double",
+        "coffeereview-2021",
+        "pdg-lactic-2023",
+        "coffeereview-honey",
+        "cafeimports-anaerobic"
+      ],
+      "updated": "2026-10-28"
+    },
+    {
+      "id": "natural",
+      "kind": "process",
+      "name": "Natural",
+      "tint": "fruity",
+      "also": [
+        "Dry process",
+        "Sun-dried",
+        "Unwashed",
+        "Seco"
+      ],
+      "kicker": "Process · a base method",
+      "summary": "Dried whole, with the fruit still on.",
+      "lede": "The whole cherry dries with the seed still inside, like a raisin around a pit. It's used mainly in dry places such as Ethiopia and Brazil, and tends to taste deep and fruity.",
+      "ledeSrc": [
+        "gimme"
+      ],
+      "map": {
+        "x": 306,
+        "y": 195
+      },
+      "steps": [
+        {
+          "icon": "i-cherry",
+          "text": "Pick ripe cherries",
+          "src": [
+            "gimme"
+          ]
+        },
+        {
+          "icon": "i-sun2",
+          "text": "Dry them whole",
+          "src": [
+            "gimme"
+          ]
+        },
+        {
+          "icon": "i-repeat",
+          "text": "It ferments as it dries",
+          "src": [
+            "bernardes-2024"
+          ]
+        },
+        {
+          "icon": "i-bean-line",
+          "text": "Hull off the dry fruit",
+          "src": [
+            "gimme"
+          ]
+        }
+      ],
+      "stepsText": {
+        "text": "Cherries often dry on raised beds. The fruit ferments during the first days of drying; drying then continues until the seed is down to about 11–12% water. When the wrong microbes take over and the fruit molds or rots, the cup turns unpleasant; drying fast in machines stops most of that fermentation.",
+        "src": [
+          "gimme",
+          "bernardes-2024",
+          "coffeereview-2019"
+        ]
+      },
+      "taste": {
+        "notes": [
+          "Berry",
+          "Stone fruit",
+          "Dried fruit",
+          "Winey"
+        ],
+        "text": "Berry, stone-fruit or dried-fruit notes and a heavier body than the same coffee washed. It can turn wine-like or brandy-like; when the fruit rots, the cup goes bad.",
+        "label": "tendency",
+        "evidence": "Importers and reviewers agree on the style. In one trial of 11 varieties, washed scored the same or higher for all of them: naturals taste different, not automatically better.",
+        "typicalShape": {
+          "acidity": 5,
+          "sweetness": 5,
+          "body": 7,
+          "finish": 5,
+          "bitterness": 5,
+          "balance": 5
+        },
+        "src": [
+          "royalny-roast",
+          "coffeereview-2019",
+          "barbosa-2019"
+        ]
+      },
+      "tips": [
+        {
+          "text": "Baristas often grind naturals a little coarser. That's habit, not tested science, so your own best shot wins.",
+          "label": "anecdotal",
+          "src": [
+            "clive"
+          ]
+        }
+      ],
+      "kinds": [
+        {
+          "id": "anaerobic",
+          "name": "Anaerobic natural",
+          "text": "Sealed in a tank first. Intense fruit, often with a lactic, yogurt-like tang.",
+          "src": [
+            "coffeereview-2021"
+          ]
+        },
+        {
+          "id": "carbonic",
+          "name": "Carbonic maceration",
+          "text": "Fermented in tanks filled with CO2, an idea borrowed from winemaking.",
+          "src": [
+            "rave-cm"
+          ]
+        },
+        {
+          "id": "slow-dry",
+          "name": "Slow dry",
+          "text": "Drying stretched out, to 60 days or more in some anaerobic naturals.",
+          "src": [
+            "coffeereview-2021"
+          ]
+        },
+        {
+          "id": "ethiopian-natural",
+          "name": "Ethiopian natural",
+          "text": "Ethiopia sells both washed and natural coffees. Bags often add a grade like Gr1 or G1.",
+          "src": [
+            "1zpresso-eth",
+            "stonex-gr1"
+          ]
+        }
+      ],
+      "myths": [
+        {
+          "claim": "The fruit's sugars soak into the bean.",
+          "text": "You'll read it on bags, but none of the studies we found measured it. One study of washed fermentation suggests sugars may leak out of the bean instead. The fruit notes are real; how they get there isn't settled.",
+          "label": "unproven",
+          "src": [
+            "elhalis-2021",
+            "vale-2024"
+          ]
+        }
+      ],
+      "sections": [
+        {
+          "key": "roast",
+          "title": "Roasting it",
+          "teaser": "Browns faster, so roasters often go lighter",
+          "body": [
+            "Leftover sugars make naturals take on color more quickly, so roasters often roast them lighter than washed coffees. Natural green coffee is often less dense than washed, too."
+          ],
+          "src": [
+            "royalny-roast",
+            "royal-density"
+          ]
+        }
+      ],
+      "sources": [
+        "gimme",
+        "bernardes-2024",
+        "coffeereview-2019",
+        "royalny-roast",
+        "royal-density",
+        "barbosa-2019",
+        "clive",
+        "coffeereview-2021",
+        "rave-cm",
+        "stonex-gr1",
+        "elhalis-2021",
+        "vale-2024",
+        "1zpresso-eth"
+      ],
+      "updated": "2026-10-28"
+    },
+    {
+      "id": "honey",
+      "kind": "process",
+      "name": "Honey",
+      "tint": "sweet",
+      "also": [
+        "Miel",
+        "Pulped natural",
+        "Yellow honey",
+        "Red honey",
+        "Black honey"
+      ],
+      "kicker": "Process · a base method",
+      "summary": "Skin off, some of the sticky fruit left on to dry.",
+      "lede": "A middle path between washed and natural: the skin and pulp come off, but some or all of the sticky mucilage stays on the seed while it dries. In Brazil the same idea is called pulped natural.",
+      "ledeSrc": [
+        "gimme",
+        "coffeereview-honey"
+      ],
+      "map": {
+        "x": 197,
+        "y": 195
+      },
+      "steps": [
+        {
+          "icon": "i-cherry",
+          "text": "Pick ripe cherries",
+          "src": [
+            "gimme"
+          ]
+        },
+        {
+          "icon": "i-drop",
+          "text": "Pulp off the skin",
+          "src": [
+            "gimme"
+          ]
+        },
+        {
+          "icon": "i-sliders",
+          "text": "Leave some sticky fruit on",
+          "src": [
+            "gimme"
+          ]
+        },
+        {
+          "icon": "i-sun2",
+          "text": "Dry it that way",
+          "src": [
+            "gimme"
+          ]
+        }
+      ],
+      "stepsText": {
+        "text": "How much mucilage stays, and how it dries, gives the colors. Yellow honey has part of it removed by machine and dries golden; red honey keeps all of it; black honey also keeps it all, uses very sweet fruit from the peak of harvest and dries darkest, taking the longest. Mills use the names differently, so treat the colors as a rough guide.",
+        "src": [
+          "coffeereview-honey",
+          "gimme",
+          "cafeimports-cr"
+        ]
+      },
+      "taste": {
+        "notes": [
+          "Cocoa",
+          "Honey"
+        ],
+        "text": "Rounder acidity than washed, with less citrus and more chocolate and sweetness, says one long-running review site; a roaster calls it silky and honey-like.",
+        "label": "trade",
+        "evidence": "Honey lots vary a lot; one veteran reviewer suspects most of the difference comes from how they were dried.",
+        "typicalShape": {
+          "acidity": 5,
+          "sweetness": 7,
+          "body": 5,
+          "finish": 5,
+          "bitterness": 5,
+          "balance": 5
+        },
+        "src": [
+          "coffeereview-honey",
+          "gimme"
+        ]
+      },
+      "kinds": [
+        {
+          "id": "yellow-honey",
+          "name": "Yellow honey",
+          "text": "Part of the mucilage removed by machine; dries a dark yellow.",
+          "src": [
+            "coffeereview-honey"
+          ]
+        },
+        {
+          "id": "red-honey",
+          "name": "Red honey",
+          "text": "All the mucilage left on; dries reddish.",
+          "src": [
+            "coffeereview-honey"
+          ]
+        },
+        {
+          "id": "black-honey",
+          "name": "Black honey",
+          "text": "All of it left on, from very sweet peak-harvest fruit; dries darkest and slowest.",
+          "src": [
+            "coffeereview-honey",
+            "gimme"
+          ]
+        },
+        {
+          "id": "pulped-natural",
+          "name": "Pulped natural",
+          "text": "Brazil's name for it, from about the 1990s; virtually all the pulp stays on.",
+          "src": [
+            "coffeereview-honey"
+          ]
+        }
+      ],
+      "myths": [
+        {
+          "claim": "A darker honey always tastes sweeter.",
+          "text": "One veteran reviewer suspects drying explains most of the difference between honey lots, and mills use the color names differently.",
+          "label": "unproven",
+          "src": [
+            "coffeereview-honey",
+            "cafeimports-cr"
+          ]
+        }
+      ],
+      "sections": [],
+      "sources": [
+        "gimme",
+        "coffeereview-honey",
+        "cafeimports-cr"
+      ],
+      "updated": "2026-10-28"
+    },
+    {
+      "id": "COL",
+      "kind": "origin",
+      "name": "Colombia",
+      "country": "COL",
+      "continent": "South America",
+      "tint": "nutty",
+      "kicker": "Origin · South America",
+      "summary": "Half a million growers, two harvests a year, high in the Andes.",
+      "lede": "Three Andean mountain ranges, two harvests a year and more than half a million growers, nearly all on small farms. Most of its coffee land is now planted with rust-resistant varieties, and its production has shifted southwest, toward Huila, Cauca and Nariño.",
+      "ledeSrc": [
+        "achilles-harvest",
+        "fnc-2025",
+        "bh-huila"
+      ],
+      "facts": [
+        {
+          "value": "~7%",
+          "label": "of the world's coffee (2026/27 forecast)",
+          "src": [
+            "usda-2026"
+          ]
+        },
+        {
+          "value": "561,766",
+          "label": "growers in 2025; 97% farm 5 ha or less",
+          "src": [
+            "fnc-2025"
+          ]
+        },
+        {
+          "value": "800–2,200 m",
+          "label": "roughly where its Arabica grows (2,600–7,200 ft)",
+          "src": [
+            "asu-col"
+          ]
+        },
+        {
+          "value": "88%",
+          "label": "of coffee land in rust-resistant varieties (2025)",
+          "src": [
+            "fnc-2025"
+          ]
+        }
+      ],
+      "map": "COL",
+      "mapLegend": [
+        [
+          "l3",
+          "Regions below"
+        ],
+        [
+          "l1",
+          "Other coffee departments"
+        ]
+      ],
+      "mapTiers": {
+        "l3": [
+          "huila",
+          "cauca",
+          "narino",
+          "tolima",
+          "antioquia",
+          "santander",
+          "caldas",
+          "quindio",
+          "risaralda",
+          "valle-del-cauca",
+          "magdalena"
+        ],
+        "l1": [
+          "norte-de-santander",
+          "cundinamarca"
+        ]
+      },
+      "mapSrc": [
+        "natural-earth",
+        "asu-col",
+        "juanvaldez"
+      ],
+      "regions": [
+        {
+          "id": "huila",
+          "name": "Huila",
+          "teaser": "The top specialty region: about 35% of its coffee grades specialty. Protected name since 2011",
+          "alt": "1,000–2,200 m · 3,300–7,200 ft",
+          "src": [
+            "bh-huila"
+          ]
+        },
+        {
+          "id": "cauca",
+          "name": "Cauca",
+          "teaser": "Fragrant and sweet, with a strong aroma. Home of Inzá, and of El Paraíso's thermal-shock lots in El Tambo",
+          "src": [
+            "juanvaldez",
+            "sweetmarias-inza",
+            "ineffable-ts"
+          ]
+        },
+        {
+          "id": "narino",
+          "name": "Nariño",
+          "teaser": "Grown high in the far south. Citric, with a pronounced aroma and medium body",
+          "src": [
+            "juanvaldez"
+          ]
+        },
+        {
+          "id": "tolima",
+          "name": "Tolima",
+          "teaser": "Smooth, balanced and sweet. A 2025 competition lot here sold for $72 a pound",
+          "src": [
+            "juanvaldez",
+            "fnc-2025"
+          ]
+        },
+        {
+          "id": "antioquia",
+          "name": "Antioquia",
+          "teaser": "Home of Urrao, where the Chiroso variety is commonly grown",
+          "src": [
+            "asu-col",
+            "sucafina-glossary"
+          ]
+        },
+        {
+          "id": "santander",
+          "name": "Santander",
+          "teaser": "Grown under native forest shade. Balanced and herbal",
+          "src": [
+            "juanvaldez"
+          ]
+        },
+        {
+          "id": "eje-cafetero",
+          "name": "The Coffee Axis",
+          "teaser": "Caldas, Quindío, Risaralda and Valle: pronounced aroma and acidity, medium body",
+          "src": [
+            "juanvaldez"
+          ]
+        },
+        {
+          "id": "sierra-nevada",
+          "name": "Sierra Nevada",
+          "teaser": "Hazelnut and chocolate",
+          "src": [
+            "juanvaldez"
+          ]
+        }
+      ],
+      "regionsNote": "Region tastes are tendencies, from the growers' federation's own brand.",
+      "harvest": [
+        {
+          "area": "Huila",
+          "main": [
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "second": [
+            3,
+            4,
+            5,
+            6
+          ],
+          "src": [
+            "bh-huila"
+          ]
+        }
+      ],
+      "harvestText": {
+        "text": "Timing shifts by department and altitude: central areas pick heavily in April–June and September–December, and the smaller mitaca crop comes about six months after the main one. Between its departments and the two crops, Colombia picks coffee in most months of the year. A crop usually reaches roasters a few months after it's picked: it rests 30–60 days, then spends about six weeks at sea.",
+        "src": [
+          "achilles-harvest",
+          "cafeimports-harvest"
+        ]
+      },
+      "secondName": "Mitaca, the smaller second crop",
+      "grows": {
+        "varieties": [
+          "castillo",
+          "caturra",
+          "colombia-var",
+          "tabi",
+          "pink-bourbon",
+          "chiroso",
+          "papayo"
+        ],
+        "processes": [
+          "thermal-shock",
+          "co-ferment",
+          "lactic",
+          "koji"
+        ],
+        "src": [
+          "gcr-castillo",
+          "wcr-caturra",
+          "jcc-colombia",
+          "sucafina-glossary",
+          "ozone-papayo",
+          "ineffable-ts",
+          "sprudge-infused-2023",
+          "pdg-lactic-2023",
+          "pdg-koji-2022"
+        ]
+      },
+      "sections": [
+        {
+          "key": "now",
+          "title": "Right now",
+          "teaser": "Record prices in 2025; long rains trimmed the crop",
+          "dated": "October 2026",
+          "body": [
+            "Colombia grew 13.7 million 60-kg bags in 2025, down 2.3% after long rains early in the year, and exported 13.14 million bags worth about US$6.5 billion. The New York price for Arabica averaged 368 US cents a pound in 2025, up 56% on 2024.",
+            "USDA expects 13.4 million bags in 2026/27."
+          ],
+          "src": [
+            "fnc-2025",
+            "usda-2026"
+          ]
+        },
+        {
+          "key": "sold",
+          "title": "How coffee is sold here",
+          "teaser": "Small farms and the national growers' federation",
+          "body": [
+            "97% of Colombia's 561,766 growers farm 5 hectares or less. The national growers' federation (FNC) buys coffee across the country; its 2025 purchases split 41.6% north, 29.6% center and 28.8% south. Its research arm, Cenicafé, bred Castillo.",
+            "The United States buys nearly 40% of Colombia's exports."
+          ],
+          "src": [
+            "fnc-2025",
+            "gcr-castillo",
+            "dcn-colombia-2025",
+            "sucafina-glossary"
+          ]
+        },
+        {
+          "key": "bag",
+          "title": "On the bag",
+          "teaser": "Supremo and Excelso are bean sizes, not quality",
+          "body": [
+            "Supremo and Excelso are size grades: Supremo is the bigger beans, Excelso the smaller. Sources disagree on the exact screen sizes, so we leave the numbers out.",
+            "Huila coffee has carried a protected Denomination of Origin since 2011."
+          ],
+          "src": [
+            "achilles-grades",
+            "twochimps",
+            "bh-huila"
+          ]
+        }
+      ],
+      "fresh": {
+        "allYear": true,
+        "src": [
+          "achilles-harvest"
+        ]
+      },
+      "sources": [
+        "usda-2026",
+        "fnc-2025",
+        "asu-col",
+        "bh-huila",
+        "juanvaldez",
+        "achilles-harvest",
+        "cafeimports-harvest",
+        "dcn-colombia-2025",
+        "achilles-grades",
+        "twochimps",
+        "sweetmarias-inza",
+        "ineffable-ts",
+        "sucafina-glossary",
+        "gcr-castillo",
+        "wcr-caturra",
+        "jcc-colombia",
+        "ozone-papayo",
+        "sprudge-infused-2023",
+        "pdg-lactic-2023",
+        "pdg-koji-2022",
+        "natural-earth"
+      ],
+      "updated": "2026-10-28"
+    },
+    {
+      "id": "ETH",
+      "kind": "origin",
+      "name": "Ethiopia",
+      "country": "ETH",
+      "continent": "Africa",
+      "tint": "floral",
+      "kicker": "Origin · Africa",
+      "summary": "Where Arabica comes from. Washed runs floral, natural berry and heavy.",
+      "lede": "Arabica was born in Ethiopia's forests, and the country holds more of the species' genetic variety than anywhere else. Most of its growers are smallholders, much of it grown in gardens and semi-wild forest, and it's sold both washed and natural.",
+      "ledeSrc": [
+        "ub-2024",
+        "scalabrin-2020",
+        "coffeehunter-eth",
+        "wiki-eth",
+        "1zpresso-sidama"
+      ],
+      "facts": [
+        {
+          "value": "12.1M bags",
+          "label": "a record, forecast for 2026/27; all Arabica",
+          "src": [
+            "usda-2026"
+          ]
+        },
+        {
+          "value": "~6.4%",
+          "label": "of the world's coffee (2026/27 forecast)",
+          "src": [
+            "usda-2026"
+          ]
+        },
+        {
+          "value": "$3.0B",
+          "label": "export earnings in 2025/26, a record",
+          "src": [
+            "fbmea-3b"
+          ]
+        },
+        {
+          "value": "70%+",
+          "label": "of growers farm 1 hectare or less",
+          "src": [
+            "coffeehunter-eth"
+          ]
+        }
+      ],
+      "map": "ETH",
+      "mapLegend": [
+        [
+          "dot",
+          "A town in each coffee area below"
+        ]
+      ],
+      "mapSrc": [
+        "natural-earth",
+        "wiki-irgachefe",
+        "wiki-irgalem",
+        "wiki-shakiso",
+        "wiki-bonga"
+      ],
+      "regions": [
+        {
+          "id": "yirgacheffe",
+          "name": "Yirgacheffe",
+          "teaser": "Gedeo zone. Bright and citric, mostly washed",
+          "alt": "1,900–2,200 m · 6,200–7,200 ft",
+          "src": [
+            "coffeehunter-eth",
+            "1zpresso-eth",
+            "wiki-irgachefe"
+          ]
+        },
+        {
+          "id": "guji",
+          "name": "Guji",
+          "teaser": "In Oromia. Complex and fruity, washed and natural",
+          "alt": "1,400–2,100 m · 4,600–6,900 ft",
+          "src": [
+            "coffeehunter-eth",
+            "1zpresso-eth"
+          ]
+        },
+        {
+          "id": "sidama",
+          "name": "Sidama",
+          "teaser": "Jasmine, bergamot and stone fruit; about 60% washed",
+          "alt": "1,500–2,200 m · 4,900–7,200 ft",
+          "src": [
+            "1zpresso-sidama",
+            "wiki-eth"
+          ]
+        },
+        {
+          "id": "limu",
+          "name": "Limu",
+          "teaser": "Sweet and clean with gentle acidity; washed",
+          "alt": "1,200–1,900 m · 3,900–6,200 ft",
+          "src": [
+            "coffeehunter-eth",
+            "1zpresso-eth"
+          ]
+        },
+        {
+          "id": "jimma",
+          "name": "Jimma",
+          "teaser": "The west. Best known for naturals",
+          "alt": "1,400–2,100 m · 4,600–6,900 ft",
+          "src": [
+            "1zpresso-eth"
+          ]
+        },
+        {
+          "id": "harrar",
+          "name": "Harrar",
+          "teaser": "The east. Natural, with blueberry, jam and spice and a heavy body",
+          "src": [
+            "1zpresso-eth",
+            "sweetmarias-eth"
+          ]
+        },
+        {
+          "id": "kaffa",
+          "name": "Kaffa",
+          "teaser": "The west. Gesha, the area the variety is named for, is here",
+          "src": [
+            "coffeehunter-eth",
+            "sweetmarias-eth",
+            "wcr-geisha"
+          ]
+        }
+      ],
+      "grows": {
+        "varieties": [
+          "ethiopian-landrace",
+          "74110",
+          "74112",
+          "74158",
+          "gesha",
+          "kurume",
+          "wolisho"
+        ],
+        "processes": [
+          "washed",
+          "natural",
+          "honey",
+          "anaerobic"
+        ],
+        "src": [
+          "ethiocoffee",
+          "tirfe-2015",
+          "1zpresso-eth",
+          "roasterspack-heirloom",
+          "sucafina-glossary",
+          "coffeehunter-eth",
+          "1zpresso-sidama"
+        ]
+      },
+      "sections": [
+        {
+          "key": "now",
+          "title": "Right now",
+          "teaser": "Record crops and exports; stricter export rules",
+          "dated": "October 2026",
+          "body": [
+            "USDA expects a record 12.1 million bags in 2026/27, after more than half the coffee area was replanted with higher-yielding varieties over four years. Export earnings reached a record US$3.0 billion in the 2025/26 fiscal year.",
+            "A September 2025 rule (ECTA Directive 1106/2025) raised exporters' minimum capital and requires every exporter who isn't a farmer to run a certified lab with a qualified taster."
+          ],
+          "src": [
+            "usda-2026",
+            "fbmea-3b",
+            "fbmea-rules"
+          ]
+        },
+        {
+          "key": "sold",
+          "title": "How coffee is sold here",
+          "teaser": "From a commodity exchange back toward traceable lots",
+          "body": [
+            "From 2008 most coffee went through the Ethiopian Commodity Exchange (ECX), which pooled it by region and made it hard to trace to a farm. Reforms since 2017 set out to restore traceability, cut blending and let more producers export directly.",
+            "Bags often read region, washing station, grade and process, like “Yirgacheffe Aricha Gr1 Natural”."
+          ],
+          "src": [
+            "wiki-eth",
+            "coffeehunter-eth",
+            "fbmea-eth-usda",
+            "stonex-gr1"
+          ]
+        },
+        {
+          "key": "bag",
+          "title": "On the bag",
+          "teaser": "Grades 1 to 5; “heirloom” isn't one variety",
+          "body": [
+            "Grades run from 1, the fewest defects, to 5. Sources disagree on the exact cutoffs, so we leave them out.",
+            "“Heirloom” or “landrace” covers Ethiopia's many local coffee types, which haven't all been catalogued. Numbers like 74110 and 74112 are selections released by the Jimma research center in the late 1970s."
+          ],
+          "src": [
+            "1zpresso-eth",
+            "ethiocoffee",
+            "tirfe-2015"
+          ]
+        }
+      ],
+      "sources": [
+        "usda-2026",
+        "fbmea-3b",
+        "fbmea-rules",
+        "fbmea-eth-usda",
+        "coffeehunter-eth",
+        "1zpresso-eth",
+        "1zpresso-sidama",
+        "sweetmarias-eth",
+        "wiki-eth",
+        "ub-2024",
+        "scalabrin-2020",
+        "ethiocoffee",
+        "tirfe-2015",
+        "roasterspack-heirloom",
+        "sucafina-glossary",
+        "natural-earth",
+        "wiki-irgachefe",
+        "wiki-irgalem",
+        "wiki-shakiso",
+        "wiki-bonga",
+        "wcr-geisha",
+        "stonex-gr1"
+      ],
+      "updated": "2026-10-28"
+    },
+    {
+      "id": "KEN",
+      "kind": "origin",
+      "name": "Kenya",
+      "country": "KEN",
+      "continent": "Africa",
+      "tint": "fruity",
+      "kicker": "Origin · Africa",
+      "summary": "Washed SL28 and SL34, sold at a weekly auction in Nairobi.",
+      "lede": "Kenya's coffee is mostly washed, about 80% of it grown by cooperatives, and much of it is sold at the Nairobi Coffee Exchange's weekly auction. It's known for bright, juicy cups, which roasters tie to its SL28 and SL34 trees, its altitude and its careful washing.",
+      "ledeSrc": [
+        "royal-kenya",
+        "ozone-auction",
+        "ozone-sl28"
+      ],
+      "facts": [
+        {
+          "value": "0.95M bags",
+          "label": "forecast for 2026/27, all Arabica",
+          "src": [
+            "usda-2026"
+          ]
+        },
+        {
+          "value": "1934",
+          "label": "when the Nairobi auction began; it's weekly",
+          "src": [
+            "ozone-auction"
+          ]
+        },
+        {
+          "value": "~80%",
+          "label": "of the crop comes from cooperatives",
+          "src": [
+            "royal-kenya"
+          ]
+        },
+        {
+          "value": "1,600–2,000 m",
+          "label": "Nyeri's farms (5,200–6,600 ft)",
+          "src": [
+            "1zpresso-kenya"
+          ]
+        }
+      ],
+      "map": "KEN",
+      "mapLegend": [
+        [
+          "dot",
+          "A town in each county below"
+        ]
+      ],
+      "mapSrc": [
+        "natural-earth",
+        "wiki-kerugoya",
+        "wiki-muranga",
+        "wiki-kiambu"
+      ],
+      "regions": [
+        {
+          "id": "nyeri",
+          "name": "Nyeri",
+          "alt": "1,600–2,000 m · 5,200–6,600 ft",
+          "teaser": "",
+          "src": [
+            "1zpresso-kenya"
+          ]
+        },
+        {
+          "id": "kirinyaga",
+          "name": "Kirinyaga",
+          "alt": "1,300–1,900 m · 4,300–6,200 ft",
+          "teaser": "",
+          "src": [
+            "1zpresso-kenya"
+          ]
+        },
+        {
+          "id": "muranga",
+          "name": "Murang'a",
+          "alt": "1,500–1,900 m · 4,900–6,200 ft",
+          "teaser": "",
+          "src": [
+            "1zpresso-kenya"
+          ]
+        },
+        {
+          "id": "kiambu",
+          "name": "Kiambu",
+          "alt": "1,500–2,100 m · 4,900–6,900 ft",
+          "teaser": "Many estates here",
+          "src": [
+            "1zpresso-kenya",
+            "royal-kenya"
+          ]
+        },
+        {
+          "id": "embu",
+          "name": "Embu",
+          "alt": "1,500–2,000 m · 4,900–6,600 ft",
+          "teaser": "",
+          "src": [
+            "1zpresso-kenya"
+          ]
+        }
+      ],
+      "harvest": [
+        {
+          "area": "Kenya",
+          "main": [
+            10,
+            11,
+            12
+          ],
+          "second": [
+            6,
+            7,
+            8
+          ],
+          "src": [
+            "sweetmarias-kenya",
+            "royal-kenya"
+          ]
+        }
+      ],
+      "secondName": "Fly crop, in some areas",
+      "harvestText": {
+        "text": "The main crop is picked from October to December, sometimes into January, and some areas pick a smaller “fly crop” from June to August. At a US importer, main-crop Kenyans arrive about May to August and fly-crop coffee about November to March.",
+        "src": [
+          "sweetmarias-kenya",
+          "royal-kenya"
+        ]
+      },
+      "fresh": {
+        "arrive": [
+          5,
+          6,
+          7,
+          8
+        ],
+        "src": [
+          "royal-kenya"
+        ]
+      },
+      "grows": {
+        "varieties": [
+          "sl28",
+          "sl34",
+          "batian",
+          "ruiru-11",
+          "sl14",
+          "k7",
+          "kent"
+        ],
+        "processes": [
+          "washed",
+          "kenyan-soak",
+          "natural"
+        ],
+        "src": [
+          "royal-kenya",
+          "barista-double"
+        ]
+      },
+      "sections": [
+        {
+          "key": "washing",
+          "title": "How it's washed",
+          "teaser": "Long ferments, washing channels, a soak",
+          "body": [
+            "The classic Kenyan way: cherries are pulped and sorted into streams by density, fermented overnight and then up to about 36 hours with water changes, washed in channels, soaked for 12 to 48 hours and dried on raised beds. Naturals exist too."
+          ],
+          "src": [
+            "sweetmarias-kenya",
+            "royal-kenya"
+          ]
+        },
+        {
+          "key": "now",
+          "title": "Right now",
+          "teaser": "Record auction prices, and a fight over paying farmers directly",
+          "dated": "October 2026",
+          "body": [
+            "Auction prices hit a record average of KES 1,025 a kilo (about US$7.91) in September 2025. A new system to pay farmers directly through a bank was suspended by the High Court until May 2026 after the cooperative union objected, and the reform committee's term was extended to June 2027.",
+            "Between October 2025 and May 2026 the auction sold 602,973 bags."
+          ],
+          "src": [
+            "fbmea-kenya-2025",
+            "fbmea-kenya-2026"
+          ]
+        },
+        {
+          "key": "sold",
+          "title": "How coffee is sold here",
+          "teaser": "The weekly auction, or direct sales outside it",
+          "body": [
+            "The Nairobi Coffee Exchange has held auctions since 1934. About 50 licensed exporters cup samples and bid through agents. Since 2006 independent marketing agents have been allowed, and buyers can also purchase directly, outside the auction."
+          ],
+          "src": [
+            "ozone-auction",
+            "sweetmarias-kenya"
+          ]
+        },
+        {
+          "key": "bag",
+          "title": "On the bag",
+          "teaser": "AA and AB are bean sizes; PB is peaberry",
+          "body": [
+            "Kenyan grades are about bean size, not cup quality: AA is the biggest of the usual grades, AB a bit smaller, and PB the peaberries, cherries that grew one round seed instead of two. Sources give slightly different screen sizes, so we leave the numbers out."
+          ],
+          "src": [
+            "ozone-auction",
+            "twochimps",
+            "achilles-grades"
+          ]
+        }
+      ],
+      "sources": [
+        "usda-2026",
+        "royal-kenya",
+        "ozone-auction",
+        "ozone-sl28",
+        "1zpresso-kenya",
+        "sweetmarias-kenya",
+        "fbmea-kenya-2025",
+        "fbmea-kenya-2026",
+        "twochimps",
+        "achilles-grades",
+        "barista-double",
+        "natural-earth",
+        "wiki-kerugoya",
+        "wiki-muranga",
+        "wiki-kiambu"
+      ],
+      "updated": "2026-10-28"
+    },
+    {
+      "id": "PER",
+      "kind": "origin",
+      "name": "Peru",
+      "country": "PER",
+      "continent": "South America",
+      "tint": "earthy",
+      "kicker": "Origin · South America",
+      "summary": "Grown high in the Andes, from Cajamarca to Puno.",
+      "lede": "Peru's coffee grows in the Andes, in departments from Cajamarca in the north to Puno in the south, mostly between 900 and 2,000 m. From 2017 to 2023, its Cup of Excellence winners came from Cajamarca and Cusco.",
+      "ledeSrc": [
+        "worldofcoffee-peru"
+      ],
+      "facts": [
+        {
+          "value": "4.78M bags",
+          "label": "forecast for 2026/27",
+          "src": [
+            "usda-2026"
+          ]
+        },
+        {
+          "value": "~2.5%",
+          "label": "of the world's coffee (2026/27 forecast)",
+          "src": [
+            "usda-2026"
+          ]
+        },
+        {
+          "value": "900–2,100 m",
+          "label": "across its coffee regions (3,000–6,900 ft)",
+          "src": [
+            "worldofcoffee-peru"
+          ]
+        },
+        {
+          "value": "Apr–Sep",
+          "label": "the harvest, peaking June to August",
+          "src": [
+            "achilles-harvest"
+          ]
+        }
+      ],
+      "map": "PER",
+      "mapLegend": [
+        [
+          "l3",
+          "Cup of Excellence winners, 2017–2023"
+        ],
+        [
+          "l1",
+          "Other coffee departments"
+        ]
+      ],
+      "mapTiers": {
+        "l3": [
+          "cajamarca",
+          "cusco"
+        ],
+        "l1": [
+          "amazonas",
+          "san-martin",
+          "piura",
+          "junin",
+          "pasco",
+          "huanuco",
+          "ayacucho",
+          "puno"
+        ]
+      },
+      "mapSrc": [
+        "natural-earth",
+        "worldofcoffee-peru"
+      ],
+      "regions": [
+        {
+          "id": "cajamarca",
+          "name": "Cajamarca",
+          "teaser": "Jaén and San Ignacio. Cup of Excellence winners in 2017, 2019, 2022 and 2023",
+          "alt": "900–1,950 m · 3,000–6,400 ft",
+          "src": [
+            "worldofcoffee-peru"
+          ]
+        },
+        {
+          "id": "cusco",
+          "name": "Cusco",
+          "teaser": "La Convención. Winners in 2018, 2020 and 2021",
+          "alt": "900–2,000 m · 3,000–6,600 ft",
+          "src": [
+            "worldofcoffee-peru"
+          ]
+        },
+        {
+          "id": "junin",
+          "name": "Junín",
+          "teaser": "Chanchamayo and Satipo",
+          "alt": "900–1,800 m · 3,000–5,900 ft",
+          "src": [
+            "worldofcoffee-peru"
+          ]
+        },
+        {
+          "id": "amazonas",
+          "name": "Amazonas",
+          "teaser": "Seven provinces",
+          "alt": "900–2,100 m · 3,000–6,900 ft",
+          "src": [
+            "worldofcoffee-peru"
+          ]
+        },
+        {
+          "id": "san-martin",
+          "name": "San Martín",
+          "teaser": "",
+          "alt": "900–1,200 m · 3,000–3,900 ft",
+          "src": [
+            "worldofcoffee-peru"
+          ]
+        },
+        {
+          "id": "puno",
+          "name": "Puno",
+          "teaser": "Sandia",
+          "alt": "900–1,800 m · 3,000–5,900 ft",
+          "src": [
+            "worldofcoffee-peru"
+          ]
+        },
+        {
+          "id": "piura",
+          "name": "Piura",
+          "teaser": "Huancabamba",
+          "alt": "900–2,000 m · 3,000–6,600 ft",
+          "src": [
+            "worldofcoffee-peru"
+          ]
+        },
+        {
+          "id": "pasco",
+          "name": "Pasco",
+          "teaser": "Oxapampa",
+          "alt": "900–2,000 m · 3,000–6,600 ft",
+          "src": [
+            "worldofcoffee-peru"
+          ]
+        },
+        {
+          "id": "huanuco",
+          "name": "Huánuco",
+          "teaser": "Leoncio Prado (Tingo María)",
+          "alt": "900–2,000 m · 3,000–6,600 ft",
+          "src": [
+            "worldofcoffee-peru"
+          ]
+        },
+        {
+          "id": "ayacucho",
+          "name": "Ayacucho",
+          "teaser": "La Mar and Huanta",
+          "alt": "900–1,600 m · 3,000–5,200 ft",
+          "src": [
+            "worldofcoffee-peru"
+          ]
+        }
+      ],
+      "harvest": [
+        {
+          "area": "Peru",
+          "main": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "peak": [
+            6,
+            7,
+            8
+          ],
+          "src": [
+            "achilles-harvest"
+          ]
+        }
+      ],
+      "harvestText": {
+        "text": "Picked from about April to September, peaking June to August. Coffee picked mid-year reaches buyers later in the year, after resting 30–60 days and about six weeks at sea.",
+        "src": [
+          "achilles-harvest",
+          "cafeimports-harvest"
+        ]
+      },
+      "grows": {
+        "varieties": [
+          "typica",
+          "bourbon",
+          "mundo-novo"
+        ],
+        "processes": [],
+        "src": [
+          "wcr-typica",
+          "wcr-bourbon",
+          "wcr-mundonovo"
+        ]
+      },
+      "sections": [
+        {
+          "key": "now",
+          "title": "Right now",
+          "teaser": "A steady crop of about 4.8 million bags",
+          "dated": "October 2026",
+          "body": [
+            "USDA puts Peru at 4.76 million 60-kg bags in 2025/26 and 4.78 million in 2026/27."
+          ],
+          "src": [
+            "usda-2026"
+          ]
+        },
+        {
+          "key": "coe",
+          "title": "Cup of Excellence",
+          "teaser": "Cajamarca and Cusco keep winning",
+          "body": [
+            "Peru's Cup of Excellence winners came from Cajamarca in 2017, 2019, 2022 and 2023, and from Cusco in 2018, 2020 and 2021."
+          ],
+          "src": [
+            "worldofcoffee-peru"
+          ]
+        }
+      ],
+      "sources": [
+        "usda-2026",
+        "worldofcoffee-peru",
+        "achilles-harvest",
+        "cafeimports-harvest",
+        "wcr-typica",
+        "wcr-bourbon",
+        "wcr-mundonovo",
+        "natural-earth"
+      ],
+      "updated": "2026-10-28"
+    }
+  ],
+  "fresh": {
+    "about": "Harvest months for Fresh at roasters now (L2). An estimate: a crop reaches roasters about 3–5 months after it's picked. Only countries whose harvest months are sourced.",
+    "src": [
+      "cafeimports-harvest",
+      "achilles-harvest",
+      "mcm-bolivia",
+      "cafeimports-ecuador"
+    ],
+    "countries": [
+      {
+        "code": "BRA",
+        "harvest": [
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "src": [
+          "achilles-harvest"
+        ]
+      },
+      {
+        "code": "PER",
+        "harvest": [
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "src": [
+          "achilles-harvest"
+        ]
+      },
+      {
+        "code": "BOL",
+        "harvest": [
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "src": [
+          "mcm-bolivia"
+        ]
+      },
+      {
+        "code": "ECU",
+        "src": [
+          "cafeimports-ecuador"
+        ],
+        "arrive": [
+          9,
+          10
+        ]
+      },
+      {
+        "code": "GTM",
+        "harvest": [
+          9,
+          10,
+          11,
+          12,
+          1,
+          2,
+          3,
+          4
+        ],
+        "src": [
+          "achilles-harvest"
+        ]
+      },
+      {
+        "code": "HND",
+        "harvest": [
+          11,
+          12,
+          1,
+          2,
+          3,
+          4
+        ],
+        "src": [
+          "achilles-harvest"
+        ]
+      },
+      {
+        "code": "SLV",
+        "harvest": [
+          11,
+          12,
+          1,
+          2,
+          3,
+          4
+        ],
+        "src": [
+          "achilles-harvest"
+        ]
+      },
+      {
+        "code": "NIC",
+        "harvest": [
+          10,
+          11,
+          12,
+          1,
+          2,
+          3
+        ],
+        "src": [
+          "achilles-harvest"
+        ]
+      },
+      {
+        "code": "PAN",
+        "harvest": [
+          11,
+          12,
+          1,
+          2,
+          3
+        ],
+        "src": [
+          "achilles-harvest"
+        ]
+      },
+      {
+        "code": "MEX",
+        "harvest": [
+          11,
+          12,
+          1,
+          2,
+          3
+        ],
+        "src": [
+          "achilles-harvest"
+        ]
+      },
+      {
+        "code": "KEN",
+        "arrive": [
+          5,
+          6,
+          7,
+          8
+        ],
+        "src": [
+          "royal-kenya"
+        ]
+      },
+      {
+        "code": "COL",
+        "allYear": true,
+        "src": [
+          "achilles-harvest"
+        ]
+      }
+    ]
+  },
+  "tree": {
+    "about": "Learn's family tree (L3), built from the recognizer's families. Each stage's words carry their sources; ? marks DNA evidence that's early or second-hand.",
+    "lede": "Most Arabica grown outside Ethiopia traces back to a few plants that left through Yemen. The ones you've had are checked.",
+    "ledeSrc": [
+      "ub-2024",
+      "scalabrin-2020"
+    ],
+    "stages": [
+      {
+        "id": "wild",
+        "family": "landrace",
+        "tint": "floral",
+        "kicker": "Hundreds of thousands of years ago",
+        "title": "Wild Ethiopia",
+        "text": "Arabica formed in Ethiopia's forests from a natural cross of two other species, Robusta and Eugenioides. Ethiopia still holds most of its genetic variety.",
+        "src": [
+          "ub-2024",
+          "scalabrin-2020"
+        ]
+      },
+      {
+        "id": "yemen",
+        "family": "yemen",
+        "kicker": "About the 1400s",
+        "title": "Yemen",
+        "text": "Farming probably started here. A narrow slice of Ethiopia's diversity became the seed stock behind the world's major varieties.",
+        "src": [
+          "ub-2024"
+        ]
+      },
+      {
+        "id": "typica",
+        "family": "typica",
+        "pair": "bourbon",
+        "kicker": "From 1696",
+        "title": "Typica",
+        "text": "Seeds sent to Java founded it; one plant reached Amsterdam in 1706, and from there the Americas.",
+        "src": [
+          "wcr-typica"
+        ]
+      },
+      {
+        "id": "bourbon",
+        "family": "bourbon",
+        "tint": "sweet",
+        "kicker": "Early 1700s",
+        "title": "Bourbon",
+        "text": "Taken from Yemen to Réunion, then Bourbon Island, and on to Brazil around 1860.",
+        "src": [
+          "wcr-bourbon"
+        ]
+      },
+      {
+        "id": "cross",
+        "family": "cross",
+        "kicker": "The 1940s on",
+        "title": "Crosses of the two",
+        "text": "Typica and Bourbon, mixed by nature and by breeders: Mundo Novo was found in Brazil, and Catuaí was crossed there in 1949.",
+        "src": [
+          "wcr-mundonovo",
+          "wcr-catuai",
+          "wcr-pacamara"
+        ]
+      },
+      {
+        "id": "timor",
+        "family": "introgressed",
+        "tint": "herbal",
+        "kicker": "Early 1900s, on Timor",
+        "title": "A dash of Robusta",
+        "text": "A natural Arabica × Robusta cross that appeared on Timor carries resistance to leaf rust. Breeders folded it into many modern varieties, starting with the Catimors.",
+        "src": [
+          "wcr-t8667"
+        ]
+      },
+      {
+        "id": "f1",
+        "family": "f1",
+        "kicker": "Since the 2000s",
+        "title": "F1 hybrids",
+        "text": "First-generation crosses of distant parents, often a wild Ethiopian or Sudanese Arabica: vigorous and high-yielding. Their seed doesn't grow true, so most are cloned; Starmaya is grown from seed.",
+        "src": [
+          "frontiers-f1",
+          "pdg-starmaya-2017"
+        ]
+      },
+      {
+        "id": "disguise",
+        "members": [
+          "pink-bourbon",
+          "java",
+          "chiroso",
+          "bourbon-aji",
+          "sidra"
+        ],
+        "tint": "fermented",
+        "kicker": "Plot twist",
+        "title": "Ethiopians in disguise",
+        "text": "Sold under Bourbon and Typica names, but DNA points back to Ethiopia. A ? means the evidence is early or second-hand.",
+        "src": [
+          "cafeimports-pink-2023",
+          "wcr-java",
+          "chica-acosta-2024",
+          "crema-aji",
+          "ozone-sidra"
+        ]
+      }
+    ],
+    "species": {
+      "text": "Arabica is one coffee species among many. These others are grown and sold too, mostly Robusta.",
+      "src": [
+        "ub-2024"
+      ]
+    },
+    "sources": [
+      "ub-2024",
+      "scalabrin-2020",
+      "wcr-typica",
+      "wcr-bourbon",
+      "wcr-mundonovo",
+      "wcr-catuai",
+      "wcr-pacamara",
+      "wcr-t8667",
+      "frontiers-f1",
+      "pdg-starmaya-2017",
+      "cafeimports-pink-2023",
+      "wcr-java",
+      "chica-acosta-2024",
+      "crema-aji",
+      "ozone-sidra"
+    ]
+  },
+  "processMap": {
+    "about": "Learn's process map (L4): where each method sits. Left to right: how much fruit stays on while drying. Bottom to top: how hands-on the fermentation is. A diagram, not a measurement.",
+    "lede": "How the fruit comes off the seed. Most labels on a bag are one base method plus a few changes on top, so “anaerobic lactic natural” is natural with two changes.",
+    "ledeSrc": [
+      "gimme"
+    ],
+    "dots": [
+      {
+        "id": "washed",
+        "x": 92,
+        "y": 195,
+        "label": "Washed",
+        "base": true
+      },
+      {
+        "id": "honey",
+        "x": 197,
+        "y": 195,
+        "label": "Honeys",
+        "base": true,
+        "spread": [
+          160,
+          185,
+          210,
+          235
+        ]
+      },
+      {
+        "id": "natural",
+        "x": 306,
+        "y": 195,
+        "label": "Natural",
+        "base": true
+      },
+      {
+        "id": "anaerobic",
+        "x": 92,
+        "y": 140,
+        "label": "Anaerobic washed",
+        "lx": 78,
+        "ly": 128,
+        "anchor": "start"
+      },
+      {
+        "id": "carbonic",
+        "x": 250,
+        "y": 140,
+        "label": "Carbonic maceration",
+        "lx": 246,
+        "ly": 158
+      },
+      {
+        "id": "anaerobic",
+        "x": 306,
+        "y": 140,
+        "label": "Anaerobic natural",
+        "lx": 320,
+        "ly": 127,
+        "anchor": "end"
+      },
+      {
+        "id": "yeast",
+        "x": 120,
+        "y": 85,
+        "label": "Yeast"
+      },
+      {
+        "id": "lactic",
+        "x": 186,
+        "y": 85,
+        "label": "Lactic",
+        "lx": 186
+      },
+      {
+        "id": "koji",
+        "x": 226,
+        "y": 85,
+        "label": "Koji",
+        "lx": 226
+      },
+      {
+        "id": "mossto",
+        "x": 290,
+        "y": 85,
+        "label": "Mossto"
+      },
+      {
+        "id": "co-ferment",
+        "band": true,
+        "x": 150,
+        "y": 18,
+        "w": 172,
+        "label": "Co-fermented, infused"
+      }
+    ],
+    "note": "Wet-hulled, Indonesia's way, has no dot: its fruit comes off like washed, but the beans are hulled while still damp.",
+    "noteSrc": [
+      "gimme"
+    ],
+    "sources": [
+      "gimme"
+    ]
+  },
+  "origins": {
+    "lede": "Where coffee grows, country by country. Tap one with a page to read about it.",
+    "note": "Counts are single-origin coffees on Dialed In; blends are left out."
+  }
+}

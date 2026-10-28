@@ -1,0 +1,27 @@
+{
+ "version": 1,
+ "updated": "2026-10-28",
+ "files": [
+  "sources.json",
+  "pages.json",
+  "guides.json",
+  "maps.json"
+ ],
+ "pages": [
+  "variety:caturra",
+  "variety:gesha",
+  "variety:sl28",
+  "process:washed",
+  "process:natural",
+  "process:honey",
+  "origin:COL",
+  "origin:ETH",
+  "origin:KEN",
+  "origin:PER"
+ ],
+ "guides": [
+  "cherry-to-cup",
+  "read-a-bag",
+  "washed-vs-natural"
+ ]
+}
