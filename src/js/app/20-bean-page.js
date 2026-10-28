@@ -190,6 +190,7 @@
             dialinSeries() {
                 const groups = new Map();
                 this.detailBrews.forEach(b => {
+                    if (this.learnPotatoBrew && this.learnPotatoBrew(b)) return;   // v19.0: a potato-defect cup isn't part of dialing in
                     const key = `${this.getBrewOwner(b)}\u0001${b.method || ''}`;
                     if (!groups.has(key)) groups.set(key, []);
                     groups.get(key).push(b);

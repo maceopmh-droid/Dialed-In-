@@ -80,7 +80,7 @@
             coachPast(c) {
                 const t = this.localTime(c.date);
                 return Array.from(this.brews.values()).filter(b => String(b.id) !== c.id && this.getBrewOwner(b) === c.owner && (b.method || '') === c.method
-                    && this.groupKeyOfBrew(b) === c.beanKey && (!Number.isFinite(t) || !(this.localTime(b.date) > t)))
+                    && this.groupKeyOfBrew(b) === c.beanKey && (!Number.isFinite(t) || !(this.localTime(b.date) > t)) && !(this.learnPotatoBrew && this.learnPotatoBrew(b)))   // (v19.0: a potato-defect cup isn't a best shot)
                     .sort((a, b) => this.localTime(a.date) - this.localTime(b.date));
             },
 
@@ -387,10 +387,11 @@
                 }
                 const from = c.verdict ? 'verdict' : (read.quotes.length || tagU || tagO) ? 'notes' : (sliderOnly && (U > 0 || O > 0)) ? 'sliders' : 'recipe';
                 // v15.1: "shot" is espresso's word; other methods read "brew"
-                return this.methodWorded({ mode, head, next, why: why.filter(Boolean), conf, ev, ctx, ref, U, O, gm, from }, c.method);
+                const potato = this.learnPotato ? this.learnPotato(c) : '';   // v19.0: the potato defect (a bean, not the recipe; the advice stays)
+                return this.methodWorded({ mode, head, next, why: why.filter(Boolean), conf, ev, ctx, ref, U, O, gm, from, potato }, c.method);
             },
 
             coachHtml(k, title) {
-                return `<div class="next-card coach ${k.mode}"><div class="next-title">${this.esc(title)}${k.conf ? ` \u00b7 ${this.esc(k.conf)}` : ''}</div><div class="next-headline">${this.esc(k.head)}</div>${k.next ? `<div class="coach-next"><span>Next</span>${this.esc(k.next).split(' \u00b7 ').map(x => `<i class="cn">${x}</i>`).join(' \u00b7 ')}</div>` : ''}${k.why.length ? `<div class="next-detail">${this.esc(k.why.join(' '))}</div>` : ''}${k.ev.length ? `<div class="ev">${k.ev.map(e => `<span class="evc ${e.side}">${this.esc(e.text)}</span>`).join('')}</div>` : ''}${k.ctx.length ? `<div class="coach-ctx">${k.ctx.map(([a, b]) => `<div><b>${this.esc(a)}</b>${this.esc(b)}</div>`).join('')}</div>` : ''}</div>`;
+                return `<div class="next-card coach ${k.mode}"><div class="next-title">${this.esc(title)}${k.conf ? ` \u00b7 ${this.esc(k.conf)}` : ''}</div><div class="next-headline">${this.esc(k.head)}</div>${k.potato ? `<div class="coach-potato">${this.esc(k.potato)}</div>` : ''}${k.next ? `<div class="coach-next"><span>Next</span>${this.esc(k.next).split(' \u00b7 ').map(x => `<i class="cn">${x}</i>`).join(' \u00b7 ')}</div>` : ''}${k.why.length ? `<div class="next-detail">${this.esc(k.why.join(' '))}</div>` : ''}${k.ev.length ? `<div class="ev">${k.ev.map(e => `<span class="evc ${e.side}">${this.esc(e.text)}</span>`).join('')}</div>` : ''}${k.ctx.length ? `<div class="coach-ctx">${k.ctx.map(([a, b]) => `<div><b>${this.esc(a)}</b>${this.esc(b)}</div>`).join('')}</div>` : ''}</div>`;
             },
 

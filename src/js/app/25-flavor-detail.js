@@ -181,6 +181,7 @@
                 this.detailAllBrews = [...brews];
                 if (this.coffeeCommOnOpen && group) this.coffeeCommOnOpen(group);   // this coffee's Everyone, before choosing the view
                 brews = this.lensBrews(brews);
+                if (!this._navKeep && this.learnActive && this.learnActive()) this.learnClose();   // v19.0 (Learn's own rows keep their way back)
                 if (!this._navKeep && !this.isDetailActive() && !this.roasterViewActive()) this.navStack = [];   // opened from the library or feed
                 if (!this._navKeep && this.roasterViewActive()) { const from = this.snapPage(); if (from) { this.navStack = this.navStack || []; this.navStack.push(from); } this.hideRoasterView(); }
                 document.getElementById('detail-view').classList.add('active');

@@ -252,7 +252,12 @@
                 if (!box) return;
                 if (this.logKind === 'tea' && this.teaTipHtml) { box.innerHTML = this.teaTipHtml(); return; }   // v17.0: next-steep advice, never grind
                 const c = this.coachFromForm();
-                if (c.method && this.activeGroup) { box.innerHTML = this.coachHtml(this.coach(c), `Next ${this.shotWord(c.method)}`); return; }
+                if (c.method && this.activeGroup) {
+                    const k = this.coach(c);
+                    const first = this.learnFirstShotRow ? this.learnFirstShotRow(c, k) : null;   // v19.0: a first shot nobody here has logged: the kind's numbers, below the advice
+                    if (first) k.ctx = [...k.ctx, first];
+                    box.innerHTML = this.coachHtml(k, `Next ${this.shotWord(c.method)}`); return;
+                }
                 const ref = this.tasteReference();
                 const tasted = [...this.tasteTouched];
                 const cur = { values: this.formTasteValues(), tasted, notes: [...this.selFlavors], ...this.readFormRecipe() };

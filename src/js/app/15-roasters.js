@@ -281,6 +281,7 @@
             // Back: the page before this one, or the library
             goBackPage() {
                 const prev = (this.navStack || []).pop();
+                if (prev && prev.kind === 'learn' && this.learnRestore) { this.learnRestore(prev); return; }   // v19.0: back to the Learn page it came from
                 if (!prev) { this.hideRoasterView(); document.getElementById('detail-view').classList.remove('active'); this.openCommentId = null; this.roasterOpen = ''; this.render(); return; }
                 if (prev.kind === 'roaster' && this.roasterFind(prev.key, prev.roKind)) {
                     prev.key = this.roasterFind(prev.key, prev.roKind).key;
@@ -312,6 +313,7 @@
                 const dw = this.drinkWords(this.drinkNow());
                 if (!prev) return ({ feed: 'Feed', profile: 'Profile', roasters: dw.Companies })[this.tab] || dw.Items;   // v13.4: where Back actually goes (v17.0: Teas / Brands in tea mode)
                 if (prev.kind === 'roaster') { const r = this.roasterFind(prev.key, prev.roKind); return r ? r.name : 'Back'; }
+                if (prev.kind === 'learn') return this.lxPageTitle ? this.lxPageTitle((prev.stack || [])[(prev.stack || []).length - 1]) : 'Learn';   // v19.0
                 return (prev.group && prev.group.meta && prev.group.meta.name) || 'Back';
             },
 
@@ -378,7 +380,7 @@
                         <p class="ro-style">${esc(tea ? this.teaBrandStyle(r) : r.style)}</p>
                         <div class="stat-row"><div class="stat-box"><div class="stat-num">${n}</div><div class="stat-cap">${n === 1 ? w.Item : w.Items}</div></div><div class="stat-box"><div class="stat-num">${r.sessions}</div><div class="stat-cap">${r.sessions === 1 ? 'Session' : 'Sessions'}</div></div><div class="stat-box"><div class="stat-num">${r.rated ? `${RoasterEngine.f1(r.avg)}<small>★</small>` : '–'}</div><div class="stat-cap">${r.rated} rated</div></div><div class="stat-box"><div class="stat-num word">${esc(this.roasterLastLabel(r.last))}</div><div class="stat-cap">Last brewed</div></div></div>
                         ${tea ? this.roasterBarHtml('Type', this.teaTypeCounts(r), TEA_TYPES.map(t => t.toUpperCase()), Object.fromEntries(TEA_TYPES.map(t => [t.toUpperCase(), TEA_TYPE_INFO[t].color]))) : this.roasterBarHtml('Roast', r.roast, RoasterEngine.ROASTS, ROAST_C)}
-                        ${tea ? '' : this.roasterBarHtml('Process', r.proc, null, PROC_C)}
+                        ${tea ? '' : this.lxRoasterProcess ? this.lxRoasterProcess(this.roasterBarHtml('Process', r.proc, null, PROC_C), r.proc) : this.roasterBarHtml('Process', r.proc, null, PROC_C)}
                     </section>
                     ${bestCard}${coffees}${who}${esp}
                     <div class="ro-acts"><button type="button" class="btn-primary" onclick="app.logCoffeeForRoaster('${app.escJs(r.key)}')"><svg class="icon" style="width:16px;height:16px;stroke:currentColor"><use href="#i-plus"/></svg>Add a ${w.item}</button><button type="button" class="btn-outline" onclick="app.showRoasterCoffees('${app.escJs(r.key)}')">All ${w.items}</button></div>`;

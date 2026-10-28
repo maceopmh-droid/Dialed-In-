@@ -115,6 +115,7 @@
                 }
 
                 if (this.tab === 'roasters') { this.renderRoasterList(grid, searchQuery); return; }
+                if (this.tab === 'my' && this.coffeeScopeNow() === 'learn' && this.learnHomeHtml) { grid.innerHTML = this.coffeeScopeHtml() + this.learnHomeHtml(searchQuery); return; }   // v19.0: Coffees › Learn
 
                 let list = this.buildBeanGroups();
                 const teaShelf = this.teaMode(), dw = this.drinkWords(this.drinkNow());   // v17.0: the shelf shows coffees or teas

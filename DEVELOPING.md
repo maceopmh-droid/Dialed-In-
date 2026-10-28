@@ -34,6 +34,9 @@ twice, and every inline script parses.
 | `src/js/04-storage.js` | Safe localStorage helpers |
 | `src/js/app/00-state.js` … `27-settings-equipment-misc.js` | The `app` object, cut into files by feature. These are pieces of one object, so a file on its own isn't valid JavaScript; keep each method whole within one file |
 | `src/js/99-boot.js` | Starts the app |
+| `src/js/07-learn-engine.js` | `LearnEngine` (v19.0): reads a coffee bag's words (variety, origin, process, roast) and says what kind of coffee it is. Pure, no screen code; the app, the tests and `supabase/learn_tags.js` share it |
+| `src/js/app/55-learn.js` … `57-learn-coffee.js`, `src/css/26-learn.css` | Learn (v19.0, the New look only): Coffees › Learn, the Learn pages, the coffee page's tags and About card, Add a coffee's chips, the passport, the coach's first-shot line and potato rule |
+| `learn/*.json` | Learn's words, outside `index.html` so a fix doesn't need a new app version: `pages.json` (entries, family tree, process map, fresh-crop months), `guides.json`, `sources.json`, `maps.json` (made by `tools/learn_maps.py` from Natural Earth). Every fact lists its sources; bump `manifest.json`'s `version` or `updated` when they change |
 
 Saving, syncing, the outbox and merging all live in `src/js/app/05-sync-and-saving.js`.
 
@@ -97,6 +100,10 @@ source of truth and the patch modules are frozen history.
 
 Here, and on every push (`.github/workflows/checks.yml`): the build check, the privacy rules
 (`supabase/test_rls.py`) and the app's database calls (`supabase/test_api.js`), on a throwaway Postgres.
+
+Learn (v19.0): `node tools/test_learn.js` checks the recognizer's expected results and the content files (every fact
+has a source listed on its page, labels, months, ids); `node tools/learn_ids.js --check` that the database accepts exactly
+the recognizer's ids; `supabase/test_learn.js` the tags on save and who's counted in Learn's community numbers.
 
 The full test battery (the in-app self-test with about 11,400 checks, the browser suites, the 73 feature tests
 and the 104 backend tests) lives in the private build kit, not here. Several suites run on a copy of the real

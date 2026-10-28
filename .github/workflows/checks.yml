@@ -18,6 +18,10 @@ jobs:
         run: python3 build.py --out "$RUNNER_TEMP/built.html"
       - name: The committed index.html is exactly what src/ builds
         run: cmp "$RUNNER_TEMP/built.html" index.html
+      - name: "Learn (v19.0): the recognizer's expected results and the content files' checks"
+        run: node tools/test_learn.js
+      - name: "Learn: the server accepts exactly the recognizer's ids"
+        run: node tools/learn_ids.js --check
 
   privacy:
     name: database privacy rules
@@ -41,11 +45,17 @@ jobs:
       - name: The app's two calls (pull_events, push_event) and claiming names
         run: node supabase/test_api.js --host localhost --user postgres
       - name: "The Shot Logger: machines sending shots, drafts, posting (v16.9)"
+        if: success() || failure()   # (v19.0: each suite runs even when an earlier one fails, so one red check doesn't hide the rest)
         run: node supabase/test_shots.js --host localhost --user postgres
       - name: "Tea (v17.0): teas save as teas, tea sessions keep their steeps, teas and coffees never mix"
+        if: success() || failure()   # (v19.0: each suite runs even when an earlier one fails, so one red check doesn't hide the rest)
         run: node supabase/test_tea.js --host localhost --user postgres
       - name: "A coffee's picture (v17.4): saved as picked, kept by older saves and likes, photos only from your own folder"
+        if: success() || failure()   # (v19.0: each suite runs even when an earlier one fails, so one red check doesn't hide the rest)
         run: node supabase/test_cover.js --host localhost --user postgres
+      - name: "Learn (v19.0): tags on coffees, and community numbers that only count sessions you may open"
+        if: success() || failure()   # (v19.0: each suite runs even when an earlier one fails, so one red check doesn't hide the rest)
+        run: node supabase/test_learn.js --host localhost --user postgres
 
   machine-functions:
     name: Shot Logger machine functions (Deno)

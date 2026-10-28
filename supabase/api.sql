@@ -261,6 +261,7 @@ $$;
 -- v17.4: a coffee's picture, chosen when it's added or in the coffee editor, so it doesn't change by itself:
 -- {hue: 0-359, tone: 0-100 (how colorful), photo: a picture in the owner's own folder of the public "avatars" bucket}
 alter table coffees add column if not exists cover jsonb;
+alter table coffees add column if not exists learn jsonb;   -- v19.0: Learn's tags (see the Learn section)
 create or replace function internal.cover_of(ev jsonb) returns jsonb language sql stable set search_path = public as $$
   select case when jsonb_typeof(ev->'cover') = 'object' then nullif(jsonb_strip_nulls(jsonb_build_object(
     'hue', case when jsonb_typeof(ev->'cover'->'hue') = 'number' and (ev->'cover'->>'hue')::numeric between 0 and 360 then round((ev->'cover'->>'hue')::numeric)::int % 360 end,
@@ -280,6 +281,7 @@ language sql stable set search_path = public as $$
       'kind', case when k.kind = 'tea' then 'tea' end, 'teaType', case when k.kind = 'tea' then k.tea_type end,   -- (v17.0: only on teas, so a coffee reads as it always did)
       'blend', case when k.kind = 'tea' and k.tea->>'blend' = 'true' then true end, 'ingredients', case when k.kind = 'tea' then k.tea->'ingredients' end,   -- (v17.1)
       'cover', k.cover,   -- (v17.4)
+      'learnKeep', k.learn->'keep',   -- (v19.0: "Keep as typed" answers, so no phone asks again)
       'date', k.created_at, 'eventAt', k.updated_at,
       'likes', coalesce((select jsonb_agg(internal.name_of(l.user_id) order by l.created_at, l.user_id) from coffee_likes l where l.coffee_id = k.id), '[]'::jsonb),
       'comments', internal.comments_json(k.id, null),
@@ -850,12 +852,12 @@ begin
   if not found then
     if lower(btrim(coalesce(ev->>'owner', ev->>'user', me_nm))) <> lower(me_nm) then return; end if;   -- someone else's coffee you can't see
     perform internal.rate_hit(me_id, 'coffee');   -- v14.6
-    insert into coffees (legacy_id, owner_id, roaster_id, roaster_text, name, origin, process, variety, roast, roast_date, created_at, kind, tea_type, tea, cover)
+    insert into coffees (legacy_id, owner_id, roaster_id, roaster_text, name, origin, process, variety, roast, roast_date, created_at, kind, tea_type, tea, cover, learn)
     values (ev->>'id', me_id, internal.roaster_for(ev->>'roaster', me_id), nullif(btrim(ev->>'roaster'), ''), coalesce(nullif(btrim(ev->>'name'), ''), case when ev->>'kind' = 'tea' then 'Tea' else 'Coffee' end),
             nullif(btrim(ev->>'origin'), ''), nullif(btrim(ev->>'process'), ''), nullif(btrim(ev->>'variety'), ''), nullif(btrim(ev->>'roast'), ''),
             internal.try_date(ev->>'roastDate'), coalesce(internal.try_ts(ev->>'date'), now()),
             case when ev->>'kind' = 'tea' then 'tea' else 'coffee' end, case when ev->>'kind' = 'tea' then internal.tea_type(ev->>'teaType') end,
-            case when ev->>'kind' = 'tea' then internal.tea_details(ev) end, internal.cover_of(ev))
+            case when ev->>'kind' = 'tea' then internal.tea_details(ev) end, internal.cover_of(ev), internal.learn_on_save(null::coffees, ev))
     returning * into k;
   elsif k.deleted_at is not null then return;                                                         -- deleted stays deleted
   elsif k.owner_id = me_id then                                                    -- only the owner edits a coffee, as in the app today
@@ -868,7 +870,9 @@ begin
       -- (v17.1: a save from a version before blends has no "ingredients": it leaves them as they were)
       tea = case when ev->>'kind' is distinct from 'tea' and ev ? 'kind' then null when not ev ? 'ingredients' then tea else internal.tea_details(ev) end,
       -- (v17.4: a save from a version before pictures has no "cover": it leaves the picture as it was)
-      cover = case when not ev ? 'cover' then cover else internal.cover_of(ev) end
+      cover = case when not ev ? 'cover' then cover else internal.cover_of(ev) end,
+      -- (v19.0: Learn's tags: the ones sent, else kept while the words stay the same, else cleared for the backfill)
+      learn = internal.learn_on_save(k, ev)
     where id = k.id;
   end if;
   perform internal.sync_like('coffee', k.id, ev->'likes', me_id, me_nm);
@@ -2373,6 +2377,172 @@ language sql stable security definer set search_path = public as $$
                        from shots sh where sh.owner_id = me()), '[]'::jsonb));
 $$;
 
+-- ---------------------------------------------------------------- v19.0: Learn
+-- Each coffee keeps a small copy of what kind of coffee it is (coffees.learn), worked out on the phone from the bag's
+-- words by the same recognizer the app uses (LearnEngine). Phones never need it back (they read the bag themselves);
+-- it's here only so Learn's community numbers can be grouped by kind. A save that sends tags stores them (if they're
+-- the known shape and ids); a save that changes the words without tags (an older app) clears them, and the nightly
+-- backfill (supabase/learn_tags.js) fills them in again. "keep" holds the person's "Keep as typed" answers.
+-- learn ids: written by tools/learn_ids.js from the recognizer; do not edit by hand
+create or replace function internal.learn_ids() returns jsonb language sql immutable as $learnids$ select '{"variety":["74110","74112","74140","74148","74158","74165","744","75227","anacafe-14","andungsari","arara","ateng","batian","blue-mountain","bm139","bourbon","bourbon-aji","casiopea","castillo","catigua","catimor","catisic","catuai","catucai","caturra","cenicafe-1","centroamericano","chandragiri","chiroso","colombia-var","costa-rica-95","cuscatleco","dawairi","esperanza","ethiopian-landrace","evaluna","french-mission","gesha","gesha-1931","gori-gesha","h3","iapar-59","icatu","ihcafe-90","ipr-107","jaadi","jackson","java","k7","kent","kurume","laurina","lempira","limani","maragogipe","marsellesa","mibirizi","milenio","monte-claro","mundo-maya","mundo-novo","mundomex","nayarita","obata","orange-bourbon","oro-azteca","pacamara","pacas","pache","papayo","parainema","paraiso","pink-bourbon","ruiru-11","rume-sudan","s795","sarchimor","sidra","sigarar-utang","sl14","sl28","sl34","sln-9","starmaya","tabi","tekisic","timor-hybrid","tufahi","tupi","typica","typica-mejorado","udaini","villa-sarchi","villalobos","wolisho","wush-wush","yellow-bourbon","yemenia"],"species":["eugenioides","excelsa","liberica","racemosa","robusta","stenophylla"],"country":["AUS","BDI","BOL","BRA","CHN","CIV","CMR","COD","COL","CRI","CUB","DOM","ECU","ETH","GTM","HI","HND","HTI","IDN","IND","JAM","KEN","LAO","LKA","MDG","MEX","MMR","MWI","MYS","NIC","NPL","PAN","PER","PHL","PNG","PRI","RWA","SAU","SDS","SLE","SLV","THA","TLS","TWN","TZA","UGA","VEN","VNM","YEM","ZMB","ZWE"],"region":["acatenango","aceh","amazonas","antigua","antioquia","apaneca","araku","arusha","atitlan","ayacucho","bali","bench-maji","blue-mountain","bolaven","boquete","brunca","bugisu","cajamarca","caldas","caranavi","carmo-de-minas","cauca","cerrado","chalatenango","chapada","chiang-rai","chiapas","chiriqui","coban","comayagua","copan","cundinamarca","cusco","eje-cafetero","el-paraiso","embu","ermera","espirito-santo","flores","fraijanes","galapagos","guji","haraz","harrar","hayma","highlands","huanuco","huehuetenango","huila","huye","intibuca","ituri","java","jimma","jinotega","junin","kaffa","karnataka","karongi","kau","kauai","kayanza","kerala","kiambu","kilimanjaro","kirinyaga","kirundo","kisii","kivu","kona","lam-dong","limu","loja","magdalena","malabar","mantiqueira","marcala","matagalpa","matari","matas-de-minas","maui","mbeya","mbinga","meru","minas-gerais","mogiana","montecillos","muranga","muyinga","narino","ngozi","norte-de-santander","nueva-segovia","nuevo-oriente","nyamasheke","nyeri","oaxaca","opalaca","orosi","papua","pasco","pichincha","piura","puebla","puno","quindio","renacimiento","risaralda","rondonia","rulindo","rusizi","rwenzori","san-marcos","san-martin","sanani","santa-ana","santa-barbara","santander","sidama","sierra-nevada","sul-de-minas","sulawesi","sumatra","tarrazu","tolima","tres-rios","turrialba","valle-del-cauca","veracruz","volcan","west-nile","west-valley","wollega","yirgacheffe","yungas","yunnan","zamora-chinchipe"],"place":["acevedo","adola","agaro","bensa","bruselas","bulehora","chanchamayo","chire","coatepec","gedeb","hambela","inza","jaen","kercha","kochere","laconvencion","lintong","mandheling","mocha","nensebo","oxapampa","pitalito","sandia","sanignacio","satipo","shakiso","uraga","urrao","wenago"],"process":["anaerobic","carbonic","co-ferment","cold-ferment","extended","fermentation","honey","kenyan-soak","koji","lactic","mechanical","monsooned","mossto","natural","patio","raised-beds","slow-dry","thermal-shock","washed","wet-hulled","yeast"],"decaf":["co2","decaf","mountain-water","solvent","sugarcane","swiss-water"]}'::jsonb $learnids$;
+-- end of learn ids
+create or replace function internal.learn_ok(j jsonb) returns jsonb language plpgsql immutable as $$
+declare ids jsonb := internal.learn_ids(); v jsonb; o jsonb; p jsonb; k jsonb; keep jsonb := '{}'::jsonb; f text;
+begin
+  if j is null or jsonb_typeof(j) <> 'object' or octet_length(j::text) > 2000 then return null; end if;
+  v := coalesce(j->'variety', '[]'::jsonb); o := coalesce(j->'origin', '{}'::jsonb); p := coalesce(j->'process', '{}'::jsonb);
+  if jsonb_typeof(v) <> 'array' or jsonb_array_length(v) > 8 or jsonb_typeof(o) <> 'object' or jsonb_typeof(p) <> 'object' then return null; end if;
+  if exists (select 1 from jsonb_array_elements(v) x where jsonb_typeof(x) <> 'string' or not (ids->'variety') ? (x #>> '{}')) then return null; end if;
+  if jsonb_typeof(coalesce(o->'countries', '[]'::jsonb)) <> 'array' or jsonb_array_length(coalesce(o->'countries', '[]'::jsonb)) > 8
+     or exists (select 1 from jsonb_array_elements(coalesce(o->'countries', '[]'::jsonb)) x where jsonb_typeof(x) <> 'string' or not (ids->'country') ? (x #>> '{}'))
+     or (o ? 'region' and jsonb_typeof(o->'region') <> 'null' and not (ids->'region') ? (o->>'region'))
+     or (o ? 'place' and jsonb_typeof(o->'place') <> 'null' and not (ids->'place') ? (o->>'place')) then return null; end if;
+  if (p ? 'base' and jsonb_typeof(p->'base') <> 'null' and coalesce(p->>'base', '') not in ('washed', 'natural', 'honey', 'wet-hulled'))
+     or jsonb_typeof(coalesce(p->'layers', '[]'::jsonb)) <> 'array' or jsonb_array_length(coalesce(p->'layers', '[]'::jsonb)) > 8
+     or exists (select 1 from jsonb_array_elements(coalesce(p->'layers', '[]'::jsonb)) x where jsonb_typeof(x) <> 'string' or not (ids->'process') ? (x #>> '{}'))
+     or (p ? 'decaf' and jsonb_typeof(p->'decaf') <> 'null' and not (ids->'decaf') ? (p->>'decaf')) then return null; end if;
+  if j ? 'species' and jsonb_typeof(j->'species') <> 'null' and not (ids->'species') ? (j->>'species') then return null; end if;
+  k := j->'keep';
+  if k is not null and jsonb_typeof(k) = 'object' then
+    foreach f in array array['variety', 'origin', 'process'] loop
+      if jsonb_typeof(k->f) = 'string' then keep := keep || jsonb_build_object(f, left(k->>f, 80)); end if;
+    end loop;
+  end if;
+  return jsonb_strip_nulls(jsonb_build_object(
+    'v', case when (j->>'v') ~ '^\d{1,3}$' then (j->>'v')::int end,
+    'variety', v,
+    'species', case when jsonb_typeof(j->'species') = 'string' then j->'species' end,
+    'origin', jsonb_strip_nulls(jsonb_build_object('countries', coalesce(o->'countries', '[]'::jsonb), 'region', case when jsonb_typeof(o->'region') = 'string' then o->'region' end,
+                                                   'place', case when jsonb_typeof(o->'place') = 'string' then o->'place' end, 'blend', coalesce(o->>'blend', 'false') = 'true')),
+    'process', jsonb_strip_nulls(jsonb_build_object('base', case when jsonb_typeof(p->'base') = 'string' then p->'base' end, 'layers', coalesce(p->'layers', '[]'::jsonb),
+                                                    'decaf', case when jsonb_typeof(p->'decaf') = 'string' then p->'decaf' end, 'added', coalesce(p->>'added', 'false') = 'true')),
+    'keep', case when keep <> '{}'::jsonb then keep end));
+end $$;
+-- the tags to keep on a save: sent ones (checked), else the old ones if the bag's words didn't change, else only the
+-- person's "Keep as typed" answers (the words changed under an older app: the backfill tags it again)
+create or replace function internal.learn_on_save(old coffees, ev jsonb) returns jsonb language sql immutable as $$
+  select case
+    when coalesce(ev->>'kind', '') = 'tea' or ev->>'teaType' is not null and ev->>'teaType' <> '' then null
+    when ev ? 'learn' then internal.learn_ok(ev->'learn')
+    when old.id is null then null
+    when nullif(btrim(ev->>'origin'), '') is not distinct from old.origin and nullif(btrim(ev->>'process'), '') is not distinct from old.process
+         and nullif(btrim(ev->>'variety'), '') is not distinct from old.variety then old.learn
+    when old.learn ? 'keep' then jsonb_build_object('keep', old.learn->'keep')
+    else null end;
+$$;
+
+-- Learn's numbers for kinds of coffee. wants: up to 8 objects, each naming any of variety, species, country, process
+-- (all must match: {"variety": "caturra", "country": "COL"} is Colombian Caturras). For each, the sessions the caller
+-- may open (it runs as the caller, so the sessions row rule decides; their own included), on coffees tagged that kind.
+-- Country means single-origin coffees only. A unit is one person × one coffee; "dialed" keeps each unit's better half
+-- by rating. Averages go unit, then person, then everyone, so no one person or bag decides. Grind is never read.
+create or replace function learn_community(wants jsonb) returns jsonb
+language plpgsql stable set search_path = public as $$
+declare me_id uuid := me(); w jsonb; out jsonb := '[]'::jsonb; r jsonb;
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  if jsonb_typeof(wants) <> 'array' or jsonb_array_length(wants) = 0 or jsonb_array_length(wants) > 8 then raise exception 'Ask for 1 to 8 kinds.' using errcode = '22023'; end if;
+  for w in select x from jsonb_array_elements(wants) x loop
+    if jsonb_typeof(w) <> 'object' or not (w ?| array['variety', 'species', 'country', 'process']) then out := out || jsonb_build_array(null); continue; end if;
+    with pool as (
+      select s.id, s.owner_id, internal.coffee_key(k.name) || '|' || internal.coffee_key(coalesce(k.roaster_text, '')) as ckey,
+             k.legacy_id as cid, k.owner_id as cowner, k.name as cname, coalesce(k.roaster_text, '') as croaster,
+             lower(btrim(coalesce(s.method, ''))) as method, coalesce(s.rating, 0) as rating, s.dose, s.yield, s.time_s, s.taste, coalesce(s.tasted, '{}') as tasted,
+             s.extras->>'flavors' as flv, s.flavor_notes as fnotes, s.brewed_at
+      from sessions s join coffees k on k.id = s.coffee_id
+      where s.deleted_at is null and k.deleted_at is null and k.kind = 'coffee' and k.learn is not null
+        and (s.owner_id = me_id or not internal.unseen('session', s.id))
+        and (not w ? 'variety' or (k.learn->'variety') ? (w->>'variety'))
+        and (not w ? 'species' or k.learn->>'species' = w->>'species')
+        and (not w ? 'country' or (k.learn->'origin'->'countries' = jsonb_build_array(w->>'country') and coalesce(k.learn->'origin'->>'blend', 'false') <> 'true'))
+        and (not w ? 'process' or k.learn->'process'->>'base' = w->>'process' or (k.learn->'process'->'layers') ? (w->>'process'))
+    ), ranked as (
+      select p.*, row_number() over (partition by owner_id, ckey order by rating desc, brewed_at desc, id) as rn,
+             count(*) over (partition by owner_id, ckey) as un from pool p
+    ), views as (
+      select 'all' as view, r.* from ranked r union all select 'dialed', r.* from ranked r where rn <= greatest(1, ceil(un / 2.0))
+    ), sliders as (
+      select v.view, v.owner_id, v.ckey, t.key, internal.try_num(v.taste->>t.key) as val
+      from views v, unnest(array['acidity', 'sweetness', 'body', 'finish', 'bitterness', 'balance']) t(key)
+      where internal.try_num(v.taste->>t.key) between 1 and 10
+        and (t.key = any(v.tasted) or (cardinality(v.tasted) = 0 and internal.try_num(v.taste->>t.key) <> 5))
+    ), slider_unit as (select view, key, owner_id, ckey, avg(val) a from sliders group by 1, 2, 3, 4),
+       slider_person as (select view, key, owner_id, avg(a) a from slider_unit group by 1, 2, 3),
+       slider_all as (select view, key, round(avg(a), 1) v, count(*) people from slider_person group by 1, 2),
+       rating_unit as (select view, owner_id, ckey, avg(rating) a from views where rating > 0 group by 1, 2, 3),
+       rating_person as (select view, owner_id, avg(a) a from rating_unit group by 1, 2),
+       rating_all as (select view, round(avg(a), 1) v, count(*) people from rating_person group by 1),
+       notes_unit as (
+         select distinct v.view, v.owner_id, v.ckey, lower(btrim(n)) as note
+         from views v, lateral (select unnest(string_to_array(coalesce(v.flv, ''), ',')) union
+                                select jsonb_object_keys(case when jsonb_typeof(v.fnotes) = 'object' then v.fnotes else '{}'::jsonb end)) f(n)
+         where btrim(n) <> ''),
+       notes_top as (select view, note, count(*) c from notes_unit group by 1, 2),
+       counts as (select view, count(*) sessions, count(distinct owner_id) people, count(distinct ckey) coffees, count(distinct (owner_id, ckey)) units from views group by 1),
+       brew as (
+         select method, count(*) n, count(distinct owner_id) people,
+                percentile_cont(0.5) within group (order by yield / dose) as ratio,
+                percentile_cont(0.5) within group (order by time_s) filter (where case method
+                     when 'espresso' then time_s between 10 and 90 when 'pour over' then time_s between 60 and 600 when 'french press' then time_s between 120 and 900
+                     when 'aeropress' then time_s between 30 and 360 when 'moka pot' then time_s between 60 and 600 when 'cold brew' then time_s between 4 and 48 else false end) as t,
+                percentile_cont(0.5) within group (order by dose) as dose
+         from ranked
+         where rating >= 4 and dose > 5 and yield > 0 and case method
+               when 'espresso' then yield / dose between 1 and 5 and dose between 5 and 30
+               when 'pour over' then yield / dose between 10 and 22 and dose between 5 and 60
+               when 'french press' then yield / dose between 8 and 20 and dose between 5 and 80
+               when 'aeropress' then yield / dose between 4 and 20 and dose between 5 and 40
+               when 'moka pot' then yield / dose between 4 and 12 and dose between 5 and 40
+               when 'cold brew' then yield / dose between 3 and 20 and dose between 10 and 300 else false end
+         group by method),
+       per_person as (select owner_id, count(*) n from ranked group by 1),
+       coffees_list as (
+         select ckey, max(cname) cname, max(croaster) croaster, count(*) n, count(distinct owner_id) people,
+                round(avg(rating) filter (where rating > 0), 1) avg,
+                coalesce(max(cid) filter (where cowner = me_id), max(cid)) cid
+         from ranked group by ckey)
+    select jsonb_build_object(
+      'want', w,
+      'views', coalesce((select jsonb_object_agg(c.view, jsonb_build_object(
+          'sessions', c.sessions, 'people', c.people, 'coffees', c.coffees, 'units', c.units,
+          'rating', (select jsonb_build_object('v', ra.v, 'people', ra.people) from rating_all ra where ra.view = c.view),
+          'taste', coalesce((select jsonb_object_agg(sa.key, jsonb_build_object('v', sa.v, 'people', sa.people)) from slider_all sa where sa.view = c.view), '{}'::jsonb),
+          'notes', coalesce((select jsonb_agg(jsonb_build_array(nt.note, nt.c) order by nt.c desc, nt.note) from (select * from notes_top x where x.view = c.view order by c desc, note limit 15) nt), '[]'::jsonb)))
+        from counts c), '{}'::jsonb),
+      'brew', coalesce((select jsonb_agg(jsonb_build_object('method', b.method, 'n', b.n, 'people', b.people, 'ratio', round(b.ratio::numeric, 1), 'time', round(b.t::numeric), 'dose', round(b.dose::numeric, 1)) order by b.n desc, b.method) from brew b), '[]'::jsonb),
+      'names', coalesce((select jsonb_agg(jsonb_build_object('name', case when pp.owner_id = me_id then null else internal.name_of(pp.owner_id) end, 'me', pp.owner_id = me_id, 'n', pp.n) order by pp.n desc)
+                         from per_person pp where pp.owner_id = me_id or private.is_friend(me_id, pp.owner_id)), '[]'::jsonb),
+      'others', coalesce((select jsonb_build_object('people', count(*), 'n', sum(pp.n)) from per_person pp where pp.owner_id <> me_id and not private.is_friend(me_id, pp.owner_id)), '{}'::jsonb),
+      'coffees', coalesce((select jsonb_agg(jsonb_build_object('id', cl.cid, 'name', cl.cname, 'roaster', cl.croaster, 'n', cl.n, 'people', cl.people, 'avg', cl.avg) order by cl.n desc, cl.cname) from (select * from coffees_list order by n desc, cname limit 40) cl), '[]'::jsonb))
+      into r;
+    out := out || jsonb_build_array(r);
+  end loop;
+  return out;
+end $$;
+
+-- Learn's home and lists: how many sessions, people and coffees each kind has, from the sessions the caller may open.
+-- Countries count single-origin coffees only.
+create or replace function learn_overview() returns jsonb
+language plpgsql stable set search_path = public as $$
+declare me_id uuid := me();
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  return (with pool as (
+      select s.owner_id, internal.coffee_key(k.name) || '|' || internal.coffee_key(coalesce(k.roaster_text, '')) as ckey, k.learn
+      from sessions s join coffees k on k.id = s.coffee_id
+      where s.deleted_at is null and k.deleted_at is null and k.kind = 'coffee' and k.learn is not null
+        and (s.owner_id = me_id or not internal.unseen('session', s.id))
+    ), tags as (
+      select 'variety' as kind, x as id, owner_id, ckey from pool, jsonb_array_elements_text(coalesce(learn->'variety', '[]'::jsonb)) x
+      union all select 'species', learn->>'species', owner_id, ckey from pool where learn->>'species' is not null
+      union all select 'origin', learn->'origin'->'countries'->>0, owner_id, ckey from pool
+        where jsonb_array_length(coalesce(learn->'origin'->'countries', '[]'::jsonb)) = 1 and coalesce(learn->'origin'->>'blend', 'false') <> 'true'
+      union all select 'process', learn->'process'->>'base', owner_id, ckey from pool where learn->'process'->>'base' is not null
+      union all select 'process', x, owner_id, ckey from pool, jsonb_array_elements_text(coalesce(learn->'process'->'layers', '[]'::jsonb)) x
+    ), agg as (select kind, id, count(*) sessions, count(distinct owner_id) people, count(distinct ckey) coffees from tags group by 1, 2)
+    select jsonb_build_object('kinds', coalesce(jsonb_object_agg(kind || ':' || id, jsonb_build_array(sessions, people, coffees)), '{}'::jsonb)) from agg);
+end $$;
+
 -- push_event and friends run as the signed-in person (so the row rules apply to every write) and use the helpers in
 -- "internal", so signed-in people need them; the app's web address doesn't serve that schema, so they can't be called
 -- directly.
@@ -2386,7 +2556,7 @@ revoke execute on function pull_events(), push_event(jsonb), claim_name(text), c
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version(),
   coffee_catalog(text, int), set_avatar(text), faces(jsonb), set_crema(int), report_bug(text, jsonb), review_bugs(int), close_bug(uuid, boolean), my_notification_prefs(), set_notification_pref(text, boolean),
-  my_shots(int), post_shot(uuid), shot_later(uuid), dismiss_shot(uuid), shot_for_session(text) from public, anon;
+  my_shots(int), post_shot(uuid), shot_later(uuid), dismiss_shot(uuid), shot_for_session(text), learn_community(jsonb), learn_overview() from public, anon;
 grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text, boolean), coffee_community(text, text, timestamptz, int), monthly_highlights(date), report_item(text, text, text),
   profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
   push_key(), push_ready(), save_push(jsonb), remove_push(text),
@@ -2394,7 +2564,7 @@ grant execute on function pull_events(), push_event(jsonb), claim_name(text), cr
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version(),
   coffee_catalog(text, int), set_avatar(text), faces(jsonb), set_crema(int), report_bug(text, jsonb), review_bugs(int), close_bug(uuid, boolean), my_notification_prefs(), set_notification_pref(text, boolean),
-  my_shots(int), post_shot(uuid), shot_later(uuid), dismiss_shot(uuid), shot_for_session(text) to authenticated;
+  my_shots(int), post_shot(uuid), shot_later(uuid), dismiss_shot(uuid), shot_for_session(text), learn_community(jsonb), learn_overview() to authenticated;
 revoke execute on all functions in schema internal from public, anon;
 revoke execute on function internal.push_payload(bigint, text), internal.push_text(notifications) from authenticated;   -- the sender's alone (it has the phones' addresses and the VAPID key)
 -- v16.9: the machine functions' alone (they take a machine's token and act as its owner), and making machines

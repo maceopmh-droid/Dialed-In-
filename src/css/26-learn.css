@@ -1,0 +1,374 @@
+        /* ===================== v19.0: Learn =====================
+           The New look's kit (claude/new-look-ds.css) plus the Learn screens' parts (claude/learn-mockups-src.md): pages tinted
+           by their typical flavor family, names in the big serif, every section folding. All of it is the New look's. */
+        .coach-potato { margin: 8px 0 4px; padding: 10px 12px; border-radius: 14px; background: rgba(214, 160, 60, 0.14); font-size: 14px; line-height: 1.45; }
+        #learn-view { display: none; position: fixed; inset: 0; z-index: 5700; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+        #learn-view.active { display: block; }
+        #learn-view.lx-over { z-index: 6050; }   /* over Add a coffee: nothing typed is lost */
+        html[data-look="new"] #learn-view { background: var(--pg, var(--nl-page)); color: var(--t, var(--nl-ink)); }
+        html[data-look="new"] .lx { font-family: var(--font-main, -apple-system, system-ui, sans-serif); color: var(--t, var(--nl-ink)); -webkit-font-smoothing: antialiased; font-size: 15px; line-height: 1.4; }
+        html[data-look="new"] .lx-pagebody { padding-bottom: calc(48px + var(--safe-bottom, env(safe-area-inset-bottom, 0px))); }
+        html[data-look="new"] .lx *, html[data-look="new"] .lx-pass *, html[data-look="new"] #lx-about *, html[data-look="new"] .lx-recog-wrap *, html[data-look="new"] #lx-decoded * { box-sizing: border-box; }
+        html[data-look="new"] :where(.lx, .lx-pass, #lx-about, .lx-recog-wrap, #lx-decoded, .lx-rolist) :where(button) { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; text-align: inherit; letter-spacing: 0; text-transform: none; box-shadow: none; min-height: 0; width: auto; border-radius: 0; }
+        html[data-look="new"] :where(.lx, .lx-pass, #lx-about, .lx-recog-wrap, #lx-decoded, .lx-rolist) :where(.icon) { width: 20px; height: 20px; flex: 0 0 auto; stroke-width: 1.8px; }
+        /* the top bar: the back pill, kept at the top (one row, the same height) */
+        html[data-look="new"] .lx-topbar { position: sticky; top: 0; z-index: 6; height: calc(52px + var(--safe-top, env(safe-area-inset-top, 0px))); padding: calc(8px + var(--safe-top, env(safe-area-inset-top, 0px))) 14px 8px; display: flex; align-items: center; pointer-events: none; }
+        html[data-look="new"] .lx-back { pointer-events: auto; height: 36px; padding: 0 14px 0 8px; border-radius: 18px; display: inline-flex; align-items: center; gap: 6px; font: 650 15px/1 var(--font-main, -apple-system, system-ui, sans-serif); color: var(--t); background: color-mix(in srgb, var(--c) 84%, transparent); border: 1px solid var(--hl); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); white-space: nowrap; max-width: 70vw; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+        html[data-look="new"] .lx-back span { overflow: hidden; text-overflow: ellipsis; }
+        html[data-look="new"] .lx-back .icon { width: 20px; height: 20px; stroke: currentColor; }
+        /* the head: never folds */
+        html[data-look="new"] .lx-head { padding: 10px 16px 0; }
+        html[data-look="new"] .lx-kick { font-size: 13px; font-weight: 650; color: var(--k); }
+        html[data-look="new"] .lx-kapp { color: var(--nl-matcha); }
+        html[data-look="new"] .lx-name { font-family: var(--nl-serif); font-weight: 500; font-size: 52px; line-height: 1.02; letter-spacing: -0.012em; color: var(--n); margin: 4px 0 0; overflow-wrap: anywhere; }
+        html[data-look="new"] .lx-name-s { font-size: 40px; line-height: 1.05; }
+        html[data-look="new"] .lx-lede { font-size: 16.5px; line-height: 1.5; color: var(--t); margin: 10px 0 0; }
+        html[data-look="new"] .lx-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+        html[data-look="new"] .lx-also { margin-top: 14px; }
+        html[data-look="new"] .lx-tag { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 12px; border-radius: 16px; font-size: 14px; font-weight: 600; line-height: 1.2; background: var(--pill); color: var(--t); border: 1px solid var(--hl); white-space: nowrap; }
+        html[data-look="new"] .lx-tag.lx-link .icon { width: 14px; height: 14px; opacity: 0.7; }
+        html[data-look="new"] .lx-tag.lx-solid { background: var(--n); color: var(--c); border-color: transparent; }
+        html[data-look="new"] button.lx-tag.lx-link { background: var(--pill); border: 1px solid var(--hl); padding: 0 10px 0 12px; }
+        html[data-look="new"] .lx-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 16px; }
+        html[data-look="new"] .lx-tile { border-radius: 16px; padding: 11px 12px 10px; background: var(--pill); border: 1px solid var(--hl); min-width: 0; }
+        html[data-look="new"][data-theme="light"] .lx-tile { border-color: rgba(255, 255, 255, 0.7); }
+        html[data-look="new"] .lx-sv { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; color: var(--t); }
+        html[data-look="new"] .lx-sv small { font-size: 13px; font-weight: 500; color: var(--l); }
+        html[data-look="new"] .lx-sl { font-size: 13px; margin-top: 2px; color: var(--l); line-height: 1.3; }
+        html[data-look="new"] .lx-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+        html[data-look="new"] .lx-tiles .lx-sv { font-size: 22px; white-space: nowrap; }
+
+        /* ---- folding: an open section is a header row and its content; a folded one is a compact row with a teaser.
+           Folded sections next to each other share one rounded group. */
+        html[data-look="new"] .lx-f { margin: 28px 16px 0; }
+        html[data-look="new"] .lx-fh { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        html[data-look="new"] .lx-fmain { flex: 1; min-width: 0; }
+        html[data-look="new"] .lx-h3 { display: flex; align-items: center; gap: 8px; font-size: 19px; font-weight: 650; letter-spacing: -0.01em; line-height: 1.25; margin: 0; color: var(--t); text-transform: none; }
+        html[data-look="new"] .lx-h3 .icon { width: 18px; height: 18px; color: var(--k); stroke: currentColor; }
+        html[data-look="new"] .lx-h3 .lx-ht > span { font-weight: 500; color: var(--l); }
+        html[data-look="new"] .lx-sub { display: block; font-size: 13px; color: var(--l); margin-top: 2px; }
+        html[data-look="new"] .lx-teaser { display: none; font-size: 13px; color: var(--l); margin-top: 2px; line-height: 1.35; }
+        html[data-look="new"] .lx-fbtn { width: 44px; height: 44px; margin: -6px -6px -6px 0; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+        html[data-look="new"] .lx-fbtn > span { width: 32px; height: 32px; border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; background: var(--pill); border: 1px solid var(--hl); color: var(--l); }
+        html[data-look="new"] .lx-fbtn .icon { width: 16px; height: 16px; stroke: currentColor; transition: transform 0.18s ease; }
+        html[data-look="new"] .lx-fbtn[aria-expanded="true"] .icon, html[data-look="new"] [data-open="1"] > .lx-acch .lx-fbtn .icon { transform: rotate(180deg); }
+        @media (prefers-reduced-motion: reduce) { html[data-look="new"] .lx-fbtn .icon { transition: none; } }
+        html[data-look="new"] .lx-f[data-open="0"] > .lx-fb { display: none; }
+        html[data-look="new"] .lx-f[data-open="0"] > .lx-fh { margin: 0; padding: 12px 12px 12px 16px; }
+        html[data-look="new"] .lx-f[data-open="0"] > .lx-fh .lx-h3 { font-size: 16px; }
+        html[data-look="new"] .lx-f[data-open="0"] > .lx-fh .lx-teaser { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+        html[data-look="new"] .lx-f[data-open="0"] { background: var(--box); border: 1px solid var(--hl); border-radius: 20px; }
+        html[data-look="new"] .lx-folds { margin: 28px 16px 0; background: var(--box); border: 1px solid var(--hl); border-radius: 20px; overflow: hidden; }
+        html[data-look="new"][data-theme="light"] .lx-folds, html[data-look="new"][data-theme="light"] .lx-f[data-open="0"], html[data-look="new"][data-theme="light"] .lx-group, html[data-look="new"][data-theme="light"] .lx-box { border-color: color-mix(in srgb, var(--t) 9%, transparent); }
+        html[data-look="new"] .lx-folds > .lx-f { margin: 0; border: 0; border-radius: 0; background: none; border-top: 1px solid var(--hl); }
+        html[data-look="new"] .lx-folds > .lx-f:first-child { border-top: 0; }
+        html[data-look="new"] .lx-folds > .lx-f[data-open="1"] > .lx-fh { margin: 0; padding: 12px 12px 10px 16px; }
+        html[data-look="new"] .lx-folds > .lx-f[data-open="1"] > .lx-fb { padding: 0 16px 16px; }
+        html[data-look="new"] .lx-fb > .lx-folds { margin: 0; }
+        html[data-look="new"] .lx-folds .lx-folds { margin: 0; border-radius: 0; border: 0; border-top: 1px solid var(--hl); background: none; }
+        /* a section that is itself a box (About this coffee, This coffee decoded) */
+        html[data-look="new"] .lx-boxsec, html[data-look="new"] .lx-folds > .lx-boxsec { background: var(--box); border: 1px solid var(--hl); border-radius: 22px; padding: 16px; margin: 0; }
+        html[data-look="new"] .lx-boxsec > .lx-fh .lx-h3 { font-size: 16px; }
+        html[data-look="new"] .lx-boxsec[data-open="0"] { padding: 0; }
+        html[data-look="new"] .lx-folds:has(> .lx-boxsec) { border: 0; background: none; border-radius: 22px; margin: 0; }
+
+        /* ---- boxes, rows and lists */
+        html[data-look="new"] .lx-box { background: var(--box); border: 1px solid var(--hl); border-radius: 22px; padding: 16px; color: var(--t); }
+        html[data-look="new"] .lx-box + .lx-box { margin-top: 10px; }
+        html[data-look="new"] .lx-p { font-size: 15.5px; line-height: 1.5; margin: 0; color: var(--t); }
+        html[data-look="new"] .lx-p + .lx-p { margin-top: 10px; }
+        html[data-look="new"] .lx-small { font-size: 14.5px; }
+        html[data-look="new"] .lx-small2 { font-size: 14px; margin-top: 10px; }
+        html[data-look="new"] .lx-note { font-size: 13px; line-height: 1.45; color: var(--l); margin: 8px 0 0; }
+        html[data-look="new"] .lx-muted { color: var(--l); }
+        html[data-look="new"] .lx-hr { height: 1px; background: var(--hl); margin: 14px 0 10px; }
+        html[data-look="new"] .lx-flabel { font-size: 13px; font-weight: 600; color: var(--l); margin: 0 0 6px; }
+        html[data-look="new"] .lx-gap { margin-top: 14px; }
+        html[data-look="new"] .lx-group { background: var(--box); border-radius: 20px; overflow: hidden; border: 1px solid var(--hl); }
+        html[data-look="new"] .lx-group.lx-inner { border: 0; border-radius: 0; background: none; margin: 0 -16px -16px; border-top: 1px solid var(--hl); }
+        html[data-look="new"] .lx-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 12px 14px; border-top: 1px solid var(--hl); color: var(--t); text-align: left; }
+        html[data-look="new"] .lx-group > .lx-row:first-child, html[data-look="new"] .lx-group > .more-rest > .lx-row:first-child { border-top: 0; }
+        html[data-look="new"] .lx-group > .more-rest > .lx-row:first-child { border-top: 1px solid var(--hl); }
+        html[data-look="new"] .lx-rmain { flex: 1; min-width: 0; }
+        html[data-look="new"] .lx-rmain b { display: block; font-weight: 650; font-size: 15.5px; color: var(--t); line-height: 1.3; }
+        html[data-look="new"] .lx-rmain small { display: block; font-size: 13px; color: var(--l); margin-top: 2px; line-height: 1.35; }
+        html[data-look="new"] .lx-chev { color: var(--l); display: inline-flex; flex: 0 0 auto; }
+        html[data-look="new"] .lx-chev .icon { width: 16px; height: 16px; stroke: currentColor; }
+        html[data-look="new"] .lx-thumb { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; background: var(--pill); color: var(--k); }
+        html[data-look="new"] .lx-thumb .icon { width: 22px; height: 22px; stroke: currentColor; }
+        html[data-look="new"] .lx-rank { font-weight: 700; font-size: 15px; }
+        html[data-look="new"] .lx-group .more-toggle, html[data-look="new"] .lx-shelf .more-toggle { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; min-height: 48px; padding: 0 14px; border-top: 1px solid var(--hl); font-weight: 650; font-size: 15px; color: var(--k); background: none; }
+        html[data-look="new"] .lx-shelf .more-toggle { border-top: 0; border-radius: 20px; background: var(--box); border: 1px solid var(--hl); margin-top: 10px; }
+        html[data-look="new"] .lx-group .more-toggle .icon, html[data-look="new"] .lx-shelf .more-toggle .icon { width: 16px; height: 16px; stroke: currentColor; }
+        html[data-look="new"] .lx-group .more-toggle.open .icon, html[data-look="new"] .lx-shelf .more-toggle.open .icon { transform: rotate(180deg); }
+        html[data-look="new"] .lx-ev { display: inline-block; white-space: nowrap; flex: 0 0 auto; font-size: 11.5px; font-weight: 700; padding: 2px 7px; border-radius: 8px; background: var(--pill); border: 1px solid var(--hl); color: var(--l); vertical-align: 1px; }
+        html[data-look="new"] .lx-evrow { display: flex; align-items: flex-start; gap: 8px; margin-top: 12px; }
+        html[data-look="new"] .lx-evrow .lx-ev { margin-top: 1px; }
+        html[data-look="new"] .lx-evrow .lx-small { font-size: 13px; color: var(--l); line-height: 1.45; }
+        html[data-look="new"] .lx-notes { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+        html[data-look="new"] .lx-cmain .lx-notes, html[data-look="new"] .lx-box .lx-notes:last-child { margin-bottom: 0; }
+        html[data-look="new"] .lx-cmain .lx-notes { margin-top: 10px; }
+        html[data-look="new"] .lx-callout { display: flex; gap: 10px; align-items: flex-start; border-radius: 18px; padding: 14px 16px; background: var(--pill); border: 1px solid var(--hl); font-size: 14.5px; line-height: 1.45; color: var(--t); margin-top: 10px; }
+        html[data-look="new"] .lx-callout .icon { color: var(--k); stroke: currentColor; margin-top: 1px; }
+        html[data-look="new"] .lx-textbtn { display: inline-flex; align-items: center; min-height: 40px; color: var(--k); font-weight: 650; font-size: 14.5px; }
+        html[data-look="new"] .lx-empty { padding: 48px 24px; text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center; color: var(--l); }
+        html[data-look="new"] .lx-empty b { color: var(--t); font-size: 17px; }
+        html[data-look="new"] .lx-retry { margin-top: 8px; padding: 0 20px !important; }
+        html[data-look="new"] .lx-loading { min-height: 120px; display: flex; align-items: center; justify-content: center; }
+        html[data-look="new"] .lx-commload { min-height: 260px; background: var(--box); border-radius: 22px; border: 1px solid var(--hl); }
+        html[data-look="new"] .lx-few { display: flex; flex-direction: column; gap: 4px; }
+        html[data-look="new"] .lx-few b { font-size: 15.5px; font-weight: 650; }
+        html[data-look="new"] .lx-few span { font-size: 13.5px; color: var(--l); line-height: 1.4; }
+        html[data-look="new"] .lx-sec { margin: 28px 16px 0; }
+        html[data-look="new"] .lx-sec.lx-tight { margin-top: 18px; }
+        html[data-look="new"] .lx-sec > .lx-h3 { margin-bottom: 12px; }
+
+        /* ---- chips and switches */
+        html[data-look="new"] .lx-chips { display: flex; gap: 8px; overflow-x: auto; padding: 0 16px; margin-top: 14px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        html[data-look="new"] .lx-chips::-webkit-scrollbar { display: none; }
+        html[data-look="new"] .lx-chips.lx-chips-in { padding: 0; margin: 0 0 10px; flex-wrap: wrap; overflow: visible; }
+        html[data-look="new"] .lx-chip { height: 34px; padding: 0 14px !important; border-radius: 17px; display: inline-flex; align-items: center; font-size: 14.5px; font-weight: 600; white-space: nowrap; background: var(--pill) !important; color: var(--t) !important; flex: 0 0 auto; }
+        html[data-look="new"] .lx-chip.on { background: var(--n) !important; color: var(--c) !important; }
+        html[data-look="new"] [data-fam="app"] .lx-chip { background: var(--nl-surface2) !important; color: var(--nl-ink2) !important; }
+        html[data-look="new"][data-theme="light"] [data-fam="app"] .lx-chip { background: var(--nl-surface) !important; box-shadow: var(--nl-shadow); }
+        html[data-look="new"] [data-fam="app"] .lx-chip.on { background: var(--nl-ink) !important; color: var(--nl-page) !important; }
+        html[data-look="new"] .lx-seg { display: flex; gap: 6px; padding: 4px; border-radius: 22px; background: var(--pill); margin-bottom: 10px; }
+        html[data-look="new"] .lx-seg button { flex: 1; height: 36px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 650; color: var(--l); white-space: nowrap; padding: 0 6px; }
+        html[data-look="new"] .lx-seg button.on { background: var(--box); color: var(--t); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12); }
+        html[data-look="new"][data-theme="dark"] .lx-seg button.on { background: color-mix(in srgb, var(--n) 16%, transparent); box-shadow: none; }
+        html[data-look="new"] .lx-seg3 button { font-size: 13.5px; }
+        html[data-look="new"] .lib-switch.lib-three { grid-template-columns: 1fr 1fr 1fr; }
+
+        /* ---- Learn's home */
+        html[data-look="new"] .lx-home { padding-bottom: 8px; }
+        html[data-look="new"] .lx-home > .lx-f:first-child, html[data-look="new"] .lx-home > .lx-folds:first-child { margin-top: 22px; }
+        html[data-look="new"] .lx-shelf { display: grid; gap: 10px; }
+        html[data-look="new"] .lx-shelf > .more-rest:not([hidden]) { display: grid; gap: 10px; }
+        html[data-look="new"] .lx-card { display: block; width: 100%; border-radius: 22px; padding: 16px; background: var(--c); color: var(--t); text-align: left; }
+        html[data-look="new"][data-theme="light"] .lx-card { box-shadow: var(--nl-shadow); }
+        html[data-look="new"] .lx-roaster { display: block; font-family: var(--nl-hand); font-weight: 500; font-size: 16px; color: var(--k); }
+        html[data-look="new"] .lx-cname { display: block; font-family: var(--nl-serif); font-weight: 500; font-size: 26px; line-height: 1.1; letter-spacing: -0.01em; color: var(--n); margin-top: 2px; }
+        html[data-look="new"] .lx-card .lx-tags { margin-top: 10px; }
+        html[data-look="new"] .lx-dec { display: block; margin-top: 10px; font-size: 14.5px; }
+        html[data-look="new"] .lx-doors { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        html[data-look="new"] .lx-door { border-radius: 24px; padding: 16px !important; background: var(--c) !important; color: var(--t); display: flex !important; flex-direction: column; align-items: flex-start; gap: 6px; min-height: 150px; text-align: left; overflow: hidden; }
+        html[data-look="new"][data-theme="light"] .lx-door { box-shadow: var(--nl-shadow) !important; }
+        html[data-look="new"] .lx-door-wide { grid-column: 1 / -1; min-height: 0; padding-bottom: 10px !important; }
+        html[data-look="new"] .lx-dtop { display: flex; justify-content: space-between; align-items: baseline; width: 100%; gap: 8px; }
+        html[data-look="new"] .lx-dn { font-family: var(--nl-serif); font-weight: 500; font-size: 26px; color: var(--n); line-height: 1.05; }
+        html[data-look="new"] .lx-door:not(.lx-door-wide) .lx-dn { margin-top: auto; }
+        html[data-look="new"] .lx-dc { font-size: 13.5px; color: var(--l); }
+        html[data-look="new"] .lx-dic { color: var(--k); display: inline-flex; }
+        html[data-look="new"] .lx-dic .icon { width: 30px; height: 30px; stroke: currentColor; }
+        html[data-look="new"] .lx-dmap { display: block; width: calc(100% + 12px); margin: 6px -6px 0; }
+        html[data-look="new"] .lx-passrow { margin: 18px 16px 0; }
+
+        /* ---- maps */
+        html[data-look="new"] .lx-world { display: block; width: 100%; height: auto; }
+        html[data-look="new"] .lx-world path { fill: color-mix(in srgb, var(--t) 10%, transparent); stroke: none; }
+        html[data-look="new"] .lx-world path.on, html[data-look="new"] .lx-world circle.on { fill: color-mix(in srgb, var(--k) 55%, transparent); }
+        html[data-look="new"] .lx-world path.on2, html[data-look="new"] .lx-world circle.on2 { fill: var(--k); }
+        html[data-look="new"] .lx-world [data-lxc] { cursor: pointer; }
+        html[data-look="new"] .lx-tropic { stroke: color-mix(in srgb, var(--k) 60%, transparent); stroke-width: 1.4; stroke-dasharray: 6 6; }
+        html[data-look="new"] .lx-mapbox { border-radius: 22px; padding: 6px 6px 10px; background: var(--c); }
+        html[data-look="new"] .lx-mapbox .lx-legend { padding: 0 10px; }
+        html[data-look="new"] .lx-legend { display: flex; flex-wrap: wrap; gap: 8px 14px; font-size: 12.5px; color: var(--l); margin-top: 10px; }
+        html[data-look="new"] .lx-legend span, html[data-look="new"] .lx-lgbtn { display: inline-flex; align-items: center; gap: 6px; }
+        html[data-look="new"] .lx-lgbtn { color: var(--l); font-size: 12.5px; text-decoration: underline dotted; text-underline-offset: 3px; min-height: 28px; }
+        html[data-look="new"] .lx-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; flex: 0 0 auto; }
+        html[data-look="new"] .lx-center { justify-content: center; margin-top: 2px; }
+        html[data-look="new"] .lx-vlegend { display: grid; gap: 8px; margin: 0; align-content: start; padding-top: 6px; }
+        html[data-look="new"] i.lx-lg-on, html[data-look="new"] i.lx-lg-l3, html[data-look="new"] i.lx-lg-mn { background: var(--k); }
+        html[data-look="new"] i.lx-lg-l2 { background: color-mix(in srgb, var(--k) 70%, transparent); }
+        html[data-look="new"] i.lx-lg-l1 { background: color-mix(in srgb, var(--k) 45%, transparent); }
+        html[data-look="new"] i.lx-lg-ms { background: color-mix(in srgb, var(--k) 55%, transparent); }
+        html[data-look="new"] i.lx-lg-dot { background: var(--k); border-radius: 50% !important; width: 10px !important; height: 10px !important; }
+        html[data-look="new"] i.lx-lg-dash { background: transparent; border: 1.5px dashed var(--l); }
+        html[data-look="new"] i.lx-lg-tropic { background: transparent; height: 0 !important; width: 14px !important; border-radius: 0 !important; border-top: 1.5px dashed color-mix(in srgb, var(--k) 60%, transparent); }
+        html[data-look="new"] .lx-mapwrap { display: flex; gap: 12px; align-items: flex-start; padding: 12px; }
+        html[data-look="new"] .lx-cmapbox { flex: 0 0 56%; min-width: 0; }
+        html[data-look="new"] .lx-dotmap { flex-direction: column; }
+        html[data-look="new"] .lx-dotmap .lx-cmapbox { flex: none; width: 100%; }
+        html[data-look="new"] .lx-dotmap .lx-vlegend { padding: 0; }
+        html[data-look="new"] .lx-cmap { display: block; width: 100%; height: auto; }
+        html[data-look="new"] .lx-cmap .lx-rest, html[data-look="new"] .lx-cmap .lx-rg { fill: color-mix(in srgb, var(--t) 9%, transparent); stroke: var(--box); stroke-width: 0.8; }
+        html[data-look="new"] .lx-cmap .lx-rg.on { fill: color-mix(in srgb, var(--k) 45%, transparent); }
+        html[data-look="new"] .lx-cmap .lx-rg.on.l2 { fill: color-mix(in srgb, var(--k) 70%, transparent); }
+        html[data-look="new"] .lx-cmap .lx-rg.on.l3 { fill: var(--k); }
+        html[data-look="new"] .lx-cmap .lx-outline { fill: none; stroke: color-mix(in srgb, var(--t) 30%, transparent); stroke-width: 1; }
+        html[data-look="new"] .lx-dotmap .lx-cmap .lx-outline { fill: color-mix(in srgb, var(--t) 9%, transparent); }
+        html[data-look="new"] .lx-mdot circle { fill: var(--k); stroke: var(--box); stroke-width: 1; }
+        html[data-look="new"] .lx-mdot text { font: 600 7.2px var(--font-main, -apple-system, system-ui, sans-serif); fill: var(--t); paint-order: stroke; stroke: var(--box); stroke-width: 2px; stroke-linejoin: round; }
+        /* the process map */
+        html[data-look="new"] .lx-pmapbox { background: var(--box); border: 1px solid var(--hl); border-radius: 22px; padding: 12px 10px 12px; }
+        html[data-look="new"] .lx-pmapbox .lx-note { margin: 6px 6px 0; }
+        html[data-look="new"] .lx-pmap { display: block; width: 100%; height: auto; overflow: visible; }
+        html[data-look="new"] .lx-pgrid line { stroke: var(--hl); stroke-width: 1; }
+        html[data-look="new"] .lx-paxis text { font: 500 10.5px var(--font-main, -apple-system, system-ui, sans-serif); fill: var(--l); }
+        html[data-look="new"] .lx-paxis .lx-pbl, html[data-look="new"] .lx-pdots .lx-pbl { font-weight: 650; }
+        html[data-look="new"] .lx-pdots text { font: 650 11.5px var(--font-main, -apple-system, system-ui, sans-serif); fill: var(--t); }
+        html[data-look="new"] .lx-psoft { fill: var(--t); opacity: 0.5; }
+        html[data-look="new"] .lx-pbase { fill: var(--k); }
+        html[data-look="new"] .lx-pb text { fill: var(--k); }
+        html[data-look="new"] .lx-pband { fill: var(--pill); stroke: var(--hl); }
+        html[data-look="new"] .lx-pon { cursor: pointer; }
+        html[data-look="new"] .lx-pon text { text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--k) 50%, transparent); text-underline-offset: 2px; }
+        html[data-look="new"] .lx-phit { fill: transparent; }
+        html[data-look="new"] .lx-pring { fill: none; stroke: var(--k); stroke-width: 2; }
+        html[data-look="new"] .lx-phl .lx-psoft { fill: var(--k); opacity: 1; }
+
+        /* ---- the family tree */
+        html[data-look="new"] .lx-tree { position: relative; }
+        html[data-look="new"] .lx-tree::before { content: ""; position: absolute; left: 13px; top: 14px; bottom: 30px; width: 2px; background: var(--nl-line); }
+        html[data-look="new"] .lx-tnode { position: relative; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 10px; margin-bottom: 14px; }
+        html[data-look="new"] .lx-tnode:last-child { margin-bottom: 0; }
+        html[data-look="new"] .lx-tdot { width: 28px; height: 28px; border-radius: 50%; background: var(--nl-surface2); border: 2px solid var(--nl-line); position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; }
+        html[data-look="new"] .lx-tfirst { border-color: var(--nl-matcha); }
+        html[data-look="new"] .lx-tspark { background: var(--nl-matcha); border: 0; color: var(--nl-onmatcha); }
+        html[data-look="new"] .lx-tspark .icon { width: 16px; height: 16px; stroke: currentColor; }
+        html[data-look="new"] .lx-stage { border-radius: 22px; padding: 14px; background: var(--box); border: 1px solid var(--hl); min-width: 0; }
+        html[data-look="new"] .lx-stage.lx-tinted { background: var(--c); border-color: transparent; }
+        html[data-look="new"] .lx-stitle { font-family: var(--nl-serif); font-weight: 500; font-size: 22px; letter-spacing: -0.01em; line-height: 1.15; color: var(--n); margin-top: 2px; }
+        html[data-look="new"] .lx-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        html[data-look="new"] .lx-pair .lx-stage { padding: 12px; }
+        html[data-look="new"] .lx-pair .lx-stitle { font-size: 20px; }
+        html[data-look="new"] .lx-pair .lx-p { font-size: 13px; color: var(--l); line-height: 1.45; }
+        html[data-look="new"] .lx-vchips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+        html[data-look="new"] .lx-vchip { height: 30px; gap: 4px !important; }
+        html[data-look="new"] .lx-vchip .icon { width: 13px; height: 13px; stroke: currentColor; stroke-width: 2.4px; }
+        html[data-look="new"] .lx-vchip.lx-link .icon:last-child { width: 12px; height: 12px; opacity: 0.7; }
+        html[data-look="new"] .lx-vchip.lx-mine { box-shadow: inset 0 0 0 2px var(--ffg); }
+        html[data-look="new"] button.lx-vchip { background: var(--fbg) !important; color: var(--ffg) !important; padding: 0 9px 0 10px !important; }
+
+        /* ---- an entry page's parts */
+        html[data-look="new"] .lx-shape { display: block; width: 280px; max-width: 100%; height: auto; margin: 0 auto; }
+        html[data-look="new"] .lx-mbar { display: grid; grid-template-columns: 112px minmax(0, 1fr) 56px; align-items: center; gap: 10px; min-height: 30px; font-size: 14.5px; }
+        html[data-look="new"] .lx-mbar > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        html[data-look="new"] .lx-bar { height: 8px; border-radius: 4px; background: color-mix(in srgb, var(--t) 9%, transparent); overflow: hidden; }
+        html[data-look="new"] .lx-bar i { display: block; height: 100%; border-radius: 4px; background: var(--k); }
+        html[data-look="new"] .lx-num { font-weight: 650; text-align: right; color: var(--l); font-size: 13.5px; white-space: nowrap; }
+        html[data-look="new"] .lx-rate { font-size: 15px; }
+        html[data-look="new"] .lx-rate b { font-size: 20px; }
+        html[data-look="new"] .lx-split { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; font-size: 14.5px; }
+        html[data-look="new"] .lx-split b { font-size: 18px; }
+        html[data-look="new"] .lx-star { color: var(--nl-gold); }
+        html[data-look="new"] .lx-compact { display: flex; gap: 8px; align-items: center; }
+        html[data-look="new"] .lx-compact .lx-shape { width: 150px; flex: 0 0 auto; margin: -12px -8px -12px -14px; }
+        html[data-look="new"] .lx-cmain { flex: 1; min-width: 0; }
+        html[data-look="new"] .lx-steps { padding: 14px 12px; }
+        html[data-look="new"] .lx-stepgrid { display: grid; gap: 6px; text-align: center; }
+        html[data-look="new"] .lx-step { display: flex; flex-direction: column; align-items: center; gap: 7px; font-size: 13px; font-weight: 650; line-height: 1.3; }
+        html[data-look="new"] .lx-stepic { width: 46px; height: 46px; border-radius: 50%; background: var(--pill); border: 1px solid var(--hl); display: flex; align-items: center; justify-content: center; color: var(--k); }
+        html[data-look="new"] .lx-stepic.lx-on { background: var(--n); border-color: transparent; color: var(--c); }
+        html[data-look="new"] .lx-stepic .icon { width: 22px; height: 22px; stroke: currentColor; }
+        html[data-look="new"] .lx-myth b { display: block; font-weight: 650; font-size: 15.5px; }
+        html[data-look="new"] .lx-myth .lx-p { margin: 6px 0 10px; font-size: 14.5px; }
+        html[data-look="new"] .lx-you { display: flex; gap: 14px; align-items: center; }
+        html[data-look="new"] .lx-ymain { flex: 1; min-width: 0; }
+        html[data-look="new"] .lx-ymain .lx-p { font-size: 15.5px; line-height: 1.45; }
+        html[data-look="new"] .lx-stamp { width: 62px; height: 62px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-size: 10.5px; font-weight: 700; line-height: 1.1; border: 2px solid var(--k); color: var(--k); padding: 4px; flex: 0 0 auto; hyphens: manual; -webkit-hyphens: manual; }
+        html[data-look="new"] button.lx-stamp { border: 2px solid var(--k) !important; padding: 4px !important; text-align: center; }
+        html[data-look="new"] button.lx-stamp b { font-size: 13px; margin-top: 2px; }
+        html[data-look="new"] button.lx-stamp.on { background: var(--k) !important; color: var(--c) !important; }
+        html[data-look="new"] .lx-branch { display: grid; gap: 8px; margin-bottom: 12px; }
+        html[data-look="new"] .lx-brow { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 8px; align-items: center; }
+        html[data-look="new"] .lx-brow .lx-flabel { margin: 0; }
+        html[data-look="new"] .lx-calgrid { display: grid; grid-template-columns: 60px minmax(0, 1fr); gap: 4px 8px; align-items: center; }
+        html[data-look="new"] .lx-calarea { font-size: 13.5px; font-weight: 650; }
+        html[data-look="new"] .lx-cal12, html[data-look="new"] .lx-mons { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 3px; }
+        html[data-look="new"] .lx-cal12 i { display: block; height: 22px; border-radius: 5px; background: color-mix(in srgb, var(--t) 8%, transparent); }
+        html[data-look="new"] .lx-cal12 i.ms { background: color-mix(in srgb, var(--k) 55%, transparent); }
+        html[data-look="new"] .lx-cal12 i.mn { background: var(--k); }
+        html[data-look="new"] .lx-mons { font-size: 11px; color: var(--l); text-align: center; margin-bottom: 6px; }
+        html[data-look="new"] .lx-srcs { margin: 0; padding: 0 0 0 20px; font-size: 14px; line-height: 1.4; }
+        html[data-look="new"] .lx-srcs li { margin: 0 0 10px; }
+        html[data-look="new"] .lx-srcs a { color: var(--t); font-weight: 600; text-decoration: underline; text-decoration-color: var(--hl); text-underline-offset: 3px; }
+        html[data-look="new"] .lx-srcs small { display: block; color: var(--l); font-size: 12.5px; margin-top: 1px; }
+        html[data-look="new"] .lx-spot { margin: 28px 16px 0; text-align: center; font-size: 13px; color: var(--l); }
+        html[data-look="new"] .lx-spot button { color: var(--l); text-decoration: underline; text-underline-offset: 3px; min-height: 44px; padding: 0 4px; }
+
+        /* ---- a guide */
+        html[data-look="new"] .lx-bag { border-radius: 22px; background: #EFE6D6; color: #2B231B; padding: 20px 18px 18px; position: relative; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
+        html[data-look="new"] .lx-bagro { font-family: var(--nl-hand); font-size: 15px; font-weight: 600; color: #6B4A2E; padding-right: 64px; }
+        html[data-look="new"] .lx-bagname { font-family: var(--nl-serif); font-size: 34px; line-height: 1.05; margin-top: 6px; padding-right: 64px; }
+        html[data-look="new"] .lx-bagstamp { position: absolute; right: 16px; top: 18px; width: 56px; height: 56px; border-radius: 50%; border: 1.5px dashed #9A7A55; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 700; color: #7A5A35; text-align: center; line-height: 1.1; padding: 4px; }
+        html[data-look="new"] .lx-baglines { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 6px 8px; margin-top: 14px; font-size: 14.5px; align-items: center; }
+        html[data-look="new"] .lx-baglines b { font-weight: 700; }
+        html[data-look="new"] .lx-pin { width: 32px !important; height: 32px; display: inline-flex !important; align-items: center; justify-content: center; }
+        html[data-look="new"] .lx-pinno { width: 24px; height: 24px; border-radius: 50%; background: #2B231B; color: #EFE6D6; font-size: 12.5px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+        html[data-look="new"] .lx-pinno-d { background: var(--n); color: var(--c); }
+        html[data-look="new"] .lx-accrow { border-top: 1px solid var(--hl); }
+        html[data-look="new"] .lx-accrow:first-child { border-top: 0; }
+        html[data-look="new"] .lx-acch { display: flex !important; align-items: center; gap: 12px; width: 100% !important; min-height: 56px; padding: 6px 8px 6px 14px !important; text-align: left; }
+        html[data-look="new"] .lx-acch .lx-fbtn { margin: 0; }
+        html[data-look="new"] .lx-accb { display: none; padding: 0 16px 14px 50px; }
+        html[data-look="new"] .lx-accrow[data-open="1"] .lx-accb { display: block; }
+        html[data-look="new"] .lx-accrow[data-open="1"] .lx-acch .icon { transform: rotate(180deg); }
+        html[data-look="new"] .lx-accb .lx-p { font-size: 14.5px; }
+        html[data-look="new"] .lx-gstep { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-top: 1px solid var(--hl); }
+        html[data-look="new"] .lx-gstep:first-child { border-top: 0; }
+        html[data-look="new"] .lx-gstep .lx-pinno { margin-top: 1px; }
+        html[data-look="new"] .lx-gstep .lx-small2 { margin-top: 4px; }
+        html[data-look="new"] .lx-addbtn { width: 100% !important; margin-top: 12px !important; display: flex !important; align-items: center; justify-content: center; gap: 8px; background: var(--send, var(--nl-matcha)) !important; color: var(--sendfg, var(--nl-onmatcha)) !important; }
+        html[data-look="new"] .lx-addbtn .icon { width: 20px; height: 20px; stroke: currentColor; }
+
+        /* ---- the coffee page: one chip per tag, and About this coffee */
+        html[data-look="new"] .lx-dchips { display: contents; }
+        html[data-look="new"] #detail-view .lx-dchips .lx-tag { min-height: 32px; }
+        html[data-look="new"] #lx-about { margin-top: 18px; order: 3; position: relative; z-index: 2; width: 100%; }
+        html[data-look="new"] #lx-about > .lx-folds, html[data-look="new"] #lx-about > .lx-f { margin: 0; }
+        html[data-look="new"] .lx-crowd { display: flex; gap: 10px; align-items: center; }
+        html[data-look="new"] .lx-crowd .lx-shape { width: 112px; flex: 0 0 auto; margin: -8px -2px -8px -4px; }
+        html[data-look="new"] .lx-crowd b { display: block; font-weight: 650; font-size: 14.5px; }
+        html[data-look="new"] .lx-crowd small { display: block; font-size: 13px; color: var(--l); margin-top: 3px; line-height: 1.4; }
+
+        /* ---- Add a coffee: what the bag's words mean, as you type */
+        html[data-look="new"] .lx-recog { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        html[data-look="new"] .lx-rc { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 4px 10px !important; border-radius: 15px; font-size: 13.5px; font-weight: 600; line-height: 1.2; background: color-mix(in srgb, var(--nl-matcha) 16%, transparent) !important; color: var(--nl-ink) !important; }
+        html[data-look="new"] .lx-rc .icon { width: 15px; height: 15px; color: var(--nl-matcha); stroke: currentColor; }
+        html[data-look="new"] .lx-rc.warn { background: color-mix(in srgb, var(--nl-gold) 16%, transparent) !important; }
+        html[data-look="new"] .lx-rc.warn .icon { color: var(--nl-gold); }
+        html[data-look="new"] .lx-rc.q, html[data-look="new"] .lx-rc.info { background: var(--nl-surface2) !important; color: var(--nl-ink2) !important; }
+        html[data-look="new"] .lx-rc.q .icon { color: var(--nl-muted); }
+        html[data-look="new"] .lx-rcm { color: var(--nl-muted); font-weight: 500; }
+        html[data-look="new"] .lx-badge { display: inline-flex !important; align-items: center; min-height: 30px; padding: 0 12px !important; border-radius: 15px; font-size: 13.5px !important; font-weight: 650; background: var(--nl-surface2) !important; color: var(--nl-ink) !important; border: 1px solid var(--nl-line) !important; }
+        html[data-look="new"] .lx-badge.lx-muted { color: var(--nl-muted) !important; }
+        html[data-look="new"] .lx-badge.lx-use { min-height: 32px; background: var(--nl-matcha) !important; color: var(--nl-onmatcha) !important; border: 0 !important; }
+        html[data-look="new"] .lx-recog-wrap .lx-note { color: var(--nl-muted); }
+        html[data-look="new"] .lx-hint { margin: 6px 0 0 !important; }
+        html[data-look="new"] .lx-friend { display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 10px 12px; border-radius: 16px; background: var(--nl-surface); border: 1px solid var(--nl-line); font-size: 14px; line-height: 1.4; color: var(--nl-ink); }
+        html[data-look="new"] .lx-friend > span { flex: 1; min-width: 0; }
+        html[data-look="new"] .lx-friend > .icon { width: 20px; height: 20px; color: var(--nl-matcha); stroke: currentColor; }
+        html[data-look="new"] #lx-decoded:not(:empty) { margin: 16px 0 4px; }
+        html[data-look="new"] #lx-decoded .lx-boxsec { background: var(--nl-surface); border-color: var(--nl-line); color: var(--nl-ink); --t: var(--nl-ink); --l: var(--nl-muted); --k: var(--nl-matcha); --pill: var(--nl-surface2); --hl: var(--nl-line); --box: var(--nl-surface); }
+        html[data-look="new"] #lx-decoded > .lx-folds { margin: 0; }
+        #bean-modal .lx-recog-wrap:empty, #bean-modal #lx-decoded:empty { display: none; }
+        html:not([data-look="new"]) .lx-recog-wrap, html:not([data-look="new"]) #lx-decoded { display: none; }
+
+        /* ---- the passport (Profile › Taste) */
+        html[data-look="new"] .lx-pass { --t: var(--nl-ink); --l: var(--nl-muted); --k: var(--nl-matcha); --n: var(--nl-ink); --c: var(--nl-surface); --pill: var(--nl-surface2); --hl: var(--nl-line); --box: var(--nl-surface); }
+        html[data-look="new"] .lx-pass > .lx-f, html[data-look="new"] .lx-pass > .lx-folds, html[data-look="new"] .lx-pass > .lx-folds > .lx-f { margin: 0; border: 0; background: none; border-radius: 0; }
+        html[data-look="new"] .lx-pass .lx-f[data-open="0"] > .lx-fh { padding: 0; }
+        html[data-look="new"] .lx-pass .lx-seg { margin: 4px 0 4px; }
+        html[data-look="new"] .lx-pass .cm-svg { margin: 8px -6px 0; width: calc(100% + 12px); }
+        html[data-look="new"] .lx-stamps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 6px; margin-top: 10px; justify-items: center; }
+        html[data-look="new"] .lx-psum { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; }
+        html[data-look="new"] .lx-prog { height: 8px; border-radius: 4px; background: color-mix(in srgb, var(--t) 9%, transparent); overflow: hidden; margin-top: 8px; }
+        html[data-look="new"] .lx-prog i { display: block; height: 100%; border-radius: 4px; background: var(--k); }
+        html[data-look="new"] .lx-plist { margin-top: 12px; }
+        html[data-look="new"] .lx-next { background: var(--pill); margin-top: 8px; }
+        html[data-look="new"] .lx-next .lx-row { color: var(--nl-ink); }
+        html[data-look="new"] .lx-next .lx-thumb { background: var(--c); color: var(--k); }
+        html[data-look="new"] .lx-next .lx-rmain b, html[data-look="new"] .lx-next .lx-rmain small { color: inherit; }
+        html[data-look="new"] .lx-next .lx-rmain small { color: var(--nl-muted); }
+        html[data-look="new"] .lx-pchip { display: inline-flex !important; align-items: center; gap: 3px; cursor: pointer; }
+        html[data-look="new"] .lx-pchip .icon { width: 12px; height: 12px; stroke: currentColor; opacity: 0.7; }
+
+        /* ---- a roaster's Process bar opens its list */
+        html[data-look="new"] .lx-robar { cursor: pointer; border-radius: 12px; }
+        html[data-look="new"] .lx-rolist { margin-top: 8px; background: var(--box, var(--nl-surface)); border: 1px solid var(--hl, var(--nl-line)); border-radius: 16px; overflow: hidden; }
+        html[data-look="new"] .lx-rolist .lx-row:first-child { border-top: 0; }
+        html[data-look="new"] .lx-rolist .icon { width: 16px; height: 16px; stroke: currentColor; }
+        html[data-look="new"][data-theme="light"] .lx-box .nl-nt, html[data-look="new"][data-theme="light"] .lx-stage .nl-nt, html[data-look="new"][data-theme="light"] .lx-card .nl-nt { background: var(--fbg); }
+        html[data-look="new"] .lx-group .more-toggle { border: 0 !important; border-top: 1px solid var(--hl) !important; border-radius: 0 !important; margin: 0 !important; min-height: 48px !important; color: var(--k) !important; font-size: 15px !important; font-weight: 650 !important; }
+        html[data-look="new"] .lx-shelf .more-toggle { margin: 10px 0 0 !important; min-height: 48px !important; color: var(--k) !important; font-size: 15px !important; border-color: var(--hl) !important; border-radius: 20px !important; }

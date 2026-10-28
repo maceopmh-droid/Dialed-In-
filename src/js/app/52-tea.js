@@ -182,6 +182,7 @@
                 this.renderBeanIngredients();
                 this.fillRoasterSuggestions(k);
                 const box = form.querySelector('.cs-list'); if (box) box.hidden = true;
+                if (this.learnFormPaint) this.learnFormPaint();   // (v19.0: a tea's words aren't read)
             },
 
             // ---- a tea's page: its type where the roast goes, harvested where the roast date goes, no sweet spot

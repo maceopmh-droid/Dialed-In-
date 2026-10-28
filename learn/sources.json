@@ -1,0 +1,539 @@
+{
+  "about": "Every source Learn's pages cite. Pages refer to these by id. Facts are written fresh from these; no text is copied.",
+  "sources": {
+    "wcr-caturra": {
+      "title": "Caturra",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/caturra"
+    },
+    "wcr-geisha": {
+      "title": "Geisha (Panama)",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/geisha-panama"
+    },
+    "wcr-sl28": {
+      "title": "SL28",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/sl28"
+    },
+    "wcr-sl34": {
+      "title": "SL34",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/sl34"
+    },
+    "wcr-bourbon": {
+      "title": "Bourbon",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/bourbon"
+    },
+    "wcr-typica": {
+      "title": "Typica",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/typica"
+    },
+    "wcr-mundonovo": {
+      "title": "Mundo Novo",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/mundo-novo"
+    },
+    "wcr-catuai": {
+      "title": "Catuaí",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/catuai"
+    },
+    "wcr-t8667": {
+      "title": "T8667 (Catimor)",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/t8667"
+    },
+    "wcr-batian": {
+      "title": "Batian",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/batian"
+    },
+    "wcr-ruiru11": {
+      "title": "Ruiru 11",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/ruiru-11"
+    },
+    "wcr-conformity": {
+      "title": "Study: widespread lack of genetic conformity for Arabica coffee",
+      "publisher": "World Coffee Research",
+      "year": 2020,
+      "url": "https://worldcoffeeresearch.org/news/2020/study-widespread-lack-of-genetic-conformity-for-arabica-coffee"
+    },
+    "dcn-genetic-2020": {
+      "title": "Genetic testing reveals the true nature of coffee varieties",
+      "publisher": "Daily Coffee News",
+      "year": 2020,
+      "url": "https://dailycoffeenews.com/2020/04/08/genetic-testing-reveals-the-true-nature-of-coffee-varieties"
+    },
+    "gcr-castillo": {
+      "title": "The FNC weighs in on the Castillo vs Caturra debate",
+      "publisher": "Global Coffee Report",
+      "url": "https://www.gcrmag.com/the-fnc-weighs-in-on-the-castillo-vs-caturra-debate"
+    },
+    "dcn-sheridan-2015": {
+      "title": "Genetics, environment or management: what really determines quality?",
+      "publisher": "Daily Coffee News",
+      "year": 2015,
+      "url": "https://dailycoffeenews.com/2015/06/10/genetics-environment-or-management-what-really-determines-quality"
+    },
+    "cafeimports-pink-2023": {
+      "title": "Pink Bourbon's true origin (genetic testing)",
+      "publisher": "Cafe Imports",
+      "year": 2023,
+      "url": "https://www.cafeimports.com/north-america/blog/?p=52997"
+    },
+    "sprudge-2025": {
+      "title": "A Panama Gesha broke price records again",
+      "publisher": "Sprudge",
+      "year": 2025,
+      "url": "https://sprudge.com/a-panama-gesha-broke-price-records-again-390362.html"
+    },
+    "roasterspack-geshavillage": {
+      "title": "Deep dive: Gesha Village",
+      "publisher": "The Roasters Pack",
+      "url": "https://theroasterspack.com/blogs/news/deep-dive-gesha-village"
+    },
+    "coffeehunter-eth": {
+      "title": "Ethiopia's diverse coffee geography",
+      "publisher": "Coffee Hunter (Mercanta)",
+      "url": "https://coffeehunter.com/knowledge-centre/ethiopias-diverse-coffee-geography/"
+    },
+    "scalabrin-2020": {
+      "title": "A single polyploidization event at the origin of the tetraploid genome of Coffea arabica",
+      "publisher": "Scalabrin et al., Scientific Reports",
+      "year": 2020,
+      "url": "https://air.uniud.it/retrieve/e27ce0c7-71a6-055e-e053-6605fe0a7873/s41598-020-61216-7.pdf"
+    },
+    "ub-2024": {
+      "title": "Newly sequenced genome reveals coffee's prehistoric origin story",
+      "publisher": "University at Buffalo",
+      "year": 2024,
+      "url": "https://www.buffalo.edu/news/releases/2024/04/newly-sequenced-genome-reveals-coffees-prehistoric-origin-story.html"
+    },
+    "ozone-sl28": {
+      "title": "Coffee varietal: SL28",
+      "publisher": "Ozone Coffee",
+      "url": "https://ozonecoffee.co.uk/blogs/varietals/coffee-varietal-sl-28"
+    },
+    "rave-sl": {
+      "title": "A short history of SL28 & SL34",
+      "publisher": "Rave Coffee",
+      "url": "https://ravecoffee.co.uk/blogs/news/a-short-history-of-sl-28-sl-34"
+    },
+    "sucafina-kenya": {
+      "title": "Think you know Kenya coffee varieties? Think again",
+      "publisher": "Sucafina",
+      "url": "https://sucafina.com/na/news/think-you-know-kenya-coffee-varieties-think-again"
+    },
+    "gimme": {
+      "title": "Coffee processing: washed, natural, honey, wet-hulled",
+      "publisher": "Gimme! Coffee",
+      "url": "https://gimmecoffee.com/blogs/news/coffee-processing-washed-natural-honey-wet-hulled-whats-the-difference"
+    },
+    "royalny-roast": {
+      "title": "Roasting by process",
+      "publisher": "Royal Coffee New York",
+      "url": "https://www.royalny.com/?p=150273"
+    },
+    "bernardes-2024": {
+      "title": "Microbial ecology and fermentation of Coffea canephora (mini-review)",
+      "publisher": "Bernardes, Coelho, Martins & Schwan, Frontiers in Food Science and Technology",
+      "year": 2024,
+      "url": "https://www.frontiersin.org/articles/10.3389/frfst.2024.1377226/pdf"
+    },
+    "barbosa-2019": {
+      "title": "Sensory quality of Coffea arabica genotypes under two processing methods",
+      "publisher": "Barbosa et al., Crop Breeding and Applied Biotechnology",
+      "year": 2019,
+      "url": "https://www.alice.cnptia.embrapa.br/alice/bitstream/doc/1117854/1/SensoryqualityofcoffeaarabicaL.genotypes.pdf"
+    },
+    "coffeereview-2019": {
+      "title": "Anaerobic fermentation and other palate-bending processing experiments",
+      "publisher": "Coffee Review",
+      "year": 2019,
+      "url": "https://www.coffeereview.com/anaerobic-fermentation-and-other-palate-bending-processing-experiments/"
+    },
+    "coffeereview-2021": {
+      "title": "Anaerobically processed coffees",
+      "publisher": "Coffee Review",
+      "year": 2021,
+      "url": "https://www.coffeereview.com/anaerobically-processed-coffees/"
+    },
+    "coffeereview-honey": {
+      "title": "Honey and pulped natural coffees",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/honey-and-pulped-natural-coffees/"
+    },
+    "clive": {
+      "title": "Your coffee bag can help you be a better barista",
+      "publisher": "Clive Coffee",
+      "url": "https://clivecoffee.com/blogs/learn/your-coffee-bag-can-help-you-be-a-better-barista"
+    },
+    "elhalis-2021": {
+      "title": "Yeast inoculation in washed coffee fermentation",
+      "publisher": "Elhalis et al., Frontiers in Microbiology",
+      "year": 2021,
+      "url": "https://www.frontiersin.org/journals/microbiology/articles/10.3389/fmicb.2021.713969/pdf"
+    },
+    "vale-2024": {
+      "title": "Microbes in a spontaneous wet fermentation of Catuaí",
+      "publisher": "Vale et al., Foods",
+      "year": 2024,
+      "url": "https://mdpi-res.com/d_attachment/foods/foods-13-01871/article_deploy/foods-13-01871.pdf"
+    },
+    "barista-double": {
+      "title": "Understanding the process: double fermentation",
+      "publisher": "Barista Magazine",
+      "url": "https://baristamagazine.com/understanding-the-process-double-fermentation"
+    },
+    "cafeimports-anaerobic": {
+      "title": "Anaerobic fermentation",
+      "publisher": "Cafe Imports",
+      "url": "https://www.cafeimports.com/europe/blog/wp-json/wp/v2/posts/43422"
+    },
+    "rave-cm": {
+      "title": "A short history of carbonic maceration",
+      "publisher": "Rave Coffee",
+      "url": "https://ravecoffee.co.uk/blogs/news/a-short-history-of-carbonic-maceration"
+    },
+    "cafeimports-cr": {
+      "title": "Costa Rica",
+      "publisher": "Cafe Imports",
+      "url": "https://www.cafeimports.com/europe/costa-rica"
+    },
+    "stonex-gr1": {
+      "title": "Yirgacheffe Aricha Gr1 Natural (listing)",
+      "publisher": "StoneX Specialty",
+      "url": "https://specialtycoffee.stonex.com/products/yirgacheffe-aricha-gr1-natural"
+    },
+    "usda-2026": {
+      "title": "Coffee: World Markets and Trade, July 2026",
+      "publisher": "USDA Foreign Agricultural Service",
+      "year": 2026,
+      "url": "https://apps.fas.usda.gov/psdonline/circulars/2026/07/coffee.pdf"
+    },
+    "fnc-2025": {
+      "title": "Management Report 2025",
+      "publisher": "Federación Nacional de Cafeteros de Colombia (FNC)",
+      "year": 2026,
+      "url": "https://federaciondecafeteros.org/wp-content/uploads/2026/07/FNC-Mgmt.-Report-2025.pdf"
+    },
+    "asu-col": {
+      "title": "Colombia coffee growing regions (map)",
+      "publisher": "Arizona State University",
+      "year": 2023,
+      "url": "https://live-sgacms.ws.asu.edu/sites/default/files/2023-10/Colombia%20Map%20FINAL.pdf"
+    },
+    "bh-huila": {
+      "title": "Huila",
+      "publisher": "Barista Hustle",
+      "url": "https://www.baristahustle.com/?p=405990"
+    },
+    "juanvaldez": {
+      "title": "Coffee in the regions",
+      "publisher": "Juan Valdez (FNC)",
+      "url": "https://juanvaldez.com/en/coffee-in-the-regions/"
+    },
+    "achilles-harvest": {
+      "title": "Coffee harvest seasons around the world",
+      "publisher": "Achilles Coffee Roasters",
+      "url": "https://achillescoffeeroasters.com/blogs/specialty-coffee-blog/coffee-harvest-seasons-around-the-world-when-major-origins-pick-process-and-ship-coffee"
+    },
+    "cafeimports-harvest": {
+      "title": "Harvest calendar",
+      "publisher": "Cafe Imports",
+      "url": "https://www.cafeimports.com/europe/harvest"
+    },
+    "dcn-colombia-2025": {
+      "title": "Colombia coffee report: production and prices remain historically high",
+      "publisher": "Daily Coffee News",
+      "year": 2025,
+      "url": "https://dailycoffeenews.com/2025/12/15/colombia-coffee-report-production-and-prices-remain-historically-high"
+    },
+    "achilles-grades": {
+      "title": "Coffee grades explained: SHB, SHG, EP, Kenya AA, Excelso and Supremo",
+      "publisher": "Achilles Coffee Roasters",
+      "url": "https://achillescoffeeroasters.com/blogs/specialty-coffee-blog/coffee-grades-explained-what-shb-shg-ep-kenya-aa-excelso-and-supremo-mean"
+    },
+    "twochimps": {
+      "title": "The grades of coffee",
+      "publisher": "Two Chimps Coffee",
+      "url": "https://twochimpscoffee.com/blogs/the-grades-of-coffee/"
+    },
+    "ineffable-ts": {
+      "title": "Thermal shock coffee",
+      "publisher": "Ineffable Coffee",
+      "url": "https://ineffablecoffee.com/en/blogs/learning-coffee-culture/thermal-shock-coffee"
+    },
+    "sucafina-glossary": {
+      "title": "Glossary",
+      "publisher": "Sucafina",
+      "url": "https://sucafina.com/na/About/glossary"
+    },
+    "sweetmarias-inza": {
+      "title": "Colombia Inzá Río Páez",
+      "publisher": "Sweet Maria's",
+      "url": "https://www.sweetmarias.com/products/colombia-inza-rio-paez-8280"
+    },
+    "sprudge-infused-2023": {
+      "title": "The truth about fruit-infused coffee",
+      "publisher": "Sprudge",
+      "year": 2023,
+      "url": "https://sprudge.com/the-truth-about-fruit-infused-coffee-209246.html"
+    },
+    "pdg-lactic-2023": {
+      "title": "Lactic fermentation and coffee roasters",
+      "publisher": "Perfect Daily Grind",
+      "year": 2023,
+      "url": "https://perfectdailygrind.com/2023/10/lactic-fermentation-coffee-roasters/"
+    },
+    "pdg-koji-2022": {
+      "title": "What is koji-fermented coffee?",
+      "publisher": "Perfect Daily Grind",
+      "year": 2022,
+      "url": "https://perfectdailygrind.com/2022/03/what-is-koji-fermented-coffee/"
+    },
+    "ozone-papayo": {
+      "title": "Coffee varietal: Papayo",
+      "publisher": "Ozone Coffee",
+      "url": "https://ozonecoffee.co.uk/blogs/varietals/coffee-varietal-papayo"
+    },
+    "jcc-colombia": {
+      "title": "7 Arabica varieties cultivated in Colombia",
+      "publisher": "Japanese Coffee Co.",
+      "url": "https://japanesecoffeeco.com/blogs/japanese-coffee-blog/7-different-arabica-varieties-that-are-cultivated-in-colombia"
+    },
+    "wiki-eth": {
+      "title": "Coffee production in Ethiopia",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Coffee_production_in_Ethiopia"
+    },
+    "1zpresso-eth": {
+      "title": "Ethiopian coffee guide",
+      "publisher": "1Zpresso",
+      "url": "https://1zpresso.coffee/jp/ethiopian-coffee-guide/"
+    },
+    "1zpresso-sidama": {
+      "title": "Ethiopia Sidama coffee",
+      "publisher": "1Zpresso",
+      "url": "https://1zpresso.coffee/jp/ethiopia-sidama-coffee/"
+    },
+    "sweetmarias-eth": {
+      "title": "Ethiopia coffee overview",
+      "publisher": "Sweet Maria's",
+      "url": "https://library.sweetmarias.com/coffee-producing-countries/africa/ethiopia-coffee-overview/"
+    },
+    "fbmea-3b": {
+      "title": "Ethiopia coffee export earnings reach record US$3B in 2025/26 fiscal year",
+      "publisher": "Food Business MEA",
+      "year": 2026,
+      "url": "https://www.foodbusinessmea.com/ethiopia-coffee-export-earnings-reach-record-us3b-in-2025-26-fiscal-year/"
+    },
+    "fbmea-rules": {
+      "title": "Ethiopia tightens coffee export rules (ECTA Directive 1106/2025)",
+      "publisher": "Food Business MEA",
+      "year": 2025,
+      "url": "https://www.foodbusinessmea.com/?p=2151267"
+    },
+    "fbmea-eth-usda": {
+      "title": "Ethiopia's coffee production forecast to reach a record 11.6M bags in 2025/26",
+      "publisher": "Food Business MEA (citing USDA)",
+      "year": 2025,
+      "url": "https://www.foodbusinessmea.com/ethiopias-coffee-production-forecast-to-reach-record-11-6m-bags-in-2025-26-amid-reforms-climate-gains/"
+    },
+    "ethiocoffee": {
+      "title": "Ethiopian heirloom coffee varieties and landraces",
+      "publisher": "Ethio Coffee",
+      "url": "https://www.ethiocoffee.co/insights/ethiopian-heirloom-coffee-varieties-landraces"
+    },
+    "roasterspack-heirloom": {
+      "title": "Let's talk about heirloom varietals of Ethiopia",
+      "publisher": "The Roasters Pack",
+      "url": "https://theroasterspack.com/blogs/news/lets-talk-about-heirloom-varietals-of-ethiopia"
+    },
+    "tirfe-2015": {
+      "title": "Quality performance of some early released coffee varieties at three locations in south-west Ethiopia",
+      "publisher": "Tirfe, Kufa & Mohammed, World Journal of Dairy & Food Sciences",
+      "year": 2015,
+      "url": "https://library.sweetmarias.com/wp-content/uploads/2020/08/Quality-Performance-of-Some-Early-Released-Coffee-Varieties-at-Three-Locations-in-South-West-Ethiopia.pdf"
+    },
+    "royal-kenya": {
+      "title": "Kenya green coffee export review",
+      "publisher": "Royal Coffee",
+      "url": "https://royalcoffee.com/kenya-green-coffee-export-review/"
+    },
+    "ozone-auction": {
+      "title": "The Kenya coffee auction",
+      "publisher": "Ozone Coffee",
+      "url": "https://ozonecoffee.co.uk/blogs/articles/kenya-coffee-auction"
+    },
+    "1zpresso-kenya": {
+      "title": "A guide to Kenyan coffee",
+      "publisher": "1Zpresso",
+      "url": "https://1zpresso.coffee/jp/a-guide-to-kenyan-coffee/"
+    },
+    "sweetmarias-kenya": {
+      "title": "Kenya coffee overview",
+      "publisher": "Sweet Maria's",
+      "url": "https://library.sweetmarias.com/coffee-producing-countries/africa/kenya-coffee-overview/"
+    },
+    "fbmea-kenya-2025": {
+      "title": "Kenya coffee exports and the direct settlement dispute",
+      "publisher": "Food Business MEA",
+      "year": 2025,
+      "url": "https://www.foodbusinessmea.com/?p=2154131"
+    },
+    "fbmea-kenya-2026": {
+      "title": "Kenya coffee reform committee's term extended",
+      "publisher": "Food Business MEA",
+      "year": 2026,
+      "url": "https://www.foodbusinessmea.com/?p=2160520"
+    },
+    "worldofcoffee-peru": {
+      "title": "Portrait country: Peru",
+      "publisher": "World of Coffee",
+      "url": "https://worldofcoffee.org/portrait-country-peru"
+    },
+    "bertrand-2012": {
+      "title": "Climatic factors directly impact the volatile organic compound fingerprint in green Arabica coffee bean as well as coffee beverage quality",
+      "publisher": "Bertrand et al., Food Chemistry",
+      "year": 2012,
+      "url": "https://www.documentation.ird.fr/hor/fdi:010057300"
+    },
+    "squaremile": {
+      "title": "Rest is best",
+      "publisher": "Square Mile Coffee Roasters",
+      "year": 2020,
+      "url": "https://squaremileblog.com/2020/06/25/rest-is-best/"
+    },
+    "sca-brewing": {
+      "title": "Towards a new brewing chart",
+      "publisher": "Specialty Coffee Association, 25 Magazine",
+      "url": "https://www.sca.coffee/sca-news/25/issue-13/towards-a-new-brewing-chart"
+    },
+    "coffeereview-roast": {
+      "title": "Roast definitions",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/roast-definitions/"
+    },
+    "pdg-infused-2024": {
+      "title": "Infused coffee and the World Barista Championship",
+      "publisher": "Perfect Daily Grind",
+      "year": 2024,
+      "url": "https://perfectdailygrind.com/2024/09/infused-coffee-world-barista-championship/"
+    },
+    "baristamag-geshavillage": {
+      "title": "Gesha Village brings Ethiopia-grown Gesha",
+      "publisher": "Barista Magazine",
+      "url": "https://baristamagazine.com/gesha-village-brings-ethiopia-grown-gesha"
+    },
+    "royal-density": {
+      "title": "Green coffee analytics, part IV: density",
+      "publisher": "Royal Coffee",
+      "url": "https://royalcoffee.com/green-coffee-analytics-part-iv-density/"
+    },
+    "natural-earth": {
+      "title": "Natural Earth 1:10m cultural vectors (public domain)",
+      "publisher": "Natural Earth",
+      "url": "https://www.naturalearthdata.com/"
+    },
+    "wiki-irgachefe": {
+      "title": "Irgachefe (Yirgacheffe town)",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Irgachefe"
+    },
+    "wiki-irgalem": {
+      "title": "Irgalem (Yirgalem)",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Irgalem"
+    },
+    "wiki-shakiso": {
+      "title": "Shakiso",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Shakiso"
+    },
+    "wiki-bonga": {
+      "title": "Bonga",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Bonga"
+    },
+    "wiki-kerugoya": {
+      "title": "Kerugoya",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Kerugoya"
+    },
+    "wiki-muranga": {
+      "title": "Murang'a",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Murang%27a"
+    },
+    "wiki-kiambu": {
+      "title": "Kiambu",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Kiambu"
+    },
+    "wcr-pacamara": {
+      "title": "Pacamara",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/pacamara",
+      "accessed": "2026-10"
+    },
+    "wcr-java": {
+      "title": "Java",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/java",
+      "accessed": "2026-10"
+    },
+    "frontiers-f1": {
+      "title": "F1 hybrids of Coffea arabica: propagation and breeding (review)",
+      "publisher": "Frontiers in Plant Science",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6240679",
+      "accessed": "2026-10"
+    },
+    "pdg-starmaya-2017": {
+      "title": "Starmaya: could this F1 hybrid be the ideal coffee variety?",
+      "publisher": "Perfect Daily Grind",
+      "url": "https://perfectdailygrind.com/2017/10/starmaya-could-this-f1-hybrid-be-the-ideal-coffee-variety/",
+      "accessed": "2026-10"
+    },
+    "ozone-sidra": {
+      "title": "Sidra coffee: origins, genetics and why it wins championships",
+      "publisher": "Ozone Coffee",
+      "url": "https://ozonecoffee.co.uk/blogs/varietals/sidra-coffee-origins-genetics-why-it-wins-championships",
+      "accessed": "2026-10"
+    },
+    "chica-acosta-2024": {
+      "title": "Chloroplast genomes of Chiroso coffees",
+      "publisher": "Chica-Acosta et al., Journal of Plant Biochemistry and Biotechnology",
+      "url": "https://link.springer.com/article/10.1007/s13562-024-00934-9",
+      "accessed": "2026-10"
+    },
+    "crema-aji": {
+      "title": "La Esperanza Bourbon Ají, Colombia (listing)",
+      "publisher": "Crema Coffee",
+      "url": "https://crema-coffee.com/products/la-esperanza-bourbon-aji-colombia-limited-release",
+      "accessed": "2026-10"
+    },
+    "ozone-geisha": {
+      "title": "Coffee varietal: Geisha",
+      "publisher": "Ozone Coffee",
+      "url": "https://ozonecoffee.co.uk/blogs/varietals/coffee-varietal-geisha",
+      "accessed": "2026-10"
+    },
+    "mcm-bolivia": {
+      "title": "Bolivia",
+      "publisher": "Melbourne Coffee Merchants",
+      "url": "https://melbournecoffeemerchants.com.au/origin/bolivia/",
+      "accessed": "2026-10"
+    },
+    "cafeimports-ecuador": {
+      "title": "Ecuador",
+      "publisher": "Cafe Imports",
+      "url": "https://www.cafeimports.com/europe/ecuador",
+      "accessed": "2026-10"
+    }
+  }
+}

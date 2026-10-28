@@ -17,6 +17,7 @@
             },
 
             subPage() {
+                if (this.learnActive && this.learnActive()) return document.getElementById('learn-view');   // v19.0: Learn's pages sit on top
                 if (this.sessionViewActive && this.sessionViewActive()) return document.getElementById('session-view');   // v17.2
                 if (this.roasterViewActive && this.roasterViewActive()) return document.getElementById('roaster-view');
                 if (this.isDetailActive && this.isDetailActive()) return document.getElementById('detail-view');
@@ -30,6 +31,7 @@
             },
 
             swipeBack() {
+                if (this.learnActive && this.learnActive()) { this.learnBack(); return true; }   // v19.0
                 if (this.sessionViewActive && this.sessionViewActive()) { this.closeSession(true); return true; }   // v17.2
                 if (this.roasterViewActive && this.roasterViewActive()) { this.goBackPage(); return true; }
                 if (this.isDetailActive && this.isDetailActive()) { this.closeDetail(); return true; }
@@ -44,7 +46,7 @@
             },
 
             swipeTabs() {
-                if (this.tab === 'my') return { list: ['mine', 'all'], now: this.coffeeScopeNow(), set: v => this.setCoffeeScope(v) };
+                if (this.tab === 'my') return { list: this.learnOn && this.learnOn() ? ['mine', 'all', 'learn'] : ['mine', 'all'], now: this.coffeeScopeNow(), set: v => this.setCoffeeScope(v) };
                 if (this.tab === 'feed' && this.acctOn && this.acctOn()) return { list: ['following', 'groups', 'discover'], now: this.feedMode(), set: v => this.setFeedMode(v) };
                 return null;
             },

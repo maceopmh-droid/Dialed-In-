@@ -408,6 +408,50 @@
                         check(this.teaBrandStyle(fakeBrand) === 'No type or origin logged yet.' && JSON.stringify(this.teaTypeCounts(fakeBrand)) === '{}', 'a brand with nothing logged says so');
                         check(this.drinkNow() === drink0, 'the Coffees / Teas choice is left as it was');
                     }
+                    // 16. Learn (v19.0)
+                    section = 'learn';
+                    if (typeof LearnEngine !== 'undefined') {
+                        const L = LearnEngine, ids = (k, t) => (L.read({ [k]: t }).variety || []).join('+');
+                        check(ids('variety', 'SL-28') === 'sl28' && ids('variety', 'S.L. 28') === 'sl28' && ids('variety', 'SL28 & SL34') === 'sl28+sl34', 'the recognizer reads SL-28, S.L. 28 and SL28 & SL34');
+                        check(ids('variety', 'Geisha') === 'gesha' && ids('variety', 'Colombia') === 'colombia-var' && ids('variety', 'Pink Bourbon') === 'pink-bourbon' && ids('variety', 'Heirloom') === 'ethiopian-landrace', 'varieties: Geisha, Colombia (the variety), Pink Bourbon, Heirloom');
+                        const o = t => L.read({ origin: t }).origin;
+                        check(o('Colombia').countries.join() === 'COL' && o('Inzá, Colombia').region === 'cauca' && o('Java').countries.join() === 'IDN' && o('Mocha').countries.join() === 'YEM' && o('Colombia & Peru').blend === true, 'origins: countries, regions, islands, Mocha, blends');
+                        const pr = t => L.read({ process: t }).process;
+                        check(pr('Washed, Fermented').base === 'washed' && pr('Washed, Fermented').layers.includes('fermentation') && pr('Anaerobic Natural').layers.includes('anaerobic') && pr('Swiss Water').decaf === 'swiss-water' && !pr('Swiss Water').base && !pr('G1').base, 'processes stack; decaf and grade are never a process');
+                        check(L.read({ process: 'Natual' }).process.base === '' && L.read({ process: 'Natual', learnKeep: { process: 'Natual' } }).processSuggest === null, 'a typo saves nothing until a tap, and Keep as typed stops the question');
+                        check(L.read({ kind: 'tea', teaType: 'Green', variety: 'Gesha' }).variety.length === 0, 'tea mode: the recognizer is off');
+                        check(this.lxPotatoText('tastes like raw potato', []) && this.lxPotatoText('', ['Peas']) && !this.lxPotatoText('no potato at all', []) && !this.lxPotatoText('peach and peanut', []), 'the potato defect is read from words, not from peach or peanut, and not when it says no potato');
+                        const sample = beans.find(b => !this.isTeaBean(b) && b.origin && b.process);
+                        if (sample) {
+                            const dec = L.decode(sample);
+                            check(!dec || (this.lxAboutHtml(sample, []).includes(this.esc(dec)) && this.lxShelfCard({ bean: sample, n: 1, rs: 0, rn: 0, last: 0 }).includes(this.esc(dec))), 'the bag-only decode is the same on the coffee page, Add a coffee and On your shelf');
+                        }
+                        const drinkL = this.drink;
+                        this.drink = 'tea'; check(!this.learnOn() && !this.coffeeScopeHtml().includes('Learn'), 'tea mode hides the Learn tab'); this.drink = drinkL;
+                        // folding remembers, per kind of section, on this phone
+                        const fm = JSON.stringify(this.lxFoldMap()); const div = document.createElement('div');
+                        div.innerHTML = this.lxSecs([{ key: 'selftest.fold', open: true, title: 'Test', body: 'x' }]);
+                        document.body.appendChild(div); this.lxFold(div.querySelector('.lx-fbtn'));
+                        let saved = {}; try { saved = JSON.parse(safeGet('dialed_learn_fold') || '{}'); } catch (e) {}
+                        check(saved['selftest.fold'] === 0 && div.querySelector('[data-lxf]').getAttribute('data-open') === '0' && div.querySelector('.lx-fbtn').getAttribute('aria-expanded') === 'false', 'folding toggles in place and is remembered');
+                        div.remove(); this._lxFold = JSON.parse(fm); safeSet('dialed_learn_fold', fm);
+                        // the passport, L1's passport row and "You and X" give the same counts
+                        const PP = this.lxPassport(this.user);
+                        check(this.lxPassRowHtml().includes(`${PP.countries.size} ${PP.countries.size === 1 ? 'country' : 'countries'}`), 'the passport row counts what the passport counts');
+                        const top = [...PP.countries.values()].sort((a, b) => b.n - a.n)[0];
+                        if (top && this.learnContent() && this.lxEntry('origin', top.k)) { const y = this.lxYouSec(this.lxEntry('origin', top.k)); check(y && y.body.includes(`${top.n} session`), `You and ${top.k} counts the passport's ${top.n} sessions`); }
+                        // every Learn page draws without missing words, and never a grind number (in the New look, Learn's own)
+                        const C = this.learnContent(), lookL = window.__dialedLook ? window.__dialedLook.pref : '';
+                        if (C && window.__dialedLook) window.__dialedLook.set('new');
+                        if (C && this.learnOn()) {
+                            const pages = [['list', 'origins'], ['list', 'varieties'], ['list', 'processes'], ...[...C.entries.values()].map(e => [e.kind, e.kind === 'origin' ? e.country : e.id]), ...C.guideList.map(g => ['guide', g.id])];
+                            pages.forEach(([k, id]) => { const h = safe(`learn page ${k}:${id}`, () => this.lxPageHtml({ kind: k, id, opts: {} }).html) || ''; check(h && !bad(h.replace(/<[^>]+>/g, ' ')), `learn page ${k}:${id} draws without missing words`); check(!/\bgrind(?:\s+(?:setting|size|at|to|on|of))?\s*[:=]?\s*\d/i.test(h.replace(/<[^>]+>/g, ' ')), `learn page ${k}:${id} names no grind`); });
+                            const hh = safe('learn home', () => this.learnHomeHtml('')) || '';
+                            check(hh && !bad(hh.replace(/<[^>]+>/g, ' ')), 'the Learn tab draws without missing words');
+                            check(this.learnPassportHtml(this.user).includes('lx-passport'), 'the passport draws on your profile');
+                        }
+                        if (C && window.__dialedLook && lookL) window.__dialedLook.set(lookL);
+                    }
                     // 15. polish (v11.8)
                     section = 'screens';
                     check(this.coverArt({ roaster: '\u{1F1E8}\u{1F1F2}', name: 'Mystery' }).initials === '\u{1F1E8}\u{1F1F2}' && this.coverArt({ roaster: 'Urbana Roasters' }).initials === 'UR' && this.coverArt({ name: 'x' }).initials === 'X', 'cover tiles: whole flag emoji, letters otherwise');
