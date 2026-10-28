@@ -35,7 +35,7 @@ twice, and every inline script parses.
 | `src/js/app/00-state.js` … `27-settings-equipment-misc.js` | The `app` object, cut into files by feature. These are pieces of one object, so a file on its own isn't valid JavaScript; keep each method whole within one file |
 | `src/js/99-boot.js` | Starts the app |
 | `src/js/07-learn-engine.js` | `LearnEngine` (v19.0): reads a coffee bag's words (variety, origin, process, roast) and says what kind of coffee it is. Pure, no screen code; the app, the tests and `supabase/learn_tags.js` share it |
-| `src/js/app/55-learn.js` … `57-learn-coffee.js`, `src/css/26-learn.css` | Learn (v19.0, the New look only): Coffees › Learn, the Learn pages, the coffee page's tags and About card, Add a coffee's chips, the passport, the coach's first-shot line and potato rule |
+| `src/js/app/55-learn.js` … `57-learn-coffee.js`, `src/css/26-learn.css` | Learn (v19.0, the New look only): Coffees › Learn, the Learn pages, the coffee page's tags and About card, Add a coffee's chips, the passport, the coach's first-shot line and potato rule. v19.1: a kind with no written page opens a short page (`lxShortPage`) when there's something to show: the recognizer's one sourced line (`SAY`/`PSAY`), coffees of that kind on Dialed In, or your own sessions (`lxShortOk`) |
 | `learn/*.json` | Learn's words, outside `index.html` so a fix doesn't need a new app version: `pages.json` (entries, family tree, process map, fresh-crop months), `guides.json`, `sources.json`, `maps.json` (made by `tools/learn_maps.py` from Natural Earth). Every fact lists its sources; bump `manifest.json`'s `version` or `updated` when they change |
 
 Saving, syncing, the outbox and merging all live in `src/js/app/05-sync-and-saving.js`.

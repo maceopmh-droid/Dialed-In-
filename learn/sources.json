@@ -534,6 +534,562 @@
       "publisher": "Cafe Imports",
       "url": "https://www.cafeimports.com/europe/ecuador",
       "accessed": "2026-10"
+    },
+    "cirad-genomics-2024": {
+      "title": "Arabica coffee genomics: results and impact",
+      "publisher": "CIRAD, on Salojärvi et al. 2024, Nature Genetics",
+      "url": "https://www.cirad.fr/en/cirad-news/news/2024/arabica-coffee-genomics",
+      "accessed": "2026-10"
+    },
+    "helsinki-2024": {
+      "title": "Mapping the coffee genome to improve taste and disease resistance",
+      "publisher": "University of Helsinki",
+      "url": "https://www.helsinki.fi/en/news/evolution/mapping-coffee-genome-improve-taste-and-disease-resistance",
+      "accessed": "2026-10"
+    },
+    "ozone-bourbon": {
+      "title": "Bourbon: the coffee varietal behind half your favourite coffees",
+      "publisher": "Ozone Coffee",
+      "url": "https://ozonecoffee.co.uk/blogs/varietals/coffee-varietal-bourbon",
+      "accessed": "2026-10"
+    },
+    "1zpresso-typica": {
+      "title": "Discover Typica coffee: flavor profile, growing challenges, and how it compares to Bourbon",
+      "publisher": "1Zpresso, 2026",
+      "url": "https://1zpresso.coffee/jp/typica-coffee/",
+      "accessed": "2026-10"
+    },
+    "coffeereview-typica": {
+      "title": "Typica – no longer typical",
+      "publisher": "Coffee Review (Miguel Meza), 2009",
+      "url": "https://www.coffeereview.com/?p=163",
+      "accessed": "2026-10"
+    },
+    "wcr-maragogipe": {
+      "title": "Maragogipe",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/maragogipe",
+      "accessed": "2026-10"
+    },
+    "wcr-pacas": {
+      "title": "Pacas",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/pacas",
+      "accessed": "2026-10"
+    },
+    "dinero-pacamara": {
+      "title": "El Salvador highlights its flagship coffee on National Pacamara Day",
+      "publisher": "Diario El Mundo, Dinero, March 2026",
+      "url": "https://dinero.com.sv/en/breaking_news/el-salvador-highlights-its-flagship-coffee-on-national-pacamara-day/",
+      "accessed": "2026-10"
+    },
+    "cheserek-2023": {
+      "title": "Sensory evaluation of coffee varieties across two coffee agro-ecological zones in Kenya",
+      "publisher": "Cheserek et al., KALRO Coffee Research Institute, ASIC 2023 poster",
+      "url": "https://www.alphavisa.com/asic/2023/documents/eposters/S1/S1_Jane_Cheserek.pdf",
+      "accessed": "2026-10"
+    },
+    "cenicafe-2006": {
+      "title": "Características fenotípicas de componentes de Variedad Castillo® en dos ambientes",
+      "publisher": "Cenicafé (Alvarado-Alvarado and Ochoa-Fonseca, 2006)",
+      "url": "https://www.cenicafe.org/es/publications/arc057%2802%29100-121.pdf",
+      "accessed": "2026-10"
+    },
+    "cenicafe-2019": {
+      "title": "Evaluación de progenies F4RC1 de (Caturra x Coffea canephora) x Caturra",
+      "publisher": "Cenicafé (Cortina, 2019)",
+      "url": "https://www.cenicafe.org/es/publications/arc070%2801%29044-064.pdf",
+      "accessed": "2026-10"
+    },
+    "dcn-castillo-2014": {
+      "title": "Castillo vs. Caturra: Who Wins the Steel Cage Match in Colombia?",
+      "publisher": "Daily Coffee News (Michael Sheridan), January 2014",
+      "url": "https://dailycoffeenews.com/2014/01/27/castillo-vs-caturra-who-wins-the-steel-cage-match-in-colombia",
+      "accessed": "2026-10"
+    },
+    "dcn-sensory-2014": {
+      "title": "Marketing Coffee Varieties and Preliminary Feedback from the Colombia Sensory Trial",
+      "publisher": "Daily Coffee News (Michael Sheridan), November 2014",
+      "url": "https://dailycoffeenews.com/2014/11/24/marketing-coffee-varieties-and-preliminary-feedback-from-the-colombia-sensory-trial",
+      "accessed": "2026-10"
+    },
+    "fnc-colombia-var": {
+      "title": "Colombia variety",
+      "publisher": "Federación Nacional de Cafeteros, glossary",
+      "url": "https://santander.federaciondecafeteros.org/glosario/colombia-variety/?lang=en",
+      "accessed": "2026-10"
+    },
+    "sample-colombia": {
+      "title": "V. Colombia",
+      "publisher": "Sample Coffee, varietals",
+      "url": "https://samplecoffee.com.au/coffee/varietals/v-colombia",
+      "accessed": "2026-10"
+    },
+    "sprudge-varietals-2010": {
+      "title": "A User's Guide to Colombian Coffee Varietals",
+      "publisher": "Sprudge, October 2010",
+      "url": "https://sprudge.com/a-users-guide-to-colombian-coffee-varietals-5205.html",
+      "accessed": "2026-10"
+    },
+    "sweetmarias-chiroso": {
+      "title": "Chiroso",
+      "publisher": "Sweet Maria's, coffee glossary",
+      "url": "https://library.sweetmarias.com/glossary/chiroso/",
+      "accessed": "2026-10"
+    },
+    "sey-chiroso": {
+      "title": "Gustavo & Adriana, Chiroso",
+      "publisher": "Sey Coffee",
+      "url": "https://www.seycoffee.com/products/gustavo-adriana-chiroso",
+      "accessed": "2026-10"
+    },
+    "gcr-bop-2024": {
+      "title": "Best of Panama auction achieves record-breaking lot price",
+      "publisher": "Global Coffee Report, August 2024",
+      "url": "https://www.gcrmag.com/best-of-panama-auction-achieves-record-breaking-lot-price",
+      "accessed": "2026-10"
+    },
+    "sprudge-pink-2023": {
+      "title": "One Lie And A Truth: Pink Bourbon's True Origin",
+      "publisher": "Sprudge, September 2023",
+      "url": "https://sprudge.com/one-lie-and-a-truth-pink-bourbons-true-origin-216268.html",
+      "accessed": "2026-10"
+    },
+    "intelligentsia-pink": {
+      "title": "Colombia Pink Bourbon",
+      "publisher": "Intelligentsia",
+      "url": "https://www.intelligentsia.com/blogs/stories/colombia-pink-bourbon",
+      "accessed": "2026-10"
+    },
+    "atumo-2026": {
+      "title": "Ethiopia Coffee Variety Development for Modern Coffee Production (Review)",
+      "publisher": "World Journal of Agricultural Science and Technology (Atumo, 2026)",
+      "url": "https://sciencepublishinggroup.com/article/10.11648/j.wjast.20260403.13",
+      "accessed": "2026-10"
+    },
+    "ozone-anaerobic": {
+      "title": "Anaerobic fermentation explained",
+      "publisher": "Ozone Coffee",
+      "url": "https://ozonecoffee.co.uk/blogs/coffee-processing-explained/anaerobic-fermentation",
+      "accessed": "2026-10"
+    },
+    "coffeereview-kdc": {
+      "title": "Kenneth Davids Cup: categories and rules",
+      "publisher": "Coffee Review",
+      "year": 2026,
+      "url": "https://www.coffeereview.com/kenneth-davids-cup/",
+      "accessed": "2026-10"
+    },
+    "coffeereview-cofermenting-2024": {
+      "title": "The coffee and fruit co-fermenting debate",
+      "publisher": "Coffee Review (Kenneth Davids)",
+      "year": 2024,
+      "url": "https://www.coffeereview.com/commenting-on-the-coffee-and-fruit-co-fermenting-debate/",
+      "accessed": "2026-10"
+    },
+    "royal-additive-2025": {
+      "title": "Additive fermentation: “infused” coffee is gaining popularity and sparking industry debate",
+      "publisher": "Royal Coffee (Chris Kornman)",
+      "year": 2025,
+      "url": "https://royalcoffee.com/co-fermented-coffee-processing-trends-and-controversy/",
+      "accessed": "2026-10"
+    },
+    "pdg-infused-2025": {
+      "title": "Infused coffees are diversifying, but should roasters embrace them all?",
+      "publisher": "Perfect Daily Grind",
+      "year": 2025,
+      "url": "https://perfectdailygrind.com/2025/05/infused-coffees-natural-vs-artificial-flavourings/",
+      "accessed": "2026-10"
+    },
+    "cafeimports-wethulled": {
+      "title": "Wet-hulled (aka semi-washed, Sumatra process, giling basah)",
+      "publisher": "Cafe Imports",
+      "url": "https://www.cafeimports.com/europe/blog/?p=37563",
+      "accessed": "2026-10"
+    },
+    "sweetmarias-gilingbasah": {
+      "title": "Why should you know giling basah",
+      "publisher": "Sweet Maria's Coffee Library",
+      "url": "https://library.sweetmarias.com/why-should-you-know-giling-basah/",
+      "accessed": "2026-10"
+    },
+    "beanscene-ona-cm": {
+      "title": "Ona Coffee releases WBC-winning CM selections tasting flight",
+      "publisher": "BeanScene",
+      "url": "https://www.beanscenemag.com.au/ona-coffee-releases-wbc-winning-cm-selections-tasting-flight/",
+      "accessed": "2026-10"
+    },
+    "blackwhite-maguta": {
+      "title": "Maguta – CM Jasper",
+      "publisher": "Black & White Coffee Roasters",
+      "url": "https://blackwhiteroasters.com/products/r-maguta-cm-jasper",
+      "accessed": "2026-10"
+    },
+    "brazilianfarmers-gi": {
+      "title": "12 Brazilian coffee Geographical Indications you should know about",
+      "publisher": "Brazilian Farmers",
+      "url": "https://brazilianfarmers.com/news/12-brazilian-coffee-geographical-indications-you-should-know-about/",
+      "accessed": "2026-10"
+    },
+    "samplecoffee-mg": {
+      "title": "Minas Gerais",
+      "publisher": "Sample Coffee, coffee atlas",
+      "url": "https://samplecoffee.com.au/coffee/countries/brasil/regions/minas-gerais",
+      "accessed": "2026-10"
+    },
+    "datamar-conab-2026": {
+      "title": "Conab Sees Record Coffee Harvest in 2026, Up 17.1%",
+      "publisher": "Datamar News",
+      "url": "https://datamarnews.com/noticias/conab-sees-record-coffee-harvest-in-2026-up-17-1/",
+      "accessed": "2026-10"
+    },
+    "dcn-tariffs-2025": {
+      "title": "Trump Order Eliminates All Tariffs on Brazilian Coffee",
+      "publisher": "Daily Coffee News",
+      "url": "https://dailycoffeenews.com/2025/11/21/trump-order-eliminates-all-tariffs-on-brazilian-coffee/",
+      "accessed": "2026-10"
+    },
+    "sucafina-brazil-2021": {
+      "title": "New varieties in Brazil",
+      "publisher": "Sucafina",
+      "url": "https://sucafina.com/na/news/new-varieties-in-brazil",
+      "accessed": "2026-10"
+    },
+    "coffeeness-mx": {
+      "title": "Mexico Coffee: From Overlooked to Outstanding",
+      "publisher": "Coffeeness",
+      "url": "https://www.coffeeness.de/en/mexico-coffee/",
+      "accessed": "2026-10"
+    },
+    "sweetmarias-mx": {
+      "title": "Mexico coffee overview",
+      "publisher": "Sweet Maria's Coffee Library",
+      "url": "https://library.sweetmarias.com/coffee-producing-countries/central-america/mexico-coffee-overview/",
+      "accessed": "2026-10"
+    },
+    "wcr-oroazteca": {
+      "title": "Oro Azteca",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/oro-azteca",
+      "accessed": "2026-10"
+    },
+    "pdg-nic-2021": {
+      "title": "A guide to coffee production in Nicaragua",
+      "publisher": "Perfect Daily Grind",
+      "url": "https://perfectdailygrind.com/2021/02/a-guide-to-coffee-production-in-nicaragua/",
+      "accessed": "2026-10"
+    },
+    "wiki-nic": {
+      "title": "Coffee production in Nicaragua",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Coffee_production_in_Nicaragua",
+      "accessed": "2026-10"
+    },
+    "wcr-marsellesa": {
+      "title": "Marsellesa",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/marsellesa",
+      "accessed": "2026-10"
+    },
+    "wcr-starmaya": {
+      "title": "Starmaya",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/starmaya",
+      "accessed": "2026-10"
+    },
+    "wcr-coe-2017": {
+      "title": "New coffee variety scores 90 points in Nicaragua Cup of Excellence competition",
+      "publisher": "World Coffee Research",
+      "url": "https://worldcoffeeresearch.org/news/new-coffee-variety-scores-90-points-nicaragua-cup-excellence-competition/",
+      "accessed": "2026-10"
+    },
+    "pdg-hnd-2017": {
+      "title": "Introducing the 6 coffee regions of Honduras",
+      "publisher": "Perfect Daily Grind",
+      "url": "https://perfectdailygrind.com/2017/08/introducing-the-6-coffee-regions-of-honduras/",
+      "accessed": "2026-10"
+    },
+    "coffeeness-hnd": {
+      "title": "Honduras Coffee: A Full Guide to Honduran Coffee Beans",
+      "publisher": "Coffeeness",
+      "url": "https://www.coffeeness.de/en/honduras-coffee/",
+      "accessed": "2026-10"
+    },
+    "ace-hnd-2026": {
+      "title": "Honduras 2026",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/honduras-2026/",
+      "accessed": "2026-10"
+    },
+    "wcr-parainema": {
+      "title": "Parainema",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/parainema",
+      "accessed": "2026-10"
+    },
+    "1zpresso-gtm": {
+      "title": "Guatemalan coffee guide",
+      "publisher": "1Zpresso",
+      "url": "https://1zpresso.coffee/jp/guatemalan-coffee-guide/",
+      "accessed": "2026-10"
+    },
+    "pdg-gtm-2016": {
+      "title": "Barista guide: the 8 different coffee regions of Guatemala",
+      "publisher": "Perfect Daily Grind, 2016",
+      "url": "https://perfectdailygrind.com/2016/02/barista-guide-8-different-coffee-regions-of-guatemala/",
+      "accessed": "2026-10"
+    },
+    "cafeimports-gtm": {
+      "title": "Origins: Guatemala",
+      "publisher": "Cafe Imports",
+      "url": "https://www.cafeimports.com/europe/guatemala",
+      "accessed": "2026-10"
+    },
+    "bh-gtm": {
+      "title": "The coffee buyer’s guide to Guatemala",
+      "publisher": "Barista Hustle",
+      "url": "https://www.baristahustle.com/?p=326157",
+      "accessed": "2026-10"
+    },
+    "wiki-fraijanes": {
+      "title": "Fraijanes",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Fraijanes",
+      "accessed": "2026-10"
+    },
+    "wiki-acatenango": {
+      "title": "Acatenango, Chimaltenango",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Acatenango,_Chimaltenango",
+      "accessed": "2026-10"
+    },
+    "wiki-santiago-atitlan": {
+      "title": "Santiago Atitlán",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Santiago_Atitl%C3%A1n",
+      "accessed": "2026-10"
+    },
+    "wiki-cri": {
+      "title": "Coffee production in Costa Rica",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Coffee_production_in_Costa_Rica",
+      "accessed": "2026-10"
+    },
+    "royalny-cr": {
+      "title": "Costa Rica origin profile (data for 2019/20)",
+      "publisher": "Royal Coffee New York",
+      "url": "https://www.royalny.com/?p=41842",
+      "accessed": "2026-10"
+    },
+    "1zpresso-cr": {
+      "title": "Costa Rican coffee",
+      "publisher": "1Zpresso",
+      "url": "https://1zpresso.coffee/jp/costa-rican-coffee/",
+      "accessed": "2026-10"
+    },
+    "cafebritt-cr": {
+      "title": "8 Costa Rican coffee regions",
+      "publisher": "Café Britt",
+      "url": "https://www.cafebritt.com/blogs/journey-to-origin/8-costa-rican-coffee-regions",
+      "accessed": "2026-10"
+    },
+    "waytocoffee-naranjo": {
+      "title": "Costa Rica West Valley Naranjo",
+      "publisher": "The Way to Coffee",
+      "url": "https://www.thewaytocoffee.com/beans/costa-rica-west-valley-narajo-espresso",
+      "accessed": "2026-10"
+    },
+    "wcr-villa-sarchi": {
+      "title": "Villa Sarchi",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/villa-sarchi",
+      "accessed": "2026-10"
+    },
+    "wiki-sanmarcos-cr": {
+      "title": "San Marcos, Costa Rica",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/San_Marcos,_Costa_Rica",
+      "accessed": "2026-10"
+    },
+    "wiki-naranjo": {
+      "title": "Naranjo de Alajuela",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Naranjo_de_Alajuela",
+      "accessed": "2026-10"
+    },
+    "wiki-tresrios": {
+      "title": "Tres Ríos, Cartago",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Tres_R%C3%ADos,_Cartago",
+      "accessed": "2026-10"
+    },
+    "wiki-orosi": {
+      "title": "Orosi, Cartago",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Orosi,_Cartago",
+      "accessed": "2026-10"
+    },
+    "wiki-turrialba": {
+      "title": "Turrialba (district)",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Turrialba_(district)",
+      "accessed": "2026-10"
+    },
+    "wiki-sanisidro": {
+      "title": "San Isidro de El General",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/San_Isidro_de_El_General",
+      "accessed": "2026-10"
+    },
+    "wiki-quesada": {
+      "title": "Quesada, San Carlos",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Quesada,_San_Carlos",
+      "accessed": "2026-10"
+    },
+    "sucafina-panama": {
+      "title": "Panama",
+      "publisher": "Sucafina, origins",
+      "url": "https://sucafina.com/na/origins/panama",
+      "accessed": "2026-10"
+    },
+    "coffeeness-panama": {
+      "title": "Panama coffee: the world’s most expensive beans explored",
+      "publisher": "Coffeeness",
+      "url": "https://www.coffeeness.de/en/panama-coffee/",
+      "accessed": "2026-10"
+    },
+    "laestrella-bop-2026": {
+      "title": "Best of Panama: café geisha panameño alcanza $18,004 por kilo en subasta mundial",
+      "publisher": "La Estrella de Panamá, Sep 24, 2026",
+      "url": "https://www.laestrella.com.pa/economia/best-of-panama-cafe-geisha-panameno-alcanza-18004-por-kilo-en-subasta-mundial-CI25968390",
+      "accessed": "2026-10"
+    },
+    "casasolution-2026": {
+      "title": "Boquete Geisha sets a record average price of $5,745 per kilo at the 2026 Esmeralda auction",
+      "publisher": "Casa Solution, Aug 28, 2026",
+      "url": "https://casasolution.com/boquete-geisha-sets-a-record-average-price-of-5745-per-kilo-at-the-2026-esmeralda-auction/",
+      "accessed": "2026-10"
+    },
+    "wiki-boquete": {
+      "title": "Boquete, Chiriquí",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Boquete,_Chiriqu%C3%AD",
+      "accessed": "2026-10"
+    },
+    "wiki-volcan-pa": {
+      "title": "Volcán, Panama",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Volc%C3%A1n,_Panama",
+      "accessed": "2026-10"
+    },
+    "wiki-rio-sereno": {
+      "title": "Río Sereno",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/R%C3%ADo_Sereno",
+      "accessed": "2026-10"
+    },
+    "mcm-rwanda": {
+      "title": "Rwanda",
+      "publisher": "Melbourne Coffee Merchants, origins",
+      "url": "https://melbournecoffeemerchants.com.au/origin/rwanda/",
+      "accessed": "2026-10"
+    },
+    "mcm-kivubelt": {
+      "title": "Kivu Belt, Nyamasheke",
+      "publisher": "Melbourne Coffee Merchants",
+      "url": "https://melbournecoffeemerchants.com.au/?p=1909",
+      "accessed": "2026-10"
+    },
+    "visitrwanda-coffee": {
+      "title": "Coffee",
+      "publisher": "Visit Rwanda (Rwanda Development Board)",
+      "url": "https://www.visitrwanda.com/interests/coffee/",
+      "accessed": "2026-10"
+    },
+    "naeb-2025": {
+      "title": "Rwanda coffee export revenues hit record $150m in 2025",
+      "publisher": "NAEB (National Agricultural Export Development Board)",
+      "url": "https://www.naeb.gov.rw/publications/news/rwanda-coffee-export-revenues-hit-record-150m-in-2025",
+      "accessed": "2026-10"
+    },
+    "newtimes-rwa-2026": {
+      "title": "Belgium, US, China top buyers as Rwanda coffee revenues surge",
+      "publisher": "The New Times, Jan 10, 2026",
+      "url": "https://www.newtimes.co.rw/article/32514/news/economy/belgium-us-china-top-buyers-as-rwanda-coffee-revenues-surge/amp",
+      "accessed": "2026-10"
+    },
+    "wcr-ptd-2023": {
+      "title": "Potato taste defect: impacts of the Antestia bug and overview of mitigation efforts",
+      "publisher": "World Coffee Research, 2023",
+      "url": "https://worldcoffeeresearch.org/download/a2a841cb-658e-4020-b70d-c38d3bc3f0c3",
+      "accessed": "2026-10"
+    },
+    "pdg-ptd-2021": {
+      "title": "What is potato taste defect, and how can coffee producers stop it?",
+      "publisher": "Perfect Daily Grind, 2021",
+      "url": "https://perfectdailygrind.com/2021/07/what-is-potato-taste-defect-how-can-coffee-producers-stop-it/",
+      "accessed": "2026-10"
+    },
+    "wcr-mibirizi": {
+      "title": "Mibirizi",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/mibirizi",
+      "accessed": "2026-10"
+    },
+    "samplecoffee-jackson": {
+      "title": "Jackson",
+      "publisher": "Sample Coffee, varietals",
+      "url": "https://samplecoffee.com.au/coffee/varietals/jackson",
+      "accessed": "2026-10"
+    },
+    "sweetmarias-rwa-newcrop": {
+      "title": "An overview of new crop Rwandas",
+      "publisher": "Sweet Maria’s",
+      "url": "https://library.sweetmarias.com/an-overview-of-new-crop-rwandas/",
+      "accessed": "2026-10"
+    },
+    "wiki-nyamasheke": {
+      "title": "Nyamasheke District",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Nyamasheke_District",
+      "accessed": "2026-10"
+    },
+    "latlong-nyamasheke": {
+      "title": "Nyamasheke, Rwanda",
+      "publisher": "LatLong.net",
+      "url": "https://www.latlong.net/place/nyamasheke-rwanda-15157.html",
+      "accessed": "2026-10"
+    },
+    "wiki-kibuye": {
+      "title": "Kibuye, Rwanda",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Kibuye,_Rwanda",
+      "accessed": "2026-10"
+    },
+    "wiki-butare": {
+      "title": "Butare",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Butare",
+      "accessed": "2026-10"
+    },
+    "wiki-busengo": {
+      "title": "Busengo, Rwanda",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Busengo,_Rwanda",
+      "accessed": "2026-10"
+    },
+    "wiki-tare": {
+      "title": "Tare, Rwanda",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Tare,_Rwanda",
+      "accessed": "2026-10"
+    },
+    "wcr-tekisic": {
+      "title": "Tekisic",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/tekisic",
+      "accessed": "2026-10"
     }
   }
 }

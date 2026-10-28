@@ -1,27 +1,51 @@
 {
- "version": 1,
- "updated": "2026-10-28",
- "files": [
-  "sources.json",
-  "pages.json",
-  "guides.json",
-  "maps.json"
- ],
- "pages": [
-  "variety:caturra",
-  "variety:gesha",
-  "variety:sl28",
-  "process:washed",
-  "process:natural",
-  "process:honey",
-  "origin:COL",
-  "origin:ETH",
-  "origin:KEN",
-  "origin:PER"
- ],
- "guides": [
-  "cherry-to-cup",
-  "read-a-bag",
-  "washed-vs-natural"
- ]
+  "version": 3,
+  "updated": "2026-10-28",
+  "files": [
+    "sources.json",
+    "pages.json",
+    "guides.json",
+    "maps.json"
+  ],
+  "pages": [
+    "variety:caturra",
+    "variety:gesha",
+    "variety:sl28",
+    "process:washed",
+    "process:natural",
+    "process:honey",
+    "origin:COL",
+    "origin:ETH",
+    "origin:KEN",
+    "origin:PER",
+    "variety:bourbon",
+    "variety:typica",
+    "variety:sl34",
+    "variety:pacamara",
+    "variety:batian",
+    "variety:castillo",
+    "variety:colombia-var",
+    "variety:chiroso",
+    "variety:pink-bourbon",
+    "variety:ethiopian-landrace",
+    "process:anaerobic",
+    "process:extended",
+    "process:carbonic",
+    "process:lactic",
+    "process:co-ferment",
+    "process:wet-hulled",
+    "origin:BRA",
+    "origin:MEX",
+    "origin:NIC",
+    "origin:HND",
+    "origin:GTM",
+    "origin:CRI",
+    "origin:PAN",
+    "origin:RWA"
+  ],
+  "guides": [
+    "cherry-to-cup",
+    "read-a-bag",
+    "washed-vs-natural"
+  ]
 }

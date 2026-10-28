@@ -445,6 +445,11 @@
                         if (C && window.__dialedLook) window.__dialedLook.set('new');
                         if (C && this.learnOn()) {
                             const pages = [['list', 'origins'], ['list', 'varieties'], ['list', 'processes'], ...[...C.entries.values()].map(e => [e.kind, e.kind === 'origin' ? e.country : e.id]), ...C.guideList.map(g => ['guide', g.id])];
+                            // v19.1: short pages too (kinds you've logged, and the recognizer's sourced lines, with no written page)
+                            const shortK = [...new Set([...this.lxMine(this.user).kinds.keys(), ...Object.keys(LearnEngine.SAY).map(id => `variety:${id}`), ...Object.keys(LearnEngine.PSAY).map(id => `process:${id}`)])].map(x => x.split(':')).filter(([k, id]) => !this.lxEntry(k, id) && this.lxShortOk(k, id)).slice(0, 40);
+                            pages.push(...shortK);
+                            check(shortK.every(([k, id]) => this.lxHasPage(k, id)), `short pages open (${shortK.length})`);
+                            if (!this.lxMine(this.user).kinds.has('variety:arara') && !((this.lxState().ov || {})['variety:arara'])) check(!this.lxHasPage('variety', 'arara'), 'a kind with nothing to show stays a plain chip');
                             pages.forEach(([k, id]) => { const h = safe(`learn page ${k}:${id}`, () => this.lxPageHtml({ kind: k, id, opts: {} }).html) || ''; check(h && !bad(h.replace(/<[^>]+>/g, ' ')), `learn page ${k}:${id} draws without missing words`); check(!/\bgrind(?:\s+(?:setting|size|at|to|on|of))?\s*[:=]?\s*\d/i.test(h.replace(/<[^>]+>/g, ' ')), `learn page ${k}:${id} names no grind`); });
                             const hh = safe('learn home', () => this.learnHomeHtml('')) || '';
                             check(hh && !bad(hh.replace(/<[^>]+>/g, ' ')), 'the Learn tab draws without missing words');

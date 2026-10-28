@@ -241,7 +241,7 @@
         html[data-look="new"] button.lx-vchip { background: var(--fbg) !important; color: var(--ffg) !important; padding: 0 9px 0 10px !important; }
 
         /* ---- an entry page's parts */
-        html[data-look="new"] .lx-shape { display: block; width: 280px; max-width: 100%; height: auto; margin: 0 auto; }
+        html[data-look="new"] .lx-shape { display: block; width: 300px; max-width: 100%; height: auto; margin: 0 auto; }
         html[data-look="new"] .lx-mbar { display: grid; grid-template-columns: 112px minmax(0, 1fr) 56px; align-items: center; gap: 10px; min-height: 30px; font-size: 14.5px; }
         html[data-look="new"] .lx-mbar > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         html[data-look="new"] .lx-bar { height: 8px; border-radius: 4px; background: color-mix(in srgb, var(--t) 9%, transparent); overflow: hidden; }
