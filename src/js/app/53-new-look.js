@@ -880,6 +880,7 @@
                     if (hero.classList) hero.classList.remove('nl-has-photo');
                     ['d-origin', 'd-process', 'd-roast'].forEach(id => { const el = document.getElementById(id); if (el && el.hidden && String(el.textContent || '').trim() === '-') el.hidden = false; });
                     if (view.querySelector('.nl-navbar')) this.nlNavBars();   // (the bar goes back into the hero)
+                    if (this.learnDecorateDetail) this.learnDecorateDetail(null, []);   // (v19.0: the classic look keeps its plain tags)
                     return;
                 }
                 const bean = group.meta, fam = this.famOfCoffee(bean);
@@ -897,6 +898,7 @@
                 const notes = this.lookTopNotes(this.detailBrews || brews || [], 3);
                 const top = document.getElementById('d-top-flavors');
                 if (top) top.innerHTML = notes.map(([n, s, k]) => this.nlNote(n, s, k, 'lg')).join('');
+                if (this.learnDecorateDetail) this.learnDecorateDetail(group, this.detailAllBrews || brews || []);   // v19.0: tags that open Learn; About this coffee
                 this.nlFillShapes(view);
                 this.nlNavBars();
             },

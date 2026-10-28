@@ -43,7 +43,7 @@
                 const cards = section === 'sessions' ? [who === this.user && this.renderShotDraftsCard ? this.renderShotDraftsCard() : '', this.profileSessionsHtml(who)]   // v16.9: shots waiting from your espresso machine first
 
                     : section === 'taste'
-                    ? [this.renderPalateCard(who), this.renderCoffeeMapCard ? this.renderCoffeeMapCard(who) : '', who === this.user ? this.renderFriendPalates() : '', this.renderMatchesCard(who), this.renderWantCard(who)]
+                    ? [this.renderPalateCard(who), this.learnOn && this.learnOn() && this.learnPassportHtml ? this.learnPassportHtml(who) : this.renderCoffeeMapCard ? this.renderCoffeeMapCard(who) : '', who === this.user ? this.renderFriendPalates() : '', this.renderMatchesCard(who), this.renderWantCard(who)]   // v19.0: the passport replaces the coffee map (the tea map stays)
                     : section === 'activity'
                         ? [who === this.user && this.circlePickerHtml ? this.circlePickerHtml() : '', this.moreHubHtml(who)]   // v15.1: More, a list like Strava's (achievements, awards, recaps)
                         : [who === this.user && this.renderGoalsCard ? this.renderGoalsCard() : '', this.renderFabFour(who), this.profileCoffeesHtml(who), this.renderCalendarCard(who), who !== this.user ? this.renderGearCard(who) : ''];   // v14.6: your goals first (v15.1: the calendar here; achievements in More)
@@ -202,7 +202,7 @@
 
             renderPalateCard(user) {
                 const p = this.palateFor(user);
-                const chips = (label, items) => (items.length ? `<div class="palate-group"><span class="palate-key">${label}</span>${items.map(i => label === 'Notes' ? this.famChip(i.label) : `<span class="flavor-mini">${this.esc(i.label)}</span>`).join('')}</div>` : '');
+                const chips = (label, items) => (items.length ? `<div class="palate-group"><span class="palate-key">${label}</span>${items.map(i => label === 'Notes' ? this.famChip(i.label) : p.kind !== 'tea' && ['Origins', 'Process', 'Variety'].includes(label) && this.lxPalateChip ? this.lxPalateChip(label, i.label) : `<span class="flavor-mini">${this.esc(i.label)}</span>`).join('')}</div>` : '');   // (v19.0: origins, processes and varieties open Learn)
                 const groups = p && p.count >= 3
                     ? [chips('Notes', p.notes), chips('Origins', p.origins), chips(p.kind === 'tea' ? 'Processing' : 'Process', p.processes), chips(p.kind === 'tea' ? 'Type' : 'Roast', p.roasts), chips(p.kind === 'tea' ? 'Cultivar' : 'Variety', p.varieties), chips('Methods', p.methods)].join('')
                     : '';

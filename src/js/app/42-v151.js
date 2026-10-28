@@ -354,11 +354,15 @@
             },
 
             // ---- v15.1: the Coffees tab holds yours (Mine) and everyone's you can see (All); it remembers which
-            coffeeScopeNow() { if (!this.coffeeScope) this.coffeeScope = safeGet('dialed_coffee_scope') === 'all' ? 'all' : 'mine'; return this.coffeeScope; },
-            setCoffeeScope(v) { this.coffeeScope = v === 'all' ? 'all' : 'mine'; safeSet('dialed_coffee_scope', this.coffeeScope); this.render(); window.scrollTo(0, 0); },
+            coffeeScopeNow() {
+                if (!this.coffeeScope) { const v = safeGet('dialed_coffee_scope'); this.coffeeScope = v === 'all' || v === 'learn' ? v : 'mine'; }
+                return this.coffeeScope === 'learn' && !(this.learnOn && this.learnOn()) ? 'mine' : this.coffeeScope;   // (v19.0: Learn is the New look's, and coffee's)
+            },
+            setCoffeeScope(v) { this.coffeeScope = v === 'all' || (v === 'learn' && this.learnOn && this.learnOn()) ? v : 'mine'; safeSet('dialed_coffee_scope', this.coffeeScope); this.render(); window.scrollTo(0, 0); const sc = document.getElementById('main-content'); if (sc) sc.scrollTop = 0; },
             coffeeScopeHtml() {
                 const m = this.coffeeScopeNow();
-                return `<div class="seg-control lib-switch" role="tablist" aria-label="Whose ${this.drinkWords(this.drinkNow()).items}">${[['mine', 'Mine'], ['all', 'All']].map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === m}" aria-pressed="${k === m}" onclick="app.setCoffeeScope('${app.escJs(k)}')">${l}</button>`).join('')}</div>`;
+                const tabs = [['mine', 'Mine'], ['all', 'All'], ...(this.learnOn && this.learnOn() ? [['learn', 'Learn']] : [])];   // v19.0: Coffees › Learn
+                return `<div class="seg-control lib-switch${tabs.length > 2 ? ' lib-three' : ''}" role="tablist" aria-label="Whose ${this.drinkWords(this.drinkNow()).items}">${tabs.map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === m}" aria-pressed="${k === m}" onclick="app.setCoffeeScope('${app.escJs(k)}')">${l}</button>`).join('')}</div>`;
             },
 
             // ---- v15.1: "shot" is espresso's word; every other method gets "brew" (a pour over isn't a shot)

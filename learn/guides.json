@@ -1,0 +1,289 @@
+{
+  "about": "Learn's three guides. Rows marked app describe what Dialed In does, not facts about coffee, and carry no source.",
+  "guides": [
+    {
+      "id": "cherry-to-cup",
+      "name": "From cherry to cup",
+      "tint": "fruity",
+      "icon": "i-cherry",
+      "kicker": "Guide · 3 min",
+      "teaser": "Where your coffee was before the bag · 3 min",
+      "lede": "Every bag went through the same few stages before it reached you. Each one can change the cup.",
+      "steps": [
+        {
+          "title": "It starts as a fruit",
+          "text": "Coffee beans are the seeds of a fruit called a cherry. Arabica, the species most specialty coffee comes from, is a natural cross of two other coffee species that formed in Ethiopia's forests.",
+          "src": [
+            "gimme",
+            "ub-2024"
+          ]
+        },
+        {
+          "title": "The variety is the kind of tree",
+          "text": "Like apples, coffee comes in varieties: Caturra, SL28, Gesha. Names on bags aren't always right, though: in one DNA study, only 39% of coffees sold as Gesha matched it.",
+          "src": [
+            "dcn-genetic-2020"
+          ],
+          "link": {
+            "kind": "variety",
+            "id": "gesha"
+          }
+        },
+        {
+          "title": "Where it grows",
+          "text": "In a study on Réunion island, the air temperature while the beans developed strongly shaped the cup: cooler farms gave more acidity and fruit.",
+          "src": [
+            "bertrand-2012"
+          ]
+        },
+        {
+          "title": "Processing takes the fruit off",
+          "text": "Washed coffees have the fruit removed before drying; naturals dry inside it; honeys are in between. In an Ethiopian trial of seven varieties at three sites, where it was grown and how it was processed both affected cup scores, alongside the variety.",
+          "src": [
+            "gimme",
+            "tirfe-2015"
+          ],
+          "link": {
+            "kind": "process",
+            "id": "washed"
+          }
+        },
+        {
+          "title": "Resting and shipping",
+          "text": "Dried coffee usually rests 30 to 60 days where it was grown, is milled out of its papery parchment, and then spends about six weeks at sea.",
+          "src": [
+            "cafeimports-harvest",
+            "gimme"
+          ]
+        },
+        {
+          "title": "Roasting",
+          "text": "The roaster turns the green seeds brown. Roasters name their roast levels differently, so one roaster's light may be another's medium.",
+          "src": [
+            "coffeereview-roast"
+          ]
+        },
+        {
+          "title": "Resting after the roast",
+          "text": "Many roasters suggest letting beans rest about 5 to 14 days for filter and 7 to 14 for espresso. That's their rule of thumb, not settled science.",
+          "src": [
+            "squaremile"
+          ],
+          "label": "anecdotal"
+        },
+        {
+          "title": "Your cup",
+          "text": "Then it's yours: dose, grind, water and time. In one study, changing only how strong it was brewed and how much was extracted moved the same coffee between sour, bitter and sweet.",
+          "src": [
+            "sca-brewing"
+          ]
+        }
+      ],
+      "sources": [
+        "gimme",
+        "ub-2024",
+        "dcn-genetic-2020",
+        "bertrand-2012",
+        "tirfe-2015",
+        "cafeimports-harvest",
+        "coffeereview-roast",
+        "squaremile",
+        "sca-brewing"
+      ],
+      "updated": "2026-10-28"
+    },
+    {
+      "id": "read-a-bag",
+      "name": "How to read a coffee bag",
+      "tint": "sweet",
+      "icon": "i-bean-line",
+      "kicker": "Guide · 4 min",
+      "teaser": "Every word, from SL28 to AA · 4 min",
+      "lede": "Every line on a specialty bag tells you something about the cup. Tap a number to see what it means; one opens at a time.",
+      "bag": {
+        "roaster": "Field Lantern Coffee",
+        "name": "Nyeri AA",
+        "stamp": "Light roast",
+        "lines": [
+          [
+            "Origin",
+            "Nyeri, Kenya"
+          ],
+          [
+            "Variety",
+            "SL28, SL34"
+          ],
+          [
+            "Process",
+            "Washed, double fermented"
+          ],
+          [
+            "Grade",
+            "AA"
+          ],
+          [
+            "Altitude",
+            "1,700–1,900 m"
+          ],
+          [
+            "Notes",
+            "Blackcurrant, grapefruit, brown sugar"
+          ],
+          [
+            "Roasted",
+            "Oct 20, 2026"
+          ]
+        ],
+        "note": "A made-up bag, written the way real ones are."
+      },
+      "rows": [
+        {
+          "title": "Origin: Nyeri, Kenya",
+          "text": "Nyeri is one of Kenya's main coffee counties, with farms around 1,600–2,000 m. A county or region tells you more than the country alone.",
+          "src": [
+            "1zpresso-kenya"
+          ],
+          "link": {
+            "kind": "origin",
+            "id": "KEN"
+          }
+        },
+        {
+          "title": "Variety: SL28, SL34",
+          "text": "Two trees picked at Scott Labs in Kenya in the 1930s. Not one family: by DNA, SL28 is Bourbon-like and SL34 Typica-like.",
+          "src": [
+            "wcr-sl28",
+            "wcr-sl34"
+          ],
+          "link": {
+            "kind": "variety",
+            "id": "sl28"
+          }
+        },
+        {
+          "title": "Process: washed, double fermented",
+          "text": "Washed, then soaked under clean water before drying, Kenya's classic way. Since the fruit is already off, the soak “isn't so much a fermentation”, as one coffee researcher put it.",
+          "src": [
+            "barista-double"
+          ],
+          "link": {
+            "kind": "process",
+            "id": "washed"
+          }
+        },
+        {
+          "title": "Grade: AA",
+          "text": "AA means the biggest beans of the usual Kenyan grades. It's a size, not a taste score.",
+          "src": [
+            "twochimps",
+            "ozone-sl28"
+          ]
+        },
+        {
+          "title": "Altitude: 1,700–1,900 m",
+          "text": "About 5,600–6,200 ft. Near the equator, higher farms are cooler, and in one study cooler farms gave more acidity and fruit.",
+          "src": [
+            "bertrand-2012"
+          ]
+        },
+        {
+          "title": "Notes: blackcurrant, grapefruit",
+          "text": "Tasting notes describe what the roaster tasted; they don't mean flavor was added. Coffees co-fermented or infused with fruit or spice are different, and not all are clearly labeled. Your cup may differ: brewing alone can move the same coffee a long way.",
+          "src": [
+            "pdg-infused-2024",
+            "sprudge-infused-2023",
+            "sca-brewing"
+          ]
+        },
+        {
+          "title": "Roasted Oct 20",
+          "text": "Many roasters suggest resting beans about 5 to 14 days for filter and 7 to 14 for espresso. That's a rule of thumb, not settled science.",
+          "src": [
+            "squaremile"
+          ],
+          "label": "anecdotal"
+        }
+      ],
+      "callout": "Got a bag in front of you? Add it and Dialed In decodes it the same way.",
+      "sources": [
+        "1zpresso-kenya",
+        "wcr-sl28",
+        "wcr-sl34",
+        "barista-double",
+        "twochimps",
+        "ozone-sl28",
+        "bertrand-2012",
+        "pdg-infused-2024",
+        "sca-brewing",
+        "squaremile",
+        "sprudge-infused-2023"
+      ],
+      "updated": "2026-10-28"
+    },
+    {
+      "id": "washed-vs-natural",
+      "name": "Washed vs natural, side by side",
+      "tint": "fermented",
+      "icon": "i-drop",
+      "kicker": "Guide · 2 bags",
+      "teaser": "A tasting you can do this week · 2 bags",
+      "lede": "The quickest way to learn what processing does: taste the same kind of coffee both ways, back to back.",
+      "steps": [
+        {
+          "title": "Find two bags",
+          "text": "A washed and a natural from the same country, ideally from the same roaster. Ethiopia is a good place to look: both styles are common there.",
+          "src": [
+            "1zpresso-sidama"
+          ]
+        },
+        {
+          "title": "Brew them the same way",
+          "text": "Same dose, ratio, water and grind setting for both, so the process is the main difference.",
+          "app": true
+        },
+        {
+          "title": "Taste the washed first",
+          "text": "Washed coffees are usually clean, bright and crisp, with more acidity.",
+          "src": [
+            "royalny-roast"
+          ],
+          "link": {
+            "kind": "process",
+            "id": "washed"
+          }
+        },
+        {
+          "title": "Then the natural",
+          "text": "Look for berry, stone fruit or dried fruit and a heavier body. A wine-like or boozy note is the natural process too.",
+          "src": [
+            "royalny-roast",
+            "coffeereview-2019"
+          ],
+          "link": {
+            "kind": "process",
+            "id": "natural"
+          }
+        },
+        {
+          "title": "Which did you like?",
+          "text": "Your taste decides. In one trial of 11 varieties, washed scored the same or higher every time, though for some the gap was under a point.",
+          "src": [
+            "barbosa-2019"
+          ]
+        },
+        {
+          "title": "Log both, then compare",
+          "text": "Log each one, then open Compare on either coffee to see the two flavor shapes on top of each other.",
+          "app": true
+        }
+      ],
+      "sources": [
+        "1zpresso-sidama",
+        "royalny-roast",
+        "coffeereview-2019",
+        "barbosa-2019"
+      ],
+      "updated": "2026-10-28"
+    }
+  ]
+}

@@ -214,13 +214,13 @@
                 m.classList.add('active');
                 setTimeout(() => { const t = document.getElementById('bug-text'); if (t) t.focus(); }, 80);
             },
-            closeBugReport() { const m = document.getElementById('bug-modal'); if (m) m.classList.remove('active'); },
+            closeBugReport() { const m = document.getElementById('bug-modal'); if (m) m.classList.remove('active'); this._bugExtra = null; },
             async sendBugReport() {
                 const t = document.getElementById('bug-text'), text = String(t && t.value || '').trim();
                 if (!text) { this.showToast('Say what happened first.'); return; }
-                const ctx = this.bugContext();
+                const ctx = { ...this.bugContext(), ...(this._bugExtra || {}) };   // (v19.0: "Spot a mistake?" on a Learn page says which)
                 if (!(this.acctOn && this.acctOn()) || !Supa.ready()) {
-                    const body = `${text}\n\n— Dialed In ${ctx.version} · ${ctx.app} · ${ctx.screen} · ${ctx.where}\n${ctx.device}`;
+                    const body = `${text}\n\n— Dialed In ${ctx.version} · ${ctx.app} · ${ctx.screen} · ${ctx.where}${ctx.learn ? ` · Learn ${ctx.learn}` : ''}\n${ctx.device}`;
                     window.location.href = `mailto:dialedincoffeeapp@gmail.com?subject=${encodeURIComponent('Dialed In bug report')}&body=${encodeURIComponent(body)}`;
                     this.closeBugReport(); return;
                 }

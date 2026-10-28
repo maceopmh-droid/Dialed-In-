@@ -176,6 +176,13 @@
                 };
                 const cover = overrides.cover !== undefined ? overrides.cover : bean.cover;   // v17.4: the coffee's picture rides along on every save
                 if (cover && typeof cover === 'object' && Object.keys(cover).length) payload.cover = cover;
+                // v19.0: the person's "Keep as typed" answers, and what kind of coffee the bag's words say it is (the server keeps
+                // a copy for Learn's community numbers; every phone works the tags out again from the words)
+                if (!tea) {
+                    const keep = overrides.learnKeep !== undefined ? overrides.learnKeep : bean.learnKeep;
+                    if (keep && typeof keep === 'object' && Object.keys(keep).length) payload.learnKeep = keep;
+                    if (typeof LearnEngine !== 'undefined') payload.learn = LearnEngine.store(payload);
+                }
                 return payload;
             },
 
@@ -317,9 +324,11 @@
                     teaType: kind === 'tea' && form.elements.teaType ? form.elements.teaType.value : '',
                     blend: kind === 'tea' && form.elements.blend ? form.elements.blend.checked : false,   // v17.1
                     ingredients: kind === 'tea' ? this.cleanIngredients(this.beanIngredients) : [],
-                    ...(this.beanCoverOut ? { cover: this.beanCoverOut() } : {})   // v17.4
+                    ...(this.beanCoverOut ? { cover: this.beanCoverOut() } : {}),   // v17.4
+                    ...(kind !== 'tea' && this.lxFormKeepOut ? { learnKeep: this.lxFormKeepOut(form) } : {})   // v19.0
                 });
                 if (!payload) return;
+                if (this.lxPrefetchBean) this.lxPrefetchBean(payload);   // (v19.0: the Log screen's first-shot line reads these)
                 if (!existing && kind !== this.drinkNow()) { this.drink = kind; safeSet('dialed_drink', kind); this.paintDrinkChrome(); }   // (a new tea from coffee mode: you land where it is)
                 this.push(payload);
                 this.closeModals();
@@ -564,6 +573,7 @@
                 if (form.roastDate) form.roastDate.value = bean.roastDate || '';
                 document.getElementById('bean-modal-title').innerText = kind === 'tea' ? 'Edit Tea' : 'Edit Coffee';
                 if (this.beanCoverInit) this.beanCoverInit(bean);   // v17.4
+                if (this.learnFormInit) this.learnFormInit(bean);   // v19.0
                 this.openModal('bean-modal');
             },
 
@@ -669,6 +679,7 @@
                 this.setBeanKind(kind === 'tea' || kind === 'coffee' ? kind : this.drinkNow());   // v17.0: starts on what's on screen
                 if (this.bindCoffeeSuggest) { this.bindCoffeeSuggest(); const box = form.querySelector('.cs-list'); if (box) box.hidden = true; }   // v15.1
                 if (this.beanCoverInit) this.beanCoverInit(null);   // v17.4: a new coffee's picture (the New look)
+                if (this.learnFormInit) this.learnFormInit(null);   // v19.0: what the bag's words mean, as you type
                 this.openModal('bean-modal');
             },
 

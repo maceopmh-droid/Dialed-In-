@@ -1,0 +1,39 @@
+# Learn (v19.0): every night, tag coffees saved by older app versions with what kind of coffee they are, using the
+# app's own recognizer, for Learn's community numbers. Writes only rows that change and never touches updated_at.
+# The logs are public: it prints counts only. Scheduled runs only happen once this file is on main.
+name: learn tags
+on:
+  schedule:
+    - cron: '50 9 * * *'       # 4:50 am Central (09:50 UTC)
+  workflow_dispatch:
+
+jobs:
+  tags:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      PROJECT_REF: glombusdjwlrgjihnylk
+    steps:
+      - name: Is Supabase set up yet?
+        id: cfg
+        run: |
+          if [ -z "$SUPABASE_DB_PASSWORD$SUPABASE_DB_URL" ]; then echo "skip=1" >> "$GITHUB_OUTPUT"; echo "No database secret yet: nothing to tag."; fi
+      - uses: actions/checkout@v4
+        if: steps.cfg.outputs.skip != '1'
+      - uses: actions/setup-node@v4
+        if: steps.cfg.outputs.skip != '1'
+        with:
+          node-version: '20'
+      - name: Find the database
+        if: steps.cfg.outputs.skip != '1'
+        run: |
+          set +e
+          bash supabase/find_db.sh 2> "$RUNNER_TEMP/find.txt"; rc=$?
+          cat "$RUNNER_TEMP/find.txt"; [ $rc -eq 0 ] || bash supabase/report.sh "Find the database" "$RUNNER_TEMP/find.txt"; exit $rc
+      - name: Tag coffees
+        if: steps.cfg.outputs.skip != '1'
+        run: |
+          set +e
+          node supabase/learn_tags.js --psql "psql '$DB_URL'" 2>&1 | tee "$RUNNER_TEMP/learn.txt"; rc=${PIPESTATUS[0]}
+          bash supabase/report.sh "Learn tags" "$RUNNER_TEMP/learn.txt"; exit $rc
