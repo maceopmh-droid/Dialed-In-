@@ -2576,7 +2576,7 @@
           "Dark chocolate",
           "Nuts"
         ],
-        "text": "That's how a researcher who ran Colombian variety trials described a good Castillo: fruity but not citric, with dark chocolate and roasted nuts. A good Caturra, next to it, was floral, with cocoa and caramel.",
+        "text": "That's how Michael Sheridan of Catholic Relief Services, who took part in a Colombian variety cupping trial, described a good Castillo: fruity but not citric, with dark chocolate and roasted nuts. A good Caturra, next to it, was floral, with cocoa and caramel.",
         "label": "trade",
         "evidence": "One expert's words, not a measured profile.",
         "src": [
@@ -2615,7 +2615,7 @@
           "teaser": "Bred for rust; chosen for yield",
           "body": [
             "Leaf rust reached Colombia in the 1980s and hit hardest on farms below 1,600 m (5,250 ft), which is where Castillo replaced many Caturra trees.",
-            "When a 2014 survey asked growers in Nariño why they preferred Castillo, 77% named yield or disease resistance; 2% named the cup."
+            "When a Catholic Relief Services survey, reported in 2014, asked growers in Nariño why they preferred Castillo, 77% named yield or disease resistance; 2% named the cup."
           ],
           "src": [
             "gcr-castillo",
@@ -2627,7 +2627,7 @@
           "title": "Growing it",
           "teaser": "Rust resistance from the Timor Hybrid; bigger beans",
           "body": [
-            "Its resistance to rust comes from its Timor Hybrid genes; in a 2019 Cenicafé trial it was still holding.",
+            "Its resistance to rust comes from its Timor Hybrid genes. In a 2019 Cenicafé trial it still held, though most Castillo trees showed a little rust, and Cenicafé noted that rust is starting to attack the Timor Hybrid lines in Colombia.",
             "Selection also made the beans bigger: early versions of the Colombia variety had about 53% Supremo beans, against about 83% for Castillo in a 2006 Cenicafé study."
           ],
           "src": [
@@ -2800,14 +2800,14 @@
         },
         {
           "value": "1,950–2,100 m",
-          "label": "where the studied trees grow (6,400–6,900 ft)",
+          "label": "where Chiroso is grown in Urrao, per a 2024 study (6,400–6,900 ft)",
           "src": [
             "chica-acosta-2024"
           ]
         },
         {
           "value": "$1,630",
-          "label": "a kilo: top varietal lot, Best of Panama 2024",
+          "label": "a kilo: a Chiroso lot in Best of Panama's 2024 Varietals category",
           "src": [
             "gcr-bop-2024"
           ]
@@ -2816,10 +2816,9 @@
       "taste": {
         "notes": [
           "Floral",
-          "Citrus",
           "Black tea"
         ],
-        "text": "Sweet Maria's finds it more aromatic than Bourbon or Caturra: floral, bright and tea-like. Sucafina compares it to Gesha, with more herbal notes and a fuller body.",
+        "text": "Sweet Maria's says it can be more aromatic than Bourbon or Caturra: floral, bright and tea-like. Sucafina compares it to Gesha, with more herbal notes and a fuller body.",
         "label": "trade",
         "evidence": "What importers say; we found no trial that tasted it side by side with other varieties.",
         "src": [
@@ -2900,7 +2899,7 @@
         },
         {
           "value": "Not F1",
-          "label": "farmers' seed grows true, so it isn't a hybrid",
+          "label": "farmers' seed grows true, which rules out a first-generation hybrid",
           "src": [
             "cafeimports-pink-2023"
           ]
@@ -2926,7 +2925,7 @@
           "Hibiscus",
           "Stone fruit"
         ],
-        "text": "Importers rave about its cup but agree on no single flavor. One roaster's Pink Bourbon from Cauca tasted of raspberry, hibiscus and nectarine.",
+        "text": "Importers rave about its cup. One roaster's Pink Bourbon from Cauca tasted of raspberry, hibiscus and nectarine.",
         "label": "trade",
         "evidence": "One lot's notes, not a rule.",
         "src": [
@@ -2941,8 +2940,8 @@
           "title": "The family",
           "teaser": "Not a Bourbon: an Ethiopian landrace, by DNA",
           "body": [
-            "In 2017 an importer had two plants tested, one tall and one short. Both came out most like wild coffee from Ethiopia, with partial matches to Bourbon, Catimor and a Tanzanian coffee, but the best matches were only in the low 80s percent; tests of other varieties often match 95–100%.",
-            "In 2023 the geneticist Christophe Montagnon tested five samples from Colombia and Costa Rica. All held Pink Bourbon DNA: one was pure, two were mixed with Bourbon and two with Catimor. His verdict: an Ethiopian landrace, distinct from others like Gesha, and not a Bourbon mutation."
+            "In 2017 an importer had two plants tested, one tall and one short. Both came out most like wild coffee from Ethiopia, with partial matches to Bourbon, Catimor and a Tanzanian coffee, but the pattern looked like the importer's results for hybrids, whose best matches were only in the low 80s percent; some other coffees have matched 95–100%.",
+            "In 2023 the geneticist Christophe Montagnon tested five samples from Colombia and Costa Rica. All held Pink Bourbon DNA: one was pure, two were mixed with Bourbon and two with Catimor. His verdict: an Ethiopian landrace, not a Bourbon mutation. The importer adds that it's distinct from other landraces like Gesha."
           ],
           "src": [
             "cafeimports-pink-2023",
@@ -2990,7 +2989,7 @@
       ],
       "kicker": "Variety · Ethiopian landrace",
       "summary": "Ethiopia's many local coffee types, sold together as “heirloom”.",
-      "lede": "“Heirloom” on a bag means Ethiopia's own coffee: many local types picked long ago from wild coffee, plus selections from the country's research center, usually grown together. It's a catch-all, not one variety.",
+      "lede": "“Heirloom” on a bag means Ethiopia's own coffee: many local types picked long ago from wild coffee, usually grown together. It's a catch-all, not one variety.",
       "ledeSrc": [
         "roasterspack-heirloom",
         "ethiocoffee"
@@ -3005,7 +3004,7 @@
         },
         {
           "value": "41",
-          "label": "improved varieties released by Ethiopian research, 1978–2018",
+          "label": "improved varieties released by Ethiopian research since 1978",
           "src": [
             "atumo-2026"
           ]
@@ -3033,7 +3032,7 @@
         ],
         "text": "Ethiopian coffee is described by region and process more than by type. Washed lots can be sparkling-bright and citric, with floral and sweet-spice aromas; naturals lean to dried fruit, from berry to mango to peach, with a thick body.",
         "label": "trade",
-        "evidence": "In one Ethiopian trial the selection mattered, but so did where it grew and how it was processed: washing raised cup quality at every site.",
+        "evidence": "In one Ethiopian trial the selection mattered, and so did where it grew. Washed samples scored best at one of the three sites; at the other two, naturals scored slightly higher.",
         "src": [
           "sweetmarias-eth",
           "tirfe-2015"
@@ -3045,7 +3044,7 @@
           "title": "The family",
           "teaser": "Arabica's home; the world's varieties came from a slice of it",
           "body": [
-            "Ethiopia is in Arabica's native range. A 2020 study of 736 coffees found very little genetic variety in Arabica overall, with wild Ethiopian coffees forming a group of their own.",
+            "Ethiopia is in Arabica's native range. A 2020 study of 736 coffees found very little genetic variety in Arabica overall, with one group of wild Ethiopian coffees standing apart from the rest.",
             "The world's cultivated varieties, Typica and Bourbon among them, grouped with Yemen's coffee and a few from the easternmost part of Ethiopia."
           ],
           "src": [
@@ -3175,7 +3174,7 @@
           "Winey",
           "Yogurt"
         ],
-        "text": "Often intense: tropical or stone fruit, winey notes, sometimes jasmine or rose, and a tangy, yogurt-like edge. Anaerobic naturals tend to be fuller and sweeter; anaerobic washed coffees lighter and brighter.",
+        "text": "Often intense: tropical or stone fruit, winey notes, sometimes jasmine or rose, and a tangy, yogurt-like edge. In one review site's tasting, anaerobic washed coffees came out a bit leaner in body and brighter than anaerobic naturals.",
         "label": "trade",
         "evidence": "That's how importers and reviewers describe it, but variety, ripeness and drying shape the cup too, so the label alone doesn't predict the taste.",
         "src": [
@@ -3236,7 +3235,7 @@
       "myths": [
         {
           "claim": "Anaerobic means no oxygen at all.",
-          "text": "Critics point out that the tanks and bags reduce oxygen rather than remove it all. A fermentation consultant popularized “anoxic” for the oxygen-free setting itself, and the industry hasn't settled on one word.",
+          "text": "Critics point out that the tanks and bags reduce oxygen rather than remove it all. A fermentation consultant helped popularize “anoxic” for the oxygen-free setting itself, and the industry hasn't settled on one word.",
           "label": "unproven",
           "src": [
             "coffeereview-2019",
@@ -3319,7 +3318,7 @@
         }
       ],
       "stepsText": {
-        "text": "How long is up to the producer. Sealed ferments usually run about one to six days. One Costa Rican farm ferments about 96 hours, watching the sugar in the tank fall until fermentation stops.",
+        "text": "How long is up to the producer. Sealed ferments usually run about one to six days. One Costa Rican farm ferments about 96 hours, measuring the sugar level (Brix) and stopping the ferment when it falls to a set point.",
         "src": [
           "coffeereview-2021",
           "cafeimports-anaerobic"
@@ -3329,7 +3328,7 @@
         "notes": [],
         "text": "It doesn't add one particular flavor. It turns up whatever the ferment brings, so expect a more fermented cup than the same coffee fermented briefly.",
         "label": "trade",
-        "evidence": "One review site's tasting of anaerobic coffees found that the longer the ferment, the stronger its effect on the cup.",
+        "evidence": "One review site notes that, predictably, the longer the coffee stays sealed, the stronger the anaerobic effect.",
         "src": [
           "coffeereview-2021"
         ]
@@ -3362,7 +3361,7 @@
         {
           "id": "siaf",
           "name": "Self-induced anaerobic (SIAF)",
-          "text": "A research term: the fruit uses up the oxygen in a closed container on its own. Trials have run from 72 hours to 5 days.",
+          "text": "A research term: in a closed container, the fruit and its microbes use up the oxygen, with no gas added. Trials have run from 72 hours to 5 days.",
           "src": [
             "bernardes-2024"
           ]
@@ -3484,7 +3483,7 @@
         {
           "id": "washed-cm",
           "name": "Washed carbonic maceration",
-          "text": "A version on washed coffee. One roaster describes the 2015 world-winning coffee this way; another says it was whole cherries.",
+          "text": "A version where the cherries are depulped first. One roaster says Šestić's 2015 winning coffee was made this way, citing his own account; most descriptions of CM use whole cherries.",
           "src": [
             "ozone-anaerobic",
             "rave-cm"
@@ -3505,7 +3504,7 @@
           "title": "History",
           "teaser": "From Beaujolais wine to a 2015 world title",
           "body": [
-            "Winemakers in Beaujolais used it on Gamay grapes from about the 1930s to the 1960s. Coffee producers began trying it in the early 2010s. Saša Šestić, who had learned fermentation from an Australian winemaker, won the 2015 World Barista Championship with a carbonic-macerated Sudan Rume from Colombia, and producers in Colombia, Costa Rica and elsewhere followed."
+            "Winemakers in France's Beaujolais region made it a staple for Gamay grapes in the mid-20th century. Coffee producers began trying it in the early 2010s. Saša Šestić, who had learned fermentation from an Australian winemaker, won the 2015 World Barista Championship with a carbonic-macerated Sudan Rume from Colombia, and producers in Colombia, Costa Rica and elsewhere followed."
           ],
           "src": [
             "rave-cm",
@@ -3586,7 +3585,7 @@
         }
       ],
       "stepsText": {
-        "text": "Low oxygen holds back yeasts and lets bacteria take over. Producers add a lactic starter culture or a brine of about 2–3% salt, because these bacteria tolerate salt better than most of their competitors. Compared with a natural, up to 90% of the glucose and fructose is reported to be removed from the beans.",
+        "text": "Low oxygen holds back yeasts and lets bacteria take over. Producers add a lactic starter culture or a brine of about 2–3% salt, because these bacteria tolerate salt better than most of their competitors. One producer says that, compared with a natural, up to 90% of the glucose and fructose is removed from the beans.",
         "src": [
           "coffeereview-2021",
           "pdg-lactic-2023"
@@ -3762,7 +3761,7 @@
         {
           "id": "mossto",
           "name": "Mossto",
-          "text": "Juice from an earlier batch added as a starter, often together with fruit or hops.",
+          "text": "Juice and microbes from an earlier batch of the same coffee, added as a starter, sometimes alongside fruit or hops.",
           "src": [
             "royal-additive-2025"
           ]
@@ -3774,7 +3773,7 @@
           "title": "In competitions",
           "teaser": "Allowed before the green stage, barred after",
           "body": [
-            "The World Barista Championship has allowed co-fermented and infused coffees since 2024, as long as nothing is added once the coffee reaches the green stage; before that, almost any additive was banned. Coffee Review's 2026 Kenneth Davids Cup allows co-ferments only in its Experimental category and bars infused and flavored coffees. Best of Panama disqualified four coffees in 2024 as “altered from their natural DNA expression”."
+            "The World Barista Championship has allowed co-fermented and infused coffees since 2024, as long as nothing is added once the coffee reaches the green stage; before that, additives of any kind, added at any point, were grounds for disqualification. Coffee Review's 2026 Kenneth Davids Cup allows co-ferments only in its Experimental category and bars infused and flavored coffees. Best of Panama disqualified four coffees in 2024 as “altered from their natural DNA expression”, though one reviewer asked how that was established."
           ],
           "src": [
             "pdg-infused-2024",
@@ -3799,7 +3798,7 @@
           "title": "The debate",
           "teaser": "Called adulteration by some; a co-ferment topped one 2024 list",
           "body": [
-            "Traditionalists call it adulteration and worry about allergens and fairness in competitions. One review site's top coffee of 2024 was a co-ferment rated 98. One coffee professional expects the trend to fade and come back, and warns that small farms may spend more than they earn back; some farms have turned to artificial flavorings, partly because they cost less."
+            "Traditionalists call it adulteration and worry about allergens and fairness in competitions; advocates see it as an extension of coffee's own fermentation science. One review site, which judges these coffees on their merits, named a co-ferment rated 98 its top coffee of 2024. One coffee professional expects the trend to fade and come back, and warns that small farms may spend more than they earn back; some farmers have turned to artificial flavorings, which one trade site suggests may be cheaper, since little of the added fruit reaches the cup."
           ],
           "src": [
             "royal-additive-2025",
@@ -3883,8 +3882,8 @@
           "Nuts"
         ],
         "text": "Heavy body, low acidity and earthy, herbal, savory notes, often with dark chocolate and nuts.",
-        "label": "tendency",
-        "evidence": "Importers agree on the style. Some of these notes are seen as defects in other markets, and poor drying can make the cup harsh.",
+        "label": "trade",
+        "evidence": "Importers agree on the style. Some of these notes are seen as defects in other markets, and drying the bare beans fast risks harsh, uneven drying, which is bad for the coffee.",
         "typicalShape": {
           "acidity": 3,
           "sweetness": 5,
