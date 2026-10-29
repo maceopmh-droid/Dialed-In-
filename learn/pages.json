@@ -589,9 +589,18 @@
         "coffeereview-2021",
         "pdg-lactic-2023",
         "coffeereview-honey",
-        "cafeimports-anaerobic"
+        "cafeimports-anaerobic",
+        "esmeralda-processing"
       ],
-      "updated": "2026-10-28"
+      "updated": "2026-10-28",
+      "feel": {
+        "body": "lighter than a natural",
+        "acidity": "bright, pronounced",
+        "src": [
+          "royalny-roast",
+          "esmeralda-processing"
+        ]
+      }
     },
     {
       "id": "natural",
@@ -758,9 +767,22 @@
         "stonex-gr1",
         "elhalis-2021",
         "vale-2024",
-        "1zpresso-eth"
+        "1zpresso-eth",
+        "esmeralda-processing",
+        "lee-2015",
+        "cafeimports-brazil-natural"
       ],
-      "updated": "2026-10-28"
+      "updated": "2026-10-28",
+      "feel": {
+        "body": "heavier than washed",
+        "acidity": "often softer than washed",
+        "src": [
+          "royalny-roast",
+          "esmeralda-processing",
+          "lee-2015",
+          "cafeimports-brazil-natural"
+        ]
+      }
     },
     {
       "id": "honey",
@@ -894,9 +916,18 @@
       "sources": [
         "gimme",
         "coffeereview-honey",
-        "cafeimports-cr"
+        "cafeimports-cr",
+        "cafeimports-honey"
       ],
-      "updated": "2026-10-28"
+      "updated": "2026-10-28",
+      "feel": {
+        "body": "medium to full",
+        "acidity": "rounder than washed",
+        "src": [
+          "coffeereview-honey",
+          "cafeimports-honey"
+        ]
+      }
     },
     {
       "id": "COL",
@@ -1179,9 +1210,17 @@
         "sprudge-infused-2023",
         "pdg-lactic-2023",
         "pdg-koji-2022",
-        "natural-earth"
+        "natural-earth",
+        "colombia-travel-coffee"
       ],
-      "updated": "2026-10-28"
+      "updated": "2026-10-28",
+      "feel": {
+        "body": "medium; fuller in the north",
+        "acidity": "medium to bright; softer in the north",
+        "src": [
+          "colombia-travel-coffee"
+        ]
+      }
     },
     {
       "id": "ETH",
@@ -1409,9 +1448,18 @@
         "wiki-shakiso",
         "wiki-bonga",
         "wcr-geisha",
-        "stonex-gr1"
+        "stonex-gr1",
+        "cafeimports-eth"
       ],
-      "updated": "2026-10-28"
+      "updated": "2026-10-28",
+      "feel": {
+        "body": "lighter when washed, full and syrupy when natural",
+        "acidity": "bright, softer in naturals",
+        "src": [
+          "cafeimports-eth",
+          "sweetmarias-eth"
+        ]
+      }
     },
     {
       "id": "KEN",
@@ -1647,7 +1695,16 @@
         "wiki-muranga",
         "wiki-kiambu"
       ],
-      "updated": "2026-10-28"
+      "updated": "2026-10-28",
+      "feel": {
+        "body": "full",
+        "acidity": "bright",
+        "src": [
+          "ozone-auction",
+          "royal-kenya",
+          "sweetmarias-kenya"
+        ]
+      }
     },
     {
       "id": "PER",
@@ -1889,9 +1946,19 @@
         "wcr-typica",
         "wcr-bourbon",
         "wcr-mundonovo",
-        "natural-earth"
+        "natural-earth",
+        "sweetmarias-peru",
+        "roastmarket-peru"
       ],
-      "updated": "2026-10-28"
+      "updated": "2026-10-28",
+      "feel": {
+        "body": "simple, often soft",
+        "acidity": "bright in top lots, often low in everyday ones",
+        "src": [
+          "sweetmarias-peru",
+          "roastmarket-peru"
+        ]
+      }
     },
     {
       "id": "bourbon",
@@ -3275,7 +3342,14 @@
         "coffeereview-2021",
         "coffeereview-2019"
       ],
-      "updated": "2026-10-28"
+      "updated": "2026-10-28",
+      "feel": {
+        "body": "fuller (washed versions leaner)",
+        "acidity": "tangy, lactic",
+        "src": [
+          "coffeereview-2021"
+        ]
+      }
     },
     {
       "id": "extended",
@@ -3531,7 +3605,14 @@
         "ozone-anaerobic",
         "beanscene-ona-cm"
       ],
-      "updated": "2026-10-28"
+      "updated": "2026-10-28",
+      "feel": {
+        "body": "syrupy",
+        "acidity": "wine-like",
+        "src": [
+          "rave-cm"
+        ]
+      }
     },
     {
       "id": "lactic",
@@ -3668,7 +3749,15 @@
         "royal-additive-2025",
         "bernardes-2024"
       ],
-      "updated": "2026-10-28"
+      "updated": "2026-10-28",
+      "feel": {
+        "body": "creamy, velvety",
+        "acidity": "tangy; brighter in some lots",
+        "src": [
+          "pdg-lactic-2023",
+          "coffeereview-2021"
+        ]
+      }
     },
     {
       "id": "co-ferment",
@@ -3944,7 +4033,15 @@
         "coffeereview-honey",
         "royal-density"
       ],
-      "updated": "2026-10-28"
+      "updated": "2026-10-28",
+      "feel": {
+        "body": "heavy",
+        "acidity": "low",
+        "src": [
+          "cafeimports-wethulled",
+          "sweetmarias-gilingbasah"
+        ]
+      }
     },
     {
       "id": "BRA",
@@ -4199,7 +4296,14 @@
         "datamar-conab-2026",
         "dcn-tariffs-2025"
       ],
-      "updated": "2026-10-28"
+      "updated": "2026-10-28",
+      "feel": {
+        "body": "medium to full",
+        "acidity": "gentle to bright, often citric",
+        "src": [
+          "brazilianfarmers-gi"
+        ]
+      }
     },
     {
       "id": "MEX",
@@ -4396,7 +4500,15 @@
         "wcr-oroazteca",
         "achilles-grades"
       ],
-      "updated": "2026-10-28"
+      "updated": "2026-10-28",
+      "feel": {
+        "body": "light to medium",
+        "acidity": "bright but gentle",
+        "src": [
+          "coffeeness-mx",
+          "sweetmarias-mx"
+        ]
+      }
     },
     {
       "id": "NIC",
@@ -4593,9 +4705,18 @@
         "achilles-harvest",
         "cafeimports-harvest",
         "wcr-marsellesa",
-        "wcr-starmaya"
+        "wcr-starmaya",
+        "coffeereview-nic-2011"
       ],
-      "updated": "2026-10-28"
+      "updated": "2026-10-28",
+      "feel": {
+        "body": "smooth, often full",
+        "acidity": "mild to bright, sometimes citric",
+        "src": [
+          "pdg-nic-2021",
+          "coffeereview-nic-2011"
+        ]
+      }
     },
     {
       "id": "HND",
@@ -4820,7 +4941,15 @@
         "achilles-grades",
         "twochimps"
       ],
-      "updated": "2026-10-28"
+      "updated": "2026-10-28",
+      "feel": {
+        "body": "medium to full, often creamy",
+        "acidity": "delicate to bright",
+        "src": [
+          "pdg-hnd-2017",
+          "coffeeness-hnd"
+        ]
+      }
     },
     {
       "id": "GTM",
@@ -5089,9 +5218,24 @@
         "cafeimports-gtm",
         "achilles-harvest",
         "coffeereview-honey",
-        "achilles-grades"
+        "achilles-grades",
+        "anacafe-atitlan",
+        "anacafe-huehue",
+        "anacafe-oriente",
+        "anacafe-fraijanes"
       ],
-      "updated": "2026-10-28"
+      "updated": "2026-10-28",
+      "feel": {
+        "body": "medium to full",
+        "acidity": "bright in most regions; milder in Antigua",
+        "src": [
+          "anacafe-atitlan",
+          "anacafe-huehue",
+          "anacafe-oriente",
+          "anacafe-fraijanes",
+          "cafeimports-gtm"
+        ]
+      }
     },
     {
       "id": "CRI",
@@ -5605,12 +5749,21 @@
         "wiki-volcan-pa",
         "wiki-rio-sereno",
         "achilles-harvest",
-        "sprudge-2025"
+        "sprudge-2025",
+        "ozone-geisha"
       ],
       "updated": "2026-10-28",
       "mapTiers": {
         "l3": [
           "chiriqui"
+        ]
+      },
+      "feel": {
+        "acidity": "bright in Gesha; mellow in Renacimiento",
+        "body": "light, tea-like in Gesha; fuller in Volcán",
+        "src": [
+          "ozone-geisha",
+          "coffeeness-panama"
         ]
       }
     },
@@ -5834,7 +5987,15 @@
         "pdg-ptd-2021",
         "newtimes-rwa-2026"
       ],
-      "updated": "2026-10-28"
+      "updated": "2026-10-28",
+      "feel": {
+        "body": "silky to syrupy",
+        "acidity": "bright to juicy",
+        "src": [
+          "visitrwanda-coffee",
+          "mcm-rwanda"
+        ]
+      }
     }
   ],
   "fresh": {
@@ -6028,7 +6189,7 @@
   },
   "tree": {
     "about": "Learn's family tree (L3), built from the recognizer's families. Each stage's words carry their sources; ? marks DNA evidence that's early or second-hand.",
-    "lede": "Most Arabica grown outside Ethiopia traces back to a few plants that left through Yemen. The ones you've had are checked.",
+    "lede": "Most Arabica grown outside Ethiopia traces back to a few plants that left through Yemen.",
     "ledeSrc": [
       "ub-2024",
       "scalabrin-2020"

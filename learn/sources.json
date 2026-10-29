@@ -1090,6 +1090,84 @@
       "publisher": "World Coffee Research, Arabica varieties catalog",
       "url": "https://varieties.worldcoffeeresearch.org/varieties/tekisic",
       "accessed": "2026-10"
+    },
+    "esmeralda-processing": {
+      "title": "Processing",
+      "publisher": "Hacienda La Esmeralda, Boquete, Panama",
+      "url": "https://haciendaesmeralda.com/?p=1060",
+      "accessed": "2026-10"
+    },
+    "lee-2015": {
+      "title": "Coffee fermentation and flavor – An intricate and delicate relationship",
+      "publisher": "Lee, Cheong, Curran, Yu & Liu, Food Chemistry 185: 182–191",
+      "url": "https://nature.berkeley.edu/garbelottoat/wp-content/uploads/lee-etal-2015.pdf",
+      "accessed": "2026-10"
+    },
+    "cafeimports-brazil-natural": {
+      "title": "Brazil Natural",
+      "publisher": "Cafe Imports",
+      "url": "https://www.cafeimports.com/europe/blog/?p=38920",
+      "accessed": "2026-10"
+    },
+    "cafeimports-honey": {
+      "title": "Honey process",
+      "publisher": "Cafe Imports",
+      "url": "https://www.cafeimports.com/europe/blog/?p=37483",
+      "accessed": "2026-10"
+    },
+    "colombia-travel-coffee": {
+      "title": "Regiones de café",
+      "publisher": "Colombia Travel",
+      "url": "https://colombia.travel/es/regiones-de-cafe",
+      "accessed": "2026-10"
+    },
+    "cafeimports-eth": {
+      "title": "Origins: Ethiopia",
+      "publisher": "Cafe Imports",
+      "url": "https://www.cafeimports.com/europe/Ethiopia",
+      "accessed": "2026-10"
+    },
+    "sweetmarias-peru": {
+      "title": "Peru coffee overview",
+      "publisher": "Sweet Maria's Coffee Library",
+      "url": "https://library.sweetmarias.com/coffee-producing-countries/south-america/peru-coffee-overview/",
+      "accessed": "2026-10"
+    },
+    "roastmarket-peru": {
+      "title": "Kaffee aus Peru",
+      "publisher": "Roastmarket",
+      "url": "https://www.roastmarket.de/kaffee/kaffee-herkunftslaender/peru.html",
+      "accessed": "2026-10"
+    },
+    "coffeereview-nic-2011": {
+      "title": "Nicaragua: continuity and innovation",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/nicaragua-continuity-and-innovation/",
+      "accessed": "2026-10"
+    },
+    "anacafe-atitlan": {
+      "title": "Traditional Atitlán (region profile)",
+      "publisher": "Anacafé (Guatemalan National Coffee Association), guatemalancoffees.com",
+      "url": "https://guatemalancoffees.com/main/regions-and-profiles/traditional-atitlan/",
+      "accessed": "2026-10"
+    },
+    "anacafe-huehue": {
+      "title": "Highland Huehue (region profile)",
+      "publisher": "Anacafé (Guatemalan National Coffee Association), guatemalancoffees.com",
+      "url": "https://guatemalancoffees.com/main/regions-and-profiles/highland-huehue/",
+      "accessed": "2026-10"
+    },
+    "anacafe-oriente": {
+      "title": "New Oriente (region profile)",
+      "publisher": "Anacafé (Guatemalan National Coffee Association), guatemalancoffees.com",
+      "url": "https://guatemalancoffees.com/main/regions-and-profiles/new-oriente/",
+      "accessed": "2026-10"
+    },
+    "anacafe-fraijanes": {
+      "title": "Fraijanes Plateau (region profile)",
+      "publisher": "Anacafé (Guatemalan National Coffee Association), guatemalancoffees.com",
+      "url": "https://guatemalancoffees.com/main/regions-and-profiles/fraijanes-plateau/",
+      "accessed": "2026-10"
     }
   }
 }

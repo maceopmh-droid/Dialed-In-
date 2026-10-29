@@ -71,6 +71,7 @@
                 else if (kind === 'variety' || kind === 'species' || kind === 'process') {
                     const x = LearnEngine.entry(kind, id); if (!x || x.kind !== kind) return false;
                     if ((kind === 'variety' && LearnEngine.SAY[id]) || (kind === 'process' && LearnEngine.PSAY[id])) return true;
+                    if (kind === 'variety' && typeof LearnTree !== 'undefined' && LearnTree.has(id)) return true;   // v20.0: every variety has its family line
                 } else return false;
                 const ov = this.lxState().ov, n = ov && ov[`${kind}:${id}`];
                 if (n && n[2] >= 1) return true;
@@ -392,6 +393,7 @@
                 if (!p) return 'Learn';
                 if (p.kind === 'list') return { origins: 'Origins', varieties: 'Varieties', processes: 'Processes' }[p.id] || 'Learn';
                 if (p.kind === 'guide') { const c = this.learnContent(), g = c && c.guides.get(p.id); return g ? g.name : 'Guide'; }
+                if (p.kind === 'tree') return 'Coffee tree';
                 return this.lxName(p.kind, p.id);
             },
             // a Learn page leaves for a coffee: Back from the coffee comes back here (and to what was under it)
@@ -439,6 +441,7 @@
                 page.innerHTML = `${this.lxTopBar()}<div class="lx lx-pagebody">${out.html}</div>`;
                 if (keepScroll) v.scrollTop = y;
                 if (this.nlFitTiles) try { this.nlFitTiles(v); } catch (e) {}
+                if (p.kind === 'tree' && this.lxTreeInit) this.lxTreeInit(p);   // v20.0: the tree sizes itself to the screen
             },
             lxTopBar() { return `<div class="lx-topbar"><button type="button" class="lx-back" onclick="app.learnBack()">${this.lxIc('i-arrow-left', 20)}<span>${this.esc(this.lxBackLabel())}</span></button></div>`; },
             lxPageHtml(p) {
@@ -446,6 +449,7 @@
                 if (p.kind === 'list' && p.id === 'varieties') return this.lxVarietiesPage(p);
                 if (p.kind === 'list' && p.id === 'processes') return this.lxProcessesPage(p);
                 if (p.kind === 'guide') return this.lxGuidePage(p);
+                if (p.kind === 'tree') return this.lxTreePage(p);   // v20.0
                 const e = this.lxEntry(p.kind, p.id);
                 if (e) return this.lxEntryPage(e, p);
                 if (this.lxShortOk(p.kind, p.id)) return this.lxShortPage(p.kind, p.id, p);
@@ -537,7 +541,8 @@
                 const sp = all.filter(v => v.family === 'species');
                 const spBody = `${tree.species ? `<p class="lx-p lx-small">${this.esc(tree.species.text)}</p>` : ''}<div class="lx-group">${sp.map(v => this.lxRow({ title: v.name, sub: had(v.id) ? 'you’ve had it' : '', onclick: this.lxHasPage('species', v.id) ? this.lxGo('species', v.id) : '' })).join('')}</div>`;
                 const secs = [
-                    { key: 'varieties.tree', open: true, title: 'Coffee’s family tree', teaser: 'From wild Ethiopia to the F1 hybrids', body },
+                    // v20.0: the family tree has its own screen; this is the way in
+                    { key: 'varieties.tree', open: true, title: 'Coffee’s family tree', teaser: 'From wild Ethiopia to the F1 hybrids', body: typeof LearnTree !== 'undefined' ? (this.lxTreeDefs(), `<button type="button" class="lx-tdoor" onclick="app.lxTreeOpen('')">${LearnTree.sprig()}<span style="flex:1;min-width:0"><b>The coffee tree</b><small>Every variety grows from the one it came from. Tap a name to light up its line back to wild Ethiopia.</small></span>${this.lxIc('i-chev-right', 18)}</button>`) : body },
                     { key: 'varieties.az', open: false, title: 'All varieties, A to Z', meta: String(all.filter(v => v.family !== 'species').length), teaser: 'Every variety, with a family filter', body: azBody },
                     { key: 'varieties.species', open: false, title: 'Other species', teaser: sp.map(v => v.name).join(', '), body: spBody }
                 ];
