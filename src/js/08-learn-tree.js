@@ -46,11 +46,11 @@
             const bez = (p, t) => { const m = 1 - t; return [m * m * m * p[0] + 3 * m * m * t * p[2] + 3 * m * t * t * p[4] + t * t * t * p[6], m * m * m * p[1] + 3 * m * m * t * p[3] + 3 * m * t * t * p[5] + t * t * t * p[7]]; };
             const bezd = (p, t) => { const m = 1 - t; return [3 * m * m * (p[2] - p[0]) + 6 * m * t * (p[4] - p[2]) + 3 * t * t * (p[6] - p[4]), 3 * m * m * (p[3] - p[1]) + 6 * m * t * (p[5] - p[3]) + 3 * t * t * (p[7] - p[5])]; };
             // a branch: a tapering shape along a curve, with a lighter line down its lit side
-            function stem(p, w0, w1, cls = 'bark') {
+            function stem(p, w0, w1, cls = 'bark', fc = '') {
                 const N = 18, L = [], Rr = [], hl = [];
                 for (let i = 0; i <= N; i++) { const t = i / N, [x, y] = bez(p, t), [dx, dy] = bezd(p, t), l = Math.hypot(dx, dy) || 1, w = (w0 + (w1 - w0) * Math.pow(t, 0.8)) / 2, nx = -dy / l * w, ny = dx / l * w; L.push([x + nx, y + ny]); Rr.push([x - nx, y - ny]); if (i > 1 && i < N - 1) hl.push([x - nx * 0.45, y - ny * 0.45]); }
                 const d = 'M' + L.map(q => q.map(i0).join(' ')).join('L') + 'L' + Rr.reverse().map(q => q.map(i0).join(' ')).join('L') + 'Z';
-                return `<path d="${d}" class="${cls}"/><path d="M${hl.map(q => q.map(i0).join(' ')).join('L')}" class="barkhl" style="stroke-width:${f1(Math.max(1, Math.min(w0, 30) * 0.18))}"/>`;
+                return `<path d="${d}" class="${cls}${fc ? ' fc" style="--fc:' + fc : ''}"/><path d="M${hl.map(q => q.map(i0).join(' ')).join('L')}" class="barkhl" style="stroke-width:${f1(Math.max(1, Math.min(w0, 30) * 0.18))}"/>`;
             }
             function defs() {
                 const g = (id, a, b, c) => `<radialGradient id="${id}" cx=".38" cy=".34" r=".75"><stop offset="0" stop-color="${a}"/><stop offset=".55" stop-color="${b}"/><stop offset="1" stop-color="${c}"/></radialGradient>`;
@@ -99,6 +99,9 @@
             const HOW = { W: 'where Arabica began', Y: 'where coffee was first farmed', AB: 'Ethiopian types grown abroad', SEL: 'chosen from forest trees, 1970s', 74110: 'a selection', 74112: 'a selection', 74140: 'a selection', 74148: 'a selection', 74158: 'a selection', 74165: 'a selection', 75227: 'a selection', 'ethiopian-landrace': '“heirloom”: Ethiopia’s many local types', kurume: 'a landrace', wolisho: 'a landrace', 'gori-gesha': 'a landrace', 'gesha-1931': 'a forest selection resembling Panama Gesha', 'wush-wush': 'a landrace', 'rume-sudan': 'semi-wild coffee from the Boma Plateau, South Sudan', java: 'a selection', yemenia: 'Yemen’s own genetic group', typica: 'one of the two old lines', kent: 'a selection', maragogipe: 'a natural mutation', pache: 'a natural mutation', sl14: 'a selection', bourbon: 'one of the two old lines', 'yellow-bourbon': 'a natural mutation', k7: 'a selection', jackson: 'a selection', bm139: 'a selection', caturra: 'a dwarf mutation of Bourbon', pacas: 'a dwarf mutation', 'villa-sarchi': 'a dwarf mutation', tekisic: 'a selection', 'mundo-novo': 'Bourbon × Typica', catuai: 'Caturra × Mundo Novo', pacamara: 'Pacas × Maragogipe', 'timor-hybrid': 'Arabica × Robusta, found on Timor', catimor: 'Caturra × Timor Hybrid', sarchimor: 'Villa Sarchi × Timor Hybrid', tabi: 'Timor Hybrid × Bourbon', 'costa-rica-95': 'a selection', 'anacafe-14': 'Catimor × Pacamara', parainema: 'a selection', cuscatleco: 'a selection', 'ipr-107': 'IAPAR 59 × Mundo Novo', paraiso: 'Timor Hybrid × Catuaí', catigua: 'Timor Hybrid × Catuaí', icatu: 'Bourbon × Robusta', catucai: 'Catuaí × Icatu', arara: 'Obatã × Catuaí', ateng: 'a selection', andungsari: 'a selection', 'sigarar-utang': 'a farm find: Timor Hybrid × another Arabica', s795: 'Kent × S288', 'sln-9': 'Timor Hybrid × Ethiopian landrace', batian: 'a mix of SL28, SL34, K7, Rume Sudan, N39, SL4 and Timor Hybrid lines', centroamericano: 'Sarchimor × Rume Sudan', starmaya: 'Marsellesa × a wild Ethiopian tree', 'mundo-maya': 'Sarchimor × a wild Ethiopian tree', milenio: 'Sarchimor × Rume Sudan', casiopea: 'Caturra × a wild Ethiopian tree', evaluna: 'Catimor × an Ethiopian tree from CATIE’s collection', nayarita: 'Catimor × a wild Ethiopian tree', mundomex: 'Catimor × a wild Ethiopian tree', esperanza: 'Sarchimor × an Ethiopian tree from CATIE’s collection', h3: 'Caturra × an Ethiopian tree from CATIE’s collection', 'ruiru-11': 'Catimor × SL28' };
             const GROUP = { W: 'Wild Ethiopia', SEL: 'Research picks', AB: 'Ethiopians abroad', Y: 'Yemen' };
             const PLATES = { W: ['Wild Ethiopia', 'where Arabica began', '#c98bbb'], Y: ['Yemen', 'where coffee was first farmed', '#d7b46a'], typica: ['Typica family', 'old line, via Java', '#b9a07a'], bourbon: ['Bourbon family', 'old line, via Réunion', '#e0b65a'], AB: ['Ethiopians abroad', 'sold under other names', '#d9a1c7'], 'timor-hybrid': ['Timor Hybrid', 'Arabica × Robusta: the Robusta line', '#6fb3a0'], catimor: ['Catimors', 'Caturra × Timor Hybrid', '#6fb3a0'], sarchimor: ['Sarchimors', 'Villa Sarchi × Timor Hybrid', '#6fb3a0'], SEL: ['Research picks', 'chosen from forest trees', '#c98bbb'] };
+            // v20.3: each family's color: its branches are tinted with it, and the chips under the tree are its key
+            const FAMC = { W: '#c98bbb', SEL: '#c98bbb', AB: '#e8a7c8', Y: '#e0915a', typica: '#86a9d9', bourbon: '#e3b94a', 'timor-hybrid': '#5fbfa8', catimor: '#5fbfa8', sarchimor: '#5fbfa8', f1: '#9cc97a' };
+            const famOf = id => { if (F1.has(id)) return 'f1'; for (let p = id; p && p !== 'arabica'; p = MAIN[p]) if (FAMC[p]) return p; return ''; };
             const F1 = new Set(['centroamericano', 'starmaya', 'mundo-maya', 'milenio', 'casiopea', 'evaluna', 'nayarita', 'mundomex', 'esperanza', 'h3', 'ruiru-11']);
             const SIMPLE = new Set(['ethiopian-landrace', 'gesha', 'rume-sudan', 'java', 'pink-bourbon', 'sidra', 'yemenia', 'typica', 'blue-mountain', 'maragogipe', 'sl34', 'timor-hybrid', 'tabi', 'bourbon', 'yellow-bourbon', 'sl28', 'batian', 'caturra', 'pacas', 'villa-sarchi', 'mundo-novo', 'catuai', 'catimor', 'castillo', 'colombia-var', 'pacamara', 'sarchimor', 'parainema', 'marsellesa', 'centroamericano', 'starmaya', 'ruiru-11']);
             const ORD = { arabica: ['W', 'Y'], W: ['AB', 'SEL', 'ethiopian-landrace', 'gesha', 'gori-gesha', 'rume-sudan'], Y: ['yemenia', 'monte-claro', 'bourbon', 'typica'],
@@ -146,7 +149,7 @@
             // ctx: { name(id), mine: Set of variety ids you've logged }
             function draw(mode, ctx = {}) {
                 const EV = mode === 'every', nodes = build(mode), geo = layout(nodes, mode), { T, G, Rr } = geo;
-                const name = ctx.name || (id => id), mine = ctx.mine || new Set();
+                const name = ctx.name || (id => id), mine = ctx.mine || new Set(), FS = ctx.fam || '';   // FS: 'tint' (colored branches), 'dots' (a colored dot by each name), '' (plain)
                 const Lf = EV ? 92 : 104, all = Object.values(nodes), root = nodes.arabica;
                 seed(5);
                 const toward = (deg, w) => { const r = deg * Math.PI / 180; return Math.atan2(Math.sin(r) + w, Math.cos(r)) * 180 / Math.PI; };
@@ -176,7 +179,8 @@
                     n.dir = Math.atan2(n.y - c2[1], n.x - c2[0]) * 180 / Math.PI;
                     const path = [p.x, p.y, c1[0], c1[1], c2[0], c2[1], n.x, n.y]; PATHS[n.id] = path.map(v => Math.round(v));
                     const unsure = UNSURE.has(n.id) || n.id === 'monte-claro';
-                    stems += unsure ? `<g class="unsure">${stem(path, width(n) * 1.05, width(n) * 0.82)}</g>` : stem(path, width(n) * 1.05, width(n) * 0.82);
+                    const fc = FS ? FAMC[famOf(n.id)] || '' : '';
+                    stems += unsure ? `<g class="unsure">${stem(path, width(n) * 1.05, width(n) * 0.82, 'bark', fc)}</g>` : stem(path, width(n) * 1.05, width(n) * 0.82, 'bark', fc);
                     leafy(path, dist, n, unsure);
                     // the tip of a branch: a tuft of younger, lighter leaves
                     if (!n.kids.length) { for (let i = 0; i < 5; i++) leaves += leaf(n.x, n.y, toward(n.dir + (i - 2) * 34 + (R() - 0.5) * 14, 0.25), Lf * (0.55 + 0.25 * R()), { tone: unsure ? 'u' : i % 2 ? 'n' : Math.floor(R() * 3), ratio: 0.15 + 0.06 * R() }); }
@@ -193,10 +197,12 @@
                 const LABELS = [];
                 Object.keys(PLATES).forEach(g => { const n = nodes[g]; if (!n) return; const [nm, desc, col] = PLATES[g]; LABELS.push({ x: n.x, y: n.y, text: nm, desc, col, kind: 'group', id: g, prio: 90 + Math.min(9, n.w / 4) }); sub(n).forEach(m => boxGrow(g, m.x - 170, m.y - 170, m.x + 170, m.y + 170)); });
                 all.forEach(n => {
-                    if (n === root || GROUP[n.id] || PLATES[n.id]) return;
-                    const prio = mine.has(n.id) ? 70 : n.kids.length ? 45 + Math.min(20, n.w) : F1.has(n.id) ? 22 : 30;
+                    // (v20.3: with the families as colors, Typica, Bourbon, Timor Hybrid, Catimor and Sarchimor are names on the tree
+                    // like any variety, and among the first to show)
+                    if (n === root || GROUP[n.id] || (PLATES[n.id] && !FS)) return;
+                    const prio = PLATES[n.id] ? 88 : mine.has(n.id) ? 70 : n.kids.length ? 45 + Math.min(20, n.w) : F1.has(n.id) ? 22 : 30;
                     const side = n.kids.length ? '' : n.a < -118 ? 'l' : n.a > -62 ? 'r' : 'u';
-                    LABELS.push({ x: n.x, y: n.y, text: name(n.id), kind: 'variety', id: n.id, own: mine.has(n.id), f1: F1.has(n.id), q: UNSURE.has(n.id), side, prio });
+                    LABELS.push({ x: n.x, y: n.y, text: name(n.id), kind: 'variety', id: n.id, own: mine.has(n.id), f1: F1.has(n.id), q: UNSURE.has(n.id), side, prio, fc: FAMC[famOf(n.id)] || '' });
                     if (F1.has(n.id)) boxGrow('f1', n.x - 190, n.y - 190, n.x + 190, n.y + 190);
                 });
                 // the ground, and Arabica's two parent species standing under the crown's edges
@@ -335,6 +341,6 @@
                     + `<path d="M150 12C220 12 262 62 262 120C262 180 216 228 150 228C84 228 38 180 38 120C38 62 80 12 150 12Z" class="xsk${c('skin')}"/><path d="M150 22C212 22 252 66 252 120C252 174 210 218 150 218C90 218 48 174 48 120C48 66 88 22 150 22Z" class="xpu${c('fruit')}"/><path d="M150 44C198 44 230 78 230 120C230 162 198 196 150 196C102 196 70 162 70 120C70 78 102 44 150 44Z" class="xmu${c('mucilage')}"/>${bean(1)}${bean(-1)}<path d="M150 12C148 6 150 0 156 -2" class="xstk"/></svg>`;
             }
             const children = id => [...new Set(Object.keys(MAIN).filter(k => MAIN[k] === id).concat(Object.keys(SECOND).filter(k => SECOND[k] === id)))];
-            return { draw, line, defs, sprig, cut, chain, path, children, has: id => (!!MAIN[id] && !GROUP[id]) || !!ALT[id], onTree: id => !!MAIN[id] && !GROUP[id], simple: id => SIMPLE.has(id), unsure: id => UNSURE.has(id), second: id => SECOND[id] || null, MAIN, SECOND, ALT, WHEN, HOW, GROUP, VERSION: 1 };
+            return { draw, line, defs, sprig, cut, chain, path, children, FAMC, famOf, has: id => (!!MAIN[id] && !GROUP[id]) || !!ALT[id], onTree: id => !!MAIN[id] && !GROUP[id], simple: id => SIMPLE.has(id), unsure: id => UNSURE.has(id), second: id => SECOND[id] || null, MAIN, SECOND, ALT, WHEN, HOW, GROUP, VERSION: 1 };
         })();
         if (typeof module !== 'undefined' && module.exports) module.exports = LearnTree;

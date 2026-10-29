@@ -63,6 +63,11 @@
         html[data-look="new"] .lx-tl.mini small { display: none; }
         html[data-look="new"] .lx-tl.g.mini { padding-top: 3px; padding-bottom: 4px; }
         html[data-look="new"] .lx-tl.g.mini > i { top: 9px; }
+        /* v20.3: each family's branches carry its color (the chips under the tree are the key); species names are small */
+        html[data-look="new"] .lxk .bark.fc { fill: color-mix(in srgb, var(--fc) 74%, var(--lx-bark)); }
+        html[data-look="new"][data-theme="light"] .lxk .bark.fc { fill: color-mix(in srgb, var(--fc) 78%, var(--lx-bark)); }
+        html[data-look="new"] .lx-tl.v.sp { font: italic 500 13px/1.15 var(--nl-serif); color: var(--l); }
+        html[data-look="new"] .lx-tl.v .fcd { display: inline-block; width: 7px; height: 7px; border-radius: 4px; margin-right: 4px; vertical-align: 1px; }
         html[data-look="new"] .lx-tmine { position: absolute; left: 12px; top: 12px; z-index: 2; height: 36px; padding: 0 12px; border-radius: 18px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 650; color: var(--t); background: color-mix(in srgb, var(--c, var(--nl-surface)) 84%, transparent); border: 1px solid var(--hl); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
         html[data-look="new"] .lx-tmine i { width: 10px; height: 10px; border-radius: 5px; background: var(--lx-cherry); }
         html[data-look="new"] .lx-tmine.off { opacity: 0.55; }
