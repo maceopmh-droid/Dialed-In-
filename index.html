@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v20.1 -->
+<!-- Dialed In v20.2 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="20.1">
+    <meta name="dialed-in-version" content="20.2">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -5610,6 +5610,17 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"][data-theme="light"] .lx-cupbox .nl-nt, html[data-look="new"][data-theme="light"] .lx-match .nl-nt, html[data-look="new"][data-theme="light"] .lx-pick .nl-nt:not(.on) { background: var(--fbg); }
         html[data-look="new"] .lx-cupbox .lx-p { display: block; margin-top: 10px; font-size: 14.5px; }
         html[data-look="new"] .lx-cupbox .lx-note { display: block; }
+
+        /* v20.1: the Learn tab sits inside the page's own 16px margins (like Mine, All and the feed), so its parts add none */
+        html[data-look="new"] #grid .lx-home > .lx-searchbar, html[data-look="new"] #grid .lx-home > .lx-doors2, html[data-look="new"] #grid .lx-home > .lx-f, html[data-look="new"] #grid .lx-home > .lx-folds, html[data-look="new"] #grid .lx-home > .lx-passrow, html[data-look="new"] #grid .lx-home > .lx-sec { margin-left: 0; margin-right: 0; }
+        html[data-look="new"] #grid .lx-home > .lx-searchbar { width: 100%; }
+
+        /* v20.2: On your shelf swipes sideways; each card is most of the screen wide so the next one peeks in */
+        html[data-look="new"] .lx-shelf.lx-shelfrow { display: flex; gap: 10px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding: 0 16px; margin: 0 -16px; padding: 0 16px 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        html[data-look="new"] .lx-shelf.lx-shelfrow::-webkit-scrollbar { display: none; }
+        html[data-look="new"] .lx-shelfrow > .lx-card { flex: 0 0 82%; width: auto; scroll-snap-align: start; display: flex; flex-direction: column; }
+        html[data-look="new"] .lx-shelfrow.lx-one > .lx-card { flex-basis: 100%; }
+        html[data-look="new"] .lx-shelfrow .lx-dec { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
     </style>
 </head>
 <body>
@@ -6256,7 +6267,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v20.1</div>
+            <div class="app-version">Dialed In · v20.2</div>
         </div>
     </div>
 
@@ -28130,7 +28141,8 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             lxShelfSec() {
                 const list = this.lxShelf(); if (!list.length) return null;
                 const cards = list.map(c => this.lxShelfCard(c));
-                return { key: 'home.shelf', open: true, title: 'On your shelf', meta: String(list.length), teaser: list.slice(0, 3).map(c => c.bean.name || 'Coffee').join(', '), body: `<div class="lx-shelf">${this.moreHtml(cards, 3, '')}</div>` };
+                // v20.2: a row you swipe sideways (the next card peeks in), not a list that drops down
+                return { key: 'home.shelf', open: true, title: 'On your shelf', meta: String(list.length), teaser: list.slice(0, 3).map(c => c.bean.name || 'Coffee').join(', '), body: `<div class="lx-shelf lx-shelfrow${list.length === 1 ? ' lx-one' : ''}">${cards.join('')}</div>` };
             },
             lxShelfCard(c) {
                 const bean = c.bean, fam = this.famOfCoffee(bean), tags = this.lxTagChips(bean, false);
