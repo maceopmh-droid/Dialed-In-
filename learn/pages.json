@@ -5486,7 +5486,7 @@
       "tint": "sweet",
       "kicker": "Origin · North & Central America",
       "summary": "Eight regions, small farm mills, and the home of honey processing.",
-      "lede": "Coffee has grown in Costa Rica since 1779. It now comes from eight regions, from high Tarrazú, which made about 40% of it in 2019/20, to low Turrialba, which starts picking as early as July.",
+      "lede": "Coffee has grown in Costa Rica since 1779. It now comes from eight regions, from high Tarrazú, which made about 40% of it in Royal Coffee’s 2020 count, to low Turrialba, which starts picking as early as July.",
       "ledeSrc": [
         "wiki-cri",
         "cafeimports-cr",
@@ -5548,7 +5548,7 @@
         {
           "id": "tarrazu",
           "name": "Tarrazú",
-          "teaser": "About 40% of the crop (2019/20), mostly SHB. Sweet and honeyed",
+          "teaser": "About 40% of the crop (Royal Coffee, 2020), mostly SHB. Sweet and honeyed",
           "alt": "1,200–1,900 m · 3,900–6,200 ft",
           "src": [
             "royalny-cr",
@@ -5569,7 +5569,7 @@
         {
           "id": "brunca",
           "name": "Brunca",
-          "teaser": "About 20% of the crop (2019/20), in the south around Coto Brus and Pérez Zeledón. Smoother lower down; higher lots sweeter, with citrus",
+          "teaser": "About 20% of the crop (Royal Coffee, 2020), in the south around Coto Brus and Pérez Zeledón. Smoother lower down; higher lots sweeter, with citrus",
           "alt": "600–1,700 m · 2,000–5,600 ft",
           "src": [
             "royalny-cr",
