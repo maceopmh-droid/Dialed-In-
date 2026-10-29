@@ -1,0 +1,135 @@
+        /* ===================== v20.0: Learn, coffee's family tree =====================
+           The tree screen, each variety's family line and the body/acidity ranges. Drawn in code by LearnTree; its leaves are
+           two flat shapes each (lu = the lit half, ld = the shaded half), the background leaves one (lb). New look only. */
+        html[data-look="new"] { --lx-bark: #7a5a42; --lx-barkhl: rgba(255, 228, 196, 0.2); --lx-cherry: #e0544a;
+            --lu0: #4f7e40; --ld0: #345f2e; --lu1: #5e8c46; --ld1: #3c6833; --lu2: #457339; --ld2: #2c5329; --lun: #a0c875; --ldn: #6f9a4c; --luu: #839f7c; --ldu: #5f7a59;
+            --lbd: #24421f; --lb0: #3a6a32; --lb1: #477a3b; --lb2: #335f2d; --lbf: #9a7140; }
+        html[data-look="new"][data-theme="light"] { --lx-bark: #6e4c34; --lx-barkhl: rgba(255, 236, 210, 0.35); --lx-cherry: #c8352c;
+            --lu0: #5e8f48; --ld0: #3d6c35; --lu1: #6c9c50; --ld1: #46773b; --lu2: #52833f; --ld2: #36632f; --lun: #a9d07b; --ldn: #7aa752; --luu: #97b38f; --ldu: #6f8c68;
+            --lbd: #335d2d; --lb0: #4a7d3e; --lb1: #578a46; --lb2: #3f7036; --lbf: #b98a4a; }
+        html[data-look="new"] svg.lxk { display: block; }   /* (the page hides svg by default) */
+        html[data-look="new"] .lxk .lu0 { fill: var(--lu0); } html[data-look="new"] .lxk .ld0 { fill: var(--ld0); }
+        html[data-look="new"] .lxk .lu1 { fill: var(--lu1); } html[data-look="new"] .lxk .ld1 { fill: var(--ld1); }
+        html[data-look="new"] .lxk .lu2 { fill: var(--lu2); } html[data-look="new"] .lxk .ld2 { fill: var(--ld2); }
+        html[data-look="new"] .lxk .lun { fill: var(--lun); } html[data-look="new"] .lxk .ldn { fill: var(--ldn); }
+        html[data-look="new"] .lxk .luu { fill: var(--luu); } html[data-look="new"] .lxk .ldu { fill: var(--ldu); }
+        html[data-look="new"] .lxk .lbd { fill: var(--lbd); } html[data-look="new"] .lxk .lb0 { fill: var(--lb0); } html[data-look="new"] .lxk .lb1 { fill: var(--lb1); } html[data-look="new"] .lxk .lb2 { fill: var(--lb2); } html[data-look="new"] .lxk .lbf { fill: var(--lbf); }
+        html[data-look="new"] .lxk .lf0 { fill: var(--lu0); } html[data-look="new"] .lxk .lf1 { fill: var(--lu1); } html[data-look="new"] .lxk .lf2 { fill: var(--ld0); } html[data-look="new"] .lxk .lfn { fill: var(--lun); } html[data-look="new"] .lxk .lfu { fill: var(--luu); }
+        html[data-look="new"] .lxk .bark { fill: var(--lx-bark); }
+        html[data-look="new"] .lxk .barkhl { fill: none; stroke: var(--lx-barkhl); stroke-linecap: round; }
+        html[data-look="new"] .lxk .chl { fill: rgba(255, 255, 255, 0.55); }
+        html[data-look="new"] .lxk .bl ellipse { fill: #fbf8ef; stroke: rgba(160, 150, 120, 0.5); stroke-width: 0.8; }
+        html[data-look="new"] .lxk .blc { fill: #e8d48a; }
+        html[data-look="new"] .lxk .gr { fill: none; stroke: #5f8a3c; stroke-width: 3; stroke-linecap: round; opacity: 0.75; }
+        html[data-look="new"] .lxk .shade { fill: rgba(0, 0, 0, 0.22); }
+        html[data-look="new"][data-theme="light"] .lxk .shade { fill: rgba(60, 50, 30, 0.12); }
+        html[data-look="new"] .lxk .canopy { opacity: 0.62; } html[data-look="new"][data-theme="light"] .lxk .canopy { opacity: 0.52; }
+        html[data-look="new"] .lxk .midc { opacity: 0.8; } html[data-look="new"][data-theme="light"] .lxk .midc { opacity: 0.7; }
+        html[data-look="new"] .lxk .unsure { opacity: 0.5; }
+        html[data-look="new"] .lxk .xline { fill: none; stroke: var(--t); stroke-width: 3; stroke-dasharray: 2 10; stroke-linecap: round; opacity: 0.38; }
+        html[data-look="new"] .lxk .xline.par { stroke: var(--l); opacity: 0.7; }
+        html[data-look="new"] .lxk .xline.rob { stroke: #6fb3a0; stroke-width: 5; stroke-dasharray: 3 12; opacity: 0.85; }
+        html[data-look="new"] .lx-tsvg.focus .t-links { opacity: 0.25; }
+        html[data-look="new"] #lx-thl .hl { fill: none; stroke: #f2cf72; stroke-width: 15; stroke-linecap: round; opacity: 0.92; }
+        html[data-look="new"] #lx-thl .hl2 { stroke: #8fd0bd; stroke-width: 10; }
+        html[data-look="new"] #lx-thl .dash { stroke-dasharray: 2 22; stroke-width: 12; }
+        html[data-look="new"] #lx-thl .hlc { fill: none; stroke: #f2cf72; stroke-width: 7; }
+        html[data-look="new"][data-theme="light"] #lx-thl .hl, html[data-look="new"][data-theme="light"] #lx-thl .hlc { stroke: #d9a521; }
+        html[data-look="new"][data-theme="light"] #lx-thl .hl2 { stroke: #3f9a82; }
+
+        /* the screen: one row of two choices, the tree, its names, the zoom buttons, the card for a lit-up line */
+        html[data-look="new"] .lx-tmode { margin: 12px 16px 0; }
+        html[data-look="new"] .lx-seg2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 3px; border-radius: 14px; background: var(--pill); border: 1px solid var(--hl); }
+        html[data-look="new"] .lx-seg2 button { height: 34px; border-radius: 11px; font-size: 14px; font-weight: 650; color: var(--l); text-align: center; }
+        html[data-look="new"] .lx-seg2 button.on { background: var(--box); color: var(--t); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
+        html[data-look="new"][data-theme="dark"] .lx-seg2 button.on { background: rgba(238, 234, 226, 0.12); }
+        html[data-look="new"] .lx-twrap { position: relative; margin: 12px 0 0; height: 560px; overflow: hidden; touch-action: none; -webkit-user-select: none; user-select: none; background: radial-gradient(120% 80% at 50% 100%, color-mix(in srgb, var(--k) 10%, transparent), transparent 70%); border-top: 1px solid var(--hl); border-bottom: 1px solid var(--hl); }
+        html[data-look="new"] .lx-tstage { position: absolute; left: 0; top: 0; will-change: transform; }
+        html[data-look="new"] .lx-tsvg { display: block; width: 100%; height: 100%; }
+        html[data-look="new"] .lx-tlab { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+        html[data-look="new"] .lx-tlab.moving .lx-tl { opacity: 0; transition: opacity 0.1s; }
+        html[data-look="new"] .lx-tl { position: absolute; left: 0; top: 0; pointer-events: auto; white-space: nowrap; visibility: hidden; font: 650 13px/1.15 var(--font-main, -apple-system, system-ui, sans-serif); color: var(--t); text-shadow: 0 0 3px var(--pg, var(--nl-page)), 0 0 3px var(--pg, var(--nl-page)), 0 0 6px var(--pg, var(--nl-page)); padding: 1px 2px; }
+        html[data-look="new"] .lx-tl.v.own { font-weight: 750; color: var(--n); display: inline-flex; align-items: center; gap: 4px; }
+        html[data-look="new"] .lx-tl.v.own i { width: 7px; height: 7px; border-radius: 4px; background: var(--lx-cherry); box-shadow: 0 0 0 2px var(--pg, var(--nl-page)); }
+        html[data-look="new"] .lx-tl.v.f1 { color: var(--k); }
+        html[data-look="new"] .lx-tl.v.q::after { content: '?'; margin-left: 2px; opacity: 0.65; }
+        html[data-look="new"] .lx-tl.v.on { color: var(--n); font-weight: 800; }
+        html[data-look="new"] .lx-tl.g, html[data-look="new"] .lx-tl.s { text-shadow: none; padding: 4px 10px 5px; border-radius: 12px; background: color-mix(in srgb, var(--box) 92%, transparent); border: 1px solid var(--hl); display: inline-flex; flex-direction: column; align-items: flex-start; }
+        html[data-look="new"] .lx-tl.g { padding-left: 24px; }
+        html[data-look="new"] .lx-tl.s { align-items: center; }
+        html[data-look="new"] .lx-tl.g b, html[data-look="new"] .lx-tl.s b { font: 500 15px/1.15 var(--nl-serif); color: var(--n); }
+        html[data-look="new"] .lx-tl.g small, html[data-look="new"] .lx-tl.s small { font: 500 10.5px/1.2 var(--font-main, -apple-system, system-ui, sans-serif); color: var(--l); }
+        html[data-look="new"] .lx-tl.g > i { position: absolute; left: 10px; top: 10px; width: 8px; height: 8px; border-radius: 4px; }
+        html[data-look="new"] .lx-tl.mini small { display: none; }
+        html[data-look="new"] .lx-tl.g.mini { padding-top: 3px; padding-bottom: 4px; }
+        html[data-look="new"] .lx-tl.g.mini > i { top: 9px; }
+        html[data-look="new"] .lx-tmine { position: absolute; left: 12px; top: 12px; z-index: 2; height: 36px; padding: 0 12px; border-radius: 18px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 650; color: var(--t); background: color-mix(in srgb, var(--c, var(--nl-surface)) 84%, transparent); border: 1px solid var(--hl); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+        html[data-look="new"] .lx-tmine i { width: 10px; height: 10px; border-radius: 5px; background: var(--lx-cherry); }
+        html[data-look="new"] .lx-tmine.off { opacity: 0.55; }
+        html[data-look="new"] .lx-tctrl { position: absolute; right: 12px; top: 12px; z-index: 2; display: flex; flex-direction: column; gap: 8px; }
+        html[data-look="new"] .lx-tglass { width: 38px; height: 38px; border-radius: 19px; display: grid; place-items: center; color: var(--t); background: color-mix(in srgb, var(--c, var(--nl-surface)) 84%, transparent); border: 1px solid var(--hl); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+        html[data-look="new"] .lx-tglass .icon { width: 18px; height: 18px; stroke: currentColor; }
+        html[data-look="new"] .lx-tminus i { width: 13px; height: 1.8px; border-radius: 1px; background: currentColor; }
+        html[data-look="new"] .lx-tfit i { width: 15px; height: 15px; background: linear-gradient(currentColor, currentColor) 0 0 / 5px 1.8px, linear-gradient(currentColor, currentColor) 0 0 / 1.8px 5px, linear-gradient(currentColor, currentColor) 100% 0 / 5px 1.8px, linear-gradient(currentColor, currentColor) 100% 0 / 1.8px 5px, linear-gradient(currentColor, currentColor) 0 100% / 5px 1.8px, linear-gradient(currentColor, currentColor) 0 100% / 1.8px 5px, linear-gradient(currentColor, currentColor) 100% 100% / 5px 1.8px, linear-gradient(currentColor, currentColor) 100% 100% / 1.8px 5px; background-repeat: no-repeat; }
+        html[data-look="new"] .lx-tfocus { position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 3; display: none; align-items: center; gap: 10px; padding: 10px 8px 10px 14px; border-radius: 18px; background: color-mix(in srgb, var(--box) 90%, transparent); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border: 1px solid var(--hl); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25); }
+        html[data-look="new"] .lx-tfocus.on { display: flex; }
+        html[data-look="new"] .lx-tf-t { flex: 1; min-width: 0; }
+        html[data-look="new"] .lx-tf-t b { display: block; font: 500 18px/1.2 var(--nl-serif); color: var(--n); }
+        html[data-look="new"] .lx-tf-t span { display: block; font-size: 12.5px; line-height: 1.35; color: var(--l); margin-top: 2px; }
+        html[data-look="new"] .lx-tf-t em { font-style: normal; color: var(--t); }
+        html[data-look="new"] .lx .lx-tf-go { flex: none; height: 36px; padding: 0 16px; border-radius: 18px; background: var(--k); color: var(--c, var(--nl-surface)); font-size: 14.5px; font-weight: 650; }
+        html[data-look="new"] .lx .lx-tf-x { flex: none; width: 32px; height: 32px; border-radius: 16px; color: var(--l); display: grid; place-items: center; }
+        html[data-look="new"] .lx-tclusters { display: flex; gap: 6px; overflow-x: auto; padding: 12px 16px 0; scrollbar-width: none; }
+        html[data-look="new"] .lx-tclusters::-webkit-scrollbar { display: none; }
+        html[data-look="new"] .lx .lx-tclusters button { flex: 0 0 auto; height: 34px; padding: 0 12px 0 10px; border-radius: 17px; font-size: 13.5px; font-weight: 650; display: inline-flex; align-items: center; gap: 7px; background: var(--pill); border: 1px solid var(--hl); color: var(--t); }
+        html[data-look="new"] .lx-tclusters i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+        html[data-look="new"] .lx-tcap { margin: 12px 16px 0; font-size: 13.5px; line-height: 1.45; color: var(--l); min-height: 40px; }
+        html[data-look="new"] .lx-tcap b { color: var(--t); font-weight: 650; margin-right: 4px; }
+        html[data-look="new"] .lx .lx-tlnk { color: var(--k); font-weight: 650; }
+        /* Varieties: the way in */
+        html[data-look="new"] .lx .lx-tdoor { display: flex; align-items: center; gap: 14px; width: 100%; padding: 12px 14px; border-radius: 18px; background: var(--box); border: 1px solid var(--hl); text-align: left; }
+        html[data-look="new"] .lx-tdoor svg { flex: none; width: 92px; height: 92px; }
+        html[data-look="new"] .lx-tdoor b { display: block; font: 500 21px/1.15 var(--nl-serif); color: var(--n); }
+        html[data-look="new"] .lx-tdoor small { display: block; font-size: 13.5px; line-height: 1.35; color: var(--l); margin-top: 4px; }
+        html[data-look="new"] .lx-tdoor .icon { flex: none; width: 18px; height: 18px; color: var(--l); }
+
+        /* a variety's family line: Wild Ethiopia down to it, one row each */
+        html[data-look="new"] .lx-flbox { padding: 12px 14px 14px; }
+        html[data-look="new"] .lx-fline { position: relative; margin: 0 -2px; }
+        html[data-look="new"] .lx-fl-svg { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+        html[data-look="new"] .lx-fl-ln { fill: none; stroke: var(--lx-bark); stroke-width: 3.5; stroke-linecap: round; }
+        html[data-look="new"] .lx-fl-ln.maybe { stroke-dasharray: 1 7; }
+        html[data-look="new"] .lx-fl-c { fill: color-mix(in srgb, var(--k) 14%, var(--box)); stroke: color-mix(in srgb, var(--lx-bark) 75%, transparent); stroke-width: 1.5; }
+        html[data-look="new"] .lx-fl-dot.me .lx-fl-c { fill: color-mix(in srgb, var(--k) 24%, var(--box)); stroke: var(--k); stroke-width: 2; }
+        html[data-look="new"] .lx-fl-ring { fill: none; stroke: var(--k); stroke-width: 1.5; opacity: 0.4; }
+        html[data-look="new"] .lxk .fland { fill: color-mix(in srgb, var(--k) 80%, var(--t)); }
+        html[data-look="new"] .lxk .fglobe { fill: none; stroke: var(--l); stroke-width: 1.4; }
+        html[data-look="new"] .lxk .fq { fill: var(--l); font-family: var(--font-main, -apple-system, system-ui, sans-serif); }
+        html[data-look="new"] .lx-fl-row { position: absolute; left: 0; right: 0; display: flex; align-items: center; gap: 8px; text-align: left; }
+        html[data-look="new"] div.lx-fl-row { cursor: default; }
+        html[data-look="new"] .lx-fl-t { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+        html[data-look="new"] .lx-fl-t b { font-size: 15px; font-weight: 600; color: color-mix(in srgb, var(--t) 85%, transparent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        html[data-look="new"] .lx-fl-row.me .lx-fl-t b { font-size: 16.5px; font-weight: 750; color: var(--t); }
+        html[data-look="new"] .lx-fl-sub { font-size: 12.5px; color: var(--l); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+        html[data-look="new"] .lx-fl-sub em { font-style: normal; font-weight: 700; color: var(--k); margin-right: 3px; }
+        html[data-look="new"] .lx-fl-yo { flex: none; font-size: 12px; font-weight: 650; color: var(--l); display: inline-flex; align-items: center; gap: 5px; }
+        html[data-look="new"] .lx-fl-yo::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--lx-cherry); }
+        html[data-look="new"] .lx .lx-flbtn { margin-top: 14px; width: 100%; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; font-weight: 650; background: var(--pill); border: 1px solid var(--hl); color: var(--t); }
+        html[data-look="new"] .lx-flbtn .icon { stroke: currentColor; }
+
+        /* body and acidity: where a description lands, as a range */
+        html[data-look="new"] .lx-feel { margin-top: 14px; display: flex; flex-direction: column; gap: 14px; }
+        html[data-look="new"] .lx-box > .lx-feel:first-child { margin-top: 0; }
+        html[data-look="new"] .lx-fb-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+        html[data-look="new"] .lx-fb-h span { font-size: 12.5px; font-weight: 700; color: var(--l); }
+        html[data-look="new"] .lx-fb-h b { font-size: 13.5px; font-weight: 600; color: var(--t); text-align: right; line-height: 1.3; }
+        html[data-look="new"] .lx-fb-tr { position: relative; height: 8px; border-radius: 4px; margin: 9px 8px 0; background: var(--pill); box-shadow: inset 0 0 0 1px var(--hl); }
+        html[data-look="new"] .lx-fb.body .lx-fb-tr { background: linear-gradient(90deg, color-mix(in srgb, #d8bb92 22%, transparent), color-mix(in srgb, #6b4128 30%, transparent)); }
+        html[data-look="new"] .lx-fb-r { position: absolute; top: -4px; height: 16px; border-radius: 8px; background: color-mix(in srgb, var(--t) 62%, var(--box)); box-shadow: 0 0 0 2px var(--box), 0 1px 4px rgba(0, 0, 0, 0.25); }
+        html[data-look="new"] .lx-fb.k-citrus .lx-fb-r, html[data-look="new"] .lx-fb-k i.k-citrus { background: #d4c94a; }
+        html[data-look="new"] .lx-fb.k-fruit .lx-fb-r, html[data-look="new"] .lx-fb-k i.k-fruit { background: #c45b7d; }
+        html[data-look="new"] .lx-fb.k-round .lx-fb-r, html[data-look="new"] .lx-fb-k i.k-round { background: #d9a35c; }
+        html[data-look="new"] .lx-fb-e { display: flex; justify-content: space-between; margin: 7px 2px 0; font-size: 11px; font-weight: 600; color: var(--l); }
+        html[data-look="new"] .lx-fb-k { display: flex; align-items: center; gap: 7px; margin-top: -6px; font-size: 12px; color: var(--l); }
+        html[data-look="new"] .lx-fb-k i { width: 10px; height: 10px; border-radius: 5px; }
+        @media (prefers-reduced-motion: reduce) { html[data-look="new"] .lx-tstage { transition: none !important; } }

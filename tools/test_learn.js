@@ -182,6 +182,7 @@ if (fs.existsSync(path.join(dir, 'manifest.json'))) {
       if (e.kind === 'variety') ok(!!L.entry('variety', e.id), `${k} is a recognized variety`);
       if (e.kind === 'process') ok(!!L.entry('process', e.id), `${k} is a recognized process`);
       if (e.taste && e.taste.typicalShape) Object.entries(e.taste.typicalShape).forEach(([sk, sv]) => ok(['acidity', 'sweetness', 'body', 'finish', 'bitterness', 'balance'].includes(sk) && sv >= 1 && sv <= 10, `${k} typical ${sk}`));
+      if (e.family) [e.family.parent, ...(e.family.parents || []), ...(e.family.children || [])].filter(Boolean).forEach(v => ok(!!L.entry('variety', v), `${k} family ${v} is a known variety`));
       if (e.grows) (e.grows.varieties || []).forEach(v => ok(!!L.entry('variety', v), `${k} grows ${v}, a known variety`));
       if (e.grows) (e.grows.processes || []).forEach(v => ok(!!L.entry('process', v), `${k} grows ${v}, a known process`));
       (e.regions || []).forEach(r => ok(L.knownIds().region.includes(r.id), `${k} region ${r.id} is known to the recognizer`));

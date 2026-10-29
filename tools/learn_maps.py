@@ -18,6 +18,11 @@ ADM1 = {
             'Norte de Santander': 'norte-de-santander', 'Cundinamarca': 'cundinamarca', 'Magdalena': 'magdalena'},
     'PER': {'Cajamarca': 'cajamarca', 'Amazonas': 'amazonas', 'San Martín': 'san-martin', 'Piura': 'piura', 'Junín': 'junin',
             'Pasco': 'pasco', 'Huánuco': 'huanuco', 'Ayacucho': 'ayacucho', 'Cusco': 'cusco', 'Puno': 'puno'},
+    'BRA': {"Minas Gerais": "minas-gerais", "Espírito Santo": "espirito-santo", "São Paulo": "sao-paulo", "Bahia": "bahia", "Paraná": "parana", "Rondônia": "rondonia"},
+    'MEX': {"Chiapas": "chiapas", "Oaxaca": "oaxaca", "Veracruz": "veracruz", "Puebla": "puebla", "San Luis Potosí": "san-luis-potosi", "Nayarit": "nayarit", "Colima": "colima", "Guerrero": "guerrero"},
+    'NIC': {"Jinotega": "jinotega", "Matagalpa": "matagalpa", "Nueva Segovia": "nueva-segovia", "Madriz": "madriz", "Estelí": "esteli"},
+    'HND': {"Copán": "copan", "Ocotepeque": "ocotepeque", "Santa Bárbara": "santa-barbara", "Intibucá": "intibuca", "Lempira": "lempira", "La Paz": "la-paz", "Comayagua": "comayagua", "Francisco Morazán": "francisco-morazan", "El Paraíso": "el-paraiso", "Olancho": "olancho"},
+    'PAN': {'Chiriquí': 'chiriqui'},
 }
 # outline + dots: (region id, label, lat, lon, source)
 DOTS = {
@@ -32,6 +37,29 @@ DOTS = {
             ('muranga', "Murang'a", -0.7167, 37.150, "https://en.wikipedia.org/wiki/Murang%27a"),
             ('kiambu', 'Kiambu', -1.167, 36.817, 'https://en.wikipedia.org/wiki/Kiambu'),
             ('embu', 'Embu', None, None, 'ne:Embu')],
+    'GTM': [("antigua", "Antigua", None, None, "ne:Antigua Guatemala"),
+            ("huehuetenango", "Huehuetenango", None, None, "ne:Huehuetenango"),
+            ("coban", "Cobán", None, None, "ne:Cobán"),
+            ("san-marcos", "San Marcos", None, None, "ne:San Marcos"),
+            ("fraijanes", "Fraijanes", 14.467, -90.433, "https://en.wikipedia.org/wiki/Fraijanes"),
+            ("acatenango", "Acatenango", 14.55444, -90.94389, "https://en.wikipedia.org/wiki/Acatenango,_Chimaltenango"),
+            ("atitlan", "Atitlán", 14.633, -91.233, "https://en.wikipedia.org/wiki/Santiago_Atitl%C3%A1n")],
+    'CRI': [("tarrazu", "Tarrazú", 9.6703061, -84.0091815, "https://en.wikipedia.org/wiki/San_Marcos,_Costa_Rica"),
+            ("west-valley", "West Valley", 10.1001475, -84.3900771, "https://en.wikipedia.org/wiki/Naranjo_de_Alajuela"),
+            ("central-valley", "Central Valley", None, None, "ne:Heredia"),
+            ("tres-rios", "Tres Ríos", 9.907172, -83.9864611, "https://en.wikipedia.org/wiki/Tres_R%C3%ADos,_Cartago"),
+            ("orosi", "Orosi", 9.6874392, -83.7609867, "https://en.wikipedia.org/wiki/Orosi,_Cartago"),
+            ("turrialba", "Turrialba", 9.8897121, -83.6806611, "https://en.wikipedia.org/wiki/Turrialba_(district)"),
+            ("brunca", "Brunca", 9.3403459, -83.7337922, "https://en.wikipedia.org/wiki/San_Isidro_de_El_General"),
+            ("guanacaste", "Guanacaste", 10.3440686, -84.4198985, "https://en.wikipedia.org/wiki/Quesada,_San_Carlos")],
+    'PAN': [("boquete", "Boquete", 8.78, -82.44, "https://en.wikipedia.org/wiki/Boquete,_Chiriqu%C3%AD"),
+            ("volcan", "Volcán", 8.778972, -82.64425, "https://en.wikipedia.org/wiki/Volc%C3%A1n,_Panama"),
+            ("renacimiento", "Renacimiento (Río Sereno)", 8.82, -82.86, "https://en.wikipedia.org/wiki/R%C3%ADo_Sereno")],
+    'RWA': [("nyamasheke", "Nyamasheke", -2.342868, 29.096947, "https://www.latlong.net/place/nyamasheke-rwanda-15157.html"),
+            ("karongi", "Karongi (Kibuye)", -2.061672, 29.348344, "https://en.wikipedia.org/wiki/Kibuye,_Rwanda"),
+            ("huye", "Huye", -2.6, 29.75, "https://en.wikipedia.org/wiki/Butare"),
+            ("gakenke", "Gakenke", -1.670278, 29.664444, "https://en.wikipedia.org/wiki/Busengo,_Rwanda"),
+            ("rulindo", "Rulindo", -1.71556, 29.91444, "https://en.wikipedia.org/wiki/Tare,_Rwanda")],
 }
 W = 300.0
 
@@ -75,7 +103,7 @@ def main():
     adm1 = json.load(open(os.path.join(a.ne, 'ne_10m_admin_1_states_provinces.geojson')))
     towns = json.load(open(os.path.join(a.ne, 'ne_10m_populated_places.geojson')))
     out = {'about': 'Country maps for Learn. Made with Natural Earth (public domain); town positions from Natural Earth and Wikipedia. Made by tools/learn_maps.py.', 'maps': {}}
-    for code in list(ADM1) + list(DOTS):
+    for code in dict.fromkeys(list(ADM1) + list(DOTS)):   # (a country can have both: shaded regions and town dots)
         outline = [f for f in adm0['features'] if f['properties'].get('ADM0_A3') == code][0]
         rings = [r[0] for r in rings_of(outline['geometry'])]
         lons = [p[0] for r in rings for p in r]; lats = [p[1] for r in rings for p in r]

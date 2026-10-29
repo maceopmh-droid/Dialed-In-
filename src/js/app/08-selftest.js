@@ -445,6 +445,26 @@
                         if (C && window.__dialedLook) window.__dialedLook.set('new');
                         if (C && this.learnOn()) {
                             const pages = [['list', 'origins'], ['list', 'varieties'], ['list', 'processes'], ...[...C.entries.values()].map(e => [e.kind, e.kind === 'origin' ? e.country : e.id]), ...C.guideList.map(g => ['guide', g.id])];
+                            // v19.1: short pages too (kinds you've logged, and the recognizer's sourced lines, with no written page)
+                            const shortK = [...new Set([...this.lxMine(this.user).kinds.keys(), ...Object.keys(LearnEngine.SAY).map(id => `variety:${id}`), ...Object.keys(LearnEngine.PSAY).map(id => `process:${id}`)])].map(x => x.split(':')).filter(([k, id]) => !this.lxEntry(k, id) && this.lxShortOk(k, id)).slice(0, 40);
+                            pages.push(...shortK);
+                            check(shortK.every(([k, id]) => this.lxHasPage(k, id)), `short pages open (${shortK.length})`);
+                            // v20.0: every variety opens a page with its family line; the tree and its family agree with the recognizer
+                            if (typeof LearnTree !== 'undefined') {
+                                const vs = LearnEngine.allVarieties().filter(v => v.family !== 'species');
+                                check(vs.every(v => LearnTree.has(v.id) && this.lxHasPage('variety', v.id)), `every variety has a family line and a page (${vs.length})`);
+                                const ln = LearnTree.line('caturra', { name: id => this.lxVName(id), esc: s => this.esc(s) });
+                                check(['Wild Ethiopia', 'Yemen', 'Bourbon', 'Caturra'].every(w => ln.includes(w)) && ln.indexOf('Wild Ethiopia') < ln.indexOf('Yemen') && ln.indexOf('Yemen') < ln.indexOf('Bourbon'), 'Caturra’s family line runs Wild Ethiopia, Yemen, Bourbon, Caturra');
+                                const lk = LearnTree.line('kent', { name: id => this.lxVName(id), esc: s => this.esc(s) });
+                                check((lk.match(/Maybe/g) || []).length === 2 && lk.includes('maybe'), 'an unsettled family forks into two dotted “maybe” lines (Kent)');
+                                const ls = LearnTree.line('castillo', { name: id => this.lxVName(id), esc: s => this.esc(s) });
+                                check(ls.includes('Robusta') && ls.includes('Timor Hybrid') && ls.includes('Catimors'), 'Castillo’s line shows where Robusta came in');
+                                const Fs = LearnTree.draw('simple', { name: id => this.lxVName(id) }), Fe = LearnTree.draw('every', { name: id => this.lxVName(id) });
+                                check(Fs.nodes.caturra && Fs.paths.caturra && Fs.labels.some(l => l.id === 'caturra') && !Fs.nodes.kurume, 'the simple tree has Caturra, not Kurume');
+                                check(vs.filter(v => LearnTree.onTree(v.id)).every(v => Fe.nodes[v.id] && Fe.paths[v.id]), 'the full tree has a branch for every variety on it');
+                                check(JSON.stringify(this.lxFeelPos('medium to full', this.LX_BODYW)) === '[0.33,0.67]' && JSON.stringify(this.lxFeelPos('heavier than washed', this.LX_BODYW)) === '[0.58,0.82]' && this.lxAcidKind('bright, citric') === 'citrus' && this.lxAcidKind('often softer than washed') === 'round', 'body and acidity land where their words say');
+                                pages.push(['tree', '']);
+                            }
                             pages.forEach(([k, id]) => { const h = safe(`learn page ${k}:${id}`, () => this.lxPageHtml({ kind: k, id, opts: {} }).html) || ''; check(h && !bad(h.replace(/<[^>]+>/g, ' ')), `learn page ${k}:${id} draws without missing words`); check(!/\bgrind(?:\s+(?:setting|size|at|to|on|of))?\s*[:=]?\s*\d/i.test(h.replace(/<[^>]+>/g, ' ')), `learn page ${k}:${id} names no grind`); });
                             const hh = safe('learn home', () => this.learnHomeHtml('')) || '';
                             check(hh && !bad(hh.replace(/<[^>]+>/g, ' ')), 'the Learn tab draws without missing words');

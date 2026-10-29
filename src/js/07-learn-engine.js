@@ -308,6 +308,8 @@ BRA|minas-gerais|Minas Gerais|minas gerais;minas
 BRA|espirito-santo|Espírito Santo|espirito santo
 BRA|chapada|Chapada Diamantina|chapada diamantina
 BRA|rondonia|Rondônia|rondonia
+BRA|campo-das-vertentes|Campo das Vertentes|campo das vertentes
+BRA|oeste-da-bahia|Oeste da Bahia|oeste da bahia;western bahia
 GTM|huehuetenango|Huehuetenango|huehuetenango;huehue
 GTM|antigua|Antigua|antigua|w
 GTM|atitlan|Atitlán|atitlan
@@ -324,12 +326,15 @@ HND|montecillos|Montecillos|montecillos
 HND|el-paraiso|El Paraíso|el paraiso|w
 HND|comayagua|Comayagua|comayagua
 HND|intibuca|Intibucá|intibuca
+HND|agalta|Agalta|agalta
 CRI|tarrazu|Tarrazú|tarrazu
 CRI|west-valley|West Valley|west valley;valle occidental
 CRI|tres-rios|Tres Ríos|tres rios
 CRI|orosi|Orosi|orosi
 CRI|turrialba|Turrialba|turrialba
 CRI|brunca|Brunca|brunca
+CRI|central-valley|Central Valley|central valley;valle central|w
+CRI|guanacaste|Guanacaste|guanacaste
 PAN|boquete|Boquete|boquete
 PAN|volcan|Volcán|volcan|w
 PAN|chiriqui|Chiriquí|chiriqui
@@ -342,6 +347,8 @@ MEX|veracruz|Coatepec|coatepec|place
 NIC|jinotega|Jinotega|jinotega
 NIC|matagalpa|Matagalpa|matagalpa
 NIC|nueva-segovia|Nueva Segovia|nueva segovia
+NIC|esteli|Estelí|esteli
+NIC|madriz|Madriz|madriz
 SLV|santa-ana|Santa Ana|santa ana|w
 SLV|chalatenango|Chalatenango|chalatenango
 SLV|apaneca|Apaneca-Ilamatepec|apaneca;apaneca ilamatepec
@@ -357,6 +364,7 @@ RWA|karongi|Karongi|karongi;kibuye
 RWA|rusizi|Rusizi|rusizi;cyangugu
 RWA|rulindo|Rulindo|rulindo
 RWA|kivu|Lake Kivu|kivu;lake kivu|w
+RWA|gakenke|Gakenke|gakenke|w
 BDI|kayanza|Kayanza|kayanza
 BDI|ngozi|Ngozi|ngozi
 BDI|kirundo|Kirundo|kirundo

@@ -269,16 +269,27 @@
                 if (opts.labels === false) return;
                 const small = W < 260;
                 const NM = namesOf(opts);
-                const label = (pos, k) => { const s = proj(pos); o.textAlign = 'center'; o.textBaseline = 'middle';
-                    if (k === TOPK) s[1] -= 36 * smoothstep(0.8, 1.45, pitch);
+                // v19.1 (Learn's still shapes): labelAlign 'out' sets each floor label's text away from the middle, so a
+                // label behind the shape doesn't sit on it; topAuto keeps complexity just above the top point, clear of them
+                const cx0 = proj([0, 0, 0])[0];
+                const label = (pos, k, at) => { const s = at ? at.slice() : proj(pos); const dx = s[0] - cx0;
+                    const al = opts.labelAlign === 'out' && k !== TOPK && Math.abs(dx) > 14 ? (dx > 0 ? 'left' : 'right') : 'center';
+                    if (al !== 'center') s[0] += dx > 0 ? -10 : 10;
+                    o.textAlign = al; o.textBaseline = 'middle';
+                    if (k === TOPK && !at) s[1] -= 36 * smoothstep(0.8, 1.45, pitch);
                     o.lineJoin = 'round'; o.strokeStyle = th.surface; o.lineWidth = 4;
                     o.font = `700 ${small ? 9 : 11}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
                     o.strokeText(NM[k], s[0], s[1] - 8); o.fillStyle = COLORS[k]; o.fillText(NM[k], s[0], s[1] - 8);
                     const shown = (opts.isSet && !opts.isSet(k)) || !vals || vals[k] === undefined || vals[k] === null || vals[k] === '' ? '–' : String(Math.round(val(vals, k) * 10) / 10);
                     o.font = `800 ${small ? 11 : 13}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
                     o.strokeText(shown, s[0], s[1] + 7); o.fillStyle = th.ink; o.fillText(shown, s[0], s[1] + 7); };
-                FLOOR.forEach((k, i) => label([1.32 * Math.cos(i * SEG), 0, 1.32 * Math.sin(i * SEG)], k));
-                label([0, 2.34, 0], TOPK);
+                const LR = opts.labelR || 1.32, ring = i => [LR * Math.cos(i * SEG), 0, LR * Math.sin(i * SEG)];
+                FLOOR.forEach((k, i) => label(ring(i), k));
+                if (opts.topAuto) {
+                    const apex = proj([0, heightOf(vals), 0]); let y = apex[1] - 24;
+                    FLOOR.forEach((k, i) => { const q = proj(ring(i)); if (Math.abs(q[0] - apex[0]) < 95 && q[1] < apex[1] + 30) y = Math.min(y, q[1] - 31); });
+                    label(null, TOPK, [apex[0], y + 8]);
+                } else label([0, 2.34, 0], TOPK);
             }
             // flat top view for devices without WebGL2
             function flat(o, vals, ghost, W, H, dpr, th, NM = NAMES) {
@@ -399,7 +410,7 @@
                     if (!u || !o || !x) return '';
                     if (gl) {
                         const yaw = opts.yaw ?? -0.72, pitch = opts.pitch ?? 0.5;
-                        let zoom = opts.zoom || 1, lookY = 1;
+                        let zoom = opts.zoom || 1, lookY = opts.lookY ?? 1;
                         if (opts.fit) { const both = ghost ? Object.fromEntries(FLOOR.concat(TOPK).map(k => [k, Math.max(val(vals, k), val(ghost, k))])) : vals; const f = fitView({ opts, pitch }, both, W, H, zoom); zoom = f.zoom; lookY = f.lookY; }   // (a second shape is framed too)   // v17.5: framed like the turning ones
                         const { MVP, MV } = matrices(W, H, yaw, pitch, zoom, lookY);
                         gl.upload(vals, prefs.smooth); gl.draw(MVP, MV, th.dark);
