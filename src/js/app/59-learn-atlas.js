@@ -133,7 +133,7 @@
                 const n = this.lxNearest(e); if (!n) return null;
                 const [kk, id] = n, x = this.lxEntry(kk, id), name = this.lxName(kk, id), fam = x.tint || 'app';
                 const notes = ((x.taste && x.taste.notes) || (x.rx && x.rx.cup && x.rx.cup.notes) || []).slice(0, 4);
-                const what = !this.lxHasCup(e) ? `No source we found describes ${e.name}’s cup on its own.` : `Not much has been written about ${e.name}’s history.`;
+                const what = !this.lxHasCup(e) ? `No published source describes ${e.name}’s cup on its own.` : `Not much has been written about ${e.name}’s history.`;
                 const how = kk === 'variety' && e.kind === 'variety' ? (LearnTree.MAIN && LearnTree.MAIN[e.id] === id ? 'its parent' : 'its closest relative with a full page') : 'the closest page with more';
                 return { key: `${e.kind}.nearest`, open: true, title: `Closest relative: ${name}`, teaser: what,
                     body: `<div class="lx-box lx-near"><p class="lx-p">${this.esc(what)} ${this.esc(name)}, ${this.esc(how)}, has a full page. What’s said about ${this.esc(name)} may not all hold for ${this.esc(e.name)}.</p>`

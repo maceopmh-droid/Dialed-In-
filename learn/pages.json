@@ -1114,23 +1114,36 @@
       "grows": {
         "varieties": [
           "castillo",
-          "caturra",
+          "cenicafe-1",
           "colombia-var",
+          "caturra",
           "tabi",
           "pink-bourbon",
           "chiroso",
           "papayo"
         ],
         "processes": [
+          "washed",
+          "natural",
+          "honey",
+          "anaerobic",
           "thermal-shock",
           "co-ferment",
           "lactic",
           "koji"
         ],
+        "species": "Arabica only",
+        "text": "Almost all washed on the farm. Naturals, honeys and experimental lots (anaerobic, thermal shock, co-ferments, lactic, koji) are a small specialty niche: about 15,000 70-kg bags a year by a 2021 estimate, against about 10.7 million exported in 2020. Rust-resistant varieties cover 88% of coffee land (2025); Castillo was used to replant more than three billion trees from 2008, but no published split ranks them.",
         "src": [
-          "gcr-castillo",
+          "bh-colombia-processing",
+          "cenicafe-natural-2023",
+          "coffeereview-colombia-2021",
+          "coffeereview-colombia",
+          "fnc-2025",
           "wcr-caturra",
+          "cenicafe-informe-2020",
           "jcc-colombia",
+          "gcr-castillo",
           "sucafina-glossary",
           "ozone-papayo",
           "ineffable-ts",
@@ -1214,7 +1227,12 @@
         "pdg-koji-2022",
         "natural-earth",
         "colombia-travel-coffee",
-        "cafedecolombia-do"
+        "cafedecolombia-do",
+        "bh-colombia-processing",
+        "cenicafe-natural-2023",
+        "coffeereview-colombia-2021",
+        "coffeereview-colombia",
+        "cenicafe-informe-2020"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -1355,6 +1373,16 @@
             "sweetmarias-eth",
             "wcr-geisha"
           ]
+        },
+        {
+          "id": "wollega",
+          "name": "Wollega",
+          "teaser": "The far west, around Nekemte and Gimbi; bags may say Lekempti, Wallega or Gimbi",
+          "src": [
+            "cafeimports-eth",
+            "sweetmarias-eth",
+            "wiki-welega"
+          ]
         }
       ],
       "grows": {
@@ -1363,16 +1391,18 @@
           "74110",
           "74112",
           "74158",
-          "gesha",
           "kurume",
-          "wolisho"
+          "wolisho",
+          "gesha"
         ],
         "processes": [
-          "washed",
           "natural",
+          "washed",
           "honey",
           "anaerobic"
         ],
+        "species": "Arabica only",
+        "text": "Mostly natural: about 70–80% sun-dried and 20–30% washed (UNIDO, 2025), with a few honey and anaerobic lots. The trees are mostly local landraces sold as “heirloom”, plus research-center selections like 74110 and 74112; Ethio Coffee calls those selections a small share, though USDA says over half the coffee area was replanted with higher-yielding varieties in four years.",
         "src": [
           "ethiocoffee",
           "tirfe-2015",
@@ -1380,7 +1410,11 @@
           "roasterspack-heirloom",
           "sucafina-glossary",
           "coffeehunter-eth",
-          "1zpresso-sidama"
+          "1zpresso-sidama",
+          "unido-eth-2025",
+          "usda-gain-eth-2021",
+          "usda-2026",
+          "ethiocoffee"
         ]
       },
       "sections": [
@@ -1452,7 +1486,10 @@
         "wiki-bonga",
         "wcr-geisha",
         "stonex-gr1",
-        "cafeimports-eth"
+        "cafeimports-eth",
+        "unido-eth-2025",
+        "usda-gain-eth-2021",
+        "wiki-welega"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -1527,34 +1564,37 @@
           "id": "nyeri",
           "name": "Nyeri",
           "alt": "1,600–2,000 m · 5,200–6,600 ft",
-          "teaser": "",
+          "teaser": "Near Mount Kenya, on red soil; the best-known name in specialty Kenyans",
           "src": [
-            "1zpresso-kenya"
+            "1zpresso-kenya",
+            "royal-kenya"
           ]
         },
         {
           "id": "kirinyaga",
           "name": "Kirinyaga",
           "alt": "1,300–1,900 m · 4,300–6,200 ft",
-          "teaser": "",
+          "teaser": "East of Nyeri, on Mount Kenya's volcanic soil; floral, blackcurrant-like cups",
           "src": [
-            "1zpresso-kenya"
+            "1zpresso-kenya",
+            "royal-kenya"
           ]
         },
         {
           "id": "muranga",
           "name": "Murang'a",
           "alt": "1,500–1,900 m · 4,900–6,200 ft",
-          "teaser": "",
+          "teaser": "Volcanic soil and up to 100,000 smallholders; more small farms than estates",
           "src": [
-            "1zpresso-kenya"
+            "1zpresso-kenya",
+            "royal-kenya"
           ]
         },
         {
           "id": "kiambu",
           "name": "Kiambu",
           "alt": "1,500–2,100 m · 4,900–6,900 ft",
-          "teaser": "Many estates here",
+          "teaser": "Many estates here, often large and mechanized, aimed at yield more than cup",
           "src": [
             "1zpresso-kenya",
             "royal-kenya"
@@ -1564,9 +1604,19 @@
           "id": "embu",
           "name": "Embu",
           "alt": "1,500–2,000 m · 4,900–6,600 ft",
-          "teaser": "",
+          "teaser": "On Mount Kenya, where many people grow coffee; sweet, bright, berry and citrus cups",
           "src": [
-            "1zpresso-kenya"
+            "1zpresso-kenya",
+            "royal-kenya"
+          ]
+        },
+        {
+          "id": "meru",
+          "name": "Meru",
+          "teaser": "Eastern Kenya; reportedly the first county where Kenyans themselves could grow coffee, from the 1930s",
+          "src": [
+            "sucafina-mwithu",
+            "starbucks-kenya"
           ]
         }
       ],
@@ -1591,10 +1641,12 @@
       ],
       "secondName": "Fly crop, in some areas",
       "harvestText": {
-        "text": "The main crop is picked from October to December, sometimes into January, and some areas pick a smaller “fly crop” from June to August. At a US importer, main-crop Kenyans arrive about May to August and fly-crop coffee about November to March.",
+        "text": "The main crop is picked from October to December, sometimes into January, and some areas pick a smaller “fly crop” from June to August. At a US importer, main-crop Kenyans arrive about May to August and fly-crop coffee about November to March. Other sources put the smaller crop a little earlier: May to July in central Kenya (Sucafina) or May to August (Starbucks).",
         "src": [
           "sweetmarias-kenya",
-          "royal-kenya"
+          "royal-kenya",
+          "sucafina-mwithu",
+          "starbucks-kenya"
         ]
       },
       "fresh": {
@@ -1623,9 +1675,16 @@
           "kenyan-soak",
           "natural"
         ],
+        "species": "Arabica (over 90% of the coffee area by a 2014 research count; USDA counts only Arabica)",
+        "text": "Mostly fully washed, Kenya's long-ferment style; naturals are mainly lower grades and coffee for home use, with some specialty lots. Most farms grow a mix of SL28 and SL34 with Ruiru 11 and, more and more, Batian; no official shares exist.",
         "src": [
           "royal-kenya",
-          "barista-double"
+          "barista-double",
+          "starbucks-kenya",
+          "1zpresso-kenya",
+          "sucafina-kenya",
+          "gichimu-2014",
+          "usda-2026"
         ]
       },
       "sections": [
@@ -1644,15 +1703,17 @@
         {
           "key": "now",
           "title": "Right now",
-          "teaser": "Record auction prices, and a fight over paying farmers directly",
+          "teaser": "Record auction prices, then a slide; a new Coffee Act",
           "dated": "October 2026",
           "body": [
-            "Auction prices hit a record average of KES 1,025 a kilo (about US$7.91) in September 2025. A new system to pay farmers directly through a bank was suspended by the High Court until May 2026, on a petition by coffee farmers, and the reform committee's term was extended to June 2027.",
-            "Between October 2025 and May 2026 the auction sold 602,973 bags."
+            "Auction prices hit a record average of KES 1,025 a kilo (about US$7.91) in September 2025, then slid: by April 2026 they averaged about US$269 per 50 kg bag, 28% below October 2025. Between October 2025 and May 2026 the auction sold 602,973 bags. USDA expects 950,000 bags in 2026/27, up about 12%.",
+            "A new system to pay farmers directly through a bank was suspended by the High Court until May 2026, on a petition by coffee farmers. In March 2026 a new Coffee Act moved oversight to a revived Coffee Board of Kenya, set up a separate coffee research institute, and wrote a digital direct-payment system for farmers into law. By June 2026 the system had been built into the Nairobi exchange's trading platform, and the reform committee's term was extended to June 2027."
           ],
           "src": [
             "fbmea-kenya-2025",
-            "fbmea-kenya-2026"
+            "fbmea-kenya-2026",
+            "usda-gain-ken-2026",
+            "dcn-kenya-2026"
           ]
         },
         {
@@ -1696,7 +1757,13 @@
         "natural-earth",
         "wiki-kerugoya",
         "wiki-muranga",
-        "wiki-kiambu"
+        "wiki-kiambu",
+        "starbucks-kenya",
+        "sucafina-kenya",
+        "gichimu-2014",
+        "sucafina-mwithu",
+        "usda-gain-ken-2026",
+        "dcn-kenya-2026"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -1789,12 +1856,13 @@
         {
           "id": "cajamarca",
           "name": "Cajamarca",
-          "teaser": "Jaén and San Ignacio. Cup of Excellence winners in 2017, 2019 and every year from 2022 to 2025",
+          "teaser": "Jaén and San Ignacio. The biggest producer, about 22% of the crop, and Cup of Excellence winners in 2017, 2019 and every year from 2022 to 2025",
           "alt": "900–1,950 m · 3,000–6,400 ft",
           "src": [
             "worldofcoffee-peru",
             "ace-per-2024",
-            "ace-per-2025"
+            "ace-per-2025",
+            "dcn-peru-2026"
           ]
         },
         {
@@ -1809,28 +1877,31 @@
         {
           "id": "junin",
           "name": "Junín",
-          "teaser": "Chanchamayo and Satipo",
+          "teaser": "Chanchamayo and Satipo. About 19% of the crop",
           "alt": "900–1,800 m · 3,000–5,900 ft",
           "src": [
-            "worldofcoffee-peru"
+            "worldofcoffee-peru",
+            "dcn-peru-2026"
           ]
         },
         {
           "id": "amazonas",
           "name": "Amazonas",
-          "teaser": "Seven provinces",
+          "teaser": "Seven provinces. About 15% of the crop",
           "alt": "900–2,100 m · 3,000–6,900 ft",
           "src": [
-            "worldofcoffee-peru"
+            "worldofcoffee-peru",
+            "dcn-peru-2026"
           ]
         },
         {
           "id": "san-martin",
           "name": "San Martín",
-          "teaser": "",
+          "teaser": "The second-biggest producer, about 20% of the crop",
           "alt": "900–1,200 m · 3,000–3,900 ft",
           "src": [
-            "worldofcoffee-peru"
+            "worldofcoffee-peru",
+            "dcn-peru-2026"
           ]
         },
         {
@@ -1909,11 +1980,28 @@
       },
       "grows": {
         "varieties": [
+          "catimor",
           "typica",
-          "bourbon"
+          "caturra",
+          "bourbon",
+          "pache",
+          "catuai",
+          "gesha"
         ],
-        "processes": [],
+        "processes": [
+          "washed",
+          "natural",
+          "honey"
+        ],
+        "species": "Arabica only (the JNC says 100% in 2025)",
+        "text": "Mostly washed on the farm; naturals and honeys are a small specialty share, though they took 7 of the 32 Cup of Excellence places in 2025. Most trees are now Catimor, planted after the 2012–13 rust epidemic; Typica, the traditional variety, Caturra, Bourbon and Pache follow, in no ranked order, and Gesha leads in competitions.",
         "src": [
+          "cafeimports-peru",
+          "coffeereview-peru",
+          "sweetmarias-peru",
+          "ace-per-2025",
+          "wcr-peru-seeds-2025",
+          "agraria-jnc-2025",
           "wcr-typica",
           "wcr-bourbon"
         ]
@@ -1957,7 +2045,12 @@
         "sweetmarias-peru",
         "roastmarket-peru",
         "ace-per-2024",
-        "ace-per-2025"
+        "ace-per-2025",
+        "cafeimports-peru",
+        "coffeereview-peru",
+        "wcr-peru-seeds-2025",
+        "agraria-jnc-2025",
+        "dcn-peru-2026"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -3635,10 +3728,11 @@
       ],
       "kicker": "Process · added microbes",
       "summary": "A ferment steered toward lactic acid bacteria, the yogurt kind.",
-      "lede": "The ferment is steered toward lactic acid bacteria, the kind in yogurt, instead of yeasts. Producers seal the pulped coffee away from air and add a bacterial culture or a little salt.",
+      "lede": "The ferment is steered toward lactic acid bacteria, the kind in yogurt, instead of yeasts. Producers seal the coffee, usually pulped but sometimes as whole cherries, away from air; some let the bacteria already on the fruit take over, others add a bacterial culture or a little salt.",
       "ledeSrc": [
         "pdg-lactic-2023",
-        "coffeereview-2021"
+        "coffeereview-2021",
+        "coffeereview-bandida-2021"
       ],
       "map": {
         "x": 186,
@@ -3756,7 +3850,8 @@
         "pdg-lactic-2023",
         "coffeereview-2021",
         "royal-additive-2025",
-        "bernardes-2024"
+        "bernardes-2024",
+        "coffeereview-bandida-2021"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -4143,12 +4238,14 @@
         {
           "id": "sul-de-minas",
           "name": "Sul de Minas",
-          "teaser": "Southern Minas Gerais, where most of the state’s Arabica grows",
+          "teaser": "Southern Minas Gerais: about half the state's coffee (53% in 2016). With the state's centre-west, it grew 15.9 million of Brazil's 67.6 million bags in 2026",
           "src": [
             "samplecoffee-mg",
             "bh-suldeminas",
-            "vilasboas-2020"
-          ]
+            "vilasboas-2020",
+            "conab-2026-3"
+          ],
+          "alt": "900–1,300 m · 2,950–4,260 ft"
         },
         {
           "id": "mantiqueira",
@@ -4241,22 +4338,31 @@
         "varieties": [
           "catuai",
           "mundo-novo",
-          "icatu",
-          "obata",
           "arara",
-          "catucai"
+          "catucai",
+          "obata",
+          "icatu",
+          "bourbon"
         ],
         "processes": [
           "natural",
-          "honey"
+          "honey",
+          "washed"
         ],
+        "species": "Mostly Arabica (about 70% in 2026); the rest is Robusta, called Conilon",
+        "text": "Mostly natural: in a 2019 survey of growers, 85% dried whole cherries and 14% made pulped naturals (Brazil's honey); only 1% fermented in tanks. Catuaí and Mundo Novo are the most grown varieties; newer rust-resistant ones such as Arara, Catucaí, Obatã and Icatu are spreading (no source ranks them), and Bourbon is a specialty favorite.",
         "src": [
+          "cna-cafepoint-2020",
+          "sucafina-brazil",
+          "procafe-2019",
+          "cultivar-iac-2012",
+          "sucafina-brazil-2021",
+          "conab-2026-3",
           "wcr-catuai",
           "wcr-mundonovo",
-          "samplecoffee-mg",
-          "sucafina-brazil-2021",
+          "coffeereview-honey",
           "gimme",
-          "coffeereview-honey"
+          "samplecoffee-mg"
         ]
       },
       "sections": [
@@ -4266,10 +4372,11 @@
           "teaser": "A record crop expected; 2025's US tariff is gone",
           "dated": "October 2026",
           "body": [
-            "Brazil's crop agency, Conab, expected a record 66.2 million 60-kg bags in its first 2026 survey (February), up 17% on 2025: 44.1 million Arabica and 22.1 million Conilon. Rain at flowering helped yields in Minas Gerais, while cool, wet weather trimmed Robusta in Espírito Santo.",
+            "Conab, Brazil's crop agency, put the 2026 crop at a record 67.6 million bags in its September survey, up 19.6% on 2025: 48.2 million Arabica (up 34.8%) and 19.4 million Conilon (down 6.6%). Minas Gerais alone grew 35.6 million. Rain at flowering helped yields in Minas Gerais, while cool, wet weather trimmed Robusta in Espírito Santo.",
             "In 2025 Brazilian coffee faced a 50% US tariff: a 10% baseline plus 40% added in July. The baseline was dropped first, then an order on November 20 removed the remaining 40%, backdated to November 13."
           ],
           "src": [
+            "conab-2026-3",
             "datamar-conab-2026",
             "usda-2026",
             "dcn-tariffs-2025"
@@ -4315,7 +4422,12 @@
         "bh-suldeminas",
         "vilasboas-2020",
         "revistacultivar-mogiana-2015",
-        "bh-mogiana"
+        "bh-mogiana",
+        "cna-cafepoint-2020",
+        "sucafina-brazil",
+        "procafe-2019",
+        "cultivar-iac-2012",
+        "conab-2026-3"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -4356,10 +4468,10 @@
           ]
         },
         {
-          "value": "~40%",
-          "label": "of its coffee grows in Chiapas",
+          "value": "36.5%",
+          "label": "of its coffee came from Chiapas (2024/25)",
           "src": [
-            "coffeeness-mx"
+            "cronica-mex-2026"
           ]
         },
         {
@@ -4403,37 +4515,42 @@
         {
           "id": "chiapas",
           "name": "Chiapas",
-          "teaser": "Full-bodied, chocolatey and gently acidic. Soconusco is a key area. It borders Guatemala's Huehuetenango, and the two can taste alike",
+          "teaser": "The biggest grower: 36.5% of the 2024/25 crop. Full-bodied, chocolatey and gently acidic. Soconusco is a key area. It borders Guatemala's Huehuetenango, and the two can taste alike",
           "alt": "800–1,700 m · 2,600–5,600 ft",
           "src": [
+            "cronica-mex-2026",
             "coffeeness-mx",
             "sweetmarias-mx"
           ]
         },
         {
-          "id": "oaxaca",
-          "name": "Oaxaca",
-          "teaser": "Bright, citrusy and floral, with a light body. Pluma Hidalgo is its prized area",
-          "alt": "1,200–1,700 m · 3,900–5,600 ft",
-          "src": [
-            "coffeeness-mx"
-          ]
-        },
-        {
           "id": "veracruz",
           "name": "Veracruz",
-          "teaser": "Balanced sweetness, gentle acidity and a nutty edge. Mexico's specialty revival began here in the 1990s",
+          "teaser": "24.8% of the 2024/25 crop, and 23 of 33 Cup of Excellence lots in 2026. Balanced sweetness, gentle acidity and a nutty edge. Mexico's specialty revival began here in the 1990s",
           "alt": "1,000–1,600 m · 3,300–5,200 ft",
           "src": [
+            "cronica-mex-2026",
+            "ace-mex-2026",
             "coffeeness-mx"
           ]
         },
         {
           "id": "puebla",
           "name": "Puebla",
-          "teaser": "Crisp acidity, clean citrus and a lighter body",
+          "teaser": "21.1% of the 2024/25 crop. Crisp acidity, clean citrus and a lighter body",
           "alt": "1,200–1,800 m · 3,900–5,900 ft",
           "src": [
+            "cronica-mex-2026",
+            "coffeeness-mx"
+          ]
+        },
+        {
+          "id": "oaxaca",
+          "name": "Oaxaca",
+          "teaser": "Fourth by output. Bright, citrusy and floral, with a light body. Pluma Hidalgo is its prized area",
+          "alt": "1,200–1,700 m · 3,900–5,600 ft",
+          "src": [
+            "coffeereview-mx-2022",
             "coffeeness-mx"
           ]
         }
@@ -4465,14 +4582,29 @@
       "grows": {
         "varieties": [
           "typica",
-          "oro-azteca"
+          "caturra",
+          "bourbon",
+          "Garnica",
+          "costa-rica-95",
+          "oro-azteca",
+          "marsellesa",
+          "gesha"
         ],
         "processes": [
-          "washed"
+          "washed",
+          "natural",
+          "honey",
+          "anaerobic"
         ],
+        "species": "Mostly Arabica (about 86% in the 2026/27 forecast); Robusta in the lowlands of Chiapas, Veracruz and Oaxaca",
+        "text": "No national variety count was found. Sucafina names Garnica, Typica, Caturra and Bourbon as the main traditional varieties, and since 2015 about 150,000 ha have been replanted with rust-resistant ones such as Costa Rica 95, Oro Azteca and Marsellesa. Most export coffee is washed; naturals, honeys and anaerobic lots are a growing specialty share.",
         "src": [
-          "wcr-oroazteca",
-          "coffeeness-mx"
+          "sucafina-mex",
+          "wcr-mex",
+          "ico-mex-2025",
+          "coffeereview-mx-2022",
+          "usda-2026",
+          "wcr-oroazteca"
         ]
       },
       "sections": [
@@ -4519,7 +4651,13 @@
         "natural-earth",
         "achilles-harvest",
         "wcr-oroazteca",
-        "achilles-grades"
+        "achilles-grades",
+        "sucafina-mex",
+        "wcr-mex",
+        "ico-mex-2025",
+        "coffeereview-mx-2022",
+        "cronica-mex-2026",
+        "ace-mex-2026"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -4597,46 +4735,61 @@
       ],
       "regions": [
         {
-          "id": "nueva-segovia",
-          "name": "Nueva Segovia",
-          "teaser": "Near the Honduran border. Finca Santa Teresa de Mogotón here focuses on naturals; its owner calls his coffees delicate and floral",
-          "alt": "Santa Teresa de Mogotón: above 1,500 m · 4,900 ft",
-          "src": [
-            "wcr-coe-2017",
-            "pdg-nic-2021"
-          ]
-        },
-        {
           "id": "jinotega",
           "name": "Jinotega",
-          "teaser": "Often mild acidity, floral flavors and yellow-fruit notes",
+          "teaser": "With Matagalpa, about 78% of the crop in a 2019 AFP report. Often mild acidity, floral flavors and yellow-fruit notes",
           "src": [
+            "revistaeyn-nic-2019",
             "pdg-nic-2021"
           ]
         },
         {
           "id": "matagalpa",
           "name": "Matagalpa",
-          "teaser": "With Jinotega, historically the source of the country's best coffee",
+          "teaser": "With Jinotega, historically the source of the country's best coffee, and still most of its volume",
           "src": [
-            "wiki-nic"
+            "wiki-nic",
+            "revistaeyn-nic-2019"
           ]
         },
         {
-          "id": "esteli",
-          "name": "Estelí",
-          "teaser": "One of the five main coffee departments, in the northern highlands",
+          "id": "nueva-segovia",
+          "name": "Nueva Segovia",
+          "teaser": "Near the Honduran border, and the Cup of Excellence leader: 23 of 32 winning lots in 2025. Finca Santa Teresa de Mogotón here focuses on naturals; its owner calls his coffees delicate and floral",
+          "alt": "Santa Teresa de Mogotón: above 1,500 m · 4,900 ft",
           "src": [
-            "wiki-nic",
-            "pdg-nic-2021"
+            "wcr-coe-2017",
+            "pdg-nic-2021",
+            "ace-nic-2025"
           ]
         },
         {
           "id": "madriz",
           "name": "Madriz",
-          "teaser": "",
+          "teaser": "Its capital is Somoto. A 2021 guide says its cups differ from Nueva Segovia's; a Madriz natural Maragogipe placed at the 2025 Cup of Excellence",
           "src": [
-            "pdg-nic-2021"
+            "pdg-nic-2021",
+            "natural-earth",
+            "ace-nic-2025",
+            "chk-en-wikipedia-org-wiki-madriz-department"
+          ]
+        },
+        {
+          "id": "esteli",
+          "name": "Estelí",
+          "teaser": "One of the five main coffee departments. Sweet Maria's notes that highland coffee is often trucked to its lower, hotter areas to dry on tarps",
+          "src": [
+            "pdg-nic-2021",
+            "sweetmarias-nic"
+          ]
+        },
+        {
+          "id": "south-caribbean",
+          "name": "South Caribbean Coast",
+          "teaser": "Lowlands where Robusta, legal since 2013, is concentrated, near a large mill at Nueva Guinea",
+          "src": [
+            "dcn-nic-2026",
+            "wcr-nic"
           ]
         }
       ],
@@ -4665,17 +4818,32 @@
       },
       "grows": {
         "varieties": [
-          "catuai",
+          "caturra",
           "bourbon",
-          "pacamara",
-          "maragogipe",
           "pacas",
+          "catuai",
+          "catimor",
+          "maragogipe",
+          "pacamara",
+          "Maracaturra",
+          "marsellesa",
           "gesha"
         ],
         "processes": [
-          "natural"
+          "washed",
+          "natural",
+          "honey"
         ],
+        "species": "Mostly Arabica (about 94% in 2025/26); Robusta, legal since 2013, in the southern Caribbean lowlands",
+        "text": "Caturra was about 72% of plantings in USDA's 2021 count, with Bourbon, Pacas, Catuaí, Catimor, Maragogipe and Pacamara sharing the rest. Almost all coffee is washed the classic way, fermented and rinsed; naturals and honeys are a small, growing specialty share.",
         "src": [
+          "usda-gain-nic-2021",
+          "cafeimports-nic",
+          "starbucks-nic",
+          "coffeereview-nic",
+          "sweetmarias-nic",
+          "dcn-nic-2026",
+          "wcr-nic",
           "pdg-nic-2021"
         ]
       },
@@ -4728,7 +4896,17 @@
         "cafeimports-harvest",
         "wcr-marsellesa",
         "wcr-starmaya",
-        "coffeereview-nic-2011"
+        "coffeereview-nic-2011",
+        "usda-gain-nic-2021",
+        "cafeimports-nic",
+        "starbucks-nic",
+        "coffeereview-nic",
+        "sweetmarias-nic",
+        "dcn-nic-2026",
+        "wcr-nic",
+        "revistaeyn-nic-2019",
+        "ace-nic-2025",
+        "chk-en-wikipedia-org-wiki-madriz-department"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -4897,21 +5075,33 @@
       },
       "grows": {
         "varieties": [
-          "catuai",
-          "parainema",
-          "pacas",
-          "typica",
+          "lempira",
           "ihcafe-90",
-          "gesha"
+          "parainema",
+          "catuai",
+          "caturra",
+          "pacas",
+          "bourbon",
+          "typica",
+          "gesha",
+          "pacamara"
         ],
         "processes": [
           "washed",
-          "natural"
+          "natural",
+          "honey",
+          "anaerobic"
         ],
+        "species": "Arabica only (USDA, 2025)",
+        "text": "No current national count was found. In 2017 IHCAFE said 60% of the coffee area was improved, rust-resistant plants such as Lempira, IHCAFE 90 and Parainema; importers name Catuaí, Caturra, Pacas and Typica as the other common ones, and Bourbon usually comes mixed with Caturra and Catuaí. Most coffee is washed; naturals, honeys and anaerobic lots are a growing experiment.",
         "src": [
+          "laprensa-hnd-2017",
+          "coffeehunter-hnd",
+          "starbucks-hnd",
+          "coffeereview-hnd",
+          "dcn-hnd-2025",
           "wcr-catuai",
           "wcr-parainema",
-          "wcr-pacas",
           "ace-hnd-2026"
         ]
       },
@@ -4965,7 +5155,12 @@
         "ace-hnd-2026",
         "wcr-pacas",
         "achilles-grades",
-        "twochimps"
+        "twochimps",
+        "laprensa-hnd-2017",
+        "coffeehunter-hnd",
+        "starbucks-hnd",
+        "coffeereview-hnd",
+        "dcn-hnd-2025"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -5177,19 +5372,33 @@
       },
       "grows": {
         "varieties": [
-          "catimor",
           "caturra",
+          "bourbon",
           "catuai",
+          "pache",
+          "catimor",
           "sarchimor",
           "anacafe-14",
-          "bourbon"
+          "typica",
+          "pacamara",
+          "gesha"
         ],
         "processes": [
-          "washed"
+          "washed",
+          "natural",
+          "honey",
+          "anaerobic"
         ],
+        "species": "Almost all Arabica: about 98% of planted area and 96% of the crop (2026/27 forecast)",
+        "text": "No national variety count was found. Only about 30% of trees resist leaf rust, and Barista Hustle says most farmers grow the traditional Bourbon, Caturra, Catuaí and Pache; the resistant share is hybrids such as Catimor, Sarchimor and Anacafé 14. World Coffee Research puts Catuaí at about 20% of production. Almost all coffee is washed or mechanically demucilaged (the fruit scrubbed off by machine); naturals, honeys and anaerobic lots are a small share.",
         "src": [
+          "dcn-gtm-2026",
+          "bh-gtm-varieties",
+          "cafeimports-gtm",
           "1zpresso-gtm",
-          "cafeimports-gtm"
+          "wcr-gtm",
+          "wcr-catuai",
+          "usda-gain-gtm-2021"
         ]
       },
       "sections": [
@@ -5248,7 +5457,12 @@
         "anacafe-atitlan",
         "anacafe-huehue",
         "anacafe-oriente",
-        "anacafe-fraijanes"
+        "anacafe-fraijanes",
+        "dcn-gtm-2026",
+        "bh-gtm-varieties",
+        "wcr-gtm",
+        "wcr-catuai",
+        "usda-gain-gtm-2021"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -5353,6 +5567,17 @@
           ]
         },
         {
+          "id": "brunca",
+          "name": "Brunca",
+          "teaser": "About 20% of the crop (2019/20), in the south around Coto Brus and Pérez Zeledón. Smoother lower down; higher lots sweeter, with citrus",
+          "alt": "600–1,700 m · 2,000–5,600 ft",
+          "src": [
+            "royalny-cr",
+            "1zpresso-cr",
+            "wiki-cri"
+          ]
+        },
+        {
           "id": "central-valley",
           "name": "Central Valley",
           "teaser": "About 15%, around San José, Heredia and Alajuela. Balanced, with fruit, honey and chocolate-like notes",
@@ -5389,17 +5614,6 @@
           "src": [
             "1zpresso-cr",
             "achilles-harvest"
-          ]
-        },
-        {
-          "id": "brunca",
-          "name": "Brunca",
-          "teaser": "The south, around Coto Brus and Pérez Zeledón. Smoother lower down; higher lots sweeter, with citrus",
-          "alt": "600–1,700 m · 2,000–5,600 ft",
-          "src": [
-            "royalny-cr",
-            "1zpresso-cr",
-            "wiki-cri"
           ]
         },
         {
@@ -5500,6 +5714,7 @@
           "caturra",
           "catuai",
           "villa-sarchi",
+          "catimor",
           "villalobos",
           "typica",
           "bourbon",
@@ -5508,11 +5723,18 @@
         ],
         "processes": [
           "washed",
-          "honey"
+          "honey",
+          "natural",
+          "anaerobic"
         ],
+        "species": "Arabica only (a 1989 decree; USDA counts the whole 2026/27 crop as Arabica)",
+        "text": "Caturra leads (\"Caturra and more Caturra,\" says Coffee Review), with Catuaí the other main variety. Most coffee is washed or mechanically demucilaged at mills; the micromills behind specialty lots made honey their signature and are adding naturals and anaerobic ferments.",
         "src": [
+          "coffeereview-cri",
+          "icafe-pliego",
           "cafeimports-cr",
           "royalny-cr",
+          "usda-2026",
           "wcr-villa-sarchi",
           "wcr-catuai"
         ]
@@ -5575,7 +5797,9 @@
         "wiki-sanisidro",
         "wiki-quesada",
         "wcr-villa-sarchi",
-        "wcr-catuai"
+        "wcr-catuai",
+        "coffeereview-cri",
+        "icafe-pliego"
       ],
       "updated": "2026-10-28"
     },
@@ -5720,9 +5944,12 @@
           "extended",
           "carbonic"
         ],
+        "species": "Mostly Arabica; Robusta in the lowlands of Bocas del Toro and Darién, at about 800 m (2,600 ft), mostly drunk at home",
+        "text": "No national count of varieties or processes was found. Coffeeness calls Gesha the primary variety; it dominates Boquete and the auctions (40 of 50 Best of Panama lots in 2026), while Renacimiento grows mainly Catuaí, Caturra, Typica and Bourbon. Farms use washed, natural and honey processing, and Volcán leans to naturals, honeys and experimental ferments.",
         "src": [
           "coffeeness-panama",
-          "sucafina-panama"
+          "sucafina-panama",
+          "laestrella-bop-2026"
         ]
       },
       "sections": [
@@ -5938,19 +6165,27 @@
       "grows": {
         "varieties": [
           "bourbon",
+          "bm139",
           "jackson",
           "mibirizi"
         ],
         "processes": [
           "washed",
           "natural",
+          "honey",
           "anaerobic"
         ],
+        "species": "Arabica, nearly all of it",
+        "text": "Mostly fully washed Bourbon types: KT Press (2026) puts fully washed at about 80% of the coffee, World Coffee Research at about 62% of exports; naturals, honeys and anaerobic lots are about 5% of exports.",
         "src": [
           "mcm-rwanda",
           "visitrwanda-coffee",
           "samplecoffee-jackson",
-          "wcr-mibirizi"
+          "wcr-mibirizi",
+          "wcr-rwanda",
+          "ktpress-rwa-2026",
+          "wcr-bm139",
+          "starbucks-rwanda"
         ]
       },
       "sections": [
@@ -6013,7 +6248,11 @@
         "wcr-mibirizi",
         "wcr-ptd-2023",
         "pdg-ptd-2021",
-        "newtimes-rwa-2026"
+        "newtimes-rwa-2026",
+        "wcr-rwanda",
+        "ktpress-rwa-2026",
+        "wcr-bm139",
+        "starbucks-rwanda"
       ],
       "updated": "2026-10-28",
       "feel": {
