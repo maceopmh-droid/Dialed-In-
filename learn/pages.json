@@ -210,7 +210,7 @@
           "teaser": "An Ethiopian landrace, outside the Typica and Bourbon lines",
           "body": [
             "World Coffee Research places Gesha among the Ethiopian landraces: coffees collected from Ethiopia, Arabica's main center of genetic diversity. The Panama line descends from one accession, T2722, and is uniform.",
-            "Gesha Village, a farm in Ethiopia, grows its own selections from the Gori Gesha forest, sold under names like “Gesha 1931”. No DNA comparison with the Panama line was found."
+            "Gesha Village, a farm in Ethiopia, grows its own selections from the Gori Gesha forest, sold under names like “Gesha 1931”. No published DNA comparison with the Panama line exists."
           ],
           "src": [
             "wcr-geisha",
@@ -332,7 +332,7 @@
         ],
         "text": "Roasters describe blackcurrant and dark berry, citrus, a wine-like acidity and a juicy finish. One calls these tendencies rather than a fixed recipe.",
         "label": "trade",
-        "evidence": "Kenya's altitude and careful washing are part of that taste too. No study has grown and processed SL28 next to other varieties the same way, so the variety's share isn't measured.",
+        "evidence": "Kenya's altitude and careful washing are part of that taste too. When Kenya's coffee research institute (KALRO) cupped SL28 beside 30 other varieties at two sites over the 2021 and 2022 harvests, Batian scored highest overall and SL28 stood out mainly at one site (Ruiru), so place and year move its cup; how much of the classic Kenya taste comes from the variety still isn't pinned down.",
         "typicalShape": {
           "acidity": 8,
           "sweetness": 5,
@@ -343,7 +343,8 @@
         },
         "src": [
           "ozone-sl28",
-          "rave-sl"
+          "rave-sl",
+          "cheserek-2023"
         ]
       },
       "myths": [
@@ -433,7 +434,8 @@
         "sucafina-kenya",
         "wcr-conformity",
         "wcr-ruiru11",
-        "wcr-batian"
+        "wcr-batian",
+        "cheserek-2023"
       ],
       "updated": "2026-10-28"
     },
@@ -1499,7 +1501,8 @@
           "cafeimports-eth",
           "sweetmarias-eth"
         ]
-      }
+      },
+      "mapTiers": {}
     },
     {
       "id": "KEN",
@@ -1774,7 +1777,8 @@
           "royal-kenya",
           "sweetmarias-kenya"
         ]
-      }
+      },
+      "mapTiers": {}
     },
     {
       "id": "PER",
@@ -2989,7 +2993,7 @@
         ],
         "text": "Sweet Maria's says it can be more aromatic than Bourbon or Caturra: floral, bright and tea-like. Sucafina compares it to Gesha, with more herbal notes and a fuller body.",
         "label": "trade",
-        "evidence": "What importers say; we found no trial that tasted it side by side with other varieties.",
+        "evidence": "What importers say; no published trial has tasted it side by side with other varieties.",
         "src": [
           "sweetmarias-chiroso",
           "sucafina-glossary"
@@ -3158,10 +3162,13 @@
       ],
       "kicker": "Variety · Ethiopian landrace",
       "summary": "Ethiopia's many local coffee types, sold together as “heirloom”.",
-      "lede": "“Heirloom” on a bag means Ethiopia's own coffee: many local types picked long ago from wild coffee, usually grown together. It's a catch-all, not one variety.",
+      "lede": "“Heirloom” on a bag means Ethiopia's own coffee: local types farmers selected long ago from wild coffee and, more and more, numbered selections from the national research center, usually grown together. It's a catch-all, not one variety.",
       "ledeSrc": [
         "roasterspack-heirloom",
-        "ethiocoffee"
+        "ethiocoffee",
+        "sweetmarias-eth-varieties",
+        "ally-eth-varieties",
+        "mcm-adorsi"
       ],
       "facts": [
         {
@@ -3239,11 +3246,12 @@
           "title": "Names on the bag",
           "teaser": "Kurume, Dega, Wolisho and their stories",
           "body": [
-            "Regional landraces are often named after local trees, and their history is mostly passed down by word of mouth. Kurume and Dega come from West Guji; Wolisho is common in Yirgacheffe, Sidama and Guji, often grown alongside them."
+            "Regional landraces are often named after local trees, and their history is mostly passed down by word of mouth. Kurume was identified around Yirgacheffe and is grown across the Gedeo and Guji zones; it and Dega are also found in West Guji. Wolisho is common in Yirgacheffe, Sidama and Guji, often grown alongside them."
           ],
           "src": [
             "roasterspack-heirloom",
-            "sucafina-glossary"
+            "sucafina-glossary",
+            "ally-eth-varieties"
           ]
         },
         {
@@ -3278,7 +3286,10 @@
         "wiki-eth",
         "scalabrin-2020",
         "sucafina-glossary",
-        "coffeehunter-eth"
+        "coffeehunter-eth",
+        "sweetmarias-eth-varieties",
+        "ally-eth-varieties",
+        "mcm-adorsi"
       ],
       "updated": "2026-10-28"
     },
@@ -5475,7 +5486,8 @@
           "anacafe-fraijanes",
           "cafeimports-gtm"
         ]
-      }
+      },
+      "mapTiers": {}
     },
     {
       "id": "CRI",
@@ -5801,7 +5813,8 @@
         "coffeereview-cri",
         "icafe-pliego"
       ],
-      "updated": "2026-10-28"
+      "updated": "2026-10-28",
+      "mapTiers": {}
     },
     {
       "id": "PAN",
@@ -6262,7 +6275,8 @@
           "visitrwanda-coffee",
           "mcm-rwanda"
         ]
-      }
+      },
+      "mapTiers": {}
     }
   ],
   "fresh": {
