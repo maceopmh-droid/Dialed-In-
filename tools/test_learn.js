@@ -210,6 +210,37 @@ if (fs.existsSync(path.join(dir, 'manifest.json'))) {
     }
     if (j.maps) Object.entries(j.maps).forEach(([c, m]) => { ok(m.w > 0 && m.h > 0 && /^M/.test(m.outline), `map ${c} has an outline`); (m.dots || []).forEach(d => ok(/^https?:\/\//.test(d.src), `map ${c} dot ${d.id} has a source`)); });
   });
+  // v20.1: the research (atlas.json): a page for every kind; every claim lists its sources; ids the recognizer knows
+  const atlas = (man.files || []).includes('atlas.json') ? JSON.parse(fs.readFileSync(path.join(dir, 'atlas.json'), 'utf8')) : null;
+  if (atlas) {
+    const recs = atlas.records || [], rk = new Set(recs.map(r => `${r.kind}:${r.id}`));
+    const has = (k, list, what) => { ok(Array.isArray(list) && list.length > 0, `${k} ${what} has a source`); (list || []).forEach(s3 => ok(!!SRC[s3], `${k} ${what} source ${s3} exists`)); };
+    recs.forEach(r => {
+      const k = `atlas ${r.kind}:${r.id}`, written = ids.has(`${r.kind}:${r.id}`);
+      ok(['variety', 'species', 'process', 'origin', 'region'].includes(r.kind), `${k} is a kind Learn draws`);
+      if (r.kind === 'region') ok(!!L.entry('region', r.id) && r.country === r.id.split(':')[0], `${k} is a region the recognizer knows`);
+      else if (r.kind === 'origin') ok(L.allCountries().some(c => c.code === r.id), `${k} is a known country`);
+      else if (!(r.kind === 'species' && r.id === 'arabica')) ok(!!L.entry(r.kind, r.id), `${k} is known to the recognizer`);
+      if (!written) { ok(!!(r.name && r.summary && r.lede), `${k} has a name, summary and lede`); has(k, r.ledeSrc, 'lede'); }
+      (r.facts || []).forEach((f, i) => { ok(!!(f.value && f.label), `${k} fact ${i + 1} has a value and label`); has(k, f.src, `fact ${i + 1}`); });
+      (r.story || []).forEach((x, i) => { ok(!!(x.when && x.text), `${k} story ${i + 1} has a when and text`); has(k, x.src, `story ${i + 1}`); });
+      (r.sections || []).forEach((x, i) => { ok(!!x.title && Array.isArray(x.body) && x.body.length, `${k} section ${i + 1} has a title and body`); has(k, x.src, `section ${i + 1}`); });
+      (r.regions || []).forEach(x => has(k, x.src, `region ${x.id}`));
+      (r.steps || []).forEach((x, i) => has(k, x.src, `step ${i + 1}`));
+      (r.spectrum || []).forEach((x, i) => { ok(['prized', 'divisive', 'fault'].includes(x.kind), `${k} spectrum ${i + 1} kind`); has(k, x.src, `spectrum ${i + 1}`); });
+      if (r.cup) { has(k, r.cup.src, 'cup'); (r.cup.byCoffee || []).forEach((x, i) => has(k, x.src, `cup on coffee ${i + 1}`)); if (r.cup.feel) has(k, r.cup.feel.src || r.cup.src, 'body and acidity'); (r.cup.notes || []).forEach(n => ok(typeof n === 'string' && n.length > 1, `${k} note ${n}`)); }
+      if (r.plant) has(k, r.plant.src, 'plant');
+      if (r.grownIn) { has(k, r.grownIn.src, 'grown in'); (r.grownIn.countries || []).forEach(c => ok(L.allCountries().some(x => x.code === c), `${k} grown in ${c}, a known country`)); }
+      if (r.harvest) { has(k, r.harvest.src, 'harvest'); (r.harvest.main || []).concat(r.harvest.fly || []).forEach(m => ok(Number.isInteger(m) && m >= 1 && m <= 12, `${k} harvest month ${m}`)); }
+      if (r.grows) has(k, r.grows.src, 'what grows here');
+      if (r.family && (r.family.parents || []).length) has(k, r.family.src, 'family');
+      (r.related || []).forEach(x => ok(rk.has(x) || ids.has(x), `${k} related ${x} has a page`));
+      neverSay(k, r);
+    });
+    L.allVarieties().forEach(v => ok(rk.has(`${v.family === 'species' ? 'species' : 'variety'}:${v.id}`) || ids.has(`variety:${v.id}`), `variety ${v.id} has a full page`));
+    L.allCountries().forEach(c => ok(rk.has(`origin:${c.code}`) || ids.has(`origin:${c.code}`), `country ${c.code} has a full page`));
+    L.allProcesses().forEach(p => ok(rk.has(`process:${p.id}`) || ids.has(`process:${p.id}`), `process ${p.id} has a full page`));
+  }
   (man.pages || []).forEach(pg => ok(ids.has(pg), `manifest page ${pg} exists`));
   (man.guides || []).forEach(pg => ok(ids.has('guide:' + pg), `manifest guide ${pg} exists`));
 }

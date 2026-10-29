@@ -113,6 +113,9 @@
                     // v15.1: your coffees are on screen: the start-up screen goes (two frames on, once they're drawn)
                     if (this.hideBoot) { this.bootStep(88); requestAnimationFrame(() => requestAnimationFrame(() => this.hideBoot())); }
                     if (this.user || this.welcomeOpen) this.sync();
+                    // v20.1: Learn's words come from the phone's database, so they're read once things are on screen (the
+                    // coffee page's tags and About this coffee need them)
+                    setTimeout(() => { if (this.learnOn && this.learnOn() && !this.lxState().content) this.learnEnsure().then(c => { if (c && this.lxRefresh) this.lxRefresh('comm'); }).catch(() => {}); }, 1200);
                 });
                 this.syncTimer = setInterval(() => {
                     if (!document.hidden) this.sync({ silent: true });

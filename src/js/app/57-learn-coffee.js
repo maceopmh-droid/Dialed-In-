@@ -69,8 +69,11 @@
                         crowd = `<div class="lx-hr"></div><div class="lx-crowd">${img}<div class="lx-cmain"><b>${this.esc(this.lxComboTitle(wants[pick]))} on Dialed In</b><small>${this.esc([s, notes.length ? `Most often ${notes.length > 1 ? `${notes.slice(0, -1).join(', ')} and ${notes[notes.length - 1]}` : notes[0]}.` : ''].filter(Boolean).join(' '))} ${this.lxPlural(A.coffees, 'coffee')} · ${A.people} people</small></div></div>`;
                     }
                 }
-                const body = `<p class="lx-p">${this.esc(dec)}${fit ? ` ${this.esc(fit)}` : ''}</p>${crowd}`;
-                return `<div id="lx-about" class="lx-about">${this.lxSecs([{ key: 'about', open: true, title: 'About this coffee', teaser: dec.split('. ')[0].replace(/\.$/, '') + '.', body, cls: 'lx-boxsec', icon: 'i-book' }])}</div>`;
+                // v20.1: the coffee's story (the trees, where it grew, how it was processed, what that tends toward), folded
+                // until you open it; its one-line summary says what it is
+                const J = this.lxJourney ? this.lxJourney(bean) : null;
+                const body = J ? `${this.lxJourneyHtml(J)}${fit ? `<p class="lx-p lx-small2">${this.esc(fit)}</p>` : ''}${crowd}` : `<p class="lx-p">${this.esc(dec)}${fit ? ` ${this.esc(fit)}` : ''}</p>${crowd}`;
+                return `<div id="lx-about" class="lx-about">${this.lxSecs([{ key: 'about2', open: false, title: 'About this coffee', teaser: J ? this.lxAboutLine(J) : dec.split('. ')[0].replace(/\.$/, '') + '.', body, cls: 'lx-boxsec', icon: 'i-book' }])}</div>`;
             },
             // C1's own sentence: the notes you've tasted that fit how this kind of coffee is usually described
             lxFitSentence(bean, brews) {
