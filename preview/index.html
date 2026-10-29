@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v20.2 -->
+<!-- Dialed In v20.3 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="20.2">
+    <meta name="dialed-in-version" content="20.3">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -5152,6 +5152,11 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] .lx-dotmap .lx-cmap .lx-outline { fill: color-mix(in srgb, var(--t) 9%, transparent); }
         html[data-look="new"] .lx-mdot circle { fill: var(--k); stroke: var(--box); stroke-width: 1; }
         html[data-look="new"] .lx-mdot text { font: 600 7.2px var(--font-main, -apple-system, system-ui, sans-serif); fill: var(--t); paint-order: stroke; stroke: var(--box); stroke-width: 2px; stroke-linejoin: round; }
+        /* v20.3: a map zoomed onto its coffee area (--mz < 1) keeps lines, dots and names the same size on screen */
+        html[data-look="new"] .lx-cmap .lx-rest, html[data-look="new"] .lx-cmap .lx-rg { stroke-width: calc(0.8px * var(--mz, 1)); }
+        html[data-look="new"] .lx-cmap .lx-outline { stroke-width: calc(1px * var(--mz, 1)); }
+        html[data-look="new"] .lx-mdot circle { stroke-width: calc(1px * var(--mz, 1)); }
+        html[data-look="new"] .lx-mdot text { font-size: calc(7.2px * var(--mz, 1)); stroke-width: calc(2px * var(--mz, 1)); }
         /* the process map */
         html[data-look="new"] .lx-pmapbox { background: var(--box); border: 1px solid var(--hl); border-radius: 22px; padding: 12px 10px 12px; }
         html[data-look="new"] .lx-pmapbox .lx-note { margin: 6px 6px 0; }
@@ -5390,6 +5395,11 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] .lx-tl.mini small { display: none; }
         html[data-look="new"] .lx-tl.g.mini { padding-top: 3px; padding-bottom: 4px; }
         html[data-look="new"] .lx-tl.g.mini > i { top: 9px; }
+        /* v20.3: each family's branches carry its color (the chips under the tree are the key); species names are small */
+        html[data-look="new"] .lxk .bark.fc { fill: color-mix(in srgb, var(--fc) 74%, var(--lx-bark)); }
+        html[data-look="new"][data-theme="light"] .lxk .bark.fc { fill: color-mix(in srgb, var(--fc) 78%, var(--lx-bark)); }
+        html[data-look="new"] .lx-tl.v.sp { font: italic 500 13px/1.15 var(--nl-serif); color: var(--l); }
+        html[data-look="new"] .lx-tl.v .fcd { display: inline-block; width: 7px; height: 7px; border-radius: 4px; margin-right: 4px; vertical-align: 1px; }
         html[data-look="new"] .lx-tmine { position: absolute; left: 12px; top: 12px; z-index: 2; height: 36px; padding: 0 12px; border-radius: 18px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 650; color: var(--t); background: color-mix(in srgb, var(--c, var(--nl-surface)) 84%, transparent); border: 1px solid var(--hl); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
         html[data-look="new"] .lx-tmine i { width: 10px; height: 10px; border-radius: 5px; background: var(--lx-cherry); }
         html[data-look="new"] .lx-tmine.off { opacity: 0.55; }
@@ -5529,10 +5539,17 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] .lx-rk { font-size: 12px; font-weight: 650; color: var(--k); }
         html[data-look="new"] .lx-rn { font-family: var(--nl-serif); font-weight: 500; font-size: 21px; line-height: 1.1; color: var(--n); }
         html[data-look="new"] .lx-rs { font-size: 12.5px; line-height: 1.3; color: var(--l); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        /* v20.3: a thin page's closest relative with a full page; a country's line on what's typical */
+        html[data-look="new"] .lx-near > .lx-p { margin: 0 0 10px; }
+        html[data-look="new"] .lx-nearcard { width: 100%; flex: none; }
+        html[data-look="new"] .lx-nearn { font-size: 12.5px; line-height: 1.35; color: var(--t); margin-top: 4px; }
+        html[data-look="new"] .lx-nearn em { font-style: normal; color: var(--l); }
+        html[data-look="new"] .lx-rgo { margin-top: 6px; font-size: 13px; font-weight: 650; color: var(--k); }
+        html[data-look="new"] .lx-gtext { margin: 0 0 10px; }
 
         /* maps: a region lit on its country, tappable regions */
         html[data-look="new"] .lx-cmap [data-lxr] { cursor: pointer; }
-        html[data-look="new"] .lx-mdot.lx-mme circle { fill: var(--k); stroke: var(--box); stroke-width: 2; }
+        html[data-look="new"] .lx-mdot.lx-mme circle { fill: var(--k); stroke: var(--box); stroke-width: calc(2px * var(--mz, 1)); }
         html[data-look="new"] .lx-mdot.lx-mme text { font-weight: 750; }
         html[data-look="new"] .lx-mdot:not(.lx-mme)[data-lxr] circle { fill: color-mix(in srgb, var(--k) 55%, transparent); }
 
@@ -6267,7 +6284,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v20.2</div>
+            <div class="app-version">Dialed In · v20.3</div>
         </div>
     </div>
 
@@ -8865,11 +8882,11 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             const bez = (p, t) => { const m = 1 - t; return [m * m * m * p[0] + 3 * m * m * t * p[2] + 3 * m * t * t * p[4] + t * t * t * p[6], m * m * m * p[1] + 3 * m * m * t * p[3] + 3 * m * t * t * p[5] + t * t * t * p[7]]; };
             const bezd = (p, t) => { const m = 1 - t; return [3 * m * m * (p[2] - p[0]) + 6 * m * t * (p[4] - p[2]) + 3 * t * t * (p[6] - p[4]), 3 * m * m * (p[3] - p[1]) + 6 * m * t * (p[5] - p[3]) + 3 * t * t * (p[7] - p[5])]; };
             // a branch: a tapering shape along a curve, with a lighter line down its lit side
-            function stem(p, w0, w1, cls = 'bark') {
+            function stem(p, w0, w1, cls = 'bark', fc = '') {
                 const N = 18, L = [], Rr = [], hl = [];
                 for (let i = 0; i <= N; i++) { const t = i / N, [x, y] = bez(p, t), [dx, dy] = bezd(p, t), l = Math.hypot(dx, dy) || 1, w = (w0 + (w1 - w0) * Math.pow(t, 0.8)) / 2, nx = -dy / l * w, ny = dx / l * w; L.push([x + nx, y + ny]); Rr.push([x - nx, y - ny]); if (i > 1 && i < N - 1) hl.push([x - nx * 0.45, y - ny * 0.45]); }
                 const d = 'M' + L.map(q => q.map(i0).join(' ')).join('L') + 'L' + Rr.reverse().map(q => q.map(i0).join(' ')).join('L') + 'Z';
-                return `<path d="${d}" class="${cls}"/><path d="M${hl.map(q => q.map(i0).join(' ')).join('L')}" class="barkhl" style="stroke-width:${f1(Math.max(1, Math.min(w0, 30) * 0.18))}"/>`;
+                return `<path d="${d}" class="${cls}${fc ? ' fc" style="--fc:' + fc : ''}"/><path d="M${hl.map(q => q.map(i0).join(' ')).join('L')}" class="barkhl" style="stroke-width:${f1(Math.max(1, Math.min(w0, 30) * 0.18))}"/>`;
             }
             function defs() {
                 const g = (id, a, b, c) => `<radialGradient id="${id}" cx=".38" cy=".34" r=".75"><stop offset="0" stop-color="${a}"/><stop offset=".55" stop-color="${b}"/><stop offset="1" stop-color="${c}"/></radialGradient>`;
@@ -8918,6 +8935,9 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             const HOW = { W: 'where Arabica began', Y: 'where coffee was first farmed', AB: 'Ethiopian types grown abroad', SEL: 'chosen from forest trees, 1970s', 74110: 'a selection', 74112: 'a selection', 74140: 'a selection', 74148: 'a selection', 74158: 'a selection', 74165: 'a selection', 75227: 'a selection', 'ethiopian-landrace': '“heirloom”: Ethiopia’s many local types', kurume: 'a landrace', wolisho: 'a landrace', 'gori-gesha': 'a landrace', 'gesha-1931': 'a forest selection resembling Panama Gesha', 'wush-wush': 'a landrace', 'rume-sudan': 'semi-wild coffee from the Boma Plateau, South Sudan', java: 'a selection', yemenia: 'Yemen’s own genetic group', typica: 'one of the two old lines', kent: 'a selection', maragogipe: 'a natural mutation', pache: 'a natural mutation', sl14: 'a selection', bourbon: 'one of the two old lines', 'yellow-bourbon': 'a natural mutation', k7: 'a selection', jackson: 'a selection', bm139: 'a selection', caturra: 'a dwarf mutation of Bourbon', pacas: 'a dwarf mutation', 'villa-sarchi': 'a dwarf mutation', tekisic: 'a selection', 'mundo-novo': 'Bourbon × Typica', catuai: 'Caturra × Mundo Novo', pacamara: 'Pacas × Maragogipe', 'timor-hybrid': 'Arabica × Robusta, found on Timor', catimor: 'Caturra × Timor Hybrid', sarchimor: 'Villa Sarchi × Timor Hybrid', tabi: 'Timor Hybrid × Bourbon', 'costa-rica-95': 'a selection', 'anacafe-14': 'Catimor × Pacamara', parainema: 'a selection', cuscatleco: 'a selection', 'ipr-107': 'IAPAR 59 × Mundo Novo', paraiso: 'Timor Hybrid × Catuaí', catigua: 'Timor Hybrid × Catuaí', icatu: 'Bourbon × Robusta', catucai: 'Catuaí × Icatu', arara: 'Obatã × Catuaí', ateng: 'a selection', andungsari: 'a selection', 'sigarar-utang': 'a farm find: Timor Hybrid × another Arabica', s795: 'Kent × S288', 'sln-9': 'Timor Hybrid × Ethiopian landrace', batian: 'a mix of SL28, SL34, K7, Rume Sudan, N39, SL4 and Timor Hybrid lines', centroamericano: 'Sarchimor × Rume Sudan', starmaya: 'Marsellesa × a wild Ethiopian tree', 'mundo-maya': 'Sarchimor × a wild Ethiopian tree', milenio: 'Sarchimor × Rume Sudan', casiopea: 'Caturra × a wild Ethiopian tree', evaluna: 'Catimor × an Ethiopian tree from CATIE’s collection', nayarita: 'Catimor × a wild Ethiopian tree', mundomex: 'Catimor × a wild Ethiopian tree', esperanza: 'Sarchimor × an Ethiopian tree from CATIE’s collection', h3: 'Caturra × an Ethiopian tree from CATIE’s collection', 'ruiru-11': 'Catimor × SL28' };
             const GROUP = { W: 'Wild Ethiopia', SEL: 'Research picks', AB: 'Ethiopians abroad', Y: 'Yemen' };
             const PLATES = { W: ['Wild Ethiopia', 'where Arabica began', '#c98bbb'], Y: ['Yemen', 'where coffee was first farmed', '#d7b46a'], typica: ['Typica family', 'old line, via Java', '#b9a07a'], bourbon: ['Bourbon family', 'old line, via Réunion', '#e0b65a'], AB: ['Ethiopians abroad', 'sold under other names', '#d9a1c7'], 'timor-hybrid': ['Timor Hybrid', 'Arabica × Robusta: the Robusta line', '#6fb3a0'], catimor: ['Catimors', 'Caturra × Timor Hybrid', '#6fb3a0'], sarchimor: ['Sarchimors', 'Villa Sarchi × Timor Hybrid', '#6fb3a0'], SEL: ['Research picks', 'chosen from forest trees', '#c98bbb'] };
+            // v20.3: each family's color: its branches are tinted with it, and the chips under the tree are its key
+            const FAMC = { W: '#c98bbb', SEL: '#c98bbb', AB: '#e8a7c8', Y: '#e0915a', typica: '#86a9d9', bourbon: '#e3b94a', 'timor-hybrid': '#5fbfa8', catimor: '#5fbfa8', sarchimor: '#5fbfa8', f1: '#9cc97a' };
+            const famOf = id => { if (F1.has(id)) return 'f1'; for (let p = id; p && p !== 'arabica'; p = MAIN[p]) if (FAMC[p]) return p; return ''; };
             const F1 = new Set(['centroamericano', 'starmaya', 'mundo-maya', 'milenio', 'casiopea', 'evaluna', 'nayarita', 'mundomex', 'esperanza', 'h3', 'ruiru-11']);
             const SIMPLE = new Set(['ethiopian-landrace', 'gesha', 'rume-sudan', 'java', 'pink-bourbon', 'sidra', 'yemenia', 'typica', 'blue-mountain', 'maragogipe', 'sl34', 'timor-hybrid', 'tabi', 'bourbon', 'yellow-bourbon', 'sl28', 'batian', 'caturra', 'pacas', 'villa-sarchi', 'mundo-novo', 'catuai', 'catimor', 'castillo', 'colombia-var', 'pacamara', 'sarchimor', 'parainema', 'marsellesa', 'centroamericano', 'starmaya', 'ruiru-11']);
             const ORD = { arabica: ['W', 'Y'], W: ['AB', 'SEL', 'ethiopian-landrace', 'gesha', 'gori-gesha', 'rume-sudan'], Y: ['yemenia', 'monte-claro', 'bourbon', 'typica'],
@@ -8965,7 +8985,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             // ctx: { name(id), mine: Set of variety ids you've logged }
             function draw(mode, ctx = {}) {
                 const EV = mode === 'every', nodes = build(mode), geo = layout(nodes, mode), { T, G, Rr } = geo;
-                const name = ctx.name || (id => id), mine = ctx.mine || new Set();
+                const name = ctx.name || (id => id), mine = ctx.mine || new Set(), FS = ctx.fam || '';   // FS: 'tint' (colored branches), 'dots' (a colored dot by each name), '' (plain)
                 const Lf = EV ? 92 : 104, all = Object.values(nodes), root = nodes.arabica;
                 seed(5);
                 const toward = (deg, w) => { const r = deg * Math.PI / 180; return Math.atan2(Math.sin(r) + w, Math.cos(r)) * 180 / Math.PI; };
@@ -8995,7 +9015,8 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     n.dir = Math.atan2(n.y - c2[1], n.x - c2[0]) * 180 / Math.PI;
                     const path = [p.x, p.y, c1[0], c1[1], c2[0], c2[1], n.x, n.y]; PATHS[n.id] = path.map(v => Math.round(v));
                     const unsure = UNSURE.has(n.id) || n.id === 'monte-claro';
-                    stems += unsure ? `<g class="unsure">${stem(path, width(n) * 1.05, width(n) * 0.82)}</g>` : stem(path, width(n) * 1.05, width(n) * 0.82);
+                    const fc = FS ? FAMC[famOf(n.id)] || '' : '';
+                    stems += unsure ? `<g class="unsure">${stem(path, width(n) * 1.05, width(n) * 0.82, 'bark', fc)}</g>` : stem(path, width(n) * 1.05, width(n) * 0.82, 'bark', fc);
                     leafy(path, dist, n, unsure);
                     // the tip of a branch: a tuft of younger, lighter leaves
                     if (!n.kids.length) { for (let i = 0; i < 5; i++) leaves += leaf(n.x, n.y, toward(n.dir + (i - 2) * 34 + (R() - 0.5) * 14, 0.25), Lf * (0.55 + 0.25 * R()), { tone: unsure ? 'u' : i % 2 ? 'n' : Math.floor(R() * 3), ratio: 0.15 + 0.06 * R() }); }
@@ -9012,10 +9033,12 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const LABELS = [];
                 Object.keys(PLATES).forEach(g => { const n = nodes[g]; if (!n) return; const [nm, desc, col] = PLATES[g]; LABELS.push({ x: n.x, y: n.y, text: nm, desc, col, kind: 'group', id: g, prio: 90 + Math.min(9, n.w / 4) }); sub(n).forEach(m => boxGrow(g, m.x - 170, m.y - 170, m.x + 170, m.y + 170)); });
                 all.forEach(n => {
-                    if (n === root || GROUP[n.id] || PLATES[n.id]) return;
-                    const prio = mine.has(n.id) ? 70 : n.kids.length ? 45 + Math.min(20, n.w) : F1.has(n.id) ? 22 : 30;
+                    // (v20.3: with the families as colors, Typica, Bourbon, Timor Hybrid, Catimor and Sarchimor are names on the tree
+                    // like any variety, and among the first to show)
+                    if (n === root || GROUP[n.id] || (PLATES[n.id] && !FS)) return;
+                    const prio = PLATES[n.id] ? 88 : mine.has(n.id) ? 70 : n.kids.length ? 45 + Math.min(20, n.w) : F1.has(n.id) ? 22 : 30;
                     const side = n.kids.length ? '' : n.a < -118 ? 'l' : n.a > -62 ? 'r' : 'u';
-                    LABELS.push({ x: n.x, y: n.y, text: name(n.id), kind: 'variety', id: n.id, own: mine.has(n.id), f1: F1.has(n.id), q: UNSURE.has(n.id), side, prio });
+                    LABELS.push({ x: n.x, y: n.y, text: name(n.id), kind: 'variety', id: n.id, own: mine.has(n.id), f1: F1.has(n.id), q: UNSURE.has(n.id), side, prio, fc: FAMC[famOf(n.id)] || '' });
                     if (F1.has(n.id)) boxGrow('f1', n.x - 190, n.y - 190, n.x + 190, n.y + 190);
                 });
                 // the ground, and Arabica's two parent species standing under the crown's edges
@@ -9154,7 +9177,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     + `<path d="M150 12C220 12 262 62 262 120C262 180 216 228 150 228C84 228 38 180 38 120C38 62 80 12 150 12Z" class="xsk${c('skin')}"/><path d="M150 22C212 22 252 66 252 120C252 174 210 218 150 218C90 218 48 174 48 120C48 66 88 22 150 22Z" class="xpu${c('fruit')}"/><path d="M150 44C198 44 230 78 230 120C230 162 198 196 150 196C102 196 70 162 70 120C70 78 102 44 150 44Z" class="xmu${c('mucilage')}"/>${bean(1)}${bean(-1)}<path d="M150 12C148 6 150 0 156 -2" class="xstk"/></svg>`;
             }
             const children = id => [...new Set(Object.keys(MAIN).filter(k => MAIN[k] === id).concat(Object.keys(SECOND).filter(k => SECOND[k] === id)))];
-            return { draw, line, defs, sprig, cut, chain, path, children, has: id => (!!MAIN[id] && !GROUP[id]) || !!ALT[id], onTree: id => !!MAIN[id] && !GROUP[id], simple: id => SIMPLE.has(id), unsure: id => UNSURE.has(id), second: id => SECOND[id] || null, MAIN, SECOND, ALT, WHEN, HOW, GROUP, VERSION: 1 };
+            return { draw, line, defs, sprig, cut, chain, path, children, FAMC, famOf, has: id => (!!MAIN[id] && !GROUP[id]) || !!ALT[id], onTree: id => !!MAIN[id] && !GROUP[id], simple: id => SIMPLE.has(id), unsure: id => UNSURE.has(id), second: id => SECOND[id] || null, MAIN, SECOND, ALT, WHEN, HOW, GROUP, VERSION: 1 };
         })();
         if (typeof module !== 'undefined' && module.exports) module.exports = LearnTree;
         const app = {
@@ -25336,6 +25359,9 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     if (on('guide-modal') || on('welcome-view')) return;
                     const page = this.subPage();
                     const edge = x < EDGE;
+                    // v20.3: zoomed into the coffee tree, a sideways swipe in its box looks around, even from the edge (zoomed all the
+                    // way out it goes back as usual)
+                    if (target && target.closest && target.closest('.lx-twrap.no-swipe')) return;
                     if (page) { if (edge || (!blocked(target) && !sideways(target))) g = { kind: 'back', el: page, x0: x, y0: y, t0: Date.now() }; return; }
                     if (this.tab === 'profile' && this.profileUser && this.profileUser !== this.user && this._profBack) {
                         if (edge || (!blocked(target) && !sideways(target))) g = { kind: 'back', el: document.getElementById('grid'), soft: true, x0: x, y0: y, t0: Date.now() };
@@ -27875,7 +27901,16 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const maps = (f['maps.json'] || {}).maps || {};
                 // v20.1: the research (atlas.json) gives every variety, species, process, country and region a page. A written
                 // page keeps its words and takes the research's extra parts (rx); the rest are built from the research.
-                ((f['atlas.json'] || {}).records || []).forEach(r => { const k = `${r.kind}:${r.id}`, e = entries.get(k); entries.set(k, e ? { ...e, rx: r } : this.lxFromRx(r, maps)); });
+                // (v20.3: a written page keeps its own words; a part it doesn't have, like harvest months, comes from the research)
+                const FILL = ['harvest', 'harvestText', 'secondName', 'grows', 'regions', 'regionsNote', 'map', 'mapTiers', 'mapLegend'];   // (the cup comes from both already)
+                const empty = v => v == null || v === '' || (Array.isArray(v) && !v.length);
+                ((f['atlas.json'] || {}).records || []).forEach(r => {
+                    const k = `${r.kind}:${r.id}`, e = entries.get(k);
+                    if (!e) { entries.set(k, this.lxFromRx(r, maps)); return; }
+                    const x = this.lxFromRx(r, maps), m = { ...e, rx: r };
+                    FILL.forEach(key => { if (empty(m[key]) && !empty(x[key])) m[key] = x[key]; });
+                    entries.set(k, m);
+                });
                 return { version: j.version, updated: j.updated || '', entries, guides: gs, guideList: guides.guides || [], sources: (f['sources.json'] || {}).sources || {}, maps, tree: pages.tree || null, pmap: pages.processMap || null, origins: pages.origins || {}, fresh: pages.fresh || null, raw: j };
             },
             async lxFetchJson(url) {
@@ -27884,10 +27919,15 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 return r.json();
             },
             // load (or refresh) the files; resolves to the content, or null when there's none and no connection
+            // v20.3: the oldest words this app can show properly, and a fresh check whenever the app itself updates (before, a
+            // phone that had checked that day kept the old words for up to a day after an update)
+            LX_NEED: 5,
+            LX_EVERY: 3 * 3600000,   // (v20.3: a fix to the words reaches phones within hours; the check is one small file)
+            lxStale(have) { return !have || Number(have.version || 0) < this.LX_NEED || String(safeGet('dialed_learn_app') || '') !== (this.runningVersion ? this.runningVersion() : ''); },
             learnEnsure(force) {
                 const st = this.lxState(), have0 = this.learnContent();
                 const checked = Number(safeGet('dialed_learn_checked') || 0);
-                if (have0 && !force && Date.now() - checked < 86400000) return Promise.resolve(have0);
+                if (have0 && !force && !this.lxStale(have0) && Date.now() - checked < this.LX_EVERY) return Promise.resolve(have0);
                 if (st.loading) return st.loading;
                 const bases = this.lxNative() ? ['learn/', this.LX_SITE] : ['learn/'];
                 st.loading = (async () => {
@@ -27895,7 +27935,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     // small storage still opens until the first new download replaces it
                     let have = have0;
                     if (!have && !st.idbTried && this.idbGet) { st.idbTried = true; try { const j = await this.idbGet('learn:content'); if (j && j.files && j.version) { st.content = this.lxIndex(j); have = st.content; } } catch (e) {} }
-                    if (have && !force && Date.now() - checked < 86400000) { st.loading = null; return have; }
+                    if (have && !force && !this.lxStale(have) && Date.now() - checked < this.LX_EVERY) { st.loading = null; return have; }
                     let best = null;
                     for (const base of bases) {
                         try {
@@ -27916,7 +27956,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                             else { try { safeSet('dialed_learn_content', JSON.stringify(j)); } catch (e) {} }
                         } catch (e) { if (!have) st.failed = true; }
                     }
-                    if (best) { safeSet('dialed_learn_checked', String(Date.now())); st.failed = false; }
+                    if (best) { safeSet('dialed_learn_checked', String(Date.now())); if (this.runningVersion) safeSet('dialed_learn_app', this.runningVersion()); st.failed = false; }
                     else if (!have) st.failed = true;
                     st.loading = null;
                     return st.content;
@@ -28508,12 +28548,14 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     else if (e.feel && this.lxFeelHtml) add({ key: `${k}.feel`, open: true, title: 'Body and acidity', teaser: [e.feel.body, e.feel.acidity].filter(Boolean).join(' · '), body: `<div class="lx-box">${this.lxFeelHtml(e.feel)}</div>` });
                     if ((e.harvest || []).length) add({ key: `${k}.harvest`, open: true, title: 'When it’s picked', teaser: this.lxHarvestTeaser(e), body: this.lxHarvestHtml(e) });
                     const g = this.lxGrowsHtml(e); if (g) add({ key: `${k}.grows`, open: true, title: 'What grows here', teaser: [...((e.grows || {}).varieties || []), ...((e.grows || {}).processes || [])].slice(0, 5).map(id => this.lxName(LearnEngine.entry('variety', id) ? 'variety' : 'process', id)).join(', '), body: g });
+                    if (this.lxNearestSec) add(this.lxNearestSec(e));   // v20.3: what isn't published here, and where to find it (a region's country, a country's regions)
                     if (k === 'region' && has) add(this.lxPlacesSec(e));
                     if (k === 'origin') add(this.lxCommCompact(e, comm));
                 } else {
                     if (has && (e.taste || (rx && rx.cup))) add(this.lxCupSec(e));
                     else if (e.taste) add({ key: `${k}.taste`, open: true, title: k === 'process' ? 'What it usually does to the cup' : 'What it’s said to taste like', teaser: (e.taste.notes || []).join(', ') || e.taste.text, body: this.lxTasteHtml(e) });
                     else if (e.feel && this.lxFeelHtml) add({ key: `${k}.feel`, open: true, title: 'Body and acidity', teaser: [e.feel.body, e.feel.acidity].filter(Boolean).join(' · '), body: `<div class="lx-box">${this.lxFeelHtml(e.feel)}</div>` });
+                    if (this.lxNearestSec) add(this.lxNearestSec(e));   // v20.3: little written about it: its closest relative with a full page
                     if (k === 'process') {
                         // v20.1: a base method draws the cut cherry (tap another method to compare); the research's steps follow
                         const base0 = has && this.LX_METH[e.id] && typeof LearnTree !== 'undefined';
@@ -28771,24 +28813,28 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const c = this.learnContent(), m = c.maps[e.map || e.country]; if (!m) return '';
                 const tiers = e.mapTiers || {}, tierOf = id => (tiers.l3 || []).includes(id) ? 'on l3' : (tiers.l2 || []).includes(id) ? 'on l2' : (tiers.l1 || []).includes(id) ? 'on' : '';
                 const links = this.lxMapLinks ? this.lxMapLinks(e.country) : new Map();   // v20.1: a region with a page opens from the map
-                const regions = Object.entries(m.regions || {}).map(([id, d]) => `<path class="lx-rg ${tierOf(id)}" d="${d}"${links.has(id) ? ` data-lxr="${this.esc(links.get(id))}"` : ''}/>`).join('');
-                const dots = this.lxDotLabels(m).map(d => `<g class="lx-mdot"${links.has(d.id) ? ` data-lxr="${this.esc(links.get(d.id))}"` : ''}><circle cx="${d.x}" cy="${d.y}" r="3.2"/><text x="${d.tx}" y="${d.ty}"${d.left ? ' text-anchor="end"' : ''}>${this.esc(d.label)}</text></g>`).join('');
-                const svg = `<svg class="lx-cmap" viewBox="0 0 ${m.w} ${m.h}" role="img" aria-label="Map of ${this.esc(e.name)}${(m.dots || []).length ? ' with a town in each coffee area' : ', its coffee departments shaded'}"${links.size ? ' onclick="app.lxMapTap(event)"' : ''}><path class="lx-rest" d="${m.rest || ''}"/>${regions}<path class="lx-outline" d="${m.outline}"/>${dots}</svg>`;
-                const legend = (e.mapLegend || []).map(([k, l]) => `<span><i class="lx-lg-${k}"></i>${this.esc(l)}</span>`).join('');
+                const regions = Object.entries(m.regions || {}).map(([id, d]) => `<path class="lx-rg ${tierOf(id) || (links.has(id) ? 'on' : '')}" d="${d}"${links.has(id) ? ` data-lxr="${this.esc(links.get(id))}"` : ''}/>`).join('');   // (v20.3: a region outlined from its official areas is lit too)
+                const dots = this.lxDotLabels(m).map(d => `<g class="lx-mdot"${links.has(d.id) ? ` data-lxr="${this.esc(links.get(d.id))}"` : ''}><circle cx="${d.x}" cy="${d.y}" r="${(3.2 * this.lxMapZ(m)).toFixed(2)}"/><text x="${d.tx}" y="${d.ty}"${d.left ? ' text-anchor="end"' : ''}>${this.esc(d.label)}</text></g>`).join('');
+                const svg = `<svg class="lx-cmap" viewBox="${m.zoom ? m.zoom.join(' ') : `0 0 ${m.w} ${m.h}`}" style="--mz:${this.lxMapZ(m)}" role="img" aria-label="Map of ${this.esc(e.name)}${(m.dots || []).length ? ' with a town in each coffee area' : ', its coffee departments shaded'}"${links.size ? ' onclick="app.lxMapTap(event)"' : ''}><path class="lx-rest" d="${m.rest || ''}"/>${regions}<path class="lx-outline" d="${m.outline}"/>${dots}</svg>`;
+                const outlined = Object.keys(m.regions || {}).some(id => links.has(id) && !tierOf(id));
+                const legend = (e.mapLegend || []).map(([k, l]) => `<span><i class="lx-lg-${k}"></i>${this.esc(l)}</span>`).join('') + (outlined ? `<span><i class="lx-lg-l1"></i>Each region below, outlined: tap one</span>` : '');
                 return `<div class="lx-box lx-mapwrap${(m.dots || []).length || m.w / m.h > 1.5 ? ' lx-dotmap' : ''}"><div class="lx-cmapbox">${svg}</div><div class="lx-legend lx-vlegend">${legend}</div></div>`;
             },
             // each town's name beside its dot, on whichever side (or a step up or down) keeps it clear of the others
+            // (v20.3: a map zoomed onto its coffee area keeps its names and dots the same size on screen)
+            lxMapZ(m) { return m && m.zoom ? m.zoom[2] / m.w : 1; },
             lxDotLabels(m) {
-                const fs = 7.2, cw = fs * 0.56, placed = [], dots = (m.dots || []).slice().sort((a, b) => a.y - b.y || a.x - b.x);
-                const hit = r => placed.some(p => r.x0 < p.x1 && r.x1 > p.x0 && r.y0 < p.y1 && r.y1 > p.y0) || dots.some(d => d.x > r.x0 - 3 && d.x < r.x1 + 3 && d.y > r.y0 - 3 && d.y < r.y1 + 3);
+                const z = this.lxMapZ(m), X0 = m.zoom ? m.zoom[0] : 0, X1 = m.zoom ? m.zoom[0] + m.zoom[2] : m.w;
+                const fs = 7.2 * z, cw = fs * 0.56, placed = [], dots = (m.dots || []).slice().sort((a, b) => a.y - b.y || a.x - b.x);
+                const hit = r => placed.some(p => r.x0 < p.x1 && r.x1 > p.x0 && r.y0 < p.y1 && r.y1 > p.y0) || dots.some(d => d.x > r.x0 - 3 * z && d.x < r.x1 + 3 * z && d.y > r.y0 - 3 * z && d.y < r.y1 + 3 * z);
                 return dots.map(d => {
                     const w = String(d.label).length * cw;
                     const tries = [[1, 0], [-1, 0], [1, -8], [1, 8], [-1, -8], [-1, 8], [1, -15], [1, 15]];
                     let best = null;
-                    for (const [side, dy] of tries) {
-                        const tx = side > 0 ? d.x + 5.5 : d.x - 5.5, ty = d.y + 2.6 + dy;
+                    for (const [side, dy0] of tries) {
+                        const dy = dy0 * z, tx = side > 0 ? d.x + 5.5 * z : d.x - 5.5 * z, ty = d.y + 2.6 * z + dy;
                         const r = { x0: side > 0 ? tx : tx - w, x1: side > 0 ? tx + w : tx, y0: ty - fs * 0.8, y1: ty + fs * 0.2 };
-                        if (r.x0 < 0 || r.x1 > m.w) continue;
+                        if (r.x0 < X0 || r.x1 > X1) continue;
                         if (!hit(r)) { best = { tx, ty, left: side < 0, r }; break; }
                         if (!best) best = { tx, ty, left: side < 0, r };
                     }
@@ -28811,8 +28857,14 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 return `<div class="lx-box"><div class="lx-calgrid">${rows}</div><div class="lx-legend">${legend}</div>${e.harvestText ? `<p class="lx-p lx-small2">${this.esc(e.harvestText.text)}</p>` : ''}</div>`;
             },
             lxGrowsHtml(e) {
-                const g = e.grows || {}; if (!(g.varieties || []).length && !(g.processes || []).length) return '';
-                return `${(g.varieties || []).length ? `<div class="lx-flabel">Varieties</div><div class="lx-tags">${g.varieties.map(id => this.lxLinkTag('variety', id, this.lxName('variety', id))).join('')}</div>` : ''}${(g.processes || []).length ? `<div class="lx-flabel lx-gap">Processes</div><div class="lx-tags">${g.processes.map(id => this.lxLinkTag('process', id, this.lxName('process', id))).join('')}</div>` : ''}`;
+                const g = e.grows || {}; if (!(g.varieties || []).length && !(g.processes || []).length && !g.text) return '';
+                return `${g.text || g.species ? `<p class="lx-p lx-gtext">${this.esc([g.text, g.species && !String(g.text || '').toLowerCase().includes(String(g.species).toLowerCase()) ? this.lxCap(g.species) + '.' : ''].filter(Boolean).join(' ').replace(/\.\./g, '.'))}</p>` : ''}${(g.varieties || []).length ? `<div class="lx-flabel">Varieties</div><div class="lx-tags">${g.varieties.map(id => this.lxGrowTag('variety', id)).join('')}</div>` : ''}${(g.processes || []).length ? `<div class="lx-flabel lx-gap">Processes</div><div class="lx-tags">${g.processes.map(id => this.lxGrowTag('process', id)).join('')}</div>` : ''}`;
+            },
+            // v20.3: a name in a "grows" list opens its page (a species, like Robusta, too); one with no page shows as a plain tag
+            lxGrowTag(kind, id) {
+                if (kind === 'variety' && !this.lxHasPage('variety', id) && this.lxHasPage('species', id)) kind = 'species';
+                if (this.lxHasPage(kind, id) || LearnEngine.entry(kind, id)) return this.lxLinkTag(kind, id, this.lxName(kind, id));
+                const t = String(id); return `<span class="lx-tag">${this.esc(/^[a-z0-9-]+$/.test(t) ? this.lxCap(t.replace(/-/g, ' ')) : t)}</span>`;
             },
 
             // ===================== L8: guides =====================
@@ -29238,12 +29290,14 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             lxTreeOpen(focus) { if (focus && typeof LearnTree !== 'undefined' && !LearnTree.simple(focus)) this.lxTreeState().mode = 'every'; this.learnOpen('tree', focus || ''); },
             lxTreeState() { const st = this.lxState(); return st.tree || (st.tree = { mode: 'simple' }); },
             lxTreeData(mode) {
-                const mine = this.lxMineVarieties(), key = `${mode}|${[...mine].sort().join(',')}`;
+                const mine = this.lxMineVarieties(), fam = this.lxTreeFam(), key = `${mode}|${fam}|${[...mine].sort().join(',')}`;
                 this._lxTreeCache = this._lxTreeCache || {};
-                if (!this._lxTreeCache[key]) this._lxTreeCache[key] = LearnTree.draw(mode, { name: id => this.lxVName(id), mine });
+                if (!this._lxTreeCache[key]) this._lxTreeCache[key] = LearnTree.draw(mode, { name: id => this.lxVName(id), mine, fam });
                 return this._lxTreeCache[key];
             },
-            LX_TCHIP: { W: ['Wild Ethiopia', '#c98bbb'], AB: ['Ethiopians abroad', '#d9a1c7'], Y: ['Yemen', '#d7b46a'], typica: ['Typica family', '#b9a07a'], bourbon: ['Bourbon family', '#e0b65a'], 'timor-hybrid': ['Timor Hybrid', '#6fb3a0'], catimor: ['Catimors', '#6fb3a0'], sarchimor: ['Sarchimors', '#6fb3a0'], f1: ['New hybrids', '#9cc97a'], species: ['Species', '#9b8d80'] },
+            // v20.3: the families' colors, the same ones the branches are tinted with (the chips are the tree's key)
+            LX_TCHIP: { W: ['Wild Ethiopia', '#c98bbb'], AB: ['Ethiopians abroad', '#e8a7c8'], Y: ['Yemen', '#e0915a'], typica: ['Typica family', '#86a9d9'], bourbon: ['Bourbon family', '#e3b94a'], 'timor-hybrid': ['Timor Hybrid', '#5fbfa8'], catimor: ['Catimors', '#5fbfa8'], sarchimor: ['Sarchimors', '#5fbfa8'], f1: ['New hybrids', '#9cc97a'], species: ['Species', '#9b8d80'] },
+            lxTreeFam() { return this._lxTreeFam || 'dots'; },   // (Maceo picked colored branches plus a dot by each name, Oct 29)
             LX_TABOUT: {
                 W: 'Arabica began in the forests of southwestern Ethiopia (and the Boma Plateau just over the border in South Sudan), which still hold most of its genetic variety. These grow straight from the wild trees: landraces, Gesha, Rume Sudan and picks from Ethiopia’s research center.',
                 AB: 'Types grown abroad under names like Java and Pink Bourbon, which DNA ties back to Ethiopian landraces. For some the evidence is still early.',
@@ -29294,7 +29348,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     if (P.size === 1) {
                         moved += Math.abs(cur[0] - prev[0]) + Math.abs(cur[1] - prev[1]);
                         if (!dragging && moved > 6) { dragging = true; try { wrap.setPointerCapture(e.pointerId); } catch (err) {} }
-                        if (dragging) { Z.x += cur[0] - prev[0]; Z.y += cur[1] - prev[1]; this.lxTreeApply(false); }
+                        if (dragging) { Z.x += cur[0] - prev[0]; Z.y += cur[1] - prev[1]; this.lxTreeClamp(); this.lxTreeApply(false); }
                     } else if (P.size === 2) { const [a, b] = [...P.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]), c = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]; if (last) { const f = d / last.d; Z.x = c[0] - (last.c[0] - Z.x) * f + (c[0] - last.c[0]); Z.y = c[1] - (last.c[1] - Z.y) * f + (c[1] - last.c[1]); Z.k *= f; this.lxTreeClamp(); this.lxTreeApply(false); } last = { d, c }; moved += 99; }
                 });
                 const up = e => {
@@ -29317,25 +29371,36 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             // the label layer: names stay about 13 px whatever the zoom; higher-priority names win a spot, the rest wait
             lxTreeLabels() {
                 const T = this._lxT, host = document.getElementById('lx-tlab'); if (!T || !host) return;
-                host.innerHTML = T.F.labels.map((l, i) => l.kind === 'variety'
-                    ? `<button type="button" class="lx-tl v${l.own ? ' own' : ''}${l.f1 ? ' f1' : ''}${l.q ? ' q' : ''}" data-i="${i}" onclick="app.lxTreeFocus('${app.escJs(l.id)}')">${l.own ? '<i></i>' : ''}${this.esc(l.text)}</button>`
+                const fam = this.lxTreeFam();   // v20.3: the families are colors, so their big name plates are gone and the species names are small
+                host.innerHTML = T.F.labels.map((l, i) => l.kind === 'group' && fam ? '' : l.kind === 'species' && fam ? `<button type="button" class="lx-tl v sp" data-i="${i}" onclick="${this.lxHasPage('species', l.id) ? this.lxGo('species', l.id) : `app.lxTreeZoom('species')`}">${this.esc(l.id === 'arabica' ? 'Arabica' : l.text)}</button>` : l.kind === 'variety'
+                    ? `<button type="button" class="lx-tl v${l.own ? ' own' : ''}${l.f1 ? ' f1' : ''}${l.q ? ' q' : ''}" data-i="${i}" onclick="app.lxTreeFocus('${app.escJs(l.id)}')">${l.own ? '<i></i>' : fam === 'dots' && l.fc ? `<i class="fcd" style="background:${l.fc}"></i>` : ''}${this.esc(l.text)}</button>`
                     : `<button type="button" class="lx-tl ${l.kind === 'species' ? 's' : 'g'}" data-i="${i}" onclick="${l.kind === 'group' ? `app.lxTreeZoom('${app.escJs(l.id)}')` : this.lxHasPage('species', l.id) ? this.lxGo('species', l.id) : `app.lxTreeZoom('species')`}">${l.col ? `<i style="background:${l.col}"></i>` : ''}<b>${this.esc(l.text)}</b>${l.desc ? `<small>${this.esc(l.desc)}</small>` : ''}</button>`).join('');
-                T.LBL = [...host.children].map(el => { const l = T.F.labels[+el.dataset.i]; const o = { el, l, w: el.offsetWidth, h: el.offsetHeight }; if (l.kind !== 'variety') { el.classList.add('mini'); o.mw = el.offsetWidth; o.mh = el.offsetHeight; el.classList.remove('mini'); } return o; }).sort((a, b) => b.l.prio - a.l.prio);
+                T.LBL = [...host.children].map(el => { const l = T.F.labels[+el.dataset.i]; const o = { el, l, w: el.offsetWidth, h: el.offsetHeight }; if (l.kind !== 'variety' && !el.classList.contains('sp')) { el.classList.add('mini'); o.mw = el.offsetWidth; o.mh = el.offsetHeight; el.classList.remove('mini'); } return o; }).sort((a, b) => b.l.prio - a.l.prio);
+            },
+            // v20.3: names hold still. While a finger is down the names showing just ride along with the tree; when you let go
+            // they're placed again, the ones you could already see first and on the same side, so few appear or vanish.
+            lxTreeRide() {
+                const T = this._lxT; if (!T || !T.LBL.length) return; const Z = T.TZ;
+                T.LBL.forEach(o => { if (!o.at) return; o.el.style.transform = `translate(${(Z.x + Z.k * o.l.x + o.at[0]).toFixed(1)}px, ${(Z.y + Z.k * o.l.y + o.at[1]).toFixed(1)}px)`; });
             },
             lxTreePlace() {
                 const T = this._lxT; if (!T || !T.LBL.length) return;
-                const W = T.W, H = T.H, Z = T.TZ, taken = [], b = T.F.bounds;
+                const W = T.W, H = T.H, Z = T.TZ, taken = [], b = T.F.bounds, atFit = !T.kFit || Z.k <= T.kFit * 1.01;
                 const card = document.getElementById('lx-tfocus'); if (card && card.classList.contains('on')) taken.push([0, H - card.offsetHeight - 16, W, H]);
                 taken.push([W - 56, 0, W, 150], [0, 0, 96, 50]);   // (the zoom buttons and Yours)
                 const mini = Z.k * (b[2] - b[0]) < 700;
                 const free = r => r[0] > 2 && r[2] < W - 2 && r[1] > -20 && r[3] < H + 20 && !taken.some(q => r[0] < q[2] && r[2] > q[0] && r[1] < q[3] && r[3] > q[1]);
-                [...T.LBL.filter(o => T.FOC.has(o.l.id)), ...T.LBL.filter(o => !T.FOC.has(o.l.id))].forEach(o => {
+                const first = o => T.FOC.has(o.l.id) ? 0 : !atFit && o.at ? 1 : 2;   // (all the way out, the same names every time)
+                [...T.LBL].sort((p, q) => first(p) - first(q)).forEach(o => {
                     const sm = mini && o.mw && !o.l.wide; o.el.classList.toggle('mini', !!sm); o.el.classList.toggle('on', T.FOC.has(o.l.id));
                     const sx = Z.x + Z.k * o.l.x, sy = Z.y + Z.k * o.l.y, w = sm ? o.mw : o.w, h = sm ? o.mh : o.h; let spot = null;
                     const upc = [sx - w / 2, sy - h - 8], rt = [sx + 10, sy - h / 2], lt = [sx - w - 10, sy - h / 2], dn = [sx - w / 2, sy + 10];
                     const cands = o.l.kind === 'variety' ? (o.l.side === 'l' ? [lt, upc, dn, rt] : o.l.side === 'r' ? [rt, upc, dn, lt] : [upc, rt, lt, dn]) : [[sx - w / 2, sy - h - 12], [sx - w / 2, sy + 12], [sx + 14, sy - h / 2], [sx - w - 14, sy - h / 2]];
-                    for (const [x0, y] of cands) { const x = o.l.kind === 'variety' ? x0 : Math.max(6, Math.min(W - w - 6, x0)); const r = [x - 3, y - 2, x + w + 3, y + h + 2]; if (free(r)) { spot = [x, y]; taken.push(r); break; } }
-                    if (spot) { o.el.style.transform = `translate(${spot[0].toFixed(1)}px, ${spot[1].toFixed(1)}px)`; o.el.style.visibility = 'visible'; } else o.el.style.visibility = 'hidden';
+                    const order = [0, 1, 2, 3]; if (o.ci && !atFit) order.unshift(order.splice(o.ci, 1)[0]);   // (the side it was on first)
+                    let ci = 0;
+                    for (const i of order) { const [x0, y] = cands[i], x = o.l.kind === 'variety' ? x0 : Math.max(6, Math.min(W - w - 6, x0)), r = [x - 3, y - 2, x + w + 3, y + h + 2]; if (free(r)) { spot = [x, y]; ci = i; taken.push(r); break; } }
+                    if (spot) { o.el.style.transform = `translate(${spot[0].toFixed(1)}px, ${spot[1].toFixed(1)}px)`; o.el.style.visibility = 'visible'; o.at = [spot[0] - sx, spot[1] - sy]; o.ci = ci; }
+                    else { o.el.style.visibility = 'hidden'; o.at = null; }
                 });
             },
             // drawing: the svg covers the screen plus a margin, showing the part of the tree in view; while you pan or pinch the
@@ -29357,10 +29422,19 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const lab = document.getElementById('lx-tlab');
                 clearTimeout(T.at);
                 if (anim) { if (lab) lab.classList.add('moving'); T.at = setTimeout(() => { if (lab) lab.classList.remove('moving'); this.lxTreeSettle(); }, 470); }
-                else { if (!T.raf) T.raf = requestAnimationFrame(() => { T.raf = 0; this.lxTreePlace(); }); }
+                else { if (!T.raf) T.raf = requestAnimationFrame(() => { T.raf = 0; this.lxTreeRide(); }); }
             },
             lxTreeSettle() { const T = this._lxT; if (!T) return; this.lxTreeRender(); this.lxTreePlace(); },
-            lxTreeClamp() { const T = this._lxT, b = T.F.bounds, kMin = Math.min(T.W / (b[2] - b[0]), T.H / (b[3] - b[1])) * 0.6; T.TZ.k = Math.max(kMin, Math.min(1.6, T.TZ.k)); },
+            // v20.3: you move around a tree that stays put: zoomed all the way out it fits the box exactly, and you can't drag
+            // past its edges. Zoomed in, a sideways swipe in the box looks around instead of going back (the box says no-swipe).
+            lxTreeClamp() {
+                const T = this._lxT; if (!T) return; const Z = T.TZ, b = T.F.bounds, x0 = b[0] - 10, y0 = b[1] - 10, x1 = b[2] + 10, y1 = b[3] + 10;
+                const kFit = Math.min(T.W / (x1 - x0), T.H / (y1 - y0)) * 0.94; T.kFit = kFit;
+                Z.k = Math.max(kFit, Math.min(Math.max(1.6, kFit * 1.5), Z.k));
+                const ax = (lo, hi, size, off) => (hi - lo) * Z.k <= size ? size / 2 - Z.k * (lo + hi) / 2 : Math.min(-Z.k * lo, Math.max(size - Z.k * hi, off));
+                Z.x = ax(x0, x1, T.W, Z.x); Z.y = ax(y0, y1, T.H, Z.y);
+                const wrap = document.getElementById('lx-tw'); if (wrap) wrap.classList.toggle('no-swipe', Z.k > kFit * 1.01);
+            },
             lxTreeBox(bx, anim, maxK) { const T = this._lxT; if (!T) return; const [x0, y0, x1, y1] = bx; let k = Math.min(T.W / (x1 - x0), T.H / (y1 - y0)) * 0.94; if (maxK) k = Math.min(k, maxK); T.TZ = { k, x: T.W / 2 - k * (x0 + x1) / 2, y: T.H / 2 - k * (y0 + y1) / 2 }; this.lxTreeClamp(); this.lxTreeApply(anim); },
             lxTreeFit(anim) { const T = this._lxT; if (!T) return; const b = T.F.bounds; if (anim) this.lxTreeUnfocus(true); this.lxTreeBox([b[0] - 10, b[1] - 10, b[2] + 10, b[3] + 10], anim); },
             lxTreeStep(f) { const T = this._lxT; if (!T) return; const Z = T.TZ; Z.x = T.W / 2 - (T.W / 2 - Z.x) * f; Z.y = T.H / 2 - (T.H / 2 - Z.y) * f; Z.k *= f; this.lxTreeClamp(); this.lxTreeApply(true); },
@@ -29435,8 +29509,8 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 else if (k === 'origin') {
                     const cont = (x && x.continent) || '';
                     Object.assign(e, { country: r.id, continent: cont, tint: this.LX_CONT_TINT[cont] || 'fruity', kicker: `Origin${cont ? ' · ' + cont : ''}`, regions: r.regions || [], regionsNote: r.regionsNote || '' });
-                    this.lxRxHarvest(e, r.harvest, r.name);
-                    if (r.grows) e.grows = { varieties: (r.grows.varieties || []).filter(id => LearnEngine.entry('variety', id)), processes: (r.grows.processes || []).filter(id => LearnEngine.entry('process', id)) };
+                    this.lxRxHarvest(e, r.harvest, e.name);   // (v20.3: a record behind a written page may not carry its own name)
+                    if (r.grows) e.grows = { varieties: (r.grows.varieties || []).filter(Boolean), processes: (r.grows.processes || []).filter(Boolean), text: r.grows.text || '', species: r.grows.species || '' };   // (v20.3: a name with no page still shows, as a plain tag)
                     const m = maps && maps[r.id];
                     if (m) {   // (provinces the research says grow coffee, the ones with a region below darker; or a town in each coffee area)
                         e.map = r.id;
@@ -29448,8 +29522,8 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 } else if (k === 'region') {
                     const c = LearnEngine.entry('origin', r.country);
                     Object.assign(e, { country: r.country, continent: c ? c.continent : '', kicker: `Region · ${c ? c.name : r.country}`, tint: '' });
-                    this.lxRxHarvest(e, r.harvest, r.name);
-                    if (r.grows) e.grows = { varieties: (r.grows.varieties || []).filter(id => LearnEngine.entry('variety', id)), processes: (r.grows.processes || []).filter(id => LearnEngine.entry('process', id)) };
+                    this.lxRxHarvest(e, r.harvest, e.name);   // (v20.3: a record behind a written page may not carry its own name)
+                    if (r.grows) e.grows = { varieties: (r.grows.varieties || []).filter(Boolean), processes: (r.grows.processes || []).filter(Boolean), text: r.grows.text || '', species: r.grows.species || '' };   // (v20.3: a name with no page still shows, as a plain tag)
                 }
                 return e;
             },
@@ -29515,6 +29589,79 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const cards = list.map(([kk, id]) => { const x = this.lxEntry(kk, id); const fam = x ? (kk === 'region' ? this.lxRegionTint(x) : x.tint || 'app') : 'app'; return `<button type="button" class="lx-rcard" data-fam="${this.esc(fam)}" onclick="${this.lxGo(kk, id)}"><span class="lx-rk">${this.esc(kk === 'origin' ? 'Country' : this.lxKindWord(kk))}</span><span class="lx-rn">${this.esc(this.lxName(kk, id))}</span>${x && x.summary ? `<span class="lx-rs">${this.esc(x.summary)}</span>` : ''}</button>`; });
                 return { key: `${e.kind}.related`, open: true, title: e.kind === 'region' ? `More of ${this.lxName('origin', e.country)}` : 'Related', teaser: list.map(([kk, id]) => this.lxName(kk, id)).join(', '), body: `<div class="lx-related">${cards.join('')}</div>` };
             },
+            // v20.3: every part a page doesn't have is named, and the page points to the nearest page that has it: a variety up its
+            // family line (parent, then grandparent), a process to the one it builds on, a region to its country, a country to one
+            // of its regions. The other page's details are labeled as that page's, never as this one's.
+            // (body and acidity count as part of the cup: they're shown with it, and few sources give them on their own)
+            LX_PARTS: { variety: ['cup', 'plant', 'story'], species: ['cup', 'plant', 'story'], process: ['cup', 'story'], region: ['cup', 'harvest', 'grows', 'story'], origin: ['cup', 'harvest', 'grows', 'story'] },
+            LX_PARTW: { cup: 'how it tastes', feel: 'body and acidity', plant: 'the plant', story: 'its history', harvest: 'harvest months', grows: 'what grows there' },
+            LX_PUP: { anaerobic: 'fermentation', carbonic: 'anaerobic', 'co-ferment': 'fermentation', 'cold-ferment': 'fermentation', extended: 'fermentation', koji: 'fermentation', lactic: 'fermentation', mossto: 'fermentation', 'thermal-shock': 'fermentation', yeast: 'fermentation', fermentation: 'washed', 'kenyan-soak': 'washed', 'wet-hulled': 'washed', honey: 'washed', monsooned: 'natural', patio: 'natural', 'raised-beds': 'natural', 'slow-dry': 'natural', mechanical: 'natural' },
+            lxHasPart(x, part) {
+                if (!x) return false; const rx = x.rx || {}, cup = rx.cup || {};
+                if (part === 'cup') return !!((x.taste && ((x.taste.notes || []).length || x.taste.text)) || (cup.notes || []).length || cup.text);
+                if (part === 'feel') return !!((x.feel && (x.feel.body || x.feel.acidity)) || (cup.feel && (cup.feel.body || cup.feel.acidity)));
+                if (part === 'plant') return !!(rx.plant && Object.keys(rx.plant).filter(k => k !== 'src').length);
+                if (part === 'story') return ((rx.story || []).length >= 2) || (x.sections || []).length >= 2;
+                if (part === 'harvest') return !!((x.harvest || []).length || x.harvestText);
+                if (part === 'grows') return !!(x.grows && ((x.grows.varieties || []).length || (x.grows.processes || []).length || x.grows.text));
+                return false;
+            },
+            lxHasCup(x) { return this.lxHasPart(x, 'cup'); },
+            lxHasStory(x) { return this.lxHasPart(x, 'story'); },
+            // the pages to look in, nearest first: [kind, id, how it's related]
+            lxRelatives(e) {
+                const out = [], seen = new Set([`${e.kind}:${e.id}`]), push = (kk, id, how) => { const k = `${kk}:${id}`; if (!id || seen.has(k) || !this.lxEntry(kk, id)) return; seen.add(k); out.push([kk, id, how]); };
+                const parse = k => { const i = String(k || '').indexOf(':'); return i > 0 ? [k.slice(0, i), k.slice(i + 1)] : null; };
+                const set = parse(e.rx && e.rx.nearest);
+                if (e.kind === 'variety') {
+                    const T = typeof LearnTree !== 'undefined' && LearnTree.MAIN ? LearnTree : null;
+                    const chain = (id, d) => { for (let p = id, n = d; p && p !== 'arabica'; p = T ? T.MAIN[p] : null, n++) { if (!(T && (T.GROUP || {})[p])) push('variety', p, n === 1 ? 'its parent' : n === 2 ? 'its grandparent' : 'an older relative'); if (!T) break; } };
+                    if (set) push(set[0], set[1], 'its closest relative');
+                    chain(T && T.MAIN[e.id], 1);
+                    (((e.rx && e.rx.family) || e.family || {}).parents || []).forEach(p => chain(p, 1));
+                } else if (e.kind === 'process') {
+                    if (set) push(set[0], set[1], 'a related process');
+                    for (let p = this.LX_PUP[e.id], n = 0; p && n < 4; p = this.LX_PUP[p], n++) push('process', p, 'a related process');
+                } else if (e.kind === 'region') {
+                    push('origin', e.country, 'its country');
+                } else if (e.kind === 'origin') {
+                    this.lxRegionsOf(e.id).forEach(r => push('region', r.id, 'one of its regions'));
+                } else if (set) push(set[0], set[1], 'a close relative');
+                return out;
+            },
+            // what the page is missing, and for each, the nearest page that has it
+            lxGapPlan(e) {
+                const parts = (this.LX_PARTS[e.kind] || []).filter(p => !this.lxHasPart(e, p)); if (!parts.length) return null;
+                const rel = this.lxRelatives(e), groups = [], none = [];
+                parts.forEach(p => { const hit = rel.find(([kk, id]) => this.lxHasPart(this.lxEntry(kk, id), p)); if (!hit) { none.push(p); return; } let g = groups.find(x => x.kk === hit[0] && x.id === hit[1]); if (!g) groups.push(g = { kk: hit[0], id: hit[1], how: hit[2], parts: [] }); g.parts.push(p); });
+                return { parts, groups, none };
+            },
+            lxNearest(e) { const g = this.lxGapPlan(e); return g && g.groups.length ? [g.groups[0].kk, g.groups[0].id] : null; },
+            lxList(a) { return a.length < 2 ? (a[0] || '') : `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}`; },
+            lxNearestSec(e) {
+                if (!e || !this.LX_PARTS[e.kind]) return null;
+                const plan = this.lxGapPlan(e); if (!plan) return null;
+                const W = p => this.LX_PARTW[p], one = plan.groups.length === 1 && !plan.none.length;
+                const lead = `Not published for ${e.name}: ${this.lxList(plan.parts.map(W))}.`;
+                const line = (x, p) => {
+                    const rx = x.rx || {}, cup = rx.cup || {};
+                    if (p === 'cup') { const n = ((x.taste && x.taste.notes) || cup.notes || []).slice(0, 4), f = x.feel || cup.feel || {}; return [n.length ? n.join(', ') : this.lxOne((x.taste && x.taste.text) || cup.text || ''), f.body && `body ${f.body}`, f.acidity && `acidity ${f.acidity}`].filter(Boolean).join(' · '); }
+                    if (p === 'feel') { const f = x.feel || cup.feel || {}; return [f.body && `body ${f.body}`, f.acidity && `acidity ${f.acidity}`].filter(Boolean).join(' · '); }
+                    if (p === 'plant') { const pl = rx.plant || {}; return [pl.stature, pl.yield && `yield ${pl.yield}`, pl.rust && `leaf rust: ${pl.rust}`].filter(Boolean).map(t => this.lxOne(String(t))).slice(0, 2).join(' · '); }
+                    if (p === 'harvest') { const h = (x.harvest || [])[0]; const M = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']; return h && (h.main || []).length ? `main harvest ${h.main.map(m => M[m - 1]).join(', ')}` : this.lxOne((x.harvestText && x.harvestText.text) || ''); }
+                    if (p === 'grows') { const g = x.grows || {}; return [...(g.varieties || []).slice(0, 3).map(id => this.lxName('variety', id)), ...(g.processes || []).slice(0, 2).map(id => this.lxName('process', id))].join(', '); }
+                    return '';
+                };
+                const cards = plan.groups.map(g => {
+                    const x = this.lxEntry(g.kk, g.id), name = this.lxName(g.kk, g.id), fam = g.kk === 'region' ? this.lxRegionTint(x) : x.tint || 'app';
+                    const rows = g.parts.map(p => { const t = line(x, p); return t ? `<span class="lx-nearn"><em>${this.esc(name)}’s ${this.esc(W(p).replace(/^(its|the|how it) /, ''))}:</em> ${this.esc(t)}</span>` : ''; }).join('');
+                    return `<p class="lx-p">${this.esc(name)}, ${this.esc(g.how)}, has ${this.esc(this.lxList(g.parts.map(W).map(t => t.replace(/^its /, 'its own ').replace(/^how it tastes$/, 'a description of the cup'))))}. What’s said there may not all hold for ${this.esc(e.name)}.</p>`
+                        + `<button type="button" class="lx-rcard lx-nearcard" data-fam="${this.esc(fam)}" onclick="${this.lxGo(g.kk, g.id)}"><span class="lx-rk">${this.esc(g.kk === 'origin' ? 'Country' : this.lxKindWord(g.kk))}</span><span class="lx-rn">${this.esc(name)}</span><span class="lx-rs">${this.esc(x.summary || '')}</span>${rows}<span class="lx-rgo">Open ${this.esc(name)} ›</span></button>`;
+                }).join('');
+                const title = !plan.groups.length ? 'Not published yet' : one ? (e.kind === 'region' ? `More in ${this.lxName(plan.groups[0].kk, plan.groups[0].id)}` : e.kind === 'origin' ? `More in ${this.lxName(plan.groups[0].kk, plan.groups[0].id)}` : `Closest relative: ${this.lxName(plan.groups[0].kk, plan.groups[0].id)}`) : 'Where to find more';
+                return { key: `${e.kind}.nearest`, open: true, title, teaser: lead,
+                    body: `<div class="lx-box lx-near"><p class="lx-p">${this.esc(lead)}</p>${cards}${plan.none.length && plan.groups.length ? `<p class="lx-p lx-small2">No nearby page has ${this.esc(this.lxList(plan.none.map(W)))} either.</p>` : ''}</div>` };
+            },
             // a region page's towns
             lxPlacesSec(e) {
                 const pl = (e.rx && e.rx.places) || []; if (!pl.length) return null;
@@ -29535,9 +29682,9 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const c = this.learnContent(), m = c && c.maps[e.country]; if (!m) return '';
                 const links = this.lxMapLinks(e.country), mine = new Set([...links].filter(([, id]) => id === e.id).map(([a]) => a));
                 const regions = Object.entries(m.regions || {}).map(([id, d]) => { const to = links.get(id); return `<path class="lx-rg${mine.has(id) ? ' on l3' : to ? ' on' : ''}" d="${d}"${to && !mine.has(id) ? ` data-lxr="${this.esc(to)}"` : ''}/>`; }).join('');
-                const dots = this.lxDotLabels(m).map(d => { const to = links.get(d.id), me = mine.has(d.id); return `<g class="lx-mdot${me ? ' lx-mme' : ''}"${to && !me ? ` data-lxr="${this.esc(to)}"` : ''}><circle cx="${d.x}" cy="${d.y}" r="${me ? 5 : 3.2}"/><text x="${d.tx}" y="${d.ty}"${d.left ? ' text-anchor="end"' : ''}>${this.esc(d.label)}</text></g>`; }).join('');
+                const dots = this.lxDotLabels(m).map(d => { const to = links.get(d.id), me = mine.has(d.id); return `<g class="lx-mdot${me ? ' lx-mme' : ''}"${to && !me ? ` data-lxr="${this.esc(to)}"` : ''}><circle cx="${d.x}" cy="${d.y}" r="${((me ? 5 : 3.2) * this.lxMapZ(m)).toFixed(2)}"/><text x="${d.tx}" y="${d.ty}"${d.left ? ' text-anchor="end"' : ''}>${this.esc(d.label)}</text></g>`; }).join('');
                 if (!mine.size) return '';
-                const svg = `<svg class="lx-cmap" viewBox="0 0 ${m.w} ${m.h}" role="img" aria-label="Map of ${this.esc(this.lxName('origin', e.country))} with ${this.esc(e.name)} marked" onclick="app.lxMapTap(event)"><path class="lx-rest" d="${m.rest || ''}"/>${regions}<path class="lx-outline" d="${m.outline}"/>${dots}</svg>`;
+                const svg = `<svg class="lx-cmap" viewBox="${m.zoom ? m.zoom.join(' ') : `0 0 ${m.w} ${m.h}`}" style="--mz:${this.lxMapZ(m)}" role="img" aria-label="Map of ${this.esc(this.lxName('origin', e.country))} with ${this.esc(e.name)} marked" onclick="app.lxMapTap(event)"><path class="lx-rest" d="${m.rest || ''}"/>${regions}<path class="lx-outline" d="${m.outline}"/>${dots}</svg>`;
                 const other = [...new Set(links.values())].filter(id => id !== e.id).length;
                 return `<div class="lx-box lx-mapwrap lx-dotmap"><div class="lx-cmapbox">${svg}</div><div class="lx-legend"><span><i class="lx-lg-l3"></i>${this.esc(e.name)}</span>${other ? `<span><i class="lx-lg-l1"></i>Other regions with a page: tap one</span>` : ''}</div></div>`;
             },
