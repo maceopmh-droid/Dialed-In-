@@ -36,11 +36,12 @@
             // v20.3: the oldest words this app can show properly, and a fresh check whenever the app itself updates (before, a
             // phone that had checked that day kept the old words for up to a day after an update)
             LX_NEED: 5,
+            LX_EVERY: 3 * 3600000,   // (v20.3: a fix to the words reaches phones within hours; the check is one small file)
             lxStale(have) { return !have || Number(have.version || 0) < this.LX_NEED || String(safeGet('dialed_learn_app') || '') !== (this.runningVersion ? this.runningVersion() : ''); },
             learnEnsure(force) {
                 const st = this.lxState(), have0 = this.learnContent();
                 const checked = Number(safeGet('dialed_learn_checked') || 0);
-                if (have0 && !force && !this.lxStale(have0) && Date.now() - checked < 86400000) return Promise.resolve(have0);
+                if (have0 && !force && !this.lxStale(have0) && Date.now() - checked < this.LX_EVERY) return Promise.resolve(have0);
                 if (st.loading) return st.loading;
                 const bases = this.lxNative() ? ['learn/', this.LX_SITE] : ['learn/'];
                 st.loading = (async () => {
@@ -48,7 +49,7 @@
                     // small storage still opens until the first new download replaces it
                     let have = have0;
                     if (!have && !st.idbTried && this.idbGet) { st.idbTried = true; try { const j = await this.idbGet('learn:content'); if (j && j.files && j.version) { st.content = this.lxIndex(j); have = st.content; } } catch (e) {} }
-                    if (have && !force && !this.lxStale(have) && Date.now() - checked < 86400000) { st.loading = null; return have; }
+                    if (have && !force && !this.lxStale(have) && Date.now() - checked < this.LX_EVERY) { st.loading = null; return have; }
                     let best = null;
                     for (const base of bases) {
                         try {

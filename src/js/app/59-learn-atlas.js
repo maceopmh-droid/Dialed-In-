@@ -120,7 +120,12 @@
                 const parse = k => { const i = String(k || '').indexOf(':'); return i > 0 ? [k.slice(0, i), k.slice(i + 1)] : null; };
                 const full = (kk, id) => { const x = this.lxEntry(kk, id); return x && this.lxHasCup(x) && this.lxHasStory(x) ? x : null; };
                 const set = parse(e.rx && e.rx.nearest); if (set && full(...set)) return set;
-                if (e.kind === 'variety' && typeof LearnTree !== 'undefined' && LearnTree.MAIN) for (let p = LearnTree.MAIN[e.id]; p && p !== 'arabica'; p = LearnTree.MAIN[p]) if (!(LearnTree.GROUP || {})[p] && full('variety', p)) return ['variety', p];
+                if (e.kind !== 'variety') return null;
+                // up its line on the tree, or (not on the tree) from the parents its research names, then up theirs
+                const T = typeof LearnTree !== 'undefined' && LearnTree.MAIN ? LearnTree : null, seen = new Set();
+                const up = id => { for (let p = id; p && p !== 'arabica' && !seen.has(p); p = T ? T.MAIN[p] : null) { seen.add(p); if (!(T && (T.GROUP || {})[p]) && full('variety', p)) return p; if (!T) break; } return null; };
+                const parents = [...((T && T.MAIN[e.id]) ? [T.MAIN[e.id]] : []), ...(((e.rx && e.rx.family) || e.family || {}).parents || [])];
+                for (const p of parents) { const hit = up(p); if (hit) return ['variety', hit]; }
                 return null;
             },
             lxNearestSec(e) {

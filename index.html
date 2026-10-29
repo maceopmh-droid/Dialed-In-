@@ -27913,11 +27913,12 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             // v20.3: the oldest words this app can show properly, and a fresh check whenever the app itself updates (before, a
             // phone that had checked that day kept the old words for up to a day after an update)
             LX_NEED: 5,
+            LX_EVERY: 3 * 3600000,   // (v20.3: a fix to the words reaches phones within hours; the check is one small file)
             lxStale(have) { return !have || Number(have.version || 0) < this.LX_NEED || String(safeGet('dialed_learn_app') || '') !== (this.runningVersion ? this.runningVersion() : ''); },
             learnEnsure(force) {
                 const st = this.lxState(), have0 = this.learnContent();
                 const checked = Number(safeGet('dialed_learn_checked') || 0);
-                if (have0 && !force && !this.lxStale(have0) && Date.now() - checked < 86400000) return Promise.resolve(have0);
+                if (have0 && !force && !this.lxStale(have0) && Date.now() - checked < this.LX_EVERY) return Promise.resolve(have0);
                 if (st.loading) return st.loading;
                 const bases = this.lxNative() ? ['learn/', this.LX_SITE] : ['learn/'];
                 st.loading = (async () => {
@@ -27925,7 +27926,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     // small storage still opens until the first new download replaces it
                     let have = have0;
                     if (!have && !st.idbTried && this.idbGet) { st.idbTried = true; try { const j = await this.idbGet('learn:content'); if (j && j.files && j.version) { st.content = this.lxIndex(j); have = st.content; } } catch (e) {} }
-                    if (have && !force && !this.lxStale(have) && Date.now() - checked < 86400000) { st.loading = null; return have; }
+                    if (have && !force && !this.lxStale(have) && Date.now() - checked < this.LX_EVERY) { st.loading = null; return have; }
                     let best = null;
                     for (const base of bases) {
                         try {
@@ -29580,7 +29581,12 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const parse = k => { const i = String(k || '').indexOf(':'); return i > 0 ? [k.slice(0, i), k.slice(i + 1)] : null; };
                 const full = (kk, id) => { const x = this.lxEntry(kk, id); return x && this.lxHasCup(x) && this.lxHasStory(x) ? x : null; };
                 const set = parse(e.rx && e.rx.nearest); if (set && full(...set)) return set;
-                if (e.kind === 'variety' && typeof LearnTree !== 'undefined' && LearnTree.MAIN) for (let p = LearnTree.MAIN[e.id]; p && p !== 'arabica'; p = LearnTree.MAIN[p]) if (!(LearnTree.GROUP || {})[p] && full('variety', p)) return ['variety', p];
+                if (e.kind !== 'variety') return null;
+                // up its line on the tree, or (not on the tree) from the parents its research names, then up theirs
+                const T = typeof LearnTree !== 'undefined' && LearnTree.MAIN ? LearnTree : null, seen = new Set();
+                const up = id => { for (let p = id; p && p !== 'arabica' && !seen.has(p); p = T ? T.MAIN[p] : null) { seen.add(p); if (!(T && (T.GROUP || {})[p]) && full('variety', p)) return p; if (!T) break; } return null; };
+                const parents = [...((T && T.MAIN[e.id]) ? [T.MAIN[e.id]] : []), ...(((e.rx && e.rx.family) || e.family || {}).parents || [])];
+                for (const p of parents) { const hit = up(p); if (hit) return ['variety', hit]; }
                 return null;
             },
             lxNearestSec(e) {
