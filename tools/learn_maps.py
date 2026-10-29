@@ -145,7 +145,7 @@ def main():
         files = {}
         for r in json.load(open(a.atlas))['records']:
             ar = r.get('area') or {}
-            if r['kind'] != 'region' or not ar.get('data') or not ar.get('names'): continue
+            if r['kind'] != 'region' or not ar.get('data') or not ar.get('names') or ar.get('partial'): continue   # (only part of those areas: it keeps its dot)
             fn = os.path.join(a.geob, ar['data'].replace('/', '_') + '.geojson')
             if not os.path.exists(fn): print('no boundary file', fn, 'for', r['id']); continue
             if fn not in files: files[fn] = json.load(open(fn))
@@ -155,8 +155,10 @@ def main():
             if want - got: print('not found in', ar['data'], 'for', r['id'], sorted(want - got))
             if not feats: continue
             code, rid = r['id'].split(':')
+            if code in ADM1 and all(slug(n) in set(ADM1[code].values()) for n in ar['names']): continue   # (already drawn from Natural Earth's departments; the page links them)
             geo.setdefault(code, []).append((rid, [ring[0] for f in feats for ring in rings_of(f['geometry'])]))
-            geo_file.setdefault(code, fn); geo_used.setdefault(code, set()).update(got)
+            if code not in geo_file or fn < geo_file[code]: geo_file[code] = fn   # (the faint background uses the coarsest level in use: zones, not woredas)
+            geo_used.setdefault(code, set()).update(got)
     for code in dict.fromkeys(list(adm1_all) + list(dots_all) + list(geo)):   # (a country can have both: shaded regions and town dots)
         if code in outline_of:   # (Hawaii: a state, drawn from its admin-1 shape)
             a3, nm = outline_of[code]; outline = [f for f in adm1['features'] if f['properties'].get('adm0_a3') == a3 and f['properties'].get('name') == nm][0]
