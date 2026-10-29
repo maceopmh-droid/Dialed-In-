@@ -19,6 +19,7 @@
                     else if (e.feel && this.lxFeelHtml) add({ key: `${k}.feel`, open: true, title: 'Body and acidity', teaser: [e.feel.body, e.feel.acidity].filter(Boolean).join(' · '), body: `<div class="lx-box">${this.lxFeelHtml(e.feel)}</div>` });
                     if ((e.harvest || []).length) add({ key: `${k}.harvest`, open: true, title: 'When it’s picked', teaser: this.lxHarvestTeaser(e), body: this.lxHarvestHtml(e) });
                     const g = this.lxGrowsHtml(e); if (g) add({ key: `${k}.grows`, open: true, title: 'What grows here', teaser: [...((e.grows || {}).varieties || []), ...((e.grows || {}).processes || [])].slice(0, 5).map(id => this.lxName(LearnEngine.entry('variety', id) ? 'variety' : 'process', id)).join(', '), body: g });
+                    if (this.lxNearestSec) add(this.lxNearestSec(e));   // v20.3: what isn't published here, and where to find it (a region's country, a country's regions)
                     if (k === 'region' && has) add(this.lxPlacesSec(e));
                     if (k === 'origin') add(this.lxCommCompact(e, comm));
                 } else {
