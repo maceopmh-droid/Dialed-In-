@@ -112,32 +112,78 @@
                 const cards = list.map(([kk, id]) => { const x = this.lxEntry(kk, id); const fam = x ? (kk === 'region' ? this.lxRegionTint(x) : x.tint || 'app') : 'app'; return `<button type="button" class="lx-rcard" data-fam="${this.esc(fam)}" onclick="${this.lxGo(kk, id)}"><span class="lx-rk">${this.esc(kk === 'origin' ? 'Country' : this.lxKindWord(kk))}</span><span class="lx-rn">${this.esc(this.lxName(kk, id))}</span>${x && x.summary ? `<span class="lx-rs">${this.esc(x.summary)}</span>` : ''}</button>`; });
                 return { key: `${e.kind}.related`, open: true, title: e.kind === 'region' ? `More of ${this.lxName('origin', e.country)}` : 'Related', teaser: list.map(([kk, id]) => this.lxName(kk, id)).join(', '), body: `<div class="lx-related">${cards.join('')}</div>` };
             },
-            // v20.3: a page with little written about it points to its closest relative that has a full page (for a variety, the
-            // nearest parent or grandparent up its line). The relative's notes are labeled as the relative's, not this coffee's.
-            lxHasCup(x) { return !!(x && (x.taste || (x.rx && x.rx.cup))); },
-            lxHasStory(x) { return !!(x && (((x.rx && x.rx.story) || []).length || (x.sections || []).length >= 2)); },
-            lxNearest(e) {
-                const parse = k => { const i = String(k || '').indexOf(':'); return i > 0 ? [k.slice(0, i), k.slice(i + 1)] : null; };
-                const full = (kk, id) => { const x = this.lxEntry(kk, id); return x && this.lxHasCup(x) && this.lxHasStory(x) ? x : null; };
-                const set = parse(e.rx && e.rx.nearest); if (set && full(...set)) return set;
-                if (e.kind !== 'variety') return null;
-                // up its line on the tree, or (not on the tree) from the parents its research names, then up theirs
-                const T = typeof LearnTree !== 'undefined' && LearnTree.MAIN ? LearnTree : null, seen = new Set();
-                const up = id => { for (let p = id; p && p !== 'arabica' && !seen.has(p); p = T ? T.MAIN[p] : null) { seen.add(p); if (!(T && (T.GROUP || {})[p]) && full('variety', p)) return p; if (!T) break; } return null; };
-                const parents = [...((T && T.MAIN[e.id]) ? [T.MAIN[e.id]] : []), ...(((e.rx && e.rx.family) || e.family || {}).parents || [])];
-                for (const p of parents) { const hit = up(p); if (hit) return ['variety', hit]; }
-                return null;
+            // v20.3: every part a page doesn't have is named, and the page points to the nearest page that has it: a variety up its
+            // family line (parent, then grandparent), a process to the one it builds on, a region to its country, a country to one
+            // of its regions. The other page's details are labeled as that page's, never as this one's.
+            // (body and acidity count as part of the cup: they're shown with it, and few sources give them on their own)
+            LX_PARTS: { variety: ['cup', 'plant', 'story'], species: ['cup', 'plant', 'story'], process: ['cup', 'story'], region: ['cup', 'harvest', 'grows', 'story'], origin: ['cup', 'harvest', 'grows', 'story'] },
+            LX_PARTW: { cup: 'how it tastes', feel: 'body and acidity', plant: 'the plant', story: 'its history', harvest: 'harvest months', grows: 'what grows there' },
+            LX_PUP: { anaerobic: 'fermentation', carbonic: 'anaerobic', 'co-ferment': 'fermentation', 'cold-ferment': 'fermentation', extended: 'fermentation', koji: 'fermentation', lactic: 'fermentation', mossto: 'fermentation', 'thermal-shock': 'fermentation', yeast: 'fermentation', fermentation: 'washed', 'kenyan-soak': 'washed', 'wet-hulled': 'washed', honey: 'washed', monsooned: 'natural', patio: 'natural', 'raised-beds': 'natural', 'slow-dry': 'natural', mechanical: 'natural' },
+            lxHasPart(x, part) {
+                if (!x) return false; const rx = x.rx || {}, cup = rx.cup || {};
+                if (part === 'cup') return !!((x.taste && ((x.taste.notes || []).length || x.taste.text)) || (cup.notes || []).length || cup.text);
+                if (part === 'feel') return !!((x.feel && (x.feel.body || x.feel.acidity)) || (cup.feel && (cup.feel.body || cup.feel.acidity)));
+                if (part === 'plant') return !!(rx.plant && Object.keys(rx.plant).filter(k => k !== 'src').length);
+                if (part === 'story') return ((rx.story || []).length >= 2) || (x.sections || []).length >= 2;
+                if (part === 'harvest') return !!((x.harvest || []).length || x.harvestText);
+                if (part === 'grows') return !!(x.grows && ((x.grows.varieties || []).length || (x.grows.processes || []).length || x.grows.text));
+                return false;
             },
+            lxHasCup(x) { return this.lxHasPart(x, 'cup'); },
+            lxHasStory(x) { return this.lxHasPart(x, 'story'); },
+            // the pages to look in, nearest first: [kind, id, how it's related]
+            lxRelatives(e) {
+                const out = [], seen = new Set([`${e.kind}:${e.id}`]), push = (kk, id, how) => { const k = `${kk}:${id}`; if (!id || seen.has(k) || !this.lxEntry(kk, id)) return; seen.add(k); out.push([kk, id, how]); };
+                const parse = k => { const i = String(k || '').indexOf(':'); return i > 0 ? [k.slice(0, i), k.slice(i + 1)] : null; };
+                const set = parse(e.rx && e.rx.nearest);
+                if (e.kind === 'variety') {
+                    const T = typeof LearnTree !== 'undefined' && LearnTree.MAIN ? LearnTree : null;
+                    const chain = (id, d) => { for (let p = id, n = d; p && p !== 'arabica'; p = T ? T.MAIN[p] : null, n++) { if (!(T && (T.GROUP || {})[p])) push('variety', p, n === 1 ? 'its parent' : n === 2 ? 'its grandparent' : 'an older relative'); if (!T) break; } };
+                    if (set) push(set[0], set[1], 'its closest relative');
+                    chain(T && T.MAIN[e.id], 1);
+                    (((e.rx && e.rx.family) || e.family || {}).parents || []).forEach(p => chain(p, 1));
+                } else if (e.kind === 'process') {
+                    if (set) push(set[0], set[1], 'a related process');
+                    for (let p = this.LX_PUP[e.id], n = 0; p && n < 4; p = this.LX_PUP[p], n++) push('process', p, 'a related process');
+                } else if (e.kind === 'region') {
+                    push('origin', e.country, 'its country');
+                } else if (e.kind === 'origin') {
+                    this.lxRegionsOf(e.id).forEach(r => push('region', r.id, 'one of its regions'));
+                } else if (set) push(set[0], set[1], 'a close relative');
+                return out;
+            },
+            // what the page is missing, and for each, the nearest page that has it
+            lxGapPlan(e) {
+                const parts = (this.LX_PARTS[e.kind] || []).filter(p => !this.lxHasPart(e, p)); if (!parts.length) return null;
+                const rel = this.lxRelatives(e), groups = [], none = [];
+                parts.forEach(p => { const hit = rel.find(([kk, id]) => this.lxHasPart(this.lxEntry(kk, id), p)); if (!hit) { none.push(p); return; } let g = groups.find(x => x.kk === hit[0] && x.id === hit[1]); if (!g) groups.push(g = { kk: hit[0], id: hit[1], how: hit[2], parts: [] }); g.parts.push(p); });
+                return { parts, groups, none };
+            },
+            lxNearest(e) { const g = this.lxGapPlan(e); return g && g.groups.length ? [g.groups[0].kk, g.groups[0].id] : null; },
+            lxList(a) { return a.length < 2 ? (a[0] || '') : `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}`; },
             lxNearestSec(e) {
-                if (!e || !['variety', 'species', 'process'].includes(e.kind) || (this.lxHasCup(e) && this.lxHasStory(e))) return null;
-                const n = this.lxNearest(e); if (!n) return null;
-                const [kk, id] = n, x = this.lxEntry(kk, id), name = this.lxName(kk, id), fam = x.tint || 'app';
-                const notes = ((x.taste && x.taste.notes) || (x.rx && x.rx.cup && x.rx.cup.notes) || []).slice(0, 4);
-                const what = !this.lxHasCup(e) ? `No published source describes ${e.name}’s cup on its own.` : `Not much has been written about ${e.name}’s history.`;
-                const how = kk === 'variety' && e.kind === 'variety' ? (LearnTree.MAIN && LearnTree.MAIN[e.id] === id ? 'its parent' : 'its closest relative with a full page') : 'the closest page with more';
-                return { key: `${e.kind}.nearest`, open: true, title: `Closest relative: ${name}`, teaser: what,
-                    body: `<div class="lx-box lx-near"><p class="lx-p">${this.esc(what)} ${this.esc(name)}, ${this.esc(how)}, has a full page. What’s said about ${this.esc(name)} may not all hold for ${this.esc(e.name)}.</p>`
-                        + `<button type="button" class="lx-rcard lx-nearcard" data-fam="${this.esc(fam)}" onclick="${this.lxGo(kk, id)}"><span class="lx-rk">${this.esc(this.lxKindWord ? this.lxKindWord(kk) : kk)}</span><span class="lx-rn">${this.esc(name)}</span><span class="lx-rs">${this.esc(x.summary || '')}</span>${notes.length ? `<span class="lx-nearn"><em>${this.esc(name)}’s notes:</em> ${notes.map(t => this.esc(t)).join(', ')}</span>` : ''}<span class="lx-rgo">Open ${this.esc(name)} ›</span></button></div>` };
+                if (!e || !this.LX_PARTS[e.kind]) return null;
+                const plan = this.lxGapPlan(e); if (!plan) return null;
+                const W = p => this.LX_PARTW[p], one = plan.groups.length === 1 && !plan.none.length;
+                const lead = `Not published for ${e.name}: ${this.lxList(plan.parts.map(W))}.`;
+                const line = (x, p) => {
+                    const rx = x.rx || {}, cup = rx.cup || {};
+                    if (p === 'cup') { const n = ((x.taste && x.taste.notes) || cup.notes || []).slice(0, 4), f = x.feel || cup.feel || {}; return [n.length ? n.join(', ') : this.lxOne((x.taste && x.taste.text) || cup.text || ''), f.body && `body ${f.body}`, f.acidity && `acidity ${f.acidity}`].filter(Boolean).join(' · '); }
+                    if (p === 'feel') { const f = x.feel || cup.feel || {}; return [f.body && `body ${f.body}`, f.acidity && `acidity ${f.acidity}`].filter(Boolean).join(' · '); }
+                    if (p === 'plant') { const pl = rx.plant || {}; return [pl.stature, pl.yield && `yield ${pl.yield}`, pl.rust && `leaf rust: ${pl.rust}`].filter(Boolean).map(t => this.lxOne(String(t))).slice(0, 2).join(' · '); }
+                    if (p === 'harvest') { const h = (x.harvest || [])[0]; const M = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']; return h && (h.main || []).length ? `main harvest ${h.main.map(m => M[m - 1]).join(', ')}` : this.lxOne((x.harvestText && x.harvestText.text) || ''); }
+                    if (p === 'grows') { const g = x.grows || {}; return [...(g.varieties || []).slice(0, 3).map(id => this.lxName('variety', id)), ...(g.processes || []).slice(0, 2).map(id => this.lxName('process', id))].join(', '); }
+                    return '';
+                };
+                const cards = plan.groups.map(g => {
+                    const x = this.lxEntry(g.kk, g.id), name = this.lxName(g.kk, g.id), fam = g.kk === 'region' ? this.lxRegionTint(x) : x.tint || 'app';
+                    const rows = g.parts.map(p => { const t = line(x, p); return t ? `<span class="lx-nearn"><em>${this.esc(name)}’s ${this.esc(W(p).replace(/^(its|the|how it) /, ''))}:</em> ${this.esc(t)}</span>` : ''; }).join('');
+                    return `<p class="lx-p">${this.esc(name)}, ${this.esc(g.how)}, has ${this.esc(this.lxList(g.parts.map(W).map(t => t.replace(/^its /, 'its own ').replace(/^how it tastes$/, 'a description of the cup'))))}. What’s said there may not all hold for ${this.esc(e.name)}.</p>`
+                        + `<button type="button" class="lx-rcard lx-nearcard" data-fam="${this.esc(fam)}" onclick="${this.lxGo(g.kk, g.id)}"><span class="lx-rk">${this.esc(g.kk === 'origin' ? 'Country' : this.lxKindWord(g.kk))}</span><span class="lx-rn">${this.esc(name)}</span><span class="lx-rs">${this.esc(x.summary || '')}</span>${rows}<span class="lx-rgo">Open ${this.esc(name)} ›</span></button>`;
+                }).join('');
+                const title = !plan.groups.length ? 'Not published yet' : one ? (e.kind === 'region' ? `More in ${this.lxName(plan.groups[0].kk, plan.groups[0].id)}` : e.kind === 'origin' ? `More in ${this.lxName(plan.groups[0].kk, plan.groups[0].id)}` : `Closest relative: ${this.lxName(plan.groups[0].kk, plan.groups[0].id)}`) : 'Where to find more';
+                return { key: `${e.kind}.nearest`, open: true, title, teaser: lead,
+                    body: `<div class="lx-box lx-near"><p class="lx-p">${this.esc(lead)}</p>${cards}${plan.none.length && plan.groups.length ? `<p class="lx-p lx-small2">No nearby page has ${this.esc(this.lxList(plan.none.map(W)))} either.</p>` : ''}</div>` };
             },
             // a region page's towns
             lxPlacesSec(e) {
