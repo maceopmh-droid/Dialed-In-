@@ -7865,6 +7865,432 @@
       "publisher": "Algrano (lot from Mount Sunzu Coffee)",
       "url": "https://www.algrano.com/products/7687-zambia-marsellesa-fully-washed-aa-arabica-lavado-may-sep-2025",
       "year": 2025
+    },
+    "sidalc-sarchimor-2000": {
+      "title": "Sarchimor - promising new arabica hybrid (semi dwarf)",
+      "publisher": "SIDALC library record (India, CCRI trials)",
+      "url": "https://sidalc.net/search/Record/KOHA-OAI-BVE:89393",
+      "year": 2000
+    },
+    "awati-2016": {
+      "title": "Evaluation of arabica coffee cultivars under Pulney hill conditions of Tamil Nadu",
+      "publisher": "Awati, Anand & Raghuramulu (Regional Coffee Research Station, Thandigudi), Indian Journal of Horticulture 73(4)",
+      "url": "https://journal.iahs.org.in/index.php/ijh/article/view/1629",
+      "year": 2016
+    },
+    "georgehowell-kerehaklu": {
+      "title": "Kerehaklu, India",
+      "publisher": "George Howell Coffee",
+      "url": "https://www.georgehowellcoffee.com/products/kerehaklu-india",
+      "accessed": "2026-10"
+    },
+    "waytocoffee-balanoor": {
+      "title": "Balanoor Chandragiri Washed (Naivo Coffee Company listing)",
+      "publisher": "The Way to Coffee",
+      "url": "https://www.thewaytocoffee.com/beans/balanoor-chandragiri-washed",
+      "accessed": "2026-10"
+    },
+    "coffeeboard-foi-2013": {
+      "title": "Flavour of India - The Fine Cup Award, cupping competition 2013: winners list",
+      "publisher": "Coffee Board of India",
+      "url": "https://coffeeboard.gov.in/Kaapi Shastra/FLAVOUR OF INDIA2013 WinnersList.pdf",
+      "year": 2013
+    },
+    "procafe-arara-2017": {
+      "title": "Procafé: Cultivar de café Arara, a campeã de qualidade",
+      "publisher": "Notícias Agrícolas (source: Fundação Procafé)",
+      "url": "https://www.noticiasagricolas.com.br/noticia/204263",
+      "year": 2017
+    },
+    "bartelega-2017": {
+      "title": "Dinâmica dos nutrientes e desenvolvimento dos frutos de cafeeiro da cultivar Arara durante o ciclo produtivo",
+      "publisher": "Bartelega, Couto, Angelo, Paiva & Matiello (Fundação Procafé), 43º Congresso Brasileiro de Pesquisas Cafeeiras, via Embrapa Alice",
+      "url": "https://www.alice.cnptia.embrapa.br/alice/handle/doc/1080029?mode=full",
+      "year": 2017
+    },
+    "matiello-2007": {
+      "title": "Comportamento de progênies de café com resistência à ferrugem-do-cafeeiro no Sul do Estado de Minas Gerais",
+      "publisher": "Matiello, Ferreira & Carvalho, 5º Simpósio de Pesquisa dos Cafés do Brasil, via Embrapa Alice",
+      "url": "https://www.alice.cnptia.embrapa.br/handle/doc/905658?locale=en",
+      "year": 2007
+    },
+    "paiva-2009": {
+      "title": "Comportamento agronômico de progênies de cafeeiro (Coffea arabica L.) em Varginha/MG",
+      "publisher": "Paiva, Carvalho, Almeida, Matiello & Ferreira, VI Simpósio de Pesquisa dos Cafés do Brasil, via Embrapa Alice",
+      "url": "https://www.alice.cnptia.embrapa.br/handle/doc/903742?locale=en",
+      "year": 2009
+    },
+    "costa-2009": {
+      "title": "Qualidade da bebida de genótipos de café com resistência à ferrugem-do-cafeeiro",
+      "publisher": "Costa, Carvalho, Matiello, Almeida, Ferreira, Padilha & Carvalho, VI Simpósio de Pesquisa dos Cafés do Brasil, via Embrapa Alice",
+      "url": "https://www.alice.cnptia.embrapa.br/alice/handle/doc/903238?mode=full",
+      "year": 2009
+    },
+    "putra-ferry-2015": {
+      "title": "Keragaan Kopi Arabika Java Preanger di Jawa Barat",
+      "publisher": "Putra & Ferry, SIRINOV 3(3), Balai Penelitian Tanaman Industri dan Penyegar (Indonesian Ministry of Agriculture)",
+      "url": "https://kikp-pertanian.id/brmptri/uploaded_files/temporary/DigitalCollection/M2Y5OWJjNzVkZmI3ODlhNGYwMjUwZWI2NmI0ZWUwOTk4ZGVmZDE3Yw==.pdf",
+      "year": 2015
+    },
+    "prastowo-2010": {
+      "title": "Budidaya dan Pasca Panen Kopi",
+      "publisher": "Prastowo et al., Pusat Penelitian dan Pengembangan Perkebunan, Indonesian Ministry of Agriculture",
+      "url": "https://repository.pertanian.go.id/bitstreams/c9094c6a-ba3f-4461-88bf-f842fcc7596e/download",
+      "year": 2010
+    },
+    "randriani-2018": {
+      "title": "Pengenalan Varietas Unggul Kopi",
+      "publisher": "Randriani & Dani, IAARD Press (Indonesian Agency for Agricultural Research and Development)",
+      "url": "https://jatim.brmp.pertanian.go.id/informasi-publik/download/varietas-unggul-baru/deskripsi-varietas-unggul-kopi",
+      "year": 2018
+    },
+    "republika-sigararutang-2017": {
+      "title": "Kopi Sigararutang jadi andalan ekspor Sumut",
+      "publisher": "Republika (Antara)",
+      "url": "https://news.republika.co.id/berita/p0gxun328/kopi-sigararutang-jadi-andalan-ekspor-sumut",
+      "year": 2017
+    },
+    "investortrust-mawardi-2023": {
+      "title": "Surip Mawardi, puluhan tahun kembangkan kopi tahan karat daun",
+      "publisher": "InvestorTrust",
+      "url": "https://investortrust.id/esg/69/surip-mawardi-puluhan-tahun-kembangkan-kopi-tahan-karat-daun",
+      "year": 2023
+    },
+    "ozone-batian": {
+      "title": "Batian coffee varietal",
+      "publisher": "Ozone Coffee",
+      "url": "https://ozonecoffee.co.uk/blogs/varietals/coffee-varietal-batian",
+      "accessed": "2026-10"
+    },
+    "thebarn-izidro": {
+      "title": "Paulo Izidro (Brazil, Paraiso, natural)",
+      "publisher": "The Barn Coffee Roasters",
+      "url": "https://thebarn.de/products/paulo-izidro",
+      "accessed": "2026-10"
+    },
+    "ace-bra-2019": {
+      "title": "Brazil 2019 Cup of Excellence results",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/directory/wpbdp_category/brazil-2019/",
+      "year": 2019
+    },
+    "ace-bra-nat-2018": {
+      "title": "Brazil Naturals 2018 Cup of Excellence results (page 4)",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/directory/wpbdp_category/brazil-naturals-2018/page/4",
+      "year": 2018
+    },
+    "algrano-br483": {
+      "title": "Lote 150, Catiguá MG2, natural (BR-483)",
+      "publisher": "Algrano",
+      "url": "https://www.algrano.com/en/coffees/BR-483",
+      "year": 2020
+    },
+    "lacabra-maracatu": {
+      "title": "Sítio Maracatu (Brazil, Catiguá, natural)",
+      "publisher": "La Cabra",
+      "url": "https://lacabra.com/products/sitio-maracatu",
+      "accessed": "2026-10"
+    },
+    "agenciaminas-cerrado-2021": {
+      "title": "Variedades de café da Epamig conquistam as primeiras colocações em Prêmio da Região do Cerrado Mineiro",
+      "publisher": "Agência Minas (Minas Gerais state news agency)",
+      "url": "https://www.agenciaminas.mg.gov.br/news/pdf/112071.pdf",
+      "year": 2021
+    },
+    "cultivar-epamig39-2013": {
+      "title": "Epamig completa 39 anos: pesquisas de café marcam trajetória",
+      "publisher": "Revista Cultivar",
+      "url": "https://revistacultivar.com.br/noticias/epamig-completa-39-anos-pesquisas-de-cafe-marcam-trajetoria-",
+      "year": 2013
+    },
+    "hulupi-2013": {
+      "title": "Performance of some Arabica coffee local varieties from Gayo highland",
+      "publisher": "Hulupi, Nugroho & Yusianto, Coffee and Cocoa Research Journal (Pelita Perkebunan, ICCRI) 29(2), via FAO AGRIS",
+      "url": "https://agris.fao.org/search/en/records/67598e86c7a957febdfc1883",
+      "year": 2013
+    },
+    "widayat-2022": {
+      "title": "Review: Semua mengenai sejarah, biologi, keanekaragaman genetik, paska panen, dan sensori kopi Arabica Gayo",
+      "publisher": "Widayat et al. (Universitas Syiah Kuala, BRIN), Prosiding Seminar Nasional",
+      "url": "https://semnasthp.usk.ac.id/prosiding/256-263_1_1_2022_Widayat-etal.pdf",
+      "year": 2022
+    },
+    "sweetmarias-glossary-ateng": {
+      "title": "Glossary: Ateng",
+      "publisher": "Sweet Maria's Coffee Library",
+      "url": "https://library.sweetmarias.com/glossary/ateng/"
+    },
+    "das-2021": {
+      "title": "Vegetative vigour, yield and field tolerance to leaf rust in four F1 hybrids of coffee (Coffea arabica L.) in India",
+      "publisher": "Das, Shivanna & Prakash (Central Coffee Research Institute), Journal of Horticultural Sciences 16(2)",
+      "url": "https://jhs.iihr.res.in/index.php/jhs/article/download/968/920/7404",
+      "year": 2021
+    },
+    "rao-asic-2025": {
+      "title": "International Multi Location Variety Trial (IMLVT) of Arabica coffee in India: its relevance and implications in breeding for durable rust resistance",
+      "publisher": "Rao, Das, Manjunath, Suresh Kumar & Berny Mier y Teran (CCRI, Coffee Board of India; World Coffee Research), ASIC 2025 poster",
+      "url": "https://www.alphavisa.com/asic/2025/documents/eposters/S2/S2_NAYANI.pdf",
+      "year": 2025
+    },
+    "epamig-ct152-2012": {
+      "title": "Comportamento da cultivar Paraíso ao nematoide Meloidogyne exigua (Circular Técnica 152)",
+      "publisher": "EPAMIG (Salgado, Pereira, Carvalho, Rezende, Ferreira & de Pauli)",
+      "url": "https://livrariaepamig.com.br/wp-content/uploads/2023/03/CT-152.pdf",
+      "year": 2012
+    },
+    "epamig-ct338-2021": {
+      "title": "Cultivar de café MGS Paraíso 2: potencial de produtividade e qualidade na região do Sul de Minas Gerais (Circular Técnica 338)",
+      "publisher": "EPAMIG (Botelho, Nadaleti, Silva, Carvalho, Pereira, Oliveira, Abrahão, Andrade & Ferreira)",
+      "url": "https://livrariaepamig.com.br/wp-content/uploads/2023/02/ct-338.pdf",
+      "year": 2021
+    },
+    "epamig-ct353-2021": {
+      "title": "Conheça algumas cultivares de café arábica da EPAMIG (Circular Técnica 353)",
+      "publisher": "EPAMIG (Abrahão, Ferreira, Ferreira, Pereira, Oliveira, Botelho, Vilela, Carvalho & Figueiredo)",
+      "url": "https://livrariaepamig.com.br/wp-content/uploads/2023/02/ct-353.pdf",
+      "year": 2021
+    },
+    "cultivar-illy-2023": {
+      "title": "Lote da cultivar MGS Paraíso 2 vence o Prêmio Internacional de Café Ernesto Illy",
+      "publisher": "Revista Cultivar (Mariana de Assis)",
+      "url": "https://revistacultivar.com.br/noticias/lote-da-cultivar-mgs-paraiso-2-vence-o-premio-internacional-de-cafe-ernesto-illy",
+      "year": 2023
+    },
+    "epamig-quality-2016": {
+      "title": "Café: Pesquisas da EPAMIG melhoram qualidade da bebida",
+      "publisher": "Notícias Agrícolas (from EPAMIG)",
+      "url": "https://www.noticiasagricolas.com.br/noticia/180613",
+      "year": 2016
+    },
+    "epamig-oeste-2018": {
+      "title": "EPAMIG Oeste alavanca cafeicultura no Cerrado Mineiro",
+      "publisher": "Notícias Agrícolas (from EPAMIG)",
+      "url": "https://www.noticiasagricolas.com.br/noticia/225478",
+      "year": 2018
+    },
+    "sweetmarias-glossary-icatu": {
+      "title": "Icatu (glossary entry)",
+      "publisher": "Sweet Maria's Coffee Library",
+      "url": "https://library.sweetmarias.com/glossary/icatu/"
+    },
+    "ferrao-es": {
+      "title": "Comportamento de cultivares de café arábica na região serrana do estado do Espírito Santo",
+      "publisher": "Ferrão, Fonseca, Ferrão, Rocha, Andrade Neto & Fornazier, Simpósio de Pesquisa dos Cafés do Brasil (Embrapa Alice repository)",
+      "url": "https://www.alice.cnptia.embrapa.br/alice/bitstream/doc/902637/1/Comportamentodecultivaresdecafe.pdf"
+    },
+    "procafe-maturacao-2018": {
+      "title": "Procafé: Combinação de variedades de café permite facilidade na colheita",
+      "publisher": "Notícias Agrícolas (from Fundação Procafé)",
+      "url": "https://www.noticiasagricolas.com.br/noticia/218079",
+      "year": 2018
+    },
+    "cultivar-rondonia-2019": {
+      "title": "Estudos genéticos selecionam variedade de café arábica para a região amazônica",
+      "publisher": "Revista Cultivar (on Embrapa Rondônia research)",
+      "url": "https://www.revistacultivar.com.br/noticias/estudos-geneticos-selecionam-variedade-de-cafe-arabica-para-a-regiao-amazonica",
+      "year": 2019
+    },
+    "procafe-birds-2020": {
+      "title": "Procafé: Variedades de café com nomes de pássaros voam alto na produtividade",
+      "publisher": "Notícias Agrícolas (from Fundação Procafé)",
+      "url": "https://www.noticiasagricolas.com.br/noticia/264082",
+      "year": 2020
+    },
+    "ico-coffeeboard-2006": {
+      "title": "Breeding coffee plants with durable resistance to coffee leaf rust, anthracnose and other diseases (project proposal, WP Board 979/05 Rev. 1)",
+      "publisher": "International Coffee Organization, proposal submitted by the Coffee Board of India",
+      "url": "https://ico.org/documents/wpboard979r1e.pdf",
+      "year": 2006
+    },
+    "ram-1994": {
+      "title": "Augmentation and utilization of coffee germplasm in India",
+      "publisher": "Ram, Prakash, Jyothi, Mishra, Srinivasan & Naidu, Indian Journal of Plant Genetic Resources 7(1)",
+      "url": "https://ispgr.in/index.php/ijpgr/article/download/779/607",
+      "year": 1994
+    },
+    "gi-bababudangiri-2017": {
+      "title": "Application for registration of the Geographical Indication 'Bababudangiri Arabica'",
+      "publisher": "Coffee Board of India, via oriGIn",
+      "url": "https://www.origin-gi.com/wp-content/uploads/2022/02/608-bababudangiri-arabica.pdf",
+      "year": 2017
+    },
+    "craves-batian-2011": {
+      "title": "New Kenyan coffee varietal",
+      "publisher": "Coffee & Conservation (Julie Craves)",
+      "url": "https://www.coffeehabitat.com/?p=1977",
+      "year": 2011
+    },
+    "malta-2002": {
+      "title": "Qualidade de grãos de diferentes cultivares de cafeeiro (Coffea arabica L.)",
+      "publisher": "Malta, Santos & Silva, Acta Scientiarum 24(5)",
+      "url": "https://periodicos.uem.br/ojs/index.php/ActaSciAgron/article/download/2386/1793",
+      "year": 2002
+    },
+    "embrapa-bourbon-2021": {
+      "title": "Caracterização agronômica e sensorial de diferentes genótipos de Bourbon visando à produção de cafés especiais (Boletim de Pesquisa e Desenvolvimento 2)",
+      "publisher": "Embrapa Café (Ferreira, Carvalho & Nadaleti)",
+      "url": "https://www.infoteca.cnptia.embrapa.br/infoteca/bitstream/doc/1131673/1/Embrapa-Cafe-Boletim-n2-VersaoFinal.pdf",
+      "year": 2021
+    },
+    "coffeereview-riunggunung-2024": {
+      "title": "Java Riunggunung Estate (Roadmap CoffeeWorks), 93",
+      "publisher": "Coffee Review",
+      "url": "https://coffeereview.com/?p=24894",
+      "year": 2024
+    },
+    "coffeereview-kerinci-2020": {
+      "title": "Kerinci Palompek Sumatra (JBC Coffee Roasters), 94",
+      "publisher": "Coffee Review",
+      "url": "https://coffeereview.com/?p=19944",
+      "year": 2020
+    },
+    "bertrand-2011": {
+      "title": "Performance of Coffea arabica F1 hybrids in agroforestry and full-sun cropping systems in comparison with American pure line cultivars",
+      "publisher": "Bertrand et al., Euphytica",
+      "url": "https://link.springer.com/doi/10.1007/s10681-011-0372-7",
+      "year": 2011
+    },
+    "etienne-2018": {
+      "title": "Coffee somatic embryogenesis: how did research, experience gained and innovations promote the commercial propagation of elite clones from the two cultivated species?",
+      "publisher": "Etienne et al., Frontiers in Plant Science",
+      "url": "https://www.frontiersin.org/articles/10.3389/fpls.2018.01630/pdf",
+      "year": 2018
+    },
+    "ace-cri-2022": {
+      "title": "Costa Rica 2022 (Cup of Excellence results)",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/costa-rica-2022/",
+      "year": 2022
+    },
+    "catie-korea": {
+      "title": "Korean coffee taster highlights the quality of hybrids developed by CATIE",
+      "publisher": "CATIE",
+      "url": "https://catie.ac.cr/en/?p=28500",
+      "accessed": "2026-10"
+    },
+    "sweetmarias-cassiopea-2025": {
+      "title": "Costa Rica Zarcero Monte Brisas Cassiopea",
+      "publisher": "Sweet Maria's",
+      "url": "https://www.sweetmarias.com/products/costa-rica-zarcero-monte-brisas-cassiopea-8417",
+      "year": 2025
+    },
+    "way-lajas-casiopea": {
+      "title": "Casiopea, Natural Anaerobic, Las Lajas, Costa Rica (Sumo Coffee Roasters listing)",
+      "publisher": "The Way to Coffee (listing)",
+      "url": "https://astro.thewaytocoffee.com/beans/casiopea-natural-anaerobic-las-lajas-costa-rica",
+      "year": 2025
+    },
+    "matamoros-2020": {
+      "title": "Efecto de fitohormonas y fertilizantes sobre el enraizamiento y crecimiento de mini-estaquillas de híbridos F1 de café (Coffea arabica)",
+      "publisher": "Matamoros-Quesada, Mesén-Sequeira & Jiménez-Alvarado, Revista de Ciencias Ambientales",
+      "url": "https://revistas.una.ac.cr/index.php/ambientales/article/download/13225/18446/49771",
+      "year": 2020
+    },
+    "techreview-2019": {
+      "title": "The accident that led to the discovery of climate-change-proof coffee",
+      "publisher": "MIT Technology Review (Diego Arguedas Ortiz)",
+      "url": "https://www.technologyreview.com/2019/04/24/135937/the-accident-that-led-to-the-discovery-of-climate-change-proof-coffee/",
+      "year": 2019
+    },
+    "coffeereview-lascuadras-2016": {
+      "title": "Costa Rica Las Cuadras F1 Hybrid Natural (Argyle Coffee Roasters)",
+      "publisher": "Coffee Review",
+      "url": "https://coffeereview.com/?p=14569",
+      "year": 2016
+    },
+    "fulcrum-esperanza": {
+      "title": "Costa Rica Aquiares Esperanza (listing)",
+      "publisher": "Fulcrum Coffee Roasters",
+      "url": "https://www.fulcrumcoffee.com/products/costa-rica-aquiares-esparanza",
+      "accessed": "2026-10"
+    },
+    "prolog-esperanza": {
+      "title": "Prolog: Aquiares, Esperanza, Natural, Costa Rica (listing)",
+      "publisher": "Sigma Coffee (Prolog Coffee)",
+      "url": "https://sigmacoffee.co.uk/products/prolog-aquiares-mariana-natural-anaerobic-costa-rica-copy",
+      "accessed": "2026-10"
+    },
+    "ozone-sumava-h3": {
+      "title": "Costa Rica Sumava H3 anaerobic honey",
+      "publisher": "Ozone Coffee",
+      "url": "https://ozonecoffee.co.uk/blogs/passenger/costa-rica-sumava-h3-anaerobic-honey-090",
+      "year": 2023
+    },
+    "way-volcanazul-h3": {
+      "title": "#17 Costa Rica, Yellow Honey H3 (Stillers Coffee listing)",
+      "publisher": "The Way to Coffee (listing)",
+      "url": "https://www.thewaytocoffee.com/beans/17-costa-rica-yellow-honey-h3",
+      "accessed": "2026-10"
+    },
+    "monogram-mundomaya": {
+      "title": "Monogram: Carlos Cadena, Mundo Maya, filter (listing)",
+      "publisher": "Uphill Coffee (Monogram Coffee)",
+      "url": "https://skiuphill.ca/products/monogram-carlos-cadena-filter-coffee-copy",
+      "accessed": "2026-10"
+    },
+    "cirad-starmaya-2019": {
+      "title": "Arabica coffee: Starmaya, a hybrid variety available in seed form for the first time",
+      "publisher": "CIRAD",
+      "url": "https://www.cirad.fr/en/press-area/press-releases/2019/starmaya-coffee-seeds-arabica",
+      "year": 2019
+    },
+    "algrano-sunzu-starmaya-2025": {
+      "title": "Zambia Starmaya Fully Washed AA (Mount Sunzu Coffee, May–Sep 2025)",
+      "publisher": "Algrano (listing)",
+      "url": "https://www.algrano.com/products/7688-zambia-starmaya-fully-washed-aa-arabica-lavado-may-sep-2025",
+      "year": 2025
+    },
+    "coffeereview-kenya-2008": {
+      "title": "Coffees of Kenya: still struggling, still great (Kenneth Davids)",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/coffees-of-kenya-still-struggling-still-great",
+      "year": 2008
+    },
+    "way-circulor-ruiru11": {
+      "title": "Kenya Coffea Circulor Ordo Isolated Ruiru 11 AA Washed (listing)",
+      "publisher": "The Way to Coffee (listing)",
+      "url": "https://www.thewaytocoffee.com/beans/kenya-coffea-circulor-ordo-isolated-ruiru-11-aa-washed-wx",
+      "accessed": "2026-10"
+    },
+    "dcn-coe-nic-2018": {
+      "title": "F1 hybrids excel at the 2018 Nicaragua Cup of Excellence (Nick Brown)",
+      "publisher": "Daily Coffee News",
+      "url": "https://dailycoffeenews.com/2018/04/26/f1-hybrids-excel-at-the-2018-nicaragua-cup-of-excellence/",
+      "year": 2018
+    },
+    "coe-nic-2018": {
+      "title": "Nicaragua 2018 (Cup of Excellence results)",
+      "publisher": "Cup of Excellence",
+      "url": "https://cupofexcellence.org/nicaragua-2018/",
+      "year": 2018
+    },
+    "chk-samplecoffee-com-au-coffee-putra-gayo-mill": {
+      "title": "Indonesia Putra Gayo Mill",
+      "publisher": "Sample Coffee",
+      "url": "https://samplecoffee.com.au/coffee/putra-gayo-mill"
+    },
+    "chk-sipora-polije-ac-id-35901-2-bab-201-20pendahulua": {
+      "title": "Bab 1 Pendahuluan (undergraduate thesis chapter)",
+      "publisher": "Politeknik Negeri Jember (SIPORA repository)",
+      "url": "https://sipora.polije.ac.id/35901/2/Bab%201%20Pendahuluan.pdf"
+    },
+    "chk-repository-pertanian-go-id-bitstreams-25b13d05-d": {
+      "title": "Budidaya dan Pascapanen Kopi",
+      "publisher": "IAARD Press (Indonesian Agency for Agricultural Research and Development)",
+      "url": "https://repository.pertanian.go.id/bitstreams/25b13d05-d413-4c7c-971a-21e976607411/download",
+      "year": 2012
+    },
+    "chk-sigmacoffee-co-uk-products-prolog-aquiares-natur": {
+      "title": "Prolog: Aquiares, Natural Anaerobic Esperanza, Costa Rica (listing)",
+      "publisher": "Sigma Coffee (Prolog Coffee)",
+      "url": "https://sigmacoffee.co.uk/products/prolog-aquiares-natural-anaerobic-esperanza-costa-rica"
+    },
+    "chk-repository-embuni-ac-ke-items-5a7e84fe-27a0-4041": {
+      "title": "Variation and Association of Cup Quality Attributes and Resistance to Coffee Berry Disease in Coffea arabica L. Composite Cultivar, Ruiru 11",
+      "publisher": "Gichimu, Gichuru, Mamati & Nyende, African Journal of Horticultural Science (University of Embu repository)",
+      "url": "https://repository.embuni.ac.ke/items/5a7e84fe-27a0-4041-9d4a-2a71ae1e3c4c/full",
+      "year": 2013
     }
   }
 }
