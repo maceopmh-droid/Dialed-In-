@@ -424,7 +424,7 @@
                         const sample = beans.find(b => !this.isTeaBean(b) && b.origin && b.process);
                         if (sample) {
                             const dec = L.decode(sample);
-                            check(!dec || (this.lxAboutHtml(sample, []).includes(this.esc(dec)) && this.lxShelfCard({ bean: sample, n: 1, rs: 0, rn: 0, last: 0 }).includes(this.esc(dec))), 'the bag-only decode is the same on the coffee page, Add a coffee and On your shelf');
+                            check(!dec || ((this.lxJourney && this.lxJourney(sample) ? this.lxAboutHtml(sample, []).includes('lx-journey') : this.lxAboutHtml(sample, []).includes(this.esc(dec))) && this.lxShelfCard({ bean: sample, n: 1, rs: 0, rn: 0, last: 0 }).includes(this.esc(dec))), 'the bag-only decode is the same on Add a coffee and On your shelf; the coffee page tells it as the coffee’s story (v20.1)');
                         }
                         const drinkL = this.drink;
                         this.drink = 'tea'; check(!this.learnOn() && !this.coffeeScopeHtml().includes('Learn'), 'tea mode hides the Learn tab'); this.drink = drinkL;
@@ -446,7 +446,7 @@
                         if (C && this.learnOn()) {
                             const pages = [['list', 'origins'], ['list', 'varieties'], ['list', 'processes'], ...[...C.entries.values()].map(e => [e.kind, e.kind === 'origin' ? e.country : e.id]), ...C.guideList.map(g => ['guide', g.id])];
                             // v19.1: short pages too (kinds you've logged, and the recognizer's sourced lines, with no written page)
-                            const shortK = [...new Set([...this.lxMine(this.user).kinds.keys(), ...Object.keys(LearnEngine.SAY).map(id => `variety:${id}`), ...Object.keys(LearnEngine.PSAY).map(id => `process:${id}`)])].map(x => x.split(':')).filter(([k, id]) => !this.lxEntry(k, id) && this.lxShortOk(k, id)).slice(0, 40);
+                            const shortK = [...new Set([...this.lxMine(this.user).kinds.keys(), ...Object.keys(LearnEngine.SAY).map(id => `variety:${id}`), ...Object.keys(LearnEngine.PSAY).map(id => `process:${id}`)])].filter(x => !x.startsWith('region:')).map(x => x.split(':')).filter(([k, id]) => !this.lxEntry(k, id) && this.lxShortOk(k, id)).slice(0, 40);
                             pages.push(...shortK);
                             check(shortK.every(([k, id]) => this.lxHasPage(k, id)), `short pages open (${shortK.length})`);
                             // v20.0: every variety opens a page with its family line; the tree and its family agree with the recognizer
@@ -465,9 +465,30 @@
                                 check(JSON.stringify(this.lxFeelPos('medium to full', this.LX_BODYW)) === '[0.33,0.67]' && JSON.stringify(this.lxFeelPos('heavier than washed', this.LX_BODYW)) === '[0.58,0.82]' && this.lxAcidKind('bright, citric') === 'citrus' && this.lxAcidKind('often softer than washed') === 'round', 'body and acidity land where their words say');
                                 pages.push(['tree', '']);
                             }
+                            // v20.1: Learn 2: a full page for every kind (from the checked research), region pages, the flavor finder,
+                            // the method diagram, the world map's filters
+                            if (this.lxFromRx && C.raw && C.raw.files && C.raw.files['atlas.json']) {
+                                const all = [...C.entries.values()], regs = all.filter(e => e.kind === 'region');
+                                check(LearnEngine.allVarieties().every(v => this.lxEntry(v.family === 'species' ? 'species' : 'variety', v.id)) && !!this.lxEntry('species', 'arabica'), 'every variety and species has a full page (Arabica too)');
+                                check(LearnEngine.allCountries().every(c => this.lxEntry('origin', c.code)) && LearnEngine.allProcesses().every(p => this.lxEntry('process', p.id)), 'every country and process has a full page');
+                                check(regs.length >= 70 && regs.every(r => LearnEngine.entry('region', r.id) && r.country === r.id.split(':')[0]), `every region page is a region the recognizer knows (${regs.length})`);
+                                check(regs.filter(r => this.lxRegionMapHtml(r)).length >= 60, 'region pages light themselves up on their country’s map');
+                                check(all.filter(e => e.rx).every(e => this.lxRxSrc(e.rx).every(id => C.sources[id])), 'every source the research cites is in the source list');
+                                const fb = this.lxFinder('Berry');
+                                check(fb.length > 5 && fb[0].s === 3 && fb.every((x, i) => !i || fb[i - 1].s >= x.s), 'the flavor finder lists where berry is described, best odds first');
+                                check(this.lxMethHtml('honey').includes('xoff') && /Sticky layer<\/span>/.test(this.lxMethLayers('honey')) && this.lxMethLayers('honey').includes('class="on">Sticky layer'), 'the method diagram: honey keeps the sticky layer on');
+                                check(this.lxMethDry('washed') && this.lxMethDry('natural') && !/;/.test(this.lxMethDry('washed')), 'each base method says how long it dries, from its research');
+                                const stL = this.lxState(), wf0 = stL.wf;
+                                ['all', 'had', 'fresh', 'Africa', 'Americas', 'Asia'].forEach(f => { stL.wf = f; const h = safe(`world ${f}`, () => this.lxWorldPage({}).html) || ''; check(h && !bad(h.replace(/<[^>]+>/g, ' ')) && h.includes('lx-world'), `the world map draws with the “${f}” filter`); });
+                                stL.wf = wf0;
+                                pages.push(['flavor', 'Berry'], ['flavor', 'Dark chocolate'], ['flavor', 'Jasmine']);
+                                const bj = [...this.beans.values()].find(b => !this.isTeaBean(b) && this.lxJourney(b) && this.lxJourney(b).steps.length >= 2);
+                                if (bj) { const J = this.lxJourney(bj), jh = this.lxJourneyHtml(J); check(jh.includes('lx-jstep') && !bad(jh.replace(/<[^>]+>/g, ' ')) && this.lxAboutLine(J).length > 3, 'About this coffee tells the coffee’s story (trees, place, process)'); }
+                            }
                             pages.forEach(([k, id]) => { const h = safe(`learn page ${k}:${id}`, () => this.lxPageHtml({ kind: k, id, opts: {} }).html) || ''; check(h && !bad(h.replace(/<[^>]+>/g, ' ')), `learn page ${k}:${id} draws without missing words`); check(!/\bgrind(?:\s+(?:setting|size|at|to|on|of))?\s*[:=]?\s*\d/i.test(h.replace(/<[^>]+>/g, ' ')), `learn page ${k}:${id} names no grind`); });
                             const hh = safe('learn home', () => this.learnHomeHtml('')) || '';
                             check(hh && !bad(hh.replace(/<[^>]+>/g, ' ')), 'the Learn tab draws without missing words');
+                            if (this.lxDoorsHtml) check((hh.match(/class="lx-door2"/g) || []).length === 4 && hh.includes('lx-searchbar'), 'the Learn tab opens with a search bar and four doors');
                             check(this.learnPassportHtml(this.user).includes('lx-passport'), 'the passport draws on your profile');
                         }
                         if (C && window.__dialedLook && lookL) window.__dialedLook.set(lookL);

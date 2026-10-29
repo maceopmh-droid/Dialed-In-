@@ -449,7 +449,7 @@
       ],
       "kicker": "Process · a base method",
       "summary": "Fruit off, fermented, then washed clean before drying.",
-      "lede": "The fruit is pulped off the seed, the sticky layer left behind is fermented away in tanks, and the beans are rinsed before they dry. It's the most common way coffee is processed.",
+      "lede": "The fruit is pulped off the seed, the sticky layer left behind is fermented away in tanks, and the beans are rinsed before they dry.",
       "ledeSrc": [
         "gimme"
       ],
@@ -1013,16 +1013,17 @@
         {
           "id": "huila",
           "name": "Huila",
-          "teaser": "The top specialty region: about 35% of its coffee grades specialty. Protected name since 2011",
+          "teaser": "The top specialty region: about 35% of its coffee grades specialty. Protected name since 2013",
           "alt": "1,000–2,200 m · 3,300–7,200 ft",
           "src": [
-            "bh-huila"
+            "bh-huila",
+            "cafedecolombia-do"
           ]
         },
         {
           "id": "cauca",
           "name": "Cauca",
-          "teaser": "Fragrant and sweet, with a strong aroma. Home of Inzá, and of El Paraíso's thermal-shock lots in El Tambo",
+          "teaser": "Fragrant and sweet, with a strong aroma. Home of Inzá, and of Finca El Paraíso's thermal-shock lots",
           "src": [
             "juanvaldez",
             "sweetmarias-inza",
@@ -1083,7 +1084,7 @@
       "regionsNote": "Region tastes are tendencies, from the growers' federation's own brand.",
       "harvest": [
         {
-          "area": "Huila",
+          "area": "Southern Huila",
           "main": [
             8,
             9,
@@ -1174,12 +1175,13 @@
           "teaser": "Supremo and Excelso are bean sizes, not quality",
           "body": [
             "Supremo and Excelso are size grades: Supremo is the bigger beans, Excelso the smaller. Sources disagree on the exact screen sizes, so we leave the numbers out.",
-            "Huila coffee has carried a protected Denomination of Origin since 2011."
+            "Huila coffee has carried a protected Denomination of Origin since 2013."
           ],
           "src": [
             "achilles-grades",
             "twochimps",
-            "bh-huila"
+            "bh-huila",
+            "cafedecolombia-do"
           ]
         }
       ],
@@ -1211,7 +1213,8 @@
         "pdg-lactic-2023",
         "pdg-koji-2022",
         "natural-earth",
-        "colombia-travel-coffee"
+        "colombia-travel-coffee",
+        "cafedecolombia-do"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -1644,7 +1647,7 @@
           "teaser": "Record auction prices, and a fight over paying farmers directly",
           "dated": "October 2026",
           "body": [
-            "Auction prices hit a record average of KES 1,025 a kilo (about US$7.91) in September 2025. A new system to pay farmers directly through a bank was suspended by the High Court until May 2026 after the cooperative union objected, and the reform committee's term was extended to June 2027.",
+            "Auction prices hit a record average of KES 1,025 a kilo (about US$7.91) in September 2025. A new system to pay farmers directly through a bank was suspended by the High Court until May 2026, on a petition by coffee farmers, and the reform committee's term was extended to June 2027.",
             "Between October 2025 and May 2026 the auction sold 602,973 bags."
           ],
           "src": [
@@ -1715,9 +1718,11 @@
       "tint": "earthy",
       "kicker": "Origin · South America",
       "summary": "Grown high in the Andes, from Cajamarca to Puno.",
-      "lede": "Peru's coffee grows in the Andes, in departments from Cajamarca in the north to Puno in the south, mostly between 900 and 2,000 m. From 2017 to 2023, its Cup of Excellence winners came from Cajamarca and Cusco.",
+      "lede": "Peru's coffee grows in the Andes, in departments from Cajamarca in the north to Puno in the south, mostly between 900 and 2,000 m. From 2017 to 2025, its Cup of Excellence winners came from Cajamarca and Cusco.",
       "ledeSrc": [
-        "worldofcoffee-peru"
+        "worldofcoffee-peru",
+        "ace-per-2024",
+        "ace-per-2025"
       ],
       "facts": [
         {
@@ -1753,7 +1758,7 @@
       "mapLegend": [
         [
           "l3",
-          "Cup of Excellence winners, 2017–2023"
+          "Cup of Excellence winners, 2017–2025"
         ],
         [
           "l1",
@@ -1784,10 +1789,12 @@
         {
           "id": "cajamarca",
           "name": "Cajamarca",
-          "teaser": "Jaén and San Ignacio. Cup of Excellence winners in 2017, 2019, 2022 and 2023",
+          "teaser": "Jaén and San Ignacio. Cup of Excellence winners in 2017, 2019 and every year from 2022 to 2025",
           "alt": "900–1,950 m · 3,000–6,400 ft",
           "src": [
-            "worldofcoffee-peru"
+            "worldofcoffee-peru",
+            "ace-per-2024",
+            "ace-per-2025"
           ]
         },
         {
@@ -1903,14 +1910,12 @@
       "grows": {
         "varieties": [
           "typica",
-          "bourbon",
-          "mundo-novo"
+          "bourbon"
         ],
         "processes": [],
         "src": [
           "wcr-typica",
-          "wcr-bourbon",
-          "wcr-mundonovo"
+          "wcr-bourbon"
         ]
       },
       "sections": [
@@ -1931,10 +1936,12 @@
           "title": "Cup of Excellence",
           "teaser": "Cajamarca and Cusco keep winning",
           "body": [
-            "Peru's Cup of Excellence winners came from Cajamarca in 2017, 2019, 2022 and 2023, and from Cusco in 2018, 2020 and 2021."
+            "Peru's Cup of Excellence winners came from Cajamarca in 2017, 2019 and 2022 to 2025, and from Cusco in 2018, 2020 and 2021."
           ],
           "src": [
-            "worldofcoffee-peru"
+            "worldofcoffee-peru",
+            "ace-per-2024",
+            "ace-per-2025"
           ]
         }
       ],
@@ -1948,7 +1955,9 @@
         "wcr-mundonovo",
         "natural-earth",
         "sweetmarias-peru",
-        "roastmarket-peru"
+        "roastmarket-peru",
+        "ace-per-2024",
+        "ace-per-2025"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -4097,6 +4106,10 @@
         [
           "l1",
           "Other coffee states"
+        ],
+        [
+          "dot",
+          "A town in four of the regions below"
         ]
       ],
       "mapTiers": {
@@ -4130,9 +4143,11 @@
         {
           "id": "sul-de-minas",
           "name": "Sul de Minas",
-          "teaser": "One of the four areas Minas Gerais is often split into",
+          "teaser": "Southern Minas Gerais, where most of the state’s Arabica grows",
           "src": [
-            "samplecoffee-mg"
+            "samplecoffee-mg",
+            "bh-suldeminas",
+            "vilasboas-2020"
           ]
         },
         {
@@ -4146,9 +4161,11 @@
         {
           "id": "mogiana",
           "name": "Alta Mogiana",
-          "teaser": "A creamy body, chocolate and nuts, and moderate acidity",
+          "teaser": "Mainly São Paulo hill country near Franca: a creamy body, chocolate and nuts, and moderate acidity",
           "src": [
-            "brazilianfarmers-gi"
+            "brazilianfarmers-gi",
+            "revistacultivar-mogiana-2015",
+            "bh-mogiana"
           ]
         },
         {
@@ -4294,7 +4311,11 @@
         "gimme",
         "coffeereview-honey",
         "datamar-conab-2026",
-        "dcn-tariffs-2025"
+        "dcn-tariffs-2025",
+        "bh-suldeminas",
+        "vilasboas-2020",
+        "revistacultivar-mogiana-2015",
+        "bh-mogiana"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -4604,9 +4625,10 @@
         {
           "id": "esteli",
           "name": "Estelí",
-          "teaser": "Coffee country is centered north and east of the town of Estelí",
+          "teaser": "One of the five main coffee departments, in the northern highlands",
           "src": [
-            "wiki-nic"
+            "wiki-nic",
+            "pdg-nic-2021"
           ]
         },
         {
@@ -4768,6 +4790,10 @@
         [
           "l3",
           "Departments in the six coffee regions"
+        ],
+        [
+          "dot",
+          "A town in Agalta, Montecillos and Opalaca"
         ]
       ],
       "mapTiers": {
@@ -5000,7 +5026,7 @@
       "mapLegend": [
         [
           "dot",
-          "A town in seven of the eight regions"
+          "A town in each region below"
         ]
       ],
       "mapSrc": [
@@ -5630,10 +5656,12 @@
         {
           "id": "volcan",
           "name": "Volcán",
-          "teaser": "Barú’s cooler, sunnier side, known for naturals, honeys and experimental ferments",
+          "teaser": "Barú’s western side: higher and sunnier, known for naturals, honeys and experimental ferments",
           "alt": "Up to about 2,000 m · 6,600 ft",
           "src": [
-            "coffeeness-panama"
+            "coffeeness-panama",
+            "sucafina-panama",
+            "wiki-volcan-pa"
           ]
         },
         {

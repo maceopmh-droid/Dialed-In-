@@ -325,7 +325,16 @@
                 s += leaf(90, 12, -50, 12, { tone: 'n', ratio: 0.24 });
                 return `<svg class="lxk" viewBox="0 0 100 100" aria-hidden="true">${s}${fr}</svg>`;
             }
+            // v20.1: a coffee cherry cut in half: skin, fruit, the sticky layer (mucilage), parchment, the silver skin and the
+            // two seeds. off = { skin, fruit, mucilage, parchment }: a layer that's already off draws as a dashed outline.
+            function cut(o = {}) {
+                const off = o.off || {}, c = k => off[k] ? ' xoff' : '';
+                const bean = sx => `<g transform="translate(${150 + sx * 3} 120) scale(${sx} 1)"><path d="M2 -62C46 -62 72 -34 72 0C72 34 46 62 2 62Z" class="xpa${c('parchment')}"/><path d="M6 -55C42 -55 64 -30 64 0C64 30 42 55 6 55Z" class="xss${c('parchment')}"/><path d="M8 -51C40 -51 60 -28 60 0C60 28 40 51 8 51Z" class="xsd"/><path d="M8 -20C20 -12 20 12 8 20" class="xsdc"/></g>`;
+                const size = o.size || 120;
+                return `<svg class="lxk lx-cut" viewBox="0 0 300 240" width="${size}" height="${i0(size * 0.8)}" role="img" aria-label="${o.label || 'A coffee cherry cut in half'}"><defs><radialGradient id="lxxsk" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#ef6a54"/><stop offset=".6" stop-color="#c12e24"/><stop offset="1" stop-color="#7a1712"/></radialGradient><radialGradient id="lxxsd" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#cfe0b6"/><stop offset="1" stop-color="#94b07a"/></radialGradient></defs>`
+                    + `<path d="M150 12C220 12 262 62 262 120C262 180 216 228 150 228C84 228 38 180 38 120C38 62 80 12 150 12Z" class="xsk${c('skin')}"/><path d="M150 22C212 22 252 66 252 120C252 174 210 218 150 218C90 218 48 174 48 120C48 66 88 22 150 22Z" class="xpu${c('fruit')}"/><path d="M150 44C198 44 230 78 230 120C230 162 198 196 150 196C102 196 70 162 70 120C70 78 102 44 150 44Z" class="xmu${c('mucilage')}"/>${bean(1)}${bean(-1)}<path d="M150 12C148 6 150 0 156 -2" class="xstk"/></svg>`;
+            }
             const children = id => [...new Set(Object.keys(MAIN).filter(k => MAIN[k] === id).concat(Object.keys(SECOND).filter(k => SECOND[k] === id)))];
-            return { draw, line, defs, sprig, chain, path, children, has: id => (!!MAIN[id] && !GROUP[id]) || !!ALT[id], onTree: id => !!MAIN[id] && !GROUP[id], simple: id => SIMPLE.has(id), unsure: id => UNSURE.has(id), second: id => SECOND[id] || null, MAIN, SECOND, ALT, WHEN, HOW, GROUP, VERSION: 1 };
+            return { draw, line, defs, sprig, cut, chain, path, children, has: id => (!!MAIN[id] && !GROUP[id]) || !!ALT[id], onTree: id => !!MAIN[id] && !GROUP[id], simple: id => SIMPLE.has(id), unsure: id => UNSURE.has(id), second: id => SECOND[id] || null, MAIN, SECOND, ALT, WHEN, HOW, GROUP, VERSION: 1 };
         })();
         if (typeof module !== 'undefined' && module.exports) module.exports = LearnTree;

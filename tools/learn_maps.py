@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """Learn (v19.0): the country maps on origin pages, as small SVG paths in learn/maps.json.
 
-    python3 tools/learn_maps.py --ne <folder with Natural Earth geojson> [--out learn/maps.json]
+    python3 tools/learn_maps.py --ne <folder with Natural Earth geojson> [--out learn/maps.json] [--atlas learn/atlas.json --checks a.json,b.json]
+
+v20.1: with --atlas, every other country with a research page gets a map too: the provinces its research names as
+growing coffee (only the ones a fact-checker confirmed, from --checks) or, when none, a dot at each confirmed town; and a
+region of a mapped country that has no area of its own gets a dot at its confirmed town.
 
 Natural Earth (public domain, naturalearthdata.com): ne_10m_admin_0_countries.geojson for outlines,
 ne_10m_admin_1_states_provinces.geojson for regions (departments), ne_10m_populated_places.geojson for a few towns.
@@ -98,18 +102,49 @@ def area(pts):
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument('--ne', required=True); ap.add_argument('--out', default=os.path.join(os.path.dirname(__file__), '..', 'learn', 'maps.json'))
+    ap.add_argument('--atlas'); ap.add_argument('--checks')
     a = ap.parse_args()
     adm0 = json.load(open(os.path.join(a.ne, 'ne_10m_admin_0_countries.geojson')))
     adm1 = json.load(open(os.path.join(a.ne, 'ne_10m_admin_1_states_provinces.geojson')))
     towns = json.load(open(os.path.join(a.ne, 'ne_10m_populated_places.geojson')))
     out = {'about': 'Country maps for Learn. Made with Natural Earth (public domain); town positions from Natural Earth and Wikipedia. Made by tools/learn_maps.py.', 'maps': {}}
-    for code in dict.fromkeys(list(ADM1) + list(DOTS)):   # (a country can have both: shaded regions and town dots)
-        outline = [f for f in adm0['features'] if f['properties'].get('ADM0_A3') == code][0]
+    adm1_all, dots_all, outline_of = dict(ADM1), {k: list(v) for k, v in DOTS.items()}, {}
+    if a.atlas:   # v20.1: maps from the checked research
+        import unicodedata, re
+        slug = lambda t: re.sub(r'[^a-z0-9]+', '-', unicodedata.normalize('NFD', t).encode('ascii', 'ignore').decode().lower()).strip('-')
+        atlas = json.load(open(a.atlas)); checks = {}
+        for f in (a.checks or '').split(','):
+            if f: checks.update(json.load(open(f)))
+        srcs = json.load(open(os.path.join(os.path.dirname(a.atlas), 'sources.json')))['sources']
+        url = lambda ids: next((srcs[i]['url'] for i in (ids or []) if i != 'natural-earth' and i in srcs), 'https://www.naturalearthdata.com/')
+        for r in atlas['records']:
+            m = r.get('map') or {}
+            key = f"{r['kind']}:{r['id']}"; c = checks.get(key, {})
+            tw = [(t, next((x for x in c.get('towns', []) if x.get('i') == i), None)) for i, t in enumerate(m.get('towns') or [])]
+            tw = [(t, v) for t, v in tw if v and v.get('verdict') in ('ok', 'fix')]
+            pos = lambda t, v: (v['lat'], v['lon']) if v.get('verdict') == 'fix' and v.get('lat') is not None else (t['lat'], t['lon'])
+            if r['kind'] == 'origin' and r['id'] not in ADM1 and r['id'] not in DOTS and r['id'] != 'HI':   # (Hawaii isn't a country on Natural Earth's map)
+                keep = (c.get('adm1') or {}).get('keep') or []
+                if keep: adm1_all[r['id']] = {n: slug(n) for n in keep}
+                elif tw: dots_all[r['id']] = [(slug(t['name']), t['name'], *pos(t, v), v.get('source') or url(t.get('src'))) for t, v in tw]
+            elif r['kind'] == 'region' and tw:
+                code, rid = r['id'].split(':')
+                have = set((ADM1.get(code) or {}).values()) | {d[0] for d in DOTS.get(code, [])}
+                if rid in have or any(slug(n) in have for n in (m.get('adm1') or [])): continue
+                t, v = tw[0]
+                label = r['name']   # (the legend says it's a town in that region)
+                dots_all.setdefault(code, []).append((rid, label, *pos(t, v), v.get('source') or url(t.get('src'))))
+    for code in dict.fromkeys(list(adm1_all) + list(dots_all)):   # (a country can have both: shaded regions and town dots)
+        if code in outline_of:   # (Hawaii: a state, drawn from its admin-1 shape)
+            a3, nm = outline_of[code]; outline = [f for f in adm1['features'] if f['properties'].get('adm0_a3') == a3 and f['properties'].get('name') == nm][0]
+        else: outline = [f for f in adm0['features'] if f['properties'].get('ADM0_A3') == code][0]
         rings = [r[0] for r in rings_of(outline['geometry'])]
         lons = [p[0] for r in rings for p in r]; lats = [p[1] for r in rings for p in r]
         # keep the mainland's box (islands far off, like San Andrés, would squash the map)
         big = max(rings, key=lambda r: area(r))
-        bl = [p[0] for p in big]; bt = [p[1] for p in big]
+        if code in ADM1 or code in DOTS: box = [big]
+        else: box = [r for r in rings if area(r) >= 0.02 * area(big)]   # (v20.1: an island country keeps its big islands)
+        bl = [p[0] for r in box for p in r]; bt = [p[1] for r in box for p in r]
         x0, x1, y0, y1 = min(bl), max(bl), min(bt), max(bt)
         k = math.cos(math.radians((y0 + y1) / 2))
         s = W / ((x1 - x0) * k); H = (y1 - y0) * s
@@ -123,19 +158,20 @@ def main():
                 if len(pts) < 4 or area(pts) < minA or not inside(pts): continue
                 d.append('M' + ' '.join(f'{x:.1f} {y:.1f}' for x, y in pts) + 'Z')
             return ''.join(d)
-        m = {'w': W, 'h': round(H, 1), 'outline': path(rings, 0.5, 4.0)}
-        if code in ADM1:
+        old = code in ADM1 or code in DOTS   # (v20.1: the newer maps are drawn a little simpler, to stay small)
+        m = {'w': W, 'h': round(H, 1), 'outline': path(rings, 0.5 if old else 0.8, 4.0)}
+        if code in adm1_all and code not in outline_of:
             regs = {}
             for f in adm1['features']:
                 p = f['properties']
-                if p.get('adm0_a3') != code or p.get('name') not in ADM1[code]: continue
-                regs[ADM1[code][p['name']]] = path([r[0] for r in rings_of(f['geometry'])], 0.8, 1.0)
-            others = ''.join(path([r[0] for r in rings_of(f['geometry'])], 1.0, 2.0) for f in adm1['features']
-                             if f['properties'].get('adm0_a3') == code and f['properties'].get('name') not in ADM1[code])
+                if p.get('adm0_a3') != code or p.get('name') not in adm1_all[code]: continue
+                regs[adm1_all[code][p['name']]] = path([r[0] for r in rings_of(f['geometry'])], 0.8 if old else 1.2, 1.0 if old else 2.0)
+            others = ''.join(path([r[0] for r in rings_of(f['geometry'])], 1.0 if old else 1.8, 2.0 if old else 6.0) for f in adm1['features']
+                             if f['properties'].get('adm0_a3') == code and f['properties'].get('name') not in adm1_all[code])
             m['regions'] = regs; m['rest'] = others
-        if code in DOTS:
+        if code in dots_all:
             dots = []
-            for rid, label, lat, lon, src in DOTS[code]:
+            for rid, label, lat, lon, src in dots_all[code]:
                 if lat is None:
                     nm = src.split(':', 1)[1]
                     t = [f for f in towns['features'] if f['properties'].get('ADM0_A3') == code and f['properties'].get('NAME') == nm][0]

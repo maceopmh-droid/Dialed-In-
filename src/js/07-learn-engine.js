@@ -65,7 +65,7 @@ gesha-1931|Gesha 1931|landrace|gesha 1931;geisha 1931;g1931
 gori-gesha|Gori Gesha|landrace|gori gesha;gori geisha
 wush-wush|Wush Wush|landrace|wush wush;wushwush
 rume-sudan|Rume Sudan|landrace|rume sudan;sudan rume;rs 510
-java|Java|landrace|java;abyssinia;abysinia;abyssinian;absynnian;ab3
+java|Java|landrace|java;abyssinia;abysinia;abyssinian;absynnian
 pink-bourbon|Pink Bourbon|landrace|pink bourbon;bourbon pink;bourbon rosado;rosado
 orange-bourbon|Orange Bourbon||orange bourbon;bourbon naranja
 sidra|Sidra|landrace|sidra;bourbon sidra|q
@@ -119,7 +119,7 @@ parainema|Parainema|introgressed|parainema;paraineima
 marsellesa|Marsellesa|introgressed|marsellesa;marseillesa;marsellaise
 cuscatleco|Cuscatleco|introgressed|cuscatleco
 obata|Obatã|introgressed|obata;obata rojo;obata red;obata vermelho;obata amarelo;obata amarillo
-tupi|Tupi|introgressed|tupi;iac 125 rn;iac 125
+tupi|Tupi|introgressed|tupi
 iapar-59|IAPAR 59|introgressed|iapar 59;iapar59
 ipr-107|IPR 107|introgressed|ipr 107
 limani|Limani|introgressed|limani

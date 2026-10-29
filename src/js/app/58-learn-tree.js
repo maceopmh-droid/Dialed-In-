@@ -79,7 +79,8 @@
                     + `<div class="lx-twrap" id="lx-tw"><div class="lx-tstage" id="lx-tstage"><svg class="lx-tsvg lxk" id="lx-tsvg" role="img" aria-label="Coffee’s family tree"></svg></div><div class="lx-tlab" id="lx-tlab"></div>`
                     + `<button type="button" class="lx-tmine" onclick="app.lxTreeMineToggle(this)" aria-pressed="true"><i></i>Yours</button><div class="lx-tctrl"><button type="button" class="lx-tglass" onclick="app.lxTreeStep(1.6)" aria-label="Zoom in">${this.lxIc('i-plus', 18)}</button><button type="button" class="lx-tglass lx-tminus" onclick="app.lxTreeStep(1 / 1.6)" aria-label="Zoom out"><i></i></button><button type="button" class="lx-tglass lx-tfit" onclick="app.lxTreeFit(true)" aria-label="Show the whole tree"><i></i></button></div><div class="lx-tfocus" id="lx-tfocus"></div></div>`
                     + `<div class="lx-tclusters">${order.map(g => `<button type="button" onclick="app.lxTreeZoom('${app.escJs(g)}')"><i style="background:${(this.LX_TCHIP[g] || [])[1] || '#9b8d80'}"></i>${this.esc((this.LX_TCHIP[g] || [g])[0])}</button>`).join('')}</div>`
-                    + `<p class="lx-tcap" id="lx-tcap">A family tree: each variety grows from the one it came from, and a dashed line joins a second parent. Tap a name to light up its line; pale branches with a ? aren’t settled. Pinch to zoom for more names. Red cherries are the ones you’ve logged.</p>`;
+                    + `<p class="lx-tcap" id="lx-tcap">A family tree: each variety grows from the one it came from, and a dashed line joins a second parent. Tap a name to light up its line; pale branches with a ? aren’t settled. Pinch to zoom for more names. Red cherries are the ones you’ve logged.</p>`
+                    + (this.lxVarListSecs ? `<div class="lx-tlist">${this.lxSecs(this.lxVarListSecs())}</div>` : '');   // v20.1: every variety, A to Z, under the tree
                 return { fam: 'app', html };
             },
             lxTreeMode(m) { const ts = this.lxTreeState(); if (ts.mode === m) return; ts.mode = m; const top = this.lxTop(); if (top) top.id = ''; this.learnRender(true); },
@@ -90,7 +91,7 @@
                 const ts = this.lxTreeState(), F = this.lxTreeData(ts.mode);
                 const top = wrap.getBoundingClientRect().top - (view ? view.getBoundingClientRect().top : 0);
                 const probe = document.createElement('div'); probe.style.cssText = 'position:absolute;visibility:hidden;height:env(safe-area-inset-bottom, 0px)'; document.body.appendChild(probe); const safeB = probe.offsetHeight || 0; probe.remove();
-                wrap.style.height = Math.max(380, Math.min(720, (view ? view.clientHeight : window.innerHeight) - top - 12 - safeB)) + 'px';
+                wrap.style.height = Math.max(380, Math.min(720, (view ? view.clientHeight : window.innerHeight) - top - 12 - safeB - 50)) + 'px';   // (v20.1: the group chips peek out below, so the page scrolls on)
                 const T = this._lxT = { F, W: wrap.clientWidth, H: wrap.clientHeight, TZ: { k: 1, x: 0, y: 0 }, R: null, FOC: new Set(), LBL: [], pad: 0.3 };
                 svg.innerHTML = `<g class="lx-tall">${F.svg}</g><g id="lx-thl"></g>`;
                 this.lxTreeLabels();
