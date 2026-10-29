@@ -4106,6 +4106,10 @@
         [
           "l1",
           "Other coffee states"
+        ],
+        [
+          "dot",
+          "A town in four of the regions below"
         ]
       ],
       "mapTiers": {
@@ -4786,6 +4790,10 @@
         [
           "l3",
           "Departments in the six coffee regions"
+        ],
+        [
+          "dot",
+          "A town in Agalta, Montecillos and Opalaca"
         ]
       ],
       "mapTiers": {
@@ -5018,7 +5026,7 @@
       "mapLegend": [
         [
           "dot",
-          "A town in seven of the eight regions"
+          "A town in each region below"
         ]
       ],
       "mapSrc": [

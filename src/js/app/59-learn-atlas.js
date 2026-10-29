@@ -40,7 +40,7 @@
                         const reg = Object.keys(m.regions || {}), mine = new Set((r.regions || []).flatMap(g => [g.id, this.lxSlug(g.name), this.lxSlug(String(g.name).split(' (')[0])]));
                         const l3 = reg.filter(id => mine.has(id)), l1 = reg.filter(id => !mine.has(id));
                         e.mapTiers = { l3, l1 };
-                        e.mapLegend = [l3.length ? ['l3', 'Regions below'] : null, l1.length ? ['l1', l3.length ? 'Other coffee areas' : 'Where coffee grows'] : null, (m.dots || []).length ? ['dot', 'A town in a coffee area'] : null].filter(Boolean);
+                        e.mapLegend = [l3.length ? ['l3', 'Regions below'] : null, l1.length ? ['l1', l3.length ? 'Other coffee areas' : 'Coffee areas'] : null, (m.dots || []).length ? ['dot', 'A town in a coffee area'] : null].filter(Boolean);
                     }
                 } else if (k === 'region') {
                     const c = LearnEngine.entry('origin', r.country);
@@ -102,7 +102,7 @@
             },
             lxStorySec(e) {
                 const s = (e.rx && e.rx.story) || []; if (!s.length) return null;
-                return { key: `${e.kind}.story`, open: true, title: 'Story', teaser: s.map(x => x.when).slice(0, 4).join(' · '), body: `<div class="lx-box"><div class="lx-tl">${s.map(x => `<div><div class="lx-when">${this.esc(x.when)}</div><p class="lx-p">${this.esc(x.text)}</p></div>`).join('')}</div></div>` };
+                return { key: `${e.kind}.story`, open: true, title: 'Story', teaser: s.map(x => x.when).slice(0, 4).join(' · '), body: `<div class="lx-box"><div class="lx-story">${s.map(x => `<div><div class="lx-when">${this.esc(x.when)}</div><p class="lx-p">${this.esc(x.text)}</p></div>`).join('')}</div></div>` };
             },
             // related pages as cards (only the ones that open)
             lxRelatedSec(e, extra) {
@@ -172,7 +172,7 @@
                 const ms = Object.keys(this.LX_METH).filter(m => this.lxHasPage('process', m));
                 const methods = `<div class="lx-group lx-mrows">${ms.map(m => `<button type="button" class="lx-row" onclick="${this.lxGo('process', m)}"><span class="lx-mpic">${LearnTree.cut({ size: 70, off: this.lxMethOff(m), label: this.lxName('process', m) })}</span><span class="lx-rmain"><b>${this.esc(this.lxName('process', m))}</b><small>${this.esc(this.LX_METH[m].short)}</small><span class="lx-mlay">${this.lxMethLayers(m)}</span></span><span class="lx-chev">${this.lxIc('i-chev-right', 16)}</span></button>`).join('')}</div>`;
                 const procs = LearnEngine.allProcesses();
-                const grid = list => `<div class="lx-pgrid">${list.map(x => this.lxHasPage('process', x.id) ? `<button type="button" onclick="${this.lxGo('process', x.id)}"><b>${this.esc(this.lxName('process', x.id))}</b><span>${this.esc(sumOf(x.id))}</span></button>` : `<div><b>${this.esc(x.name)}</b><span>${this.esc(sumOf(x.id))}</span></div>`).join('')}</div>`;
+                const grid = list => `<div class="lx-ptiles">${list.map(x => this.lxHasPage('process', x.id) ? `<button type="button" onclick="${this.lxGo('process', x.id)}"><b>${this.esc(this.lxName('process', x.id))}</b><span>${this.esc(sumOf(x.id))}</span></button>` : `<div><b>${this.esc(x.name)}</b><span>${this.esc(sumOf(x.id))}</span></div>`).join('')}</div>`;
                 const tops = procs.filter(x => ['fermentation', 'microbes', 'ingredients', 'after'].includes(x.layer));
                 const dry = procs.filter(x => x.layer === 'drying');
                 const decafs = (LearnEngine.knownIds().decaf || []).filter(id => id !== 'decaf');

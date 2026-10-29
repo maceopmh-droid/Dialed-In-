@@ -53,13 +53,13 @@
         html[data-look="new"] .lx-plant { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         html[data-look="new"] .lx-pv { font-size: 15px; font-weight: 650; line-height: 1.3; color: var(--t); margin-top: 2px; }
         html[data-look="new"] .lx-plant .lx-sl { margin-top: 0; }
-        html[data-look="new"] .lx-tl { position: relative; padding-left: 20px; }
-        html[data-look="new"] .lx-tl::before { content: ""; position: absolute; left: 4px; top: 6px; bottom: 8px; width: 2px; border-radius: 1px; background: var(--hl); }
-        html[data-look="new"] .lx-tl > div { position: relative; padding-bottom: 14px; }
-        html[data-look="new"] .lx-tl > div:last-child { padding-bottom: 0; }
-        html[data-look="new"] .lx-tl > div::before { content: ""; position: absolute; left: -20px; top: 5px; width: 10px; height: 10px; border-radius: 5px; background: var(--k); }
+        html[data-look="new"] .lx-story { position: relative; padding-left: 20px; }
+        html[data-look="new"] .lx-story::before { content: ""; position: absolute; left: 4px; top: 6px; bottom: 8px; width: 2px; border-radius: 1px; background: var(--hl); }
+        html[data-look="new"] .lx-story > div { position: relative; padding-bottom: 14px; }
+        html[data-look="new"] .lx-story > div:last-child { padding-bottom: 0; }
+        html[data-look="new"] .lx-story > div::before { content: ""; position: absolute; left: -20px; top: 5px; width: 10px; height: 10px; border-radius: 5px; background: var(--k); }
         html[data-look="new"] .lx-when { font-size: 13px; font-weight: 700; color: var(--k); margin-bottom: 1px; }
-        html[data-look="new"] .lx-tl .lx-p { font-size: 15px; }
+        html[data-look="new"] .lx-story .lx-p { font-size: 15px; }
         html[data-look="new"] .lx-related { display: flex; gap: 10px; overflow-x: auto; margin: 0 -16px; padding: 0 16px 2px; scrollbar-width: none; scroll-snap-type: x proximity; }
         html[data-look="new"] .lx-related::-webkit-scrollbar { display: none; }
         html[data-look="new"] .lx-rcard { flex: 0 0 168px; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 12px 13px; border-radius: 20px; background: var(--c); border: 1px solid var(--hl); text-align: left; scroll-snap-align: start; }
@@ -67,7 +67,6 @@
         html[data-look="new"] .lx-rk { font-size: 12px; font-weight: 650; color: var(--k); }
         html[data-look="new"] .lx-rn { font-family: var(--nl-serif); font-weight: 500; font-size: 21px; line-height: 1.1; color: var(--n); }
         html[data-look="new"] .lx-rs { font-size: 12.5px; line-height: 1.3; color: var(--l); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-        html[data-look="new"] .lx-gap { margin-top: 10px; }
 
         /* maps: a region lit on its country, tappable regions */
         html[data-look="new"] .lx-cmap [data-lxr] { cursor: pointer; }
@@ -103,10 +102,10 @@
         html[data-look="new"] .lx-mrows .lx-row { align-items: center; }
         html[data-look="new"] .lx-mpic { flex: 0 0 70px; display: flex; }
         html[data-look="new"] .lx-mrows .lx-mlay { margin-top: 7px; }
-        html[data-look="new"] .lx-pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        html[data-look="new"] .lx-pgrid > * { display: flex; flex-direction: column; gap: 3px; padding: 11px 12px; border-radius: 16px; background: var(--box); border: 1px solid var(--hl); text-align: left; color: var(--t); min-width: 0; }
-        html[data-look="new"] .lx-pgrid b { font-size: 14.5px; font-weight: 650; line-height: 1.25; }
-        html[data-look="new"] .lx-pgrid span { font-size: 12.5px; line-height: 1.3; color: var(--l); }
+        html[data-look="new"] .lx-ptiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        html[data-look="new"] .lx-ptiles > * { display: flex; flex-direction: column; gap: 3px; padding: 11px 12px; border-radius: 16px; background: var(--box); border: 1px solid var(--hl); text-align: left; color: var(--t); min-width: 0; }
+        html[data-look="new"] .lx-ptiles b { font-size: 14.5px; font-weight: 650; line-height: 1.25; }
+        html[data-look="new"] .lx-ptiles span { font-size: 12.5px; line-height: 1.3; color: var(--l); }
 
         /* Find a flavor */
         html[data-look="new"] .lx-fpick { margin-top: 18px; }

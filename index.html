@@ -5515,13 +5515,13 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] .lx-plant { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         html[data-look="new"] .lx-pv { font-size: 15px; font-weight: 650; line-height: 1.3; color: var(--t); margin-top: 2px; }
         html[data-look="new"] .lx-plant .lx-sl { margin-top: 0; }
-        html[data-look="new"] .lx-tl { position: relative; padding-left: 20px; }
-        html[data-look="new"] .lx-tl::before { content: ""; position: absolute; left: 4px; top: 6px; bottom: 8px; width: 2px; border-radius: 1px; background: var(--hl); }
-        html[data-look="new"] .lx-tl > div { position: relative; padding-bottom: 14px; }
-        html[data-look="new"] .lx-tl > div:last-child { padding-bottom: 0; }
-        html[data-look="new"] .lx-tl > div::before { content: ""; position: absolute; left: -20px; top: 5px; width: 10px; height: 10px; border-radius: 5px; background: var(--k); }
+        html[data-look="new"] .lx-story { position: relative; padding-left: 20px; }
+        html[data-look="new"] .lx-story::before { content: ""; position: absolute; left: 4px; top: 6px; bottom: 8px; width: 2px; border-radius: 1px; background: var(--hl); }
+        html[data-look="new"] .lx-story > div { position: relative; padding-bottom: 14px; }
+        html[data-look="new"] .lx-story > div:last-child { padding-bottom: 0; }
+        html[data-look="new"] .lx-story > div::before { content: ""; position: absolute; left: -20px; top: 5px; width: 10px; height: 10px; border-radius: 5px; background: var(--k); }
         html[data-look="new"] .lx-when { font-size: 13px; font-weight: 700; color: var(--k); margin-bottom: 1px; }
-        html[data-look="new"] .lx-tl .lx-p { font-size: 15px; }
+        html[data-look="new"] .lx-story .lx-p { font-size: 15px; }
         html[data-look="new"] .lx-related { display: flex; gap: 10px; overflow-x: auto; margin: 0 -16px; padding: 0 16px 2px; scrollbar-width: none; scroll-snap-type: x proximity; }
         html[data-look="new"] .lx-related::-webkit-scrollbar { display: none; }
         html[data-look="new"] .lx-rcard { flex: 0 0 168px; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 12px 13px; border-radius: 20px; background: var(--c); border: 1px solid var(--hl); text-align: left; scroll-snap-align: start; }
@@ -5529,7 +5529,6 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] .lx-rk { font-size: 12px; font-weight: 650; color: var(--k); }
         html[data-look="new"] .lx-rn { font-family: var(--nl-serif); font-weight: 500; font-size: 21px; line-height: 1.1; color: var(--n); }
         html[data-look="new"] .lx-rs { font-size: 12.5px; line-height: 1.3; color: var(--l); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-        html[data-look="new"] .lx-gap { margin-top: 10px; }
 
         /* maps: a region lit on its country, tappable regions */
         html[data-look="new"] .lx-cmap [data-lxr] { cursor: pointer; }
@@ -5565,10 +5564,10 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] .lx-mrows .lx-row { align-items: center; }
         html[data-look="new"] .lx-mpic { flex: 0 0 70px; display: flex; }
         html[data-look="new"] .lx-mrows .lx-mlay { margin-top: 7px; }
-        html[data-look="new"] .lx-pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        html[data-look="new"] .lx-pgrid > * { display: flex; flex-direction: column; gap: 3px; padding: 11px 12px; border-radius: 16px; background: var(--box); border: 1px solid var(--hl); text-align: left; color: var(--t); min-width: 0; }
-        html[data-look="new"] .lx-pgrid b { font-size: 14.5px; font-weight: 650; line-height: 1.25; }
-        html[data-look="new"] .lx-pgrid span { font-size: 12.5px; line-height: 1.3; color: var(--l); }
+        html[data-look="new"] .lx-ptiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        html[data-look="new"] .lx-ptiles > * { display: flex; flex-direction: column; gap: 3px; padding: 11px 12px; border-radius: 16px; background: var(--box); border: 1px solid var(--hl); text-align: left; color: var(--t); min-width: 0; }
+        html[data-look="new"] .lx-ptiles b { font-size: 14.5px; font-weight: 650; line-height: 1.25; }
+        html[data-look="new"] .lx-ptiles span { font-size: 12.5px; line-height: 1.3; color: var(--l); }
 
         /* Find a flavor */
         html[data-look="new"] .lx-fpick { margin-top: 18px; }
@@ -28764,7 +28763,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const dots = this.lxDotLabels(m).map(d => `<g class="lx-mdot"${links.has(d.id) ? ` data-lxr="${this.esc(links.get(d.id))}"` : ''}><circle cx="${d.x}" cy="${d.y}" r="3.2"/><text x="${d.tx}" y="${d.ty}"${d.left ? ' text-anchor="end"' : ''}>${this.esc(d.label)}</text></g>`).join('');
                 const svg = `<svg class="lx-cmap" viewBox="0 0 ${m.w} ${m.h}" role="img" aria-label="Map of ${this.esc(e.name)}${(m.dots || []).length ? ' with a town in each coffee area' : ', its coffee departments shaded'}"${links.size ? ' onclick="app.lxMapTap(event)"' : ''}><path class="lx-rest" d="${m.rest || ''}"/>${regions}<path class="lx-outline" d="${m.outline}"/>${dots}</svg>`;
                 const legend = (e.mapLegend || []).map(([k, l]) => `<span><i class="lx-lg-${k}"></i>${this.esc(l)}</span>`).join('');
-                return `<div class="lx-box lx-mapwrap${(m.dots || []).length ? ' lx-dotmap' : ''}"><div class="lx-cmapbox">${svg}</div><div class="lx-legend lx-vlegend">${legend}</div></div>`;
+                return `<div class="lx-box lx-mapwrap${(m.dots || []).length || m.w / m.h > 1.5 ? ' lx-dotmap' : ''}"><div class="lx-cmapbox">${svg}</div><div class="lx-legend lx-vlegend">${legend}</div></div>`;
             },
             // each town's name beside its dot, on whichever side (or a step up or down) keeps it clear of the others
             lxDotLabels(m) {
@@ -29431,7 +29430,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                         const reg = Object.keys(m.regions || {}), mine = new Set((r.regions || []).flatMap(g => [g.id, this.lxSlug(g.name), this.lxSlug(String(g.name).split(' (')[0])]));
                         const l3 = reg.filter(id => mine.has(id)), l1 = reg.filter(id => !mine.has(id));
                         e.mapTiers = { l3, l1 };
-                        e.mapLegend = [l3.length ? ['l3', 'Regions below'] : null, l1.length ? ['l1', l3.length ? 'Other coffee areas' : 'Where coffee grows'] : null, (m.dots || []).length ? ['dot', 'A town in a coffee area'] : null].filter(Boolean);
+                        e.mapLegend = [l3.length ? ['l3', 'Regions below'] : null, l1.length ? ['l1', l3.length ? 'Other coffee areas' : 'Coffee areas'] : null, (m.dots || []).length ? ['dot', 'A town in a coffee area'] : null].filter(Boolean);
                     }
                 } else if (k === 'region') {
                     const c = LearnEngine.entry('origin', r.country);
@@ -29493,7 +29492,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             },
             lxStorySec(e) {
                 const s = (e.rx && e.rx.story) || []; if (!s.length) return null;
-                return { key: `${e.kind}.story`, open: true, title: 'Story', teaser: s.map(x => x.when).slice(0, 4).join(' · '), body: `<div class="lx-box"><div class="lx-tl">${s.map(x => `<div><div class="lx-when">${this.esc(x.when)}</div><p class="lx-p">${this.esc(x.text)}</p></div>`).join('')}</div></div>` };
+                return { key: `${e.kind}.story`, open: true, title: 'Story', teaser: s.map(x => x.when).slice(0, 4).join(' · '), body: `<div class="lx-box"><div class="lx-story">${s.map(x => `<div><div class="lx-when">${this.esc(x.when)}</div><p class="lx-p">${this.esc(x.text)}</p></div>`).join('')}</div></div>` };
             },
             // related pages as cards (only the ones that open)
             lxRelatedSec(e, extra) {
@@ -29563,7 +29562,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const ms = Object.keys(this.LX_METH).filter(m => this.lxHasPage('process', m));
                 const methods = `<div class="lx-group lx-mrows">${ms.map(m => `<button type="button" class="lx-row" onclick="${this.lxGo('process', m)}"><span class="lx-mpic">${LearnTree.cut({ size: 70, off: this.lxMethOff(m), label: this.lxName('process', m) })}</span><span class="lx-rmain"><b>${this.esc(this.lxName('process', m))}</b><small>${this.esc(this.LX_METH[m].short)}</small><span class="lx-mlay">${this.lxMethLayers(m)}</span></span><span class="lx-chev">${this.lxIc('i-chev-right', 16)}</span></button>`).join('')}</div>`;
                 const procs = LearnEngine.allProcesses();
-                const grid = list => `<div class="lx-pgrid">${list.map(x => this.lxHasPage('process', x.id) ? `<button type="button" onclick="${this.lxGo('process', x.id)}"><b>${this.esc(this.lxName('process', x.id))}</b><span>${this.esc(sumOf(x.id))}</span></button>` : `<div><b>${this.esc(x.name)}</b><span>${this.esc(sumOf(x.id))}</span></div>`).join('')}</div>`;
+                const grid = list => `<div class="lx-ptiles">${list.map(x => this.lxHasPage('process', x.id) ? `<button type="button" onclick="${this.lxGo('process', x.id)}"><b>${this.esc(this.lxName('process', x.id))}</b><span>${this.esc(sumOf(x.id))}</span></button>` : `<div><b>${this.esc(x.name)}</b><span>${this.esc(sumOf(x.id))}</span></div>`).join('')}</div>`;
                 const tops = procs.filter(x => ['fermentation', 'microbes', 'ingredients', 'after'].includes(x.layer));
                 const dry = procs.filter(x => x.layer === 'drying');
                 const decafs = (LearnEngine.knownIds().decaf || []).filter(id => id !== 'decaf');
