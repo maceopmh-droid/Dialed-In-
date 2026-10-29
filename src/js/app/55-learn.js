@@ -24,7 +24,16 @@
                 const maps = (f['maps.json'] || {}).maps || {};
                 // v20.1: the research (atlas.json) gives every variety, species, process, country and region a page. A written
                 // page keeps its words and takes the research's extra parts (rx); the rest are built from the research.
-                ((f['atlas.json'] || {}).records || []).forEach(r => { const k = `${r.kind}:${r.id}`, e = entries.get(k); entries.set(k, e ? { ...e, rx: r } : this.lxFromRx(r, maps)); });
+                // (v20.3: a written page keeps its own words; a part it doesn't have, like harvest months, comes from the research)
+                const FILL = ['harvest', 'harvestText', 'secondName', 'grows', 'regions', 'regionsNote', 'map', 'mapTiers', 'mapLegend'];   // (the cup comes from both already)
+                const empty = v => v == null || v === '' || (Array.isArray(v) && !v.length);
+                ((f['atlas.json'] || {}).records || []).forEach(r => {
+                    const k = `${r.kind}:${r.id}`, e = entries.get(k);
+                    if (!e) { entries.set(k, this.lxFromRx(r, maps)); return; }
+                    const x = this.lxFromRx(r, maps), m = { ...e, rx: r };
+                    FILL.forEach(key => { if (empty(m[key]) && !empty(x[key])) m[key] = x[key]; });
+                    entries.set(k, m);
+                });
                 return { version: j.version, updated: j.updated || '', entries, guides: gs, guideList: guides.guides || [], sources: (f['sources.json'] || {}).sources || {}, maps, tree: pages.tree || null, pmap: pages.processMap || null, origins: pages.origins || {}, fresh: pages.fresh || null, raw: j };
             },
             async lxFetchJson(url) {
