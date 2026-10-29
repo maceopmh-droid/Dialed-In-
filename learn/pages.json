@@ -1294,13 +1294,14 @@
       "tint": "floral",
       "kicker": "Origin · Africa",
       "summary": "Where Arabica comes from. Washed runs floral, natural berry and heavy.",
-      "lede": "Arabica was born in Ethiopia's forests, and the country holds more of the species' genetic variety than anywhere else. Most of its growers are smallholders, much of it grown in gardens and semi-wild forest, and it's sold both washed and natural.",
+      "lede": "Arabica was born in Ethiopia's forests, and the country holds more of the species' genetic variety than anywhere else. Most of its growers are smallholders, much of it grown in gardens and semi-wild forest, and it's sold both washed and natural, though most of it, about 70–80%, is natural (sun-dried).",
       "ledeSrc": [
         "ub-2024",
         "scalabrin-2020",
         "coffeehunter-eth",
         "wiki-eth",
-        "1zpresso-sidama"
+        "1zpresso-sidama",
+        "unido-eth-2025"
       ],
       "facts": [
         {
@@ -1403,8 +1404,10 @@
           "teaser": "The east. Natural, with blueberry, jam and spice and a heavy body",
           "src": [
             "1zpresso-eth",
-            "sweetmarias-eth"
-          ]
+            "sweetmarias-eth",
+            "interamerican-harrar"
+          ],
+          "alt": "1,510–2,120 m · 4,950–6,960 ft"
         },
         {
           "id": "kaffa",
@@ -1413,8 +1416,10 @@
           "src": [
             "coffeehunter-eth",
             "sweetmarias-eth",
-            "wcr-geisha"
-          ]
+            "wcr-geisha",
+            "riechmann-kafa-2007"
+          ],
+          "alt": "1,000–2,000 m · 3,300–6,550 ft"
         },
         {
           "id": "wollega",
@@ -1423,8 +1428,10 @@
           "src": [
             "cafeimports-eth",
             "sweetmarias-eth",
-            "wiki-welega"
-          ]
+            "wiki-welega",
+            "habtu-typica-eth"
+          ],
+          "alt": "1,500–1,800 m · 4,900–5,900 ft"
         }
       ],
       "grows": {
@@ -1495,13 +1502,14 @@
           "title": "On the bag",
           "teaser": "Grades 1 to 5; “heirloom” isn't one variety",
           "body": [
-            "Grades run from 1, the fewest defects, to 5. Sources disagree on the exact cutoffs, so we leave them out.",
+            "Grades run from 1, the fewest defects, to 5, set by the number of defects in a sample. Sources give slightly different cutoffs: 1Zpresso puts Grade 2 at 5–12 defects, while StoneX allows up to 13 secondary defects in a 350 g sample.",
             "“Heirloom” or “landrace” covers Ethiopia's many local coffee types, which haven't all been catalogued. Numbers like 74110 and 74112 are selections released by the Jimma research center in the late 1970s."
           ],
           "src": [
             "1zpresso-eth",
             "ethiocoffee",
-            "tirfe-2015"
+            "tirfe-2015",
+            "stonex-gr1"
           ]
         }
       ],
@@ -1531,7 +1539,10 @@
         "cafeimports-eth",
         "unido-eth-2025",
         "usda-gain-eth-2021",
-        "wiki-welega"
+        "wiki-welega",
+        "interamerican-harrar",
+        "riechmann-kafa-2007",
+        "habtu-typica-eth"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -1553,11 +1564,12 @@
       "tint": "fruity",
       "kicker": "Origin · Africa",
       "summary": "Washed SL28 and SL34, sold at a weekly auction in Nairobi.",
-      "lede": "Kenya's coffee is mostly washed, about 80% of it grown by cooperatives, and much of it is sold at the Nairobi Coffee Exchange's weekly auction. It's known for bright, juicy cups, which roasters tie to its SL28 and SL34 trees, its altitude and its careful washing.",
+      "lede": "Kenya's coffee is mostly washed, about 80% of it sold through cooperatives, and much of it is sold at the Nairobi Coffee Exchange's weekly auction. It's known for bright, juicy cups, which roasters tie to its SL28 and SL34 trees, its altitude and its careful washing.",
       "ledeSrc": [
         "royal-kenya",
         "ozone-auction",
-        "ozone-sl28"
+        "ozone-sl28",
+        "usda-gain-ken-2026"
       ],
       "facts": [
         {
@@ -1568,17 +1580,20 @@
           ]
         },
         {
-          "value": "1934",
-          "label": "when the Nairobi auction began; it's weekly",
+          "value": "1935",
+          "label": "when the Nairobi auction began (Ozone Coffee says 1934); it's weekly",
           "src": [
+            "usda-gain-ken-2026",
+            "royal-kenya-auction-2018",
             "ozone-auction"
           ]
         },
         {
           "value": "~80%",
-          "label": "of the crop comes from cooperatives",
+          "label": "of the crop is sold through cooperatives",
           "src": [
-            "royal-kenya"
+            "royal-kenya",
+            "usda-gain-ken-2026"
           ]
         },
         {
@@ -1764,11 +1779,13 @@
           "title": "How coffee is sold here",
           "teaser": "The weekly auction, or direct sales outside it",
           "body": [
-            "The Nairobi Coffee Exchange has held auctions since 1934. About 50 licensed exporters cup samples and bid through agents. Since 2006 independent marketing agents have been allowed, and buyers can also purchase directly, outside the auction."
+            "The Nairobi Coffee Exchange has held auctions since 1935, by USDA's and Royal Coffee's dates (Ozone Coffee gives 1934). About 50 licensed exporters cup samples and bid through agents. Independent marketing agents have been allowed since the early 2000s, and since 2006 buyers can also purchase directly, outside the auction."
           ],
           "src": [
             "ozone-auction",
-            "sweetmarias-kenya"
+            "sweetmarias-kenya",
+            "usda-gain-ken-2026",
+            "royal-kenya-auction-2018"
           ]
         },
         {
@@ -1776,7 +1793,7 @@
           "title": "On the bag",
           "teaser": "AA and AB are bean sizes; PB is peaberry",
           "body": [
-            "Kenyan grades are about bean size, not cup quality: AA is the biggest of the usual grades, AB a bit smaller, and PB the peaberries, cherries that grew one round seed instead of two. Sources give slightly different screen sizes, so we leave the numbers out."
+            "Kenyan grades are about bean size, not cup quality: AA is the biggest of the usual grades, AB a bit smaller, and PB the peaberries, cherries that grew one round seed instead of two. Sources give slightly different screen sizes for each grade."
           ],
           "src": [
             "ozone-auction",
@@ -1806,7 +1823,8 @@
         "gichimu-2014",
         "sucafina-mwithu",
         "usda-gain-ken-2026",
-        "dcn-kenya-2026"
+        "dcn-kenya-2026",
+        "royal-kenya-auction-2018"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -3691,7 +3709,7 @@
         ],
         "text": "Big fruit, a syrupy texture, intense sweetness and wine-like acidity are the usual claims. Pushed too far, it can be overwhelming.",
         "label": "trade",
-        "evidence": "These are roasters' and importers' descriptions; we found no controlled tasting behind them.",
+        "evidence": "These are roasters' and importers' descriptions. A 2026 controlled trial on Arabica found that four of its carbonic ferments scored only slightly above the control (85.0–85.75 against 84.5).",
         "typicalShape": {
           "acidity": 7,
           "sweetness": 8,
@@ -3701,7 +3719,8 @@
           "balance": 5
         },
         "src": [
-          "rave-cm"
+          "rave-cm",
+          "aims-cm-arabica-2026"
         ]
       },
       "kinds": [
@@ -3763,7 +3782,8 @@
         "blackwhite-maguta",
         "coffeereview-2021",
         "ozone-anaerobic",
-        "beanscene-ona-cm"
+        "beanscene-ona-cm",
+        "aims-cm-arabica-2026"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -3836,7 +3856,11 @@
       "taste": {
         "notes": [
           "Yogurt",
-          "Cocoa"
+          "Cocoa",
+          "Blueberry",
+          "Passion fruit",
+          "Cherry",
+          "Toffee"
         ],
         "text": "A creamier, velvety body, yogurt-like notes and more sweetness, with chocolate and butter in one producer's lots.",
         "label": "trade",
@@ -3851,7 +3875,9 @@
         },
         "src": [
           "pdg-lactic-2023",
-          "coffeereview-2021"
+          "coffeereview-2021",
+          "nomad-lapalma-sidra",
+          "coffeereview-bandida-2021"
         ]
       },
       "kinds": [
@@ -3909,7 +3935,8 @@
         "coffeereview-2021",
         "royal-additive-2025",
         "bernardes-2024",
-        "coffeereview-bandida-2021"
+        "coffeereview-bandida-2021",
+        "nomad-lapalma-sidra"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -3975,12 +4002,23 @@
         ]
       },
       "taste": {
-        "notes": [],
+        "notes": [
+          "Peach",
+          "Strawberry",
+          "Lychee",
+          "Rose",
+          "Candy"
+        ],
         "text": "It can taste clearly of what went in: a pineapple co-ferment tastes noticeably of pineapple.",
         "label": "trade",
         "evidence": "One project's data suggests only about 3% of the added fruit ends up in the cup.",
         "src": [
-          "pdg-infused-2025"
+          "pdg-infused-2025",
+          "rave-arcila-peach",
+          "parchmen-arcila-strawberry",
+          "archers-lapradera-lychee",
+          "coffeereview-lychee-hermoso-2026",
+          "sample-norena"
         ]
       },
       "kinds": [
@@ -4065,7 +4103,12 @@
         "pdg-infused-2025",
         "sprudge-infused-2023",
         "coffeereview-kdc",
-        "coffeereview-cofermenting-2024"
+        "coffeereview-cofermenting-2024",
+        "rave-arcila-peach",
+        "parchmen-arcila-strawberry",
+        "archers-lapradera-lychee",
+        "coffeereview-lychee-hermoso-2026",
+        "sample-norena"
       ],
       "updated": "2026-10-28"
     },
@@ -6303,11 +6346,12 @@
         }
       ],
       "harvestText": {
-        "text": "Picked from about March to June, after flowering in September and October. Sources differ by a month or so: one importer says April to July, and the national tourism board February to May.",
+        "text": "Picked from about March to June, after flowering in September and October. Sources differ by a month or so: one importer says April to July, and the national tourism board February to May. Starbucks' origin map also gives April to July.",
         "src": [
           "achilles-harvest",
           "mcm-rwanda",
-          "visitrwanda-coffee"
+          "visitrwanda-coffee",
+          "starbucks-rwanda"
         ]
       },
       "fresh": {
@@ -6326,7 +6370,9 @@
           "bourbon",
           "bm139",
           "jackson",
-          "mibirizi"
+          "mibirizi",
+          "RAB C15",
+          "typica"
         ],
         "processes": [
           "washed",
@@ -6335,7 +6381,7 @@
           "anaerobic"
         ],
         "species": "Arabica, nearly all of it",
-        "text": "Mostly fully washed Bourbon types: KT Press (2026) puts fully washed at about 80% of the coffee, World Coffee Research at about 62% of exports; naturals, honeys and anaerobic lots are about 5% of exports.",
+        "text": "Mostly fully washed Bourbon types: KT Press (2026) puts fully washed at about 80% of the coffee, World Coffee Research at about 62% of exports; naturals, honeys and anaerobic lots are about 5% of exports. Most of the rest is semi-washed: in 2015 fully washed and semi-washed coffee were each about half of exports (IGC). Starbucks also lists the rust-resistant RAB C15 as a primary variety, though World Coffee Research says it isn't widely planted yet, and WCR names Typica alongside Bourbon among the traditional trees.",
         "src": [
           "mcm-rwanda",
           "visitrwanda-coffee",
@@ -6344,7 +6390,8 @@
           "wcr-rwanda",
           "ktpress-rwa-2026",
           "wcr-bm139",
-          "starbucks-rwanda"
+          "starbucks-rwanda",
+          "morjaria-igc-2016"
         ]
       },
       "sections": [
@@ -6411,7 +6458,8 @@
         "wcr-rwanda",
         "ktpress-rwa-2026",
         "wcr-bm139",
-        "starbucks-rwanda"
+        "starbucks-rwanda",
+        "morjaria-igc-2016"
       ],
       "updated": "2026-10-28",
       "feel": {
