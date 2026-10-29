@@ -204,18 +204,20 @@ def main():
                 x, y = proj(lon, lat)
                 dots.append({'id': rid, 'label': label, 'x': round(x, 1), 'y': round(y, 1), 'src': src})
             m['dots'] = dots
+        added = []
         if code in geo:   # (bigger regions first, so a region inside another is drawn on top and can be tapped)
             regs = m.get('regions') or {}
             for rid, rs in sorted(geo[code], key=lambda x: -sum(area([proj(*p) for p in ring]) for ring in x[1])):
-                if rid in regs: continue
+                if rid in regs: continue   # (already drawn from Natural Earth)
                 d = path(rs, 0.6, 0.5)
-                if d: regs[rid] = d
+                if d: regs[rid] = d; added.append((rid, rs))
+        if added:
             m['regions'] = regs
             if not m.get('rest'):   # (the country's other areas, faint, so a zoomed map still shows where you are)
                 m['rest'] = ''.join(path([ring[0] for ring in rings_of(f['geometry'])], 1.2, 1.5) for f in files[geo_file[code]]['features'] if norm(f['properties'].get('shapeName')) not in geo_used[code])
             m['geo'] = 'geoBoundaries (www.geoboundaries.org), open licences'
             # when the coffee regions are a small patch of a big country (Kenya), the map shows that patch, with room around it
-            pts = [proj(*p) for _, rs in geo[code] for ring in rs for p in ring]
+            pts = [proj(*p) for _, rs in added for ring in rs for p in ring]
             bx0, bx1 = min(x for x, _ in pts), max(x for x, _ in pts); by0, by1 = min(y for _, y in pts), max(y for _, y in pts)
             if (bx1 - bx0) * (by1 - by0) < 0.12 * W * H:
                 cx, cy = (bx0 + bx1) / 2, (by0 + by1) / 2; side = max(bx1 - bx0, (by1 - by0) * W / H) * 2.5
