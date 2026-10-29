@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v20.0 -->
+<!-- Dialed In v20.2 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="20.0">
+    <meta name="dialed-in-version" content="20.2">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -5460,6 +5460,167 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] .lx-fb-k { display: flex; align-items: center; gap: 7px; margin-top: -6px; font-size: 12px; color: var(--l); }
         html[data-look="new"] .lx-fb-k i { width: 10px; height: 10px; border-radius: 5px; }
         @media (prefers-reduced-motion: reduce) { html[data-look="new"] .lx-tstage { transition: none !important; } }
+        /* ===================== v20.1: Learn 2 (the home's doors, the cup in depth, How it's made, a flavor finder,
+           region pages, the coffee's story) ===================== */
+        /* the cut cherry */
+        html[data-look="new"] svg.lx-cut { display: block; overflow: visible; }
+        html[data-look="new"] .lx-cut .xsk { fill: url(#lxxsk); } html[data-look="new"] .lx-cut .xpu { fill: #f2b39b; } html[data-look="new"] .lx-cut .xmu { fill: #f0cf86; }
+        html[data-look="new"] .lx-cut .xpa { fill: #efe4c8; stroke: #c9b68a; stroke-width: 1.5; } html[data-look="new"] .lx-cut .xss { fill: #e6ecd9; }
+        html[data-look="new"] .lx-cut .xsd { fill: url(#lxxsd); } html[data-look="new"] .lx-cut .xsdc { fill: none; stroke: #6e8a56; stroke-width: 2.5; stroke-linecap: round; }
+        html[data-look="new"] .lx-cut .xstk { fill: none; stroke: #6b4a2e; stroke-width: 5; stroke-linecap: round; }
+        html[data-look="new"] .lx-cut .xoff { fill: none !important; stroke: color-mix(in srgb, var(--l) 80%, transparent); stroke-width: 3; stroke-dasharray: 6 7; }
+        html[data-look="new"] .lx-cut .xss.xoff { stroke: none; }
+
+        /* the home: search bar and four doors */
+        html[data-look="new"] .lx-searchbar { display: flex; align-items: center; gap: 10px; width: calc(100% - 32px); height: 48px; margin: 14px 16px 0; padding: 0 14px; border-radius: 16px; background: var(--nl-surface2, var(--box)); color: var(--l); font-size: 15.5px; text-align: left; border: 1px solid var(--hl); }
+        html[data-look="new"][data-theme="light"] .lx-searchbar { background: var(--nl-surface, #fff); box-shadow: var(--nl-shadow); border-color: transparent; }
+        html[data-look="new"] .lx-searchbar span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        html[data-look="new"] .lx-searchbar .icon { flex: 0 0 auto; }
+        html[data-look="new"] .lx-doors2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 16px 0; }
+        html[data-look="new"] .lx-door2 { position: relative; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; height: 168px; padding: 14px; border-radius: 24px; background: var(--c); color: var(--t); overflow: hidden; text-align: left; border: 1px solid var(--hl); }
+        html[data-look="new"][data-theme="light"] .lx-door2 { box-shadow: var(--nl-shadow); border-color: transparent; }
+        html[data-look="new"] .lx-door2 .lx-dn { position: relative; z-index: 1; font-family: var(--nl-serif); font-weight: 500; font-size: 21px; line-height: 1.1; color: var(--n); white-space: nowrap; }
+        html[data-look="new"] .lx-door2 .lx-dc { position: relative; z-index: 1; margin-top: 3px; font-size: 12.5px; line-height: 1.3; color: var(--l); }
+        html[data-look="new"] .lx-dart-w { position: absolute; inset: 0 0 46px 0; display: flex; align-items: center; justify-content: flex-end; padding: 8px 10px 0 0; pointer-events: none; }
+        html[data-look="new"] .lx-dart { display: block; }
+        html[data-look="new"] .lx-dtree { width: 104px; height: 104px; margin-right: -2px; }
+        html[data-look="new"] .lx-dworld { width: 150px; height: auto; margin-right: -4px; }
+        html[data-look="new"] .lx-dwheel { width: 92px; height: 92px; margin-right: 6px; }
+        html[data-look="new"] .lx-dcut { width: 100px; height: 80px; margin-right: 4px; }
+        html[data-look="new"] .lx-world .lx-belt { fill: color-mix(in srgb, var(--k) 9%, transparent); }
+        html[data-look="new"] i.lx-lg-belt { background: color-mix(in srgb, var(--k) 20%, transparent); }
+
+        /* a kicker that opens a page (a region's country) */
+        html[data-look="new"] .lx .lx-klink { display: inline-flex; align-items: center; gap: 2px; padding: 0; margin-right: 6px; font: inherit; color: var(--k); }
+        html[data-look="new"] .lx .lx-klink .icon { width: 12px; height: 12px; }
+
+        /* In the cup */
+        html[data-look="new"] .lx-cupb .lx-notes + .lx-p { margin-top: 10px; }
+        html[data-look="new"] .lx-cupb .lx-fu { display: none; } html[data-look="new"] .lx-cupb.lx-full .lx-fu { display: inline; } html[data-look="new"] .lx-cupb.lx-full .lx-sh { display: none; }
+        html[data-look="new"] .lx-cupb .lx-feel { margin-top: 14px; }
+        html[data-look="new"] .lx-spec .lx-sbar { height: 10px; border-radius: 5px; background: linear-gradient(90deg, #7fb28a, #d6b45c 50%, #c9574b); }
+        html[data-look="new"] .lx-spec .lx-sl3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
+        html[data-look="new"] .lx-spec .lx-sl3 div { font-size: 13px; line-height: 1.3; color: var(--t); }
+        html[data-look="new"] .lx-spec .lx-sl3 b { display: block; font-size: 12px; font-weight: 650; color: var(--l); margin-bottom: 2px; }
+        html[data-look="new"] .lx-spec .lx-s0 { grid-column: 1; } html[data-look="new"] .lx-spec .lx-s1 { grid-column: 2; text-align: center; } html[data-look="new"] .lx-spec .lx-s2 { grid-column: 3; text-align: right; }
+        html[data-look="new"] .lx-qa { display: grid; gap: 12px; }
+        html[data-look="new"] .lx-q { font-size: 13px; font-weight: 700; color: var(--k); margin-bottom: 2px; }
+        html[data-look="new"] .lx-qa .lx-p { font-size: 15px; }
+        html[data-look="new"] .lx-by > div { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 10px; padding: 10px 0; border-top: 1px solid var(--hl); font-size: 14.5px; line-height: 1.4; color: var(--t); }
+        html[data-look="new"] .lx-by > div:first-child { border-top: 0; padding-top: 2px; }
+        html[data-look="new"] .lx-by b { font-weight: 650; }
+        html[data-look="new"] .lx .lx-more { margin-top: 12px; height: 34px; padding: 0 14px; border-radius: 17px; font-size: 14px; font-weight: 650; background: var(--pill); border: 1px solid var(--hl); color: var(--k); }
+
+        /* the plant, the story, related pages, towns */
+        html[data-look="new"] .lx-plant { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        html[data-look="new"] .lx-pv { font-size: 15px; font-weight: 650; line-height: 1.3; color: var(--t); margin-top: 2px; }
+        html[data-look="new"] .lx-plant .lx-sl { margin-top: 0; }
+        html[data-look="new"] .lx-story { position: relative; padding-left: 20px; }
+        html[data-look="new"] .lx-story::before { content: ""; position: absolute; left: 4px; top: 6px; bottom: 8px; width: 2px; border-radius: 1px; background: var(--hl); }
+        html[data-look="new"] .lx-story > div { position: relative; padding-bottom: 14px; }
+        html[data-look="new"] .lx-story > div:last-child { padding-bottom: 0; }
+        html[data-look="new"] .lx-story > div::before { content: ""; position: absolute; left: -20px; top: 5px; width: 10px; height: 10px; border-radius: 5px; background: var(--k); }
+        html[data-look="new"] .lx-when { font-size: 13px; font-weight: 700; color: var(--k); margin-bottom: 1px; }
+        html[data-look="new"] .lx-story .lx-p { font-size: 15px; }
+        html[data-look="new"] .lx-related { display: flex; gap: 10px; overflow-x: auto; margin: 0 -16px; padding: 0 16px 2px; scrollbar-width: none; scroll-snap-type: x proximity; }
+        html[data-look="new"] .lx-related::-webkit-scrollbar { display: none; }
+        html[data-look="new"] .lx-rcard { flex: 0 0 168px; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 12px 13px; border-radius: 20px; background: var(--c); border: 1px solid var(--hl); text-align: left; scroll-snap-align: start; }
+        html[data-look="new"][data-theme="light"] .lx-rcard { box-shadow: var(--nl-shadow); border-color: transparent; }
+        html[data-look="new"] .lx-rk { font-size: 12px; font-weight: 650; color: var(--k); }
+        html[data-look="new"] .lx-rn { font-family: var(--nl-serif); font-weight: 500; font-size: 21px; line-height: 1.1; color: var(--n); }
+        html[data-look="new"] .lx-rs { font-size: 12.5px; line-height: 1.3; color: var(--l); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+        /* maps: a region lit on its country, tappable regions */
+        html[data-look="new"] .lx-cmap [data-lxr] { cursor: pointer; }
+        html[data-look="new"] .lx-mdot.lx-mme circle { fill: var(--k); stroke: var(--box); stroke-width: 2; }
+        html[data-look="new"] .lx-mdot.lx-mme text { font-weight: 750; }
+        html[data-look="new"] .lx-mdot:not(.lx-mme)[data-lxr] circle { fill: color-mix(in srgb, var(--k) 55%, transparent); }
+
+        /* how a base method works: the cut cherry with what's on while it dries */
+        html[data-look="new"] .lx-pdiag { padding: 12px 14px 14px; }
+        html[data-look="new"] .lx-mseg { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 3px; margin-bottom: 12px; border-radius: 12px; background: var(--pill); border: 1px solid var(--hl); }
+        html[data-look="new"] .lx .lx-mseg button { height: 32px; border-radius: 9px; font-size: 13px; font-weight: 650; color: var(--l); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        html[data-look="new"] .lx .lx-mseg button.on { background: var(--k); color: var(--c); }
+        html[data-look="new"] .lx-pdrow { display: grid; grid-template-columns: 116px minmax(0, 1fr); gap: 12px; align-items: center; }
+        html[data-look="new"] .lx-mlay { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+        html[data-look="new"] .lx-mlay span { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 7px; font-size: 11.5px; font-weight: 650; color: var(--l); border: 1px dashed color-mix(in srgb, var(--l) 55%, transparent); }
+        html[data-look="new"] .lx-mlay span.on { color: var(--c); background: var(--k); border: 1px solid transparent; }
+        html[data-look="new"] .lx-pdiag .lx-flabel { margin: 0; }
+        html[data-look="new"] .lx-pdiag + .lx-rsteps { margin-top: 10px; }
+        html[data-look="new"] .lx-rsteps { padding: 12px 14px; }
+        html[data-look="new"] .lx-rsteps > div { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; padding: 10px 0; border-top: 1px solid var(--hl); }
+        html[data-look="new"] .lx-rsteps > div:first-child { border-top: 0; padding-top: 2px; }
+        html[data-look="new"] .lx-rsteps > div:last-child { padding-bottom: 2px; }
+        html[data-look="new"] .lx-sn { width: 24px; height: 24px; border-radius: 12px; display: grid; place-items: center; background: var(--pill); border: 1px solid var(--hl); font-size: 12px; font-weight: 700; color: var(--k); }
+        html[data-look="new"] .lx-rsteps b { font-size: 15px; color: var(--t); } html[data-look="new"] .lx-rsteps em { font-style: normal; font-size: 13px; color: var(--l); }
+        html[data-look="new"] .lx-rsteps p { margin: 3px 0 0; font-size: 14px; line-height: 1.45; color: var(--l); }
+
+        /* How it's made */
+        html[data-look="new"] .lx-anat { display: grid; grid-template-columns: 146px minmax(0, 1fr); gap: 12px; align-items: center; padding: 12px 14px; }
+        html[data-look="new"] .lx-anatkey { display: grid; gap: 7px; }
+        html[data-look="new"] .lx-anatkey div { display: grid; grid-template-columns: 14px auto; column-gap: 8px; font-size: 13px; line-height: 1.25; color: var(--l); }
+        html[data-look="new"] .lx-anatkey i { width: 12px; height: 12px; border-radius: 4px; grid-row: span 2; margin-top: 2px; }
+        html[data-look="new"] .lx-anatkey b { font-size: 14px; color: var(--t); }
+        html[data-look="new"] .lx-mrows .lx-row { align-items: center; }
+        html[data-look="new"] .lx-mpic { flex: 0 0 70px; display: flex; }
+        html[data-look="new"] .lx-mrows .lx-mlay { margin-top: 7px; }
+        html[data-look="new"] .lx-ptiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        html[data-look="new"] .lx-ptiles > * { display: flex; flex-direction: column; gap: 3px; padding: 11px 12px; border-radius: 16px; background: var(--box); border: 1px solid var(--hl); text-align: left; color: var(--t); min-width: 0; }
+        html[data-look="new"] .lx-ptiles b { font-size: 14.5px; font-weight: 650; line-height: 1.25; }
+        html[data-look="new"] .lx-ptiles span { font-size: 12.5px; line-height: 1.3; color: var(--l); }
+
+        /* Find a flavor */
+        html[data-look="new"] .lx-fpick { margin-top: 18px; }
+        html[data-look="new"] .lx-ftabs { margin: 0 -16px; padding: 0 16px; }
+        html[data-look="new"] .lx .lx-ftabs .lx-chip { background: var(--fbg) !important; color: var(--ffg) !important; opacity: 0.6; }
+        html[data-look="new"] .lx .lx-ftabs .lx-chip.on { background: var(--ffg) !important; color: var(--fbg) !important; opacity: 1; }
+        html[data-look="new"] .lx-pick { display: grid; gap: 12px; margin-top: 14px; }
+        html[data-look="new"] .lx-pick .lx-notes { margin: 0; }
+        html[data-look="new"] .lx .lx-pnt { height: 34px; font-size: 14px; border-radius: 12px; opacity: 0.9; }
+        html[data-look="new"] .lx .lx-pnt.lx-big { height: 40px; font-size: 15px; padding: 0 14px; border-radius: 14px; }
+        html[data-look="new"] .lx .lx-pnt.on, html[data-look="new"][data-theme="light"] .lx .lx-pnt.on { background: var(--ffg); color: var(--fbg); opacity: 1; }
+        html[data-look="new"] .lx-match { align-items: flex-start; }
+        html[data-look="new"] .lx-match .lx-notes { margin-top: 8px; }
+        html[data-look="new"] .lx-match .lx-rmain b .lx-muted { font-weight: 500; font-size: 13px; }
+        html[data-look="new"] .lx-odds { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 2px; }
+        html[data-look="new"] .lx-odds > span { display: flex; gap: 3px; }
+        html[data-look="new"] .lx-odds i { display: block; width: 6px; height: 16px; border-radius: 3px; background: var(--hl); }
+        html[data-look="new"] .lx-odds i.on { background: var(--k); }
+        html[data-look="new"] .lx-odds small { font-size: 11.5px; font-weight: 650; color: var(--l); white-space: nowrap; }
+        html[data-look="new"] .lx-foot { margin: 16px 16px 0; }
+
+        /* the World map */
+        html[data-look="new"] .lx-had { display: inline-flex; vertical-align: -1px; color: var(--k); }
+        html[data-look="new"] .lx-had .icon { width: 13px; height: 13px; }
+
+        /* the tree page's lists */
+        html[data-look="new"] .lx-tlist { margin-top: 10px; }
+
+        /* the coffee page: its story */
+        html[data-look="new"] .lx-journey { position: relative; }
+        html[data-look="new"] .lx-jstep:not(:last-child)::after { content: ""; position: absolute; left: 19px; top: 48px; bottom: -8px; width: 2px; background: var(--hl); }
+        html[data-look="new"] .lx-jstep { position: relative; display: flex; align-items: flex-start; gap: 12px; width: 100%; padding: 8px 0; text-align: left; color: var(--t); }
+        html[data-look="new"] .lx-jic { position: relative; z-index: 1; flex: 0 0 40px; width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; background: var(--pill); border: 1px solid var(--hl); color: var(--k); }
+        html[data-look="new"][data-theme="light"] .lx-jic { background: var(--c); }
+        html[data-look="new"] .lx-jstep .lx-rmain small.lx-jk { margin: 0 0 1px; font-size: 12px; font-weight: 650; }
+        html[data-look="new"] .lx-jstep .lx-rmain b { font-size: 16px; }
+        html[data-look="new"] .lx-jstep .lx-chev { align-self: center; }
+        html[data-look="new"] .lx-cupbox { display: block; margin-top: 6px; padding: 12px; border-radius: 18px; background: var(--pill); border: 1px solid var(--hl); }
+        html[data-look="new"] .lx-cupbox .lx-notes { margin: 0; }
+        html[data-look="new"][data-theme="light"] .lx-cupbox .nl-nt, html[data-look="new"][data-theme="light"] .lx-match .nl-nt, html[data-look="new"][data-theme="light"] .lx-pick .nl-nt:not(.on) { background: var(--fbg); }
+        html[data-look="new"] .lx-cupbox .lx-p { display: block; margin-top: 10px; font-size: 14.5px; }
+        html[data-look="new"] .lx-cupbox .lx-note { display: block; }
+
+        /* v20.1: the Learn tab sits inside the page's own 16px margins (like Mine, All and the feed), so its parts add none */
+        html[data-look="new"] #grid .lx-home > .lx-searchbar, html[data-look="new"] #grid .lx-home > .lx-doors2, html[data-look="new"] #grid .lx-home > .lx-f, html[data-look="new"] #grid .lx-home > .lx-folds, html[data-look="new"] #grid .lx-home > .lx-passrow, html[data-look="new"] #grid .lx-home > .lx-sec { margin-left: 0; margin-right: 0; }
+        html[data-look="new"] #grid .lx-home > .lx-searchbar { width: 100%; }
+
+        /* v20.2: On your shelf swipes sideways; each card is most of the screen wide so the next one peeks in */
+        html[data-look="new"] .lx-shelf.lx-shelfrow { display: flex; gap: 10px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding: 0 16px; margin: 0 -16px; padding: 0 16px 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        html[data-look="new"] .lx-shelf.lx-shelfrow::-webkit-scrollbar { display: none; }
+        html[data-look="new"] .lx-shelfrow > .lx-card { flex: 0 0 82%; width: auto; scroll-snap-align: start; display: flex; flex-direction: column; }
+        html[data-look="new"] .lx-shelfrow.lx-one > .lx-card { flex-basis: 100%; }
+        html[data-look="new"] .lx-shelfrow .lx-dec { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
     </style>
 </head>
 <body>
@@ -6106,7 +6267,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v20.0</div>
+            <div class="app-version">Dialed In · v20.2</div>
         </div>
     </div>
 
@@ -7944,7 +8105,7 @@ gesha-1931|Gesha 1931|landrace|gesha 1931;geisha 1931;g1931
 gori-gesha|Gori Gesha|landrace|gori gesha;gori geisha
 wush-wush|Wush Wush|landrace|wush wush;wushwush
 rume-sudan|Rume Sudan|landrace|rume sudan;sudan rume;rs 510
-java|Java|landrace|java;abyssinia;abysinia;abyssinian;absynnian;ab3
+java|Java|landrace|java;abyssinia;abysinia;abyssinian;absynnian
 pink-bourbon|Pink Bourbon|landrace|pink bourbon;bourbon pink;bourbon rosado;rosado
 orange-bourbon|Orange Bourbon||orange bourbon;bourbon naranja
 sidra|Sidra|landrace|sidra;bourbon sidra|q
@@ -7998,7 +8159,7 @@ parainema|Parainema|introgressed|parainema;paraineima
 marsellesa|Marsellesa|introgressed|marsellesa;marseillesa;marsellaise
 cuscatleco|Cuscatleco|introgressed|cuscatleco
 obata|Obatã|introgressed|obata;obata rojo;obata red;obata vermelho;obata amarelo;obata amarillo
-tupi|Tupi|introgressed|tupi;iac 125 rn;iac 125
+tupi|Tupi|introgressed|tupi
 iapar-59|IAPAR 59|introgressed|iapar 59;iapar59
 ipr-107|IPR 107|introgressed|ipr 107
 limani|Limani|introgressed|limani
@@ -8983,8 +9144,17 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 s += leaf(90, 12, -50, 12, { tone: 'n', ratio: 0.24 });
                 return `<svg class="lxk" viewBox="0 0 100 100" aria-hidden="true">${s}${fr}</svg>`;
             }
+            // v20.1: a coffee cherry cut in half: skin, fruit, the sticky layer (mucilage), parchment, the silver skin and the
+            // two seeds. off = { skin, fruit, mucilage, parchment }: a layer that's already off draws as a dashed outline.
+            function cut(o = {}) {
+                const off = o.off || {}, c = k => off[k] ? ' xoff' : '';
+                const bean = sx => `<g transform="translate(${150 + sx * 3} 120) scale(${sx} 1)"><path d="M2 -62C46 -62 72 -34 72 0C72 34 46 62 2 62Z" class="xpa${c('parchment')}"/><path d="M6 -55C42 -55 64 -30 64 0C64 30 42 55 6 55Z" class="xss${c('parchment')}"/><path d="M8 -51C40 -51 60 -28 60 0C60 28 40 51 8 51Z" class="xsd"/><path d="M8 -20C20 -12 20 12 8 20" class="xsdc"/></g>`;
+                const size = o.size || 120;
+                return `<svg class="lxk lx-cut" viewBox="0 0 300 240" width="${size}" height="${i0(size * 0.8)}" role="img" aria-label="${o.label || 'A coffee cherry cut in half'}"><defs><radialGradient id="lxxsk" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#ef6a54"/><stop offset=".6" stop-color="#c12e24"/><stop offset="1" stop-color="#7a1712"/></radialGradient><radialGradient id="lxxsd" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#cfe0b6"/><stop offset="1" stop-color="#94b07a"/></radialGradient></defs>`
+                    + `<path d="M150 12C220 12 262 62 262 120C262 180 216 228 150 228C84 228 38 180 38 120C38 62 80 12 150 12Z" class="xsk${c('skin')}"/><path d="M150 22C212 22 252 66 252 120C252 174 210 218 150 218C90 218 48 174 48 120C48 66 88 22 150 22Z" class="xpu${c('fruit')}"/><path d="M150 44C198 44 230 78 230 120C230 162 198 196 150 196C102 196 70 162 70 120C70 78 102 44 150 44Z" class="xmu${c('mucilage')}"/>${bean(1)}${bean(-1)}<path d="M150 12C148 6 150 0 156 -2" class="xstk"/></svg>`;
+            }
             const children = id => [...new Set(Object.keys(MAIN).filter(k => MAIN[k] === id).concat(Object.keys(SECOND).filter(k => SECOND[k] === id)))];
-            return { draw, line, defs, sprig, chain, path, children, has: id => (!!MAIN[id] && !GROUP[id]) || !!ALT[id], onTree: id => !!MAIN[id] && !GROUP[id], simple: id => SIMPLE.has(id), unsure: id => UNSURE.has(id), second: id => SECOND[id] || null, MAIN, SECOND, ALT, WHEN, HOW, GROUP, VERSION: 1 };
+            return { draw, line, defs, sprig, cut, chain, path, children, has: id => (!!MAIN[id] && !GROUP[id]) || !!ALT[id], onTree: id => !!MAIN[id] && !GROUP[id], simple: id => SIMPLE.has(id), unsure: id => UNSURE.has(id), second: id => SECOND[id] || null, MAIN, SECOND, ALT, WHEN, HOW, GROUP, VERSION: 1 };
         })();
         if (typeof module !== 'undefined' && module.exports) module.exports = LearnTree;
         const app = {
@@ -9197,6 +9367,9 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     // v15.1: your coffees are on screen: the start-up screen goes (two frames on, once they're drawn)
                     if (this.hideBoot) { this.bootStep(88); requestAnimationFrame(() => requestAnimationFrame(() => this.hideBoot())); }
                     if (this.user || this.welcomeOpen) this.sync();
+                    // v20.1: Learn's words come from the phone's database, so they're read once things are on screen (the
+                    // coffee page's tags and About this coffee need them)
+                    setTimeout(() => { if (this.learnOn && this.learnOn() && !this.lxState().content) this.learnEnsure().then(c => { if (c && this.lxRefresh) this.lxRefresh('comm'); }).catch(() => {}); }, 1200);
                 });
                 this.syncTimer = setInterval(() => {
                     if (!document.hidden) this.sync({ silent: true });
@@ -12290,7 +12463,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                         const sample = beans.find(b => !this.isTeaBean(b) && b.origin && b.process);
                         if (sample) {
                             const dec = L.decode(sample);
-                            check(!dec || (this.lxAboutHtml(sample, []).includes(this.esc(dec)) && this.lxShelfCard({ bean: sample, n: 1, rs: 0, rn: 0, last: 0 }).includes(this.esc(dec))), 'the bag-only decode is the same on the coffee page, Add a coffee and On your shelf');
+                            check(!dec || ((this.lxJourney && this.lxJourney(sample) ? this.lxAboutHtml(sample, []).includes('lx-journey') : this.lxAboutHtml(sample, []).includes(this.esc(dec))) && this.lxShelfCard({ bean: sample, n: 1, rs: 0, rn: 0, last: 0 }).includes(this.esc(dec))), 'the bag-only decode is the same on Add a coffee and On your shelf; the coffee page tells it as the coffee’s story (v20.1)');
                         }
                         const drinkL = this.drink;
                         this.drink = 'tea'; check(!this.learnOn() && !this.coffeeScopeHtml().includes('Learn'), 'tea mode hides the Learn tab'); this.drink = drinkL;
@@ -12312,7 +12485,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                         if (C && this.learnOn()) {
                             const pages = [['list', 'origins'], ['list', 'varieties'], ['list', 'processes'], ...[...C.entries.values()].map(e => [e.kind, e.kind === 'origin' ? e.country : e.id]), ...C.guideList.map(g => ['guide', g.id])];
                             // v19.1: short pages too (kinds you've logged, and the recognizer's sourced lines, with no written page)
-                            const shortK = [...new Set([...this.lxMine(this.user).kinds.keys(), ...Object.keys(LearnEngine.SAY).map(id => `variety:${id}`), ...Object.keys(LearnEngine.PSAY).map(id => `process:${id}`)])].map(x => x.split(':')).filter(([k, id]) => !this.lxEntry(k, id) && this.lxShortOk(k, id)).slice(0, 40);
+                            const shortK = [...new Set([...this.lxMine(this.user).kinds.keys(), ...Object.keys(LearnEngine.SAY).map(id => `variety:${id}`), ...Object.keys(LearnEngine.PSAY).map(id => `process:${id}`)])].filter(x => !x.startsWith('region:')).map(x => x.split(':')).filter(([k, id]) => !this.lxEntry(k, id) && this.lxShortOk(k, id)).slice(0, 40);
                             pages.push(...shortK);
                             check(shortK.every(([k, id]) => this.lxHasPage(k, id)), `short pages open (${shortK.length})`);
                             // v20.0: every variety opens a page with its family line; the tree and its family agree with the recognizer
@@ -12331,9 +12504,30 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                                 check(JSON.stringify(this.lxFeelPos('medium to full', this.LX_BODYW)) === '[0.33,0.67]' && JSON.stringify(this.lxFeelPos('heavier than washed', this.LX_BODYW)) === '[0.58,0.82]' && this.lxAcidKind('bright, citric') === 'citrus' && this.lxAcidKind('often softer than washed') === 'round', 'body and acidity land where their words say');
                                 pages.push(['tree', '']);
                             }
+                            // v20.1: Learn 2: a full page for every kind (from the checked research), region pages, the flavor finder,
+                            // the method diagram, the world map's filters
+                            if (this.lxFromRx && C.raw && C.raw.files && C.raw.files['atlas.json']) {
+                                const all = [...C.entries.values()], regs = all.filter(e => e.kind === 'region');
+                                check(LearnEngine.allVarieties().every(v => this.lxEntry(v.family === 'species' ? 'species' : 'variety', v.id)) && !!this.lxEntry('species', 'arabica'), 'every variety and species has a full page (Arabica too)');
+                                check(LearnEngine.allCountries().every(c => this.lxEntry('origin', c.code)) && LearnEngine.allProcesses().every(p => this.lxEntry('process', p.id)), 'every country and process has a full page');
+                                check(regs.length >= 70 && regs.every(r => LearnEngine.entry('region', r.id) && r.country === r.id.split(':')[0]), `every region page is a region the recognizer knows (${regs.length})`);
+                                check(regs.filter(r => this.lxRegionMapHtml(r)).length >= 60, 'region pages light themselves up on their country’s map');
+                                check(all.filter(e => e.rx).every(e => this.lxRxSrc(e.rx).every(id => C.sources[id])), 'every source the research cites is in the source list');
+                                const fb = this.lxFinder('Berry');
+                                check(fb.length > 5 && fb[0].s === 3 && fb.every((x, i) => !i || fb[i - 1].s >= x.s), 'the flavor finder lists where berry is described, best odds first');
+                                check(this.lxMethHtml('honey').includes('xoff') && /Sticky layer<\/span>/.test(this.lxMethLayers('honey')) && this.lxMethLayers('honey').includes('class="on">Sticky layer'), 'the method diagram: honey keeps the sticky layer on');
+                                check(this.lxMethDry('washed') && this.lxMethDry('natural') && !/;/.test(this.lxMethDry('washed')), 'each base method says how long it dries, from its research');
+                                const stL = this.lxState(), wf0 = stL.wf;
+                                ['all', 'had', 'fresh', 'Africa', 'Americas', 'Asia'].forEach(f => { stL.wf = f; const h = safe(`world ${f}`, () => this.lxWorldPage({}).html) || ''; check(h && !bad(h.replace(/<[^>]+>/g, ' ')) && h.includes('lx-world'), `the world map draws with the “${f}” filter`); });
+                                stL.wf = wf0;
+                                pages.push(['flavor', 'Berry'], ['flavor', 'Dark chocolate'], ['flavor', 'Jasmine']);
+                                const bj = [...this.beans.values()].find(b => !this.isTeaBean(b) && this.lxJourney(b) && this.lxJourney(b).steps.length >= 2);
+                                if (bj) { const J = this.lxJourney(bj), jh = this.lxJourneyHtml(J); check(jh.includes('lx-jstep') && !bad(jh.replace(/<[^>]+>/g, ' ')) && this.lxAboutLine(J).length > 3, 'About this coffee tells the coffee’s story (trees, place, process)'); }
+                            }
                             pages.forEach(([k, id]) => { const h = safe(`learn page ${k}:${id}`, () => this.lxPageHtml({ kind: k, id, opts: {} }).html) || ''; check(h && !bad(h.replace(/<[^>]+>/g, ' ')), `learn page ${k}:${id} draws without missing words`); check(!/\bgrind(?:\s+(?:setting|size|at|to|on|of))?\s*[:=]?\s*\d/i.test(h.replace(/<[^>]+>/g, ' ')), `learn page ${k}:${id} names no grind`); });
                             const hh = safe('learn home', () => this.learnHomeHtml('')) || '';
                             check(hh && !bad(hh.replace(/<[^>]+>/g, ' ')), 'the Learn tab draws without missing words');
+                            if (this.lxDoorsHtml) check((hh.match(/class="lx-door2"/g) || []).length === 4 && hh.includes('lx-searchbar'), 'the Learn tab opens with a search bar and four doors');
                             check(this.learnPassportHtml(this.user).includes('lx-passport'), 'the passport draws on your profile');
                         }
                         if (C && window.__dialedLook && lookL) window.__dialedLook.set(lookL);
@@ -27678,7 +27872,11 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const f = j.files || {}, pages = f['pages.json'] || {}, guides = f['guides.json'] || {};
                 const entries = new Map(); (pages.entries || []).forEach(e => entries.set(`${e.kind}:${e.id}`, e));
                 const gs = new Map(); (guides.guides || []).forEach(g => gs.set(g.id, g));
-                return { version: j.version, updated: j.updated || '', entries, guides: gs, guideList: guides.guides || [], sources: (f['sources.json'] || {}).sources || {}, maps: (f['maps.json'] || {}).maps || {}, tree: pages.tree || null, pmap: pages.processMap || null, origins: pages.origins || {}, fresh: pages.fresh || null, raw: j };
+                const maps = (f['maps.json'] || {}).maps || {};
+                // v20.1: the research (atlas.json) gives every variety, species, process, country and region a page. A written
+                // page keeps its words and takes the research's extra parts (rx); the rest are built from the research.
+                ((f['atlas.json'] || {}).records || []).forEach(r => { const k = `${r.kind}:${r.id}`, e = entries.get(k); entries.set(k, e ? { ...e, rx: r } : this.lxFromRx(r, maps)); });
+                return { version: j.version, updated: j.updated || '', entries, guides: gs, guideList: guides.guides || [], sources: (f['sources.json'] || {}).sources || {}, maps, tree: pages.tree || null, pmap: pages.processMap || null, origins: pages.origins || {}, fresh: pages.fresh || null, raw: j };
             },
             async lxFetchJson(url) {
                 const r = await fetch(url, { cache: 'no-cache' });
@@ -27687,12 +27885,17 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             },
             // load (or refresh) the files; resolves to the content, or null when there's none and no connection
             learnEnsure(force) {
-                const st = this.lxState(), have = this.learnContent();
+                const st = this.lxState(), have0 = this.learnContent();
                 const checked = Number(safeGet('dialed_learn_checked') || 0);
-                if (have && !force && Date.now() - checked < 86400000) return Promise.resolve(have);
+                if (have0 && !force && Date.now() - checked < 86400000) return Promise.resolve(have0);
                 if (st.loading) return st.loading;
                 const bases = this.lxNative() ? ['learn/', this.LX_SITE] : ['learn/'];
                 st.loading = (async () => {
+                    // v20.1: the words are kept in the phone's database (they outgrew the small storage); an older copy in the
+                    // small storage still opens until the first new download replaces it
+                    let have = have0;
+                    if (!have && !st.idbTried && this.idbGet) { st.idbTried = true; try { const j = await this.idbGet('learn:content'); if (j && j.files && j.version) { st.content = this.lxIndex(j); have = st.content; } } catch (e) {} }
+                    if (have && !force && Date.now() - checked < 86400000) { st.loading = null; return have; }
                     let best = null;
                     for (const base of bases) {
                         try {
@@ -27708,7 +27911,9 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                             for (const name of best.man.files) files[name] = await this.lxFetchJson(`${best.base}${name}?v=${best.man.version}-${encodeURIComponent(best.man.updated || '')}`);
                             const j = { version: Number(best.man.version), updated: best.man.updated || '', files };
                             st.content = this.lxIndex(j);
-                            try { safeSet('dialed_learn_content', JSON.stringify(j)); } catch (e) {}
+                            const kept = this.idbPut ? await this.idbPut('learn:content', j).catch(() => false) : false;
+                            if (kept) { try { localStorage.removeItem('dialed_learn_content'); } catch (e) {} }
+                            else { try { safeSet('dialed_learn_content', JSON.stringify(j)); } catch (e) {} }
                         } catch (e) { if (!have) st.failed = true; }
                     }
                     if (best) { safeSet('dialed_learn_checked', String(Date.now())); st.failed = false; }
@@ -27754,9 +27959,10 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             lxName(kind, id) {
                 const e = this.lxEntry(kind, id); if (e) return e.name;
                 if (kind === 'origin') { const c = LearnEngine.entry('origin', id); return c ? c.name : id; }
+                if (kind === 'species' && id === 'arabica') return 'Arabica';
                 const x = LearnEngine.entry(kind, id); return x ? x.name : id;
             },
-            lxKindWord(kind) { return { variety: 'Variety', species: 'Species', origin: 'Origin', process: 'Process' }[kind] || ''; },
+            lxKindWord(kind) { return { variety: 'Variety', species: 'Species', origin: 'Origin', process: 'Process', region: 'Region' }[kind] || ''; },
 
             // ---- folding: every section folds; each kind of section remembers it on this phone ("History" folded on one
             // variety page is folded on all of them). Toggles in place.
@@ -27903,7 +28109,8 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 });
                 coffees.forEach(c => {
                     const t = c.tags; if (!t) return;
-                    LearnEngine.kindsOf(t).forEach(k => { let x = kinds.get(k); if (!x) { x = { k, n: 0, coffees: [], rs: 0, rn: 0 }; kinds.set(k, x); } x.n += c.n; x.coffees.push(c); x.rs += c.rs; x.rn += c.rn; });
+                    const o = t.origin || {}, reg = o.region && !o.blend && (o.countries || []).length === 1 ? [`region:${o.countries[0]}:${o.region}`] : [];   // v20.1: its region too (this phone only)
+                    LearnEngine.kindsOf(t).concat(reg).forEach(k => { let x = kinds.get(k); if (!x) { x = { k, n: 0, coffees: [], rs: 0, rn: 0 }; kinds.set(k, x); } x.n += c.n; x.coffees.push(c); x.rs += c.rs; x.rn += c.rn; });
                 });
                 const v = { user: who, brews, kinds, coffees, avg: rN ? rSum / rN : 0, first };
                 this._lxMine = { stamp, v };
@@ -27921,7 +28128,8 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 this.learnEnsure();   // (a quiet check for newer words, at most once a day)
                 if (q) return `<div class="lx lx-home" data-fam="app">${this.lxSearchHtml(q)}</div>`;
                 const ov = this.lxOverview();
-                return `<div class="lx lx-home" data-fam="app">${this.lxSecs([this.lxShelfSec(), this.lxExploreSec()])}${this.lxPassRowHtml()}${this.lxSecs([this.lxMostSec(ov), this.lxStartSec()])}</div>`;
+                // v20.1: a search bar and four doors (the coffee tree, the world map, a flavor, how it's made), then your shelf
+                return `<div class="lx lx-home" data-fam="app">${this.lxSearchBarHtml()}${this.lxDoorsHtml()}${this.lxSecs([this.lxShelfSec()])}${this.lxPassRowHtml()}${this.lxSecs([this.lxMostSec(ov), this.lxStartSec()])}</div>`;
             },
             lxRetry() { this.lxState().failed = false; this.learnEnsure(true).then(() => { this.render(); if (this.learnActive()) this.learnRender(); }); this.render(); },
 
@@ -27933,7 +28141,8 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             lxShelfSec() {
                 const list = this.lxShelf(); if (!list.length) return null;
                 const cards = list.map(c => this.lxShelfCard(c));
-                return { key: 'home.shelf', open: true, title: 'On your shelf', meta: String(list.length), teaser: list.slice(0, 3).map(c => c.bean.name || 'Coffee').join(', '), body: `<div class="lx-shelf">${this.moreHtml(cards, 3, '')}</div>` };
+                // v20.2: a row you swipe sideways (the next card peeks in), not a list that drops down
+                return { key: 'home.shelf', open: true, title: 'On your shelf', meta: String(list.length), teaser: list.slice(0, 3).map(c => c.bean.name || 'Coffee').join(', '), body: `<div class="lx-shelf lx-shelfrow${list.length === 1 ? ' lx-one' : ''}">${cards.join('')}</div>` };
             },
             lxShelfCard(c) {
                 const bean = c.bean, fam = this.famOfCoffee(bean), tags = this.lxTagChips(bean, false);
@@ -27945,10 +28154,13 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const t = this.lxTags(bean); if (!t) return '';
                 const out = [];
                 const chip = (kind, id, label) => out.push(links ? this.lxLinkTag(kind, id, label) : `<span class="lx-tag">${this.esc(label)}</span>`);
-                (t.variety || []).forEach(id => chip('variety', id, this.lxName('variety', id)));
+                const cn = (t.origin && (t.origin.countries || []).length === 1) ? this.lxName('origin', t.origin.countries[0]) : '';
+                (t.variety || []).forEach(id => { const n = this.lxName('variety', id); chip('variety', id, n === cn ? `${n} (variety)` : n); });   // (v20.1: the Colombia variety next to the country Colombia)
                 if (t.species && t.species !== 'arabica') chip('species', t.species, this.lxName('species', t.species));
-                const o = t.origin || {};
-                if ((o.countries || []).length === 1) chip('origin', o.countries[0], o.placeName ? `${o.placeName}, ${this.lxName('origin', o.countries[0])}` : this.lxName('origin', o.countries[0]));
+                else if (t.species === 'arabica' && !(t.variety || []).length && this.lxEntry('species', 'arabica')) chip('species', 'arabica', 'Arabica');   // v20.1: its own (kind) page
+                const o = t.origin || {}, rid = (o.countries || []).length === 1 && o.region ? `${o.countries[0]}:${o.region}` : '';
+                if (rid && this.lxEntry('region', rid)) { const rn = this.lxName('region', rid); chip('region', rid, o.placeName && o.placeName !== rn ? `${o.placeName}, ${rn}` : rn); chip('origin', o.countries[0], this.lxName('origin', o.countries[0])); }   // v20.1: the region has a page
+                else if ((o.countries || []).length === 1) chip('origin', o.countries[0], o.placeName ? `${o.placeName}, ${this.lxName('origin', o.countries[0])}` : this.lxName('origin', o.countries[0]));
                 else (o.countries || []).forEach(cc => chip('origin', cc, this.lxName('origin', cc)));
                 const p = t.process || {};
                 if (p.base) chip('process', p.base, LearnEngine.processName(p) || this.lxName('process', p.base));
@@ -27997,14 +28209,16 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const hit = (name, also) => [name].concat(also || []).some(n => LearnEngine.norm(n).includes(s));
                 const rows = [];
                 LearnEngine.allCountries().forEach(c => { if (hit(c.name, [c.adj])) rows.push({ kind: 'origin', id: c.code, title: c.name, sub: `Origin · ${c.continent}` }); });
-                LearnEngine.allCountries().forEach(c => (LearnEngine.regionsOf(c.code) || []).forEach(r => { if (hit(r.name)) rows.push({ kind: 'origin', id: c.code, title: r.name, sub: `Region · ${c.name}` }); }));
+                LearnEngine.allCountries().forEach(c => (LearnEngine.regionsOf(c.code) || []).forEach(r => { if (hit(r.name)) { const rid = `${c.code}:${r.id}`, page = this.lxHasPage('region', rid); rows.push({ kind: page ? 'region' : 'origin', id: page ? rid : c.code, title: r.name, sub: `Region · ${c.name}` }); } }));
+                // v20.1: flavors open the flavor finder
+                if (this.lxWheel) this.lxWheel().forEach(f => f.groups.forEach(([g, ns]) => { [g, ...ns].forEach(n => { if (hit(n)) rows.push({ flavor: n, title: n, sub: n === g ? `Flavor · ${f.fam}` : `Flavor · ${g}` }); }); }));
                 LearnEngine.allVarieties().forEach(v => { if (hit(v.name, v.also)) rows.push({ kind: v.family === 'species' ? 'species' : 'variety', id: v.id, title: v.name, sub: v.family === 'species' ? 'Species' : `Variety${v.family ? ' · ' + (LearnEngine.FAMILY[v.family] || '') : ''}` }); });
                 LearnEngine.allProcesses().forEach(p => { if (hit(p.name)) rows.push({ kind: 'process', id: p.id, title: p.name, sub: 'Process' }); });
                 const c = this.learnContent();
                 (c ? c.guideList : []).forEach(g => { if (hit(g.name)) rows.push({ guide: g.id, title: g.name, sub: g.teaser }); });
-                const rank = r => (r.guide || this.lxHasPage(r.kind, r.id) ? 0 : 1) + (LearnEngine.norm(r.title).startsWith(s) ? 0 : 0.5);
+                const rank = r => (r.guide || r.flavor || this.lxHasPage(r.kind, r.id) ? 0 : 1) + (LearnEngine.norm(r.title).startsWith(s) ? 0 : 0.5);
                 rows.sort((a, b) => rank(a) - rank(b) || a.title.localeCompare(b.title));
-                const html = rows.slice(0, 40).map(r => this.lxRow({ title: r.title, sub: r.sub, onclick: r.guide ? `app.learnOpen('guide', '${app.escJs(r.guide)}')` : this.lxHasPage(r.kind, r.id) ? this.lxGo(r.kind, r.id) : '' })).join('');
+                const html = rows.slice(0, 40).map(r => this.lxRow({ title: r.title, sub: r.sub, onclick: r.guide ? `app.learnOpen('guide', '${app.escJs(r.guide)}')` : r.flavor ? `app.learnOpen('flavor', '${app.escJs(r.flavor)}')` : this.lxHasPage(r.kind, r.id) ? this.lxGo(r.kind, r.id) : '' })).join('');
                 return `<div class="lx-sec"><h3 class="lx-h3">In Learn <span>· ${rows.length}</span></h3>${rows.length ? `<div class="lx-group">${html}</div>` : `<p class="lx-note">Nothing in Learn matches “${this.esc(q)}”.</p>`}</div>`;
             },
 
@@ -28048,9 +28262,10 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             },
             lxPageTitle(p) {
                 if (!p) return 'Learn';
-                if (p.kind === 'list') return { origins: 'Origins', varieties: 'Varieties', processes: 'Processes' }[p.id] || 'Learn';
+                if (p.kind === 'list') return { origins: 'World map', varieties: 'Varieties', processes: 'How it’s made' }[p.id] || 'Learn';
                 if (p.kind === 'guide') { const c = this.learnContent(), g = c && c.guides.get(p.id); return g ? g.name : 'Guide'; }
                 if (p.kind === 'tree') return 'Coffee tree';
+                if (p.kind === 'flavor') return 'Find a flavor';
                 return this.lxName(p.kind, p.id);
             },
             // a Learn page leaves for a coffee: Back from the coffee comes back here (and to what was under it)
@@ -28102,18 +28317,20 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             },
             lxTopBar() { return `<div class="lx-topbar"><button type="button" class="lx-back" onclick="app.learnBack()">${this.lxIc('i-arrow-left', 20)}<span>${this.esc(this.lxBackLabel())}</span></button></div>`; },
             lxPageHtml(p) {
-                if (p.kind === 'list' && p.id === 'origins') return this.lxOriginsPage(p);
+                if (p.kind === 'list' && p.id === 'origins') return this.lxWorldPage ? this.lxWorldPage(p) : this.lxOriginsPage(p);   // v20.1: the World map
                 if (p.kind === 'list' && p.id === 'varieties') return this.lxVarietiesPage(p);
-                if (p.kind === 'list' && p.id === 'processes') return this.lxProcessesPage(p);
+                if (p.kind === 'list' && p.id === 'processes') return this.lxMadePage ? this.lxMadePage(p) : this.lxProcessesPage(p);   // v20.1: How it's made
                 if (p.kind === 'guide') return this.lxGuidePage(p);
                 if (p.kind === 'tree') return this.lxTreePage(p);   // v20.0
+                if (p.kind === 'flavor' && this.lxFlavorPage) return this.lxFlavorPage(p);   // v20.1
                 const e = this.lxEntry(p.kind, p.id);
                 if (e) return this.lxEntryPage(e, p);
                 if (this.lxShortOk(p.kind, p.id)) return this.lxShortPage(p.kind, p.id, p);
                 return { fam: 'app', html: `<div class="lx-empty"><b>${this.esc(this.lxName(p.kind, p.id))}</b><span>No page for this one yet.</span></div>` };
             },
             lxHead(o) {   // { kicker, name, also, lede, facts, kickerApp }
-                return `<header class="lx-head"><div class="lx-kick${o.kickerApp ? ' lx-kapp' : ''}">${this.esc(o.kicker)}</div><h1 class="lx-name${o.small ? ' lx-name-s' : ''}">${this.esc(o.name)}</h1>${o.lede ? `<p class="lx-lede">${this.esc(o.lede)}</p>` : ''}`
+                const kick = o.kickerLink ? `<button type="button" class="lx-klink" onclick="${o.kickerLink.onclick}">${this.esc(o.kickerLink.label)}${this.lxIc('i-chev-right', 12)}</button>${this.esc(o.kickerLink.rest || '')}` : this.esc(o.kicker);   // (v20.1: a region's kicker opens its country)
+                return `<header class="lx-head"><div class="lx-kick${o.kickerApp ? ' lx-kapp' : ''}">${kick}</div><h1 class="lx-name${o.small ? ' lx-name-s' : ''}">${this.esc(o.name)}</h1>${o.lede ? `<p class="lx-lede">${this.esc(o.lede)}</p>` : ''}`
                     + `${(o.also || []).length ? `<div class="lx-tags lx-also">${o.also.map((a, i) => `<span class="lx-tag">${i === 0 ? 'Also: ' : ''}${this.esc(a)}</span>`).join('')}</div>` : ''}`
                     + `${(o.facts || []).length ? `<div class="lx-facts">${o.facts.map(f => `<div class="lx-tile"><div class="lx-sv">${this.esc(f.value)}</div><div class="lx-sl">${this.esc(f.label)}</div></div>`).join('')}</div>` : ''}</header>`;
             },
@@ -28123,10 +28340,11 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 if (typeof WORLD_MAP === 'undefined') return '';
                 const grow = new Set(LearnEngine.allCountries().map(c => c.code)), hot = o.hot || null, pages = o.pages || null;
                 const paths = Object.entries(WORLD_MAP.c).map(([c, d]) => { const on = grow.has(c); const cls = on ? (hot && hot.has(c) ? 'on2' : 'on') : ''; return `<path${cls ? ` class="${cls}"` : ''} d="${d}"${on && pages && pages.has(c) ? ` data-lxc="${c}"` : ''}/>`; }).join('');
-                const belt = (WORLD_MAP.belt || []).map(y => `<line class="lx-tropic" x1="0" x2="${WORLD_MAP.w}" y1="${y}" y2="${y}"/>`).join('');
+                const B = WORLD_MAP.belt || [];
+                const belt = o.belt && B.length === 2 ? `<rect class="lx-belt" x="0" y="${Math.min(B[0], B[1])}" width="${WORLD_MAP.w}" height="${Math.abs(B[1] - B[0])}"/>` : B.map(y => `<line class="lx-tropic" x1="0" x2="${WORLD_MAP.w}" y1="${y}" y2="${y}"/>`).join('');   // v20.1: the coffee belt as a band
                 const hi = WORLD_MAP.dots && WORLD_MAP.dots.HI;
                 const dot = hi ? `<circle class="${hot && hot.has('HI') ? 'on2' : 'on'}" cx="${hi[0]}" cy="${hi[1]}" r="5"/>` : '';
-                return `<svg class="lx-world${o.mini ? ' lx-mini' : ''}" viewBox="0 ${o.mini ? 70 : 40} ${WORLD_MAP.w} ${WORLD_MAP.h - (o.mini ? 150 : 90)}" role="img" aria-label="Map of the countries that grow coffee"${pages ? ' onclick="app.lxWorldTap(event)"' : ''}>${paths}${dot}${belt}</svg>`;
+                return `<svg class="lx-world${o.mini ? ' lx-mini' : ''}" viewBox="0 ${o.mini ? 70 : 40} ${WORLD_MAP.w} ${WORLD_MAP.h - (o.mini ? 150 : 90)}" role="img" aria-label="Map of the countries that grow coffee"${pages ? ' onclick="app.lxWorldTap(event)"' : ''}>${o.belt ? belt : ''}${paths}${dot}${o.belt ? '' : belt}</svg>`;
             },
             lxWorldTap(ev) { const t = ev && ev.target && ev.target.closest ? ev.target.closest('[data-lxc]') : null; if (t) this.learnOpen('origin', t.getAttribute('data-lxc')); },
 
@@ -28191,20 +28409,29 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     body += `<div class="lx-tnode${last ? ' lx-tlast' : ''}"><span class="lx-tdot${i === 0 ? ' lx-tfirst' : ''}${last ? ' lx-tspark' : ''}">${last ? this.lxIc('i-spark', 16) : ''}</span>${stageHtml(s)}</div>`;
                 }
                 body += '</div>';
+                const secs = [
+                    // v20.0: the family tree has its own screen; this is the way in
+                    { key: 'varieties.tree', open: true, title: 'Coffee’s family tree', teaser: 'From wild Ethiopia to the F1 hybrids', body: typeof LearnTree !== 'undefined' ? (this.lxTreeDefs(), `<button type="button" class="lx-tdoor" onclick="app.lxTreeOpen('')">${LearnTree.sprig()}<span style="flex:1;min-width:0"><b>The coffee tree</b><small>Every variety grows from the one it came from. Tap a name to light up its line back to wild Ethiopia.</small></span>${this.lxIc('i-chev-right', 18)}</button>`) : body },
+                    ...this.lxVarListSecs()
+                ];
+                const html = this.lxHead({ kicker: 'Learn', kickerApp: true, name: 'Varieties', lede: tree.lede || '' }) + this.lxSecs([...secs, this.lxSourcesObj(tree.sources || [], 'varieties.sources')]);
+                return { fam: 'app', html };
+            },
+            // v20.1: every variety A to Z (with a family filter) and the other species; under the tree and on this page
+            lxVarListSecs() {
+                const c = this.learnContent(), tree = c.tree || { stages: [] }, M = this.lxMine(this.user), st = this.lxState();
+                const had = id => M.kinds.has(`variety:${id}`) || M.kinds.has(`species:${id}`);
+                const all = LearnEngine.allVarieties(), disguise = new Set(((tree.stages || []).find(s => s.members) || {}).members || []);
                 const fams = Object.entries(LearnEngine.FAMILY).filter(([k]) => k !== 'species');
                 const ff = st.fam || '';
                 const az = all.filter(v => v.family !== 'species' && (!ff || v.family === ff)).sort((a, b) => a.name.localeCompare(b.name));
                 const azBody = `<div class="lx-chips lx-chips-in">${[['', 'All'], ...fams].map(([k, l]) => `<button type="button" class="lx-chip${k === ff ? ' on' : ''}" aria-pressed="${k === ff}" onclick="app.lxSetFam('${app.escJs(k)}')">${this.esc(l)}</button>`).join('')}</div><div class="lx-group">${this.moreHtml(az.map(v => this.lxRow({ title: `${v.name}${v.q ? '?' : ''}`, sub: [v.family ? (disguise.has(v.id) && v.q ? 'Ethiopian roots?' : LearnEngine.FAMILY[v.family]) : 'Family not known', had(v.id) ? 'you’ve had it' : ''].filter(Boolean).join(' · '), onclick: this.lxHasPage('variety', v.id) ? this.lxGo('variety', v.id) : '' })), 12, '')}</div>`;
                 const sp = all.filter(v => v.family === 'species');
-                const spBody = `${tree.species ? `<p class="lx-p lx-small">${this.esc(tree.species.text)}</p>` : ''}<div class="lx-group">${sp.map(v => this.lxRow({ title: v.name, sub: had(v.id) ? 'you’ve had it' : '', onclick: this.lxHasPage('species', v.id) ? this.lxGo('species', v.id) : '' })).join('')}</div>`;
-                const secs = [
-                    // v20.0: the family tree has its own screen; this is the way in
-                    { key: 'varieties.tree', open: true, title: 'Coffee’s family tree', teaser: 'From wild Ethiopia to the F1 hybrids', body: typeof LearnTree !== 'undefined' ? (this.lxTreeDefs(), `<button type="button" class="lx-tdoor" onclick="app.lxTreeOpen('')">${LearnTree.sprig()}<span style="flex:1;min-width:0"><b>The coffee tree</b><small>Every variety grows from the one it came from. Tap a name to light up its line back to wild Ethiopia.</small></span>${this.lxIc('i-chev-right', 18)}</button>`) : body },
+                const spBody = `${tree.species ? `<p class="lx-p lx-small">${this.esc(tree.species.text)}</p>` : ''}<div class="lx-group">${this.lxEntry('species', 'arabica') ? this.lxRow({ title: 'Arabica', sub: this.lxEntry('species', 'arabica').summary || '', onclick: this.lxGo('species', 'arabica') }) : ''}${sp.map(v => this.lxRow({ title: v.name, sub: [(this.lxEntry('species', v.id) || {}).summary, had(v.id) ? 'you’ve had it' : ''].filter(Boolean).join(' · '), onclick: this.lxHasPage('species', v.id) ? this.lxGo('species', v.id) : '' })).join('')}</div>`;
+                return [
                     { key: 'varieties.az', open: false, title: 'All varieties, A to Z', meta: String(all.filter(v => v.family !== 'species').length), teaser: 'Every variety, with a family filter', body: azBody },
                     { key: 'varieties.species', open: false, title: 'Other species', teaser: sp.map(v => v.name).join(', '), body: spBody }
                 ];
-                const html = this.lxHead({ kicker: 'Learn', kickerApp: true, name: 'Varieties', lede: tree.lede || '' }) + this.lxSecs([...secs, this.lxSourcesObj(tree.sources || [], 'varieties.sources')]);
-                return { fam: 'app', html };
             },
             lxSetFam(k) { this.lxState().fam = k; this.learnRender(true); },
 
@@ -28264,37 +28491,54 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             // Section order and what starts folded follow the brief (Oct 28): the head never folds; open sections first, the
             // folded group last. A section with no source yet isn't drawn at all.
             lxEntryPage(e, p) {
-                const k = e.kind, fam = e.tint || 'app', secs = [];
+                const k = e.kind, fam = k === 'region' ? this.lxRegionTint(e) : (e.tint || 'app'), secs = [], rx = e.rx || null, has = typeof this.lxCupSec === 'function';
                 const kindName = this.lxKindName(e);
-                const head = this.lxHead({ kicker: e.kicker, name: e.name, lede: e.lede, also: e.also, facts: e.facts });
-                const want = k === 'origin' ? { country: e.country } : k === 'species' ? { species: e.id } : { [k]: e.id };
-                const comm = this.lxCommData(want);
-                if (k === 'variety' && this.lxFamilySec) { const fl = this.lxFamilySec(e.id); if (fl) secs.push(fl); }   // v20.0: its family line, first
-                if (k === 'process' && (e.steps || []).length) secs.push({ key: 'process.steps', open: true, title: 'How it’s done', teaser: e.steps.map(s => s.text).join(' · '), body: this.lxStepsHtml(e) });
-                const onMap = k === 'process' && ((this.learnContent() || {}).pmap || { dots: [] }).dots.some(d => d.id === e.id);   // (v19.1: only when it has a dot to light up)
-                if (onMap) secs.push({ raw: `<div class="lx-sec lx-tight"><div class="lx-group">${this.lxRow({ title: 'See it on the process map', sub: this.lxMapHint(e), onclick: `app.learnOpen('list', 'processes', { hl: '${app.escJs(e.id)}' })` })}</div></div>` });
-                if (k === 'origin') {
-                    const m = this.lxMapHtml(e); if (m) secs.push({ key: 'origin.where', open: true, title: 'Where it grows', teaser: (e.regions || []).slice(0, 4).map(r => r.name).join(', '), body: m });
-                    if ((e.regions || []).length) secs.push({ key: 'origin.regions', open: true, title: 'Regions', meta: String(e.regions.length), teaser: e.regions.map(r => r.name).join(', '), body: this.lxRegionsHtml(e) });
-                    if ((e.harvest || []).length) secs.push({ key: 'origin.harvest', open: true, title: 'When it’s picked', teaser: this.lxHarvestTeaser(e), body: this.lxHarvestHtml(e) });
-                    if (e.feel && this.lxFeelHtml) secs.push({ key: 'origin.feel', open: true, title: 'Body and acidity', teaser: [e.feel.body, e.feel.acidity].filter(Boolean).join(' · '), body: `<div class="lx-box">${this.lxFeelHtml(e.feel)}</div>` });   // v20.0
-                    const g = this.lxGrowsHtml(e); if (g) secs.push({ key: 'origin.grows', open: true, title: 'What grows here', teaser: [...((e.grows || {}).varieties || []), ...((e.grows || {}).processes || [])].slice(0, 5).map(id => this.lxName(LearnEngine.entry('variety', id) ? 'variety' : 'process', id)).join(', '), body: g });
-                    const cb = this.lxCommCompact(e, comm); if (cb) secs.push(cb);
+                const head = this.lxHead({ kicker: e.kicker, kickerLink: k === 'region' && this.lxHasPage('origin', e.country) ? { label: this.lxName('origin', e.country), onclick: this.lxGo('origin', e.country), rest: 'Region' } : null, name: e.name, lede: e.lede, also: e.also, facts: e.facts });
+                const want = k === 'origin' ? { country: e.country } : k === 'species' ? { species: e.id } : k === 'region' ? null : { [k]: e.id };
+                const comm = want ? this.lxCommData(want) : { off: true };
+                const add = s => { if (s) secs.push(s); };
+                if (k === 'variety' && this.lxFamilySec) add(this.lxFamilySec(e.id));   // v20.0: its family line, first
+                if (k === 'origin' || k === 'region') {
+                    if (k === 'origin') {
+                        const m = this.lxMapHtml(e); if (m) add({ key: 'origin.where', open: true, title: 'Where it grows', teaser: (e.regions || []).slice(0, 4).map(r => r.name).join(', '), body: m });
+                        if ((e.regions || []).length) add({ key: 'origin.regions', open: true, title: 'Regions', meta: String(e.regions.length), sub: this.lxRegionsOf(e.country).length ? 'Each one with its own page opens' : '', teaser: e.regions.map(r => r.name).join(', '), body: this.lxRegionsHtml(e) });
+                    } else { const m = this.lxRegionMapHtml(e); if (m) add({ key: 'region.where', open: true, title: 'Where it is', teaser: this.lxName('origin', e.country), body: m }); }
+                    // v20.1: the cup in depth (with body and acidity); a page without research keeps its body-and-acidity part
+                    if (has && (e.taste || (rx && rx.cup))) add(this.lxCupSec(e));
+                    else if (e.feel && this.lxFeelHtml) add({ key: `${k}.feel`, open: true, title: 'Body and acidity', teaser: [e.feel.body, e.feel.acidity].filter(Boolean).join(' · '), body: `<div class="lx-box">${this.lxFeelHtml(e.feel)}</div>` });
+                    if ((e.harvest || []).length) add({ key: `${k}.harvest`, open: true, title: 'When it’s picked', teaser: this.lxHarvestTeaser(e), body: this.lxHarvestHtml(e) });
+                    const g = this.lxGrowsHtml(e); if (g) add({ key: `${k}.grows`, open: true, title: 'What grows here', teaser: [...((e.grows || {}).varieties || []), ...((e.grows || {}).processes || [])].slice(0, 5).map(id => this.lxName(LearnEngine.entry('variety', id) ? 'variety' : 'process', id)).join(', '), body: g });
+                    if (k === 'region' && has) add(this.lxPlacesSec(e));
+                    if (k === 'origin') add(this.lxCommCompact(e, comm));
                 } else {
-                    if (e.taste) secs.push({ key: `${k}.taste`, open: true, title: k === 'process' ? 'What it usually does to the cup' : 'What it’s said to taste like', teaser: (e.taste.notes || []).join(', ') || e.taste.text, body: this.lxTasteHtml(e) });
-                    else if (e.feel && this.lxFeelHtml) secs.push({ key: `${k}.feel`, open: true, title: 'Body and acidity', teaser: [e.feel.body, e.feel.acidity].filter(Boolean).join(' · '), body: `<div class="lx-box">${this.lxFeelHtml(e.feel)}</div>` });
-                    const cb = this.lxCommFull(e, p, comm); if (cb) secs.push(cb);
-                    const bb = this.lxBrewSec(e, p, comm); if (bb) secs.push(bb);
+                    if (has && (e.taste || (rx && rx.cup))) add(this.lxCupSec(e));
+                    else if (e.taste) add({ key: `${k}.taste`, open: true, title: k === 'process' ? 'What it usually does to the cup' : 'What it’s said to taste like', teaser: (e.taste.notes || []).join(', ') || e.taste.text, body: this.lxTasteHtml(e) });
+                    else if (e.feel && this.lxFeelHtml) add({ key: `${k}.feel`, open: true, title: 'Body and acidity', teaser: [e.feel.body, e.feel.acidity].filter(Boolean).join(' · '), body: `<div class="lx-box">${this.lxFeelHtml(e.feel)}</div>` });
+                    if (k === 'process') {
+                        // v20.1: a base method draws the cut cherry (tap another method to compare); the research's steps follow
+                        const base0 = has && this.LX_METH[e.id] && typeof LearnTree !== 'undefined';
+                        const steps = has ? this.lxRxStepsHtml(e) : '';
+                        if (base0 || steps) add({ key: 'process.steps', open: true, title: 'How it’s done', sub: base0 ? 'What stays on the seed while it dries' : '', teaser: ((rx && rx.steps) || []).map(s => s.title).join(' · '), body: `${base0 ? this.lxMethHtml(e.id) : ''}${steps}` });
+                        else if ((e.steps || []).length) add({ key: 'process.steps', open: true, title: 'How it’s done', teaser: e.steps.map(s => s.text).join(' · '), body: this.lxStepsHtml(e) });
+                        const onMap = ((this.learnContent() || {}).pmap || { dots: [] }).dots.some(d => d.id === e.id);   // (v19.1: only when it has a dot to light up)
+                        if (onMap) add({ raw: `<div class="lx-sec lx-tight"><div class="lx-group">${this.lxRow({ title: 'See it on the process map', sub: this.lxMapHint(e), onclick: `app.learnOpen('list', 'processes', { hl: '${app.escJs(e.id)}' })` })}</div></div>` });
+                    }
+                    add(this.lxCommFull(e, p, comm));
+                    add(this.lxBrewSec(e, p, comm));
                 }
-                const you = this.lxYouSec(e); if (you) secs.push(you);
+                add(this.lxYouSec(e));
                 const base = k === 'process' && (LearnEngine.entry('process', e.id) || {}).layer === 'base';
-                if (k === 'process' && (e.kinds || []).length) secs.push({ key: 'process.kinds', open: true, title: e.kindsTitle || (base ? `Kinds of ${e.name.toLowerCase()}` : 'Styles you’ll see'), teaser: e.kinds.map(x => x.name).join(', '), body: `<div class="lx-group">${e.kinds.map(x => { const id = LearnEngine.entry('process', x.id) ? x.id : ''; const n = this.lxCountHere(comm, x.id); return this.lxRow({ title: x.name, sub: `${x.text}${n}`, onclick: id && this.lxHasPage('process', id) ? this.lxGo('process', id) : '' }); }).join('')}</div>` });
-                if ((e.myths || []).length) secs.push({ key: `${k}.myth`, open: true, title: 'Myth check', teaser: e.myths.map(m => m.claim).join(' '), body: e.myths.map(m => `<div class="lx-box lx-myth"><b>${this.esc(m.claim)}</b><p class="lx-p">${this.esc(m.text)}</p>${this.lxEv(m.label)}</div>`).join('') });
+                if (k === 'process' && (e.kinds || []).length) add({ key: 'process.kinds', open: true, title: e.kindsTitle || (base ? `Kinds of ${e.name.toLowerCase()}` : 'Styles you’ll see'), teaser: e.kinds.map(x => x.name).join(', '), body: `<div class="lx-group">${e.kinds.map(x => { const id = LearnEngine.entry('process', x.id) ? x.id : ''; const n = this.lxCountHere(comm, x.id); return this.lxRow({ title: x.name, sub: `${x.text}${n}`, onclick: id && this.lxHasPage('process', id) ? this.lxGo('process', id) : '' }); }).join('')}</div>` });
+                if ((e.myths || []).length) add({ key: `${k}.myth`, open: true, title: 'Myth check', teaser: e.myths.map(m => m.claim).join(' '), body: e.myths.map(m => `<div class="lx-box lx-myth"><b>${this.esc(m.claim)}</b><p class="lx-p">${this.esc(m.text)}</p>${this.lxEv(m.label)}</div>`).join('') });
+                if (has && rx) { add(this.lxPlantSec(e)); add(this.lxGrownSec(e)); add(this.lxStorySec(e)); add(this.lxRelatedSec(e)); }
                 // the folded group
                 const folded = [];
                 const list = this.lxCoffeesSec(e, comm, kindName); if (list) folded.push(list);
                 (e.sections || []).forEach(s => folded.push({ key: `${k}.${s.key}`, open: false, title: s.title, teaser: s.teaser, meta: s.dated || '', body: `${s.key === 'family' && e.family && !(this.lxFamilySec && k === 'variety' && typeof LearnTree !== 'undefined' && LearnTree.has(e.id)) ? this.lxBranchHtml(e) : ''}${(s.body || []).map(t => `<p class="lx-p">${this.esc(t)}</p>`).join('')}` }));   // (v20.0: the family line above shows parents and children)
-                const html = head + secs.map(s => s.raw ? s.raw : this.lxSecs([s])).join('') + this.lxSecs(folded.concat([{ key: `${k}.sources`, open: false, title: 'Sources', meta: String((e.sources || []).length), teaser: this.lxSrcTeaser(e.sources), body: this.lxSrcList(e.sources) }])) + this.lxSpotHtml(`${k}:${e.id}`, e.updated);
+                // a written page with research: the research's own extra sections join the folded group
+                if (rx && !e.fromRx && this.lxSlug) (rx.sections || []).forEach(s => { if (!(e.sections || []).some(x => x.title === s.title)) folded.push({ key: `${k}.s-${this.lxSlug(s.title)}`, open: false, title: s.title, teaser: this.lxOne((s.body || [])[0] || ''), meta: s.dated || '', body: (s.body || []).map(t => `<p class="lx-p">${this.esc(t)}</p>`).join('') }); });
+                const srcs = rx && this.lxRxSrc ? [...new Set([...(e.sources || []), ...this.lxRxSrc(rx)])] : (e.sources || []);
+                const html = head + secs.map(s => s.raw ? s.raw : this.lxSecs([s])).join('') + this.lxSecs(folded.concat([{ key: `${k}.sources`, open: false, title: 'Sources', meta: String(srcs.filter(id => this.lxSrc(id)).length), teaser: this.lxSrcTeaser(srcs), body: this.lxSrcList(srcs) }])) + this.lxSpotHtml(`${k}:${e.id}`, e.updated);
                 return { fam, html };
             },
             // ---- v19.1: a short page, for a kind with no written page yet: its family or layer, the one sourced line the
@@ -28502,7 +28746,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 if (!x || !x.n) return null;
                 const same = P ? [...P.countries.values()].map(y => ({ k: `origin:${y.k}`, n: y.n })).sort((a, b) => b.n - a.n) : [...M.kinds.values()].filter(y => y.k.split(':')[0] === type).sort((a, b) => b.n - a.n);
                 const rank = same.findIndex(y => y.k === kindKey);
-                const word = { variety: 'variety', species: 'species', origin: 'country', process: 'process' }[type];
+                const word = { variety: 'variety', species: 'species', origin: 'country', process: 'process', region: 'region' }[type];
                 const stamp = rank === 0 && same.length > 1 ? 'Your most brewed' : rank === 0 ? `Your ${word}` : rank < 5 ? `Your #${rank + 1} ${word}` : `${x.n} sessions`;
                 const avg = x.rn ? x.rs / x.rn : 0, usual = M.avg, d = avg - usual;
                 const cmp = !avg || !usual ? '' : Math.abs(d) < 0.05 ? ', right at your usual' : d > 0 ? `, ${d < 0.3 ? 'a touch ' : ''}above your usual ${this.fmtNum(usual, 1)}` : `, ${d > -0.3 ? 'a touch ' : ''}below your usual ${this.fmtNum(usual, 1)}`;
@@ -28526,11 +28770,12 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             lxMapHtml(e) {
                 const c = this.learnContent(), m = c.maps[e.map || e.country]; if (!m) return '';
                 const tiers = e.mapTiers || {}, tierOf = id => (tiers.l3 || []).includes(id) ? 'on l3' : (tiers.l2 || []).includes(id) ? 'on l2' : (tiers.l1 || []).includes(id) ? 'on' : '';
-                const regions = Object.entries(m.regions || {}).map(([id, d]) => `<path class="lx-rg ${tierOf(id)}" d="${d}"/>`).join('');
-                const dots = this.lxDotLabels(m).map(d => `<g class="lx-mdot"><circle cx="${d.x}" cy="${d.y}" r="3.2"/><text x="${d.tx}" y="${d.ty}"${d.left ? ' text-anchor="end"' : ''}>${this.esc(d.label)}</text></g>`).join('');
-                const svg = `<svg class="lx-cmap" viewBox="0 0 ${m.w} ${m.h}" role="img" aria-label="Map of ${this.esc(e.name)}${(m.dots || []).length ? ' with a town in each coffee area' : ', its coffee departments shaded'}"><path class="lx-rest" d="${m.rest || ''}"/>${regions}<path class="lx-outline" d="${m.outline}"/>${dots}</svg>`;
+                const links = this.lxMapLinks ? this.lxMapLinks(e.country) : new Map();   // v20.1: a region with a page opens from the map
+                const regions = Object.entries(m.regions || {}).map(([id, d]) => `<path class="lx-rg ${tierOf(id)}" d="${d}"${links.has(id) ? ` data-lxr="${this.esc(links.get(id))}"` : ''}/>`).join('');
+                const dots = this.lxDotLabels(m).map(d => `<g class="lx-mdot"${links.has(d.id) ? ` data-lxr="${this.esc(links.get(d.id))}"` : ''}><circle cx="${d.x}" cy="${d.y}" r="3.2"/><text x="${d.tx}" y="${d.ty}"${d.left ? ' text-anchor="end"' : ''}>${this.esc(d.label)}</text></g>`).join('');
+                const svg = `<svg class="lx-cmap" viewBox="0 0 ${m.w} ${m.h}" role="img" aria-label="Map of ${this.esc(e.name)}${(m.dots || []).length ? ' with a town in each coffee area' : ', its coffee departments shaded'}"${links.size ? ' onclick="app.lxMapTap(event)"' : ''}><path class="lx-rest" d="${m.rest || ''}"/>${regions}<path class="lx-outline" d="${m.outline}"/>${dots}</svg>`;
                 const legend = (e.mapLegend || []).map(([k, l]) => `<span><i class="lx-lg-${k}"></i>${this.esc(l)}</span>`).join('');
-                return `<div class="lx-box lx-mapwrap${(m.dots || []).length ? ' lx-dotmap' : ''}"><div class="lx-cmapbox">${svg}</div><div class="lx-legend lx-vlegend">${legend}</div></div>`;
+                return `<div class="lx-box lx-mapwrap${(m.dots || []).length || m.w / m.h > 1.5 ? ' lx-dotmap' : ''}"><div class="lx-cmapbox">${svg}</div><div class="lx-legend lx-vlegend">${legend}</div></div>`;
             },
             // each town's name beside its dot, on whichever side (or a step up or down) keeps it clear of the others
             lxDotLabels(m) {
@@ -28552,7 +28797,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 });
             },
             lxRegionsHtml(e) {
-                const rows = (e.regions || []).map(r => this.lxRow({ title: r.name, sub: [r.teaser, r.alt].filter(Boolean).join(' · ') }));
+                const rows = (e.regions || []).map(r => { const rid = `${e.country}:${r.id}`, page = this.lxEntry('region', rid); return this.lxRow({ title: r.name, sub: [r.teaser, r.alt].filter(Boolean).join(' · '), onclick: page ? this.lxGo('region', rid) : '' }); });   // (v20.1: a region with a page opens it)
                 return `<div class="lx-group">${this.moreHtml(rows, 5, '')}</div>${e.regionsNote ? `<p class="lx-note">${this.esc(e.regionsNote)}</p>` : ''}`;
             },
             lxHarvestTeaser(e) { const h = (e.harvest || [])[0]; if (!h) return ''; const M = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], span = a => a && a.length ? `${M[a[0] - 1]}–${M[a[a.length - 1] - 1]}` : ''; return `${h.area}: main crop ${span(h.main)}${h.second ? `, second ${span(h.second)}` : ''}${h.peak ? `, peak ${span(h.peak)}` : ''}`; },
@@ -28664,8 +28909,11 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                         crowd = `<div class="lx-hr"></div><div class="lx-crowd">${img}<div class="lx-cmain"><b>${this.esc(this.lxComboTitle(wants[pick]))} on Dialed In</b><small>${this.esc([s, notes.length ? `Most often ${notes.length > 1 ? `${notes.slice(0, -1).join(', ')} and ${notes[notes.length - 1]}` : notes[0]}.` : ''].filter(Boolean).join(' '))} ${this.lxPlural(A.coffees, 'coffee')} · ${A.people} people</small></div></div>`;
                     }
                 }
-                const body = `<p class="lx-p">${this.esc(dec)}${fit ? ` ${this.esc(fit)}` : ''}</p>${crowd}`;
-                return `<div id="lx-about" class="lx-about">${this.lxSecs([{ key: 'about', open: true, title: 'About this coffee', teaser: dec.split('. ')[0].replace(/\.$/, '') + '.', body, cls: 'lx-boxsec', icon: 'i-book' }])}</div>`;
+                // v20.1: the coffee's story (the trees, where it grew, how it was processed, what that tends toward), folded
+                // until you open it; its one-line summary says what it is
+                const J = this.lxJourney ? this.lxJourney(bean) : null;
+                const body = J ? `${this.lxJourneyHtml(J)}${fit ? `<p class="lx-p lx-small2">${this.esc(fit)}</p>` : ''}${crowd}` : `<p class="lx-p">${this.esc(dec)}${fit ? ` ${this.esc(fit)}` : ''}</p>${crowd}`;
+                return `<div id="lx-about" class="lx-about">${this.lxSecs([{ key: 'about2', open: false, title: 'About this coffee', teaser: J ? this.lxAboutLine(J) : dec.split('. ')[0].replace(/\.$/, '') + '.', body, cls: 'lx-boxsec', icon: 'i-book' }])}</div>`;
             },
             // C1's own sentence: the notes you've tasted that fit how this kind of coffee is usually described
             lxFitSentence(bean, brews) {
@@ -28719,13 +28967,14 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     const chips = [], hints = [];
                     (f.chips || []).forEach(ch => {
                         if (ch.t === 'ok') { const page = this.lxHasPage(ch.kind === 'decaf' ? 'decaf' : ch.kind, ch.id); const inner = `${this.lxIc('i-check-c', 15)}${this.esc(ch.name)}${ch.meta ? ` <span class="lx-rcm">· ${this.esc(ch.meta)}</span>` : ''}`; chips.push(page ? `<button type="button" class="lx-rc" onclick="${this.lxGo(ch.kind, ch.id)}" aria-label="${this.esc(ch.name)}: read about it">${inner}</button>` : `<span class="lx-rc">${inner}</span>`); }
+                        else if (ch.t === 'warn' && ch.hint === 'arabica' && this.lxEntry('species', 'arabica')) { chips.push(`<button type="button" class="lx-rc" onclick="${this.lxGo('species', 'arabica')}" aria-label="Arabica: read about it">${this.lxIc('i-check-c', 15)}Arabica <span class="lx-rcm">· the species</span></button>`); hints.push(ch.hint); if (ch.suggestId && !kept(k)) chips.push(`<span class="lx-rc q">${this.lxIc('i-info', 15)}${this.esc(this.lxName('variety', ch.suggestId))}?</span><button type="button" class="lx-badge" onclick="app.lxFormSet('${app.escJs(k)}', '${app.escJs(this.lxName('variety', ch.suggestId))}')">Yes</button><button type="button" class="lx-badge lx-muted" onclick="app.lxFormKeep('${app.escJs(k)}')">Keep as typed</button>`); }   // v20.1: Arabica is fine: the species, with its own page
                         else if (ch.t === 'warn') { chips.push(`<span class="lx-rc warn">${this.lxIc('i-alert', 15)}${this.esc(ch.name)}</span>`); hints.push(ch.hint); if (ch.suggestId && !kept(k)) chips.push(`<span class="lx-rc q">${this.lxIc('i-info', 15)}${this.esc(this.lxName('variety', ch.suggestId))}?</span><button type="button" class="lx-badge" onclick="app.lxFormSet('${app.escJs(k)}', '${app.escJs(this.lxName('variety', ch.suggestId))}')">Yes</button><button type="button" class="lx-badge lx-muted" onclick="app.lxFormKeep('${app.escJs(k)}')">Keep as typed</button>`); }
                         else if (ch.t === 'q' && !kept(k)) chips.push(`<span class="lx-rc q">${this.lxIc('i-info', 15)}${this.esc(ch.name)}?</span><button type="button" class="lx-badge" onclick="app.lxFormFix('${app.escJs(k)}', '${app.escJs(ch.typed || '')}', '${app.escJs(ch.name)}')">Yes</button><button type="button" class="lx-badge lx-muted" onclick="app.lxFormKeep('${app.escJs(k)}')">Keep as typed</button>`);
                         else if (ch.t === 'ask' && !kept(k)) chips.push(`<span class="lx-rc q">${this.lxIc('i-info', 15)}${this.esc(ch.options.map(x => x.name).join(' or '))}?</span>${ch.options.map(x => `<button type="button" class="lx-badge" onclick="app.lxFormAsk('${app.escJs(k)}', '${app.escJs(ch.id)}', '${app.escJs(x.id)}')">${this.esc(x.name)}</button>`).join('')}`);
                         else if (ch.t === 'info') chips.push(`<span class="lx-rc info">${this.esc(ch.name)}</span>`);
                     });
                     if (f.hint) hints.push(f.hint);
-                    const HINT = { 'colombia-var': 'In the Variety box, “Colombia” means the variety bred there, not the country.', 'java-var': 'In the Variety box, “Java” means the variety, not the Indonesian island.', 'single-origin': '“Single origin” means it all comes from one place. The variety is the kind of coffee tree, like Gesha or SL28. If the bag doesn’t say, leave this empty.', arabica: '“Arabica” is the coffee species, not a variety. If the bag names no variety, leave this empty.', blend: '“Blend” means several coffees mixed. The variety is the kind of coffee tree, like Gesha or SL28.' };
+                    const HINT = { 'colombia-var': 'In the Variety box, “Colombia” means the variety bred there, not the country.', 'java-var': 'In the Variety box, “Java” means the variety, not the Indonesian island.', 'single-origin': '“Single origin” means it all comes from one place. The variety is the kind of coffee tree, like Gesha or SL28. If the bag doesn’t say, leave this empty.', arabica: this.lxEntry('species', 'arabica') ? 'Arabica is the species, and that’s fine. If the bag also names a variety, like Caturra or SL28, add it for a more detailed page.' : '“Arabica” is the coffee species, not a variety. If the bag names no variety, leave this empty.', blend: '“Blend” means several coffees mixed. The variety is the kind of coffee tree, like Gesha or SL28.' };
                     const fr = !text && friends[k] ? `<div class="lx-friend">${this.lxIc('i-users', 20)}<span>${this.esc(friends[k].who)} logged this coffee as <b>${this.esc(friends[k].value)}</b>.</span><button type="button" class="lx-badge lx-use" onclick="app.lxFormSet('${app.escJs(k)}', '${app.escJs(friends[k].value)}')">Use it</button></div>` : '';
                     box.innerHTML = `${chips.length ? `<div class="lx-recog">${chips.join('')}</div>` : ''}${[...new Set(hints)].filter(h => HINT[h]).map(h => `<p class="lx-note lx-hint">${this.esc(HINT[h])}</p>`).join('')}${fr}`;
                 });
@@ -29017,7 +29266,8 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     + `<div class="lx-twrap" id="lx-tw"><div class="lx-tstage" id="lx-tstage"><svg class="lx-tsvg lxk" id="lx-tsvg" role="img" aria-label="Coffee’s family tree"></svg></div><div class="lx-tlab" id="lx-tlab"></div>`
                     + `<button type="button" class="lx-tmine" onclick="app.lxTreeMineToggle(this)" aria-pressed="true"><i></i>Yours</button><div class="lx-tctrl"><button type="button" class="lx-tglass" onclick="app.lxTreeStep(1.6)" aria-label="Zoom in">${this.lxIc('i-plus', 18)}</button><button type="button" class="lx-tglass lx-tminus" onclick="app.lxTreeStep(1 / 1.6)" aria-label="Zoom out"><i></i></button><button type="button" class="lx-tglass lx-tfit" onclick="app.lxTreeFit(true)" aria-label="Show the whole tree"><i></i></button></div><div class="lx-tfocus" id="lx-tfocus"></div></div>`
                     + `<div class="lx-tclusters">${order.map(g => `<button type="button" onclick="app.lxTreeZoom('${app.escJs(g)}')"><i style="background:${(this.LX_TCHIP[g] || [])[1] || '#9b8d80'}"></i>${this.esc((this.LX_TCHIP[g] || [g])[0])}</button>`).join('')}</div>`
-                    + `<p class="lx-tcap" id="lx-tcap">A family tree: each variety grows from the one it came from, and a dashed line joins a second parent. Tap a name to light up its line; pale branches with a ? aren’t settled. Pinch to zoom for more names. Red cherries are the ones you’ve logged.</p>`;
+                    + `<p class="lx-tcap" id="lx-tcap">A family tree: each variety grows from the one it came from, and a dashed line joins a second parent. Tap a name to light up its line; pale branches with a ? aren’t settled. Pinch to zoom for more names. Red cherries are the ones you’ve logged.</p>`
+                    + (this.lxVarListSecs ? `<div class="lx-tlist">${this.lxSecs(this.lxVarListSecs())}</div>` : '');   // v20.1: every variety, A to Z, under the tree
                 return { fam: 'app', html };
             },
             lxTreeMode(m) { const ts = this.lxTreeState(); if (ts.mode === m) return; ts.mode = m; const top = this.lxTop(); if (top) top.id = ''; this.learnRender(true); },
@@ -29028,7 +29278,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const ts = this.lxTreeState(), F = this.lxTreeData(ts.mode);
                 const top = wrap.getBoundingClientRect().top - (view ? view.getBoundingClientRect().top : 0);
                 const probe = document.createElement('div'); probe.style.cssText = 'position:absolute;visibility:hidden;height:env(safe-area-inset-bottom, 0px)'; document.body.appendChild(probe); const safeB = probe.offsetHeight || 0; probe.remove();
-                wrap.style.height = Math.max(380, Math.min(720, (view ? view.clientHeight : window.innerHeight) - top - 12 - safeB)) + 'px';
+                wrap.style.height = Math.max(380, Math.min(720, (view ? view.clientHeight : window.innerHeight) - top - 12 - safeB - 50)) + 'px';   // (v20.1: the group chips peek out below, so the page scrolls on)
                 const T = this._lxT = { F, W: wrap.clientWidth, H: wrap.clientHeight, TZ: { k: 1, x: 0, y: 0 }, R: null, FOC: new Set(), LBL: [], pad: 0.3 };
                 svg.innerHTML = `<g class="lx-tall">${F.svg}</g><g id="lx-thl"></g>`;
                 this.lxTreeLabels();
@@ -29150,6 +29400,413 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const svg = document.getElementById('lx-tsvg'); if (svg) svg.classList.remove('focus');
                 const c = document.getElementById('lx-tfocus'); if (c) c.classList.remove('on');
                 if (!quiet) this.lxTreePlace();
+            },
+            // ===================== v20.1: Learn 2 =====================
+            // A page for every variety, species, process, country and region, from the research in learn/atlas.json (each
+            // claim with its sources, checked against them). The cup in more depth (why, at its best, when it goes wrong, on
+            // different coffees), how a process works (a cut cherry: which layers stay on while it dries), region pages with
+            // the region lit on its country's map, a flavor finder, the world map's filters and the coffee page's story.
+
+            LX_CONT_TINT: { 'Africa': 'floral', 'Asia': 'spice', 'Oceania': 'fruity', 'South America': 'nutty', 'North & Central America': 'sweet' },
+            lxOne(t) { const m = String(t || '').match(/^(.+?[.!?])(\s|$)/); return m ? m[1] : String(t || ''); },
+            lxTwo(t) { const m = String(t || '').match(/^(.+?[.!?])\s+(.+?[.!?])(\s|$)/); return m ? `${m[1]} ${m[2]}` : String(t || ''); },
+            lxCap(s) { s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1); },
+            lxSlug(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); },
+            // every source a record cites, in the order they come
+            lxRxSrc(r) {
+                const out = new Set(), walk = v => { if (!v || typeof v !== 'object') return; if (Array.isArray(v)) { v.forEach(walk); return; } Object.entries(v).forEach(([k, x]) => { if (/^(src|ledeSrc|layersSrc)$/.test(k) && Array.isArray(x)) x.forEach(s => out.add(s)); else if (k !== 'map') walk(x); }); };
+                walk(r); return [...out];
+            },
+            // a research record as a page entry (the same shape the written pages have, plus rx: the record itself)
+            lxFromRx(r, maps) {
+                const k = r.kind, x = k === 'region' ? null : k === 'origin' ? LearnEngine.entry('origin', r.id) : LearnEngine.entry(k, r.id);
+                const secs = (r.sections || []).map(s => ({ key: `s-${this.lxSlug(s.title)}`, title: s.title, teaser: this.lxOne((s.body || [])[0] || ''), body: s.body || [], dated: s.dated || '' }));
+                const cup = r.cup || null;
+                const e = { kind: k, id: r.id, name: r.name || (x && x.name) || r.id, also: (r.also || []).slice(0, 4), summary: r.summary || '', lede: r.lede || '', ledeSrc: r.ledeSrc || [], facts: (r.facts || []).slice(0, 4),
+                    taste: cup && ((cup.notes || []).length || cup.text) ? { notes: cup.notes || [], text: cup.text || '', src: cup.src || [] } : null, feel: cup && cup.feel && (cup.feel.body || cup.feel.acidity) ? cup.feel : null,
+                    sections: secs, sources: this.lxRxSrc(r), updated: '2026-10-28', rx: r, fromRx: true };
+                if (k === 'variety') {
+                    const fam = (x && x.family) || '';
+                    e.tint = this.LX_FAMNF[fam] || 'sweet';
+                    e.kicker = typeof LearnTree !== 'undefined' && LearnTree.unsure(r.id) && !(x && x.q && fam === 'landrace') ? 'Variety · family not settled' : fam ? `Variety · ${x && x.q && fam === 'landrace' ? 'Ethiopian roots?' : LearnEngine.FAMILY[fam]}` : 'Variety';
+                    e.family = { parents: ((r.family || {}).parents || []).filter(id => LearnEngine.entry('variety', id)) };
+                } else if (k === 'species') { e.tint = 'earthy'; e.kicker = 'Species'; }
+                else if (k === 'process') { const L = this.LX_LAYER[(x && x.layer) || ''] || ['process', 'fermented']; e.tint = L[1] === 'app' ? 'fermented' : L[1]; e.kicker = `Process · ${L[0]}`; }
+                else if (k === 'origin') {
+                    const cont = (x && x.continent) || '';
+                    Object.assign(e, { country: r.id, continent: cont, tint: this.LX_CONT_TINT[cont] || 'fruity', kicker: `Origin${cont ? ' · ' + cont : ''}`, regions: r.regions || [], regionsNote: r.regionsNote || '' });
+                    this.lxRxHarvest(e, r.harvest, r.name);
+                    if (r.grows) e.grows = { varieties: (r.grows.varieties || []).filter(id => LearnEngine.entry('variety', id)), processes: (r.grows.processes || []).filter(id => LearnEngine.entry('process', id)) };
+                    const m = maps && maps[r.id];
+                    if (m) {   // (provinces the research says grow coffee, the ones with a region below darker; or a town in each coffee area)
+                        e.map = r.id;
+                        const reg = Object.keys(m.regions || {}), mine = new Set((r.regions || []).flatMap(g => [g.id, this.lxSlug(g.name), this.lxSlug(String(g.name).split(' (')[0])]));
+                        const l3 = reg.filter(id => mine.has(id)), l1 = reg.filter(id => !mine.has(id));
+                        e.mapTiers = { l3, l1 };
+                        e.mapLegend = [l3.length ? ['l3', 'Regions below'] : null, l1.length ? ['l1', l3.length ? 'Other coffee areas' : 'Coffee areas'] : null, (m.dots || []).length ? ['dot', 'A town in a coffee area'] : null].filter(Boolean);
+                    }
+                } else if (k === 'region') {
+                    const c = LearnEngine.entry('origin', r.country);
+                    Object.assign(e, { country: r.country, continent: c ? c.continent : '', kicker: `Region · ${c ? c.name : r.country}`, tint: '' });
+                    this.lxRxHarvest(e, r.harvest, r.name);
+                    if (r.grows) e.grows = { varieties: (r.grows.varieties || []).filter(id => LearnEngine.entry('variety', id)), processes: (r.grows.processes || []).filter(id => LearnEngine.entry('process', id)) };
+                }
+                return e;
+            },
+            // research harvest months -> the calendar rows the origin pages draw (main and fly crops, or by area)
+            lxRxHarvest(e, h, name) {
+                if (!h || !(h.main || []).length) return;
+                e.harvest = (h.areas || []).length ? h.areas.map(a => ({ area: a.area, main: a.main || [] })) : [{ area: name, main: h.main, second: (h.fly || []).length ? h.fly : undefined }];
+                if ((h.fly || []).length) e.secondName = 'Smaller second crop';
+                if (h.text) e.harvestText = { text: h.text };
+            },
+            // a region's page wears its country's colors
+            lxRegionTint(e) { const c = this.lxEntry('origin', e.country); return (c && c.tint) || this.LX_CONT_TINT[e.continent] || 'fruity'; },
+            lxRegionsOf(code) { const c = this.learnContent(); return c ? [...c.entries.values()].filter(e => e.kind === 'region' && e.country === code) : []; },
+
+            // ---- In the cup: notes, what the sources say, body and acidity as ranges, then why / at its best / when it goes
+            // wrong, how it shows on different coffees, and (processes) from prized to a fault. Long answers show their first
+            // sentence until "More detail".
+            lxCupSec(e) {
+                const k = e.kind, t = e.taste || null, c = (e.rx && e.rx.cup) || null;
+                if (!t && !c) return e.feel && this.lxFeelHtml ? { key: `${k}.feel`, open: true, title: 'Body and acidity', teaser: [e.feel.body, e.feel.acidity].filter(Boolean).join(' · '), body: `<div class="lx-box">${this.lxFeelHtml(e.feel)}</div>` } : null;
+                const notes = (t && (t.notes || []).length ? t.notes : c && c.notes) || [], text = (t && t.text) || (c && c.text) || '';
+                const feel = e.feel || (c && c.feel && (c.feel.body || c.feel.acidity) ? c.feel : null);
+                const sh = s => `<span class="lx-sh">${this.esc(this.lxOne(s))}</span><span class="lx-fu">${this.esc(s)}</span>`;
+                const qa = c ? [['Why it tastes this way', c.why], ['At its best', c.prized], ['When it goes wrong', c.watch]].filter(q => q[1]) : [];
+                const by = c ? (c.byCoffee || []).filter(b => b && b.what && b.text) : [];
+                const SP = { prized: [0, 'Prized'], divisive: [1, 'Divisive'], fault: [2, 'A fault'] };
+                const sp = ((e.rx && e.rx.spectrum) || []).filter(x => SP[x.kind]).sort((a, b) => SP[a.kind][0] - SP[b.kind][0]).slice(0, 3);
+                const textHtml = this.lxTwo(text) !== text ? sh(text).replace(this.esc(this.lxOne(text)), this.esc(this.lxTwo(text))) : this.esc(text);
+                const long = this.lxTwo(text) !== text || qa.some(q => this.lxOne(q[1]) !== q[1]) || by.some(b => this.lxOne(b.text) !== b.text);
+                const body = `<div class="lx-box lx-cupb">${notes.length ? `<div class="lx-flabel">Tends toward</div><div class="lx-notes">${notes.map(n => this.lxNote(n)).join('')}</div>` : ''}${text ? `<p class="lx-p">${textHtml}</p>` : ''}`
+                    + `${feel && this.lxFeelHtml ? this.lxFeelHtml(feel) : ''}${t && t.label ? `<div class="lx-evrow">${this.lxEv(t.label)}${t.evidence ? `<span class="lx-small">${this.esc(t.evidence)}</span>` : ''}</div>` : ''}`
+                    + `${sp.length ? `<div class="lx-hr"></div><div class="lx-flabel">From prized to a fault</div><div class="lx-spec"><div class="lx-sbar"></div><div class="lx-sl3">${sp.map(x => `<div class="lx-s${SP[x.kind][0]}"><b>${SP[x.kind][1]}</b>${this.esc(x.label)}</div>`).join('')}</div></div>` : ''}`
+                    + `${qa.length ? `<div class="lx-hr"></div><div class="lx-qa">${qa.map(([q, a]) => `<div><div class="lx-q">${q}</div><p class="lx-p">${sh(a)}</p></div>`).join('')}</div>` : ''}`
+                    + `${by.length ? `<div class="lx-hr"></div><div class="lx-flabel">On different coffees</div><div class="lx-by">${by.map(b => `<div><b>${this.esc(b.what)}</b><span>${sh(b.text)}</span></div>`).join('')}</div>` : ''}`
+                    + `${long ? `<button type="button" class="lx-more" onclick="app.lxMore(this)" aria-expanded="false">More detail</button>` : ''}`
+                    + `<p class="lx-note">${k === 'region' ? 'Region tastes are tendencies: farms, varieties and processing vary a lot within one region.' : 'A tendency, not a promise: ripeness, roast and your recipe move a cup as much.'}</p></div>`;
+                return { key: `${k}.cup`, open: true, title: 'In the cup', teaser: notes.length ? notes.join(', ') : this.lxOne(text), body };
+            },
+            lxMore(btn) { const box = btn && btn.closest ? btn.closest('.lx-cupb') : null; if (!box) return; const on = !box.classList.contains('lx-full'); box.classList.toggle('lx-full', on); btn.textContent = on ? 'Less' : 'More detail'; btn.setAttribute('aria-expanded', String(on)); if (this.haptic) this.haptic('tick'); },
+
+            // ---- the research's other parts
+            lxPlantSec(e) {
+                const p = e.rx && e.rx.plant; if (!p) return null;
+                const rows = [['Height', p.stature], ['Yield', p.yield], ['Leaf rust', p.rust], ['Bean size', p.beanSize], ['Best altitude', p.altitude], ['First crop', p.firstCrop]].filter(q => q[1]);
+                if (!rows.length) return null;
+                const wcr = (p.src || []).length && (p.src || []).every(s => /^wcr-/.test(s));
+                return { key: `${e.kind}.plant`, open: true, title: 'The plant', sub: wcr ? 'From World Coffee Research’s variety catalog' : '', teaser: rows.slice(0, 3).map(q => `${q[0]}: ${q[1]}`).join(' · '), body: `<div class="lx-plant">${rows.map(([kk, v]) => `<div class="lx-tile"><div class="lx-sl">${kk}</div><div class="lx-pv">${this.esc(this.lxCap(v))}</div></div>`).join('')}</div>` };
+            },
+            lxGrownSec(e) {
+                const g = e.rx && e.rx.grownIn; if (!g || !((g.countries || []).length || g.text)) return null;
+                const cs = (g.countries || []).filter(c => LearnEngine.entry('origin', c));
+                return { key: `${e.kind}.grown`, open: true, title: 'Grown in', teaser: cs.map(c => this.lxName('origin', c)).join(', '), body: `${cs.length ? `<div class="lx-tags">${cs.map(c => this.lxLinkTag('origin', c, this.lxName('origin', c))).join('')}</div>` : ''}${g.text ? `<p class="lx-p lx-small2 lx-gap">${this.esc(g.text)}</p>` : ''}` };
+            },
+            lxStorySec(e) {
+                const s = (e.rx && e.rx.story) || []; if (!s.length) return null;
+                return { key: `${e.kind}.story`, open: true, title: 'Story', teaser: s.map(x => x.when).slice(0, 4).join(' · '), body: `<div class="lx-box"><div class="lx-story">${s.map(x => `<div><div class="lx-when">${this.esc(x.when)}</div><p class="lx-p">${this.esc(x.text)}</p></div>`).join('')}</div></div>` };
+            },
+            // related pages as cards (only the ones that open)
+            lxRelatedSec(e, extra) {
+                const list = (extra || ((e.rx && e.rx.related) || []).map(k => { const i = k.indexOf(':'); return [k.slice(0, i), k.slice(i + 1)]; }))
+                    .filter(([kk, id]) => this.lxHasPage(kk, id) && !(kk === e.kind && id === e.id)).slice(0, 8);
+                if (!list.length) return null;
+                const cards = list.map(([kk, id]) => { const x = this.lxEntry(kk, id); const fam = x ? (kk === 'region' ? this.lxRegionTint(x) : x.tint || 'app') : 'app'; return `<button type="button" class="lx-rcard" data-fam="${this.esc(fam)}" onclick="${this.lxGo(kk, id)}"><span class="lx-rk">${this.esc(kk === 'origin' ? 'Country' : this.lxKindWord(kk))}</span><span class="lx-rn">${this.esc(this.lxName(kk, id))}</span>${x && x.summary ? `<span class="lx-rs">${this.esc(x.summary)}</span>` : ''}</button>`; });
+                return { key: `${e.kind}.related`, open: true, title: e.kind === 'region' ? `More of ${this.lxName('origin', e.country)}` : 'Related', teaser: list.map(([kk, id]) => this.lxName(kk, id)).join(', '), body: `<div class="lx-related">${cards.join('')}</div>` };
+            },
+            // a region page's towns
+            lxPlacesSec(e) {
+                const pl = (e.rx && e.rx.places) || []; if (!pl.length) return null;
+                return { key: 'region.places', open: true, title: 'Names on the bag', sub: `Towns and areas you’ll see on ${e.name} coffees`, teaser: pl.join(', '), body: `<div class="lx-tags">${pl.map(n => `<span class="lx-tag">${this.esc(n)}</span>`).join('')}</div>` };
+            },
+
+            // ---- maps: an origin's regions open their pages; a region page lights itself up on its country's map
+            lxMapLinks(code) {
+                // map area or dot -> the region page it belongs to (a region made of several departments lights them all)
+                const out = new Map();
+                this.lxRegionsOf(code).forEach(r => {
+                    const rid = r.id.split(':')[1]; out.set(rid, r.id);
+                    ((r.rx && r.rx.map && r.rx.map.adm1) || []).forEach(n => { const s = this.lxSlug(n); if (!out.has(s)) out.set(s, r.id); });
+                });
+                return out;
+            },
+            lxRegionMapHtml(e) {
+                const c = this.learnContent(), m = c && c.maps[e.country]; if (!m) return '';
+                const links = this.lxMapLinks(e.country), mine = new Set([...links].filter(([, id]) => id === e.id).map(([a]) => a));
+                const regions = Object.entries(m.regions || {}).map(([id, d]) => { const to = links.get(id); return `<path class="lx-rg${mine.has(id) ? ' on l3' : to ? ' on' : ''}" d="${d}"${to && !mine.has(id) ? ` data-lxr="${this.esc(to)}"` : ''}/>`; }).join('');
+                const dots = this.lxDotLabels(m).map(d => { const to = links.get(d.id), me = mine.has(d.id); return `<g class="lx-mdot${me ? ' lx-mme' : ''}"${to && !me ? ` data-lxr="${this.esc(to)}"` : ''}><circle cx="${d.x}" cy="${d.y}" r="${me ? 5 : 3.2}"/><text x="${d.tx}" y="${d.ty}"${d.left ? ' text-anchor="end"' : ''}>${this.esc(d.label)}</text></g>`; }).join('');
+                if (!mine.size) return '';
+                const svg = `<svg class="lx-cmap" viewBox="0 0 ${m.w} ${m.h}" role="img" aria-label="Map of ${this.esc(this.lxName('origin', e.country))} with ${this.esc(e.name)} marked" onclick="app.lxMapTap(event)"><path class="lx-rest" d="${m.rest || ''}"/>${regions}<path class="lx-outline" d="${m.outline}"/>${dots}</svg>`;
+                const other = [...new Set(links.values())].filter(id => id !== e.id).length;
+                return `<div class="lx-box lx-mapwrap lx-dotmap"><div class="lx-cmapbox">${svg}</div><div class="lx-legend"><span><i class="lx-lg-l3"></i>${this.esc(e.name)}</span>${other ? `<span><i class="lx-lg-l1"></i>Other regions with a page: tap one</span>` : ''}</div></div>`;
+            },
+            lxMapTap(ev) { const t = ev && ev.target && ev.target.closest ? ev.target.closest('[data-lxr]') : null; if (t) this.learnOpen('region', t.getAttribute('data-lxr')); },
+
+            // ---- How a base method works: the cut cherry with what's still on the seed while it dries (from each method's
+            // research: its layers, and its drying step's time)
+            LX_METH: { washed: { on: ['parchment'], short: 'Fruit off and fermented away; dries in its parchment.' }, honey: { on: ['mucilage', 'parchment'], short: 'Skin and fruit off; the sticky layer dries on.' }, natural: { on: ['skin', 'fruit', 'mucilage', 'parchment'], short: 'The whole cherry dries around the seed.' }, 'wet-hulled': { on: [], short: 'Parchment off while it’s damp; the bare bean dries.' } },
+            LX_LAYERS: [['skin', 'Skin', 'the red outside', '#c12e24'], ['fruit', 'Fruit', 'thin, sweet flesh', '#f2b39b'], ['mucilage', 'Sticky layer', 'the mucilage, sugary and slick', '#f0cf86'], ['parchment', 'Parchment', 'a papery shell', '#e6dbc0'], ['seed', 'Seed', 'the bean, usually two per cherry', '#9fbc86']],
+            lxMethOff(m) { const on = new Set((this.LX_METH[m] || { on: [] }).on); return { skin: !on.has('skin'), fruit: !on.has('fruit'), mucilage: !on.has('mucilage'), parchment: !on.has('parchment') }; },
+            lxMethLayers(m) { const on = new Set((this.LX_METH[m] || { on: [] }).on); return ['skin', 'fruit', 'mucilage', 'parchment'].map(l => `<span class="${on.has(l) ? 'on' : ''}">${this.LX_LAYERS.find(x => x[0] === l)[1]}</span>`).join(''); },
+            lxMethDry(m) {
+                const e = this.lxEntry('process', m), st = ((e && e.rx && e.rx.steps) || []).find(s => /^dry/i.test(s.title || '') && s.hours);
+                return st ? String(st.hours).split(/[;:]/)[0].trim() : '';
+            },
+            lxMethNote(m) { const e = this.lxEntry('process', m), lay = e && e.rx && e.rx.layers, d = this.lxMethDry(m); return `${lay || ''}${d ? ` Drying: ${d}; the weather sets the pace.` : ''}`.trim(); },
+            lxMethHtml(sel) {
+                const ms = Object.keys(this.LX_METH).filter(m => this.lxEntry('process', m));
+                return `<div class="lx-box lx-pdiag" id="lx-pdiag"><div class="lx-mseg" role="group" aria-label="Compare the methods">${ms.map(m => `<button type="button" class="${m === sel ? 'on' : ''}" aria-pressed="${m === sel}" onclick="app.lxMethPick('${app.escJs(m)}')">${this.esc(this.lxName('process', m))}</button>`).join('')}</div>`
+                    + `<div class="lx-pdrow"><span class="lx-pdpic">${LearnTree.cut({ size: 116, off: this.lxMethOff(sel), label: `A coffee cherry cut in half: what stays on in ${this.lxName('process', sel).toLowerCase()} coffee` })}</span><div><div class="lx-flabel">On the seed while it dries</div><div class="lx-mlay">${this.lxMethLayers(sel)}</div></div></div>`
+                    + `<p class="lx-p lx-small2">${this.esc(this.lxMethNote(sel))}</p></div>`;
+            },
+            lxMethPick(m) { const box = document.getElementById('lx-pdiag'); if (!box || !this.LX_METH[m]) return; box.outerHTML = this.lxMethHtml(m); if (this.haptic) this.haptic('tick'); },
+            // a process's steps, from the research (title, how long, what happens)
+            lxRxStepsHtml(e) {
+                const steps = (e.rx && e.rx.steps) || [];
+                return steps.length ? `<div class="lx-box lx-rsteps">${steps.map((s, i) => `<div><span class="lx-sn">${i + 1}</span><span><b>${this.esc(s.title)}</b>${s.hours && !/^none$/i.test(s.hours) ? ` <em>${this.esc(s.hours)}</em>` : ''}<p>${this.esc(s.text)}</p></span></div>`).join('')}</div>` : '';
+            },
+
+            // ===================== How it's made (the processes, from the cut cherry up) =====================
+            lxMadePage(p) {
+                const c = this.learnContent(), pm = c.pmap || { dots: [] }, hl = (p.opts && p.opts.hl) || '';
+                const sumOf = id => { const e = this.lxEntry('process', id); if (e && e.summary) return e.summary; const s = LearnEngine.PSAY[id]; return s ? s[0] : ''; };
+                const anat = `<div class="lx-box lx-anat"><span class="lx-anatpic">${LearnTree.cut({ size: 146 })}</span><div class="lx-anatkey">${this.LX_LAYERS.map(([, n, d, col]) => `<div><i style="background:${col}"></i><b>${this.esc(n)}</b><span>${this.esc(d)}</span></div>`).join('')}</div></div>`;
+                const ms = Object.keys(this.LX_METH).filter(m => this.lxHasPage('process', m));
+                const methods = `<div class="lx-group lx-mrows">${ms.map(m => `<button type="button" class="lx-row" onclick="${this.lxGo('process', m)}"><span class="lx-mpic">${LearnTree.cut({ size: 70, off: this.lxMethOff(m), label: this.lxName('process', m) })}</span><span class="lx-rmain"><b>${this.esc(this.lxName('process', m))}</b><small>${this.esc(this.LX_METH[m].short)}</small><span class="lx-mlay">${this.lxMethLayers(m)}</span></span><span class="lx-chev">${this.lxIc('i-chev-right', 16)}</span></button>`).join('')}</div>`;
+                const procs = LearnEngine.allProcesses();
+                const grid = list => `<div class="lx-ptiles">${list.map(x => this.lxHasPage('process', x.id) ? `<button type="button" onclick="${this.lxGo('process', x.id)}"><b>${this.esc(this.lxName('process', x.id))}</b><span>${this.esc(sumOf(x.id))}</span></button>` : `<div><b>${this.esc(x.name)}</b><span>${this.esc(sumOf(x.id))}</span></div>`).join('')}</div>`;
+                const tops = procs.filter(x => ['fermentation', 'microbes', 'ingredients', 'after'].includes(x.layer));
+                const dry = procs.filter(x => x.layer === 'drying');
+                const decafs = (LearnEngine.knownIds().decaf || []).filter(id => id !== 'decaf');
+                const secs = [
+                    { key: 'made.cherry', open: true, title: 'Inside a coffee cherry', teaser: 'Skin, fruit, a sticky layer, parchment and the seed', body: anat },
+                    { key: 'made.methods', open: true, title: 'Pick a method', sub: 'What stays on the seed while it dries', teaser: ms.map(m => this.lxName('process', m)).join(', '), body: methods },
+                    { key: 'made.tops', open: true, title: 'Changes on top', sub: 'Extra steps added to one of the methods above', teaser: tops.map(x => x.name).slice(0, 5).join(', '), body: grid(tops) },
+                    dry.length ? { key: 'made.drying', open: true, title: 'Drying', sub: 'Where and how fast it dries matters too', teaser: dry.map(x => x.name).join(', '), body: grid(dry) } : null,
+                    { key: 'made.map', open: !!hl, title: 'The process map', teaser: 'How much fruit stays on, and how hands-on the ferment is', body: `<div class="lx-pmapbox">${this.lxProcessMapSvg(pm, hl)}<p class="lx-note">Tap a highlighted dot to open it.${pm.note ? ' ' + this.esc(pm.note) : ''}</p></div>` },
+                    { key: 'made.decaf', open: false, title: 'Decaf', teaser: 'Not a process: how the caffeine comes out', body: `<div class="lx-group">${decafs.map(id => this.lxRow({ title: this.lxName('decaf', id), sub: LearnEngine.PSAY[id] ? LearnEngine.PSAY[id][0] : 'A way to take the caffeine out' })).join('')}</div>` },
+                    this.lxSourcesObj(pm.sources || [], 'processes.sources')
+                ];
+                // an opened map (from a process page's "See it on the process map") is open whatever the phone remembers
+                const list = secs.filter(Boolean).map(s => s.key === 'made.map' && hl ? { ...s, isOpen: true } : s);
+                const html = this.lxHead({ kicker: 'Learn', kickerApp: true, name: 'How it’s made', small: true, lede: 'Every coffee bean is the seed of a fruit. How the fruit comes off, and when, shapes a lot of how the coffee tastes.' }) + this.lxSecs(list);
+                return { fam: 'fermented', html };
+            },
+
+            // ===================== Find a flavor =====================
+            // What the pages say tends to give a flavor (each page's cup notes, which carry their sources), plus where you
+            // and the people you follow tasted it. A starting point, not a promise.
+            lxWheel() { return (typeof NOTE_WHEEL !== 'undefined' ? NOTE_WHEEL : []).filter(f => (this.NL_WHEEL_FAM || {})[f.fam] !== 'off'); },
+            lxFlavorAt(note) {
+                const W = this.lxWheel(), key = String(note || '').toLowerCase();
+                for (const f of W) for (const [g, ns] of f.groups) { if (g.toLowerCase() === key) return { f, g, note: g, group: true }; const n = ns.find(x => x.toLowerCase() === key); if (n) return { f, g, note: n, group: false }; }
+                const f = W[0]; return f ? { f, g: f.groups[0][0], note: f.groups[0][0], group: true } : null;
+            },
+            // every page with cup notes, scored for a note: 3 = that note (or its group, for a group), 2 = the same group,
+            // 1 = the same family
+            lxFinder(note) {
+                const at = this.lxFlavorAt(note), c = this.learnContent(); if (!at || !c) return [];
+                const where = n => { const l = this.noteLocate ? this.noteLocate(n, 'coffee') : null; if (!l || l.wheel !== 'coffee' || l.f < 0) return null; const F = NOTE_WHEEL[l.f], G = l.g >= 0 ? F.groups[l.g][0] : ''; return { fam: F.fam, g: G, n: (l.note || G || F.fam).toLowerCase() }; };
+                const want = at.note.toLowerCase(), out = [];
+                c.entries.forEach(e => {
+                    const notes = ((e.taste && e.taste.notes) || (e.rx && e.rx.cup && e.rx.cup.notes) || []);
+                    if (!notes.length || !this.lxHasPage(e.kind, e.kind === 'origin' ? e.country : e.id)) return;
+                    let s = 0, exact = 0, pos = 99;
+                    notes.forEach((n, i) => { const w = where(n); if (!w) return; let v = 0; if (w.n === want || (at.group && w.g === at.g)) v = 3; else if (w.g && w.g === at.g) v = 2; else if (w.fam === at.f.fam) v = 1; if (v > s || (v === s && v && i < pos)) { s = v; pos = i; } if (w.n === want) exact = 1; });
+                    if (s) out.push({ e, s, notes, exact, pos, written: e.fromRx ? 0 : 1 });
+                });
+                // the strongest match first: the note itself, then early in the page's list, then a written page
+                return out.sort((a, b) => b.s - a.s || b.exact - a.exact || a.pos - b.pos || b.written - a.written || a.e.name.localeCompare(b.e.name));
+            },
+            lxFlavorPage(p) {
+                const at = this.lxFlavorAt(p.id || 'Berry'); if (!at) return { fam: 'app', html: '' };
+                const fam = this.NL_WHEEL_FAM[at.f.fam] || 'fruity', W = this.lxWheel(), lw = at.note.toLowerCase();
+                const tabs = `<div class="lx-chips lx-ftabs" role="tablist" aria-label="Flavor families">${W.map(f => { const fk = this.NL_WHEEL_FAM[f.fam]; return `<button type="button" class="lx-chip${f === at.f ? ' on' : ''}" data-nf="${fk}" aria-pressed="${f === at.f}" onclick="app.lxFlavorPick('${app.escJs(f.groups[0][0])}')">${this.esc(f.fam)}</button>`; }).join('')}</div>`;
+                const groups = at.f.groups.map(([g]) => `<button type="button" class="nl-nt lx-pnt lx-big${g === at.g ? ' on' : ''}" data-nf="${fam}" aria-pressed="${g === at.g}" onclick="app.lxFlavorPick('${app.escJs(g)}')">${this.esc(g)}</button>`).join('');
+                const ns = (at.f.groups.find(x => x[0] === at.g) || ['', []])[1];
+                const notes = ns.map(n => `<button type="button" class="nl-nt lx-pnt${n === at.note ? ' on' : ''}" data-nf="${fam}" aria-pressed="${n === at.note}" onclick="app.lxFlavorPick('${app.escJs(n === at.note ? at.g : n)}')">${this.esc(n)}</button>`).join('');
+                const pick = `<div class="lx-pick"><div class="lx-notes">${groups}</div><div><div class="lx-flabel">${this.esc(at.g)}: narrow it down, or keep it broad</div><div class="lx-notes">${notes}</div></div></div>`;
+                const res = this.lxFinder(at.note);
+                const KW = { process: 'process', origin: 'place', region: 'place', variety: 'variety', species: 'variety' };
+                const top = w => res.filter(x => KW[x.e.kind] === w).slice(0, 3);
+                const lists = [['process', 'Processes'], ['place', 'Places'], ['variety', 'Varieties']].map(([w, t]) => [w, t, top(w)]).filter(x => x[2].length);
+                const odds = s => `<span class="lx-odds" aria-label="${s >= 3 ? 'Often' : s === 2 ? 'Sometimes' : 'Now and then'}"><span>${[1, 2, 3].map(i => `<i class="${i <= s ? 'on' : ''}"></i>`).join('')}</span><small>${s >= 3 ? 'Often' : s === 2 ? 'Sometimes' : 'Now and then'}</small></span>`;
+                const go = x => this.lxGo(x.e.kind, x.e.kind === 'origin' ? x.e.country : x.e.id);
+                const kindLabel = x => x.e.kind === 'region' ? `Region · ${this.lxName('origin', x.e.country)}` : x.e.kind === 'origin' ? 'Country' : this.lxKindWord(x.e.kind);
+                const row = x => `<button type="button" class="lx-row lx-match" onclick="${go(x)}"><span class="lx-rmain"><b>${this.esc(x.e.name)} <span class="lx-muted">${this.esc(kindLabel(x))}</span></b><small>${this.esc(this.lxOne((x.e.taste && x.e.taste.text) || (x.e.rx && x.e.rx.cup && x.e.rx.cup.text) || x.e.summary || ''))}</small><span class="lx-notes">${x.notes.map(n => this.lxNote(n)).join('')}</span></span>${odds(x.s)}</button>`;
+                const best = lists.map(l => l[2][0]).filter(Boolean);
+                const secs = [];
+                if (best.length) secs.push({ key: 'flavor.best', open: true, title: `Best odds for ${lw}`, sub: 'Where the sources most often describe it', teaser: best.map(x => x.e.name).join(', '), body: `<div class="lx-box"><div class="lx-flabel">Try a coffee that’s</div><div class="lx-tags">${best.map(x => `<button type="button" class="lx-tag lx-link" onclick="${go(x)}">${this.esc(x.e.name)}${this.lxIc('i-chev-right', 14)}</button>`).join('')}</div><p class="lx-p lx-small2 lx-gap">${best.length > 1 ? `Each one leans toward ${this.esc(lw)} on its own, so together they give you the best chance.` : `It leans toward ${this.esc(lw)}.`}</p></div>` });
+                lists.forEach(([w, t, l]) => secs.push({ key: `flavor.${w}`, open: true, title: t, teaser: l.map(x => x.e.name).join(', '), body: `<div class="lx-group">${l.map(row).join('')}</div>` }));
+                if (!lists.length) secs.push({ raw: `<div class="lx-sec"><p class="lx-note">No page here describes ${this.esc(lw)} yet.</p></div>` });
+                const here = this.lxFlavorHere(at); if (here) secs.push(here);
+                const you = this.lxFlavorYou(at); if (you) secs.push(you);
+                const html = this.lxHead({ kicker: 'Learn', kickerApp: true, name: 'Find a flavor', small: true, lede: 'Pick something you’d love to taste and see where it’s most often found: a starting point, not a promise.' })
+                    + `<div class="lx-sec lx-tight lx-fpick" data-fam="${fam}">${tabs}${pick}</div>` + secs.map(s => s.raw ? s.raw : this.lxSecs([s])).join('')
+                    + `<p class="lx-note lx-foot">Roast, freshness and your recipe move a cup as much as any of these.</p>`;
+                return { fam, html };
+            },
+            lxFlavorPick(note) { const top = this.lxTop(); if (!top || top.kind !== 'flavor') return; top.id = note; this.learnRender(true); if (this.haptic) this.haptic('tick'); },
+            // does a session's notes include the flavor (a group takes all its notes)
+            lxBrewHas(b, at) {
+                const want = at.note.toLowerCase();
+                return this.brewNoteList(b).some(([n]) => { const l = this.noteLocate(n, 'coffee'); if (!l || l.wheel !== 'coffee' || l.f < 0) return false; const F = NOTE_WHEEL[l.f], G = l.g >= 0 ? F.groups[l.g][0] : ''; return String(l.note || '').toLowerCase() === want || (at.group && G === at.g) || (!l.note && G === at.g && at.group); });
+            },
+            // you and the people you follow: the coffees it was tasted in (what's on this phone), most people first
+            lxFlavorHere(at) {
+                const by = new Map();
+                this.brews.forEach(b => {
+                    if (this.isTeaBrew(b) || !this.lxBrewHas(b, at)) return;
+                    const bean = this.beans.get(String(b.beanId || '')); if (!bean || this.isTeaBean(bean)) return;
+                    const key = this.beanGroupKey(bean); let x = by.get(key); if (!x) { x = { bean, who: new Set(), n: 0 }; by.set(key, x); }
+                    x.who.add(this.getBrewOwner(b)); x.n++;
+                });
+                const list = [...by.values()].sort((a, b) => b.who.size - a.who.size || b.n - a.n).slice(0, 5);
+                if (!list.length) return null;
+                const rows = list.map(x => { const dec = this.lxTagLine(x.bean); return this.lxRow({ title: x.bean.name || 'Coffee', sub: [x.bean.roaster, dec, x.who.size > 1 ? `${x.who.size} people` : x.who.has(this.user) ? 'you' : '1 person'].filter(Boolean).join(' · '), onclick: `app.learnOpenCoffee('${app.escJs(String(x.bean.id))}')` }); });
+                return { key: 'flavor.here', open: true, title: 'Tasted here', sub: `Coffees you and the people you follow tasted ${at.note.toLowerCase()} in`, teaser: list.map(x => x.bean.name).join(', '), body: `<div class="lx-group">${rows.join('')}</div>` };
+            },
+            lxFlavorYou(at) {
+                const mine = (this.brewsOf ? this.brewsOf(this.user) : [...this.brews.values()].filter(b => this.getBrewOwner(b) === this.user)).filter(b => !this.isTeaBrew(b) && this.lxBrewHas(b, at));
+                if (!mine.length) return null;
+                const procs = new Map(); let best = null;
+                mine.forEach(b => {
+                    const bean = this.beans.get(String(b.beanId || '')); if (!bean) return;
+                    const t = this.lxTags(bean), p = t && t.process && t.process.base; if (p) procs.set(p, (procs.get(p) || 0) + 1);
+                    const r = this.normalizeRating(b.rating); if (r > 0 && (!best || r > best.r)) best = { r, bean };
+                });
+                const topP = [...procs].sort((a, b) => b[1] - a[1])[0];
+                const text = `You’ve tasted ${this.esc(at.note.toLowerCase())} in <b>${this.lxPlural(mine.length, 'session')}</b>${topP && topP[1] > 1 ? `, most often in ${this.esc(this.lxName('process', topP[0]).toLowerCase())} coffees (${topP[1]})` : ''}.${best ? ` Your best: ${this.esc(best.bean.name || 'Coffee')}, ${this.fmtNum(best.r, 1)} ★.` : ''}`;
+                return { key: 'flavor.you', open: true, title: 'You', teaser: this.lxPlural(mine.length, 'session'), body: `<div class="lx-box"><p class="lx-p">${text}</p></div>` };
+            },
+            // "Colombia · Washed · Caturra": a coffee's kinds in a few words
+            lxTagLine(bean) {
+                const t = this.lxTags(bean); if (!t) return '';
+                const o = t.origin || {}, p = t.process || {};
+                return [(o.countries || []).length === 1 ? this.lxName('origin', o.countries[0]) : '', p.base ? (LearnEngine.processName(p) || this.lxName('process', p.base)) : '', (t.variety || [])[0] ? this.lxName('variety', t.variety[0]) : ''].filter(Boolean).join(' · ');
+            },
+
+            // ===================== the World map (Origins), with filters =====================
+            lxWorldPage(p) {
+                const c = this.learnContent(), ov = this.lxOverview() || {}, st = this.lxState(), f = st.wf || 'all';
+                const all = LearnEngine.allCountries(), P = this.lxPassport(this.user), had = new Set([...P.countries.keys()]);
+                const fresh = this.lxFreshNow(), freshSet = new Set(fresh.map(x => x.code));
+                const AM = ['South America', 'North & Central America'];
+                const inF = x => f === 'all' || (f === 'had' && had.has(x.code)) || (f === 'fresh' && freshSet.has(x.code)) || (f === 'Americas' && AM.includes(x.continent)) || x.continent === f;
+                const pages = new Set(all.map(x => x.code).filter(code => this.lxHasPage('origin', code)));
+                const sel = new Set(all.filter(inF).map(x => x.code));
+                const conts = ['Africa', 'Americas', 'Asia', 'Oceania'].filter(k => all.some(x => k === 'Americas' ? AM.includes(x.continent) : x.continent === k));
+                const chips = [['all', 'All'], ...(had.size ? [['had', 'You’ve had']] : []), ...(fresh.length ? [['fresh', 'Fresh now']] : []), ...conts.map(k => [k, k])];
+                const legend = f === 'had' ? 'Countries you’ve had' : f === 'fresh' ? 'Picked recently enough to be fresh now' : f === 'all' ? 'Grows coffee' : `Grows coffee: ${f}`;
+                const mapBody = `<div class="lx-mapbox" data-fam="fruity">${this.lxWorldSvg({ hot: f === 'all' ? null : sel, pages, belt: true })}<div class="lx-legend"><span><i class="lx-lg-on"></i>${this.esc(legend)}</span><span><i class="lx-lg-belt"></i>The coffee belt, between the tropics</span></div></div>`;
+                const chipHtml = `<div class="lx-chips" role="tablist" aria-label="Show">${chips.map(([k, l]) => `<button type="button" class="lx-chip${k === f ? ' on' : ''}" aria-pressed="${k === f}" onclick="app.lxSetWorld('${app.escJs(k)}')">${this.esc(l)}</button>`).join('')}</div>`;
+                const n = code => { const x = ov[`origin:${code}`]; return x ? x[2] : 0; };
+                const mineN = code => (P.countries.get(code) || {}).n || 0;
+                const list = all.filter(inF).map(x => ({ x, n: n(x.code), s: f === 'had' ? mineN(x.code) : (ov[`origin:${x.code}`] || [0])[0], page: pages.has(x.code) }))
+                    .sort((a, b) => b.s - a.s || (b.page - a.page) || a.x.name.localeCompare(b.x.name));
+                const rows = list.map(r => { const e = r.page ? this.lxEntry('origin', r.x.code) : null, nr = this.lxRegionsOf(r.x.code).length; const sub = [e && e.summary ? e.summary.replace(/\.$/, '') : r.x.continent, f === 'had' ? this.lxPlural(mineN(r.x.code), 'session') : r.n ? this.lxPlural(r.n, 'coffee') + ' here' : '', nr ? this.lxPlural(nr, 'region') : ''].filter(Boolean).join(' · '); return this.lxRow({ titleHtml: `${this.esc(r.x.name)}${had.has(r.x.code) && f !== 'had' ? ` <span class="lx-had" aria-label="you’ve had it">${this.lxIc('i-check', 13)}</span>` : ''}`, sub, onclick: r.page ? this.lxGo('origin', r.x.code) : '' }); });
+                const nRegions = [...c.entries.values()].filter(e => e.kind === 'region').length;
+                const freshNote = f === 'fresh' ? `<p class="lx-note">${this.esc(this.lxMonthWord())}: an estimate from harvest months, plus the few months a crop takes to reach roasters.${fresh.some(x => x.allYear) ? ` ${this.esc(fresh.filter(x => x.allYear).map(x => this.lxName('origin', x.code)).join(', '))}: most of the year.` : ''}</p>` : '';
+                const secs = [
+                    { key: 'origins.map', open: true, title: 'Where coffee grows', teaser: `${all.length} countries, in a band around the tropics`, body: mapBody, cls: 'lx-mapsec' },
+                    { raw: chipHtml },
+                    { key: 'origins.list', open: true, title: 'Countries', meta: String(list.length), teaser: list.slice(0, 4).map(r => r.x.name).join(', '), body: `<div class="lx-group">${this.moreHtml(rows, 6, '')}</div>${freshNote}${f === 'all' && Object.keys(ov).length ? `<p class="lx-note">${this.esc(c.origins.note || '')}</p>` : ''}` }
+                ];
+                const html = this.lxHead({ kicker: 'Learn', kickerApp: true, name: 'World map', small: true, lede: `${all.length} countries and ${nRegions} regions. Tap a country to open it; its regions open from there.` }) + secs.map(s => s.raw ? s.raw : this.lxSecs([s])).join('');
+                return { fam: 'app', html };
+            },
+            lxSetWorld(k) { this.lxState().wf = k; this.learnRender(true); if (this.haptic) this.haptic('tick'); },
+
+            // ===================== the Learn home's doors =====================
+            lxWheelArt() {
+                const fams = this.lxWheel(), cx = 64, cy = 64, gap = 0.035, total = fams.reduce((n, f) => n + f.groups.length, 0);
+                const arc = (a0, a1, r0, r1, fill, op) => { const p = (a, r) => [cx + r * Math.cos(a), cy + r * Math.sin(a)], q = v => v.toFixed(1); const [x0, y0] = p(a0, r1), [x1, y1] = p(a1, r1), [x2, y2] = p(a1, r0), [x3, y3] = p(a0, r0), lg = a1 - a0 > Math.PI ? 1 : 0; return `<path d="M${q(x0)} ${q(y0)}A${r1} ${r1} 0 ${lg} 1 ${q(x1)} ${q(y1)}L${q(x2)} ${q(y2)}A${r0} ${r0} 0 ${lg} 0 ${q(x3)} ${q(y3)}Z" fill="${fill}" opacity="${op}"/>`; };
+                let a = -Math.PI / 2, s = '';
+                fams.forEach(f => { const span = f.groups.length / total * 2 * Math.PI; s += arc(a + gap, a + span - gap, 20, 40, f.color, 0.95); let b = a; f.groups.forEach(() => { const sp = span / f.groups.length; s += arc(b + gap, b + sp - gap, 43, 60, f.color, 0.6); b += sp; }); a += span; });
+                return `<svg class="lxk lx-dart lx-dwheel" viewBox="0 0 128 128" aria-hidden="true">${s}</svg>`;
+            },
+            lxDoorsHtml() {
+                const nV = LearnEngine.allVarieties().filter(v => v.family !== 'species').length, nC = LearnEngine.allCountries().length, nP = LearnEngine.allProcesses().length;
+                const c = this.learnContent(), nR = c ? [...c.entries.values()].filter(e => e.kind === 'region').length : 0;
+                if (typeof LearnTree !== 'undefined') this.lxTreeDefs();
+                const door = (fam, on, art, name, sub) => `<button type="button" class="lx-door2" data-fam="${fam}" onclick="${on}"><span class="lx-dart-w">${art}</span><span class="lx-dn">${name}</span><span class="lx-dc">${sub}</span></button>`;
+                return `<div class="lx-doors2">`
+                    + door('vegetal', "app.lxTreeOpen('')", typeof LearnTree !== 'undefined' ? LearnTree.sprig().replace('class="lxk"', 'class="lxk lx-dart lx-dtree"') : '', 'Coffee tree', `${nV} varieties`)
+                    + door('fruity', "app.learnOpen('list', 'origins')", this.lxWorldSvg({ mini: true, belt: true }).replace('class="lx-world', 'class="lx-dart lx-dworld lx-world'), 'World map', `${nC} countries`)
+                    + door('floral', "app.learnOpen('flavor', 'Berry')", this.lxWheelArt(), 'Find a flavor', 'Berry? Chocolate?')
+                    + door('fermented', "app.learnOpen('list', 'processes')", typeof LearnTree !== 'undefined' ? LearnTree.cut({ size: 100 }).replace('class="lxk lx-cut"', 'class="lxk lx-cut lx-dart lx-dcut"') : '', 'How it’s made', `${nP} processes`)
+                    + `</div>`;
+            },
+            // the search bar on the Learn home opens the header's search
+            lxSearchBarHtml() { return `<button type="button" class="lx-searchbar" onclick="app.lxSearchFocus()">${this.lxIc('i-search', 18)}<span>Search varieties, places, flavors</span></button>`; },
+            lxSearchFocus() {
+                const btn = document.getElementById('top-search-btn'), top = document.getElementById('search-input-top');
+                if (btn && btn.offsetParent !== null && this.openTopSearch) { this.openTopSearch(); if (top) try { top.focus(); } catch (e) {} return; }
+                const d = document.getElementById('search-input') || document.getElementById('search-input-mobile'); if (d) try { d.focus(); } catch (e) {}
+            },
+
+            // ===================== the coffee page: About this coffee, as the coffee's story =====================
+            // The trees, where it grew, how it was processed, and what that combination tends toward: notes the parts' pages
+            // share, pieced together from what's said about each part (not a prediction).
+            lxJourney(bean) {
+                const t = this.lxTags(bean); if (!t) return null;
+                const steps = [], parts = [], meta = {};
+                const cupOf = (kind, id) => { const e = this.lxEntry(kind, id); const notes = e ? ((e.taste && e.taste.notes) || (e.rx && e.rx.cup && e.rx.cup.notes) || []) : []; return { e, notes }; };
+                const vs = (t.variety || []).filter(id => LearnEngine.entry('variety', id));
+                const and = a => a.length > 1 ? `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}` : (a[0] || '');
+                if (vs.length) {
+                    const names = vs.map(id => this.lxName('variety', id)), e0 = this.lxEntry('variety', vs[0]); meta.tree = and(names);
+                    let sub = e0 && e0.summary ? e0.summary : (LearnEngine.SAY[vs[0]] ? `${names[0]} ${LearnEngine.SAY[vs[0]][0]}.` : '');
+                    if (vs.length > 1) {   // (a sentence for each, the ones that say the same thing together, as the bag decoder does)
+                        const said = new Map(); vs.forEach(id => { const x = LearnEngine.SAY[id]; if (!x) return; if (!said.has(x[0])) said.set(x[0], []); said.get(x[0]).push(this.lxName('variety', id)); });
+                        if (said.size) sub = [...said].map(([x, ns]) => `${and(ns)} ${ns.length > 1 ? x.replace(/^is /, 'are ').replace(/^was /, 'were ').replace(/^comes /, 'come ').replace(/^means /, 'mean ') : x}.`).join(' ');
+                    }
+                    steps.push({ ic: 'i-tree', k: vs.length > 1 ? 'The trees' : 'The tree', n: and(names), s: sub, go: this.lxHasPage('variety', vs[0]) ? this.lxGo('variety', vs[0]) : '' });
+                    vs.forEach(id => parts.push([this.lxName('variety', id), cupOf('variety', id).notes]));
+                } else if (t.species && t.species !== 'arabica') {
+                    meta.tree = this.lxName('species', t.species);
+                    steps.push({ ic: 'i-tree', k: 'The species', n: this.lxName('species', t.species), s: (this.lxEntry('species', t.species) || {}).summary || '', go: this.lxHasPage('species', t.species) ? this.lxGo('species', t.species) : '' });
+                    parts.push([this.lxName('species', t.species), cupOf('species', t.species).notes]);
+                } else if (t.species === 'arabica') {
+                    const eth = (t.origin.countries || []).length === 1 && t.origin.countries[0] === 'ETH';
+                    steps.push({ ic: 'i-tree', k: 'The trees', n: 'Arabica', s: eth ? 'The species. The bag doesn’t name the variety, which is fine: in Ethiopia it usually means local landraces or research-station selections.' : 'The species. The bag doesn’t name the variety, which is fine.', go: this.lxHasPage('species', 'arabica') ? this.lxGo('species', 'arabica') : '' });
+                }
+                const o = t.origin || {}, code = (o.countries || []).length === 1 && !o.blend ? o.countries[0] : '';
+                if (code) {
+                    const rid = o.region ? `${code}:${o.region}` : '', re = rid ? this.lxEntry('region', rid) : null, ce = this.lxEntry('origin', code);
+                    const rname = rid ? (re ? re.name : (LearnEngine.entry('region', rid) || {}).name) : '';
+                    const place = [o.placeName, rname, this.lxName('origin', code)].filter(Boolean).filter((x, i, a) => a.indexOf(x) === i).join(', ');
+                    meta.place = rname || this.lxName('origin', code);
+                    steps.push({ ic: 'i-pin', k: 'Where it grew', n: place, s: (re && re.summary) || (ce && ce.summary) || '', go: re ? this.lxGo('region', rid) : this.lxHasPage('origin', code) ? this.lxGo('origin', code) : '' });
+                    const pc = re ? cupOf('region', rid) : cupOf('origin', code);
+                    parts.push([re ? re.name : this.lxName('origin', code), pc.notes, re || ce]);
+                } else if ((o.countries || []).length > 1) steps.push({ ic: 'i-pin', k: 'Where it grew', n: and(o.countries.map(cc => this.lxName('origin', cc))), s: 'A blend from more than one country.', go: '' });
+                const p = t.process || {};
+                if (p.base || (p.layers || []).length) {
+                    const ids = [...(p.layers || []), p.base].filter(Boolean), nm = this.lxCap([...(p.layers || []).map(id => this.lxName('process', id).toLowerCase()), p.base ? (LearnEngine.processName(p) || this.lxName('process', p.base)).toLowerCase() : ''].filter(Boolean).join(' '));
+                    const first = ids[0], pe = this.lxEntry('process', first); meta.proc = nm;
+                    steps.push({ ic: 'i-drop', k: 'How it was processed', n: nm, s: pe && pe.summary ? pe.summary : '', go: this.lxHasPage('process', first) ? this.lxGo('process', first) : '' });
+                    ids.forEach(id => parts.push([this.lxName('process', id), cupOf('process', id).notes]));
+                }
+                if (!steps.length) return null;
+                // the notes the parts share, most shared first
+                const cnt = new Map(); parts.forEach(([who, notes]) => (notes || []).forEach(n => { const k = String(n); if (!cnt.has(k)) cnt.set(k, []); if (!cnt.get(k).includes(who)) cnt.get(k).push(who); }));
+                const ranked = [...cnt].sort((a, b) => b[1].length - a[1].length).slice(0, 4), shared = ranked.filter(x => x[1].length > 1);
+                const placePart = parts.find(x => x[2]), feel = placePart && placePart[2] ? (placePart[2].feel || (placePart[2].rx && placePart[2].rx.cup && placePart[2].rx.cup.feel)) : null;
+                return { steps, ranked, shared, feel, meta, placeKind: placePart && placePart[2] ? (placePart[2].kind === 'region' ? 'region' : 'country') : '' };
+            },
+            // "Washed Caturra, Colombia and Tabi from Cauca": About this coffee, folded
+            lxAboutLine(J) {
+                const m = J.meta || {}, head = m.proc ? `${m.proc}${m.tree ? ' ' + m.tree : ' coffee'}` : (m.tree || 'A coffee');
+                return `${this.lxCap(head)}${m.place ? ` from ${m.place}` : ''}`;
+            },
+            lxJourneyHtml(J) {
+                const step = s => { const inner = `<span class="lx-jic">${this.lxIc(s.ic, 20)}</span><span class="lx-rmain"><small class="lx-jk">${this.esc(s.k)}</small><b>${this.esc(s.n)}</b>${s.s ? `<small>${this.esc(s.s)}</small>` : ''}</span>${s.go ? `<span class="lx-chev">${this.lxIc('i-chev-right', 16)}</span>` : ''}`; return s.go ? `<button type="button" class="lx-jstep" onclick="${s.go}">${inner}</button>` : `<div class="lx-jstep">${inner}</div>`; };
+                const sharedLine = J.shared.length ? `${this.esc(this.lxCap(J.shared.map(x => x[0].toLowerCase()).join(' and ')))} ${J.shared.length > 1 ? 'come' : 'comes'} up for ${J.shared[0][1].length > 2 ? 'several of its parts' : `both ${this.esc(J.shared[0][1].join(' and '))}`}. ` : '';
+                const f = J.feel || {}, feelLine = f.acidity || f.body ? `The ${J.placeKind || 'place'} is described with ${f.acidity ? `${this.esc(f.acidity)} acidity` : ''}${f.acidity && f.body ? ' and ' : ''}${f.body ? `a ${this.esc(f.body)} body` : ''}.` : '';
+                const tends = J.ranked.length ? `<div class="lx-jstep lx-jend"><span class="lx-jic">${this.lxIc('i-coffee', 20)}</span><span class="lx-rmain"><small class="lx-jk">This combination tends toward</small><span class="lx-cupbox"><span class="lx-notes">${J.ranked.map(x => this.lxNote(x[0])).join('')}</span>${sharedLine || feelLine ? `<span class="lx-p">${sharedLine}${feelLine}</span>` : ''}<small class="lx-note">Pieced together from what’s said about each part, not a prediction. Roast and your recipe move it a lot.</small></span></span></div>` : '';
+                return `<div class="lx-journey">${J.steps.map(step).join('')}${tends}</div>`;
             },
         };
         window.onload = () => app.init();
