@@ -67,10 +67,17 @@
         html[data-look="new"] .lx-rk { font-size: 12px; font-weight: 650; color: var(--k); }
         html[data-look="new"] .lx-rn { font-family: var(--nl-serif); font-weight: 500; font-size: 21px; line-height: 1.1; color: var(--n); }
         html[data-look="new"] .lx-rs { font-size: 12.5px; line-height: 1.3; color: var(--l); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        /* v20.3: a thin page's closest relative with a full page; a country's line on what's typical */
+        html[data-look="new"] .lx-near > .lx-p { margin: 0 0 10px; }
+        html[data-look="new"] .lx-nearcard { width: 100%; flex: none; }
+        html[data-look="new"] .lx-nearn { font-size: 12.5px; line-height: 1.35; color: var(--t); margin-top: 4px; }
+        html[data-look="new"] .lx-nearn em { font-style: normal; color: var(--l); }
+        html[data-look="new"] .lx-rgo { margin-top: 6px; font-size: 13px; font-weight: 650; color: var(--k); }
+        html[data-look="new"] .lx-gtext { margin: 0 0 10px; }
 
         /* maps: a region lit on its country, tappable regions */
         html[data-look="new"] .lx-cmap [data-lxr] { cursor: pointer; }
-        html[data-look="new"] .lx-mdot.lx-mme circle { fill: var(--k); stroke: var(--box); stroke-width: 2; }
+        html[data-look="new"] .lx-mdot.lx-mme circle { fill: var(--k); stroke: var(--box); stroke-width: calc(2px * var(--mz, 1)); }
         html[data-look="new"] .lx-mdot.lx-mme text { font-weight: 750; }
         html[data-look="new"] .lx-mdot:not(.lx-mme)[data-lxr] circle { fill: color-mix(in srgb, var(--k) 55%, transparent); }
 

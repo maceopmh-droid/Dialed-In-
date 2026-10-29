@@ -51,12 +51,14 @@
             lxTreeOpen(focus) { if (focus && typeof LearnTree !== 'undefined' && !LearnTree.simple(focus)) this.lxTreeState().mode = 'every'; this.learnOpen('tree', focus || ''); },
             lxTreeState() { const st = this.lxState(); return st.tree || (st.tree = { mode: 'simple' }); },
             lxTreeData(mode) {
-                const mine = this.lxMineVarieties(), key = `${mode}|${[...mine].sort().join(',')}`;
+                const mine = this.lxMineVarieties(), fam = this.lxTreeFam(), key = `${mode}|${fam}|${[...mine].sort().join(',')}`;
                 this._lxTreeCache = this._lxTreeCache || {};
-                if (!this._lxTreeCache[key]) this._lxTreeCache[key] = LearnTree.draw(mode, { name: id => this.lxVName(id), mine });
+                if (!this._lxTreeCache[key]) this._lxTreeCache[key] = LearnTree.draw(mode, { name: id => this.lxVName(id), mine, fam });
                 return this._lxTreeCache[key];
             },
-            LX_TCHIP: { W: ['Wild Ethiopia', '#c98bbb'], AB: ['Ethiopians abroad', '#d9a1c7'], Y: ['Yemen', '#d7b46a'], typica: ['Typica family', '#b9a07a'], bourbon: ['Bourbon family', '#e0b65a'], 'timor-hybrid': ['Timor Hybrid', '#6fb3a0'], catimor: ['Catimors', '#6fb3a0'], sarchimor: ['Sarchimors', '#6fb3a0'], f1: ['New hybrids', '#9cc97a'], species: ['Species', '#9b8d80'] },
+            // v20.3: the families' colors, the same ones the branches are tinted with (the chips are the tree's key)
+            LX_TCHIP: { W: ['Wild Ethiopia', '#c98bbb'], AB: ['Ethiopians abroad', '#e8a7c8'], Y: ['Yemen', '#e0915a'], typica: ['Typica family', '#86a9d9'], bourbon: ['Bourbon family', '#e3b94a'], 'timor-hybrid': ['Timor Hybrid', '#5fbfa8'], catimor: ['Catimors', '#5fbfa8'], sarchimor: ['Sarchimors', '#5fbfa8'], f1: ['New hybrids', '#9cc97a'], species: ['Species', '#9b8d80'] },
+            lxTreeFam() { return this._lxTreeFam || 'dots'; },   // (Maceo picked colored branches plus a dot by each name, Oct 29)
             LX_TABOUT: {
                 W: 'Arabica began in the forests of southwestern Ethiopia (and the Boma Plateau just over the border in South Sudan), which still hold most of its genetic variety. These grow straight from the wild trees: landraces, Gesha, Rume Sudan and picks from Ethiopia’s research center.',
                 AB: 'Types grown abroad under names like Java and Pink Bourbon, which DNA ties back to Ethiopian landraces. For some the evidence is still early.',
@@ -107,7 +109,7 @@
                     if (P.size === 1) {
                         moved += Math.abs(cur[0] - prev[0]) + Math.abs(cur[1] - prev[1]);
                         if (!dragging && moved > 6) { dragging = true; try { wrap.setPointerCapture(e.pointerId); } catch (err) {} }
-                        if (dragging) { Z.x += cur[0] - prev[0]; Z.y += cur[1] - prev[1]; this.lxTreeApply(false); }
+                        if (dragging) { Z.x += cur[0] - prev[0]; Z.y += cur[1] - prev[1]; this.lxTreeClamp(); this.lxTreeApply(false); }
                     } else if (P.size === 2) { const [a, b] = [...P.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]), c = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]; if (last) { const f = d / last.d; Z.x = c[0] - (last.c[0] - Z.x) * f + (c[0] - last.c[0]); Z.y = c[1] - (last.c[1] - Z.y) * f + (c[1] - last.c[1]); Z.k *= f; this.lxTreeClamp(); this.lxTreeApply(false); } last = { d, c }; moved += 99; }
                 });
                 const up = e => {
@@ -130,25 +132,36 @@
             // the label layer: names stay about 13 px whatever the zoom; higher-priority names win a spot, the rest wait
             lxTreeLabels() {
                 const T = this._lxT, host = document.getElementById('lx-tlab'); if (!T || !host) return;
-                host.innerHTML = T.F.labels.map((l, i) => l.kind === 'variety'
-                    ? `<button type="button" class="lx-tl v${l.own ? ' own' : ''}${l.f1 ? ' f1' : ''}${l.q ? ' q' : ''}" data-i="${i}" onclick="app.lxTreeFocus('${app.escJs(l.id)}')">${l.own ? '<i></i>' : ''}${this.esc(l.text)}</button>`
+                const fam = this.lxTreeFam();   // v20.3: the families are colors, so their big name plates are gone and the species names are small
+                host.innerHTML = T.F.labels.map((l, i) => l.kind === 'group' && fam ? '' : l.kind === 'species' && fam ? `<button type="button" class="lx-tl v sp" data-i="${i}" onclick="${this.lxHasPage('species', l.id) ? this.lxGo('species', l.id) : `app.lxTreeZoom('species')`}">${this.esc(l.id === 'arabica' ? 'Arabica' : l.text)}</button>` : l.kind === 'variety'
+                    ? `<button type="button" class="lx-tl v${l.own ? ' own' : ''}${l.f1 ? ' f1' : ''}${l.q ? ' q' : ''}" data-i="${i}" onclick="app.lxTreeFocus('${app.escJs(l.id)}')">${l.own ? '<i></i>' : fam === 'dots' && l.fc ? `<i class="fcd" style="background:${l.fc}"></i>` : ''}${this.esc(l.text)}</button>`
                     : `<button type="button" class="lx-tl ${l.kind === 'species' ? 's' : 'g'}" data-i="${i}" onclick="${l.kind === 'group' ? `app.lxTreeZoom('${app.escJs(l.id)}')` : this.lxHasPage('species', l.id) ? this.lxGo('species', l.id) : `app.lxTreeZoom('species')`}">${l.col ? `<i style="background:${l.col}"></i>` : ''}<b>${this.esc(l.text)}</b>${l.desc ? `<small>${this.esc(l.desc)}</small>` : ''}</button>`).join('');
-                T.LBL = [...host.children].map(el => { const l = T.F.labels[+el.dataset.i]; const o = { el, l, w: el.offsetWidth, h: el.offsetHeight }; if (l.kind !== 'variety') { el.classList.add('mini'); o.mw = el.offsetWidth; o.mh = el.offsetHeight; el.classList.remove('mini'); } return o; }).sort((a, b) => b.l.prio - a.l.prio);
+                T.LBL = [...host.children].map(el => { const l = T.F.labels[+el.dataset.i]; const o = { el, l, w: el.offsetWidth, h: el.offsetHeight }; if (l.kind !== 'variety' && !el.classList.contains('sp')) { el.classList.add('mini'); o.mw = el.offsetWidth; o.mh = el.offsetHeight; el.classList.remove('mini'); } return o; }).sort((a, b) => b.l.prio - a.l.prio);
+            },
+            // v20.3: names hold still. While a finger is down the names showing just ride along with the tree; when you let go
+            // they're placed again, the ones you could already see first and on the same side, so few appear or vanish.
+            lxTreeRide() {
+                const T = this._lxT; if (!T || !T.LBL.length) return; const Z = T.TZ;
+                T.LBL.forEach(o => { if (!o.at) return; o.el.style.transform = `translate(${(Z.x + Z.k * o.l.x + o.at[0]).toFixed(1)}px, ${(Z.y + Z.k * o.l.y + o.at[1]).toFixed(1)}px)`; });
             },
             lxTreePlace() {
                 const T = this._lxT; if (!T || !T.LBL.length) return;
-                const W = T.W, H = T.H, Z = T.TZ, taken = [], b = T.F.bounds;
+                const W = T.W, H = T.H, Z = T.TZ, taken = [], b = T.F.bounds, atFit = !T.kFit || Z.k <= T.kFit * 1.01;
                 const card = document.getElementById('lx-tfocus'); if (card && card.classList.contains('on')) taken.push([0, H - card.offsetHeight - 16, W, H]);
                 taken.push([W - 56, 0, W, 150], [0, 0, 96, 50]);   // (the zoom buttons and Yours)
                 const mini = Z.k * (b[2] - b[0]) < 700;
                 const free = r => r[0] > 2 && r[2] < W - 2 && r[1] > -20 && r[3] < H + 20 && !taken.some(q => r[0] < q[2] && r[2] > q[0] && r[1] < q[3] && r[3] > q[1]);
-                [...T.LBL.filter(o => T.FOC.has(o.l.id)), ...T.LBL.filter(o => !T.FOC.has(o.l.id))].forEach(o => {
+                const first = o => T.FOC.has(o.l.id) ? 0 : !atFit && o.at ? 1 : 2;   // (all the way out, the same names every time)
+                [...T.LBL].sort((p, q) => first(p) - first(q)).forEach(o => {
                     const sm = mini && o.mw && !o.l.wide; o.el.classList.toggle('mini', !!sm); o.el.classList.toggle('on', T.FOC.has(o.l.id));
                     const sx = Z.x + Z.k * o.l.x, sy = Z.y + Z.k * o.l.y, w = sm ? o.mw : o.w, h = sm ? o.mh : o.h; let spot = null;
                     const upc = [sx - w / 2, sy - h - 8], rt = [sx + 10, sy - h / 2], lt = [sx - w - 10, sy - h / 2], dn = [sx - w / 2, sy + 10];
                     const cands = o.l.kind === 'variety' ? (o.l.side === 'l' ? [lt, upc, dn, rt] : o.l.side === 'r' ? [rt, upc, dn, lt] : [upc, rt, lt, dn]) : [[sx - w / 2, sy - h - 12], [sx - w / 2, sy + 12], [sx + 14, sy - h / 2], [sx - w - 14, sy - h / 2]];
-                    for (const [x0, y] of cands) { const x = o.l.kind === 'variety' ? x0 : Math.max(6, Math.min(W - w - 6, x0)); const r = [x - 3, y - 2, x + w + 3, y + h + 2]; if (free(r)) { spot = [x, y]; taken.push(r); break; } }
-                    if (spot) { o.el.style.transform = `translate(${spot[0].toFixed(1)}px, ${spot[1].toFixed(1)}px)`; o.el.style.visibility = 'visible'; } else o.el.style.visibility = 'hidden';
+                    const order = [0, 1, 2, 3]; if (o.ci && !atFit) order.unshift(order.splice(o.ci, 1)[0]);   // (the side it was on first)
+                    let ci = 0;
+                    for (const i of order) { const [x0, y] = cands[i], x = o.l.kind === 'variety' ? x0 : Math.max(6, Math.min(W - w - 6, x0)), r = [x - 3, y - 2, x + w + 3, y + h + 2]; if (free(r)) { spot = [x, y]; ci = i; taken.push(r); break; } }
+                    if (spot) { o.el.style.transform = `translate(${spot[0].toFixed(1)}px, ${spot[1].toFixed(1)}px)`; o.el.style.visibility = 'visible'; o.at = [spot[0] - sx, spot[1] - sy]; o.ci = ci; }
+                    else { o.el.style.visibility = 'hidden'; o.at = null; }
                 });
             },
             // drawing: the svg covers the screen plus a margin, showing the part of the tree in view; while you pan or pinch the
@@ -170,10 +183,19 @@
                 const lab = document.getElementById('lx-tlab');
                 clearTimeout(T.at);
                 if (anim) { if (lab) lab.classList.add('moving'); T.at = setTimeout(() => { if (lab) lab.classList.remove('moving'); this.lxTreeSettle(); }, 470); }
-                else { if (!T.raf) T.raf = requestAnimationFrame(() => { T.raf = 0; this.lxTreePlace(); }); }
+                else { if (!T.raf) T.raf = requestAnimationFrame(() => { T.raf = 0; this.lxTreeRide(); }); }
             },
             lxTreeSettle() { const T = this._lxT; if (!T) return; this.lxTreeRender(); this.lxTreePlace(); },
-            lxTreeClamp() { const T = this._lxT, b = T.F.bounds, kMin = Math.min(T.W / (b[2] - b[0]), T.H / (b[3] - b[1])) * 0.6; T.TZ.k = Math.max(kMin, Math.min(1.6, T.TZ.k)); },
+            // v20.3: you move around a tree that stays put: zoomed all the way out it fits the box exactly, and you can't drag
+            // past its edges. Zoomed in, a sideways swipe in the box looks around instead of going back (the box says no-swipe).
+            lxTreeClamp() {
+                const T = this._lxT; if (!T) return; const Z = T.TZ, b = T.F.bounds, x0 = b[0] - 10, y0 = b[1] - 10, x1 = b[2] + 10, y1 = b[3] + 10;
+                const kFit = Math.min(T.W / (x1 - x0), T.H / (y1 - y0)) * 0.94; T.kFit = kFit;
+                Z.k = Math.max(kFit, Math.min(Math.max(1.6, kFit * 1.5), Z.k));
+                const ax = (lo, hi, size, off) => (hi - lo) * Z.k <= size ? size / 2 - Z.k * (lo + hi) / 2 : Math.min(-Z.k * lo, Math.max(size - Z.k * hi, off));
+                Z.x = ax(x0, x1, T.W, Z.x); Z.y = ax(y0, y1, T.H, Z.y);
+                const wrap = document.getElementById('lx-tw'); if (wrap) wrap.classList.toggle('no-swipe', Z.k > kFit * 1.01);
+            },
             lxTreeBox(bx, anim, maxK) { const T = this._lxT; if (!T) return; const [x0, y0, x1, y1] = bx; let k = Math.min(T.W / (x1 - x0), T.H / (y1 - y0)) * 0.94; if (maxK) k = Math.min(k, maxK); T.TZ = { k, x: T.W / 2 - k * (x0 + x1) / 2, y: T.H / 2 - k * (y0 + y1) / 2 }; this.lxTreeClamp(); this.lxTreeApply(anim); },
             lxTreeFit(anim) { const T = this._lxT; if (!T) return; const b = T.F.bounds; if (anim) this.lxTreeUnfocus(true); this.lxTreeBox([b[0] - 10, b[1] - 10, b[2] + 10, b[3] + 10], anim); },
             lxTreeStep(f) { const T = this._lxT; if (!T) return; const Z = T.TZ; Z.x = T.W / 2 - (T.W / 2 - Z.x) * f; Z.y = T.H / 2 - (T.H / 2 - Z.y) * f; Z.k *= f; this.lxTreeClamp(); this.lxTreeApply(true); },

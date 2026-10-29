@@ -93,6 +93,9 @@
                     if (on('guide-modal') || on('welcome-view')) return;
                     const page = this.subPage();
                     const edge = x < EDGE;
+                    // v20.3: zoomed into the coffee tree, a sideways swipe in its box looks around, even from the edge (zoomed all the
+                    // way out it goes back as usual)
+                    if (target && target.closest && target.closest('.lx-twrap.no-swipe')) return;
                     if (page) { if (edge || (!blocked(target) && !sideways(target))) g = { kind: 'back', el: page, x0: x, y0: y, t0: Date.now() }; return; }
                     if (this.tab === 'profile' && this.profileUser && this.profileUser !== this.user && this._profBack) {
                         if (edge || (!blocked(target) && !sideways(target))) g = { kind: 'back', el: document.getElementById('grid'), soft: true, x0: x, y0: y, t0: Date.now() };

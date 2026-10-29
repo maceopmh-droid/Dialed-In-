@@ -199,6 +199,11 @@
         html[data-look="new"] .lx-dotmap .lx-cmap .lx-outline { fill: color-mix(in srgb, var(--t) 9%, transparent); }
         html[data-look="new"] .lx-mdot circle { fill: var(--k); stroke: var(--box); stroke-width: 1; }
         html[data-look="new"] .lx-mdot text { font: 600 7.2px var(--font-main, -apple-system, system-ui, sans-serif); fill: var(--t); paint-order: stroke; stroke: var(--box); stroke-width: 2px; stroke-linejoin: round; }
+        /* v20.3: a map zoomed onto its coffee area (--mz < 1) keeps lines, dots and names the same size on screen */
+        html[data-look="new"] .lx-cmap .lx-rest, html[data-look="new"] .lx-cmap .lx-rg { stroke-width: calc(0.8px * var(--mz, 1)); }
+        html[data-look="new"] .lx-cmap .lx-outline { stroke-width: calc(1px * var(--mz, 1)); }
+        html[data-look="new"] .lx-mdot circle { stroke-width: calc(1px * var(--mz, 1)); }
+        html[data-look="new"] .lx-mdot text { font-size: calc(7.2px * var(--mz, 1)); stroke-width: calc(2px * var(--mz, 1)); }
         /* the process map */
         html[data-look="new"] .lx-pmapbox { background: var(--box); border: 1px solid var(--hl); border-radius: 22px; padding: 12px 10px 12px; }
         html[data-look="new"] .lx-pmapbox .lx-note { margin: 6px 6px 0; }

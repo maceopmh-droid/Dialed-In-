@@ -24,7 +24,16 @@
                 const maps = (f['maps.json'] || {}).maps || {};
                 // v20.1: the research (atlas.json) gives every variety, species, process, country and region a page. A written
                 // page keeps its words and takes the research's extra parts (rx); the rest are built from the research.
-                ((f['atlas.json'] || {}).records || []).forEach(r => { const k = `${r.kind}:${r.id}`, e = entries.get(k); entries.set(k, e ? { ...e, rx: r } : this.lxFromRx(r, maps)); });
+                // (v20.3: a written page keeps its own words; a part it doesn't have, like harvest months, comes from the research)
+                const FILL = ['harvest', 'harvestText', 'secondName', 'grows', 'regions', 'regionsNote', 'map', 'mapTiers', 'mapLegend'];   // (the cup comes from both already)
+                const empty = v => v == null || v === '' || (Array.isArray(v) && !v.length);
+                ((f['atlas.json'] || {}).records || []).forEach(r => {
+                    const k = `${r.kind}:${r.id}`, e = entries.get(k);
+                    if (!e) { entries.set(k, this.lxFromRx(r, maps)); return; }
+                    const x = this.lxFromRx(r, maps), m = { ...e, rx: r };
+                    FILL.forEach(key => { if (empty(m[key]) && !empty(x[key])) m[key] = x[key]; });
+                    entries.set(k, m);
+                });
                 return { version: j.version, updated: j.updated || '', entries, guides: gs, guideList: guides.guides || [], sources: (f['sources.json'] || {}).sources || {}, maps, tree: pages.tree || null, pmap: pages.processMap || null, origins: pages.origins || {}, fresh: pages.fresh || null, raw: j };
             },
             async lxFetchJson(url) {
@@ -33,10 +42,15 @@
                 return r.json();
             },
             // load (or refresh) the files; resolves to the content, or null when there's none and no connection
+            // v20.3: the oldest words this app can show properly, and a fresh check whenever the app itself updates (before, a
+            // phone that had checked that day kept the old words for up to a day after an update)
+            LX_NEED: 5,
+            LX_EVERY: 3 * 3600000,   // (v20.3: a fix to the words reaches phones within hours; the check is one small file)
+            lxStale(have) { return !have || Number(have.version || 0) < this.LX_NEED || String(safeGet('dialed_learn_app') || '') !== (this.runningVersion ? this.runningVersion() : ''); },
             learnEnsure(force) {
                 const st = this.lxState(), have0 = this.learnContent();
                 const checked = Number(safeGet('dialed_learn_checked') || 0);
-                if (have0 && !force && Date.now() - checked < 86400000) return Promise.resolve(have0);
+                if (have0 && !force && !this.lxStale(have0) && Date.now() - checked < this.LX_EVERY) return Promise.resolve(have0);
                 if (st.loading) return st.loading;
                 const bases = this.lxNative() ? ['learn/', this.LX_SITE] : ['learn/'];
                 st.loading = (async () => {
@@ -44,7 +58,7 @@
                     // small storage still opens until the first new download replaces it
                     let have = have0;
                     if (!have && !st.idbTried && this.idbGet) { st.idbTried = true; try { const j = await this.idbGet('learn:content'); if (j && j.files && j.version) { st.content = this.lxIndex(j); have = st.content; } } catch (e) {} }
-                    if (have && !force && Date.now() - checked < 86400000) { st.loading = null; return have; }
+                    if (have && !force && !this.lxStale(have) && Date.now() - checked < this.LX_EVERY) { st.loading = null; return have; }
                     let best = null;
                     for (const base of bases) {
                         try {
@@ -65,7 +79,7 @@
                             else { try { safeSet('dialed_learn_content', JSON.stringify(j)); } catch (e) {} }
                         } catch (e) { if (!have) st.failed = true; }
                     }
-                    if (best) { safeSet('dialed_learn_checked', String(Date.now())); st.failed = false; }
+                    if (best) { safeSet('dialed_learn_checked', String(Date.now())); if (this.runningVersion) safeSet('dialed_learn_app', this.runningVersion()); st.failed = false; }
                     else if (!have) st.failed = true;
                     st.loading = null;
                     return st.content;

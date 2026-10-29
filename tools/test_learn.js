@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Learn (v19.0): the recognizer's expected results (the table in the build brief, section 4.2) and the content checks.
-//   node tools/test_learn.js            engine + content (learn/*.json)
+//   node tools/test_learn.js [dir]      engine + content (learn/*.json, or a staged copy in dir)
 // Prints one line per failure and a count; exits 1 if anything fails. Uses no one's data.
 const fs = require('fs');
 const path = require('path');
@@ -138,7 +138,7 @@ L.allCountries().forEach(c => ok(c.code === 'HI' || new RegExp(`\\b${c.code}: "M
 // no two aliases normalize to the same text within one field with different meanings (checked by the build: first wins)
 
 // ---- content (learn/*.json)
-const dir = path.join(__dirname, '../learn');
+const dir = process.argv[2] && !process.argv[2].startsWith('-') ? path.resolve(process.argv[2]) : path.join(__dirname, '../learn');   // (v20.3: or a staged copy)
 if (fs.existsSync(path.join(dir, 'manifest.json'))) {
   const man = JSON.parse(fs.readFileSync(path.join(dir, 'manifest.json'), 'utf8'));
   ok(Number.isInteger(man.version) && man.version > 0, 'manifest has a version');
@@ -146,6 +146,7 @@ if (fs.existsSync(path.join(dir, 'manifest.json'))) {
   Object.entries(SRC).forEach(([id, s2]) => ok(/^https?:\/\//.test(s2.url || '') && s2.title && s2.publisher, `source ${id} has a title, publisher and link`));
   const used = new Set(), ids = new Set(), LABELS = ['proven', 'tendency', 'trade', 'anecdotal', 'unproven'];
   const files = (man.files || []).map(f => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')));
+  const regionPages = new Set(fs.existsSync(path.join(dir, 'atlas.json')) ? JSON.parse(fs.readFileSync(path.join(dir, 'atlas.json'), 'utf8')).records.filter(r => r.kind === 'region').map(r => r.id) : []);
   const check = (k, owner, list, where) => {
     ok(Array.isArray(list) && list.length > 0, `${k} ${where} has a source`);
     (list || []).forEach(s3 => { ok(!!SRC[s3], `${k} ${where} source ${s3} exists`); ok((owner.sources || []).includes(s3), `${k} ${where} source ${s3} is in the page's Sources`); used.add(s3); });
@@ -183,9 +184,11 @@ if (fs.existsSync(path.join(dir, 'manifest.json'))) {
       if (e.kind === 'process') ok(!!L.entry('process', e.id), `${k} is a recognized process`);
       if (e.taste && e.taste.typicalShape) Object.entries(e.taste.typicalShape).forEach(([sk, sv]) => ok(['acidity', 'sweetness', 'body', 'finish', 'bitterness', 'balance'].includes(sk) && sv >= 1 && sv <= 10, `${k} typical ${sk}`));
       if (e.family) [e.family.parent, ...(e.family.parents || []), ...(e.family.children || [])].filter(Boolean).forEach(v => ok(!!L.entry('variety', v), `${k} family ${v} is a known variety`));
-      if (e.grows) (e.grows.varieties || []).forEach(v => ok(!!L.entry('variety', v), `${k} grows ${v}, a known variety`));
+      // (v20.3: a name with no page of its own, written as a name like "Garnica", shows as a plain tag; an id must be a real one)
+      if (e.grows) (e.grows.varieties || []).forEach(v => ok(!!L.entry('variety', v) || !!L.entry('species', v) || /^[A-Z]/.test(v), `${k} grows ${v}, a known variety or a plain name`));
       if (e.grows) (e.grows.processes || []).forEach(v => ok(!!L.entry('process', v), `${k} grows ${v}, a known process`));
-      (e.regions || []).forEach(r => ok(L.knownIds().region.includes(r.id), `${k} region ${r.id} is known to the recognizer`));
+      // (v20.3: only a region with its own page has to be one the recognizer knows; others are rows of information)
+      (e.regions || []).forEach(r => ok(L.knownIds().region.includes(r.id) || !regionPages.has(`${e.country || e.id}:${r.id}`), `${k} region ${r.id} with a page is known to the recognizer`));
       (e.sources || []).forEach(s6 => ok(!!SRC[s6], `${k} lists source ${s6}`));
       neverSay(k, e);
     });
