@@ -28848,7 +28848,13 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             },
             lxGrowsHtml(e) {
                 const g = e.grows || {}; if (!(g.varieties || []).length && !(g.processes || []).length && !g.text) return '';
-                return `${g.text || g.species ? `<p class="lx-p lx-gtext">${this.esc([g.text, g.species && !String(g.text || '').toLowerCase().includes(String(g.species).toLowerCase()) ? this.lxCap(g.species) + '.' : ''].filter(Boolean).join(' ').replace(/\.\./g, '.'))}</p>` : ''}${(g.varieties || []).length ? `<div class="lx-flabel">Varieties</div><div class="lx-tags">${g.varieties.map(id => this.lxLinkTag('variety', id, this.lxName('variety', id))).join('')}</div>` : ''}${(g.processes || []).length ? `<div class="lx-flabel lx-gap">Processes</div><div class="lx-tags">${g.processes.map(id => this.lxLinkTag('process', id, this.lxName('process', id))).join('')}</div>` : ''}`;
+                return `${g.text || g.species ? `<p class="lx-p lx-gtext">${this.esc([g.text, g.species && !String(g.text || '').toLowerCase().includes(String(g.species).toLowerCase()) ? this.lxCap(g.species) + '.' : ''].filter(Boolean).join(' ').replace(/\.\./g, '.'))}</p>` : ''}${(g.varieties || []).length ? `<div class="lx-flabel">Varieties</div><div class="lx-tags">${g.varieties.map(id => this.lxGrowTag('variety', id)).join('')}</div>` : ''}${(g.processes || []).length ? `<div class="lx-flabel lx-gap">Processes</div><div class="lx-tags">${g.processes.map(id => this.lxGrowTag('process', id)).join('')}</div>` : ''}`;
+            },
+            // v20.3: a name in a "grows" list opens its page (a species, like Robusta, too); one with no page shows as a plain tag
+            lxGrowTag(kind, id) {
+                if (kind === 'variety' && !this.lxHasPage('variety', id) && this.lxHasPage('species', id)) kind = 'species';
+                if (this.lxHasPage(kind, id) || LearnEngine.entry(kind, id)) return this.lxLinkTag(kind, id, this.lxName(kind, id));
+                const t = String(id); return `<span class="lx-tag">${this.esc(/^[a-z0-9-]+$/.test(t) ? this.lxCap(t.replace(/-/g, ' ')) : t)}</span>`;
             },
 
             // ===================== L8: guides =====================
@@ -29494,7 +29500,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     const cont = (x && x.continent) || '';
                     Object.assign(e, { country: r.id, continent: cont, tint: this.LX_CONT_TINT[cont] || 'fruity', kicker: `Origin${cont ? ' · ' + cont : ''}`, regions: r.regions || [], regionsNote: r.regionsNote || '' });
                     this.lxRxHarvest(e, r.harvest, r.name);
-                    if (r.grows) e.grows = { varieties: (r.grows.varieties || []).filter(id => LearnEngine.entry('variety', id)), processes: (r.grows.processes || []).filter(id => LearnEngine.entry('process', id)), text: r.grows.text || '', species: r.grows.species || '' };
+                    if (r.grows) e.grows = { varieties: (r.grows.varieties || []).filter(Boolean), processes: (r.grows.processes || []).filter(Boolean), text: r.grows.text || '', species: r.grows.species || '' };   // (v20.3: a name with no page still shows, as a plain tag)
                     const m = maps && maps[r.id];
                     if (m) {   // (provinces the research says grow coffee, the ones with a region below darker; or a town in each coffee area)
                         e.map = r.id;
@@ -29507,7 +29513,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     const c = LearnEngine.entry('origin', r.country);
                     Object.assign(e, { country: r.country, continent: c ? c.continent : '', kicker: `Region · ${c ? c.name : r.country}`, tint: '' });
                     this.lxRxHarvest(e, r.harvest, r.name);
-                    if (r.grows) e.grows = { varieties: (r.grows.varieties || []).filter(id => LearnEngine.entry('variety', id)), processes: (r.grows.processes || []).filter(id => LearnEngine.entry('process', id)), text: r.grows.text || '', species: r.grows.species || '' };
+                    if (r.grows) e.grows = { varieties: (r.grows.varieties || []).filter(Boolean), processes: (r.grows.processes || []).filter(Boolean), text: r.grows.text || '', species: r.grows.species || '' };   // (v20.3: a name with no page still shows, as a plain tag)
                 }
                 return e;
             },

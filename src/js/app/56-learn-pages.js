@@ -328,7 +328,13 @@
             },
             lxGrowsHtml(e) {
                 const g = e.grows || {}; if (!(g.varieties || []).length && !(g.processes || []).length && !g.text) return '';
-                return `${g.text || g.species ? `<p class="lx-p lx-gtext">${this.esc([g.text, g.species && !String(g.text || '').toLowerCase().includes(String(g.species).toLowerCase()) ? this.lxCap(g.species) + '.' : ''].filter(Boolean).join(' ').replace(/\.\./g, '.'))}</p>` : ''}${(g.varieties || []).length ? `<div class="lx-flabel">Varieties</div><div class="lx-tags">${g.varieties.map(id => this.lxLinkTag('variety', id, this.lxName('variety', id))).join('')}</div>` : ''}${(g.processes || []).length ? `<div class="lx-flabel lx-gap">Processes</div><div class="lx-tags">${g.processes.map(id => this.lxLinkTag('process', id, this.lxName('process', id))).join('')}</div>` : ''}`;
+                return `${g.text || g.species ? `<p class="lx-p lx-gtext">${this.esc([g.text, g.species && !String(g.text || '').toLowerCase().includes(String(g.species).toLowerCase()) ? this.lxCap(g.species) + '.' : ''].filter(Boolean).join(' ').replace(/\.\./g, '.'))}</p>` : ''}${(g.varieties || []).length ? `<div class="lx-flabel">Varieties</div><div class="lx-tags">${g.varieties.map(id => this.lxGrowTag('variety', id)).join('')}</div>` : ''}${(g.processes || []).length ? `<div class="lx-flabel lx-gap">Processes</div><div class="lx-tags">${g.processes.map(id => this.lxGrowTag('process', id)).join('')}</div>` : ''}`;
+            },
+            // v20.3: a name in a "grows" list opens its page (a species, like Robusta, too); one with no page shows as a plain tag
+            lxGrowTag(kind, id) {
+                if (kind === 'variety' && !this.lxHasPage('variety', id) && this.lxHasPage('species', id)) kind = 'species';
+                if (this.lxHasPage(kind, id) || LearnEngine.entry(kind, id)) return this.lxLinkTag(kind, id, this.lxName(kind, id));
+                const t = String(id); return `<span class="lx-tag">${this.esc(/^[a-z0-9-]+$/.test(t) ? this.lxCap(t.replace(/-/g, ' ')) : t)}</span>`;
             },
 
             // ===================== L8: guides =====================

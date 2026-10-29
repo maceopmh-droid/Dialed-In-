@@ -33,7 +33,7 @@
                     const cont = (x && x.continent) || '';
                     Object.assign(e, { country: r.id, continent: cont, tint: this.LX_CONT_TINT[cont] || 'fruity', kicker: `Origin${cont ? ' · ' + cont : ''}`, regions: r.regions || [], regionsNote: r.regionsNote || '' });
                     this.lxRxHarvest(e, r.harvest, r.name);
-                    if (r.grows) e.grows = { varieties: (r.grows.varieties || []).filter(id => LearnEngine.entry('variety', id)), processes: (r.grows.processes || []).filter(id => LearnEngine.entry('process', id)), text: r.grows.text || '', species: r.grows.species || '' };
+                    if (r.grows) e.grows = { varieties: (r.grows.varieties || []).filter(Boolean), processes: (r.grows.processes || []).filter(Boolean), text: r.grows.text || '', species: r.grows.species || '' };   // (v20.3: a name with no page still shows, as a plain tag)
                     const m = maps && maps[r.id];
                     if (m) {   // (provinces the research says grow coffee, the ones with a region below darker; or a town in each coffee area)
                         e.map = r.id;
@@ -46,7 +46,7 @@
                     const c = LearnEngine.entry('origin', r.country);
                     Object.assign(e, { country: r.country, continent: c ? c.continent : '', kicker: `Region · ${c ? c.name : r.country}`, tint: '' });
                     this.lxRxHarvest(e, r.harvest, r.name);
-                    if (r.grows) e.grows = { varieties: (r.grows.varieties || []).filter(id => LearnEngine.entry('variety', id)), processes: (r.grows.processes || []).filter(id => LearnEngine.entry('process', id)), text: r.grows.text || '', species: r.grows.species || '' };
+                    if (r.grows) e.grows = { varieties: (r.grows.varieties || []).filter(Boolean), processes: (r.grows.processes || []).filter(Boolean), text: r.grows.text || '', species: r.grows.species || '' };   // (v20.3: a name with no page still shows, as a plain tag)
                 }
                 return e;
             },
