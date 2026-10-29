@@ -1103,13 +1103,47 @@
           "src": [
             "bh-huila"
           ]
+        },
+        {
+          "area": "Huila (Cafe Imports)",
+          "main": [
+            11,
+            12,
+            1
+          ],
+          "second": [
+            5,
+            6,
+            7
+          ],
+          "src": [
+            "cafeimports-colombia"
+          ]
+        },
+        {
+          "area": "Cauca and Nariño",
+          "main": [
+            5,
+            6,
+            7
+          ],
+          "second": [
+            11,
+            12,
+            1
+          ],
+          "src": [
+            "cafeimports-colombia"
+          ]
         }
       ],
       "harvestText": {
-        "text": "Timing shifts by department and altitude: central areas pick heavily in April–June and September–December, and the smaller mitaca crop comes about six months after the main one. Between its departments and the two crops, Colombia picks coffee in most months of the year. A crop usually reaches roasters a few months after it's picked: it rests 30–60 days, then spends about six weeks at sea.",
+        "text": "Timing shifts by department and altitude: central areas pick heavily in April–June and September–December, and the smaller mitaca crop comes about six months after the main one. Between its departments and the two crops, Colombia picks coffee in most months of the year. A crop usually reaches roasters a few months after it's picked: it rests 30–60 days, then spends about six weeks at sea. Sources differ on Huila: Barista Hustle puts southern Huila's main crop in August–December and its second crop in March–June, while Cafe Imports gives Huila a November–January main crop and a May–July fly crop, and the reverse for Cauca and Nariño.",
         "src": [
           "achilles-harvest",
-          "cafeimports-harvest"
+          "cafeimports-harvest",
+          "bh-huila",
+          "cafeimports-colombia"
         ]
       },
       "secondName": "Mitaca, the smaller second crop",
@@ -1120,6 +1154,8 @@
           "colombia-var",
           "caturra",
           "tabi",
+          "typica",
+          "bourbon",
           "pink-bourbon",
           "chiroso",
           "papayo"
@@ -1135,7 +1171,7 @@
           "koji"
         ],
         "species": "Arabica only",
-        "text": "Almost all washed on the farm. Naturals, honeys and experimental lots (anaerobic, thermal shock, co-ferments, lactic, koji) are a small specialty niche: about 15,000 70-kg bags a year by a 2021 estimate, against about 10.7 million exported in 2020. Rust-resistant varieties cover 88% of coffee land (2025); Castillo was used to replant more than three billion trees from 2008, but no published split ranks them.",
+        "text": "Almost all washed on the farm. Naturals, honeys and experimental lots (anaerobic, thermal shock, co-ferments, lactic, koji) are a small specialty niche: about 15,000 70-kg bags a year by a 2021 estimate, against about 10.7 million exported in 2020. Rust-resistant varieties cover 88% of coffee land (2025); Castillo was used to replant more than three billion trees from 2008, but no published split ranks them. Varieties after Castillo are in no ranked order. The nearest clue is seed: of the 82,273 kg Cenicafé's stations produced and handed out in 2020, Cenicafé 1 was 41% and the Castillo lines together 48% (Castillo General 29%, Castillo El Tambo 14%, regional Castillos 5%). Typica, the only variety grown from 1938 to 1960, and Bourbon are still on Cafe Imports' list of common varieties.",
         "src": [
           "bh-colombia-processing",
           "cenicafe-natural-2023",
@@ -1151,7 +1187,9 @@
           "ineffable-ts",
           "sprudge-infused-2023",
           "pdg-lactic-2023",
-          "pdg-koji-2022"
+          "pdg-koji-2022",
+          "cafeimports-colombia",
+          "cenicafe-varieties-2020"
         ]
       },
       "sections": [
@@ -1234,7 +1272,9 @@
         "cenicafe-natural-2023",
         "coffeereview-colombia-2021",
         "coffeereview-colombia",
-        "cenicafe-informe-2020"
+        "cenicafe-informe-2020",
+        "cafeimports-colombia",
+        "cenicafe-varieties-2020"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -1976,10 +2016,12 @@
         }
       ],
       "harvestText": {
-        "text": "Picked from about April to September, peaking June to August. Coffee picked mid-year reaches buyers later in the year, after resting 30–60 days and about six weeks at sea.",
+        "text": "Picked from about April to September, peaking June to August. Coffee picked mid-year reaches buyers later in the year, after resting 30–60 days and about six weeks at sea. Cafe Imports gives June–September; USDA said in 2022 that picking starts in April and that about 85% of the crop is picked between April and July.",
         "src": [
           "achilles-harvest",
-          "cafeimports-harvest"
+          "cafeimports-harvest",
+          "cafeimports-peru",
+          "usda-gain-per-2022"
         ]
       },
       "grows": {
@@ -1990,7 +2032,8 @@
           "bourbon",
           "pache",
           "catuai",
-          "gesha"
+          "gesha",
+          "mundo-novo"
         ],
         "processes": [
           "washed",
@@ -1998,7 +2041,7 @@
           "honey"
         ],
         "species": "Arabica only (the JNC says 100% in 2025)",
-        "text": "Mostly washed on the farm; naturals and honeys are a small specialty share, though they took 7 of the 32 Cup of Excellence places in 2025. Most trees are now Catimor, planted after the 2012–13 rust epidemic; Typica, the traditional variety, Caturra, Bourbon and Pache follow, in no ranked order, and Gesha leads in competitions.",
+        "text": "Mostly washed on the farm; naturals and honeys are a small specialty share, though they took 7 of the 32 Cup of Excellence places in 2025. Most trees are now Catimor, planted after the 2012–13 rust epidemic; Typica, the traditional variety, Caturra, Bourbon and Pache follow, in no ranked order, and Gesha leads in competitions. Cafe Imports also lists Mundo Novo among Peru's common varieties. USDA's 2022 annual gave a different split, over 70% Typica and 20% Caturra, which conflicts with World Coffee Research's 2025 account that most trees are now Catimor; no newer survey ranks them. No published figure gives the washed share by volume, and in 2016 the old natural coco process was still used alongside washing.",
         "src": [
           "cafeimports-peru",
           "coffeereview-peru",
@@ -2007,7 +2050,9 @@
           "wcr-peru-seeds-2025",
           "agraria-jnc-2025",
           "wcr-typica",
-          "wcr-bourbon"
+          "wcr-bourbon",
+          "usda-gain-per-2022",
+          "mercanta-peru-2016"
         ]
       },
       "sections": [
@@ -2054,7 +2099,9 @@
         "coffeereview-peru",
         "wcr-peru-seeds-2025",
         "agraria-jnc-2025",
-        "dcn-peru-2026"
+        "dcn-peru-2026",
+        "usda-gain-per-2022",
+        "mercanta-peru-2016"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -4336,13 +4383,57 @@
           "src": [
             "achilles-harvest"
           ]
+        },
+        {
+          "area": "Sul de Minas, Mogiana, Matas de Minas",
+          "main": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "src": [
+            "sucafina-brazil"
+          ]
+        },
+        {
+          "area": "Cerrado Mineiro",
+          "main": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "src": [
+            "sucafina-brazil"
+          ]
+        },
+        {
+          "area": "Conilon, Espírito Santo (2026)",
+          "main": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "src": [
+            "conab-2026-3"
+          ]
         }
       ],
       "harvestText": {
-        "text": "Picked from about April to September, into October in some places, depending on the region and on whether it's Arabica or Conilon. A crop usually reaches roasters a few months after it's picked: it rests 30–60 days, then spends about six weeks at sea.",
+        "text": "Picked from about April to September, into October in some places, depending on the region and on whether it's Arabica or Conilon. A crop usually reaches roasters a few months after it's picked: it rests 30–60 days, then spends about six weeks at sea. Sucafina gives Cerrado Mineiro May–September and Sul de Minas, Mogiana and Matas de Minas April–September. In Espírito Santo, Conab says the 2026 Conilon harvest began slowly in April and was due to end in August–September; Incaper's Conilon cultivars are picked from about May (Diamante, an early one) to July (Centenária, a late one).",
         "src": [
           "achilles-harvest",
-          "cafeimports-harvest"
+          "cafeimports-harvest",
+          "sucafina-brazil",
+          "embrapa-incaper-2020",
+          "conab-2026-3"
         ]
       },
       "grows": {
@@ -4353,15 +4444,16 @@
           "catucai",
           "obata",
           "icatu",
-          "bourbon"
+          "bourbon",
+          "robusta"
         ],
         "processes": [
           "natural",
           "honey",
           "washed"
         ],
-        "species": "Mostly Arabica (about 70% in 2026); the rest is Robusta, called Conilon",
-        "text": "Mostly natural: in a 2019 survey of growers, 85% dried whole cherries and 14% made pulped naturals (Brazil's honey); only 1% fermented in tanks. Catuaí and Mundo Novo are the most grown varieties; newer rust-resistant ones such as Arara, Catucaí, Obatã and Icatu are spreading (no source ranks them), and Bourbon is a specialty favorite.",
+        "species": "Mostly Arabica (about 70% of the 2026 crop by Conab's count; USDA's 2026/27 forecast says 66%); the rest is Robusta, called Conilon",
+        "text": "Mostly natural: in a 2019 survey of growers, 85% dried whole cherries and 14% made pulped naturals (Brazil's honey); only 1% fermented in tanks. Catuaí and Mundo Novo are the most grown varieties; newer rust-resistant ones such as Arara, Catucaí, Obatã and Icatu are spreading (no source ranks them), and Bourbon is a specialty favorite. The survey counted growers, not bags, so it doesn't give the share of Brazil's coffee by volume that is natural; a 2024 review says naturals are especially popular for Conilon. Conilon (Robusta) was about 29% of Conab's 2026 count; Incaper, Espírito Santo's research institute, has bred Conilon cultivars such as Vitória Incaper 8142, Diamante, Jequitibá and Centenária. No source after 2012 gives each variety's share of the coffee land.",
         "src": [
           "cna-cafepoint-2020",
           "sucafina-brazil",
@@ -4373,7 +4465,9 @@
           "wcr-mundonovo",
           "coffeereview-honey",
           "gimme",
-          "samplecoffee-mg"
+          "samplecoffee-mg",
+          "bernardes-2024",
+          "embrapa-incaper-2020"
         ]
       },
       "sections": [
@@ -4438,7 +4532,9 @@
         "sucafina-brazil",
         "procafe-2019",
         "cultivar-iac-2012",
-        "conab-2026-3"
+        "conab-2026-3",
+        "bernardes-2024",
+        "embrapa-incaper-2020"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -4558,11 +4654,12 @@
         {
           "id": "oaxaca",
           "name": "Oaxaca",
-          "teaser": "Fourth by output. Bright, citrusy and floral, with a light body. Pluma Hidalgo is its prized area",
+          "teaser": "Fourth by output, with about 9% of the 2022 crop (SIAP). Bright, citrusy and floral, with a light body. Pluma Hidalgo is its prized area",
           "alt": "1,200–1,700 m · 3,900–5,600 ft",
           "src": [
             "coffeereview-mx-2022",
-            "coffeeness-mx"
+            "coffeeness-mx",
+            "oaxaca-cafe-2024"
           ]
         }
       ],
@@ -4596,10 +4693,16 @@
           "caturra",
           "bourbon",
           "Garnica",
+          "catuai",
+          "mundo-novo",
+          "catimor",
           "costa-rica-95",
           "oro-azteca",
           "marsellesa",
-          "gesha"
+          "gesha",
+          "pacamara",
+          "sarchimor",
+          "anacafe-14"
         ],
         "processes": [
           "washed",
@@ -4608,14 +4711,16 @@
           "anaerobic"
         ],
         "species": "Mostly Arabica (about 86% in the 2026/27 forecast); Robusta in the lowlands of Chiapas, Veracruz and Oaxaca",
-        "text": "No published national variety count is available. Sucafina names Garnica, Typica, Caturra and Bourbon as the main traditional varieties, and since 2015 about 150,000 ha have been replanted with rust-resistant ones such as Costa Rica 95, Oro Azteca and Marsellesa. Most export coffee is washed; naturals, honeys and anaerobic lots are a growing specialty share.",
+        "text": "No published national variety count is available. Sucafina names Garnica, Typica, Caturra and Bourbon as the main traditional varieties, and since 2015 about 150,000 ha have been replanted with rust-resistant ones such as Costa Rica 95, Oro Azteca and Marsellesa. Most export coffee is washed; naturals, honeys and anaerobic lots are a growing specialty share. Chapingo researchers (2018) also count Catuaí and Pacamara among the most widespread varieties; Sucafina adds Mundo Novo and names Catimor as a rust-resistant choice for replanting; and Sarchimor and Anacafé 14 lots placed at the 2026 Cup of Excellence.",
         "src": [
           "sucafina-mex",
           "wcr-mex",
           "ico-mex-2025",
           "coffeereview-mx-2022",
           "usda-2026",
-          "wcr-oroazteca"
+          "wcr-oroazteca",
+          "jornada-mex-2018",
+          "ace-mex-2026"
         ]
       },
       "sections": [
@@ -4668,7 +4773,9 @@
         "ico-mex-2025",
         "coffeereview-mx-2022",
         "cronica-mex-2026",
-        "ace-mex-2026"
+        "ace-mex-2026",
+        "jornada-mex-2018",
+        "oaxaca-cafe-2024"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -4751,8 +4858,10 @@
           "teaser": "With Matagalpa, about 78% of the crop in a 2019 AFP report. Often mild acidity, floral flavors and yellow-fruit notes",
           "src": [
             "revistaeyn-nic-2019",
-            "pdg-nic-2021"
-          ]
+            "pdg-nic-2021",
+            "coffeeness-nic"
+          ],
+          "alt": "About 1,200–1,800 m · 3,900–5,900 ft"
         },
         {
           "id": "matagalpa",
@@ -4760,18 +4869,21 @@
           "teaser": "With Jinotega, historically the source of the country's best coffee, and still most of its volume",
           "src": [
             "wiki-nic",
-            "revistaeyn-nic-2019"
-          ]
+            "revistaeyn-nic-2019",
+            "coffeeness-nic"
+          ],
+          "alt": "About 900–1,400 m · 3,000–4,600 ft"
         },
         {
           "id": "nueva-segovia",
           "name": "Nueva Segovia",
           "teaser": "Near the Honduran border, and the Cup of Excellence leader: 23 of 32 winning lots in 2025. Finca Santa Teresa de Mogotón here focuses on naturals; its owner calls his coffees delicate and floral",
-          "alt": "Santa Teresa de Mogotón: above 1,500 m · 4,900 ft",
+          "alt": "About 1,000–1,700 m · 3,300–5,600 ft (Santa Teresa de Mogotón: above 1,500 m · 4,900 ft)",
           "src": [
             "wcr-coe-2017",
             "pdg-nic-2021",
-            "ace-nic-2025"
+            "ace-nic-2025",
+            "coffeeness-nic"
           ]
         },
         {
@@ -4782,8 +4894,10 @@
             "pdg-nic-2021",
             "natural-earth",
             "ace-nic-2025",
-            "chk-en-wikipedia-org-wiki-madriz-department"
-          ]
+            "chk-en-wikipedia-org-wiki-madriz-department",
+            "coffeeness-nic"
+          ],
+          "alt": "About 1,100–1,500 m · 3,600–4,900 ft"
         },
         {
           "id": "esteli",
@@ -4791,8 +4905,10 @@
           "teaser": "One of the five main coffee departments. Sweet Maria's notes that highland coffee is often trucked to its lower, hotter areas to dry on tarps",
           "src": [
             "pdg-nic-2021",
-            "sweetmarias-nic"
-          ]
+            "sweetmarias-nic",
+            "coffeeness-nic"
+          ],
+          "alt": "About 800–1,600 m · 2,600–5,200 ft"
         },
         {
           "id": "south-caribbean",
@@ -4838,15 +4954,16 @@
           "pacamara",
           "Maracaturra",
           "marsellesa",
-          "gesha"
+          "gesha",
+          "typica"
         ],
         "processes": [
           "washed",
           "natural",
           "honey"
         ],
-        "species": "Mostly Arabica (about 94% in 2025/26); Robusta, legal since 2013, in the southern Caribbean lowlands",
-        "text": "Caturra was about 72% of plantings in USDA's 2021 count, with Bourbon, Pacas, Catuaí, Catimor, Maragogipe and Pacamara sharing the rest. Almost all coffee is washed the classic way, fermented and rinsed; naturals and honeys are a small, growing specialty share.",
+        "species": "Mostly Arabica (about 94% in 2025/26); Robusta, legal since 2013, in the southern Caribbean lowlands, and allowed since a 2016 decree in six Pacific departments",
+        "text": "Caturra was about 72% of plantings in USDA's 2021 count, with Bourbon, Pacas, Catuaí, Catimor, Maragogipe and Pacamara sharing the rest. Almost all coffee is washed the classic way, fermented and rinsed; naturals and honeys are a small, growing specialty share. Coffee Review and Sweet Maria's also name Typica as long established, though USDA's count doesn't list it.",
         "src": [
           "usda-gain-nic-2021",
           "cafeimports-nic",
@@ -4917,7 +5034,8 @@
         "wcr-nic",
         "revistaeyn-nic-2019",
         "ace-nic-2025",
-        "chk-en-wikipedia-org-wiki-madriz-department"
+        "chk-en-wikipedia-org-wiki-madriz-department",
+        "coffeeness-nic"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -5078,10 +5196,12 @@
         }
       ],
       "harvestText": {
-        "text": "Picked from November to April. In 2026 the Cup of Excellence jury met June 1–5 and the auction was July 16, so the year's best lots sold within months of picking.",
+        "text": "Picked from November to April. In 2026 the Cup of Excellence jury met June 1–5 and the auction was July 16, so the year's best lots sold within months of picking. Windows vary by region: Coffee Hunter gives November to March for Copán and December to April for Montecillos, and Starbucks' origin sheet gives October to February for the country.",
         "src": [
           "achilles-harvest",
-          "ace-hnd-2026"
+          "ace-hnd-2026",
+          "coffeehunter-hnd",
+          "starbucks-hnd"
         ]
       },
       "grows": {
@@ -5392,7 +5512,8 @@
           "anacafe-14",
           "typica",
           "pacamara",
-          "gesha"
+          "gesha",
+          "maragogipe"
         ],
         "processes": [
           "washed",
@@ -5409,7 +5530,8 @@
           "1zpresso-gtm",
           "wcr-gtm",
           "wcr-catuai",
-          "usda-gain-gtm-2021"
+          "usda-gain-gtm-2021",
+          "coffeereview-gtm"
         ]
       },
       "sections": [
@@ -5430,12 +5552,13 @@
           "title": "How it’s grown",
           "teaser": "Almost all Arabica, washed or scrubbed by machine",
           "body": [
-            "About 3% of coffee land is Robusta. Most coffee is washed, or demucilaged: the sticky fruit is scrubbed off by machine instead of fermented and washed off."
+            "Robusta is about 2% of planted area and 4% of the crop (2026/27 forecast). Most coffee is washed, or demucilaged: the sticky fruit is scrubbed off by machine instead of fermented and washed off."
           ],
           "src": [
             "1zpresso-gtm",
             "cafeimports-gtm",
-            "coffeereview-honey"
+            "coffeereview-honey",
+            "dcn-gtm-2026"
           ]
         },
         {
@@ -5473,7 +5596,8 @@
         "bh-gtm-varieties",
         "wcr-gtm",
         "wcr-catuai",
-        "usda-gain-gtm-2021"
+        "usda-gain-gtm-2021",
+        "coffeereview-gtm"
       ],
       "updated": "2026-10-28",
       "feel": {
@@ -5497,13 +5621,14 @@
       "continent": "North & Central America",
       "tint": "sweet",
       "kicker": "Origin · North & Central America",
-      "summary": "Eight regions, small farm mills, and the home of honey processing.",
-      "lede": "Coffee has grown in Costa Rica since 1779. It now comes from eight regions, from high Tarrazú, which made about 40% of it in Royal Coffee’s 2020 count, to low Turrialba, which starts picking as early as July.",
+      "summary": "Eight traditional regions, small farm mills, and the home of honey processing.",
+      "lede": "Coffee has grown in Costa Rica since 1779. It comes from eight traditional regions, which ICAFE redrew in 2025, from high Tarrazú (ICAFE’s Los Santos region since 2025; Tarrazú stays a protected origin name), which made about 40% of it in Royal Coffee’s 2020 count, to low Turrialba, which starts picking as early as July.",
       "ledeSrc": [
         "wiki-cri",
         "cafeimports-cr",
         "royalny-cr",
-        "achilles-harvest"
+        "achilles-harvest",
+        "elfinanciero-regions-2025"
       ],
       "facts": [
         {
@@ -5639,7 +5764,7 @@
           ]
         }
       ],
-      "regionsNote": "Shares are for 2019/20; region tastes are tendencies.",
+      "regionsNote": "Shares are from Royal Coffee (2020); region tastes are tendencies. These are the eight traditional regions, still the names on most bags. In June 2025 ICAFE merged Tres Ríos into the Central Valley and Orosi into Turrialba, folded Guanacaste into the Zona Norte, split Brunca into Pérez Zeledón and Coto Brus, and renamed its Tarrazú region Los Santos; Tarrazú stays a protected origin name, and Tres Ríos and Orosi may still be used in promotion.",
       "harvest": [
         {
           "area": "Tarrazú",
@@ -5731,7 +5856,9 @@
           "typica",
           "bourbon",
           "sl28",
-          "gesha"
+          "gesha",
+          "obata",
+          "Venecia"
         ],
         "processes": [
           "washed",
@@ -5739,8 +5866,8 @@
           "natural",
           "anaerobic"
         ],
-        "species": "Arabica only (a 1989 decree; USDA counts the whole 2026/27 crop as Arabica)",
-        "text": "Caturra leads (\"Caturra and more Caturra,\" says Coffee Review), with Catuaí the other main variety. Most coffee is washed or mechanically demucilaged at mills; the micromills behind specialty lots made honey their signature and are adding naturals and anaerobic ferments.",
+        "species": "Arabica only (a 1989 decree; USDA counts the whole 2026/27 crop as Arabica); two 2021 news reports say the Robusta ban was lifted in 2018, but neither names the decree",
+        "text": "Caturra leads (\"Caturra and more Caturra,\" says Coffee Review), with Catuaí the other main variety. Most coffee is washed or mechanically demucilaged at mills; the micromills behind specialty lots made honey their signature and are adding naturals and anaerobic ferments. ICAFE offered Obatá, a high-yielding rust-tolerant variety from Brazil, from 2014; no published figure gives the share of rust-resistant varieties.",
         "src": [
           "coffeereview-cri",
           "icafe-pliego",
@@ -5748,7 +5875,11 @@
           "royalny-cr",
           "usda-2026",
           "wcr-villa-sarchi",
-          "wcr-catuai"
+          "wcr-catuai",
+          "elfinanciero-cri-2014",
+          "observador-cri-2021",
+          "wcr-venecia",
+          "chk-larepublica-net-noticia-economia-en-zonas-rurale"
         ]
       },
       "sections": [
@@ -5770,11 +5901,14 @@
           "title": "Its own varieties",
           "teaser": "Villa Sarchi was found here",
           "body": [
-            "Villa Sarchi, a dwarf mutation of Bourbon, was found in Alajuela in the 1950s or 1960s and is rarely grown elsewhere. Catuaí arrived in 1985 and became economically important."
+            "Villa Sarchi, a dwarf mutation of Bourbon, was found in Alajuela in the 1950s or 1960s and is rarely grown elsewhere. Catuaí arrived in 1985 and became economically important.",
+            "Venecia is another local selection. World Coffee Research says it came from a natural mutation in a Bourbon population and was selected by ICAFE; Cafe Imports calls it a Caturra mutation. It ripens late, suits rainy zones and is very susceptible to leaf rust."
           ],
           "src": [
             "wcr-villa-sarchi",
-            "wcr-catuai"
+            "wcr-catuai",
+            "wcr-venecia",
+            "cafeimports-cr"
           ]
         },
         {
@@ -5811,7 +5945,12 @@
         "wcr-villa-sarchi",
         "wcr-catuai",
         "coffeereview-cri",
-        "icafe-pliego"
+        "icafe-pliego",
+        "elfinanciero-cri-2014",
+        "observador-cri-2021",
+        "wcr-venecia",
+        "elfinanciero-regions-2025",
+        "chk-larepublica-net-noticia-economia-en-zonas-rurale"
       ],
       "updated": "2026-10-28",
       "mapTiers": {}
@@ -5957,12 +6096,15 @@
           "extended",
           "carbonic"
         ],
-        "species": "Mostly Arabica; Robusta in the lowlands of Bocas del Toro and Darién, at about 800 m (2,600 ft), mostly drunk at home",
-        "text": "No national count of varieties or processes has been published. Coffeeness calls Gesha the primary variety; it dominates Boquete and the auctions (40 of 50 Best of Panama lots in 2026), while Renacimiento grows mainly Catuaí, Caturra, Typica and Bourbon. Farms use washed, natural and honey processing, and Volcán leans to naturals, honeys and experimental ferments.",
+        "species": "Mostly Arabica by volume: in MIDA's 2025–26 estimate Robusta was 53,000 of 170,708 quintales, though MIDA counts 6,512 of the 12,844 ha of coffee as Robusta (2026), mainly in Coclé, Colón and Panamá Oeste; mostly drunk at home",
+        "text": "No national count of varieties or processes has been published. Coffeeness calls Gesha the primary variety; it dominates Boquete and the auctions (40 of 50 Best of Panama lots in 2026), while Renacimiento grows mainly Catuaí, Caturra, Typica and Bourbon. Farms use washed, natural and honey processing, and Volcán leans to naturals, honeys and experimental ferments. Gesha leads in fame and price rather than proven volume: the president of SCAP, the specialty association, said in 2024 that Geisha growers are no more than 5% of the country's coffee farmers. Coffeeness says farmers in Boquete and Volcán also grow Caturra, Catuaí, Typica and, more and more, Pacamara.",
         "src": [
           "coffeeness-panama",
           "sucafina-panama",
-          "laestrella-bop-2026"
+          "laestrella-bop-2026",
+          "laestrella-geisha-2024",
+          "eyn-pan-2024",
+          "laestrella-robusta-2026"
         ]
       },
       "sections": [
@@ -5998,11 +6140,12 @@
           "title": "Who farms it",
           "teaser": "Investors, rising land prices, and Robusta in the lowlands",
           "body": [
-            "Many farms are owned by expatriates or international investors, and rising land prices often outbid local producers; Sucafina also reports illegal clearing of national parkland for new Gesha farms. In the lowlands of Bocas del Toro and Darién, Robusta grows at about 800 m, mostly for drinking at home."
+            "Many farms are owned by expatriates or international investors, and rising land prices often outbid local producers; Sucafina also reports illegal clearing of national parkland for new Gesha farms. Robusta grows mainly in Coclé, Colón and Panamá Oeste, with smaller areas in Darién, Panamá Este and Veraguas and only about 56 ha in Bocas del Toro (MIDA, 2026), mostly for drinking at home."
           ],
           "src": [
             "sucafina-panama",
-            "coffeeness-panama"
+            "coffeeness-panama",
+            "laestrella-robusta-2026"
           ]
         }
       ],
@@ -6018,7 +6161,10 @@
         "wiki-rio-sereno",
         "achilles-harvest",
         "sprudge-2025",
-        "ozone-geisha"
+        "ozone-geisha",
+        "laestrella-geisha-2024",
+        "eyn-pan-2024",
+        "laestrella-robusta-2026"
       ],
       "updated": "2026-10-28",
       "mapTiers": {
