@@ -11,6 +11,8 @@ Natural Earth (public domain, naturalearthdata.com): ne_10m_admin_0_countries.ge
 ne_10m_admin_1_states_provinces.geojson for regions (departments), ne_10m_populated_places.geojson for a few towns.
 Where Natural Earth's regions don't match the coffee areas (Ethiopia's zones, Kenya's counties), the map is the outline
 plus a dot at a town in each coffee area, from Wikipedia's coordinates (listed below with their pages).
+v20.3: with --geob, a region whose research names its official areas (area.data like "ETH/ADM2", area.names) is drawn as
+its own outline, from geoBoundaries (www.geoboundaries.org; each country's licence is in its metadata, all open).
 Not edited by hand; rerun to change.
 """
 import argparse, json, math, os
@@ -103,6 +105,7 @@ def area(pts):
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument('--ne', required=True); ap.add_argument('--out', default=os.path.join(os.path.dirname(__file__), '..', 'learn', 'maps.json'))
     ap.add_argument('--atlas'); ap.add_argument('--checks')
+    ap.add_argument('--geob', help='v20.3: folder of geoBoundaries files (ETH_ADM2.geojson ...); each region whose research names its official areas (area.data, area.names) is outlined')
     a = ap.parse_args()
     adm0 = json.load(open(os.path.join(a.ne, 'ne_10m_admin_0_countries.geojson')))
     adm1 = json.load(open(os.path.join(a.ne, 'ne_10m_admin_1_states_provinces.geojson')))
@@ -134,7 +137,27 @@ def main():
                 t, v = tw[0]
                 label = r['name']   # (the legend says it's a town in that region)
                 dots_all.setdefault(code, []).append((rid, label, *pos(t, v), v.get('source') or url(t.get('src'))))
-    for code in dict.fromkeys(list(adm1_all) + list(dots_all)):   # (a country can have both: shaded regions and town dots)
+    # v20.3: a region's own outline, from the official areas its research names (geoBoundaries, open licences)
+    geo, geo_file, geo_used = {}, {}, {}
+    if a.atlas and a.geob:
+        import unicodedata
+        norm = lambda t: unicodedata.normalize('NFD', str(t)).encode('ascii', 'ignore').decode().lower().replace("'", '').strip()
+        files = {}
+        for r in json.load(open(a.atlas))['records']:
+            ar = r.get('area') or {}
+            if r['kind'] != 'region' or not ar.get('data') or not ar.get('names'): continue
+            fn = os.path.join(a.geob, ar['data'].replace('/', '_') + '.geojson')
+            if not os.path.exists(fn): print('no boundary file', fn, 'for', r['id']); continue
+            if fn not in files: files[fn] = json.load(open(fn))
+            want = {norm(n) for n in ar['names']}
+            feats = [f for f in files[fn]['features'] if norm(f['properties'].get('shapeName')) in want]
+            got = {norm(f['properties'].get('shapeName')) for f in feats}
+            if want - got: print('not found in', ar['data'], 'for', r['id'], sorted(want - got))
+            if not feats: continue
+            code, rid = r['id'].split(':')
+            geo.setdefault(code, []).append((rid, [ring[0] for f in feats for ring in rings_of(f['geometry'])]))
+            geo_file.setdefault(code, fn); geo_used.setdefault(code, set()).update(got)
+    for code in dict.fromkeys(list(adm1_all) + list(dots_all) + list(geo)):   # (a country can have both: shaded regions and town dots)
         if code in outline_of:   # (Hawaii: a state, drawn from its admin-1 shape)
             a3, nm = outline_of[code]; outline = [f for f in adm1['features'] if f['properties'].get('adm0_a3') == a3 and f['properties'].get('name') == nm][0]
         else: outline = [f for f in adm0['features'] if f['properties'].get('ADM0_A3') == code][0]
@@ -179,6 +202,24 @@ def main():
                 x, y = proj(lon, lat)
                 dots.append({'id': rid, 'label': label, 'x': round(x, 1), 'y': round(y, 1), 'src': src})
             m['dots'] = dots
+        if code in geo:   # (bigger regions first, so a region inside another is drawn on top and can be tapped)
+            regs = m.get('regions') or {}
+            for rid, rs in sorted(geo[code], key=lambda x: -sum(area([proj(*p) for p in ring]) for ring in x[1])):
+                if rid in regs: continue
+                d = path(rs, 0.6, 0.5)
+                if d: regs[rid] = d
+            m['regions'] = regs
+            if not m.get('rest'):   # (the country's other areas, faint, so a zoomed map still shows where you are)
+                m['rest'] = ''.join(path([ring[0] for ring in rings_of(f['geometry'])], 1.2, 1.5) for f in files[geo_file[code]]['features'] if norm(f['properties'].get('shapeName')) not in geo_used[code])
+            m['geo'] = 'geoBoundaries (www.geoboundaries.org), open licences'
+            # when the coffee regions are a small patch of a big country (Kenya), the map shows that patch, with room around it
+            pts = [proj(*p) for _, rs in geo[code] for ring in rs for p in ring]
+            bx0, bx1 = min(x for x, _ in pts), max(x for x, _ in pts); by0, by1 = min(y for _, y in pts), max(y for _, y in pts)
+            if (bx1 - bx0) * (by1 - by0) < 0.12 * W * H:
+                cx, cy = (bx0 + bx1) / 2, (by0 + by1) / 2; side = max(bx1 - bx0, (by1 - by0) * W / H) * 2.5
+                zw, zh = min(W, side), min(H, side * H / W)
+                zx, zy = min(max(0, cx - zw / 2), W - zw), min(max(0, cy - zh / 2), H - zh)
+                m['zoom'] = [round(zx, 1), round(zy, 1), round(zw, 1), round(zh, 1)]
         out['maps'][code] = m
     json.dump(out, open(a.out, 'w'), ensure_ascii=False, separators=(',', ':'))
     print('wrote', a.out, os.path.getsize(a.out), 'bytes', {c: len(json.dumps(v)) for c, v in out['maps'].items()})

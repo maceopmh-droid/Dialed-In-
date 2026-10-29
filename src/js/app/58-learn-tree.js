@@ -58,7 +58,7 @@
             },
             // v20.3: the families' colors, the same ones the branches are tinted with (the chips are the tree's key)
             LX_TCHIP: { W: ['Wild Ethiopia', '#c98bbb'], AB: ['Ethiopians abroad', '#e8a7c8'], Y: ['Yemen', '#e0915a'], typica: ['Typica family', '#86a9d9'], bourbon: ['Bourbon family', '#e3b94a'], 'timor-hybrid': ['Timor Hybrid', '#5fbfa8'], catimor: ['Catimors', '#5fbfa8'], sarchimor: ['Sarchimors', '#5fbfa8'], f1: ['New hybrids', '#9cc97a'], species: ['Species', '#9b8d80'] },
-            lxTreeFam() { return this._lxTreeFam || 'tint'; },
+            lxTreeFam() { return this._lxTreeFam || 'dots'; },   // (Maceo picked colored branches plus a dot by each name, Oct 29)
             LX_TABOUT: {
                 W: 'Arabica began in the forests of southwestern Ethiopia (and the Boma Plateau just over the border in South Sudan), which still hold most of its genetic variety. These grow straight from the wild trees: landraces, Gesha, Rume Sudan and picks from Ethiopia’s research center.',
                 AB: 'Types grown abroad under names like Java and Pink Bourbon, which DNA ties back to Ethiopian landraces. For some the evidence is still early.',

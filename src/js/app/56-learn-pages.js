@@ -25,6 +25,7 @@
                     if (has && (e.taste || (rx && rx.cup))) add(this.lxCupSec(e));
                     else if (e.taste) add({ key: `${k}.taste`, open: true, title: k === 'process' ? 'What it usually does to the cup' : 'What it’s said to taste like', teaser: (e.taste.notes || []).join(', ') || e.taste.text, body: this.lxTasteHtml(e) });
                     else if (e.feel && this.lxFeelHtml) add({ key: `${k}.feel`, open: true, title: 'Body and acidity', teaser: [e.feel.body, e.feel.acidity].filter(Boolean).join(' · '), body: `<div class="lx-box">${this.lxFeelHtml(e.feel)}</div>` });
+                    if (this.lxNearestSec) add(this.lxNearestSec(e));   // v20.3: little written about it: its closest relative with a full page
                     if (k === 'process') {
                         // v20.1: a base method draws the cut cherry (tap another method to compare); the research's steps follow
                         const base0 = has && this.LX_METH[e.id] && typeof LearnTree !== 'undefined';
@@ -282,24 +283,28 @@
                 const c = this.learnContent(), m = c.maps[e.map || e.country]; if (!m) return '';
                 const tiers = e.mapTiers || {}, tierOf = id => (tiers.l3 || []).includes(id) ? 'on l3' : (tiers.l2 || []).includes(id) ? 'on l2' : (tiers.l1 || []).includes(id) ? 'on' : '';
                 const links = this.lxMapLinks ? this.lxMapLinks(e.country) : new Map();   // v20.1: a region with a page opens from the map
-                const regions = Object.entries(m.regions || {}).map(([id, d]) => `<path class="lx-rg ${tierOf(id)}" d="${d}"${links.has(id) ? ` data-lxr="${this.esc(links.get(id))}"` : ''}/>`).join('');
-                const dots = this.lxDotLabels(m).map(d => `<g class="lx-mdot"${links.has(d.id) ? ` data-lxr="${this.esc(links.get(d.id))}"` : ''}><circle cx="${d.x}" cy="${d.y}" r="3.2"/><text x="${d.tx}" y="${d.ty}"${d.left ? ' text-anchor="end"' : ''}>${this.esc(d.label)}</text></g>`).join('');
-                const svg = `<svg class="lx-cmap" viewBox="0 0 ${m.w} ${m.h}" role="img" aria-label="Map of ${this.esc(e.name)}${(m.dots || []).length ? ' with a town in each coffee area' : ', its coffee departments shaded'}"${links.size ? ' onclick="app.lxMapTap(event)"' : ''}><path class="lx-rest" d="${m.rest || ''}"/>${regions}<path class="lx-outline" d="${m.outline}"/>${dots}</svg>`;
-                const legend = (e.mapLegend || []).map(([k, l]) => `<span><i class="lx-lg-${k}"></i>${this.esc(l)}</span>`).join('');
+                const regions = Object.entries(m.regions || {}).map(([id, d]) => `<path class="lx-rg ${tierOf(id) || (links.has(id) ? 'on' : '')}" d="${d}"${links.has(id) ? ` data-lxr="${this.esc(links.get(id))}"` : ''}/>`).join('');   // (v20.3: a region outlined from its official areas is lit too)
+                const dots = this.lxDotLabels(m).map(d => `<g class="lx-mdot"${links.has(d.id) ? ` data-lxr="${this.esc(links.get(d.id))}"` : ''}><circle cx="${d.x}" cy="${d.y}" r="${(3.2 * this.lxMapZ(m)).toFixed(2)}"/><text x="${d.tx}" y="${d.ty}"${d.left ? ' text-anchor="end"' : ''}>${this.esc(d.label)}</text></g>`).join('');
+                const svg = `<svg class="lx-cmap" viewBox="${m.zoom ? m.zoom.join(' ') : `0 0 ${m.w} ${m.h}`}" style="--mz:${this.lxMapZ(m)}" role="img" aria-label="Map of ${this.esc(e.name)}${(m.dots || []).length ? ' with a town in each coffee area' : ', its coffee departments shaded'}"${links.size ? ' onclick="app.lxMapTap(event)"' : ''}><path class="lx-rest" d="${m.rest || ''}"/>${regions}<path class="lx-outline" d="${m.outline}"/>${dots}</svg>`;
+                const outlined = Object.keys(m.regions || {}).some(id => links.has(id) && !tierOf(id));
+                const legend = (e.mapLegend || []).map(([k, l]) => `<span><i class="lx-lg-${k}"></i>${this.esc(l)}</span>`).join('') + (outlined ? `<span><i class="lx-lg-l1"></i>Each region below, outlined: tap one</span>` : '');
                 return `<div class="lx-box lx-mapwrap${(m.dots || []).length || m.w / m.h > 1.5 ? ' lx-dotmap' : ''}"><div class="lx-cmapbox">${svg}</div><div class="lx-legend lx-vlegend">${legend}</div></div>`;
             },
             // each town's name beside its dot, on whichever side (or a step up or down) keeps it clear of the others
+            // (v20.3: a map zoomed onto its coffee area keeps its names and dots the same size on screen)
+            lxMapZ(m) { return m && m.zoom ? m.zoom[2] / m.w : 1; },
             lxDotLabels(m) {
-                const fs = 7.2, cw = fs * 0.56, placed = [], dots = (m.dots || []).slice().sort((a, b) => a.y - b.y || a.x - b.x);
-                const hit = r => placed.some(p => r.x0 < p.x1 && r.x1 > p.x0 && r.y0 < p.y1 && r.y1 > p.y0) || dots.some(d => d.x > r.x0 - 3 && d.x < r.x1 + 3 && d.y > r.y0 - 3 && d.y < r.y1 + 3);
+                const z = this.lxMapZ(m), X0 = m.zoom ? m.zoom[0] : 0, X1 = m.zoom ? m.zoom[0] + m.zoom[2] : m.w;
+                const fs = 7.2 * z, cw = fs * 0.56, placed = [], dots = (m.dots || []).slice().sort((a, b) => a.y - b.y || a.x - b.x);
+                const hit = r => placed.some(p => r.x0 < p.x1 && r.x1 > p.x0 && r.y0 < p.y1 && r.y1 > p.y0) || dots.some(d => d.x > r.x0 - 3 * z && d.x < r.x1 + 3 * z && d.y > r.y0 - 3 * z && d.y < r.y1 + 3 * z);
                 return dots.map(d => {
                     const w = String(d.label).length * cw;
                     const tries = [[1, 0], [-1, 0], [1, -8], [1, 8], [-1, -8], [-1, 8], [1, -15], [1, 15]];
                     let best = null;
-                    for (const [side, dy] of tries) {
-                        const tx = side > 0 ? d.x + 5.5 : d.x - 5.5, ty = d.y + 2.6 + dy;
+                    for (const [side, dy0] of tries) {
+                        const dy = dy0 * z, tx = side > 0 ? d.x + 5.5 * z : d.x - 5.5 * z, ty = d.y + 2.6 * z + dy;
                         const r = { x0: side > 0 ? tx : tx - w, x1: side > 0 ? tx + w : tx, y0: ty - fs * 0.8, y1: ty + fs * 0.2 };
-                        if (r.x0 < 0 || r.x1 > m.w) continue;
+                        if (r.x0 < X0 || r.x1 > X1) continue;
                         if (!hit(r)) { best = { tx, ty, left: side < 0, r }; break; }
                         if (!best) best = { tx, ty, left: side < 0, r };
                     }
@@ -322,8 +327,8 @@
                 return `<div class="lx-box"><div class="lx-calgrid">${rows}</div><div class="lx-legend">${legend}</div>${e.harvestText ? `<p class="lx-p lx-small2">${this.esc(e.harvestText.text)}</p>` : ''}</div>`;
             },
             lxGrowsHtml(e) {
-                const g = e.grows || {}; if (!(g.varieties || []).length && !(g.processes || []).length) return '';
-                return `${(g.varieties || []).length ? `<div class="lx-flabel">Varieties</div><div class="lx-tags">${g.varieties.map(id => this.lxLinkTag('variety', id, this.lxName('variety', id))).join('')}</div>` : ''}${(g.processes || []).length ? `<div class="lx-flabel lx-gap">Processes</div><div class="lx-tags">${g.processes.map(id => this.lxLinkTag('process', id, this.lxName('process', id))).join('')}</div>` : ''}`;
+                const g = e.grows || {}; if (!(g.varieties || []).length && !(g.processes || []).length && !g.text) return '';
+                return `${g.text || g.species ? `<p class="lx-p lx-gtext">${this.esc([g.text, g.species && !String(g.text || '').toLowerCase().includes(String(g.species).toLowerCase()) ? this.lxCap(g.species) + '.' : ''].filter(Boolean).join(' ').replace(/\.\./g, '.'))}</p>` : ''}${(g.varieties || []).length ? `<div class="lx-flabel">Varieties</div><div class="lx-tags">${g.varieties.map(id => this.lxLinkTag('variety', id, this.lxName('variety', id))).join('')}</div>` : ''}${(g.processes || []).length ? `<div class="lx-flabel lx-gap">Processes</div><div class="lx-tags">${g.processes.map(id => this.lxLinkTag('process', id, this.lxName('process', id))).join('')}</div>` : ''}`;
             },
 
             // ===================== L8: guides =====================

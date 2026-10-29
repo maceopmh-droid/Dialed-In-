@@ -33,7 +33,7 @@
                     const cont = (x && x.continent) || '';
                     Object.assign(e, { country: r.id, continent: cont, tint: this.LX_CONT_TINT[cont] || 'fruity', kicker: `Origin${cont ? ' · ' + cont : ''}`, regions: r.regions || [], regionsNote: r.regionsNote || '' });
                     this.lxRxHarvest(e, r.harvest, r.name);
-                    if (r.grows) e.grows = { varieties: (r.grows.varieties || []).filter(id => LearnEngine.entry('variety', id)), processes: (r.grows.processes || []).filter(id => LearnEngine.entry('process', id)) };
+                    if (r.grows) e.grows = { varieties: (r.grows.varieties || []).filter(id => LearnEngine.entry('variety', id)), processes: (r.grows.processes || []).filter(id => LearnEngine.entry('process', id)), text: r.grows.text || '', species: r.grows.species || '' };
                     const m = maps && maps[r.id];
                     if (m) {   // (provinces the research says grow coffee, the ones with a region below darker; or a town in each coffee area)
                         e.map = r.id;
@@ -46,7 +46,7 @@
                     const c = LearnEngine.entry('origin', r.country);
                     Object.assign(e, { country: r.country, continent: c ? c.continent : '', kicker: `Region · ${c ? c.name : r.country}`, tint: '' });
                     this.lxRxHarvest(e, r.harvest, r.name);
-                    if (r.grows) e.grows = { varieties: (r.grows.varieties || []).filter(id => LearnEngine.entry('variety', id)), processes: (r.grows.processes || []).filter(id => LearnEngine.entry('process', id)) };
+                    if (r.grows) e.grows = { varieties: (r.grows.varieties || []).filter(id => LearnEngine.entry('variety', id)), processes: (r.grows.processes || []).filter(id => LearnEngine.entry('process', id)), text: r.grows.text || '', species: r.grows.species || '' };
                 }
                 return e;
             },
@@ -112,6 +112,28 @@
                 const cards = list.map(([kk, id]) => { const x = this.lxEntry(kk, id); const fam = x ? (kk === 'region' ? this.lxRegionTint(x) : x.tint || 'app') : 'app'; return `<button type="button" class="lx-rcard" data-fam="${this.esc(fam)}" onclick="${this.lxGo(kk, id)}"><span class="lx-rk">${this.esc(kk === 'origin' ? 'Country' : this.lxKindWord(kk))}</span><span class="lx-rn">${this.esc(this.lxName(kk, id))}</span>${x && x.summary ? `<span class="lx-rs">${this.esc(x.summary)}</span>` : ''}</button>`; });
                 return { key: `${e.kind}.related`, open: true, title: e.kind === 'region' ? `More of ${this.lxName('origin', e.country)}` : 'Related', teaser: list.map(([kk, id]) => this.lxName(kk, id)).join(', '), body: `<div class="lx-related">${cards.join('')}</div>` };
             },
+            // v20.3: a page with little written about it points to its closest relative that has a full page (for a variety, the
+            // nearest parent or grandparent up its line). The relative's notes are labeled as the relative's, not this coffee's.
+            lxHasCup(x) { return !!(x && (x.taste || (x.rx && x.rx.cup))); },
+            lxHasStory(x) { return !!(x && (((x.rx && x.rx.story) || []).length || (x.sections || []).length >= 2)); },
+            lxNearest(e) {
+                const parse = k => { const i = String(k || '').indexOf(':'); return i > 0 ? [k.slice(0, i), k.slice(i + 1)] : null; };
+                const full = (kk, id) => { const x = this.lxEntry(kk, id); return x && this.lxHasCup(x) && this.lxHasStory(x) ? x : null; };
+                const set = parse(e.rx && e.rx.nearest); if (set && full(...set)) return set;
+                if (e.kind === 'variety' && typeof LearnTree !== 'undefined' && LearnTree.MAIN) for (let p = LearnTree.MAIN[e.id]; p && p !== 'arabica'; p = LearnTree.MAIN[p]) if (!(LearnTree.GROUP || {})[p] && full('variety', p)) return ['variety', p];
+                return null;
+            },
+            lxNearestSec(e) {
+                if (!e || !['variety', 'species', 'process'].includes(e.kind) || (this.lxHasCup(e) && this.lxHasStory(e))) return null;
+                const n = this.lxNearest(e); if (!n) return null;
+                const [kk, id] = n, x = this.lxEntry(kk, id), name = this.lxName(kk, id), fam = x.tint || 'app';
+                const notes = ((x.taste && x.taste.notes) || (x.rx && x.rx.cup && x.rx.cup.notes) || []).slice(0, 4);
+                const what = !this.lxHasCup(e) ? `No source we found describes ${e.name}’s cup on its own.` : `Not much has been written about ${e.name}’s history.`;
+                const how = kk === 'variety' && e.kind === 'variety' ? (LearnTree.MAIN && LearnTree.MAIN[e.id] === id ? 'its parent' : 'its closest relative with a full page') : 'the closest page with more';
+                return { key: `${e.kind}.nearest`, open: true, title: `Closest relative: ${name}`, teaser: what,
+                    body: `<div class="lx-box lx-near"><p class="lx-p">${this.esc(what)} ${this.esc(name)}, ${this.esc(how)}, has a full page. What’s said about ${this.esc(name)} may not all hold for ${this.esc(e.name)}.</p>`
+                        + `<button type="button" class="lx-rcard lx-nearcard" data-fam="${this.esc(fam)}" onclick="${this.lxGo(kk, id)}"><span class="lx-rk">${this.esc(this.lxKindWord ? this.lxKindWord(kk) : kk)}</span><span class="lx-rn">${this.esc(name)}</span><span class="lx-rs">${this.esc(x.summary || '')}</span>${notes.length ? `<span class="lx-nearn"><em>${this.esc(name)}’s notes:</em> ${notes.map(t => this.esc(t)).join(', ')}</span>` : ''}<span class="lx-rgo">Open ${this.esc(name)} ›</span></button></div>` };
+            },
             // a region page's towns
             lxPlacesSec(e) {
                 const pl = (e.rx && e.rx.places) || []; if (!pl.length) return null;
@@ -132,9 +154,9 @@
                 const c = this.learnContent(), m = c && c.maps[e.country]; if (!m) return '';
                 const links = this.lxMapLinks(e.country), mine = new Set([...links].filter(([, id]) => id === e.id).map(([a]) => a));
                 const regions = Object.entries(m.regions || {}).map(([id, d]) => { const to = links.get(id); return `<path class="lx-rg${mine.has(id) ? ' on l3' : to ? ' on' : ''}" d="${d}"${to && !mine.has(id) ? ` data-lxr="${this.esc(to)}"` : ''}/>`; }).join('');
-                const dots = this.lxDotLabels(m).map(d => { const to = links.get(d.id), me = mine.has(d.id); return `<g class="lx-mdot${me ? ' lx-mme' : ''}"${to && !me ? ` data-lxr="${this.esc(to)}"` : ''}><circle cx="${d.x}" cy="${d.y}" r="${me ? 5 : 3.2}"/><text x="${d.tx}" y="${d.ty}"${d.left ? ' text-anchor="end"' : ''}>${this.esc(d.label)}</text></g>`; }).join('');
+                const dots = this.lxDotLabels(m).map(d => { const to = links.get(d.id), me = mine.has(d.id); return `<g class="lx-mdot${me ? ' lx-mme' : ''}"${to && !me ? ` data-lxr="${this.esc(to)}"` : ''}><circle cx="${d.x}" cy="${d.y}" r="${((me ? 5 : 3.2) * this.lxMapZ(m)).toFixed(2)}"/><text x="${d.tx}" y="${d.ty}"${d.left ? ' text-anchor="end"' : ''}>${this.esc(d.label)}</text></g>`; }).join('');
                 if (!mine.size) return '';
-                const svg = `<svg class="lx-cmap" viewBox="0 0 ${m.w} ${m.h}" role="img" aria-label="Map of ${this.esc(this.lxName('origin', e.country))} with ${this.esc(e.name)} marked" onclick="app.lxMapTap(event)"><path class="lx-rest" d="${m.rest || ''}"/>${regions}<path class="lx-outline" d="${m.outline}"/>${dots}</svg>`;
+                const svg = `<svg class="lx-cmap" viewBox="${m.zoom ? m.zoom.join(' ') : `0 0 ${m.w} ${m.h}`}" style="--mz:${this.lxMapZ(m)}" role="img" aria-label="Map of ${this.esc(this.lxName('origin', e.country))} with ${this.esc(e.name)} marked" onclick="app.lxMapTap(event)"><path class="lx-rest" d="${m.rest || ''}"/>${regions}<path class="lx-outline" d="${m.outline}"/>${dots}</svg>`;
                 const other = [...new Set(links.values())].filter(id => id !== e.id).length;
                 return `<div class="lx-box lx-mapwrap lx-dotmap"><div class="lx-cmapbox">${svg}</div><div class="lx-legend"><span><i class="lx-lg-l3"></i>${this.esc(e.name)}</span>${other ? `<span><i class="lx-lg-l1"></i>Other regions with a page: tap one</span>` : ''}</div></div>`;
             },
