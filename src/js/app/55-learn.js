@@ -290,7 +290,8 @@
             lxShelfSec() {
                 const list = this.lxShelf(); if (!list.length) return null;
                 const cards = list.map(c => this.lxShelfCard(c));
-                return { key: 'home.shelf', open: true, title: 'On your shelf', meta: String(list.length), teaser: list.slice(0, 3).map(c => c.bean.name || 'Coffee').join(', '), body: `<div class="lx-shelf">${this.moreHtml(cards, 3, '')}</div>` };
+                // v20.2: a row you swipe sideways (the next card peeks in), not a list that drops down
+                return { key: 'home.shelf', open: true, title: 'On your shelf', meta: String(list.length), teaser: list.slice(0, 3).map(c => c.bean.name || 'Coffee').join(', '), body: `<div class="lx-shelf lx-shelfrow${list.length === 1 ? ' lx-one' : ''}">${cards.join('')}</div>` };
             },
             lxShelfCard(c) {
                 const bean = c.bean, fam = this.famOfCoffee(bean), tags = this.lxTagChips(bean, false);
