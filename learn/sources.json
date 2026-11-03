@@ -5481,10 +5481,10 @@
       "year": 2016
     },
     "fao-yemen-assessment-2025": {
-      "title": "FAO Yemen assessment report: Coffee value chain in Yemen, export potential and investment opportunities",
-      "publisher": "FAO (via United Nations Yemen)",
+      "title": "Coffee value chain in Yemen: export potential and investment opportunities (FAO and IFC, 2023)",
+      "publisher": "FAO and IFC (posted by United Nations Yemen)",
       "url": "https://yemen.un.org/en/290202-fao-yemen-assessment-report-coffee-value-chain-yemen-export-potential-and-investment",
-      "year": 2025
+      "year": 2023
     },
     "fao-yemen-2025": {
       "title": "Yemen: Coffee (Coffea spp.), country crop profile",
@@ -8949,6 +8949,632 @@
       "publisher": "Perfect Daily Grind",
       "url": "https://perfectdailygrind.com/es/2021/02/03/como-los-microorganismos-afectan-la-fermentacion-y-el-perfil-sensorial-del-cafe/",
       "year": 2021
+    },
+    "oncuba-cub-2023": {
+      "title": "¿No hay café en Cuba?",
+      "publisher": "OnCuba News",
+      "url": "https://oncubanews.com/cuba/economia/no-hay-cafe-en-cuba",
+      "year": 2023
+    },
+    "oncuba-cub-2021": {
+      "title": "Cuba apuesta por producir café en el llano con tecnología vietnamita",
+      "publisher": "OnCuba News",
+      "url": "https://oncubanews.com/cuba/cuba-apuesta-por-producir-cafe-en-el-llano-con-tecnologia-vietnamita",
+      "year": 2021
+    },
+    "diariodecuba-gtmo-2025": {
+      "title": "Un proyecto español promete 'transformar' la mermada producción de café en Guantánamo",
+      "publisher": "Diario de Cuba",
+      "url": "https://diariodecuba.com/cuba/1743192266_60491.html",
+      "year": 2025
+    },
+    "directoriocubano-gtmo-2026": {
+      "title": "Cosecha de café en Guantánamo inicia con meta de 294.568 latas",
+      "publisher": "Directorio Cubano",
+      "url": "https://www.directoriocubano.info/?p=151669",
+      "year": 2026
+    },
+    "directoriocubano-stgo-2023": {
+      "title": "Santiago de Cuba entregará más de 4000 toneladas de café",
+      "publisher": "Directorio Cubano",
+      "url": "https://www.directoriocubano.info/?p=66186",
+      "year": 2023
+    },
+    "directoriocubano-hav-2022": {
+      "title": "Insuficiente producción de café en Cuba",
+      "publisher": "Directorio Cubano",
+      "url": "https://www.directoriocubano.info/cuba/insuficiente-produccion-de-cafe-en-cuba/",
+      "year": 2022
+    },
+    "gourmetkava-cuba": {
+      "title": "Cuba Lavado, whole bean Arabica coffee",
+      "publisher": "GourmetKava (Czech roaster)",
+      "url": "https://www.gourmetkava.cz/en/our-gourmetkava/cuba-lavado-whole-bean-arabica-coffee-125p-137"
+    },
+    "waytocoffee-turquino": {
+      "title": "Kuba Turquino Lavado (roasted by Caffè 4 U)",
+      "publisher": "The Way to Coffee",
+      "url": "https://www.thewaytocoffee.com/beans/cuba-turquino-washed"
+    },
+    "eldinero-dom-2016": {
+      "title": "Siete variedades de café en busca de más rentabilidad",
+      "publisher": "elDinero",
+      "url": "https://eldinero.com.do/30828/siete-variedades-de-cafe-en-busca-de-mas-rentabilidad/",
+      "year": 2016
+    },
+    "eldinero-dom-2020": {
+      "title": "Una nueva ruta para la recuperación del café dominicano",
+      "publisher": "elDinero",
+      "url": "https://www.eldinero.com.do/128821/una-nueva-ruta-para-la-recuperacion-del-cafe-dominicano/",
+      "year": 2020
+    },
+    "eldinero-dom-2023": {
+      "title": "Cambio climático impacta la producción cafetalera en República Dominicana",
+      "publisher": "elDinero",
+      "url": "https://eldinero.com.do/248900/cambio-climatico-impacta-la-produccion-cafetalera-en-republica-dominicana/",
+      "year": 2023
+    },
+    "reeap-barahona-2014": {
+      "title": "Caracterización del nivel tecnológico de explotaciones cafetaleras en la DO Café Barahona (R.D.) como estrategia de posicionamiento (Collazos Bravo, Pimentel Pujols and Urbano López de Meneses)",
+      "publisher": "Revista Española de Estudios Agrosociales y Pesqueros, no. 239",
+      "url": "https://mapa.gob.es/ministerio/pags/biblioteca/revistas/pdf_REEAP/r239_107_128.pdf",
+      "year": 2014
+    },
+    "acento-dom-2024": {
+      "title": "Diez años después, el café se recupera lentamente de los efectos de la roya",
+      "publisher": "Acento",
+      "url": "https://acento.com.do/ecologia/diez-anos-despues-el-cafe-se-recupera-lentamente-de-los-efectos-de-la-roya-9401551.html",
+      "year": 2024
+    },
+    "cepal-dom-2017": {
+      "title": "Sector cafetalero en República Dominicana, análisis del impacto del cambio climático (Juan Pablo Peñaló and Diana Ramírez, presentation)",
+      "publisher": "CEPAL event files",
+      "url": "https://www.cepal.org/sites/default/files/events/files/presentacion_17.10.17_diana_ramirez_y_juan_pablo_penalo.pdf",
+      "year": 2017
+    },
+    "burman-baptiste": {
+      "title": "Haitian Singing Rooster High Altitude Baptiste UCOCAB Group CAB Co-op",
+      "publisher": "Burman Coffee Traders",
+      "url": "https://burmancoffee.com/haitian-singing-rooster-high-altitude-baptiste-ucocab-group-cab-co-op/"
+    },
+    "cafeimports-jam": {
+      "title": "Origins: Jamaica",
+      "publisher": "Cafe Imports",
+      "url": "https://www.cafeimports.com/europe/jamaica"
+    },
+    "gleaner-jam-2014": {
+      "title": "Coffee year ends with smallest crop in five years",
+      "publisher": "The Gleaner",
+      "url": "https://jamaica-gleaner.com/article/business/20140831/coffee-year-ends-smallest-crop-five-years",
+      "year": 2014
+    },
+    "metro-pr-2018": {
+      "title": "Nuevas semillas rumbo a salvar la industria del café en Puerto Rico",
+      "publisher": "Metro Puerto Rico",
+      "url": "https://www.metro.pr/pr/noticias/2018/04/27/nuevas-semillas-rumbo-salvar-la-industria-del-cafe-puerto-rico.html",
+      "year": 2018
+    },
+    "uprm-eea-ct-1999": {
+      "title": "Conjunto tecnológico para la producción de café (Publicación 104, July 1999)",
+      "publisher": "Estación Experimental Agrícola, University of Puerto Rico at Mayagüez (copy hosted by the USDA Caribbean Climate Hub)",
+      "url": "https://caribbeanclimatehub.org/wp-content/uploads/2015/06/Technological-Package-Coffee.pdf",
+      "year": 1999
+    },
+    "uprm-eea-ct-2018": {
+      "title": "Conjunto tecnológico para la producción de café (Publicación 104, revised 2018)",
+      "publisher": "Estación Experimental Agrícola, University of Puerto Rico at Mayagüez",
+      "url": "https://www.uprm.edu/eea/wp-content/uploads/sites/177/2019/12/CT-cafe-Texto.pdf",
+      "year": 2018
+    },
+    "staradvertiser-dole-2026": {
+      "title": "Dole Food to cease coffee farm operations on Oahu (Andrew Gomes, Honolulu Star-Advertiser)",
+      "publisher": "The Garden Island",
+      "url": "https://www.thegardenisland.com/2026/10/17/business/dole-food-to-cease-coffee-farm-operations-on-oahu/",
+      "year": 2026
+    },
+    "staradvertiser-kauai-2026": {
+      "title": "Kauai Coffee Co. gets new land lease after tumultuous negotiations (Andrew Gomes)",
+      "publisher": "Honolulu Star-Advertiser",
+      "url": "https://www.staradvertiser.com/2026/06/27/hawaii-news/kauai-coffee-co-gets-new-land-lease-after-tumultuous-negotiations/",
+      "year": 2026
+    },
+    "sprudge-kauai-2026": {
+      "title": "Update: The Kauai Coffee Company has secured their land lease",
+      "publisher": "Sprudge",
+      "url": "https://sprudge.com/update-the-kauai-coffee-company-has-secured-their-land-lease-1138488.html",
+      "year": 2026
+    },
+    "burman-waialua": {
+      "title": "Hawaiian Oahu – Waialua Estate – Washed Processed",
+      "publisher": "Burman Coffee Traders",
+      "url": "https://burmancoffee.com/?p=26426"
+    },
+    "kqed-maui-2012": {
+      "title": "Maui coffee farm tour",
+      "publisher": "KQED Bay Area Bites",
+      "url": "https://www.kqed.org/bayareabites/45849/maui-coffee-farm-tour",
+      "year": 2012
+    },
+    "wiki-molokai": {
+      "title": "Molokai coffee",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Molokai_coffee"
+    },
+    "rirdc-aus-2007": {
+      "title": "The influence of processing on the flavour of Australian coffee (James Drinnan, RIRDC Publication No. 07/065)",
+      "publisher": "Rural Industries Research and Development Corporation",
+      "url": "https://era.dpi.qld.gov.au/id/eprint/7385/1/07-065.pdf",
+      "year": 2007
+    },
+    "scu-terroir-2023": {
+      "title": "Australian coffee character wheel and terroir (news release)",
+      "publisher": "Southern Cross University",
+      "url": "https://www.scu.edu.au/news/2023/coffee-wheel-and-terroir/",
+      "year": 2023
+    },
+    "scu-taste-2023": {
+      "title": "The taste of Australian-grown coffee (news release)",
+      "publisher": "Southern Cross University",
+      "url": "https://www.scu.edu.au/news/2023/taste-of-australian-grown-coffee/",
+      "year": 2023
+    },
+    "quantum-skybury": {
+      "title": "Australia, Skybury coffee",
+      "publisher": "Quantum Roasters",
+      "url": "https://quantumroasters.co.uk/products/australia-skybury-coffee"
+    },
+    "waytocoffee-skybury": {
+      "title": "Rarity Australien (roasted by TADAH kafferosteri)",
+      "publisher": "The Way to Coffee",
+      "url": "https://www.thewaytocoffee.com/beans/rarity-australien/"
+    },
+    "agrifutures-zentveld-2020": {
+      "title": "From crop to cup: the life of an Australian coffee roaster pioneer",
+      "publisher": "AgriFutures Australia",
+      "url": "https://agrifutures.com.au/news/from-crop-to-cup-the-life-of-an-australian-coffee-roaster-pioneer/",
+      "year": 2020
+    },
+    "oncuba-cub-2025": {
+      "title": "Cafeteras vacías: sin costumbres tampoco hay país (Ángel Marqués Dolz)",
+      "publisher": "OnCuba News",
+      "url": "https://oncubanews.com/?p=579539",
+      "year": 2025
+    },
+    "jcea-frats-2019": {
+      "title": "Jamaica Coffee Exporters Association supports National Coffee Farmer Registration and Tracking System (FRATS)",
+      "publisher": "Jamaica Coffee Exporters Association",
+      "url": "https://jamaicacoffee.org/jamaica-coffee-exporters-association-supports-national-coffee-farmer-registration-and-tracking-system-frats/",
+      "year": 2019
+    },
+    "wiki-coffee-production": {
+      "title": "List of countries by coffee production (FAOSTAT data, 2023)",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/List_of_countries_by_coffee_production"
+    },
+    "sm-yemen-sector-2020": {
+      "title": "Yemeni green coffee sector information (undated overview, c. 2020, linked to the exporter Pearl of Tehama)",
+      "publisher": "Hosted by Sweet Maria's Coffee Library",
+      "url": "https://library.sweetmarias.com/wp-content/uploads/2021/05/Yemeni-Green-Coffee-Sector-Information.pdf",
+      "year": 2020
+    },
+    "th3rdwave-hayma": {
+      "title": "Yemen Hayma AA anaerobic, direct trade (lot listing; Bait Alal, Hayma, 2,300 m, Udaini)",
+      "publisher": "Th3rdwave Coffee (lot bought through We The Origin)",
+      "url": "https://www.th3rdwave.coffee/fr/p/yemen-hayma-aa-anaerobic-direct-trade/",
+      "accessed": "2026-10"
+    },
+    "arabnews-saudi-coffee-2023": {
+      "title": "The story of Saudi coffee from a regional tradition to a global market",
+      "publisher": "Arab News (Nada Hameed)",
+      "url": "https://arabnews.com/node/2375831/lifestyle",
+      "year": 2023
+    },
+    "ajel-asir-2023": {
+      "title": "Farmers in Asir region revive traditional coffee farms, boost coffee production",
+      "publisher": "AJEL English",
+      "url": "https://english.ajel.sa/saudi-arabia/farmers-in-asir-region-revive-traditional-coffee-farms-boost-coffee-production",
+      "year": 2023
+    },
+    "arabnews-asir-2026": {
+      "title": "Asir's mountain terraces emerge as Saudi coffee production hub",
+      "publisher": "Arab News (Saudi Press Agency)",
+      "url": "https://www.arabnews.pk/saudi-arabia/asirs-mountain-terraces-emerge-as-saudi-coffee-production-hub-3003040",
+      "year": 2026
+    },
+    "coffeeboard-db-2024": {
+      "title": "Database on Coffee, July 2024 (table 4.13, monthly shipment of coffee from India by types)",
+      "publisher": "Coffee Board of India",
+      "url": "https://coffeeboard.gov.in/Database/DATABASE3_JULY2024.pdf",
+      "year": 2024
+    },
+    "bis-is3581-2019": {
+      "title": "IS 3581:2019, Green coffee: specification (third revision)",
+      "publisher": "Bureau of Indian Standards (copy hosted by FSSAI)",
+      "url": "https://cdd.fssai.gov.in/viewFile.php?id=176",
+      "year": 2019
+    },
+    "jipr-mm-arabica-2023": {
+      "title": "Implications of GI on Indian specialty coffee: a case study on 'Monsooned Malabar Arabica Coffee'",
+      "publisher": "Rekha Menon P and P Vasanthakumari, Journal of Intellectual Property Rights 27(5)",
+      "url": "https://or.niscpr.res.in/index.php/JIPR/article/view/4128",
+      "year": 2023
+    },
+    "coffeereview-lekali-2018": {
+      "title": "Lekali Nepal (Barrington Coffee Roasting), 90 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/lekali-nepal/",
+      "year": 2018
+    },
+    "paudel-nepal-2021": {
+      "title": "Effect of altitude and shade on production and physical attributes of coffee in Gulmi, Syangja and Palpa districts of Nepal",
+      "publisher": "Paudel, Parajuli, Regmi & Budhathoki, Journal of Agriculture and Natural Resources 4(1)",
+      "url": "https://nepjol.info/index.php/janr/article/view/33275",
+      "year": 2021
+    },
+    "coffeereview-china": {
+      "title": "Coffee reviews: China (listing of reviews, 2014–2025)",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/types/china",
+      "accessed": "2026-10"
+    },
+    "ace-goy-2026": {
+      "title": "Gems of Yunnan 2026 (competition and auction results)",
+      "publisher": "Alliance for Coffee Excellence, run with the Specialty Coffee Society of Yunnan",
+      "url": "https://allianceforcoffeeexcellence.org/?p=246106",
+      "year": 2026
+    },
+    "xinhua-yunnan-2025": {
+      "title": "China's leading coffee province sees 358 pct surge in coffee exports in 2024",
+      "publisher": "Xinhua (via english.www.gov.cn)",
+      "url": "https://english.www.gov.cn/archive/statistics/202502/25/content_WS67bd5f34c6d0868f4e8eff30.html",
+      "year": 2025
+    },
+    "chinadaily-yunnan-2025": {
+      "title": "Yunnan percolating perky profits for coffee farmers",
+      "publisher": "China Daily (Zhu Wenqian and Li Yingqing), via China Daily HK",
+      "url": "https://chinadailyhk.com/article/609096",
+      "year": 2025
+    },
+    "chinadaily-yunnan-2022": {
+      "title": "Buzz brewing for quality Yunnan coffee beans",
+      "publisher": "China Daily (Zhu Wenqian and Li Yingqing), via Invest in China",
+      "url": "https://investinchina.chinaservicesinfo.com/s/202204/02/WS6247e31b498e6a12c1228dfc/buzz-brewing-for-quality-yunnan-coffee-beans.html",
+      "year": 2022
+    },
+    "taiwannews-tainung-2025": {
+      "title": "Taiwan unveils first homegrown coffee variety",
+      "publisher": "Taiwan News (with CNA)",
+      "url": "https://www.taiwannews.com.tw/news/6241580",
+      "year": 2025
+    },
+    "foodnext-tainung-2025": {
+      "title": "Low-altitude farms can grow specialty beans: Tainung No. 1, Taiwan's first home-bred coffee variety (in Chinese)",
+      "publisher": "foodNEXT (editorial desk, from the Ministry of Agriculture's Taiwan Agricultural Research Institute)",
+      "url": "https://www.foodnext.net/science/technology/paper/6111128217",
+      "year": 2025
+    },
+    "myanseed-coffee-brief": {
+      "title": "Brief from market system analysis of coffee in Chin State (undated, c. 2022; cites the Myanmar Agricultural Statistics Book 2021)",
+      "publisher": "myanSEED Agribusiness Consultancy (hosted by MIMU)",
+      "url": "https://www.themimu.info/sites/themimu.info/files/assessment_file_attachments/Policy_brief.pdf"
+    },
+    "originco-myanmar": {
+      "title": "Myanmar coffee guide",
+      "publisher": "Origin Coffee Roasters (UK)",
+      "url": "https://www.origincoffee.co.uk/blogs/journal/myanmar-coffee-guide",
+      "accessed": "2026-10"
+    },
+    "yemyint-mmr-2016": {
+      "title": "Myanmar coffee industry in brief (presentation, Nov 8, 2016)",
+      "publisher": "U Ye Myint, chairman, Mandalay Coffee Association (Myanmar Centre for Responsible Business)",
+      "url": "https://www.myanmar-responsiblebusiness.org/pdf/2016-11-08-Food-Safety/14-Mandalay-Coffee-Association-Ye-Myint.pdf",
+      "year": 2016
+    },
+    "afd-laos-2021": {
+      "title": "Laos: increasingly sustainable coffee production",
+      "publisher": "Agence Française de Développement (AFD)",
+      "url": "https://www.afd.fr/en/actualites/laos-increasingly-sustainable-coffee-production",
+      "year": 2021
+    },
+    "unodc-laos-2025": {
+      "title": "Brewing change: from opium poppies to premium coffee in the mountains of Lao PDR",
+      "publisher": "United Nations Office on Drugs and Crime (via UN Lao PDR)",
+      "url": "https://laopdr.un.org/en/node/307204",
+      "year": 2025
+    },
+    "coffeemag-laos-2013": {
+      "title": "Laos: the art of coffee, part II",
+      "publisher": "Coffee magazine (Gary Hirson)",
+      "url": "https://magazine.coffee/blog/1/141/laos-the-art-of-coffee-part-ii",
+      "year": 2013
+    },
+    "fftc-laos-2022": {
+      "title": "Is Lao coffee sector at its crossroad? An analysis of coffee market and coffee producers",
+      "publisher": "Phanhpakit Onphanhdala (National University of Laos), FFTC Agricultural Policy Platform",
+      "url": "https://ap.fftc.org.tw/article/3252",
+      "year": 2022
+    },
+    "gcr-laos-2013": {
+      "title": "Laos' Arabica rush",
+      "publisher": "Global Coffee Report",
+      "url": "https://www.gcrmag.com/laos-arabica-rush",
+      "year": 2013
+    },
+    "jakpost-kintamani-2008": {
+      "title": "Kintamani coffee gets certification",
+      "publisher": "The Jakarta Post",
+      "url": "https://www.thejakartapost.com/news/2008/12/13/kintamani-coffee-gets-certification.html",
+      "year": 2008
+    },
+    "asu-java-2024": {
+      "title": "Java coffee growing map",
+      "publisher": "Starbucks Coffee Academy (Arizona State University)",
+      "url": "https://live-sgacms.ws.asu.edu/sites/default/files/2024-03/Java%20Map_ENG_New.pdf",
+      "year": 2024
+    },
+    "asu-bali-2023": {
+      "title": "Bali coffee growing map",
+      "publisher": "Starbucks Coffee Academy (Arizona State University)",
+      "url": "https://live-sgacms.ws.asu.edu/sites/default/files/2023-05/English_Bali%20%282%29.pdf",
+      "year": 2023
+    },
+    "burman-bali-kintamani": {
+      "title": "Indonesian Bali Org. – Kintamani – Natural (listing)",
+      "publisher": "Burman Coffee Traders",
+      "url": "https://burmancoffee.com/?p=2455",
+      "accessed": "2026-10"
+    },
+    "interamerican-sumatra-g1tp": {
+      "title": "Indonesia Sumatra Mandheling G1 TP",
+      "publisher": "InterAmerican Coffee",
+      "url": "https://interamericancoffee.com/?p=336",
+      "accessed": "2026-10"
+    },
+    "mongabay-luwak-2016": {
+      "title": "World's most expensive coffee often produced from caged, abused civets, study finds",
+      "publisher": "Mongabay",
+      "url": "https://news.mongabay.com/2016/05/worlds-expensive-coffee-often-produced-caged-abused-civets-study-finds/",
+      "year": 2016
+    },
+    "mercon-png-b15": {
+      "title": "Papua New Guinean Eastern Highlands Grade B-15 green coffee beans",
+      "publisher": "Mercon Specialty (StoneX)",
+      "url": "https://specialtycoffee.stonex.com/products/papua-new-guinean-eastern-highlands-gr-b-15-green-coffee-beans",
+      "accessed": "2026-10"
+    },
+    "dcn-png-grades-2021": {
+      "title": "New green coffee grading standards coming from Papua New Guinea",
+      "publisher": "Daily Coffee News",
+      "url": "https://dailycoffeenews.com/2021/08/25/new-green-coffee-grading-standards-coming-from-papua-new-guinea",
+      "year": 2021
+    },
+    "cafeimports-png-eu": {
+      "title": "Origins: Papua New Guinea",
+      "publisher": "Cafe Imports",
+      "url": "https://www.cafeimports.com/europe/papua-new-guinea",
+      "accessed": "2026-10"
+    },
+    "coffeehunter-png": {
+      "title": "Papua New Guinea (origin page)",
+      "publisher": "Coffee Hunter",
+      "url": "https://coffeehunter.com/our-origins/papua-new-guinea/",
+      "accessed": "2026-10"
+    },
+    "asu-png-2023": {
+      "title": "Papua New Guinea coffee growing map",
+      "publisher": "Starbucks Coffee Academy (Arizona State University)",
+      "url": "https://live-sgacms.ws.asu.edu/sites/default/files/2023-10/Papua%20New%20Guinea_Updated_2.pdf",
+      "year": 2023
+    },
+    "stonex-vnm-g1-washed": {
+      "title": "Robusta Grade 1 Washed SC 15 (Vietnam, Lâm Đồng)",
+      "publisher": "Mercon Specialty (StoneX)",
+      "url": "https://specialtycoffee.stonex.com/products/robusta-grade-1-washed-sc-15",
+      "accessed": "2026-10"
+    },
+    "stonex-vnm-lotus": {
+      "title": "Vietnamese Lotus green coffee beans (Cầu Đất, washed Catimor)",
+      "publisher": "Mercon Specialty (StoneX)",
+      "url": "https://specialtycoffee.stonex.com/products/vietnamese-lotus-green-coffee-beans",
+      "accessed": "2026-10"
+    },
+    "coffeereview-truegrit-2025": {
+      "title": "True Grit (100% Robusta) by Nguyen Coffee Supply, 85 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/?p=26462",
+      "year": 2025
+    },
+    "nongnghiep-wasi-2024": {
+      "title": "WASI's great contribution to the coffee industry: transferring high-quality coffee varieties for replanting",
+      "publisher": "Vietnam Agriculture (Nông nghiệp)",
+      "url": "https://vietnamagriculture.nongnghiep.vn/wasis-great-contribution-to-the-coffee-industry-transferring-high-quality-coffee-varieties-for-replanting-d400144.html",
+      "year": 2024
+    },
+    "wcr-tr9": {
+      "title": "TR9",
+      "publisher": "World Coffee Research variety catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/tr9",
+      "accessed": "2026-10"
+    },
+    "sucafina-vnm-wetpolished": {
+      "title": "VN Robusta Queen Wet Polished Scr 18 (offering)",
+      "publisher": "Sucafina",
+      "url": "https://sucafina.com/emea/offerings/vn-robusta-queen-wet-polished-scr-18-impact",
+      "accessed": "2026-10"
+    },
+    "kanjana-tha-2021": {
+      "title": "The effect of harvesting labor constraints on the production of Robusta coffee farmers in Chumphon Province, Thailand (Kwanmuang & Lertjunthuk), J. Int. Coop. Agric. Dev. 19: 2–16",
+      "publisher": "Nagoya University (ICREA)",
+      "url": "https://icrea.agr.nagoya-u.ac.jp/jpn/journal/Vol19_02-16_Original_Kanjana.pdf#zoom=75",
+      "year": 2021
+    },
+    "giz-coffeepp-2024": {
+      "title": "Coffee++ project shared climate change knowledge at the coffee buying stations in Chumphon and Ranong",
+      "publisher": "Thai-German Cooperation (GIZ)",
+      "url": "https://www.thai-german-cooperation.info/news/coffee-project-shared-climate-change-knowledge-at-the-coffee-buying-stations-in-chumphon-and-ranong/",
+      "year": 2024
+    },
+    "mdpi-tha-2024": {
+      "title": "Influence of post-harvest processing and drying techniques on physicochemical properties of Thai Arabica coffee (Sai Aung Moon et al.), AgriEngineering 6: 2198–2213",
+      "publisher": "MDPI",
+      "url": "https://mdpi-res.com/d_attachment/agriengineering/agriengineering-06-00129/article_deploy/agriengineering-06-00129.pdf",
+      "year": 2024
+    },
+    "waytocoffee-tha-2018": {
+      "title": "Specialty coffee in Thailand",
+      "publisher": "The Way to Coffee",
+      "url": "https://www.thewaytocoffee.com/specialtycoffeeblog/specialty-coffee-in-thailand",
+      "year": 2018
+    },
+    "eurlex-2015-1134": {
+      "title": "Commission Implementing Regulation (EU) 2015/1134 of 9 July 2015 (Kafae Doi Tung, PGI)",
+      "publisher": "EUR-Lex, European Union",
+      "url": "https://eur-lex.europa.eu/eli/reg/2015/1134/oj",
+      "year": 2015
+    },
+    "philstar-psa-2024": {
+      "title": "Millennials, Gen Zs perk up coffee production in Philippines",
+      "publisher": "The Philippine Star (citing PSA)",
+      "url": "https://www.philstar.com/business/2024/02/20/2334572/millennials-gen-zs-perk-coffee-production-philippines/amp/",
+      "year": 2024
+    },
+    "psa-ilocos-2024": {
+      "title": "Highlights on coffee production, Ilocos Region 2023 (SR-2024-041)",
+      "publisher": "Philippine Statistics Authority, Regional Statistical Services Office I",
+      "url": "https://rsso01.psa.gov.ph/system/files/attachment-dir/SR-2024-041%20HIGHLIGHTS%20ON%20COFFEE%20PRODUCTION%20ILOCOS%20REGION%202023.pdf",
+      "year": 2024
+    },
+    "da-phl-roadmap-2022": {
+      "title": "The Philippine Coffee Industry Roadmap (2021–2025)",
+      "publisher": "Department of Agriculture (Bureau of Agricultural Research; High Value Crops Development Program)",
+      "url": "https://hvcdp.da.gov.ph/wp-content/uploads/2023/07/Philippine-Coffee-Industry-Roadmap.pdf",
+      "year": 2022
+    },
+    "bernama-perak-2026": {
+      "title": "'Cherita Secangkir Kopi' drives Perak's coffee aspirations",
+      "publisher": "Bernama",
+      "url": "https://bernama.com/en/news.php?id=2555795",
+      "year": 2026
+    },
+    "mardi-fftc-2016": {
+      "title": "Exploring the potentials of coffee industry in Malaysia (Abdul Wahab & Mohammad Nor, MARDI)",
+      "publisher": "FFTC Agricultural Policy Platform",
+      "url": "https://ap.fftc.org.tw/node/1005",
+      "year": 2016
+    },
+    "uum-mys-2026": {
+      "title": "Exploring the drivers of coffee production in Malaysia: a short and long-term analysis (Anizah Md Ali), Journal of Economics and Sustainability 8(1): 38–57",
+      "publisher": "Universiti Utara Malaysia",
+      "url": "https://e-journal.uum.edu.my/index.php/jes/en/article/download/28164/5023/103366",
+      "year": 2026
+    },
+    "thestar-paloh-2026": {
+      "title": "Refining elephant beans into speciality coffee",
+      "publisher": "The Star (Malaysia)",
+      "url": "https://www.thestar.com.my/metro/metro-news/2026/09/17/refining-elephant-beans-into-speciality-coffee",
+      "year": 2026
+    },
+    "borneopost-sarawak-2025": {
+      "title": "Potential a-brewing for Sarawak's coffee industry",
+      "publisher": "The Borneo Post",
+      "url": "https://www.theborneopost.com/2025/12/14/potential-a-brewing-for-sarawaks-coffee-industry/",
+      "year": 2025
+    },
+    "lee-sarawak-2023": {
+      "title": "Liberica coffee development and refinement project in Sarawak, Malaysia (Kenny Wee Ting Lee), Proceedings 89(1): 15",
+      "publisher": "MDPI (International Coffee Convention 2023)",
+      "url": "https://www2.mdpi.com/2504-3900/89/1/15",
+      "year": 2023
+    },
+    "boell-tls-2026": {
+      "title": "Hope in a cup: Timor-Leste's path to a sustainable coffee future (Nuno Ridenio)",
+      "publisher": "Heinrich Böll Stiftung Southeast Asia",
+      "url": "https://th.boell.org/en/node/2683",
+      "year": 2026
+    },
+    "tatoli-tls-2025": {
+      "title": "Coffee exports drop, Timor-Leste ships nothing else in Q1",
+      "publisher": "TATOLI (Timor-Leste news agency)",
+      "url": "https://en.tatoli.tl/2025/05/15/coffee-exports-drop-timor-leste-ships-nothing-else-in-q1/23/",
+      "year": 2025
+    },
+    "tatoli-tls-2024": {
+      "title": "Timor-Leste exports 906 tons of coffee",
+      "publisher": "TATOLI (Timor-Leste news agency)",
+      "url": "https://en.tatoli.tl/?p=55290",
+      "year": 2024
+    },
+    "lusa-tls-2025": {
+      "title": "Timor-Leste non-oil exports grew 21.7% in 2024 (Lusa, 22 March 2025)",
+      "publisher": "Lusa, via AMAN Alliance",
+      "url": "https://www.aman-alliance.org/Home/ContentDetail/87636",
+      "year": 2025
+    },
+    "adb-tls-2019": {
+      "title": "National Coffee Sector Development Plan supported by ADB for Timor-Leste launched",
+      "publisher": "Asian Development Bank",
+      "url": "https://www.adb.org/news/national-coffee-sector-development-plan-supported-adb-timor-leste-launched",
+      "year": 2019
+    },
+    "sweetmarias-tls-aifu": {
+      "title": "Timor Leste Aifu Ermera (listing)",
+      "publisher": "Sweet Maria's",
+      "url": "https://www.sweetmarias.com/products/timor-leste-aifu-ermera-8232",
+      "year": 2025
+    },
+    "merlo-tls-2025": {
+      "title": "Timor Leste Sakoko (bean of the month, November 2025)",
+      "publisher": "Merlo Coffee",
+      "url": "https://www.merlo.com.au/blogs/bean-of-the-month/timor-leste-sakoko-november-2025",
+      "year": 2025
+    },
+    "burman-tls-letefoho": {
+      "title": "Timor Org. Ermera Lacau – Arabica – Washed Processed (listing)",
+      "publisher": "Burman Coffee Traders",
+      "url": "https://burmancoffee.com/?p=145876",
+      "year": 2024
+    },
+    "asu-tls-2023": {
+      "title": "Timor-Leste coffee growing map",
+      "publisher": "Starbucks Coffee Academy (Arizona State University)",
+      "url": "https://live-sgacms.ws.asu.edu/sites/default/files/2023-10/Timor-Leste%20Map_Updated.pdf",
+      "year": 2023
+    },
+    "wiki-tls-coffee": {
+      "title": "Coffee industry of Timor-Leste",
+      "publisher": "Wikipedia (citing the World Bank)",
+      "url": "https://en.wikipedia.org/wiki/Coffee_industry_of_Timor-Leste",
+      "accessed": "2026-10"
+    },
+    "chk-directoriocubano-info-p-155165": {
+      "title": "El café sigue perdido en Cuba y Guantánamo apenas cumple el 36 % del plan de cosecha",
+      "publisher": "Directorio Cubano",
+      "url": "https://www.directoriocubano.info/?p=155165",
+      "year": 2026
+    },
+    "chk-de-statista-com-statistics-934137-haiti-green-co": {
+      "title": "Haiti: green coffee production volume, 2010–2021",
+      "publisher": "Statista (data from Index Mundi)",
+      "url": "https://de.statista.com/statistics/934137/haiti-green-coffee-production-volume/",
+      "year": 2020
+    },
+    "chk-hca-wildapricot-org-resources-documents-doa-hico": {
+      "title": "Grown with Aloha: a guide to Hawaiʻi's coffee industry",
+      "publisher": "Hawaii Coffee Association",
+      "url": "https://hca.wildapricot.org/resources/Documents/DOA-HICoffeeAssoc-Booklet.v4_print.pdf",
+      "year": 2018
+    },
+    "chk-rfdtv-com-indonesia-coffee-output-falls-as-weath": {
+      "title": "Indonesia coffee output falls as weather cuts yields",
+      "publisher": "RFD-TV (reporting the USDA FAS Jakarta forecast)",
+      "url": "https://www.rfdtv.com/indonesia-coffee-output-falls-as-weather-cuts-yields",
+      "year": 2026
+    },
+    "chk-burmancoffee-com-product-green-coffee-beans-timo": {
+      "title": "Timor-Leste Letefoho – Natural Processed (listing)",
+      "publisher": "Burman Coffee Traders",
+      "url": "https://burmancoffee.com/product/green-coffee-beans/timor-letefoho-natural/",
+      "year": 2023
     }
   }
 }
