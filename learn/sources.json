@@ -11786,6 +11786,80 @@
       "publisher": "Coffee Review",
       "url": "https://www.coffeereview.com/review/maui-kupaa-orange-bourbon/",
       "year": 2019
+    },
+    "daaf-reunion-cafe-2026": {
+      "title": "Filière café (fiche filière, Essentiel La Réunion no. 3, June 2026)",
+      "publisher": "Agreste / DAAF La Réunion (Direction de l'Alimentation, de l'Agriculture et de la Forêt)",
+      "url": "https://daaf.reunion.agriculture.gouv.fr/IMG/pdf/202606_filiere_cafe.pdf",
+      "year": 2026
+    },
+    "avelino-2015": {
+      "title": "The coffee rust crises in Colombia and Central America (2008–2013): impacts, plausible causes and proposed solutions (Avelino et al., Food Security 7:303–321)",
+      "publisher": "Food Security (Springer)",
+      "url": "https://rd.springer.com/content/pdf/10.1007/s12571-015-0446-9.pdf",
+      "year": 2015
+    },
+    "coffeereview-esperanca-2014": {
+      "title": "Brazil Yellow Catuai Esperança Joao \"Zinho\" Souza (Ritual Coffee Roasters), 91 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/brazil-yellow-catuai-esperana-joao-zinho-souza/",
+      "year": 2014
+    },
+    "coffeereview-klem-2018": {
+      "title": "Icamiabas Fazenda Klem Catuaí Natural (Hatch Coffee), 92 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/icamiabas-fazenda-klem-catuai-natural/",
+      "year": 2018
+    },
+    "coffeereview-pedramenina-2022": {
+      "title": "Sítio Pedra Menina (Mostra Coffee), 93 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/?p=22298",
+      "year": 2022
+    },
+    "coffeereview-serrado-2016": {
+      "title": "Brazil Fazenda Do Serrado (Parisi Artisan Coffee), 92 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/brazil-fazenda-do-serrado/",
+      "year": 2016
+    },
+    "ozone-mundonovo": {
+      "title": "Explore the Mundo Novo coffee varietal",
+      "publisher": "Ozone Coffee",
+      "url": "https://ozonecoffee.co.uk/blogs/varietals/coffee-varietal-mundo-novo"
+    },
+    "ferraz-2023-mundonovo": {
+      "title": "Progeny selections of coffee cultivar 'Mundo Novo' with potential for the specialty coffee market (Ferraz et al.)",
+      "publisher": "Beverage Plant Research (Maximum Academic Press)",
+      "url": "https://maxapress.com/article/id/639ed1e1fa6c585d1f694aa9",
+      "year": 2023
+    },
+    "greencoffee-tekisic": {
+      "title": "Glossary: Tekisic",
+      "publisher": "Green Coffee Collective",
+      "url": "https://greencoffeecollective.com/pages/glossary/tekisic"
+    },
+    "waytocoffee-treshermanas-tekisic": {
+      "title": "Nicaragua Las Tres Hermanas Tekisic (Scenery Coffee Roasters listing)",
+      "publisher": "The Way to Coffee",
+      "url": "https://www.thewaytocoffee.com/beans/nicaragua-las-tres-hermanas-tekisic/"
+    },
+    "waytocoffee-treshermanas-cmn": {
+      "title": "Las Tres Hermanas Tekisic CMN (Dayglow listing)",
+      "publisher": "The Way to Coffee",
+      "url": "https://www.thewaytocoffee.com/beans/las-tres-hermanas-tekisic-cmn/"
+    },
+    "coe-sancarlos-2010": {
+      "title": "San Carlos, El Salvador 2010 (#14; farm directory listing)",
+      "publisher": "Cup of Excellence farm directory",
+      "url": "https://farmdirectory.cupofexcellence.org/?p=3616",
+      "year": 2010
+    },
+    "coe-opalo-2010": {
+      "title": "Opalo, El Salvador 2010 (#24; farm directory listing)",
+      "publisher": "Cup of Excellence farm directory",
+      "url": "https://farmdirectory.cupofexcellence.org/?p=3626",
+      "year": 2010
     }
   }
 }
