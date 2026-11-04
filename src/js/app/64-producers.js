@@ -43,7 +43,7 @@
                 if (!bean || (this.isTeaBean && this.isTeaBean(bean))) return '';
                 const own = this.activeId ? this.beans.get(String(this.activeId)) : null, mine = !!(own && own.user === this.user) || bean.user === this.user;
                 const c = (mine && own && this.chainOf(own)) || this.chainOf(bean);   // (yours first; else what another bag of it says)
-                if (!c) return mine ? `<button type="button" class="nl-chain-add" onclick="app.chainAdd()"><svg class="icon" aria-hidden="true"><use href="#i-tree"/></svg><span><b>Who grew it?</b><small>Add the farm, mill or importer if the bag or roaster says</small></span><svg class="icon nl-spec-ch" aria-hidden="true"><use href="#i-plus"/></svg></button>` : '';
+                if (!c) return mine ? `<button type="button" class="nl-chain-add" onclick="app.chainAdd()"><svg class="icon" aria-hidden="true"><use href="#i-tree"/></svg><span><b>Who grew it?</b><small>The farm, mill or importer on the bag</small></span><svg class="icon nl-spec-ch" aria-hidden="true"><use href="#i-plus"/></svg></button>` : '';
                 const ids = new Set(((this.activeGroup && this.activeGroup.ids) || [bean.id]).map(String));
                 const mineN = [...this.brews.values()].filter(b => ids.has(String(b.beanId)) && this.getBrewOwner(b) === this.user).length;
                 const steps = [

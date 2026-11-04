@@ -899,7 +899,9 @@
         html[data-look="new"] .shv-more b { display: block; font-size: 16px; font-weight: 650; color: var(--n); }
         html[data-look="new"] .shv-more small { display: block; font-size: 13.5px; color: var(--l); margin-top: 2px; }
         html[data-look="new"] .shv-more .icon { width: 18px; height: 18px; color: var(--l); }
-        html[data-look="new"] .shv-chero { padding-top: calc(var(--safe-top, 0px) + 68px) !important; }
+        /* v21.5: a shared coffee's (and a producer's) flat hero takes its top room from .nls-hero.is-flat .nls-id only:
+           a second padding here left an empty band of about 130 px above the picture */
+        html[data-look="new"] .shv-chero { padding-top: 0 !important; }
         html[data-look="new"] .shv-chero .shv-cover { margin-bottom: 14px; }
         html[data-look="new"] .shv-notes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
         html[data-look="new"] .shv-sub { color: var(--l); font-size: 14px; margin: 0 0 6px; }

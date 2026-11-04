@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v21.4 -->
+<!-- Dialed In v21.5 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="21.4">
+    <meta name="dialed-in-version" content="21.5">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -5051,7 +5051,9 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] .shv-more b { display: block; font-size: 16px; font-weight: 650; color: var(--n); }
         html[data-look="new"] .shv-more small { display: block; font-size: 13.5px; color: var(--l); margin-top: 2px; }
         html[data-look="new"] .shv-more .icon { width: 18px; height: 18px; color: var(--l); }
-        html[data-look="new"] .shv-chero { padding-top: calc(var(--safe-top, 0px) + 68px) !important; }
+        /* v21.5: a shared coffee's (and a producer's) flat hero takes its top room from .nls-hero.is-flat .nls-id only:
+           a second padding here left an empty band of about 130 px above the picture */
+        html[data-look="new"] .shv-chero { padding-top: 0 !important; }
         html[data-look="new"] .shv-chero .shv-cover { margin-bottom: 14px; }
         html[data-look="new"] .shv-notes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
         html[data-look="new"] .shv-sub { color: var(--l); font-size: 14px; margin: 0 0 6px; }
@@ -6472,7 +6474,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v21.4</div>
+            <div class="app-version">Dialed In · v21.5</div>
         </div>
     </div>
 
@@ -12329,7 +12331,9 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                         const hits = new Set();
                         for (let x = 16; x < window.innerWidth; x += Math.max(36, window.innerWidth / 9)) for (let y = 70; y < window.innerHeight - 8; y += 48) {
                             const el = document.elementFromPoint(x, y);
-                            for (let n = el; n && n !== document.body; n = n.parentElement) { const cs = getComputedStyle(n); if (cs.opacity === '0' || cs.visibility === 'hidden') { hits.add(n.id || String(n.className)); break; } }
+                            // (v21.5: a screen caught on the first frame of its fade-in, like the profile's 0.2 s threadIn, is the
+                            // screen itself, not a hidden layer over it; it's skipped while that animation runs)
+                            for (let n = el; n && n !== document.body; n = n.parentElement) { const cs = getComputedStyle(n); if ((cs.opacity === '0' || cs.visibility === 'hidden') && !(n.getAnimations && n.getAnimations().some(a => a.playState === 'running' || a.playState === 'pending'))) { hits.add(n.id || String(n.className)); break; } }
                         }
                         return [...hits];
                     };
@@ -30788,7 +30792,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 if (!bean || (this.isTeaBean && this.isTeaBean(bean))) return '';
                 const own = this.activeId ? this.beans.get(String(this.activeId)) : null, mine = !!(own && own.user === this.user) || bean.user === this.user;
                 const c = (mine && own && this.chainOf(own)) || this.chainOf(bean);   // (yours first; else what another bag of it says)
-                if (!c) return mine ? `<button type="button" class="nl-chain-add" onclick="app.chainAdd()"><svg class="icon" aria-hidden="true"><use href="#i-tree"/></svg><span><b>Who grew it?</b><small>Add the farm, mill or importer if the bag or roaster says</small></span><svg class="icon nl-spec-ch" aria-hidden="true"><use href="#i-plus"/></svg></button>` : '';
+                if (!c) return mine ? `<button type="button" class="nl-chain-add" onclick="app.chainAdd()"><svg class="icon" aria-hidden="true"><use href="#i-tree"/></svg><span><b>Who grew it?</b><small>The farm, mill or importer on the bag</small></span><svg class="icon nl-spec-ch" aria-hidden="true"><use href="#i-plus"/></svg></button>` : '';
                 const ids = new Set(((this.activeGroup && this.activeGroup.ids) || [bean.id]).map(String));
                 const mineN = [...this.brews.values()].filter(b => ids.has(String(b.beanId)) && this.getBrewOwner(b) === this.user).length;
                 const steps = [

@@ -61,7 +61,9 @@
                         const hits = new Set();
                         for (let x = 16; x < window.innerWidth; x += Math.max(36, window.innerWidth / 9)) for (let y = 70; y < window.innerHeight - 8; y += 48) {
                             const el = document.elementFromPoint(x, y);
-                            for (let n = el; n && n !== document.body; n = n.parentElement) { const cs = getComputedStyle(n); if (cs.opacity === '0' || cs.visibility === 'hidden') { hits.add(n.id || String(n.className)); break; } }
+                            // (v21.5: a screen caught on the first frame of its fade-in, like the profile's 0.2 s threadIn, is the
+                            // screen itself, not a hidden layer over it; it's skipped while that animation runs)
+                            for (let n = el; n && n !== document.body; n = n.parentElement) { const cs = getComputedStyle(n); if ((cs.opacity === '0' || cs.visibility === 'hidden') && !(n.getAnimations && n.getAnimations().some(a => a.playState === 'running' || a.playState === 'pending'))) { hits.add(n.id || String(n.className)); break; } }
                         }
                         return [...hits];
                     };
