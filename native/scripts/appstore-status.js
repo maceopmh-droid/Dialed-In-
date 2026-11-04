@@ -16,7 +16,7 @@ const lines = [];
   const app = ((apps.j && apps.j.data) || []).find(a => a.attributes.bundleId === BUNDLE);
   if (!app) { lines.push(`no app found (HTTP ${apps.status})`); return; }
   const vs = await get(`/v1/apps/${app.id}/appStoreVersions?filter[platform]=IOS&limit=20`);
-  ((vs.j && vs.j.data) || []).forEach(v => lines.push(`version ${v.attributes.versionString}: ${v.attributes.appVersionState || v.attributes.appStoreState} (store state ${v.attributes.appStoreState}; made ${String(v.attributes.createdDate || '').slice(0, 16)})`));
+  ((vs.j && vs.j.data) || []).forEach(v => lines.push(`version ${v.attributes.versionString}: ${v.attributes.appVersionState || v.attributes.appStoreState} (store state ${v.attributes.appStoreState}; release ${v.attributes.releaseType || '?'}; made ${String(v.attributes.createdDate || '').slice(0, 16)})`));
   const rs = await get(`/v1/reviewSubmissions?filter[app]=${app.id}&limit=20`);
   if (rs.status >= 300) lines.push(`review submissions: HTTP ${rs.status}`);
   ((rs.j && rs.j.data) || []).forEach(s => lines.push(`review submission ${s.id.slice(0, 8)}: ${s.attributes.state}, sent ${String(s.attributes.submittedDate || '-').slice(0, 16)}`));
