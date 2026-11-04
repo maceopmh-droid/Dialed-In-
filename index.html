@@ -5064,21 +5064,21 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] .shv-none button { width: auto; padding: 0 22px; }
         /* v21.3: a coffee's specs, one labeled row each; several values in a row are each their own small button */
         html[data-look="new"] #detail-view .dh-tags.nl-tags-off { display: none !important; }
-        html[data-look="new"] .nl-specs { margin-top: 18px; border-radius: 20px; background: var(--pill); overflow: hidden; width: 100%; }
-        html[data-look="new"] .nl-specs .nl-spec { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 50px; margin: 0; padding: 0 14px 0 16px; text-align: left; background: none !important; border: 0 !important; border-top: 1px solid color-mix(in srgb, var(--n) 9%, transparent) !important; border-radius: 0 !important; box-shadow: none !important; color: var(--t) !important; font: inherit; letter-spacing: 0; text-transform: none; cursor: default; }
+        html[data-look="new"] .nl-specs { margin-top: 14px; border-radius: 20px; background: var(--pill); overflow: hidden; width: 100%; }
+        html[data-look="new"] .nl-specs .nl-spec { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 42px; margin: 0; padding: 0 14px 0 16px; text-align: left; background: none !important; border: 0 !important; border-top: 1px solid color-mix(in srgb, var(--n) 9%, transparent) !important; border-radius: 0 !important; box-shadow: none !important; color: var(--t) !important; font: inherit; letter-spacing: 0; text-transform: none; cursor: default; }
         html[data-look="new"] .nl-specs .nl-spec:first-child { border-top: 0 !important; }
         html[data-look="new"] .nl-specs button.nl-spec { cursor: pointer; }
         html[data-look="new"] .nl-specs button.nl-spec:active { background: color-mix(in srgb, var(--n) 7%, transparent) !important; }
         html[data-look="new"] .nl-spec-ic { width: 19px !important; height: 19px !important; color: var(--k); stroke: currentColor; flex: none; }
         html[data-look="new"] .nl-spec-k { width: 74px; flex: none; color: var(--l); font-size: 15px; font-weight: 400; }
-        html[data-look="new"] .nl-spec-v { flex: 1; min-width: 0; color: var(--n); font-size: 16px; font-weight: 600; line-height: 1.3; padding: 13px 0; }
+        html[data-look="new"] .nl-spec-v { flex: 1; min-width: 0; color: var(--n); font-size: 15.5px; font-weight: 600; line-height: 1.3; padding: 10px 0; }
         html[data-look="new"] .nl-spec-ch { width: 15px !important; height: 15px !important; color: var(--l); stroke: currentColor; flex: none; }
         html[data-look="new"] .nl-specs .nl-spec-multi { align-items: flex-start; }
-        html[data-look="new"] .nl-spec-multi .nl-spec-ic { margin-top: 15px; }
-        html[data-look="new"] .nl-spec-multi .nl-spec-k { margin-top: 13px; }
-        html[data-look="new"] .nl-spec-multi .nl-spec-v { display: flex; flex-wrap: wrap; gap: 6px; padding: 9px 0; }
-        html[data-look="new"] .nl-specs .nl-spec-pill { display: inline-flex; align-items: center; gap: 2px; height: 32px; min-height: 0; width: auto; margin: 0; padding: 0 8px 0 12px; border-radius: 16px !important; background: color-mix(in srgb, var(--n) 10%, transparent) !important; color: var(--n) !important; border: 0 !important; box-shadow: none !important; font: inherit; font-size: 14.5px; font-weight: 600; letter-spacing: 0; text-transform: none; }
-        html[data-look="new"] .nl-specs .nl-spec-pill.is-plain { padding-right: 12px; }
+        html[data-look="new"] .nl-spec-multi .nl-spec-ic { margin-top: 11.5px; }
+        html[data-look="new"] .nl-spec-multi .nl-spec-k { margin-top: 10px; }
+        html[data-look="new"] .nl-spec-multi .nl-spec-v { display: flex; flex-wrap: wrap; gap: 5px; padding: 7px 0; }
+        html[data-look="new"] .nl-specs .nl-spec-pill { display: inline-flex; align-items: center; gap: 2px; height: 28px; min-height: 0; width: auto; margin: 0; padding: 0 7px 0 10px; border-radius: 14px !important; font-size: 14.5px !important; background: color-mix(in srgb, var(--n) 10%, transparent) !important; color: var(--n) !important; border: 0 !important; box-shadow: none !important; font: inherit; font-size: 14.5px; font-weight: 600; letter-spacing: 0; text-transform: none; }
+        html[data-look="new"] .nl-specs .nl-spec-pill.is-plain { padding-right: 10px; }
         html[data-look="new"] .nl-spec-ch.sm { width: 13px !important; height: 13px !important; }
         /* v21.3: the stars beside the coffee's tile (like the Coffees list), not on a row of their own */
         html[data-look="new"] #detail-view .nl-dtoprow { order: 0; display: flex; align-items: center; gap: 16px; margin: 6px 0 2px; position: relative; z-index: 2; }
@@ -5096,7 +5096,8 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] #detail-view #d-lens .comm-filters::-webkit-scrollbar { display: none; }
         html[data-look="new"] #detail-view #d-lens .lens-sum { flex-basis: 100%; }
         /* v21.3: Timeline, Compare and the rest: an icon on each, and the bar stays at the top while you scroll the sessions */
-        html[data-look="new"] #detail-view .insight-tabs { position: sticky; top: calc(var(--safe-top, 0px) + 58px); z-index: 30; margin: 20px -16px 10px; padding: 8px 16px; background: color-mix(in srgb, var(--pg, var(--c)) 84%, transparent); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+        /* (v21.6: no longer sticky; it scrolls with the page as before v21.3. Maceo, Nov 4: "Just don't make it come with you as
+           you scroll make it how it was") */
         html[data-look="new"] #detail-view .insight-tab { display: inline-flex !important; align-items: center; gap: 7px; height: 38px !important; padding: 0 14px 0 12px !important; border-radius: 19px !important; }
         html[data-look="new"] #detail-view .insight-tab .it-ic { width: 17px; height: 17px; color: var(--k); stroke: currentColor; flex: none; }
         html[data-look="new"] #detail-view .insight-tab.active .it-ic { color: var(--c); }
@@ -5144,6 +5145,28 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] .pv-cmain small { color: var(--k); font-size: 13.5px; font-family: var(--nl-hand); font-weight: 600; }
         html[data-look="new"] .pv-cmain b { color: var(--n); font-family: var(--nl-serif); font-size: 20px; font-weight: 500; line-height: 1.15; }
         html[data-look="new"] .pv-cmain span { color: var(--l); font-size: 13.5px; margin-top: 2px; }
+
+        /* v21.6: About this coffee and Who grew it? side by side (Maceo's drawing, Nov 4), one line each (no subtext); a tile
+           opens its panel under the pair */
+        html[data-look="new"] #detail-view .nl-dtiles { order: 3; position: relative; z-index: 2; width: 100%; margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        html[data-look="new"] .nl-dtile { display: flex; align-items: center; justify-content: center; gap: 7px; min-width: 0; height: 46px; min-height: 0; margin: 0; padding: 0 10px; text-align: left; border-radius: 16px !important; background: var(--pill) !important; border: 1px solid transparent !important; box-shadow: none !important; color: var(--n) !important; font: inherit; letter-spacing: 0; text-transform: none; -webkit-tap-highlight-color: transparent; }
+        html[data-look="new"] .nl-dtile.is-add { background: none !important; border: 1px dashed color-mix(in srgb, var(--n) 28%, transparent) !important; }
+        html[data-look="new"] .nl-dtile.is-on { background: color-mix(in srgb, var(--k) 16%, var(--pill)) !important; border-color: color-mix(in srgb, var(--k) 45%, transparent) !important; }
+        html[data-look="new"] .nl-dtile:active { transform: scale(0.98); }
+        html[data-look="new"] .nl-dt-ic { width: 18px !important; height: 18px !important; color: var(--k); flex: none; }
+        html[data-look="new"] .nl-dtile b { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: clamp(13.5px, 3.75vw, 15px); font-weight: 650; line-height: 1.2; color: var(--n); }
+        html[data-look="new"] #detail-view.nl-tiles-on #lx-about { margin-top: 10px; }
+        html[data-look="new"] #detail-view.nl-tiles-on #lx-about[hidden], html[data-look="new"] #detail-view.nl-tiles-on #nl-chain[hidden], html[data-look="new"] #detail-view.nl-tiles-on .nl-chain-add[hidden] { display: none !important; }
+        html[data-look="new"] #detail-view.nl-tiles-on #lx-about [data-lxf] > .lx-fh, html[data-look="new"] #detail-view.nl-tiles-on #nl-chain > .nl-chain-head { display: none; }
+        html[data-look="new"] #detail-view.nl-tiles-on #lx-about .lx-boxsec[data-open="1"] { padding-top: 14px; }
+        html[data-look="new"] #detail-view.nl-tiles-on #nl-chain { margin-top: 10px; }
+        html[data-look="new"] #detail-view.nl-tiles-on #nl-chain .nl-chain-steps { padding-top: 14px; }
+
+        /* v21.6: a page over the app is its own color all the way down (no feed showing when you pull past its end) */
+        html[data-look="new"] :is(#session-view, #share-view, #producer-view) { background: var(--nl-page); }
+        html[data-look="new"] :is(#session-view, #share-view, #producer-view)[data-fam] { background: var(--pg, var(--nl-page)); }
+        /* v21.6: a comment's face keeps its whole ring (the thread clipped the left of it on the session page) */
+        html[data-look="new"] .nls-social .thread { overflow: visible; }
         /* ===================== v19.0: Learn =====================
            The New look's kit (claude/new-look-ds.css) plus the Learn screens' parts (claude/learn-mockups-src.md): pages tinted
            by their typical flavor family, names in the big serif, every section folding. All of it is the New look's. */
@@ -6545,10 +6568,6 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                     <input type="text" name="chainProducer" list="chain-producers" autocomplete="off" maxlength="80" placeholder="Farm, producer or co-op"><datalist id="chain-producers"></datalist>
                     <label>Washing station or mill</label>
                     <input type="text" name="chainMill" list="chain-mills" autocomplete="off" maxlength="80" placeholder="e.g., Beneficio, washing station"><datalist id="chain-mills"></datalist>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem;">
-                        <div><label>Exporter</label><input type="text" name="chainExporter" list="chain-exporters" autocomplete="off" maxlength="80"><datalist id="chain-exporters"></datalist></div>
-                        <div><label>Importer</label><input type="text" name="chainImporter" list="chain-importers" autocomplete="off" maxlength="80"><datalist id="chain-importers"></datalist></div>
-                    </div>
                 </details>
                 
                 <div class="coffee-only">
@@ -6673,8 +6692,8 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                         <div class="ns-ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
                     </div>
                     <div class="ns" data-k="balance" style="--c:#36B38C">
-                        <div class="ns-head"><span class="ns-name"><i class="ns-dot"></i>Complexity</span><span class="ns-read"><b class="ns-val">–</b><span class="ns-sep"> · </span><span class="ns-word">not set</span></span></div>
-                        <div class="ns-track"><input type="range" name="balance" min="1" max="10" step="1" value="5" aria-label="Complexity" oninput="app.onTasteInput('balance', this.value)"><span class="ns-ghost" hidden></span></div>
+                        <div class="ns-head"><span class="ns-name"><i class="ns-dot"></i>Clarity</span><span class="ns-read"><b class="ns-val">–</b><span class="ns-sep"> · </span><span class="ns-word">not set</span></span></div>
+                        <div class="ns-track"><input type="range" name="balance" min="1" max="10" step="1" value="5" aria-label="Clarity" oninput="app.onTasteInput('balance', this.value)"><span class="ns-ghost" hidden></span></div>
                         <div class="ns-ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
                     </div>
                     <div id="taste-tip"></div>
@@ -6843,7 +6862,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
             ['body', 'Body', ['Thin', 'Medium', 'Heavy']],
             ['finish', 'Finish', ['Short', 'Clean', 'Lingering']],
             ['bitterness', 'Bitterness', ['Clean', 'Noticeable', 'Harsh']],
-            ['balance', 'Complexity', ['Simple', 'Some depth', 'Layered']]
+            ['balance', 'Clarity', ['Muddy', 'Clear', 'Crystal clear']]   // (v21.6: was Complexity; Maceo, Nov 4. Same key, so older sessions' numbers now read as clarity)
         ];
         const TASTE_KEYS = TASTE_META.map(m => m[0]);
         const INITIAL_SEL = '.feed-avatar, .cmt-avatar, .person-dot, .hero-avatar, .aw-face, .cq-face b, .thread-faces i, .wr-face, .wr-who b, .mrc-face, .dh-faces i';
@@ -6891,9 +6910,9 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
         const FlavorShape = (() => {
             const FLOOR = ['acidity', 'sweetness', 'body', 'bitterness', 'finish'];
             const TOPK = 'balance';
-            const NAMES = { acidity: 'Acidity', sweetness: 'Sweetness', body: 'Body', bitterness: 'Bitterness', finish: 'Finish', balance: 'Complexity' };
+            const NAMES = { acidity: 'Acidity', sweetness: 'Sweetness', body: 'Body', bitterness: 'Bitterness', finish: 'Finish', balance: 'Clarity' };
             // v17.0: a tea reads the same six places in tea words (opts.names: an object, or a function for a live view)
-            const TEA_NAMES = { acidity: 'Astringency', sweetness: 'Sweetness', body: 'Body', bitterness: 'Bitterness', finish: 'Finish', balance: 'Complexity' };
+            const TEA_NAMES = { acidity: 'Astringency', sweetness: 'Sweetness', body: 'Body', bitterness: 'Bitterness', finish: 'Finish', balance: 'Clarity' };
             const namesOf = opts => { const n = opts && (typeof opts.names === 'function' ? opts.names() : opts.names); return n === 'tea' ? TEA_NAMES : (n && typeof n === 'object' ? n : NAMES); };
             const COLORS = { acidity: '#EDB92E', sweetness: '#EE7A62', body: '#A0663F', bitterness: '#8A63C4', finish: '#5F8FDB', balance: '#36B38C' };
             const N = FLOOR.length, SEG = 2 * Math.PI / N, NP = 200, NT = 60;
@@ -8254,7 +8273,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             ['body', 'Body', ['Thin', 'Medium', 'Thick']],
             ['finish', 'Finish', ['Short', 'Clean', 'Lingering']],
             ['bitterness', 'Bitterness', ['Clean', 'Noticeable', 'Harsh']],
-            ['balance', 'Complexity', ['Simple', 'Some depth', 'Layered']]
+            ['balance', 'Clarity', ['Muddy', 'Clear', 'Crystal clear']]   // (v21.6: was Complexity; Maceo, Nov 4. Same key, so older sessions' numbers now read as clarity)
         ];
         // the tea flavor wheel: same shape as the coffee one, the last family is "tastes off"
         const TEA_WHEEL = [
@@ -8838,10 +8857,11 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             const SEMI_WASHED_DEMUC = new Set(['BRA', 'GTM', 'HND', 'SLV', 'NIC', 'CRI', 'PAN', 'MEX']);
             function readProcess(text, ctx = {}) {
                 const out = { base: '', variant: '', honey: '', layers: [], decaf: '', grade: [], added: false, ask: null, suggest: null, none: false, unknown: [] };
-                const bases = [];
+                const bases = [], partBases = [];
                 const raw = String(text || '');
                 if (/\b\d{2,3}\s?(?:h|hr|hrs|hour|hours)\b/i.test(raw) && !out.layers.includes('extended')) out.layers.push('extended');   // "72 hour", "120h": a long ferment
                 parts(raw).forEach(p => {
+                    partBases.push(bases.length);   // (where this part's bases start)
                     let n = norm(p).replace(/\b\d{2,3} ?(?:h|hr|hrs|hour|hours)\b/g, ' ').replace(/\s+/g, ' ').trim();
                     if (!n) return;
                     if (NONE_PROC.has(n)) { out.none = true; return; }
@@ -8878,7 +8898,12 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     }
                 });
                 const uniq = [...new Set(bases)];
+                // v21.6: more than one process, each in its own part ("Washed, Natural", "Honey + Anaerobic Natural": a coffee
+                // made of lots processed differently) is kept as such (Maceo, Nov 4: "Allow for multiple processes per coffee");
+                // two in one phrase ("washed natural") still asks which it is
+                const own = partBases.map((st, i) => new Set(bases.slice(st, i + 1 < partBases.length ? partBases[i + 1] : bases.length))), oneEach = own.every(s => s.size <= 1);
                 if (uniq.length === 1) out.base = uniq[0];
+                else if (uniq.length > 1 && oneEach) { out.base = uniq[0]; out.bases = uniq; }
                 else if (uniq.length > 1) out.ask = { kind: 'two-bases', options: uniq };
                 // "anaerobic" etc. with no base: the base stays unknown (never assume natural)
                 if (out.layers.includes('extended') && out.layers.includes('fermentation')) out.layers = out.layers.filter(l => l !== 'fermentation');
@@ -8904,7 +8929,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 if (kept('origin')) o.suggest = null;
                 return { v: VERSION, variety: v.ids, varietyNot: v.not, species: v.species, varietySuggest: v.suggest,
                     origin: { countries: o.countries, region: o.region, place: o.place, placeName: o.placeName, blend: o.blend, continents: o.continents }, originSuggest: o.suggest,
-                    process: { base: p.base, variant: p.variant, honey: p.honey, layers: p.layers, decaf: p.decaf, grade: p.grade, added: p.added }, processAsk: p.ask, processSuggest: p.suggest,
+                    process: { base: p.base, bases: p.bases || (p.base ? [p.base] : []), variant: p.variant, honey: p.honey, layers: p.layers, decaf: p.decaf, grade: p.grade, added: p.added }, processAsk: p.ask, processSuggest: p.suggest,
                     roast: readRoast(b.roast) };
             }
             // what one form field says as it's typed (the chips under it)
@@ -8933,7 +8958,8 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 }
                 if (kind === 'process') {
                     const p = readProcess(text, ctx);
-                    if (p.base) chips.push({ t: 'ok', kind: 'process', id: p.base, name: processName(p) });
+                    if (p.bases && p.bases.length > 1) p.bases.forEach(id => chips.push({ t: 'ok', kind: 'process', id, name: processName({ ...p, base: id, variant: id === 'washed' ? p.variant : (id === 'honey' && p.variant === 'pulped-natural' ? p.variant : ''), honey: id === 'honey' ? p.honey : '' }) }));
+                    else if (p.base) chips.push({ t: 'ok', kind: 'process', id: p.base, name: processName(p) });
                     p.layers.forEach(id => chips.push({ t: 'ok', kind: 'process', id, name: proc[id].name, meta: id === 'co-ferment' ? 'added ingredients' : '' }));
                     if (p.decaf) chips.push({ t: 'ok', kind: 'decaf', id: p.decaf, name: p.decaf === 'decaf' ? 'Decaf' : `Decaf · ${decafs[p.decaf].name}` });
                     p.grade.forEach(g => chips.push({ t: 'info', kind: 'grade', id: g, name: `${g} · a grade, not a process` }));
@@ -9001,7 +9027,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 if (t.species === 'arabica' && !vs.length) out.push(cs.length === 1 && cs[0].code === 'ETH' ? '“Arabica” is the species, not a variety. In Ethiopia that usually means local landraces or research-station selections.' : '“Arabica” is the coffee species; the bag doesn’t name the variety.');
                 // the process: the base, then what's on top
                 const p = t.process;
-                if (p.base && PSAY[p.base] && !(p.layers.includes('kenyan-soak'))) out.push(PSAY[p.base][0]);
+                (p.bases && p.bases.length > 1 ? p.bases : [p.base]).forEach(b => { if (b && PSAY[b] && !(p.layers.includes('kenyan-soak') && b === 'washed')) out.push(PSAY[b][0]); });
                 p.layers.forEach(l => { if (PSAY[l]) out.push(l === 'fermentation' && p.base !== 'washed' ? '“Fermented” on its own doesn’t say how; nearly all coffee ferments a little on its way to the bag.' : PSAY[l][0]); });
                 if (p.decaf && PSAY[p.decaf]) out.push(PSAY[p.decaf][0]);
                 return out.join(' ');
@@ -9036,7 +9062,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 t.variety.forEach(id => k.push(`variety:${id}`));
                 if (t.species && t.species !== 'arabica') k.push(`species:${t.species}`);
                 if (t.origin.countries.length === 1 && !t.origin.blend) k.push(`origin:${t.origin.countries[0]}`);
-                if (t.process.base) k.push(`process:${t.process.base}`);
+                (t.process.bases && t.process.bases.length ? t.process.bases : [t.process.base]).forEach(b => { if (b) k.push(`process:${b}`); });
                 t.process.layers.forEach(id => k.push(`process:${id}`));
                 return k;
             }
@@ -17350,7 +17376,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const avg = key => list.reduce((s, b) => s + (b[key] === undefined || b[key] === '' ? 5 : this.num(b[key])), 0) / list.length;
                 // v17.5: in the New look each bar wears its taste's color (sweetness red, acidity yellow…), all six tastes, in tea words for a tea
                 const nl = !!(this.newLook && this.newLook()), kind = nl && list[0] && this.kindOfBrew ? this.kindOfBrew(list[0]) : 'coffee';
-                const rows = nl ? ['acidity', 'sweetness', 'body', 'finish', 'bitterness', 'balance'].map(k => [this.tasteLabel ? this.tasteLabel(k, kind) : k, k]) : [['Acidity', 'acidity'], ['Sweetness', 'sweetness'], ['Body', 'body'], ['Finish', 'finish'], ['Complexity', 'balance']];
+                const rows = nl ? ['acidity', 'sweetness', 'body', 'finish', 'bitterness', 'balance'].map(k => [this.tasteLabel ? this.tasteLabel(k, kind) : k, k]) : [['Acidity', 'acidity'], ['Sweetness', 'sweetness'], ['Body', 'body'], ['Finish', 'finish'], ['Clarity', 'balance']];
                 const bars = rows.map(([label, key]) => {
                     const v = avg(key), fill = nl && typeof FlavorShape !== 'undefined' && FlavorShape.COLORS && FlavorShape.COLORS[key] ? FlavorShape.COLORS[key] : color;
                     return `<div class="taste-bar"><span>${label}</span><div class="taste-track"><div class="taste-fill" style="width:${Math.max(0, Math.min(100, v * 10))}%; background:${this.esc(fill)};"></div></div><span>${this.esc(this.fmtNum(v))}</span></div>`;
@@ -19145,7 +19171,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 if (on('acidity')) adj.push(tea ? { Soft: 'soft', 'Some grip': 'gently astringent', Drying: 'drying' }[word('acidity')] : { Flat: 'flat', Balanced: 'gently acidic', Bright: 'bright' }[word('acidity')]);
                 if (on('sweetness')) adj.push(tea ? { Dry: 'dry', Sweet: 'sweet', Honeyed: 'honeyed' }[word('sweetness')] : { Dry: 'dry', Sweet: 'sweet', Syrupy: 'syrupy' }[word('sweetness')]);
                 if (on('body')) adj.push(tea ? { Thin: 'light-bodied', Medium: 'medium-bodied', Thick: 'full-bodied' }[word('body')] : { Thin: 'light-bodied', Medium: 'medium-bodied', Heavy: 'heavy-bodied' }[word('body')]);
-                if (on('balance') && values.balance >= 8) adj.push('layered');
+                if (on('balance') && values.balance >= 8) adj.push('crystal-clear'); else if (on('balance') && values.balance <= 3) adj.push('muddy');   // (v21.6: clarity)
                 if (on('bitterness') && values.bitterness >= 7) adj.push('bitter-edged');
                 const off = new Set(W[W.length - 1].groups.flatMap(g => g[1]).map(n => n.toLowerCase()));
                 const list = notes.filter(n => !off.has(n.toLowerCase())).map(n => ({ n, i: intensities[n] || 2 })).sort((a, b) => b.i - a.i)
@@ -19419,7 +19445,9 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             renderNotePicker() {
                 const wheel = document.getElementById('note-wheel');
                 if (!wheel) return;
-                const counts = {}, groupCounts = {}, lk = this.logKind === 'tea' ? 'tea' : 'coffee', WH = this.wheelFor(lk);   // v17.0: a tea session picks from the tea wheel
+                const counts = {}, groupCounts = {}, lk = this.logKind === 'tea' ? 'tea' : 'coffee', WH = this.wheelFor(lk);
+                // (v21.6: the Log's notes keep their family's color, as before v21.2; Maceo, Nov 4: "the old color was good for the
+                // tasting note cards in log". Everywhere else each note has its own color.)   // v17.0: a tea session picks from the tea wheel
                 this.selFlavors.forEach(n => { const at = this.noteLocate(n, lk); if (!at || at.wheel !== lk) return; counts[at.f] = (counts[at.f] || 0) + 1; if (at.g >= 0) groupCounts[`${at.f}:${at.g}`] = (groupCounts[`${at.f}:${at.g}`] || 0) + 1; });
                 wheel.innerHTML = this.wheelSvg({ fam: this.wheelFam, group: this.wheelGroup, interactive: true, counts, groupCounts, wheel: WH });
                 const tray = document.getElementById('note-tray');
@@ -19427,7 +19455,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     if (this.wheelFam == null) tray.innerHTML = '<p class="note-help">Start broad, then go specific. “Tastes off” notes help the coach most.</p>';
                     else {
                         const groups = this.wheelGroup == null ? WH[this.wheelFam].groups : [WH[this.wheelFam].groups[this.wheelGroup]];
-                        tray.innerHTML = groups.map(([g, notes]) => `${this.wheelGroup == null ? `<div class="note-group">${this.esc(g)}</div>` : ''}<div class="note-chips">${notes.map(nm => `<button type="button" class="note-chip"${this.nlNoteAttr(nm, lk)} aria-pressed="${this.selFlavors.includes(nm)}" onclick="app.pickNote('${app.escJs(nm)}', event)">${this.esc(nm)}</button>`).join('')}</div>`).join('');
+                        tray.innerHTML = groups.map(([g, notes]) => `${this.wheelGroup == null ? `<div class="note-group">${this.esc(g)}</div>` : ''}<div class="note-chips">${notes.map(nm => `<button type="button" class="note-chip" aria-pressed="${this.selFlavors.includes(nm)}" onclick="app.pickNote('${app.escJs(nm)}', event)">${this.esc(nm)}</button>`).join('')}</div>`).join('');
                     }
                 }
                 const picked = document.getElementById('note-picked');
@@ -19436,7 +19464,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                         const lv = this.noteIntensity[nm] || 2;
                         const at = this.noteLocate(nm, lk);
                         const color = at ? at.color : 'var(--text-muted)';
-                        return `<span class="pick fam-pick"${this.nlNoteAttr(nm, lk)} style="--fc:${color};${this.famVars(/^#/.test(color) ? color : '#7D8984')}"><i class="pick-dot"></i>${this.esc(nm)}<button type="button" class="dots" onclick="app.cycleNote('${app.escJs(nm)}', event)" aria-label="${this.esc(nm)} strength ${lv} of 3">${[1, 2, 3].map(i => `<i class="${i <= lv ? 'on' : ''}"></i>`).join('')}</button><button type="button" class="x" onclick="app.pickNote('${app.escJs(nm)}', event)" aria-label="Remove ${this.esc(nm)}">×</button></span>`;
+                        return `<span class="pick fam-pick" style="--fc:${color};${this.famVars(/^#/.test(color) ? color : '#7D8984')}"><i class="pick-dot"></i>${this.esc(nm)}<button type="button" class="dots" onclick="app.cycleNote('${app.escJs(nm)}', event)" aria-label="${this.esc(nm)} strength ${lv} of 3">${[1, 2, 3].map(i => `<i class="${i <= lv ? 'on' : ''}"></i>`).join('')}</button><button type="button" class="x" onclick="app.pickNote('${app.escJs(nm)}', event)" aria-label="Remove ${this.esc(nm)}">×</button></span>`;
                     }).join('')}</div>` : '';
                 }
                 const hints = document.getElementById('note-hints');
@@ -19447,7 +19475,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                         Array.from(this.brews.values()).filter(b => this.groupKeyOfBrew(b) === key).forEach(b => this.extractFlavors(b).forEach(n => counts2.set(n, (counts2.get(n) || 0) + 1)));
                     }
                     const top = [...counts2.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6).map(([n]) => n);
-                    hints.innerHTML = top.length ? `<div class="note-hints"><span>Others noted:</span>${top.map(nm => `<button type="button" class="note-chip hint"${this.nlNoteAttr(nm, lk)} aria-pressed="${this.selFlavors.includes(nm)}" onclick="app.pickNote('${app.escJs(nm)}', event)">${this.esc(nm)}</button>`).join('')}</div>` : '';
+                    hints.innerHTML = top.length ? `<div class="note-hints"><span>Others noted:</span>${top.map(nm => `<button type="button" class="note-chip hint" aria-pressed="${this.selFlavors.includes(nm)}" onclick="app.pickNote('${app.escJs(nm)}', event)">${this.esc(nm)}</button>`).join('')}</div>` : '';
                 }
                 this.renderCupWords();
             },
@@ -21022,7 +21050,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const header = [
                     'Date', 'User', 'Bean', 'Method', 'Dose', 'Yield', 'Time',
                     'Rating(/5)', 'Likes', 'Comments', 'Equipment',
-                    'Acidity', 'Sweetness', 'Body', 'Finish', 'Complexity', 'Flavors', 'Notes'
+                    'Acidity', 'Sweetness', 'Body', 'Finish', 'Clarity', 'Flavors', 'Notes'
                 ];
                 const rows = [header.map(col => this.csvEscape(col)).join(',')];
                 data.brews.forEach(brew => {
@@ -25632,7 +25660,10 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     }
                     return false;
                 };
-                const blocked = el => !!(el && el.closest && el.closest('input, textarea, select, [contenteditable="true"], canvas:not(.nl-auto), .no-swipe, .wl-wrap'));
+                // (v21.6: the taste sliders and the rating draw their own track, with the real slider under it, so a swipe that
+                // starts anywhere on one of them is the slider's, never the Log's: Maceo, Nov 4, "when you swipe on the flavor
+                // sliders it slides you out of log. Same with the rating")
+                const blocked = el => !!(el && el.closest && el.closest('input, textarea, select, [contenteditable="true"], canvas:not(.nl-auto), .no-swipe, .wl-wrap, .ns, .ns-track, .rt-track, .rating-slider-group'));
                 const scrollerAtTop = (el, stop) => {
                     for (let n = el; n && n.nodeType === 1; n = n.parentElement) {
                         if (n.scrollHeight > n.clientHeight + 2) { const oy = getComputedStyle(n).overflowY; if ((oy === 'auto' || oy === 'scroll') && n.scrollTop > 0) return false; }
@@ -27436,7 +27467,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 }
                 const drafts = soft && this.captureDrafts ? this.captureDrafts() : null;
                 this._nlsHtml = html; this._nlsKey = key;
-                page.setAttribute('data-fam', this.famOfBrew(brew));
+                page.setAttribute('data-fam', this.famOfBrew(brew)); this.nlBackdrop(page);
                 page.innerHTML = html;
                 if (drafts && this.restoreDrafts) this.restoreDrafts(drafts);
                 this.nlFillShapes(page);
@@ -29009,7 +29040,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             },
             // a sentence from the numbers: the two or three sliders furthest from the middle
             lxTasteSentence(cv) {
-                const P = { acidity: ['low acidity', 'gentle acidity', 'bright acidity'], sweetness: ['little sweetness', 'some sweetness', 'lots of sweetness'], body: ['a light body', 'a medium body', 'a full body'], finish: ['a short finish', 'a clean finish', 'a long finish'], bitterness: ['little bitterness', 'some bitterness', 'noticeable bitterness'], balance: ['a simple profile', 'some depth', 'a layered profile'] };
+                const P = { acidity: ['low acidity', 'gentle acidity', 'bright acidity'], sweetness: ['little sweetness', 'some sweetness', 'lots of sweetness'], body: ['a light body', 'a medium body', 'a full body'], finish: ['a short finish', 'a clean finish', 'a long finish'], bitterness: ['little bitterness', 'some bitterness', 'noticeable bitterness'], balance: ['a muddy cup', 'a clear cup', 'a crystal-clear cup'] };
                 const lvl = v => v < 4 ? 0 : v <= 6.5 ? 1 : 2;
                 const picks = cv.set.map(k => ({ k, v: cv.vals[k], d: Math.abs(cv.vals[k] - 5.25) })).sort((a, b) => b.d - a.d).slice(0, 3).map(x => P[x.k][lvl(x.v)]);
                 if (!picks.length) return '';
@@ -29273,6 +29304,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const top = document.getElementById('d-top-flavors');
                 const about = this.lxAboutHtml(bean, brews || []);
                 if (top && about) top.insertAdjacentHTML('afterend', about);
+                if (this.nlTilesPaint) this.nlTilesPaint();   // v21.6: beside Who grew it? (redrawn when this is)
             },
             // About this coffee: the bag's words decoded, how it fits what you've tasted, and how that kind tastes here
             lxAboutHtml(bean, brews) {
@@ -30520,7 +30552,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const st = this._shv; if (!st) return false;
                 const page = document.getElementById('shv-page'), v = this.shvEl();
                 if (!data) {
-                    page.removeAttribute('data-fam'); page.setAttribute('data-fam', 'app');
+                    page.removeAttribute('data-fam'); page.setAttribute('data-fam', 'app'); this.nlBackdrop(page);
                     page.innerHTML = `<div class="shv-wait">${this.loaderHtml ? this.loaderHtml('Opening…') : 'Opening…'}</div>`;
                     this.shvChrome(null);
                     try { data = await Supa.rpc(kind === 's' ? 'shared_session' : 'shared_coffee', { ref: String(ref) }, { auth: false }); }
@@ -30577,14 +30609,14 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     const b = this.brews.get(String(brew.id)) || brew, bean = d.coffee;
                     const n = Number(d.more) || 0;
                     const more = bean ? `<section class="nls-sec"><button type="button" class="shv-more" onclick="app.shareOpenCoffee()"><span><b>More on ${this.esc(bean.name || 'this coffee')}</b><small>${n > 1 ? `${n} sessions · its flavor profile` : 'Its details and flavor profile'}</small></span><svg class="icon" aria-hidden="true"><use href="#i-chev-right"/></svg></button></section>` : '';
-                    page.setAttribute('data-fam', this.famOfBrew(b));
+                    page.setAttribute('data-fam', this.famOfBrew(b)); this.nlBackdrop(page);
                     page.innerHTML = this.shvClean(this.sessionHtml(b, { shared: true })) + more;
                     const wrap = page.querySelector('.nls-wrap'); if (wrap && more) wrap.appendChild(page.lastElementChild);
                     this.shvChrome(top.kind, owner);
                 } else {
                     const bean = { ...d.coffee }, list = (d.sessions || []).map(s => ({ ...s, user: s.user || owner, owner: s.owner || owner }));
                     this.shvInject(bean, list, d.owner);
-                    page.setAttribute('data-fam', this.famOfCoffee(this.beans.get(String(bean.id)) || bean));
+                    page.setAttribute('data-fam', this.famOfCoffee(this.beans.get(String(bean.id)) || bean)); this.nlBackdrop(page);
                     page.innerHTML = this.shvClean(this.shvCoffeeHtml(bean, list, owner));
                     this.shvChrome(top.kind, owner);
                     const pool = list.filter(b => this.tastedKeys(b).length);
@@ -30639,7 +30671,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             },
             shvMissing(failed) {
                 const page = document.getElementById('shv-page'), guest = this.shvGuest();
-                page.setAttribute('data-fam', 'app');
+                page.setAttribute('data-fam', 'app'); this.nlBackdrop(page);
                 page.innerHTML = `<div class="shv-none"><h2>${failed ? 'Couldn\'t open this link' : 'This isn\'t shared with everyone'}</h2><p>${failed ? 'Check your connection and try again.' : 'Its owner may keep it for friends, or it\'s no longer there.'}</p>${guest ? '<button type="button" class="btn-primary" onclick="app.shareJoin()">Join Dialed In</button>' : '<button type="button" class="btn-outline" onclick="app.closeShareView()">Close</button>'}</div>`;
                 this.shvChrome(null);
             },
@@ -30701,7 +30733,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     if (t.species && t.species !== 'arabica') out.variety.push(it('species', t.species, this.lxName('species', t.species)));
                     else if (t.species === 'arabica' && !(t.variety || []).length) out.variety.push(it('species', 'arabica', 'Arabica'));
                     const p = t.process || {};
-                    if (p.base) out.process.push(it('process', p.base, LearnEngine.processName(p) || this.lxName('process', p.base)));
+                    (p.bases && p.bases.length > 1 ? p.bases : (p.base ? [p.base] : [])).forEach(b => out.process.push(it('process', b, LearnEngine.processName({ ...p, base: b, variant: b === p.base ? p.variant : '', honey: b === 'honey' ? p.honey : '' }) || this.lxName('process', b))));   // (v21.6: several processes)
                     (p.layers || []).forEach(id => out.process.push(it('process', id, this.lxName('process', id))));
                     if (p.decaf) out.process.push({ label: p.decaf === 'decaf' ? 'Decaf' : 'Decaf · ' + this.lxName('decaf', p.decaf) });
                     // what Learn didn't recognize stays, as it was written
@@ -30717,7 +30749,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 if (String(bean.roast || '').trim()) out.roast.push({ label: String(bean.roast).trim() });
                 return out;
             },
-            NL_SPEC_ROWS: [['producer', 'i-users', 'Grown by', 'Grown by'], ['origin', 'i-pin', 'Origin', 'Origins'], ['region', 'i-globe', 'Region', 'Regions'], ['variety', 'i-leaf-line', 'Variety', 'Varieties'], ['process', 'i-drop', 'Process', 'Process'], ['roast', 'i-flame', 'Roast', 'Roast'], ['mill', 'i-gear', 'Mill', 'Mills'], ['importer', 'i-flag', 'Importer', 'Importers']],
+            NL_SPEC_ROWS: [['producer', 'i-users', 'Grown by', 'Grown by'], ['origin', 'i-pin', 'Origin', 'Origins'], ['region', 'i-globe', 'Region', 'Regions'], ['variety', 'i-leaf-line', 'Variety', 'Varieties'], ['process', 'i-drop', 'Process', 'Process'], ['roast', 'i-flame', 'Roast', 'Roast'], ['mill', 'i-gear', 'Mill', 'Mills']],
             nlSpecRowsHtml(bean, o = {}) { return this.nlSpecRowsFromItems(this.nlSpecItems(bean), { ...o, tea: this.isTeaBean && this.isTeaBean(bean) }); },
             nlSpecGo(x) { return x.kind === 'producer' ? `app.openProducer('${this.escJs(String(x.id))}')` : this.lxGo(x.kind, x.id); },
             nlSpecRowsFromItems(items, o = {}) {   // (o.links false: no buttons, e.g. on a share link's page)
@@ -30729,7 +30761,9 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                         const x = list[0], inner = `${ic(icon)}<span class="nl-spec-k">${one}</span><span class="nl-spec-v">${this.esc(x.label)}</span>`;
                         return x.page ? `<button type="button" class="nl-spec" onclick="${this.nlSpecGo(x)}">${inner}${chev()}</button>` : `<div class="nl-spec">${inner}</div>`;
                     }
-                    const pills = list.map(x => x.page ? `<button type="button" class="nl-spec-pill" onclick="${this.nlSpecGo(x)}">${this.esc(x.label)}${chev(' sm')}</button>` : `<span class="nl-spec-pill is-plain">${this.esc(x.label)}</span>`).join('');
+                    // (v21.6, condensed: the first stays first, the rest shortest first, so more of them share a line)
+                    const packed = [list[0], ...list.slice(1).sort((a, b) => String(a.label).length - String(b.label).length)];
+                    const pills = packed.map(x => x.page ? `<button type="button" class="nl-spec-pill" onclick="${this.nlSpecGo(x)}">${this.esc(x.label)}${chev(' sm')}</button>` : `<span class="nl-spec-pill is-plain">${this.esc(x.label)}</span>`).join('');
                     return `<div class="nl-spec nl-spec-multi">${ic(icon)}<span class="nl-spec-k">${many}</span><span class="nl-spec-v">${pills}</span></div>`;
                 }).filter(Boolean);
                 return rows.length ? `<div class="nl-specs" role="list" aria-label="About this ${o.tea ? 'tea' : 'coffee'}">${rows.join('')}</div>` : '';
@@ -30753,7 +30787,9 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             // made up. Every step is optional; a step the bag doesn't name stays gray ("Not on the bag"); a coffee with none
             // shows its owner a small "Who grew it?" link and everyone else nothing; a producer page exists only once
             // someone names a producer, and lists every coffee on Dialed In you can see that names the same one.
-            CHAIN_KEYS: ['producer', 'mill', 'exporter', 'importer'],
+            // v21.6: just the farm and the mill (Maceo, Nov 4: "Get rid of exporter importer"); an exporter or importer an
+            // older version saved stays on the server but isn't shown, and goes when the coffee is next saved
+            CHAIN_KEYS: ['producer', 'mill'],
             cleanChain(c) {
                 if (!c || typeof c !== 'object') return null;
                 const out = {};
@@ -30762,22 +30798,22 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             },
             chainOf(bean) { const c = this.cleanChain(bean && bean.chain); return c && Object.keys(c).length ? c : null; },
             producerKey(name) { return String(name || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); },
-            // the form: four fields behind "Where it came from"
+            // the form: two fields behind "Where it came from"
             chainFromForm(form) {
                 const v = n => (form && form.elements[n] ? form.elements[n].value : '');
-                return this.cleanChain({ producer: v('chainProducer'), mill: v('chainMill'), exporter: v('chainExporter'), importer: v('chainImporter') }) || {};
+                return this.cleanChain({ producer: v('chainProducer'), mill: v('chainMill') }) || {};
             },
             chainFormFill(form, bean) {
                 const c = this.chainOf(bean) || {}, set = (n, k) => { if (form && form.elements[n]) form.elements[n].value = c[k] || ''; };
-                set('chainProducer', 'producer'); set('chainMill', 'mill'); set('chainExporter', 'exporter'); set('chainImporter', 'importer');
+                set('chainProducer', 'producer'); set('chainMill', 'mill');
                 const fold = document.getElementById('chain-fold'); if (fold) fold.open = Object.keys(c).length > 0;
                 this.chainSuggest();
             },
             // names already on Dialed In, offered as you type (so the same farm links up)
             chainSuggest() {
-                const lists = { producer: new Set(), mill: new Set(), exporter: new Set(), importer: new Set() };
+                const lists = { producer: new Set(), mill: new Set() };
                 this.beans.forEach(b => { const c = this.chainOf(b); if (c) Object.entries(c).forEach(([k, v]) => lists[k] && lists[k].add(v)); });
-                [['chain-producers', 'producer'], ['chain-mills', 'mill'], ['chain-exporters', 'exporter'], ['chain-importers', 'importer']].forEach(([id, k]) => {
+                [['chain-producers', 'producer'], ['chain-mills', 'mill']].forEach(([id, k]) => {
                     const dl = document.getElementById(id); if (dl) dl.innerHTML = [...lists[k]].sort((a, b) => a.localeCompare(b)).slice(0, 200).map(v => `<option value="${this.esc(v)}"></option>`).join('');
                 });
             },
@@ -30792,12 +30828,12 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 if (!bean || (this.isTeaBean && this.isTeaBean(bean))) return '';
                 const own = this.activeId ? this.beans.get(String(this.activeId)) : null, mine = !!(own && own.user === this.user) || bean.user === this.user;
                 const c = (mine && own && this.chainOf(own)) || this.chainOf(bean);   // (yours first; else what another bag of it says)
-                if (!c) return mine ? `<button type="button" class="nl-chain-add" onclick="app.chainAdd()"><svg class="icon" aria-hidden="true"><use href="#i-tree"/></svg><span><b>Who grew it?</b><small>The farm, mill or importer on the bag</small></span><svg class="icon nl-spec-ch" aria-hidden="true"><use href="#i-plus"/></svg></button>` : '';
+                if (!c) return mine ? `<button type="button" class="nl-chain-add" onclick="app.chainAdd()"><svg class="icon" aria-hidden="true"><use href="#i-tree"/></svg><span><b>Who grew it?</b><small>The farm or mill on the bag</small></span><svg class="icon nl-spec-ch" aria-hidden="true"><use href="#i-plus"/></svg></button>` : '';
                 const ids = new Set(((this.activeGroup && this.activeGroup.ids) || [bean.id]).map(String));
                 const mineN = [...this.brews.values()].filter(b => ids.has(String(b.beanId)) && this.getBrewOwner(b) === this.user).length;
                 const steps = [
                     ['Farm', c.producer, c.producer ? `app.openProducer(${this.escJsAttr(c.producer)})` : ''],
-                    ['Mill', c.mill, ''], ['Exporter', c.exporter, ''], ['Importer', c.importer, ''],
+                    ['Mill', c.mill, ''],
                     ['Roaster', bean.roaster || '', bean.roaster && this.openRoaster && this.roasterKey ? `app.openRoaster(${this.escJsAttr(this.roasterKey(bean.roaster))})` : ''],
                     ['You', mineN ? `${mineN} session${mineN === 1 ? '' : 's'}` : (mine ? 'Your coffee' : ''), '']
                 ];
@@ -30826,6 +30862,49 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const html = this.nlChainHtml(bean); if (!html) return;
                 const after = view.querySelector('#lx-about') || document.getElementById('d-top-flavors');
                 if (after) after.insertAdjacentHTML('afterend', html);
+                this.nlTilesPaint();
+            },
+
+            // v21.6: About this coffee and Who grew it? (or From farm to cup) side by side, two tiles (Maceo's drawing, Nov 4:
+            // the empty right half of About this coffee's card was the place for it). A tile opens its panel full width under
+            // the pair; with only one of them (Learn off, a tea, someone else's coffee with nothing named) it stays a full card.
+            nlTilesPaint() {
+                if (typeof document === 'undefined') return;
+                const view = document.getElementById('detail-view'); if (!view) return;
+                view.querySelectorAll('#nl-dtiles').forEach(n => n.remove());
+                const about = view.querySelector('#lx-about'), chain = view.querySelector('#nl-chain'), add = view.querySelector('.nl-chain-add');
+                const on = !!(this.newLook && this.newLook() && about && (chain || add) && about.querySelector('[data-lxf]'));
+                view.classList.toggle('nl-tiles-on', on);
+                if (!on) { if (about) about.hidden = false; if (chain) chain.hidden = false; return; }
+                const sec = about.querySelector('[data-lxf]'), aOpen = sec.getAttribute('data-open') === '1';
+                const cOpen = !!(chain && chain.classList.contains('is-open'));
+                const ic = id => `<svg class="icon nl-dt-ic" aria-hidden="true"><use href="#${id}"/></svg>`;
+                // (Maceo, Nov 4, a few minutes later: "get rid of the subtext and condense it vertically": one line each, an icon
+                // and its name; an open one is tinted, and its panel sits under the pair)
+                const tile = (t, open, icon, title, cls = '') => `<button type="button" class="nl-dtile${cls}${open ? ' is-on' : ''}" data-t="${t}" aria-expanded="${open}" onclick="app.nlTileTap('${t}')">${ic(icon)}<b>${title}</b></button>`;
+                const right = chain ? tile('chain', cOpen, 'i-tree', 'From farm to cup') : tile('add', false, 'i-plus', 'Who grew it?', ' is-add');
+                about.insertAdjacentHTML('beforebegin', `<div class="nl-dtiles" id="nl-dtiles">${tile('about', aOpen, 'i-book', this.esc(sec.getAttribute('data-title') || 'About this coffee'))}${right}</div>`);
+                about.hidden = !aOpen; if (chain) chain.hidden = !cOpen;
+                if (add) add.hidden = true;
+            },
+            nlTileTap(t) {
+                const view = document.getElementById('detail-view'); if (!view) return;
+                if (t === 'add') { this.chainAdd(); return; }
+                const panel = t === 'about' ? view.querySelector('#lx-about') : view.querySelector('#nl-chain'); if (!panel) return;
+                if (t === 'about') { const h = panel.querySelector('[data-lxf] > .lx-fh'); if (h) this.lxFold(h); }
+                else this.toggleChain();
+                const open = t === 'about' ? (panel.querySelector('[data-lxf]') || { getAttribute: () => '0' }).getAttribute('data-open') === '1' : panel.classList.contains('is-open');
+                panel.hidden = !open;
+                const btn = view.querySelector(`#nl-dtiles .nl-dtile[data-t="${t}"]`); if (btn) { btn.classList.toggle('is-on', open); btn.setAttribute('aria-expanded', String(open)); }
+                if (open && panel.scrollIntoView) setTimeout(() => { const r = panel.getBoundingClientRect(); if (r.bottom > (window.innerHeight || 800) - 20) panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, 60);
+            },
+
+            // v21.6: a page that slides over the app (a session, a share link, a producer) is painted in its own color all the
+            // way down, so pulling past its end on an iPhone shows more of the page, not the feed under it (Maceo, Nov 4: "when
+            // you scroll past it you can like see under it to the feed")
+            nlBackdrop(page) {
+                const host = page && page.parentElement; if (!host || !/^(session-view|share-view|producer-view)$/.test(host.id)) return;
+                const fam = page.getAttribute('data-fam') || 'app'; if (host.getAttribute('data-fam') !== fam) host.setAttribute('data-fam', fam);
             },
 
             // ---- a producer's page: every coffee you can see that names them
@@ -30856,8 +30935,8 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const merge = k => { const seen = new Map(); items.forEach(it => (it[k] || []).forEach(x => { const key = x.kind ? `${x.kind}:${x.id}` : x.label; if (!seen.has(key)) seen.set(key, x); })); return [...seen.values()]; };
                 const chains = beans.map(b => this.chainOf(b) || {});
                 const pseudo = { origin: merge('origin'), region: merge('region'), variety: merge('variety'), process: merge('process'), roast: [] };
-                const mills = uniq(chains.map(c => c.mill)), importers = uniq(chains.map(c => c.importer));
-                const specs = this.nlSpecRowsFromItems ? this.nlSpecRowsFromItems({ ...pseudo, mill: mills.map(label => ({ label })), importer: importers.map(label => ({ label })) }) : '';
+                const mills = uniq(chains.map(c => c.mill));
+                const specs = this.nlSpecRowsFromItems ? this.nlSpecRowsFromItems({ ...pseudo, mill: mills.map(label => ({ label })) }) : '';
                 // what its coffees taste like, across every session here
                 const pool = brews.filter(b => this.tastedKeys(b).length);
                 const vals = {}, set = [];
@@ -30870,7 +30949,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     const who = b.user && b.user !== this.user ? ` · ${this.esc(b.user)}'s` : '';
                     return `<button type="button" class="pv-coffee" data-fam="${this.famOfCoffee(b)}" onclick="app.producerOpenCoffee('${this.escJs(String(b.id))}')">${this.nlCoverHtml(b, 'nl-cover pv-cover')}<span class="pv-cmain"><small>${this.esc(b.roaster || '')}</small><b>${this.esc(b.name || 'Coffee')}</b><span>${n.length} session${n.length === 1 ? '' : 's'}${ra > 0 ? ` · ${this.esc(this.formatRating(ra))}★` : ''}${who}</span></span><svg class="icon nl-spec-ch" aria-hidden="true"><use href="#i-chev-right"/></svg></button>`;
                 }).join('');
-                page.setAttribute('data-fam', fam);
+                page.setAttribute('data-fam', fam); this.nlBackdrop(page);
                 page.innerHTML = `<div class="pv-bar"><button type="button" class="nl-glass" onclick="app.closeProducer()" aria-label="Back"><svg class="nl-ic"><use href="#i-arrow-left"/></svg></button></div>
                     <div class="nls-wrap">
                         <div class="nls-hero is-flat shv-chero"><div class="nls-id">

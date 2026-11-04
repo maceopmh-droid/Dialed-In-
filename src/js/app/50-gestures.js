@@ -65,7 +65,10 @@
                     }
                     return false;
                 };
-                const blocked = el => !!(el && el.closest && el.closest('input, textarea, select, [contenteditable="true"], canvas:not(.nl-auto), .no-swipe, .wl-wrap'));
+                // (v21.6: the taste sliders and the rating draw their own track, with the real slider under it, so a swipe that
+                // starts anywhere on one of them is the slider's, never the Log's: Maceo, Nov 4, "when you swipe on the flavor
+                // sliders it slides you out of log. Same with the rating")
+                const blocked = el => !!(el && el.closest && el.closest('input, textarea, select, [contenteditable="true"], canvas:not(.nl-auto), .no-swipe, .wl-wrap, .ns, .ns-track, .rt-track, .rating-slider-group'));
                 const scrollerAtTop = (el, stop) => {
                     for (let n = el; n && n.nodeType === 1; n = n.parentElement) {
                         if (n.scrollHeight > n.clientHeight + 2) { const oy = getComputedStyle(n).overflowY; if ((oy === 'auto' || oy === 'scroll') && n.scrollTop > 0) return false; }

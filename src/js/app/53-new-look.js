@@ -640,7 +640,7 @@
                 }
                 const drafts = soft && this.captureDrafts ? this.captureDrafts() : null;
                 this._nlsHtml = html; this._nlsKey = key;
-                page.setAttribute('data-fam', this.famOfBrew(brew));
+                page.setAttribute('data-fam', this.famOfBrew(brew)); this.nlBackdrop(page);
                 page.innerHTML = html;
                 if (drafts && this.restoreDrafts) this.restoreDrafts(drafts);
                 this.nlFillShapes(page);

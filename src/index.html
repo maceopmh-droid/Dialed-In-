@@ -603,10 +603,6 @@
                     <input type="text" name="chainProducer" list="chain-producers" autocomplete="off" maxlength="80" placeholder="Farm, producer or co-op"><datalist id="chain-producers"></datalist>
                     <label>Washing station or mill</label>
                     <input type="text" name="chainMill" list="chain-mills" autocomplete="off" maxlength="80" placeholder="e.g., Beneficio, washing station"><datalist id="chain-mills"></datalist>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem;">
-                        <div><label>Exporter</label><input type="text" name="chainExporter" list="chain-exporters" autocomplete="off" maxlength="80"><datalist id="chain-exporters"></datalist></div>
-                        <div><label>Importer</label><input type="text" name="chainImporter" list="chain-importers" autocomplete="off" maxlength="80"><datalist id="chain-importers"></datalist></div>
-                    </div>
                 </details>
                 
                 <div class="coffee-only">
@@ -731,8 +727,8 @@
                         <div class="ns-ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
                     </div>
                     <div class="ns" data-k="balance" style="--c:#36B38C">
-                        <div class="ns-head"><span class="ns-name"><i class="ns-dot"></i>Complexity</span><span class="ns-read"><b class="ns-val">–</b><span class="ns-sep"> · </span><span class="ns-word">not set</span></span></div>
-                        <div class="ns-track"><input type="range" name="balance" min="1" max="10" step="1" value="5" aria-label="Complexity" oninput="app.onTasteInput('balance', this.value)"><span class="ns-ghost" hidden></span></div>
+                        <div class="ns-head"><span class="ns-name"><i class="ns-dot"></i>Clarity</span><span class="ns-read"><b class="ns-val">–</b><span class="ns-sep"> · </span><span class="ns-word">not set</span></span></div>
+                        <div class="ns-track"><input type="range" name="balance" min="1" max="10" step="1" value="5" aria-label="Clarity" oninput="app.onTasteInput('balance', this.value)"><span class="ns-ghost" hidden></span></div>
                         <div class="ns-ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
                     </div>
                     <div id="taste-tip"></div>

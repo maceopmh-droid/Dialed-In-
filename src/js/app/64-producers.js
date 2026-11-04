@@ -4,7 +4,9 @@
             // made up. Every step is optional; a step the bag doesn't name stays gray ("Not on the bag"); a coffee with none
             // shows its owner a small "Who grew it?" link and everyone else nothing; a producer page exists only once
             // someone names a producer, and lists every coffee on Dialed In you can see that names the same one.
-            CHAIN_KEYS: ['producer', 'mill', 'exporter', 'importer'],
+            // v21.6: just the farm and the mill (Maceo, Nov 4: "Get rid of exporter importer"); an exporter or importer an
+            // older version saved stays on the server but isn't shown, and goes when the coffee is next saved
+            CHAIN_KEYS: ['producer', 'mill'],
             cleanChain(c) {
                 if (!c || typeof c !== 'object') return null;
                 const out = {};
@@ -13,22 +15,22 @@
             },
             chainOf(bean) { const c = this.cleanChain(bean && bean.chain); return c && Object.keys(c).length ? c : null; },
             producerKey(name) { return String(name || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); },
-            // the form: four fields behind "Where it came from"
+            // the form: two fields behind "Where it came from"
             chainFromForm(form) {
                 const v = n => (form && form.elements[n] ? form.elements[n].value : '');
-                return this.cleanChain({ producer: v('chainProducer'), mill: v('chainMill'), exporter: v('chainExporter'), importer: v('chainImporter') }) || {};
+                return this.cleanChain({ producer: v('chainProducer'), mill: v('chainMill') }) || {};
             },
             chainFormFill(form, bean) {
                 const c = this.chainOf(bean) || {}, set = (n, k) => { if (form && form.elements[n]) form.elements[n].value = c[k] || ''; };
-                set('chainProducer', 'producer'); set('chainMill', 'mill'); set('chainExporter', 'exporter'); set('chainImporter', 'importer');
+                set('chainProducer', 'producer'); set('chainMill', 'mill');
                 const fold = document.getElementById('chain-fold'); if (fold) fold.open = Object.keys(c).length > 0;
                 this.chainSuggest();
             },
             // names already on Dialed In, offered as you type (so the same farm links up)
             chainSuggest() {
-                const lists = { producer: new Set(), mill: new Set(), exporter: new Set(), importer: new Set() };
+                const lists = { producer: new Set(), mill: new Set() };
                 this.beans.forEach(b => { const c = this.chainOf(b); if (c) Object.entries(c).forEach(([k, v]) => lists[k] && lists[k].add(v)); });
-                [['chain-producers', 'producer'], ['chain-mills', 'mill'], ['chain-exporters', 'exporter'], ['chain-importers', 'importer']].forEach(([id, k]) => {
+                [['chain-producers', 'producer'], ['chain-mills', 'mill']].forEach(([id, k]) => {
                     const dl = document.getElementById(id); if (dl) dl.innerHTML = [...lists[k]].sort((a, b) => a.localeCompare(b)).slice(0, 200).map(v => `<option value="${this.esc(v)}"></option>`).join('');
                 });
             },
@@ -43,12 +45,12 @@
                 if (!bean || (this.isTeaBean && this.isTeaBean(bean))) return '';
                 const own = this.activeId ? this.beans.get(String(this.activeId)) : null, mine = !!(own && own.user === this.user) || bean.user === this.user;
                 const c = (mine && own && this.chainOf(own)) || this.chainOf(bean);   // (yours first; else what another bag of it says)
-                if (!c) return mine ? `<button type="button" class="nl-chain-add" onclick="app.chainAdd()"><svg class="icon" aria-hidden="true"><use href="#i-tree"/></svg><span><b>Who grew it?</b><small>The farm, mill or importer on the bag</small></span><svg class="icon nl-spec-ch" aria-hidden="true"><use href="#i-plus"/></svg></button>` : '';
+                if (!c) return mine ? `<button type="button" class="nl-chain-add" onclick="app.chainAdd()"><svg class="icon" aria-hidden="true"><use href="#i-tree"/></svg><span><b>Who grew it?</b><small>The farm or mill on the bag</small></span><svg class="icon nl-spec-ch" aria-hidden="true"><use href="#i-plus"/></svg></button>` : '';
                 const ids = new Set(((this.activeGroup && this.activeGroup.ids) || [bean.id]).map(String));
                 const mineN = [...this.brews.values()].filter(b => ids.has(String(b.beanId)) && this.getBrewOwner(b) === this.user).length;
                 const steps = [
                     ['Farm', c.producer, c.producer ? `app.openProducer(${this.escJsAttr(c.producer)})` : ''],
-                    ['Mill', c.mill, ''], ['Exporter', c.exporter, ''], ['Importer', c.importer, ''],
+                    ['Mill', c.mill, ''],
                     ['Roaster', bean.roaster || '', bean.roaster && this.openRoaster && this.roasterKey ? `app.openRoaster(${this.escJsAttr(this.roasterKey(bean.roaster))})` : ''],
                     ['You', mineN ? `${mineN} session${mineN === 1 ? '' : 's'}` : (mine ? 'Your coffee' : ''), '']
                 ];
@@ -77,6 +79,49 @@
                 const html = this.nlChainHtml(bean); if (!html) return;
                 const after = view.querySelector('#lx-about') || document.getElementById('d-top-flavors');
                 if (after) after.insertAdjacentHTML('afterend', html);
+                this.nlTilesPaint();
+            },
+
+            // v21.6: About this coffee and Who grew it? (or From farm to cup) side by side, two tiles (Maceo's drawing, Nov 4:
+            // the empty right half of About this coffee's card was the place for it). A tile opens its panel full width under
+            // the pair; with only one of them (Learn off, a tea, someone else's coffee with nothing named) it stays a full card.
+            nlTilesPaint() {
+                if (typeof document === 'undefined') return;
+                const view = document.getElementById('detail-view'); if (!view) return;
+                view.querySelectorAll('#nl-dtiles').forEach(n => n.remove());
+                const about = view.querySelector('#lx-about'), chain = view.querySelector('#nl-chain'), add = view.querySelector('.nl-chain-add');
+                const on = !!(this.newLook && this.newLook() && about && (chain || add) && about.querySelector('[data-lxf]'));
+                view.classList.toggle('nl-tiles-on', on);
+                if (!on) { if (about) about.hidden = false; if (chain) chain.hidden = false; return; }
+                const sec = about.querySelector('[data-lxf]'), aOpen = sec.getAttribute('data-open') === '1';
+                const cOpen = !!(chain && chain.classList.contains('is-open'));
+                const ic = id => `<svg class="icon nl-dt-ic" aria-hidden="true"><use href="#${id}"/></svg>`;
+                // (Maceo, Nov 4, a few minutes later: "get rid of the subtext and condense it vertically": one line each, an icon
+                // and its name; an open one is tinted, and its panel sits under the pair)
+                const tile = (t, open, icon, title, cls = '') => `<button type="button" class="nl-dtile${cls}${open ? ' is-on' : ''}" data-t="${t}" aria-expanded="${open}" onclick="app.nlTileTap('${t}')">${ic(icon)}<b>${title}</b></button>`;
+                const right = chain ? tile('chain', cOpen, 'i-tree', 'From farm to cup') : tile('add', false, 'i-plus', 'Who grew it?', ' is-add');
+                about.insertAdjacentHTML('beforebegin', `<div class="nl-dtiles" id="nl-dtiles">${tile('about', aOpen, 'i-book', this.esc(sec.getAttribute('data-title') || 'About this coffee'))}${right}</div>`);
+                about.hidden = !aOpen; if (chain) chain.hidden = !cOpen;
+                if (add) add.hidden = true;
+            },
+            nlTileTap(t) {
+                const view = document.getElementById('detail-view'); if (!view) return;
+                if (t === 'add') { this.chainAdd(); return; }
+                const panel = t === 'about' ? view.querySelector('#lx-about') : view.querySelector('#nl-chain'); if (!panel) return;
+                if (t === 'about') { const h = panel.querySelector('[data-lxf] > .lx-fh'); if (h) this.lxFold(h); }
+                else this.toggleChain();
+                const open = t === 'about' ? (panel.querySelector('[data-lxf]') || { getAttribute: () => '0' }).getAttribute('data-open') === '1' : panel.classList.contains('is-open');
+                panel.hidden = !open;
+                const btn = view.querySelector(`#nl-dtiles .nl-dtile[data-t="${t}"]`); if (btn) { btn.classList.toggle('is-on', open); btn.setAttribute('aria-expanded', String(open)); }
+                if (open && panel.scrollIntoView) setTimeout(() => { const r = panel.getBoundingClientRect(); if (r.bottom > (window.innerHeight || 800) - 20) panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, 60);
+            },
+
+            // v21.6: a page that slides over the app (a session, a share link, a producer) is painted in its own color all the
+            // way down, so pulling past its end on an iPhone shows more of the page, not the feed under it (Maceo, Nov 4: "when
+            // you scroll past it you can like see under it to the feed")
+            nlBackdrop(page) {
+                const host = page && page.parentElement; if (!host || !/^(session-view|share-view|producer-view)$/.test(host.id)) return;
+                const fam = page.getAttribute('data-fam') || 'app'; if (host.getAttribute('data-fam') !== fam) host.setAttribute('data-fam', fam);
             },
 
             // ---- a producer's page: every coffee you can see that names them
@@ -107,8 +152,8 @@
                 const merge = k => { const seen = new Map(); items.forEach(it => (it[k] || []).forEach(x => { const key = x.kind ? `${x.kind}:${x.id}` : x.label; if (!seen.has(key)) seen.set(key, x); })); return [...seen.values()]; };
                 const chains = beans.map(b => this.chainOf(b) || {});
                 const pseudo = { origin: merge('origin'), region: merge('region'), variety: merge('variety'), process: merge('process'), roast: [] };
-                const mills = uniq(chains.map(c => c.mill)), importers = uniq(chains.map(c => c.importer));
-                const specs = this.nlSpecRowsFromItems ? this.nlSpecRowsFromItems({ ...pseudo, mill: mills.map(label => ({ label })), importer: importers.map(label => ({ label })) }) : '';
+                const mills = uniq(chains.map(c => c.mill));
+                const specs = this.nlSpecRowsFromItems ? this.nlSpecRowsFromItems({ ...pseudo, mill: mills.map(label => ({ label })) }) : '';
                 // what its coffees taste like, across every session here
                 const pool = brews.filter(b => this.tastedKeys(b).length);
                 const vals = {}, set = [];
@@ -121,7 +166,7 @@
                     const who = b.user && b.user !== this.user ? ` · ${this.esc(b.user)}'s` : '';
                     return `<button type="button" class="pv-coffee" data-fam="${this.famOfCoffee(b)}" onclick="app.producerOpenCoffee('${this.escJs(String(b.id))}')">${this.nlCoverHtml(b, 'nl-cover pv-cover')}<span class="pv-cmain"><small>${this.esc(b.roaster || '')}</small><b>${this.esc(b.name || 'Coffee')}</b><span>${n.length} session${n.length === 1 ? '' : 's'}${ra > 0 ? ` · ${this.esc(this.formatRating(ra))}★` : ''}${who}</span></span><svg class="icon nl-spec-ch" aria-hidden="true"><use href="#i-chev-right"/></svg></button>`;
                 }).join('');
-                page.setAttribute('data-fam', fam);
+                page.setAttribute('data-fam', fam); this.nlBackdrop(page);
                 page.innerHTML = `<div class="pv-bar"><button type="button" class="nl-glass" onclick="app.closeProducer()" aria-label="Back"><svg class="nl-ic"><use href="#i-arrow-left"/></svg></button></div>
                     <div class="nls-wrap">
                         <div class="nls-hero is-flat shv-chero"><div class="nls-id">

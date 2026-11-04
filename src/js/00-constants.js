@@ -16,7 +16,7 @@
             ['body', 'Body', ['Thin', 'Medium', 'Heavy']],
             ['finish', 'Finish', ['Short', 'Clean', 'Lingering']],
             ['bitterness', 'Bitterness', ['Clean', 'Noticeable', 'Harsh']],
-            ['balance', 'Complexity', ['Simple', 'Some depth', 'Layered']]
+            ['balance', 'Clarity', ['Muddy', 'Clear', 'Crystal clear']]   // (v21.6: was Complexity; Maceo, Nov 4. Same key, so older sessions' numbers now read as clarity)
         ];
         const TASTE_KEYS = TASTE_META.map(m => m[0]);
         const INITIAL_SEL = '.feed-avatar, .cmt-avatar, .person-dot, .hero-avatar, .aw-face, .cq-face b, .thread-faces i, .wr-face, .wr-who b, .mrc-face, .dh-faces i';

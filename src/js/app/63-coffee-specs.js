@@ -23,7 +23,7 @@
                     if (t.species && t.species !== 'arabica') out.variety.push(it('species', t.species, this.lxName('species', t.species)));
                     else if (t.species === 'arabica' && !(t.variety || []).length) out.variety.push(it('species', 'arabica', 'Arabica'));
                     const p = t.process || {};
-                    if (p.base) out.process.push(it('process', p.base, LearnEngine.processName(p) || this.lxName('process', p.base)));
+                    (p.bases && p.bases.length > 1 ? p.bases : (p.base ? [p.base] : [])).forEach(b => out.process.push(it('process', b, LearnEngine.processName({ ...p, base: b, variant: b === p.base ? p.variant : '', honey: b === 'honey' ? p.honey : '' }) || this.lxName('process', b))));   // (v21.6: several processes)
                     (p.layers || []).forEach(id => out.process.push(it('process', id, this.lxName('process', id))));
                     if (p.decaf) out.process.push({ label: p.decaf === 'decaf' ? 'Decaf' : 'Decaf · ' + this.lxName('decaf', p.decaf) });
                     // what Learn didn't recognize stays, as it was written
@@ -39,7 +39,7 @@
                 if (String(bean.roast || '').trim()) out.roast.push({ label: String(bean.roast).trim() });
                 return out;
             },
-            NL_SPEC_ROWS: [['producer', 'i-users', 'Grown by', 'Grown by'], ['origin', 'i-pin', 'Origin', 'Origins'], ['region', 'i-globe', 'Region', 'Regions'], ['variety', 'i-leaf-line', 'Variety', 'Varieties'], ['process', 'i-drop', 'Process', 'Process'], ['roast', 'i-flame', 'Roast', 'Roast'], ['mill', 'i-gear', 'Mill', 'Mills'], ['importer', 'i-flag', 'Importer', 'Importers']],
+            NL_SPEC_ROWS: [['producer', 'i-users', 'Grown by', 'Grown by'], ['origin', 'i-pin', 'Origin', 'Origins'], ['region', 'i-globe', 'Region', 'Regions'], ['variety', 'i-leaf-line', 'Variety', 'Varieties'], ['process', 'i-drop', 'Process', 'Process'], ['roast', 'i-flame', 'Roast', 'Roast'], ['mill', 'i-gear', 'Mill', 'Mills']],
             nlSpecRowsHtml(bean, o = {}) { return this.nlSpecRowsFromItems(this.nlSpecItems(bean), { ...o, tea: this.isTeaBean && this.isTeaBean(bean) }); },
             nlSpecGo(x) { return x.kind === 'producer' ? `app.openProducer('${this.escJs(String(x.id))}')` : this.lxGo(x.kind, x.id); },
             nlSpecRowsFromItems(items, o = {}) {   // (o.links false: no buttons, e.g. on a share link's page)
@@ -51,7 +51,9 @@
                         const x = list[0], inner = `${ic(icon)}<span class="nl-spec-k">${one}</span><span class="nl-spec-v">${this.esc(x.label)}</span>`;
                         return x.page ? `<button type="button" class="nl-spec" onclick="${this.nlSpecGo(x)}">${inner}${chev()}</button>` : `<div class="nl-spec">${inner}</div>`;
                     }
-                    const pills = list.map(x => x.page ? `<button type="button" class="nl-spec-pill" onclick="${this.nlSpecGo(x)}">${this.esc(x.label)}${chev(' sm')}</button>` : `<span class="nl-spec-pill is-plain">${this.esc(x.label)}</span>`).join('');
+                    // (v21.6, condensed: the first stays first, the rest shortest first, so more of them share a line)
+                    const packed = [list[0], ...list.slice(1).sort((a, b) => String(a.label).length - String(b.label).length)];
+                    const pills = packed.map(x => x.page ? `<button type="button" class="nl-spec-pill" onclick="${this.nlSpecGo(x)}">${this.esc(x.label)}${chev(' sm')}</button>` : `<span class="nl-spec-pill is-plain">${this.esc(x.label)}</span>`).join('');
                     return `<div class="nl-spec nl-spec-multi">${ic(icon)}<span class="nl-spec-k">${many}</span><span class="nl-spec-v">${pills}</span></div>`;
                 }).filter(Boolean);
                 return rows.length ? `<div class="nl-specs" role="list" aria-label="About this ${o.tea ? 'tea' : 'coffee'}">${rows.join('')}</div>` : '';

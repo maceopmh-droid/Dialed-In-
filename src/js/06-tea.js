@@ -43,7 +43,7 @@
             ['body', 'Body', ['Thin', 'Medium', 'Thick']],
             ['finish', 'Finish', ['Short', 'Clean', 'Lingering']],
             ['bitterness', 'Bitterness', ['Clean', 'Noticeable', 'Harsh']],
-            ['balance', 'Complexity', ['Simple', 'Some depth', 'Layered']]
+            ['balance', 'Clarity', ['Muddy', 'Clear', 'Crystal clear']]   // (v21.6: was Complexity; Maceo, Nov 4. Same key, so older sessions' numbers now read as clarity)
         ];
         // the tea flavor wheel: same shape as the coffee one, the last family is "tastes off"
         const TEA_WHEEL = [

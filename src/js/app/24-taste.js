@@ -71,7 +71,7 @@
                 if (on('acidity')) adj.push(tea ? { Soft: 'soft', 'Some grip': 'gently astringent', Drying: 'drying' }[word('acidity')] : { Flat: 'flat', Balanced: 'gently acidic', Bright: 'bright' }[word('acidity')]);
                 if (on('sweetness')) adj.push(tea ? { Dry: 'dry', Sweet: 'sweet', Honeyed: 'honeyed' }[word('sweetness')] : { Dry: 'dry', Sweet: 'sweet', Syrupy: 'syrupy' }[word('sweetness')]);
                 if (on('body')) adj.push(tea ? { Thin: 'light-bodied', Medium: 'medium-bodied', Thick: 'full-bodied' }[word('body')] : { Thin: 'light-bodied', Medium: 'medium-bodied', Heavy: 'heavy-bodied' }[word('body')]);
-                if (on('balance') && values.balance >= 8) adj.push('layered');
+                if (on('balance') && values.balance >= 8) adj.push('crystal-clear'); else if (on('balance') && values.balance <= 3) adj.push('muddy');   // (v21.6: clarity)
                 if (on('bitterness') && values.bitterness >= 7) adj.push('bitter-edged');
                 const off = new Set(W[W.length - 1].groups.flatMap(g => g[1]).map(n => n.toLowerCase()));
                 const list = notes.filter(n => !off.has(n.toLowerCase())).map(n => ({ n, i: intensities[n] || 2 })).sort((a, b) => b.i - a.i)
@@ -345,7 +345,9 @@
             renderNotePicker() {
                 const wheel = document.getElementById('note-wheel');
                 if (!wheel) return;
-                const counts = {}, groupCounts = {}, lk = this.logKind === 'tea' ? 'tea' : 'coffee', WH = this.wheelFor(lk);   // v17.0: a tea session picks from the tea wheel
+                const counts = {}, groupCounts = {}, lk = this.logKind === 'tea' ? 'tea' : 'coffee', WH = this.wheelFor(lk);
+                // (v21.6: the Log's notes keep their family's color, as before v21.2; Maceo, Nov 4: "the old color was good for the
+                // tasting note cards in log". Everywhere else each note has its own color.)   // v17.0: a tea session picks from the tea wheel
                 this.selFlavors.forEach(n => { const at = this.noteLocate(n, lk); if (!at || at.wheel !== lk) return; counts[at.f] = (counts[at.f] || 0) + 1; if (at.g >= 0) groupCounts[`${at.f}:${at.g}`] = (groupCounts[`${at.f}:${at.g}`] || 0) + 1; });
                 wheel.innerHTML = this.wheelSvg({ fam: this.wheelFam, group: this.wheelGroup, interactive: true, counts, groupCounts, wheel: WH });
                 const tray = document.getElementById('note-tray');
@@ -353,7 +355,7 @@
                     if (this.wheelFam == null) tray.innerHTML = '<p class="note-help">Start broad, then go specific. “Tastes off” notes help the coach most.</p>';
                     else {
                         const groups = this.wheelGroup == null ? WH[this.wheelFam].groups : [WH[this.wheelFam].groups[this.wheelGroup]];
-                        tray.innerHTML = groups.map(([g, notes]) => `${this.wheelGroup == null ? `<div class="note-group">${this.esc(g)}</div>` : ''}<div class="note-chips">${notes.map(nm => `<button type="button" class="note-chip"${this.nlNoteAttr(nm, lk)} aria-pressed="${this.selFlavors.includes(nm)}" onclick="app.pickNote('${app.escJs(nm)}', event)">${this.esc(nm)}</button>`).join('')}</div>`).join('');
+                        tray.innerHTML = groups.map(([g, notes]) => `${this.wheelGroup == null ? `<div class="note-group">${this.esc(g)}</div>` : ''}<div class="note-chips">${notes.map(nm => `<button type="button" class="note-chip" aria-pressed="${this.selFlavors.includes(nm)}" onclick="app.pickNote('${app.escJs(nm)}', event)">${this.esc(nm)}</button>`).join('')}</div>`).join('');
                     }
                 }
                 const picked = document.getElementById('note-picked');
@@ -362,7 +364,7 @@
                         const lv = this.noteIntensity[nm] || 2;
                         const at = this.noteLocate(nm, lk);
                         const color = at ? at.color : 'var(--text-muted)';
-                        return `<span class="pick fam-pick"${this.nlNoteAttr(nm, lk)} style="--fc:${color};${this.famVars(/^#/.test(color) ? color : '#7D8984')}"><i class="pick-dot"></i>${this.esc(nm)}<button type="button" class="dots" onclick="app.cycleNote('${app.escJs(nm)}', event)" aria-label="${this.esc(nm)} strength ${lv} of 3">${[1, 2, 3].map(i => `<i class="${i <= lv ? 'on' : ''}"></i>`).join('')}</button><button type="button" class="x" onclick="app.pickNote('${app.escJs(nm)}', event)" aria-label="Remove ${this.esc(nm)}">×</button></span>`;
+                        return `<span class="pick fam-pick" style="--fc:${color};${this.famVars(/^#/.test(color) ? color : '#7D8984')}"><i class="pick-dot"></i>${this.esc(nm)}<button type="button" class="dots" onclick="app.cycleNote('${app.escJs(nm)}', event)" aria-label="${this.esc(nm)} strength ${lv} of 3">${[1, 2, 3].map(i => `<i class="${i <= lv ? 'on' : ''}"></i>`).join('')}</button><button type="button" class="x" onclick="app.pickNote('${app.escJs(nm)}', event)" aria-label="Remove ${this.esc(nm)}">×</button></span>`;
                     }).join('')}</div>` : '';
                 }
                 const hints = document.getElementById('note-hints');
@@ -373,7 +375,7 @@
                         Array.from(this.brews.values()).filter(b => this.groupKeyOfBrew(b) === key).forEach(b => this.extractFlavors(b).forEach(n => counts2.set(n, (counts2.get(n) || 0) + 1)));
                     }
                     const top = [...counts2.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6).map(([n]) => n);
-                    hints.innerHTML = top.length ? `<div class="note-hints"><span>Others noted:</span>${top.map(nm => `<button type="button" class="note-chip hint"${this.nlNoteAttr(nm, lk)} aria-pressed="${this.selFlavors.includes(nm)}" onclick="app.pickNote('${app.escJs(nm)}', event)">${this.esc(nm)}</button>`).join('')}</div>` : '';
+                    hints.innerHTML = top.length ? `<div class="note-hints"><span>Others noted:</span>${top.map(nm => `<button type="button" class="note-chip hint" aria-pressed="${this.selFlavors.includes(nm)}" onclick="app.pickNote('${app.escJs(nm)}', event)">${this.esc(nm)}</button>`).join('')}</div>` : '';
                 }
                 this.renderCupWords();
             },
