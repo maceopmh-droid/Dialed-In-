@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v21.0 -->
+<!-- Dialed In v21.1 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="21.0">
+    <meta name="dialed-in-version" content="21.1">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -6304,7 +6304,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v21.0</div>
+            <div class="app-version">Dialed In · v21.1</div>
         </div>
     </div>
 
@@ -22935,12 +22935,12 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 this.closeReview();
                 this.showToast('Goal removed.');
             },
-            // ---- v14.7: monthly highlights. For the first week of a month, Discover opens with last month's: a few people
+            // ---- v14.7: monthly highlights. For the first 3 days of a month (v21.1; was the first week), Discover opens with last month's: a few people
             // spotlighted for different reasons (best first month, most improved on one coffee, most helpful, explorer,
             // standout photo), never the same person two months running. Tap one for their profile.
             hlState() { return this._hl || (this._hl = { month: '', items: null, at: 0, loading: false }); },
 
-            hlShowing(now = Date.now()) { return new Date(now).getDate() <= 7; },
+            hlShowing(now = Date.now()) { return new Date(now).getDate() <= 3; },   // v21.1: the first 3 days of the month (was the first week; Maceo, Nov 3)
 
             async loadHighlights() {
                 const st = this.hlState();
@@ -23553,7 +23553,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             awardsOpen() { if (this._awOpen == null) this._awOpen = safeGet('dialed_awards_open') === '1'; return !!this._awOpen; },
             toggleAwards() { this._awOpen = !this.awardsOpen(); safeSet('dialed_awards_open', this._awOpen ? '1' : '0'); this.render(); },
 
-            // Everyone: last month's highlights (the same ones Discover shows the first week), folded like the awards
+            // Everyone: last month's highlights (the same ones Discover shows the first 3 days), folded like the awards
             renderEveryoneAwardsCard() {
                 const st = this.hlState();
                 if (!st.loading && !st.at) setTimeout(() => this.loadHighlights(), 0);

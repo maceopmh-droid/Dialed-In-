@@ -341,7 +341,7 @@
             awardsOpen() { if (this._awOpen == null) this._awOpen = safeGet('dialed_awards_open') === '1'; return !!this._awOpen; },
             toggleAwards() { this._awOpen = !this.awardsOpen(); safeSet('dialed_awards_open', this._awOpen ? '1' : '0'); this.render(); },
 
-            // Everyone: last month's highlights (the same ones Discover shows the first week), folded like the awards
+            // Everyone: last month's highlights (the same ones Discover shows the first 3 days), folded like the awards
             renderEveryoneAwardsCard() {
                 const st = this.hlState();
                 if (!st.loading && !st.at) setTimeout(() => this.loadHighlights(), 0);
