@@ -1,9 +1,9 @@
-            // ---- v14.7: monthly highlights. For the first week of a month, Discover opens with last month's: a few people
+            // ---- v14.7: monthly highlights. For the first 3 days of a month (v21.1; was the first week), Discover opens with last month's: a few people
             // spotlighted for different reasons (best first month, most improved on one coffee, most helpful, explorer,
             // standout photo), never the same person two months running. Tap one for their profile.
             hlState() { return this._hl || (this._hl = { month: '', items: null, at: 0, loading: false }); },
 
-            hlShowing(now = Date.now()) { return new Date(now).getDate() <= 7; },
+            hlShowing(now = Date.now()) { return new Date(now).getDate() <= 3; },   // v21.1: the first 3 days of the month (was the first week; Maceo, Nov 3)
 
             async loadHighlights() {
                 const st = this.hlState();
