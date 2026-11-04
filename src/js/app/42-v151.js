@@ -452,7 +452,7 @@
                 const list = this.lensOptions(this.detailAllBrews || []), L = list.length ? this.activeLens() : null;
                 if (list.length < 2) { box.hidden = true; box.innerHTML = ''; return; }
                 box.hidden = false;
-                const chips = `<div class="cp-lead">Sessions from</div><div class="comm-filters" role="tablist" aria-label="Sessions from">${list.map(o => `<button type="button" class="comm-chip${o.id === L.id ? ' on' : ''}" role="tab" aria-selected="${o.id === L.id}" data-l="${this.esc(o.id)}" onclick="app.setLens(this.getAttribute('data-l'))">${this.esc(o.name)}${o.n ? `<span class="lens-n">${o.n}</span>` : ''}</button>`).join('')}</div>`;
+                const chips = `<div class="cp-lead">${this.newLook && this.newLook() ? 'Sessions' : 'Sessions from'}</div><div class="comm-filters" role="tablist" aria-label="Sessions from">${list.map(o => `<button type="button" class="comm-chip${o.id === L.id ? ' on' : ''}" role="tab" aria-selected="${o.id === L.id}" data-l="${this.esc(o.id)}" onclick="app.setLens(this.getAttribute('data-l'))">${this.esc(o.name)}${o.n ? `<span class="lens-n">${o.n}</span>` : ''}</button>`).join('')}</div>`;
                 box.innerHTML = chips + (L.id === 'everyone' ? this.everyoneSumHtml() : '');
             },
             // Everyone: how many people, and how it's usually brewed (the middle ratio, time and dose per method; never grind)

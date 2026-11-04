@@ -35,3 +35,4 @@ do $$ begin   -- pictures only, up to 2 MB (the app sends a small JPEG)
     update storage.buckets set file_size_limit = 2097152, allowed_mime_types = array['image/jpeg', 'image/png', 'image/webp'] where id = 'avatars';
   end if;
 end $$;
+

@@ -94,7 +94,7 @@
                 const mobileMethod = document.getElementById('mobile-method-select');
                 if (mobileSort) mobileSort.value = this.currentSort;
                 if (mobileMethod) mobileMethod.value = this.currentMethodFilter;
-                if (!this.user) { this.openWelcome(); if (this.hideBoot) this.hideBoot(); }   // v14.0
+                if (!this.user) { this.openWelcome(); if (this.hideBoot) this.hideBoot(); if (this._shareNow && this.openSharedLink) this.openSharedLink(this._shareNow); }   // v14.0 (v21.3: a share link opened signed out shows its page over the welcome)
                 else this.updateBadge('connecting');
                 this.watchInitials();
                 this.watchLikeLines();

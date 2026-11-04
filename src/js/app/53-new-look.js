@@ -650,7 +650,8 @@
                 this.nlBindNav(v); this.nlNavPaint(v, !soft);
             },
 
-            sessionHtml(brew) {
+            sessionHtml(brew, o = {}) {
+                const shared = !!o.shared;   // v21.3: a share link's read-only page (no bar, coach, comparison, likes or comments)
                 const owner = this.getBrewOwner(brew), mine = owner === this.user, bean = this.beans.get(String(brew.beanId || '')), tea = this.isTeaBrew(brew);
                 const fam = this.famOfBrew(brew), pal = this.nlPal(fam), kind = tea ? 'tea' : 'coffee';
                 const name = (bean ? String(bean.name || '').trim() : '') || (tea ? 'Tea' : 'Coffee');
@@ -663,37 +664,37 @@
                         <div class="nls-id">
                             <div class="nls-whorow">${this.nlWho(owner, brew.date, !!ph && pal.dark, pal.pg)}${this.nlMethodPill(brew.method, true)}</div>
                             ${this.nlRoasterHtml(bean, tea, 'nl-roast nls-roast')}
-                            <h1 class="nl-name nls-name" data-nl-fit="60,40,3" style="font-size:${this.nlNameSize(name, 354, 60, 40, 3)}px" role="link" tabindex="0" onclick="app.nlSessionCoffee()">${this.esc(name)}</h1>
+                            <h1 class="nl-name nls-name" data-nl-fit="60,40,3" style="font-size:${this.nlNameSize(name, 354, 60, 40, 3)}px" role="link" tabindex="0" onclick="${shared ? 'app.shareOpenCoffee()' : 'app.nlSessionCoffee()'}">${this.esc(name)}</h1>
                             ${rating > 0 ? `<div class="nls-rate">${this.nlStarsHtml(rating, 20)}<b>${this.esc(this.fmtNum(rating, 1))}</b></div>` : ''}
                         </div>
                     </div>`;
                 const tiles = this.nlSessionTiles(brew);
                 const hasTemp = this.num(brew.temp) > 0;
-                const badges = [...this.resolveEquipmentNames(brew).map(n => ['#i-wl-grinder', n]), ...(this.roastDayLabel ? this.roastDayLabel(brew) : []).map(n => ['', n]), ...this.sessionExtras(brew).filter(x => !(hasTemp && /°C$/.test(x))).map(n => ['', n])];
+                const badges = [...this.resolveEquipmentNames(brew).map(n => ['#i-wl-grinder', n]), ...(this.roastDayLabel && !shared ? this.roastDayLabel(brew) : []).map(n => ['', n]), ...this.sessionExtras(brew).filter(x => !(hasTemp && /°C$/.test(x))).map(n => ['', n])];
                 const sec = (h, body, extra = '') => body ? `<section class="nls-sec"${extra}>${h ? `<h3 class="nl-h3">${h}</h3>` : ''}${body}</section>` : '';
                 const words = this.getBrewNotes(brew);
                 const tasted = this.tastedKeys(brew);
                 const taste = shape || tasted.length ? `<div class="nl-box nls-taste">${shape ? this.nlSpinHtml(brew, fam, { cls: 'nls-tshape', labels: true, lines: true, drag: true }) : ''}${(d => d ? `<p class="nls-desc">${this.esc(d)}</p>` : '')(this.describeCup(this.shapeValues(brew), tasted, this.extractFlavors(brew), this.noteIntensities(brew), kind))}${tasted.map(k => { const val = this.tasteValue(brew, k); return `<div class="nl-srow"><span>${this.esc(this.tasteLabel(k, kind))}</span><span class="nl-bar"><i style="width:${Math.max(4, val * 10)}%;background:${FlavorShape.COLORS[k]}"></i></span><span class="nl-num">${this.esc(this.fmtNum(val, 1))}</span></div>`; }).join('')}</div>` : '';
-                const prev = this.previousBrewFor(brew);
+                const prev = shared ? null : this.previousBrewFor(brew);
                 const vs = prev ? `<div class="nl-box nls-vs">${this.renderVsPane(brew)}</div>` : '';
-                const next = `<div class="nls-next">${this.renderNextPane(brew)}</div>`;
-                const comments = this.normalizeCommentList(brew.comments, `brew-${id}`, brew.date);
+                const next = shared ? '' : `<div class="nls-next">${this.renderNextPane(brew)}</div>`;
+                const comments = shared ? [] : this.normalizeCommentList(brew.comments, `brew-${id}`, brew.date);
                 const bar = `<div class="nls-top nl-navbar"${ph ? ' data-photo' : ''}><button type="button" class="nl-glass" onclick="app.closeSession()" aria-label="Back"><svg class="nl-ic"><use href="#i-arrow-left"/></svg></button><div class="nl-tright"><button type="button" class="nl-glass" onclick="app.shareItem('session', '${app.escJs(id)}', event)" aria-label="Share"><svg class="nl-ic"><use href="#i-share-2"/></svg></button>${more}<button type="button" class="nl-glass" onclick="app.openSettings()" aria-label="Settings"><svg class="nl-ic"><use href="#i-gear"/></svg></button></div></div>`;
-                return `${bar}
+                return `${shared ? '' : bar}
                     <div class="nls-wrap" data-card-brew="${this.esc(id)}">
                         ${hero}
                         <section class="nls-sec nls-first">${this.nlTilesHtml(tiles, 'nls-tiles')}${badges.length ? `<div class="nls-badges">${badges.map(([ic, t]) => `<span class="nl-badge lg">${this.esc(t)}</span>`).join('')}</div>` : ''}</section>
                         ${sec(`In ${this.esc(owner)}'s words`, words ? `<p class="nls-words">“${this.esc(words)}”</p>` : '')}
                         ${sec('Flavors', this.nlNotesHtml(brew, 'wrap', 'lg'))}
-                        ${this.hasShotPane && this.hasShotPane(brew) ? sec('The shot <span>· from the Shot Logger</span>', `<div class="nl-box nls-shot">${this.renderShotPane(brew)}</div>`) : ''}
+                        ${!shared && this.hasShotPane && this.hasShotPane(brew) ? sec('The shot <span>· from the Shot Logger</span>', `<div class="nl-box nls-shot">${this.renderShotPane(brew)}</div>`) : ''}
                         ${sec('Taste', taste)}
                         ${sec(prev ? 'Vs. last time' : '', vs)}
                         ${sec('', next)}
-                        <section class="nls-sec nls-social">
+                        ${shared ? '' : `<section class="nls-sec nls-social">
                             <div class="nls-likes"><div class="thread-lead"><button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('brew', id)}"${this.likePopStyle('brew', id)} onclick="app.toggleLike('${app.escJs(id)}', event)" aria-label="Like" title="Like"><svg class="heart-icon"><use href="#i-heart"/></svg></button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}</div></div>
                             <h3 class="nl-h3" id="nls-comments">Comments${comments.length ? ` <span>· ${comments.length}</span>` : ''}</h3>
                             ${this.renderThread('brew', brew, { inputId: `nls-comment-input-${id}` })}
-                        </section>
+                        </section>`}
                     </div>`;
             },
 
@@ -848,6 +849,7 @@
                 const avg = this.calculateAverageRating(brews), n = brews.length;
                 const notes = this.lookTopNotes(brews, 3);
                 const where = [teaShelf ? bean.teaType : '', bean.origin, bean.process].filter(Boolean).join(' · ');
+                const specLine = !teaShelf && !(this.isTeaBean && this.isTeaBean(bean)) && this.nlSpecLineHtml ? this.nlSpecLineHtml(bean) : '';   // v21.3: origin, variety, process, each with its icon
                 card.className = 'nl-ccard';
                 card.setAttribute('data-fam', fam);
                 card.setAttribute('role', 'button'); card.setAttribute('tabindex', '0');
@@ -858,11 +860,11 @@
                         <div class="nl-cmain">
                             ${this.nlRoasterHtml(bean, teaShelf, 'nl-roast nl-croast')}
                             <div class="nl-cname">${this.esc(bean.name || '')}</div>
-                            ${avg > 0 ? `<div class="nl-crate"><span class="star-meter" style="--fill:${this.starFill(avg)}%;--whole:${this.starWhole(avg)};--frac:${this.starFrac(avg)}"></span><b>${this.esc(this.formatRating(avg))}</b></div>` : ''}
+                            ${avg > 0 ? `<div class="nl-crate"><span class="star-meter" style="--fill:${this.starFill(avg)}%;--whole:${this.starWhole(avg)};--frac:${this.starFrac(avg)}"></span><b>${this.esc(this.formatRating(avg))}</b>${specLine ? `<span class="nl-csess">· ${n} session${n === 1 ? '' : 's'}</span>` : ''}</div>` : specLine ? `<div class="nl-crate"><span class="nl-csess">${n} session${n === 1 ? '' : 's'}</span></div>` : ''}
                         </div>
                         ${isNew ? `<span class="nl-fresh">New</span>` : ''}
                     </div>
-                    <div class="nl-cmeta"><span>${n} session${n === 1 ? '' : 's'}${where ? ` · ${this.esc(where)}` : ''}</span>${faces}</div>
+                    <div class="nl-cmeta">${specLine || `<span>${n} session${n === 1 ? '' : 's'}${where ? ` · ${this.esc(where)}` : ''}</span>`}${faces}</div>
                     ${notes.length ? `<div class="nl-notes">${notes.map(([nm, st, k]) => this.nlNote(nm, st, k)).join('')}</div>` : ''}`;
             },
 
@@ -909,6 +911,14 @@
                 else { const ro = document.getElementById('d-roaster'); if (ro) ro.insertAdjacentHTML('beforebegin', this.nlCoverHtml(bean, 'nl-cover nl-dcover')); }
                 hero.classList.toggle('nl-has-photo', !!coverUrl);
                 ['d-origin', 'd-process', 'd-roast'].forEach(id => { const el = document.getElementById(id); if (el && String(el.textContent || '').trim() === '-') el.hidden = true; });   // (no "-" chips for what isn't filled in)
+                // v21.3: the specs, one labeled row each (teas keep their tags); the stars beside the coffee's tile, like the Coffees list
+                hero.querySelectorAll('.nl-specs').forEach(n => n.remove());
+                const tagsEl = hero.querySelector('.dh-tags'), specs = this.nlSpecRowsHtml && !(this.isTeaBean && this.isTeaBean(bean)) ? this.nlSpecRowsHtml(bean) : '';
+                if (tagsEl) { tagsEl.classList.toggle('nl-tags-off', !!specs); if (specs) tagsEl.insertAdjacentHTML('afterend', specs); }
+                const rs = document.getElementById('d-rating-summary'), nameRow = hero.querySelector('.dh-name-row'), tileEl = hero.querySelector('.nl-dcover');
+                let topRow = hero.querySelector('.nl-dtoprow');
+                if (tileEl && rs) { if (!topRow) { topRow = document.createElement('div'); topRow.className = 'nl-dtoprow'; } tileEl.before(topRow); topRow.appendChild(tileEl); topRow.appendChild(rs); }
+                else { if (rs && nameRow && rs.parentElement !== nameRow) nameRow.appendChild(rs); if (topRow) topRow.remove(); }
                 const notes = this.lookTopNotes(this.detailBrews || brews || [], 3);
                 const top = document.getElementById('d-top-flavors');
                 if (top) top.innerHTML = notes.map(([n, s, k]) => this.nlNote(n, s, k, 'lg')).join('');

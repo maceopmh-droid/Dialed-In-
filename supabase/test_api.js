@@ -30,7 +30,7 @@ psql(`create schema storage; create table storage.buckets (id text primary key, 
   create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text references storage.buckets (id), name text, owner uuid, unique (bucket_id, name));
   create function storage.foldername(name text) returns text[] language sql immutable as $$ select (string_to_array(name, '/'))[1:array_length(string_to_array(name, '/'), 1) - 1] $$;
   alter table storage.objects enable row level security;
-  grant usage on schema storage to authenticated, anon; grant select, insert, update, delete on storage.objects to authenticated;`);
+  grant usage on schema storage to authenticated, anon; grant select, insert, update, delete on storage.objects to authenticated; grant select on storage.objects to anon;`);   // (Supabase lets the signed-out key read it too; the row rules decide)
 psql(require('fs').readFileSync(path.join(__dirname, 'storage.sql'), 'utf8'));
 
 const AUTH = { maceo: 'aaaaaaaa-0000-0000-0000-000000000001', aidan: 'aaaaaaaa-0000-0000-0000-000000000002', julian: 'aaaaaaaa-0000-0000-0000-000000000003', stranger: 'aaaaaaaa-0000-0000-0000-000000000004' };
@@ -56,8 +56,8 @@ const one = sql => psql(sql);
     and not exists (select 1 from pg_depend d where d.objid = p.oid and d.deptype = 'e') and has_function_privilege('${r}', p.oid, 'execute');`).trim();
   const granted = /grant execute on function ([\s\S]*?) to authenticated;/.exec(require('fs').readFileSync(path.join(__dirname, 'api.sql'), 'utf8'))[1]
     .split(/\)\s*,\s*/).map(x => x.trim().split('(')[0]).filter(Boolean);
-  const expected = [...new Set([...granted, 'me'])].sort().join(',');
-  ok(own('anon') === '', 'signed-out visitors can\'t call any of the app\'s functions' + (own('anon') ? ' (can: ' + own('anon') + ')' : ''));
+  const expected = [...new Set([...granted, 'me', 'shared_session', 'shared_coffee'])].sort().join(',');
+  ok(own('anon') === 'shared_coffee,shared_session', 'signed-out visitors can call only the two share-link functions (v21.3)' + (own('anon') !== 'shared_coffee,shared_session' ? ' (can: ' + own('anon') + ')' : ''));
   ok(own('authenticated') === expected, 'signed-in people can call exactly the app\'s calls and nothing else' + (own('authenticated') === expected ? '' : ` (extra: ${own('authenticated').split(',').filter(x => !expected.split(',').includes(x)).join(', ') || '-'}; missing: ${expected.split(',').filter(x => !own('authenticated').split(',').includes(x)).join(', ') || '-'})`));
   ok(psql(`select count(*) from pg_proc where pronamespace = 'public'::regnamespace and proname in ('blocked_either', 'is_friend', 'my_blocked_ids', 'is_group_member');`).trim() === '0', 'the rule helpers (who blocked whom, who\'s friends with whom) aren\'t in the public schema');
 }
@@ -214,6 +214,49 @@ push('maceo', { ...OPEN, audience: 'everyone', photoAudience: 'everyone' });
 let st3 = pull('stranger').find(e => e.id === 's3');
 ok(st3 && st3.photo && st3.photo.fileId === 'drivefile456' && !st3.notes && st3.audience === 'everyone' && !st3.noteAudience,
    'Maceo shares the session and the photo with everyone, keeps the note for friends: a stranger sees the session and photo, not the note');
+// --- v21.3: share links anyone can open (signed out too): only what's shared with Everyone
+{
+  const sh = (who, fn, ref) => { const r = as(who, `select ${fn}(${q(ref)});`); return r.err ? { err: r.err } : JSON.parse(r.out || 'null'); };
+  let x = sh('anon', 'shared_session', 's3');
+  ok(x && x.session && x.session.id === 's3' && x.session.photo && x.session.photo.fileId === 'drivefile456' && !x.session.notes && x.owner && x.owner.name === 'Maceo' && x.coffee && x.coffee.id === 'b1',
+     'v21.3: signed out, a link to Maceo\'s public session shows it, its photo and its coffee, but not the note he keeps for friends');
+  ok(x && !('likes' in x.session) && !('comments' in x.session) && !('audience' in x.session) && !('roastDate' in x.coffee) && !JSON.stringify(x).includes(P.Maceo) && !JSON.stringify(x).includes(AUTH.maceo),
+     'v21.3: ...with no likes, comments, audiences, roast date or account ids');
+  push('maceo', { ...OPEN, audience: 'everyone', photoAudience: 'everyone', noteAudience: 'everyone' });
+  x = sh('anon', 'shared_session', 's3');
+  ok(x && x.session.notes === 'tasted like jam', 'v21.3: once the note is shared with Everyone, the link shows it');
+  push('maceo', { ...OPEN, audience: 'everyone', photoAudience: 'friends', noteAudience: 'friends' });
+  x = sh('anon', 'shared_session', 's3');
+  ok(x && !x.session.photo && !x.session.notes, 'v21.3: a photo kept for friends stays out');
+  push('maceo', { ...OPEN, audience: 'friends', photoAudience: 'everyone' });
+  ok(sh('anon', 'shared_session', 's3') === null && sh('stranger', 'shared_session', 's3') === null, 'v21.3: a session for friends only: the link shows nothing, signed out or in');
+  push('maceo', { ...OPEN, audience: 'everyone', photoAudience: 'everyone' });
+  as('maceo', `select set_private(true);`);
+  ok(sh('anon', 'shared_session', 's3') === null && sh('anon', 'shared_coffee', 'b1') === null, 'v21.3: a private profile: its links show nothing');
+  as('maceo', `select set_private(false);`);
+  const c = sh('anon', 'shared_coffee', 'b1');
+  ok(c && c.coffee && c.coffee.name && c.sessions.some(e => e.id === 's3') && c.sessions.every(e => e.type === 'brew' && !('likes' in e)), 'v21.3: a coffee link: the coffee and the sessions on it that are shared with Everyone');
+  const sid = one(`select id from sessions where legacy_id = 's3';`);
+  psql(`insert into reports (reporter_id, target_type, target_id, status) values ('${P.Aidan}', 'session', '${sid}', 'hidden');`);
+  ok(sh('anon', 'shared_session', 's3') === null && !sh('anon', 'shared_coffee', 'b1').sessions.some(e => e.id === 's3'), 'v21.3: hidden after a report: gone from links');
+  psql(`delete from reports where target_id = '${sid}';`);
+  ok(sh('anon', 'shared_session', sid).session.id === 's3' && sh('anon', 'shared_session', 'nope') === null && sh('anon', 'shared_session', 'x'.repeat(80)) === null && sh('anon', 'shared_coffee', '') === null,
+     'v21.3: found by its app id or its database id; anything else shows nothing');
+  // its photo, when it's in Supabase storage: the link names it, but the photos folder stays closed to the signed-out key
+  // (the share-photo function makes its address; a folder rule would let anyone list the folders, named after accounts)
+  const pth = `${AUTH.maceo}/s3-abcdefgh.jpg`;
+  psql(`insert into storage.buckets values ('photos', 'photos', false) on conflict do nothing; insert into storage.objects (bucket_id, name) values ('photos', ${q(pth)});`);
+  push('maceo', { ...OPEN, audience: 'everyone', photoAudience: 'everyone', photo: { path: 'sb:' + pth } });
+  const shownPh = sh('anon', 'shared_session', 's3').session.photo || {};
+  ok(shownPh.stored === true && !JSON.stringify(sh('anon', 'shared_session', 's3')).includes(AUTH.maceo), 'v21.3: a shared photo in storage: the link says there is one, without its path (the path names the account)');
+  ok(one(`select internal.share_photo_path('s3');`) === pth, 'v21.3: share-photo\'s question finds it while it\'s shared');
+  push('maceo', { ...OPEN, audience: 'everyone', photoAudience: 'friends', photo: { path: 'sb:' + pth } });
+  ok(one(`select coalesce(internal.share_photo_path('s3'), 'none');`) === 'none' && /permission denied/.test(as('anon', `select internal.share_photo_path('s3');`).err || 'permission denied'), 'v21.3: kept for friends, it finds nothing; and the signed-out key can\'t ask it directly');
+  ok(as('anon', `select count(*) from storage.objects where bucket_id = 'photos';`).out === '0', 'v21.3: signed out, the photos folder can\'t be read or listed, shared or not');
+  ok(psql(`select count(*) from pg_policies where schemaname = 'storage' and tablename = 'objects' and policyname like 'photos\\_%';`) === '4', 'v21.3: still exactly the four photo rules');
+  push('maceo', { ...OPEN, audience: 'everyone', photoAudience: 'everyone' });
+  psql(`delete from storage.objects where name = ${q(pth)};`);
+}
 // the community feed: everyone's sessions shared with Everyone, a page at a time, for people who follow nobody too
 const W = 'aaaaaaaa-0000-0000-0000-000000000031'; psql(`insert into auth.users values ('${W}');`); AUTH.wanderer = W;
 as('wanderer', `select create_profile('Wanderer');`);

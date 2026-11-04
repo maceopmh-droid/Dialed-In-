@@ -242,6 +242,7 @@
                 if (this.learnActive()) { const top = this.lxTop(); if (top) this.learnRender(true); }
                 if (this.tab === 'my' && this.coffeeScopeNow && this.coffeeScopeNow() === 'learn') { const g = document.getElementById('grid'); if (g && g.querySelector('.lx-home')) { const y = (document.getElementById('main-content') || {}).scrollTop; this.render(); const sc = document.getElementById('main-content'); if (sc && y) sc.scrollTop = y; } }
                 if (what === 'comm' && this.isDetailActive && this.isDetailActive() && this.activeGroup && this.learnDecorateDetail) this.learnDecorateDetail(this.activeGroup, this.detailAllBrews || []);
+                if (this.isDetailActive && this.isDetailActive() && this.activeGroup && this.nlSpecsRefresh) this.nlSpecsRefresh();   // v21.3: Learn's pages arrived: the spec rows become links
             },
             // the first-shot line on the Log screen reads kinds' brewing numbers from here (filled whenever they load)
             lxBrewRemember(wants, list) {

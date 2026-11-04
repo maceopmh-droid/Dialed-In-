@@ -52,7 +52,7 @@ function setup() {
     create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text references storage.buckets (id), name text, owner uuid, unique (bucket_id, name));
     create function storage.foldername(name text) returns text[] language sql immutable as $$ select (string_to_array(name, '/'))[1:array_length(string_to_array(name, '/'), 1) - 1] $$;
     alter table storage.objects enable row level security;
-    grant usage on schema storage to authenticated, anon; grant select, insert, update, delete on storage.objects to authenticated;`);
+    grant usage on schema storage to authenticated, anon; grant select, insert, update, delete on storage.objects to authenticated; grant select on storage.objects to anon;`);   // (as Supabase: the row rules decide what the signed-out key reads)
   psql(fs.readFileSync(path.join(__dirname, 'storage.sql'), 'utf8'));
   if (arg('rows')) {
     const { buildImport } = require('./import_v9.js');
@@ -151,6 +151,17 @@ async function handle(req, res) {
     const db = async (kind, token, shot) => JSON.parse(psql(kind === 'inbox' ? `select internal.shot_inbox(${lit(token)}, '${JSON.stringify(shot).replace(/'/g, "''")}'::jsonb);` : `select internal.machine_sync(${lit(token)});`) || 'null');
     const out = await (url.pathname.endsWith('shot-inbox') ? mh.shotInbox : mh.machineSync)(request, db);
     return send(res, out.status, Buffer.from(await out.arrayBuffer()));
+  }
+
+  // -- v21.3: share-photo (the real one is a Deno function on Supabase): a shared session's stored photo, for a share
+  // link opened signed out. The database decides (internal.share_photo_path, as the database owner, like theirs).
+  if (url.pathname === '/functions/v1/share-photo' && req.method === 'GET') {
+    const ref = String(url.searchParams.get('s') || '').slice(0, 64);
+    let p = ''; try { p = psql(`select coalesce(internal.share_photo_path(${lit(ref)}), '');`); } catch (e) { p = ''; }
+    if (!ref || !p || !fs.existsSync(path.join(FILES, p))) return send(res, ref ? 404 : 400, { url: null });
+    const t = crypto.randomBytes(12).toString('hex');
+    links.set(t, { path: p, until: Date.now() + 7200 * 1000 });
+    return send(res, 200, { url: `http://localhost:${PORT}/storage/v1/object/sign/photos/${p.split('/').map(encodeURIComponent).join('/')}?token=${t}` });
   }
 
   const who = whoFrom(req);

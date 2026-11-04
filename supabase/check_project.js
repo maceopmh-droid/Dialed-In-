@@ -21,10 +21,10 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   const callable = r => one(`select coalesce(string_agg(distinct p.proname, ',' order by p.proname), '') from pg_proc p where p.pronamespace = 'public'::regnamespace
     and not exists (select 1 from pg_depend d where d.objid = p.oid and d.deptype = 'e') and has_function_privilege('${r}', p.oid, 'execute');`);
   const anonCalls = callable('anon');
-  ok(!anonCalls, `signed-out visitors can't call any of the app's functions${anonCalls ? ' (can: ' + anonCalls + ')' : ''}`);
+  ok(anonCalls === 'shared_coffee,shared_session', `signed-out visitors can call only the two share-link functions (v21.3)${anonCalls !== 'shared_coffee,shared_session' ? ' (can: ' + (anonCalls || 'none') + ')' : ''}`);
   const granted = /grant execute on function ([\s\S]*?) to authenticated;/.exec(require('fs').readFileSync(require('path').join(__dirname, 'api.sql'), 'utf8'))[1]
     .split(/\)\s*,\s*/).map(x => x.trim().split('(')[0]).filter(Boolean);
-  const expected = [...new Set([...granted, 'me'])].sort(), have = callable('authenticated').split(',').filter(Boolean);
+  const expected = [...new Set([...granted, 'me', 'shared_session', 'shared_coffee'])].sort(), have = callable('authenticated').split(',').filter(Boolean);
   const extra = have.filter(x => !expected.includes(x)), missing = expected.filter(x => !have.includes(x));
   ok(!extra.length && !missing.length, `signed-in people can call exactly the app's ${expected.length} calls${extra.length ? '; also: ' + extra.join(', ') : ''}${missing.length ? '; missing: ' + missing.join(', ') : ''}`);
   ok(one(`select count(*) from pg_namespace where nspname = 'private';`) === '1', "the privacy rules' helpers live in their own schema");
