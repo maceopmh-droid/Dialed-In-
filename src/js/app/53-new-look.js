@@ -580,7 +580,8 @@
                     v = document.createElement('div'); v.id = 'session-view'; v.setAttribute('role', 'dialog'); v.setAttribute('aria-label', 'Session');
                     v.innerHTML = '<div class="nls-page" id="nls-page"></div>';
                     // a tap that leaves for another page (a person, a roaster) closes this one first
-                    v.addEventListener('click', e => { const t = e.target && e.target.closest ? e.target.closest('[data-profile], [data-roaster]') : null; if (t && v.contains(t)) this.closeSession(true); }, true);
+                    // (v21.6: closed just after, so the page it opens remembers this one for Back)
+                    v.addEventListener('click', e => { const t = e.target && e.target.closest ? e.target.closest('[data-profile], [data-roaster]') : null; if (t && v.contains(t)) setTimeout(() => this.closeSession(true), 0); }, true);
                     document.body.appendChild(v);
                 }
                 this._sessionId = String(brewId);
@@ -701,8 +702,14 @@
             nlSessionCoffee() {
                 const brew = this.brews.get(this._sessionId || '');
                 if (!brew) return;
+                // v21.6: the coffee's Back comes back to this session (Maceo, Nov 4), even when it's the coffee under it
+                const from = this.snapPage ? this.snapPage() : null;
                 this.closeSession(true);
-                this.openFeedTarget(brew.beanId, '', false);
+                if (from) { if (!from.over) this.navStack = []; this.navStack = this.navStack || []; this.navStack.push(from); }
+                this._navKeep = true;
+                try { this.openFeedTarget(brew.beanId, '', false); } finally { this._navKeep = false; }
+                this.setDetailBackLabel();
+                const d = document.getElementById('detail-view'); if (d) d.scrollTop = 0;
             },
 
             // ⋯ on the Session screen: Edit and Delete (yours), Report (someone else's), as the app allows today

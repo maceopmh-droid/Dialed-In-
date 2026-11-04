@@ -186,9 +186,14 @@
                 if (this.haptic) this.haptic('tick');
             },
             producerOpenCoffee(id) {
+                // v21.6: the coffee's Back comes back to this producer's page
+                const from = this.snapPage ? this.snapPage() : null;
                 this.closeProducer();
-                if (this.isDetailActive && this.isDetailActive() && String(this.activeId) === String(id)) return;
-                this.openFeedTarget(String(id), '', false);
+                if (from) { if (!from.over) this.navStack = []; this.navStack = this.navStack || []; this.navStack.push(from); }
+                this._navKeep = true;
+                try { this.openFeedTarget(String(id), '', false); } finally { this._navKeep = false; }
+                this.setDetailBackLabel();
+                const d = document.getElementById('detail-view'); if (d) d.scrollTop = 0;
             },
             closeProducer() {
                 const v = document.getElementById('producer-view');
