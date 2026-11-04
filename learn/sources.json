@@ -562,7 +562,7 @@
     "coffeereview-typica": {
       "title": "Typica – no longer typical",
       "publisher": "Coffee Review (Miguel Meza), 2009",
-      "url": "https://www.coffeereview.com/?p=163",
+      "url": "https://www.coffeereview.com/typica-no-longer-typical/",
       "accessed": "2026-10"
     },
     "wcr-maragogipe": {
@@ -1113,7 +1113,7 @@
     "cafeimports-honey": {
       "title": "Honey process",
       "publisher": "Cafe Imports",
-      "url": "https://www.cafeimports.com/europe/blog/?p=37483",
+      "url": "https://www.cafeimports.com/north-america/blog/?p=37483",
       "accessed": "2026-10"
     },
     "colombia-travel-coffee": {
@@ -4144,7 +4144,7 @@
     "cafeimports-glossary": {
       "title": "Coffee Variety Glossary",
       "publisher": "Cafe Imports",
-      "url": "https://cafeimports.com/europe/blog/?p=40965"
+      "url": "https://www.cafeimports.com/australia/blog/?p=40965"
     },
     "singleo-varieties": {
       "title": "A to Z of coffee varieties at Single O",
@@ -7167,7 +7167,7 @@
     "coffeereview-benitez-orange-jul-2024": {
       "title": "Wilton Benitez Orange Bourbon (JBC Coffee Roasters), 95",
       "publisher": "Coffee Review",
-      "url": "https://www.coffeereview.com/?p=24941",
+      "url": "https://www.coffeereview.com/review/wilton-benitez-orange-bourbon-2/",
       "year": 2024
     },
     "coffeereview-benitez-orange-2025": {
@@ -7179,7 +7179,7 @@
     "coffeereview-benitez-orange-2026": {
       "title": "Wilton Benitez Orange Bourbon (JBC Coffee Roasters), 97",
       "publisher": "Coffee Review",
-      "url": "https://www.coffeereview.com/?p=29623",
+      "url": "https://www.coffeereview.com/review/wilton-benitez-orange-bourbon-4/",
       "year": 2026
     },
     "coffeereview-rustys-orange-2024": {
@@ -11627,6 +11627,165 @@
       "publisher": "La Cabra",
       "url": "https://lacabra.com/products/salazar-sudan-rume",
       "year": 2024
+    },
+    "cenicafe-informe-2025-meg": {
+      "title": "Informe anual de actividades 2025: Subprograma MEG110, 'Caracterización fenotípica y genotípica de los principales varietales establecidos en la zona cafetera colombiana' (MEG11001), pp. 84–85",
+      "publisher": "Cenicafé (Colombia's coffee research center)",
+      "url": "https://publicaciones.cenicafe.org/index.php/infanual/article/download/4891/5083/3822",
+      "year": 2025
+    },
+    "ace-best-of-yemen-2024": {
+      "title": "Best of Yemen 2024 (auction results)",
+      "publisher": "Alliance for Coffee Excellence and Qima Coffee",
+      "url": "https://allianceforcoffeeexcellence.org/best-of-yemen-2024/",
+      "year": 2024
+    },
+    "ozone-ali-kabeer": {
+      "title": "New Special Reserve: A Yemeni coffee we can trace to one farmer (Yemen Ali Kabeer, Ja'adi natural)",
+      "publisher": "Ozone Coffee",
+      "url": "https://ozonecoffee.co.uk/blogs/journal/new-release-yemen-ali-kabeer-jaadi-natural",
+      "year": null
+    },
+    "coffeecollective-al-haimi": {
+      "title": "Al-Haimi (Yemen, Heirloom Yemen Odaini, natural)",
+      "publisher": "Coffee Collective",
+      "url": "https://coffeecollective.dk/shop/al-haimi/",
+      "year": null
+    },
+    "coffeecollective-shaan": {
+      "title": "Sha'an (Yemen, Heirloom Yemen Odaini, natural)",
+      "publisher": "Coffee Collective",
+      "url": "https://coffeecollective.dk/shop/sha-an/",
+      "year": null
+    },
+    "coffeecollective-lahab": {
+      "title": "Lahab (Yemen, Ja'adi)",
+      "publisher": "Coffee Collective",
+      "url": "https://coffeecollective.dk/shop/lahab/",
+      "year": null
+    },
+    "sey-arashi-2024": {
+      "title": "Abel Salinas ARASHI MEJORADO - WASHED Ecuador (2024)",
+      "publisher": "SEY Coffee",
+      "url": "https://seycoffee.com/products/2024-abel-salinas-arashi-ecuador",
+      "year": 2024
+    },
+    "sey-regalado-2026": {
+      "title": "Vicente Regalado LA CAPILLA MEJORADO - WASHED Ecuador (2026)",
+      "publisher": "SEY Coffee",
+      "url": "https://seycoffee.com/products/2026-vicente-regalado-la-capilla-ecuador",
+      "year": 2026
+    },
+    "sey-armijos-2026": {
+      "title": "Abraham Armijos MEJORADO - WASHED Ecuador (2026)",
+      "publisher": "SEY Coffee",
+      "url": "https://www.seycoffee.com/products/2026-abraham-armijos-ecuador",
+      "year": 2026
+    },
+    "archers-jadi-suhami": {
+      "title": "Yemen - Mohamed Ali Moh. Al Suhami (Jadi, natural anaerobic)",
+      "publisher": "Archers Coffee",
+      "url": "https://archerscoffee.com/products/yemen-mohamed-ali-moh-al-suhami",
+      "year": null
+    },
+    "sweetmarias-dom": {
+      "title": "Dominican Republic coffee overview",
+      "publisher": "Sweet Maria's",
+      "url": "https://library.sweetmarias.com/coffee-producing-countries/caribbean/dominican-republic-coffee-overview/"
+    },
+    "gleaner-japan-2020": {
+      "title": "Jamaica coffee commanding smaller share of Japanese market",
+      "publisher": "The Gleaner (Jamaica)",
+      "url": "https://past.jamaica-gleaner.com/article/business/20201122/jamaica-coffee-commanding-smaller-share-japanese-market",
+      "year": 2020
+    },
+    "pdg-tza-2021": {
+      "title": "A guide to Tanzanian coffee production",
+      "publisher": "Perfect Daily Grind",
+      "url": "https://perfectdailygrind.com/2021/10/a-guide-to-tanzanian-coffee-production/",
+      "year": 2021
+    },
+    "coffeereview-ngila-2021": {
+      "title": "Tanzania Ngila Estate (Big Shoulders Coffee), 93 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/tanzania-ngila-estate/",
+      "year": 2021
+    },
+    "coffeereview-nsoga-2024": {
+      "title": "Nsoga Iweyza Tanzania Peaberry (JBC Coffee Roasters), 93 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/?p=24869",
+      "year": 2024
+    },
+    "coffeereview-mitawa-2025": {
+      "title": "Mitawa Tanzania (JBC Coffee Roasters), 93 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/mitawa-tanzania/",
+      "year": 2025
+    },
+    "bh-gtm-pache": {
+      "title": "Guatemala's varieties (course excerpt citing Anacafé, 2019)",
+      "publisher": "Barista Hustle",
+      "url": "https://www.baristahustle.com/?p=330545"
+    },
+    "gcc-pache": {
+      "title": "Glossary: Pache",
+      "publisher": "Green Coffee Collective",
+      "url": "https://greencoffeecollective.com/pages/glossary/pache"
+    },
+    "elevator-guatalon-pache": {
+      "title": "Roaster's Report: Guatemala Guatalon Pache",
+      "publisher": "Elevator Coffee",
+      "url": "https://elevatorcoffee.squarespace.com/guatalon-pache"
+    },
+    "waytocoffee-lasenda-pache": {
+      "title": "La Senda Pache (AILA Specialty Coffee Culture)",
+      "publisher": "The Way to Coffee",
+      "url": "https://www.thewaytocoffee.com/beans/la-senda-pache/"
+    },
+    "gcc-villalobos": {
+      "title": "Glossary: Villalobos",
+      "publisher": "Green Coffee Collective",
+      "url": "https://greencoffeecollective.com/pages/glossary/villalobos"
+    },
+    "sey-kamavindi-sl34-2025": {
+      "title": "Mbature Family, Kamavindi Estate SL34, washed (Kenya)",
+      "publisher": "Sey Coffee",
+      "url": "https://seycoffee.com/products/2025-mbature-family-kamavindi-estate-sl34-kenya",
+      "year": 2025
+    },
+    "waytocoffee-gulmarg-sl34": {
+      "title": "Kenya Gulmarg Estate SL34 (Bella's Coffee Lab)",
+      "publisher": "The Way to Coffee",
+      "url": "https://www.thewaytocoffee.com/beans/kenya-gulmarg-estate-sl34"
+    },
+    "wcr-kenya": {
+      "title": "Kenya (country page)",
+      "publisher": "World Coffee Research",
+      "url": "https://worldcoffeeresearch.org/countries/kenya"
+    },
+    "coffeereview-bukonzo-2017": {
+      "title": "Uganda Fair Trade Bukonzo (Conscious Cup Coffee Roasters), 93 points",
+      "publisher": "Coffee Review",
+      "url": "https://coffeereview.com/?p=15754",
+      "year": 2017
+    },
+    "gcc-mibirizi": {
+      "title": "Glossary: Mibirizi",
+      "publisher": "Green Coffee Collective",
+      "url": "https://greencoffeecollective.com/pages/glossary/mibirizi"
+    },
+    "coffeereview-bwayi5-2009": {
+      "title": "Burundi Bwayi Lot 5 (Paradise Roasters), 90 points",
+      "publisher": "Coffee Review",
+      "url": "https://coffeereview.com/?p=9919",
+      "year": 2009
+    },
+    "chk-coffeereview-com-review-maui-kupaa-orange-bourbo": {
+      "title": "Maui Kupa'a Orange Bourbon (Origin Coffee Roasters), 93",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/maui-kupaa-orange-bourbon/",
+      "year": 2019
     }
   }
 }

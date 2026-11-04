@@ -408,10 +408,12 @@ ok(one(`select p.legacy_name from groups g join profiles p on p.id = g.owner_id 
 
 // --- the community goal (phase 3 draft): same rotation as the app, totals only
 const cg = JSON.parse(fx('stranger', 'select community_goal();'));
-const appQ = (() => { const a = loadApp(HTML); a.user = 'Maceo'; return a.crewQuest(Date.now()); })();
+// (the crew's own goal moved to a bigger plan of goals in v15.8; the community goal keeps the original six-goal
+// rotation, crewQuestV1, so that's what it's compared with)
+const appQ = (() => { const a = loadApp(HTML); a.user = 'Maceo'; return a.crewQuestV1(Date.now()); })();
 ok(['sessions', 'origins', 'rated', 'notes', 'everyone', 'methods'].includes(cg.type) && cg.target >= 2 && typeof cg.yourSessions === 'number' && !('by' in cg),
    `the community goal this week: "${cg.title}" (${cg.raw}/${cg.target}), with only totals and your own count`);
-ok(process.env.TZ && process.env.TZ !== 'America/Chicago' ? true : cg.type === appQ.type, `it rotates with the app's weekly goal (${cg.type} / app: ${appQ.type})`);
+ok(process.env.TZ && process.env.TZ !== 'America/Chicago' ? true : cg.type === appQ.type, `it rotates with the app's original six weekly goals (${cg.type} / app: ${appQ.type})`);
 const before2 = JSON.parse(fx('julian', 'select community_goal();')).yourSessions;
 push('julian', { type: 'brew', id: 'jg1', beanId: 'b1', user: 'Julian', owner: 'Julian', method: 'Espresso', rating: 4, flavors: 'Cherry', date: new Date().toISOString(), likes: [], comments: [] });
 ok(JSON.parse(fx('julian', 'select community_goal();')).yourSessions === before2 + 1, "a session Julian logs now counts toward this week's goal");
