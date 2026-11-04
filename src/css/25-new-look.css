@@ -854,3 +854,10 @@
         html[data-look="new"] .ld-del { width: 36px; height: 36px; min-height: 0; padding: 0; margin: 0; flex: none; display: grid; place-items: center; border-radius: 18px !important; background: none !important; border: 0 !important; color: var(--l) !important; }
         html[data-look="new"] .ld-del .icon { width: 17px; height: 17px; }
         html[data-look="new"] .ld-ic { width: 56px; height: 30px; display: grid; place-items: center; color: var(--l); }
+        /* v21.2: the yellow "something new" dot sits on the Profile icon's top corner (the bar is icons only, 60px tall,
+           so the old spot, 3px above the item, put it on the bar's edge, over whatever scrolled under it) */
+        html[data-look="new"] .mob-item { position: relative; }
+        html[data-look="new"] .mob-item .nav-dot { top: 14px; left: calc(50% + 8px); width: 8px; height: 8px; }
+        /* v21.2: the favorite recipe card's tiles are narrower than a session's: a 19.1 g dose fits instead of "1…" */
+        html[data-look="new"] [data-fam] .master-pill .sc-cell { padding: 10px 8px 9px !important; }
+        html[data-look="new"] [data-fam] .master-pill .sc-cell b { font-size: 18px; }

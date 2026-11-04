@@ -331,7 +331,7 @@
                     detail.push('Body read light on the taste sliders.');
                 } else if (signal.kind === 'balanced') {
                     headline = 'Keep this recipe.';
-                    detail.push(this.isMasterBrew(brew) ? 'It\'s already pinned as your go-to recipe.' : 'It\'s worth pinning as your go-to recipe.');
+                    detail.push(this.isMasterBrew(brew) ? 'It\'s already pinned as your favorite recipe.' : 'It\'s worth pinning as your favorite recipe.');
                 } else if (signal.kind === 'off') {
                     headline = 'Low rating, but no taste clue to act on.';
                     detail.push('Add a quick verdict, taste sliders or a note next time, and a specific change will show here.');

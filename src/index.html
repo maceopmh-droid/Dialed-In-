@@ -375,7 +375,7 @@
             </div>
 
             <div id="d-timeline-pane">
-                <label style="font-size:0.7rem; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); font-weight:800; display:block; margin-bottom:1rem;">Go-to recipes</label>
+                <label style="font-size:0.7rem; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); font-weight:800; display:block; margin-bottom:1rem;">Favorite recipes</label>
                 <div id="d-masters" style="margin-bottom: 3rem;"></div>
                 
                 <label style="font-size:0.7rem; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); font-weight:800; display:block; margin-bottom:1rem;">Session history</label>
@@ -755,7 +755,7 @@
 
                 <!-- Master recipe toggle -->
                 <div class="toggle-row">
-                    <span style="font-weight:700; font-size:0.9rem; color:var(--matcha);">Pin as your go-to recipe?</span>
+                    <span style="font-weight:700; font-size:0.9rem; color:var(--matcha);">Pin as your favorite recipe?</span>
                     <label class="switch"><input type="checkbox" id="isMasterInput"><span class="slider"></span></label>
                 </div>
 
@@ -809,7 +809,7 @@
     <!-- Master recipe modal -->
     <div id="master-modal" class="modal" onclick="if(event.target===this) app.closeModals()">
         <div class="modal-card">
-            <h2>Go-to recipe</h2>
+            <h2>Favorite recipe</h2>
             <form onsubmit="app.handleMasterSubmit(event)">
                 <input type="hidden" name="id" id="master-edit-id">
 
@@ -841,7 +841,7 @@
                 <label>Tasting Notes</label>
                 <textarea name="notes" rows="3" placeholder="Flavor texture, balance, finish..."></textarea>
 
-                <button type="submit" class="btn-primary" style="margin-top: 2rem;">Save go-to recipe</button>
+                <button type="submit" class="btn-primary" style="margin-top: 2rem;">Save favorite recipe</button>
                 <button type="button" class="btn-outline" style="margin-top:10px; border:none; background:none; color:#AAA;" onclick="app.closeModals()">Dismiss</button>
             </form>
         </div>

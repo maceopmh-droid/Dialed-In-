@@ -5006,6 +5006,13 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] .ld-del { width: 36px; height: 36px; min-height: 0; padding: 0; margin: 0; flex: none; display: grid; place-items: center; border-radius: 18px !important; background: none !important; border: 0 !important; color: var(--l) !important; }
         html[data-look="new"] .ld-del .icon { width: 17px; height: 17px; }
         html[data-look="new"] .ld-ic { width: 56px; height: 30px; display: grid; place-items: center; color: var(--l); }
+        /* v21.2: the yellow "something new" dot sits on the Profile icon's top corner (the bar is icons only, 60px tall,
+           so the old spot, 3px above the item, put it on the bar's edge, over whatever scrolled under it) */
+        html[data-look="new"] .mob-item { position: relative; }
+        html[data-look="new"] .mob-item .nav-dot { top: 14px; left: calc(50% + 8px); width: 8px; height: 8px; }
+        /* v21.2: the favorite recipe card's tiles are narrower than a session's: a 19.1 g dose fits instead of "1…" */
+        html[data-look="new"] [data-fam] .master-pill .sc-cell { padding: 10px 8px 9px !important; }
+        html[data-look="new"] [data-fam] .master-pill .sc-cell b { font-size: 18px; }
         /* ===================== v19.0: Learn =====================
            The New look's kit (claude/new-look-ds.css) plus the Learn screens' parts (claude/learn-mockups-src.md): pages tinted
            by their typical flavor family, names in the big serif, every section folding. All of it is the New look's. */
@@ -6179,7 +6186,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
             </div>
 
             <div id="d-timeline-pane">
-                <label style="font-size:0.7rem; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); font-weight:800; display:block; margin-bottom:1rem;">Go-to recipes</label>
+                <label style="font-size:0.7rem; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); font-weight:800; display:block; margin-bottom:1rem;">Favorite recipes</label>
                 <div id="d-masters" style="margin-bottom: 3rem;"></div>
                 
                 <label style="font-size:0.7rem; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); font-weight:800; display:block; margin-bottom:1rem;">Session history</label>
@@ -6559,7 +6566,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
 
                 <!-- Master recipe toggle -->
                 <div class="toggle-row">
-                    <span style="font-weight:700; font-size:0.9rem; color:var(--matcha);">Pin as your go-to recipe?</span>
+                    <span style="font-weight:700; font-size:0.9rem; color:var(--matcha);">Pin as your favorite recipe?</span>
                     <label class="switch"><input type="checkbox" id="isMasterInput"><span class="slider"></span></label>
                 </div>
 
@@ -6613,7 +6620,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
     <!-- Master recipe modal -->
     <div id="master-modal" class="modal" onclick="if(event.target===this) app.closeModals()">
         <div class="modal-card">
-            <h2>Go-to recipe</h2>
+            <h2>Favorite recipe</h2>
             <form onsubmit="app.handleMasterSubmit(event)">
                 <input type="hidden" name="id" id="master-edit-id">
 
@@ -6645,7 +6652,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 <label>Tasting Notes</label>
                 <textarea name="notes" rows="3" placeholder="Flavor texture, balance, finish..."></textarea>
 
-                <button type="submit" class="btn-primary" style="margin-top: 2rem;">Save go-to recipe</button>
+                <button type="submit" class="btn-primary" style="margin-top: 2rem;">Save favorite recipe</button>
                 <button type="button" class="btn-outline" style="margin-top:10px; border:none; background:none; color:#AAA;" onclick="app.closeModals()">Dismiss</button>
             </form>
         </div>
@@ -12004,10 +12011,10 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     mode = 'refine';
                     if (esp && c.time > 0) aim = [Math.round(c.time - 2), Math.round(c.time + 2)];
                     const best = ref ? (c.rating > refR ? `It beats your ${this.fmtNum(refR)}\u2605 from ${this.shortDate(ref.date)}.` : `It matches your ${this.fmtNum(refR)}\u2605 from ${this.shortDate(ref.date)}, your best so far.`) : 'Your first rated shot of this coffee.';   // v14.7: a tie isn't a win
-                    if (c.rating >= 5 && U0 < 1 && O0 < 1) { head = 'Perfect score. Lock this recipe in.'; next = recipe(keepG, c.dose, c.yield); why.push(best, 'Repeat it exactly, and pin it as your go-to recipe.'); }
+                    if (c.rating >= 5 && U0 < 1 && O0 < 1) { head = 'Perfect score. Lock this recipe in.'; next = recipe(keepG, c.dose, c.yield); why.push(best, 'Repeat it exactly, and pin it as your favorite recipe.'); }
                     else if (saidU && U0 >= 1.2 && U0 > O0) { head = esp ? `Your best yet. Next time, let it run to ${this.fmtNum(c.yield + 2, 1)} g instead of ${this.fmtNum(c.yield, 1)} g.` : `Your best yet. Next time, grind one step finer (${plainG(finer)}).`; next = esp ? recipe(keepG, c.dose, c.yield + 2) : recipe(finer, c.dose, c.yield); why.push(best, words('under'), esp ? 'Letting a little more coffee through brings out more sweetness and softens that sourness, without touching the grind that got you here.' : 'A slightly finer grind extracts a little more sweetness to balance it.'); }
                     else if (saidO && O0 >= 1.2 && O0 > U0) { head = esp ? `Your best yet. Next time, stop it at ${this.fmtNum(Math.max(c.dose, c.yield - 2), 1)} g instead of ${this.fmtNum(c.yield, 1)} g.` : `Your best yet. Next time, grind one step coarser (${plainG(coarser)}).`; next = esp ? recipe(keepG, c.dose, Math.max(c.dose, c.yield - 2)) : recipe(coarser, c.dose, c.yield); why.push(best, words('over'), esp ? 'Stopping a little earlier leaves the harsher end of the shot behind and keeps the sweetness.' : 'A slightly coarser grind takes the edge off.'); }
-                    else { head = 'Your best yet. Repeat it exactly.'; next = recipe(keepG, c.dose, c.yield); why.push(best, 'Change nothing next time; if it repeats, pin it as your go-to recipe.'); }
+                    else { head = 'Your best yet. Repeat it exactly.'; next = recipe(keepG, c.dose, c.yield); why.push(best, 'Change nothing next time; if it repeats, pin it as your favorite recipe.'); }
                     conf = '';
                 } else if (U >= 1.2 && O >= 1.2) {
                     conf = confOf(Math.min(U, O) + 1);
@@ -16962,7 +16969,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     detail.push('Body read light on the taste sliders.');
                 } else if (signal.kind === 'balanced') {
                     headline = 'Keep this recipe.';
-                    detail.push(this.isMasterBrew(brew) ? 'It\'s already pinned as your go-to recipe.' : 'It\'s worth pinning as your go-to recipe.');
+                    detail.push(this.isMasterBrew(brew) ? 'It\'s already pinned as your favorite recipe.' : 'It\'s worth pinning as your favorite recipe.');
                 } else if (signal.kind === 'off') {
                     headline = 'Low rating, but no taste clue to act on.';
                     detail.push('Add a quick verdict, taste sliders or a note next time, and a specific change will show here.');
@@ -17187,7 +17194,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const rated = latestFirst.filter(b => this.normalizeRating(b.rating) > 0);
                 const best = rated.slice().sort((a, b) => this.normalizeRating(b.rating) - this.normalizeRating(a.rating))[0];
                 const pick = master ? this.getMasterProfile(master) : (best || latestFirst[0]);
-                const pickLabel = master ? 'Go-to recipe' : `${best ? 'Best-rated' : 'Latest'} ${this.shotWord(pick && pick.method)}`;
+                const pickLabel = master ? 'Favorite recipe' : `${best ? 'Best-rated' : 'Latest'} ${this.shotWord(pick && pick.method)}`;
                 const methods = [...new Set(list.map(b => b.method).filter(Boolean))];
                 const avg = key => list.reduce((s, b) => s + (b[key] === undefined || b[key] === '' ? 5 : this.num(b[key])), 0) / list.length;
                 // v17.5: in the New look each bar wears its taste's color (sweetness red, acidity yellow…), all six tastes, in tea words for a tea
@@ -17242,7 +17249,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     const rated = s.ratings.filter(Boolean);
                     const n = s.shots.length;
                     const status = s.dialedAt >= 0
-                        ? `Dialed in on session ${s.dialedAt + 1} · ${s.how === 'pinned as Master' ? 'Go-to recipe' : 'first 4.5★+'}`
+                        ? `Dialed in on session ${s.dialedAt + 1} · ${s.how === 'pinned as Master' ? 'Favorite recipe' : 'first 4.5★+'}`
                         : (rated.length ? `Best so far ${this.fmtNum(Math.max(...rated))}★` : 'No ratings yet');
                     return `<div class="di-row"><i style="background:${this.esc(s.color)}"></i><b>${this.esc(s.owner)}</b><span>${this.esc(status)}</span><em>${n} session${n === 1 ? '' : 's'}</em></div>`;
                 }).join('');
@@ -19146,7 +19153,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 }
                 if (tasted.every(k => Math.abs(cur.values[k] - this.tasteValue(R, k)) <= 1) && (dT === null || Math.abs(dT) <= 3) && !ev.length) {
                     ev.push({ side: 'ok', text: 'Within 1 of your best on every slider you moved' });
-                    return { ...base, conf: '', head: 'Right on your target. Keep this recipe.', detail: 'Worth pinning as your go-to recipe if it keeps repeating.' };
+                    return { ...base, conf: '', head: 'Right on your target. Keep this recipe.', detail: 'Worth pinning as your favorite recipe if it keeps repeating.' };
                 }
                 if (dS !== null && dS <= -2) return { ...base, conf: 'possible', head: 'Less sweet than your best, but no clear direction yet.', detail: 'If it tasted sharp, raise Acidity. If it tasted harsh or drying, raise Bitterness. Then the tip can tell finer from coarser.' };
                 return { ...base, conf: 'possible', head: 'A little different from your best shot, but nothing points to grind or ratio.', detail: 'Keep the recipe and see if the difference repeats.' };
@@ -19581,13 +19588,13 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     const notes = String(profile.notes || this.getBrewNotes(master) || '').trim();
                     card.innerHTML = `
                         <div class="master-top">
-                            <div style="font-size:0.65rem; color:var(--matcha); font-weight:800; text-transform:uppercase;">${this.esc(masterOwner)}'s go-to</div>
+                            <div style="font-size:0.65rem; color:var(--matcha); font-weight:800; text-transform:uppercase;">${this.esc(masterOwner)}'s favorite recipe</div>
                             ${masterOwner === this.user ? `
                                 <div class="master-actions">
-                                    <button class="btn-clean" onclick="app.openMasterModal('${app.escJs(master.id)}')" title="Edit go-to recipe">
+                                    <button class="btn-clean" onclick="app.openMasterModal('${app.escJs(master.id)}')" title="Edit favorite recipe">
                                         <svg class="icon" style="width:14px;height:14px;"><use href="#i-edit-2"/></svg>
                                     </button>
-                                    <button class="btn-clean danger" onclick="app.unpinMaster('${app.escJs(master.id)}')" title="Remove go-to recipe">
+                                    <button class="btn-clean danger" onclick="app.unpinMaster('${app.escJs(master.id)}')" title="Remove favorite recipe">
                                         <svg class="icon" style="width:14px;height:14px;"><use href="#i-trash-2"/></svg>
                                     </button>
                                 </div>
@@ -19599,7 +19606,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     `;
                     masterBox.appendChild(card);
                 });
-                this.moreDom(masterBox, 2, 'go-to recipes');   // v15.1
+                this.moreDom(masterBox, 2, 'favorite recipes');   // v15.1
 
                 const logBox = document.getElementById('d-logs');
                 const keyedLogs = this.canPatchDom(logBox);
@@ -20129,7 +20136,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const brew = this.brews.get(id);
                 if (!brew) return;
                 if (this.getBrewOwner(brew) !== this.user) {
-                    this.showToast('Only the owner can edit this go-to recipe.');
+                    this.showToast('Only the owner can edit this favorite recipe.');
                     return;
                 }
 
@@ -20197,7 +20204,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const brew = this.brews.get(id);
                 if (!brew) return;
                 if (this.getBrewOwner(brew) !== this.user) {
-                    this.showToast('Only the owner can save this go-to recipe.');
+                    this.showToast('Only the owner can save this favorite recipe.');
                     return;
                 }
 
@@ -20228,24 +20235,24 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 }, brew);
                 this.push({ type: 'brew', ...updated });
                 this.closeModals();
-                this.showToast('Go-to recipe saved.');
+                this.showToast('Favorite recipe saved.');
             },
 
             unpinMaster(id) {
                 const brew = this.brews.get(id);
                 if (!brew) return;
                 if (this.getBrewOwner(brew) !== this.user) {
-                    this.showToast('Only the owner can remove this go-to recipe.');
+                    this.showToast('Only the owner can remove this favorite recipe.');
                     return;
                 }
-                if (!confirm('Remove this go-to recipe? The session will stay in history.')) return;
+                if (!confirm('Remove this favorite recipe? The session will stay in history.')) return;
                 const updated = this.withBrewOwner({
                     ...brew,
                     isMaster: false,
                     masterProfile: null
                 }, brew);
                 this.push({ type: 'brew', ...updated });
-                this.showToast('Go-to recipe removed.');
+                this.showToast('Favorite recipe removed.');
             },
 
             editBean() {
@@ -23915,7 +23922,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     ['local', 'A session from a roaster you marked local', 5, 'up to 5 a day'],
                     ['origin', 'A new origin country', 20],
                     ['method', 'A new brew method', 30],
-                    ['master', 'Pinning a go-to recipe', 10],
+                    ['master', 'Pinning a favorite recipe', 10],
                     ['comment', 'A comment', 3, 'up to 10 a day'],
                     ['likeGiven', 'A like you give', 1],
                     ['likeGot', 'A like on your session', 2],

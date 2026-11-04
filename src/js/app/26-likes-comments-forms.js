@@ -431,7 +431,7 @@
                 const brew = this.brews.get(id);
                 if (!brew) return;
                 if (this.getBrewOwner(brew) !== this.user) {
-                    this.showToast('Only the owner can edit this go-to recipe.');
+                    this.showToast('Only the owner can edit this favorite recipe.');
                     return;
                 }
 
@@ -499,7 +499,7 @@
                 const brew = this.brews.get(id);
                 if (!brew) return;
                 if (this.getBrewOwner(brew) !== this.user) {
-                    this.showToast('Only the owner can save this go-to recipe.');
+                    this.showToast('Only the owner can save this favorite recipe.');
                     return;
                 }
 
@@ -530,24 +530,24 @@
                 }, brew);
                 this.push({ type: 'brew', ...updated });
                 this.closeModals();
-                this.showToast('Go-to recipe saved.');
+                this.showToast('Favorite recipe saved.');
             },
 
             unpinMaster(id) {
                 const brew = this.brews.get(id);
                 if (!brew) return;
                 if (this.getBrewOwner(brew) !== this.user) {
-                    this.showToast('Only the owner can remove this go-to recipe.');
+                    this.showToast('Only the owner can remove this favorite recipe.');
                     return;
                 }
-                if (!confirm('Remove this go-to recipe? The session will stay in history.')) return;
+                if (!confirm('Remove this favorite recipe? The session will stay in history.')) return;
                 const updated = this.withBrewOwner({
                     ...brew,
                     isMaster: false,
                     masterProfile: null
                 }, brew);
                 this.push({ type: 'brew', ...updated });
-                this.showToast('Go-to recipe removed.');
+                this.showToast('Favorite recipe removed.');
             },
 
             editBean() {

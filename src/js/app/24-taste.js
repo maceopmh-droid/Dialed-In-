@@ -230,7 +230,7 @@
                 }
                 if (tasted.every(k => Math.abs(cur.values[k] - this.tasteValue(R, k)) <= 1) && (dT === null || Math.abs(dT) <= 3) && !ev.length) {
                     ev.push({ side: 'ok', text: 'Within 1 of your best on every slider you moved' });
-                    return { ...base, conf: '', head: 'Right on your target. Keep this recipe.', detail: 'Worth pinning as your go-to recipe if it keeps repeating.' };
+                    return { ...base, conf: '', head: 'Right on your target. Keep this recipe.', detail: 'Worth pinning as your favorite recipe if it keeps repeating.' };
                 }
                 if (dS !== null && dS <= -2) return { ...base, conf: 'possible', head: 'Less sweet than your best, but no clear direction yet.', detail: 'If it tasted sharp, raise Acidity. If it tasted harsh or drying, raise Bitterness. Then the tip can tell finer from coarser.' };
                 return { ...base, conf: 'possible', head: 'A little different from your best shot, but nothing points to grind or ratio.', detail: 'Keep the recipe and see if the difference repeats.' };

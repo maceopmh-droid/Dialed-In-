@@ -56,7 +56,7 @@
                     ['local', 'A session from a roaster you marked local', 5, 'up to 5 a day'],
                     ['origin', 'A new origin country', 20],
                     ['method', 'A new brew method', 30],
-                    ['master', 'Pinning a go-to recipe', 10],
+                    ['master', 'Pinning a favorite recipe', 10],
                     ['comment', 'A comment', 3, 'up to 10 a day'],
                     ['likeGiven', 'A like you give', 1],
                     ['likeGot', 'A like on your session', 2],

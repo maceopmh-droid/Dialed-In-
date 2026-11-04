@@ -258,13 +258,13 @@
                     const notes = String(profile.notes || this.getBrewNotes(master) || '').trim();
                     card.innerHTML = `
                         <div class="master-top">
-                            <div style="font-size:0.65rem; color:var(--matcha); font-weight:800; text-transform:uppercase;">${this.esc(masterOwner)}'s go-to</div>
+                            <div style="font-size:0.65rem; color:var(--matcha); font-weight:800; text-transform:uppercase;">${this.esc(masterOwner)}'s favorite recipe</div>
                             ${masterOwner === this.user ? `
                                 <div class="master-actions">
-                                    <button class="btn-clean" onclick="app.openMasterModal('${app.escJs(master.id)}')" title="Edit go-to recipe">
+                                    <button class="btn-clean" onclick="app.openMasterModal('${app.escJs(master.id)}')" title="Edit favorite recipe">
                                         <svg class="icon" style="width:14px;height:14px;"><use href="#i-edit-2"/></svg>
                                     </button>
-                                    <button class="btn-clean danger" onclick="app.unpinMaster('${app.escJs(master.id)}')" title="Remove go-to recipe">
+                                    <button class="btn-clean danger" onclick="app.unpinMaster('${app.escJs(master.id)}')" title="Remove favorite recipe">
                                         <svg class="icon" style="width:14px;height:14px;"><use href="#i-trash-2"/></svg>
                                     </button>
                                 </div>
@@ -276,7 +276,7 @@
                     `;
                     masterBox.appendChild(card);
                 });
-                this.moreDom(masterBox, 2, 'go-to recipes');   // v15.1
+                this.moreDom(masterBox, 2, 'favorite recipes');   // v15.1
 
                 const logBox = document.getElementById('d-logs');
                 const keyedLogs = this.canPatchDom(logBox);
