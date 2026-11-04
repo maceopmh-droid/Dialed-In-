@@ -11446,6 +11446,187 @@
       "publisher": "Sweet Maria's",
       "url": "https://library.sweetmarias.com/rwanda-a-photo-set-may-2018/",
       "year": 2018
+    },
+    "ace-colsouth-2014": {
+      "title": "Colombia South 2014 (Cup of Excellence farm directory)",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/farm-directory/wpbdp_category/colombia-south-2014/",
+      "year": 2014
+    },
+    "cafeimports-varietyselect-2015": {
+      "title": "Introducing: Variety Select Project",
+      "publisher": "Cafe Imports",
+      "url": "https://www.cafeimports.com/europe/blog/wp-json/wp/v2/posts/31207",
+      "year": 2015
+    },
+    "coffeereview-laforesta-wushwush-2023": {
+      "title": "Colombia Wush Wush Dynamic Natural (SOT Coffee Roaster)",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/colombia-wush-wush-dynamic-natural-2/",
+      "year": 2023
+    },
+    "watchhouse-bonitasprings": {
+      "title": "Bonita Springs (Panama, Boquete, Wush Wush natural)",
+      "publisher": "Watchhouse",
+      "url": "https://watchhouse.com/products/bonita-springs"
+    },
+    "blackwhite-gorigesha13": {
+      "title": "Gesha Village - Gori Gesha Lot 13",
+      "publisher": "Black & White Coffee Roasters",
+      "url": "https://www.blackwhiteroasters.com/products/r-gesha-village-gori-gesha-lot-13"
+    },
+    "beanbros-geshavillage": {
+      "title": "Gesha Village Estate Ethiopia",
+      "publisher": "Bean Bros",
+      "url": "https://beanbros.co/pages/gesha-village-estate-ethiopia"
+    },
+    "dcn-geisha-gesha-2017": {
+      "title": "Is it Geisha or Gesha? If Anything, It’s Complicated (Ever Meister)",
+      "publisher": "Daily Coffee News",
+      "url": "https://dailycoffeenews.com/2017/11/09/is-it-geisha-or-gesha-if-anything-its-complicated",
+      "year": 2017
+    },
+    "gcr-geisha-history-2019": {
+      "title": "Memoirs of a Geisha: the history of the record-breaking coffee varietal",
+      "publisher": "Global Coffee Report",
+      "url": "https://www.gcrmag.com/memoirs-of-a-geisha-the-history-of-the-record-breaking-coffee-varietal",
+      "year": 2019
+    },
+    "prensa-bop-2026": {
+      "title": "La producción en Panamá del café más caro del mundo es golpeada por el clima, mas no su calidad (EFE, Jul 15, 2026)",
+      "publisher": "La Prensa (Panama)",
+      "url": "https://www.prensa.com/economia/la-produccion-en-panama-del-cafe-mas-caro-del-mundo-es-golpeada-por-el-clima-mas-no-su-calidad/",
+      "year": 2026
+    },
+    "lacapital-efe-geisha-2026": {
+      "title": "El “café más caro del mundo” en Panamá busca mantener el liderazgo pese al reto climático (EFE, Jan 3, 2026)",
+      "publisher": "La Capital (Mar del Plata), from EFE",
+      "url": "https://www.lacapitalmdp.com/el-cafe-mas-caro-del-mundo-en-panama-busca-mantener-el-liderazgo-pese-al-reto-climatico/",
+      "year": 2026
+    },
+    "mcm-alasitas-gesha": {
+      "title": "Las Alasitas Gesha Washed",
+      "publisher": "Melbourne Coffee Merchants",
+      "url": "https://melbournecoffeemerchants.com.au/coffee/alasitas-gesha/"
+    },
+    "clive-estrellas-aji": {
+      "title": "Estrellas de Ají Colombia",
+      "publisher": "Clive Coffee",
+      "url": "https://clivecoffee.com/products/estrellas-de-aji-colombia"
+    },
+    "sweetmarias-sidra": {
+      "title": "Sidra (glossary)",
+      "publisher": "Sweet Maria’s",
+      "url": "https://library.sweetmarias.com/glossary/sidra/"
+    },
+    "sey-soledad-sidra-2023": {
+      "title": "Pepe Jijón, Finca Soledad Sidra, washed, Ecuador",
+      "publisher": "Sey Coffee",
+      "url": "https://www.seycoffee.com/products/2023-pepe-jijon-finca-soledad-sidra-ecuador",
+      "year": 2023
+    },
+    "sey-lugmapata-sidra-2019": {
+      "title": "Enrique Merino, Lugmapata Sidra, washed, Ecuador",
+      "publisher": "Sey Coffee",
+      "url": "https://seycoffee.com/products/lugmapata-sidra",
+      "year": 2019
+    },
+    "sey-dota-sidra-2026": {
+      "title": "Manuel Dota Sidra, washed, Ecuador",
+      "publisher": "Sey Coffee",
+      "url": "https://www.seycoffee.com/products/2026-manuel-dota-ecuador",
+      "year": 2026
+    },
+    "nomad-sidra-2025": {
+      "title": "Do you know what the Sidra variety is and why it has such an impact on the industry?",
+      "publisher": "Nomad Coffee",
+      "url": "https://nomadcoffee.es/en/blogs/cursos-barista-gratis/sabes-que-es-la-variedad-sidra-y-porque-tiene-tanta-repercusion-en-la-industria",
+      "year": 2025
+    },
+    "paradise-jbm-rume": {
+      "title": "Jamaica Blue Mountain Rume Sudan",
+      "publisher": "Paradise Roasters",
+      "url": "https://paradiseroasters.com/collections/frontpage/products/jamaica-blue-mountain-rume-sudan"
+    },
+    "jacoffee-diversa-rume": {
+      "title": "Costa Rica Rume Sudan, Coffea Diversa (green beans)",
+      "publisher": "JA Coffee",
+      "url": "https://www.jacoffee.com/products/costa-rica-rumesudan-greenbeans-retail"
+    },
+    "waytocoffee-loscipreses-rume": {
+      "title": "Sudan Rume, Los Cipreses, Costa Rica (Sumo Coffee Roasters)",
+      "publisher": "The Way to Coffee",
+      "url": "https://astro.thewaytocoffee.com/beans/sudan-rume-los-cipreses-costa-rica",
+      "year": 2025
+    },
+    "coffeereview-penasblancas-java-2025": {
+      "title": "Colombia Peñas Blancas Java Natural (Bear Lake Coffee)",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/colombia-penas-blancas-java-natural/",
+      "year": 2025
+    },
+    "coffeereview-lalinda-java-2016": {
+      "title": "Bolivia Finca La Linda Honey Java (Intelligentsia)",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/bolivia-finca-la-linda-honey-java/",
+      "year": 2016
+    },
+    "coffeereview-eldiviso-java-2026": {
+      "title": "El Diviso Java (JBC Coffee Roasters)",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/el-diviso-java/",
+      "year": 2026
+    },
+    "sey-rueda-pink-2025": {
+      "title": "Octavio Rueda, El Mirador, 2nd harvest Pink Bourbon, washed, Colombia",
+      "publisher": "Sey Coffee",
+      "url": "https://seycoffee.com/products/2025-octavio-rueda-el-mirador-2nd-harvest-colombia",
+      "year": 2025
+    },
+    "greencoffee-wushwush": {
+      "title": "Wush Wush (glossary)",
+      "publisher": "Green Coffee Collective",
+      "url": "https://greencoffeecollective.com/pages/glossary/wush-wush"
+    },
+    "algrano-aji-lavado-2026": {
+      "title": "Colombia Bourbon Aji Lavado (Wilmer Cuellar), Mar 2026",
+      "publisher": "Algrano",
+      "url": "https://www.algrano.com/en/products/11346-colombia-bourbon-aji-lavado-arabica-fully-washed-mar-2026",
+      "year": 2026
+    },
+    "movingcoffee-aji": {
+      "title": "Moving Coffee: Ají (José Herman Salazar)",
+      "publisher": "Eight Ounce Coffee",
+      "url": "https://eightouncecoffee.ca/products/moving-coffee-aji-coe-6"
+    },
+    "sey-berrio-chiroso-2025a": {
+      "title": "David Berrio, La Casita, new season, 1st harvest Chiroso, washed, Colombia",
+      "publisher": "Sey Coffee",
+      "url": "https://www.seycoffee.com/products/2025-david-berrio-la-casita-new-season-colombia",
+      "year": 2025
+    },
+    "sey-berrio-chiroso-2025b": {
+      "title": "David Berrio, La Casita, 2nd harvest Chiroso, washed, Colombia",
+      "publisher": "Sey Coffee",
+      "url": "https://www.seycoffee.com/products/2025-david-berrio-la-casita-2nd-harvest-colombia",
+      "year": 2025
+    },
+    "sey-berrio-chiroso-2026": {
+      "title": "David Berrio, La Casita, end of season Chiroso, washed, Colombia",
+      "publisher": "Sey Coffee",
+      "url": "https://seycoffee.com/products/2026-david-berrio-la-casita-end-of-season-colombia",
+      "year": 2026
+    },
+    "chk-coffeereview-com-types-wush-wush": {
+      "title": "Wush Wush (reviews by coffee type)",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/types/wush-wush/"
+    },
+    "chk-lacabra-com-products-salazar-sudan-rume": {
+      "title": "Salazar, Sudan Rume (La Isabela, West Valley, Costa Rica, natural)",
+      "publisher": "La Cabra",
+      "url": "https://lacabra.com/products/salazar-sudan-rume",
+      "year": 2024
     }
   }
 }
