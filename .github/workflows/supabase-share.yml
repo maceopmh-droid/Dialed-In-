@@ -30,7 +30,7 @@ jobs:
         if: steps.cfg.outputs.skip != '1'
         run: |
           set +e
-          supabase functions deploy share-photo --project-ref "$PROJECT_REF" --no-verify-jwt 2>&1 | tee "$RUNNER_TEMP/d.txt"; rc=${PIPESTATUS[0]}
+          supabase functions deploy share-photo --project-ref "$PROJECT_REF" --no-verify-jwt --yes 2>&1 | tee "$RUNNER_TEMP/d.txt"; rc=${PIPESTATUS[0]}
           bash supabase/report.sh "Deploy share-photo" "$RUNNER_TEMP/d.txt"; exit $rc
       - name: Find the database
         if: steps.cfg.outputs.skip != '1'
