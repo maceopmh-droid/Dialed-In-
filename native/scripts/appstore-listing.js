@@ -163,8 +163,11 @@ const must = (r, what) => { if (!r.ok) throw new Error(`${what} (${why(r)})`); r
     // (v21.6: the same pictures already there, in order, are kept: Apple takes minutes to take each one in again)
     const sums = files.map(f => crypto.createHash('md5').update(fs.readFileSync(f)).digest('hex'));
     const have = (old.ok ? old.j.data : []) || [];
-    const same = have.length === files.length && have.every((x, i) => x.attributes.fileName === path.basename(files[i]) && x.attributes.sourceFileChecksum === sums[i] && !/FAILED/.test((x.attributes.assetDeliveryState || {}).state || ''));
-    const ids = same ? have.map(x => x.id) : [];
+    const match = files.map((f, i) => have.find(x => x.attributes.fileName === path.basename(f) && (!x.attributes.sourceFileChecksum || x.attributes.sourceFileChecksum === sums[i]) && !/FAILED/.test((x.attributes.assetDeliveryState || {}).state || '')));
+    const same = have.length === files.length && match.every(Boolean);
+    console.log(`screenshots already there: ${have.length}; the same as ours: ${match.filter(Boolean).length} of ${files.length}`);
+    const ids = same ? match.map(x => x.id) : [];
+    if (same) await api('PATCH', `/v1/appScreenshotSets/${set.id}/relationships/appScreenshots`, { data: ids.map(id => ({ type: 'appScreenshots', id })) });   // (in our order)
     if (!same) for (const s of have) await api('DELETE', `/v1/appScreenshots/${s.id}`);
     if (!same) for (const f of files) {
       const buf = fs.readFileSync(f);
