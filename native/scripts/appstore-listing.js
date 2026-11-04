@@ -24,6 +24,10 @@ async function api(method, p, body) {
 }
 const why = r => ((r.j && r.j.errors) || []).map(e => [e.title, e.detail].filter(Boolean).join(': ')).join('; ').slice(0, 400) || `HTTP ${r.status}`;
 const step = async (label, fn) => { try { const out = await fn(); if (out !== false) done.push(label); } catch (e) { problems.push(`${label}: ${String(e && e.message || e).slice(0, 300)}`); } };
+// v21.6: the app's own details (name, subtitle, category, privacy link, age rating) belong to the live version once an
+// update is made; Apple won't take them then, and they keep what the live version has (the same values), so that isn't
+// a problem: it's noted as kept
+const infoStep = async (label, fn) => { try { const out = await fn(); if (out !== false) done.push(label); } catch (e) { const m = String(e && e.message || e); if (/current (resource )?state|not editable|state of another resource/i.test(m)) done.push(`${label} (kept as on the live version)`); else problems.push(`${label}: ${m.slice(0, 300)}`); } };
 const must = (r, what) => { if (!r.ok) throw new Error(`${what} (${why(r)})`); return r; };
 
 (async () => {
@@ -37,21 +41,21 @@ const must = (r, what) => { if (!r.ok) throw new Error(`${what} (${why(r)})`); r
   // ---- app info: category, subtitle, privacy policy, age rating
   const infos = must(await api('GET', `/v1/apps/${appId}/appInfos?limit=10`), 'app info');
   const info = (infos.j.data || []).find(i => !/READY_FOR_DISTRIBUTION|REPLACED_WITH_NEW_INFO/.test(i.attributes.state || i.attributes.appStoreState || '')) || (infos.j.data || [])[0];
-  await step('category: Food & Drink', async () => must(await api('PATCH', `/v1/appInfos/${info.id}`, { data: { type: 'appInfos', id: info.id, relationships: { primaryCategory: { data: { type: 'appCategories', id: L.primaryCategory } } } } }), 'category'));
+  await infoStep('category: Food & Drink', async () => must(await api('PATCH', `/v1/appInfos/${info.id}`, { data: { type: 'appInfos', id: info.id, relationships: { primaryCategory: { data: { type: 'appCategories', id: L.primaryCategory } } } } }), 'category'));
   // the name shown beside the icon (its own step: a name someone else already uses is refused without holding up the rest)
-  if (L.name) await step(`name: ${L.name}`, async () => {
+  if (L.name) await infoStep(`name: ${L.name}`, async () => {
     const locs = must(await api('GET', `/v1/appInfos/${info.id}/appInfoLocalizations?limit=50`), 'app info languages');
     const loc = (locs.j.data || []).find(x => x.attributes.locale === L.locale);
     if (!loc) throw new Error(`no ${L.locale} app info`);
     must(await api('PATCH', `/v1/appInfoLocalizations/${loc.id}`, { data: { type: 'appInfoLocalizations', id: loc.id, attributes: { name: L.name } } }), 'name');
   });
-  await step('subtitle and privacy policy link', async () => {
+  await infoStep('subtitle and privacy policy link', async () => {
     const locs = must(await api('GET', `/v1/appInfos/${info.id}/appInfoLocalizations?limit=50`), 'app info languages');
     const loc = (locs.j.data || []).find(x => x.attributes.locale === L.locale);
     if (!loc) throw new Error(`no ${L.locale} app info`);
     must(await api('PATCH', `/v1/appInfoLocalizations/${loc.id}`, { data: { type: 'appInfoLocalizations', id: loc.id, attributes: { subtitle: L.subtitle, privacyPolicyUrl: L.privacyPolicyUrl } } }), 'subtitle');
   });
-  await step('age rating answers', async () => {
+  await infoStep('age rating answers', async () => {
     const d = must(await api('GET', `/v1/appInfos/${info.id}/ageRatingDeclaration`), 'age rating');
     const have = Object.keys(d.j.data.attributes || {});
     const none = ['alcoholTobaccoOrDrugUseOrReferences', 'contests', 'gamblingSimulated', 'horrorOrFearThemes', 'matureOrSuggestiveThemes', 'medicalOrTreatmentInformation', 'profanityOrCrudeHumor',
@@ -140,7 +144,8 @@ const must = (r, what) => { if (!r.ok) throw new Error(`${what} (${why(r)})`); r
     files.forEach(f => { if (!fs.existsSync(f)) throw new Error(`missing ${path.basename(f)}`); });
     const sets = must(await api('GET', `/v1/appStoreVersionLocalizations/${vloc.id}/appScreenshotSets?limit=50`), 'screenshot sets');
     let set = null, lastErr = '';
-    for (const type of ['APP_IPHONE_67', 'APP_IPHONE_69']) {
+    // (v21.6: the 6.9" set first: the pictures are 1320 x 2868, and a 6.7" set refuses them, so Apple drops them)
+    for (const type of ['APP_IPHONE_69', 'APP_IPHONE_67']) {
       set = (sets.j.data || []).find(s => s.attributes.screenshotDisplayType === type);
       if (set) break;
       const r = await api('POST', '/v1/appScreenshotSets', { data: { type: 'appScreenshotSets', attributes: { screenshotDisplayType: type }, relationships: { appStoreVersionLocalization: { data: { type: 'appStoreVersionLocalizations', id: vloc.id } } } } });
@@ -148,6 +153,8 @@ const must = (r, what) => { if (!r.ok) throw new Error(`${what} (${why(r)})`); r
       lastErr = why(r);
     }
     if (!set) throw new Error(`couldn't make the iPhone screenshot set (${lastErr})`);
+    // an empty set of another size (left by an earlier run) goes, so the listing doesn't ask for pictures in it
+    for (const o of (sets.j.data || []).filter(x => x.id !== set.id)) { const n = await api('GET', `/v1/appScreenshotSets/${o.id}/appScreenshots?limit=1`); if (n.ok && !(n.j.data || []).length) await api('DELETE', `/v1/appScreenshotSets/${o.id}`); }
     const old = await api('GET', `/v1/appScreenshotSets/${set.id}/appScreenshots?limit=50`);
     for (const s of (old.ok ? old.j.data : []) || []) await api('DELETE', `/v1/appScreenshots/${s.id}`);
     const ids = [];
