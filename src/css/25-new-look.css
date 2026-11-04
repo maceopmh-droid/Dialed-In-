@@ -946,3 +946,47 @@
         html[data-look="new"] #detail-view .insight-tab { display: inline-flex !important; align-items: center; gap: 7px; height: 38px !important; padding: 0 14px 0 12px !important; border-radius: 19px !important; }
         html[data-look="new"] #detail-view .insight-tab .it-ic { width: 17px; height: 17px; color: var(--k); stroke: currentColor; flex: none; }
         html[data-look="new"] #detail-view .insight-tab.active .it-ic { color: var(--c); }
+        /* v21.4: Where it came from (the coffee form), folded */
+        html[data-look="new"] .chain-fold { margin-top: 18px; border-radius: 16px; background: color-mix(in srgb, var(--n, #888) 6%, transparent); padding: 0 14px; }
+        html[data-look="new"] .chain-fold > summary { list-style: none; display: flex; align-items: center; justify-content: space-between; min-height: 48px; cursor: pointer; font-weight: 600; }
+        html[data-look="new"] .chain-fold > summary::-webkit-details-marker { display: none; }
+        html[data-look="new"] .chain-fold > summary .icon { width: 18px; height: 18px; transition: transform 0.2s; opacity: 0.7; }
+        html[data-look="new"] .chain-fold[open] > summary .icon { transform: rotate(180deg); }
+        html[data-look="new"] .chain-fold[open] { padding-bottom: 14px; }
+        html[data-look="new"] .chain-note { margin: 0 0 6px; font-size: 13.5px; opacity: 0.75; }
+        /* v21.4: From farm to cup (the coffee page), folded like About this coffee */
+        html[data-look="new"] #detail-view .nl-chain, html[data-look="new"] #detail-view .nl-chain-add { order: 3; position: relative; z-index: 2; width: 100%; margin-top: 12px; }
+        html[data-look="new"] .nl-chain { border-radius: 22px; background: var(--box); border: 1px solid var(--hl); overflow: hidden; }
+        html[data-look="new"] .nl-chain-head, html[data-look="new"] .nl-chain-add { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; margin: 0; padding: 12px 16px; text-align: left; background: none !important; border: 0 !important; box-shadow: none !important; color: var(--t) !important; font: inherit; letter-spacing: 0; text-transform: none; border-radius: 0 !important; }
+        html[data-look="new"] .nl-chain-add { border-radius: 22px !important; border: 1px dashed color-mix(in srgb, var(--n) 25%, transparent) !important; }
+        html[data-look="new"] .nl-chain-head > .icon:first-child, html[data-look="new"] .nl-chain-add > .icon:first-child { width: 22px; height: 22px; color: var(--k); flex: none; }
+        html[data-look="new"] .nl-chain-head span, html[data-look="new"] .nl-chain-add span { flex: 1; min-width: 0; }
+        html[data-look="new"] .nl-chain-head b, html[data-look="new"] .nl-chain-add b { display: block; font-size: 16.5px; font-weight: 650; color: var(--n); }
+        html[data-look="new"] .nl-chain-head small, html[data-look="new"] .nl-chain-add small { display: block; font-size: 13.5px; color: var(--l); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        html[data-look="new"] .nl-chain-ch { width: 18px !important; height: 18px !important; color: var(--l); flex: none; transition: transform 0.2s; }
+        html[data-look="new"] .nl-chain.is-open .nl-chain-ch { transform: rotate(180deg); }
+        html[data-look="new"] .nl-chain-steps { list-style: none; margin: 0; padding: 2px 16px 14px 24px; }
+        html[data-look="new"] .nl-cs { position: relative; display: flex; align-items: center; gap: 12px; min-height: 40px; padding-left: 18px; }
+        html[data-look="new"] .nl-cs > i { position: absolute; left: 0; top: 50%; width: 9px; height: 9px; margin-top: -4.5px; border-radius: 50%; background: var(--k); }
+        html[data-look="new"] .nl-cs + .nl-cs::before { content: ''; position: absolute; left: 4px; top: -16px; height: 32px; width: 1.5px; background: color-mix(in srgb, var(--n) 18%, transparent); }
+        html[data-look="new"] .nl-cs.is-none > i { background: transparent; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--n) 30%, transparent); }
+        html[data-look="new"] .nl-cs-k { width: 74px; flex: none; color: var(--l); font-size: 14.5px; }
+        html[data-look="new"] .nl-cs-v { flex: 1; min-width: 0; color: var(--n); font-size: 15.5px; font-weight: 600; }
+        html[data-look="new"] .nl-cs-v.is-none { color: var(--l); font-weight: 400; font-style: italic; opacity: 0.8; }
+        html[data-look="new"] .nl-chain .nl-cs-v.is-link { display: inline-flex; align-items: center; gap: 3px; width: auto; min-height: 0; margin: 0; padding: 0; background: none !important; border: 0 !important; box-shadow: none !important; color: var(--n) !important; font: inherit; font-size: 15.5px; font-weight: 600; text-align: left; letter-spacing: 0; text-transform: none; }
+        html[data-look="new"] .nl-cs-v.is-link .icon { width: 14px; height: 14px; color: var(--l); }
+        /* v21.4: a producer's page */
+        html[data-look="new"] #producer-view { display: none; position: fixed; inset: 0; z-index: 5620; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+        html[data-look="new"] #producer-view.active { display: block; animation: nlSlideIn 0.26s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        @media (prefers-reduced-motion: reduce) { html[data-look="new"] #producer-view.active { animation: none; } }
+        html[data-look="new"] .pv-bar { position: fixed; left: 0; right: 0; top: 0; z-index: 3; padding: calc(var(--safe-top, 0px) + 8px) 16px 8px; pointer-events: none; }
+        html[data-look="new"] .pv-bar > * { pointer-events: auto; }
+        html[data-look="new"] .pv-bar .nl-glass { -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); background: color-mix(in srgb, var(--c) 84%, transparent); }
+        html[data-look="new"] .pv-count { color: var(--l); font-size: 14.5px; margin-left: 4px; }
+        html[data-look="new"] .pv-list { display: flex; flex-direction: column; gap: 8px; }
+        html[data-look="new"] .pv-coffee { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 0; margin: 0; padding: 12px 14px; text-align: left; border-radius: 20px !important; background: var(--c) !important; border: 1px solid var(--hl) !important; box-shadow: none !important; color: var(--t) !important; font: inherit; letter-spacing: 0; text-transform: none; }
+        html[data-look="new"] .pv-coffee .pv-cover { width: 52px !important; height: 52px !important; border-radius: 15px !important; font-size: 19px !important; flex: none; }
+        html[data-look="new"] .pv-cmain { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+        html[data-look="new"] .pv-cmain small { color: var(--k); font-size: 13.5px; font-family: var(--nl-hand); font-weight: 600; }
+        html[data-look="new"] .pv-cmain b { color: var(--n); font-family: var(--nl-serif); font-size: 20px; font-weight: 500; line-height: 1.15; }
+        html[data-look="new"] .pv-cmain span { color: var(--l); font-size: 13.5px; margin-top: 2px; }

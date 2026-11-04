@@ -5,8 +5,10 @@
             // row with one value opens its Learn page; a row with several shows each as its own small button; anything Learn
             // doesn't know is plain text. The Coffees list gets the same icons on one line instead of "Colombia · Washed".
             nlSpecItems(bean) {
-                const out = { origin: [], region: [], variety: [], process: [], roast: [] };
+                const out = { producer: [], origin: [], region: [], variety: [], process: [], roast: [] };
                 if (!bean) return out;
+                const ch = this.chainOf ? this.chainOf(bean) : null;   // v21.4: who grew it (opens their page)
+                if (ch && ch.producer) out.producer.push({ kind: 'producer', id: ch.producer, label: ch.producer, page: true });
                 const split = s => String(s || '').split(/,|\/|&|\+|;|\band\b/i).map(x => x.trim()).filter(Boolean);
                 const learn = typeof LearnEngine !== 'undefined' && this.learnOn && this.learnOn() && this.lxTags;
                 const it = (kind, id, label) => ({ kind, id, label, page: !!(learn && this.lxHasPage(kind, id)) });
@@ -37,21 +39,22 @@
                 if (String(bean.roast || '').trim()) out.roast.push({ label: String(bean.roast).trim() });
                 return out;
             },
-            NL_SPEC_ROWS: [['origin', 'i-pin', 'Origin', 'Origins'], ['region', 'i-globe', 'Region', 'Regions'], ['variety', 'i-leaf-line', 'Variety', 'Varieties'], ['process', 'i-drop', 'Process', 'Process'], ['roast', 'i-flame', 'Roast', 'Roast']],
-            nlSpecRowsHtml(bean, o = {}) {   // (o.links false: no Learn buttons, e.g. on a share link's page)
-                const items = this.nlSpecItems(bean);
-                if (o.links === false) Object.values(items).forEach(list => list.forEach(x => { x.page = false; }));
+            NL_SPEC_ROWS: [['producer', 'i-users', 'Grown by', 'Grown by'], ['origin', 'i-pin', 'Origin', 'Origins'], ['region', 'i-globe', 'Region', 'Regions'], ['variety', 'i-leaf-line', 'Variety', 'Varieties'], ['process', 'i-drop', 'Process', 'Process'], ['roast', 'i-flame', 'Roast', 'Roast'], ['mill', 'i-gear', 'Mill', 'Mills'], ['importer', 'i-flag', 'Importer', 'Importers']],
+            nlSpecRowsHtml(bean, o = {}) { return this.nlSpecRowsFromItems(this.nlSpecItems(bean), { ...o, tea: this.isTeaBean && this.isTeaBean(bean) }); },
+            nlSpecGo(x) { return x.kind === 'producer' ? `app.openProducer('${this.escJs(String(x.id))}')` : this.lxGo(x.kind, x.id); },
+            nlSpecRowsFromItems(items, o = {}) {   // (o.links false: no buttons, e.g. on a share link's page)
+                if (o.links === false) Object.values(items).forEach(list => (list || []).forEach(x => { x.page = false; }));
                 const ic = id => `<svg class="icon nl-spec-ic" aria-hidden="true"><use href="#${id}"/></svg>`, chev = (c = '') => `<svg class="icon nl-spec-ch${c}" aria-hidden="true"><use href="#i-chev-right"/></svg>`;
                 const rows = this.NL_SPEC_ROWS.map(([k, icon, one, many]) => {
-                    const list = items[k]; if (!list.length) return '';
+                    const list = items[k] || []; if (!list.length) return '';
                     if (list.length === 1) {
                         const x = list[0], inner = `${ic(icon)}<span class="nl-spec-k">${one}</span><span class="nl-spec-v">${this.esc(x.label)}</span>`;
-                        return x.page ? `<button type="button" class="nl-spec" onclick="${this.lxGo(x.kind, x.id)}">${inner}${chev()}</button>` : `<div class="nl-spec">${inner}</div>`;
+                        return x.page ? `<button type="button" class="nl-spec" onclick="${this.nlSpecGo(x)}">${inner}${chev()}</button>` : `<div class="nl-spec">${inner}</div>`;
                     }
-                    const pills = list.map(x => x.page ? `<button type="button" class="nl-spec-pill" onclick="${this.lxGo(x.kind, x.id)}">${this.esc(x.label)}${chev(' sm')}</button>` : `<span class="nl-spec-pill is-plain">${this.esc(x.label)}</span>`).join('');
+                    const pills = list.map(x => x.page ? `<button type="button" class="nl-spec-pill" onclick="${this.nlSpecGo(x)}">${this.esc(x.label)}${chev(' sm')}</button>` : `<span class="nl-spec-pill is-plain">${this.esc(x.label)}</span>`).join('');
                     return `<div class="nl-spec nl-spec-multi">${ic(icon)}<span class="nl-spec-k">${many}</span><span class="nl-spec-v">${pills}</span></div>`;
                 }).filter(Boolean);
-                return rows.length ? `<div class="nl-specs" role="list" aria-label="About this ${this.isTeaBean && this.isTeaBean(bean) ? 'tea' : 'coffee'}">${rows.join('')}</div>` : '';
+                return rows.length ? `<div class="nl-specs" role="list" aria-label="About this ${o.tea ? 'tea' : 'coffee'}">${rows.join('')}</div>` : '';
             },
             // the Coffees list: one line, an icon for each (origin, variety, process)
             nlSpecLineHtml(bean) {   // (as written on the bag: "Anaerobic Natural", not Learn's "Natural, Anaerobic")

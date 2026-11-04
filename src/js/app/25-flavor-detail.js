@@ -365,7 +365,8 @@
                     origin: pick('origin'),
                     process: pick('process'),
                     roast: pick('roast'),
-                    roastDate: pick('roastDate')
+                    roastDate: pick('roastDate'),
+                    chain: (beanItems.slice().sort((a, b) => this.toTime(b.date) - this.toTime(a.date)).find(b => b && b.chain && typeof b.chain === 'object' && Object.keys(b.chain).length) || {}).chain   // v21.4
                 };
                 const users = new Set();
                 beanItems.forEach(bean => users.add(bean.user));
