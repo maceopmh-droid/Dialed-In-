@@ -47,6 +47,9 @@
 .os-tab{min-height:44px;padding:0 22px;border-radius:999px;border:0;background:transparent;color:var(--text-2);font:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:background .25s ease,color .25s ease}
 .os-tab[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);font-weight:700}
 .os-tab:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.os-tab{white-space:nowrap}
+@media (max-width:420px){.os-tab{padding:0 13px;font-size:14px}}
+@media (max-width:359px){.os-tab{padding:0 9px}}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 .chip{min-height:46px;padding:0 18px;border-radius:999px;border:1px solid var(--line-3);background:var(--chip);color:var(--text-2);font:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:background .25s ease,color .25s ease,border-color .25s ease}
 .chip:hover{border-color:var(--line-4)}
