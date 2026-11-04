@@ -160,9 +160,13 @@ const must = (r, what) => { if (!r.ok) throw new Error(`${what} (${why(r)})`); r
     // an empty set of another size (left by an earlier run) goes, so the listing doesn't ask for pictures in it
     for (const o of (sets.j.data || []).filter(x => x.id !== set.id)) { const n = await api('GET', `/v1/appScreenshotSets/${o.id}/appScreenshots?limit=1`); if (n.ok && !(n.j.data || []).length) await api('DELETE', `/v1/appScreenshotSets/${o.id}`); }
     const old = await api('GET', `/v1/appScreenshotSets/${set.id}/appScreenshots?limit=50`);
-    for (const s of (old.ok ? old.j.data : []) || []) await api('DELETE', `/v1/appScreenshots/${s.id}`);
-    const ids = [];
-    for (const f of files) {
+    // (v21.6: the same pictures already there, in order, are kept: Apple takes minutes to take each one in again)
+    const sums = files.map(f => crypto.createHash('md5').update(fs.readFileSync(f)).digest('hex'));
+    const have = (old.ok ? old.j.data : []) || [];
+    const same = have.length === files.length && have.every((x, i) => x.attributes.fileName === path.basename(files[i]) && x.attributes.sourceFileChecksum === sums[i] && !/FAILED/.test((x.attributes.assetDeliveryState || {}).state || ''));
+    const ids = same ? have.map(x => x.id) : [];
+    if (!same) for (const s of have) await api('DELETE', `/v1/appScreenshots/${s.id}`);
+    if (!same) for (const f of files) {
       const buf = fs.readFileSync(f);
       const r = must(await api('POST', '/v1/appScreenshots', { data: { type: 'appScreenshots', attributes: { fileName: path.basename(f), fileSize: buf.length }, relationships: { appScreenshotSet: { data: { type: 'appScreenshotSets', id: set.id } } } } }), `reserving ${path.basename(f)}`);
       for (const op of r.j.data.attributes.uploadOperations || []) {
