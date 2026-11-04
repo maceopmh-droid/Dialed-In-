@@ -1,11 +1,14 @@
             // ---- bean page extras ----
             // ---- v12.2: a flavor note as a chip in its wheel family's color (shaded, no dot)
+            // v21.2: every flavor note wears its own color (Maceo, Nov 3: "multiple places where there are flavor notes that are
+            // not color coded"): the tone the feed's notes use (54-nl-tones), as data-nf on the chip
+            nlNoteAttr(name, kind) { if (!(this.newLook && this.newLook() && this.noteToneKey)) return ''; try { return ` data-nf="${this.esc(this.noteToneKey(name, kind || (this.teaMode && this.teaMode() ? 'tea' : 'coffee')))}"`; } catch (e) { return ''; } },
             famChip(name) {
                 const at = this.noteLocate(name);
                 const hex = at && at.f >= 0 ? at.color : '#7D8984';   // (v17.0: a tea note in its tea family's color)
                 const s = String(this.normalizeHexColor(hex) || '#7D8984').slice(1);
                 const rgb = [0, 2, 4].map(i => parseInt(s.slice(i, i + 2), 16)).join(', ');
-                return `<span class="fam-chip" style="${this.famVars(hex)}">${this.esc(name)}</span>`;
+                return `<span class="fam-chip"${this.nlNoteAttr(name)} style="${this.famVars(hex)}">${this.esc(name)}</span>`;
             },
 
             // the star widget stays beside the name unless that would split a word or squeeze the name past two lines;
@@ -172,7 +175,7 @@
                 const rated = latestFirst.filter(b => this.normalizeRating(b.rating) > 0);
                 const best = rated.slice().sort((a, b) => this.normalizeRating(b.rating) - this.normalizeRating(a.rating))[0];
                 const pick = master ? this.getMasterProfile(master) : (best || latestFirst[0]);
-                const pickLabel = master ? 'Master recipe' : `${best ? 'Best-rated' : 'Latest'} ${this.shotWord(pick && pick.method)}`;
+                const pickLabel = master ? 'Go-to recipe' : `${best ? 'Best-rated' : 'Latest'} ${this.shotWord(pick && pick.method)}`;
                 const methods = [...new Set(list.map(b => b.method).filter(Boolean))];
                 const avg = key => list.reduce((s, b) => s + (b[key] === undefined || b[key] === '' ? 5 : this.num(b[key])), 0) / list.length;
                 // v17.5: in the New look each bar wears its taste's color (sweetness red, acidity yellow…), all six tastes, in tea words for a tea
@@ -227,7 +230,7 @@
                     const rated = s.ratings.filter(Boolean);
                     const n = s.shots.length;
                     const status = s.dialedAt >= 0
-                        ? `Dialed in on session ${s.dialedAt + 1} · ${s.how === 'pinned as Master' ? 'Master' : 'first 4.5★+'}`
+                        ? `Dialed in on session ${s.dialedAt + 1} · ${s.how === 'pinned as Master' ? 'Go-to recipe' : 'first 4.5★+'}`
                         : (rated.length ? `Best so far ${this.fmtNum(Math.max(...rated))}★` : 'No ratings yet');
                     return `<div class="di-row"><i style="background:${this.esc(s.color)}"></i><b>${this.esc(s.owner)}</b><span>${this.esc(status)}</span><em>${n} session${n === 1 ? '' : 's'}</em></div>`;
                 }).join('');

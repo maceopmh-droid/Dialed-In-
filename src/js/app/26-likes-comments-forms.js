@@ -423,13 +423,15 @@
                 this.push(payload);
                 this.resetTimer();
                 this.closeModals();
+                if (this.logDraftDone) this.logDraftDone();   // v21.2: a draft that became this session is gone
+                if (this.newLook && this.newLook() && this.openSession) setTimeout(() => { if (this.brews.has(id)) this.openSession(id); }, 60);   // v21.2: saved: straight to its page (Maceo, Nov 3)
             },
 
             openMasterModal(id) {
                 const brew = this.brews.get(id);
                 if (!brew) return;
                 if (this.getBrewOwner(brew) !== this.user) {
-                    this.showToast('Only the owner can edit this master recipe.');
+                    this.showToast('Only the owner can edit this go-to recipe.');
                     return;
                 }
 
@@ -497,7 +499,7 @@
                 const brew = this.brews.get(id);
                 if (!brew) return;
                 if (this.getBrewOwner(brew) !== this.user) {
-                    this.showToast('Only the owner can save this master recipe.');
+                    this.showToast('Only the owner can save this go-to recipe.');
                     return;
                 }
 
@@ -528,24 +530,24 @@
                 }, brew);
                 this.push({ type: 'brew', ...updated });
                 this.closeModals();
-                this.showToast('Master recipe saved.');
+                this.showToast('Go-to recipe saved.');
             },
 
             unpinMaster(id) {
                 const brew = this.brews.get(id);
                 if (!brew) return;
                 if (this.getBrewOwner(brew) !== this.user) {
-                    this.showToast('Only the owner can remove this master recipe.');
+                    this.showToast('Only the owner can remove this go-to recipe.');
                     return;
                 }
-                if (!confirm('Remove this master recipe? The session will stay in history.')) return;
+                if (!confirm('Remove this go-to recipe? The session will stay in history.')) return;
                 const updated = this.withBrewOwner({
                     ...brew,
                     isMaster: false,
                     masterProfile: null
                 }, brew);
                 this.push({ type: 'brew', ...updated });
-                this.showToast('Master recipe removed.');
+                this.showToast('Go-to recipe removed.');
             },
 
             editBean() {
@@ -753,7 +755,14 @@
 
             openModal(id) {
                 document.getElementById(id).classList.add('active');
-                if (id === 'brew-modal') { this._brewSnap = undefined; setTimeout(() => { this._brewSnap = this.brewFormSnap(); }, 0); }
+                if (id === 'brew-modal') {
+                    this._brewSnap = undefined; setTimeout(() => { this._brewSnap = this.brewFormSnap(); }, 0);
+                    // v21.2: always from the top (Maceo, Nov 3: Clone "sometimes just brings you to the very bottom"): the sheet kept
+                    // where it was last scrolled; set again after it has drawn, in case something below scrolled it
+                    const top = () => { const m = document.getElementById('brew-modal'), c = m && m.querySelector('.modal-card'); if (m) m.scrollTop = 0; if (c) c.scrollTop = 0; };
+                    const db = document.getElementById('log-draft-btn'), f = this.getBrewForm(); if (db) db.hidden = !!(f && f.elements.id.value);   // (v21.2: an edit isn't a draft)
+                    top(); requestAnimationFrame(top); setTimeout(top, 120); setTimeout(top, 400);
+                }
             },
 
             closeModals() {

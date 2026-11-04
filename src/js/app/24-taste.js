@@ -230,7 +230,7 @@
                 }
                 if (tasted.every(k => Math.abs(cur.values[k] - this.tasteValue(R, k)) <= 1) && (dT === null || Math.abs(dT) <= 3) && !ev.length) {
                     ev.push({ side: 'ok', text: 'Within 1 of your best on every slider you moved' });
-                    return { ...base, conf: '', head: 'Right on your target. Keep this recipe.', detail: 'Worth pinning as Master if it keeps repeating.' };
+                    return { ...base, conf: '', head: 'Right on your target. Keep this recipe.', detail: 'Worth pinning as your go-to recipe if it keeps repeating.' };
                 }
                 if (dS !== null && dS <= -2) return { ...base, conf: 'possible', head: 'Less sweet than your best, but no clear direction yet.', detail: 'If it tasted sharp, raise Acidity. If it tasted harsh or drying, raise Bitterness. Then the tip can tell finer from coarser.' };
                 return { ...base, conf: 'possible', head: 'A little different from your best shot, but nothing points to grind or ratio.', detail: 'Keep the recipe and see if the difference repeats.' };
@@ -255,6 +255,7 @@
             renderTasteTip() {
                 const box = document.getElementById('taste-tip');
                 if (!box) return;
+                if (this.newLook && this.newLook()) { if (box.innerHTML) box.innerHTML = ''; box.hidden = true; return; }   // v21.2: no next-shot box in the Log (Maceo, Nov 3); the session's page has the coach once it's saved
                 if (this.logKind === 'tea' && this.teaTipHtml) { box.innerHTML = this.teaTipHtml(); return; }   // v17.0: next-steep advice, never grind
                 const c = this.coachFromForm();
                 if (c.method && this.activeGroup) {
@@ -352,7 +353,7 @@
                     if (this.wheelFam == null) tray.innerHTML = '<p class="note-help">Start broad, then go specific. “Tastes off” notes help the coach most.</p>';
                     else {
                         const groups = this.wheelGroup == null ? WH[this.wheelFam].groups : [WH[this.wheelFam].groups[this.wheelGroup]];
-                        tray.innerHTML = groups.map(([g, notes]) => `${this.wheelGroup == null ? `<div class="note-group">${this.esc(g)}</div>` : ''}<div class="note-chips">${notes.map(nm => `<button type="button" class="note-chip" aria-pressed="${this.selFlavors.includes(nm)}" onclick="app.pickNote('${app.escJs(nm)}', event)">${this.esc(nm)}</button>`).join('')}</div>`).join('');
+                        tray.innerHTML = groups.map(([g, notes]) => `${this.wheelGroup == null ? `<div class="note-group">${this.esc(g)}</div>` : ''}<div class="note-chips">${notes.map(nm => `<button type="button" class="note-chip"${this.nlNoteAttr(nm, lk)} aria-pressed="${this.selFlavors.includes(nm)}" onclick="app.pickNote('${app.escJs(nm)}', event)">${this.esc(nm)}</button>`).join('')}</div>`).join('');
                     }
                 }
                 const picked = document.getElementById('note-picked');
@@ -361,7 +362,7 @@
                         const lv = this.noteIntensity[nm] || 2;
                         const at = this.noteLocate(nm, lk);
                         const color = at ? at.color : 'var(--text-muted)';
-                        return `<span class="pick fam-pick" style="--fc:${color};${this.famVars(/^#/.test(color) ? color : '#7D8984')}"><i class="pick-dot"></i>${this.esc(nm)}<button type="button" class="dots" onclick="app.cycleNote('${app.escJs(nm)}', event)" aria-label="${this.esc(nm)} strength ${lv} of 3">${[1, 2, 3].map(i => `<i class="${i <= lv ? 'on' : ''}"></i>`).join('')}</button><button type="button" class="x" onclick="app.pickNote('${app.escJs(nm)}', event)" aria-label="Remove ${this.esc(nm)}">×</button></span>`;
+                        return `<span class="pick fam-pick"${this.nlNoteAttr(nm, lk)} style="--fc:${color};${this.famVars(/^#/.test(color) ? color : '#7D8984')}"><i class="pick-dot"></i>${this.esc(nm)}<button type="button" class="dots" onclick="app.cycleNote('${app.escJs(nm)}', event)" aria-label="${this.esc(nm)} strength ${lv} of 3">${[1, 2, 3].map(i => `<i class="${i <= lv ? 'on' : ''}"></i>`).join('')}</button><button type="button" class="x" onclick="app.pickNote('${app.escJs(nm)}', event)" aria-label="Remove ${this.esc(nm)}">×</button></span>`;
                     }).join('')}</div>` : '';
                 }
                 const hints = document.getElementById('note-hints');
@@ -372,7 +373,7 @@
                         Array.from(this.brews.values()).filter(b => this.groupKeyOfBrew(b) === key).forEach(b => this.extractFlavors(b).forEach(n => counts2.set(n, (counts2.get(n) || 0) + 1)));
                     }
                     const top = [...counts2.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6).map(([n]) => n);
-                    hints.innerHTML = top.length ? `<div class="note-hints"><span>Others noted:</span>${top.map(nm => `<button type="button" class="note-chip hint" aria-pressed="${this.selFlavors.includes(nm)}" onclick="app.pickNote('${app.escJs(nm)}', event)">${this.esc(nm)}</button>`).join('')}</div>` : '';
+                    hints.innerHTML = top.length ? `<div class="note-hints"><span>Others noted:</span>${top.map(nm => `<button type="button" class="note-chip hint"${this.nlNoteAttr(nm, lk)} aria-pressed="${this.selFlavors.includes(nm)}" onclick="app.pickNote('${app.escJs(nm)}', event)">${this.esc(nm)}</button>`).join('')}</div>` : '';
                 }
                 this.renderCupWords();
             },

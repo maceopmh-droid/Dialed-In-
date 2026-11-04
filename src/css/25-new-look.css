@@ -823,3 +823,34 @@
 
         /* v21.0: the photo's label has room under the dose / pull / time boxes */
         html[data-look="new"] #brew-modal .photo-label { display: block; margin-top: 22px !important; }
+
+        /* v21.2: every flavor note in its own color, everywhere (the coffee page's Flavor profile, Compare and the other tabs,
+           your palate, the Log form's wheel, its hints and your picked notes), like the feed's notes */
+        html[data-look="new"] .fam-chip[data-nf], html[data-look="new"] [data-fam] .fam-chip[data-nf], html[data-look="new"] .flv-note[data-nf],
+        html[data-look="new"] .note-chip[data-nf], html[data-look="new"] .modal-card .note-chip[data-nf], html[data-look="new"] .pick.fam-pick[data-nf] { background: var(--fbg) !important; color: var(--ffg) !important; border: 0 !important; box-shadow: none !important; }
+        html[data-look="new"] .note-chip[data-nf][aria-pressed="true"], html[data-look="new"] .modal-card .note-chip[data-nf][aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--ffg) !important; font-weight: 750; }
+        html[data-look="new"] .flv-note[data-nf] em, html[data-look="new"] .fam-chip[data-nf] em { color: inherit; opacity: 0.7; font-style: normal; }
+        html[data-look="new"] .pick.fam-pick[data-nf] .pick-dot { background: var(--ffg) !important; }
+        html[data-look="new"] .flv-note[data-nf] .flv-dots b, html[data-look="new"] .pick.fam-pick[data-nf] .dots i { background: color-mix(in srgb, var(--ffg) 28%, transparent); }
+        html[data-look="new"] .flv-note[data-nf] .flv-dots b.on, html[data-look="new"] .pick.fam-pick[data-nf] .dots i.on { background: var(--ffg); }
+
+        /* v21.2: Flavor profile folds */
+        html[data-look="new"] #d-flavor .bf-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; cursor: pointer; }
+        html[data-look="new"] .bf-fold { width: 34px; height: 34px; min-height: 0; padding: 0; margin: -2px -4px 0 0; flex: none; display: grid; place-items: center; border-radius: 17px !important; background: var(--pill) !important; border: 0 !important; color: var(--t) !important; }
+        html[data-look="new"] .bf-fold .icon { width: 18px; height: 18px; transition: transform 0.2s ease; }
+        html[data-look="new"] .bf-folded .bf-fold .icon { transform: rotate(-90deg); }
+        html[data-look="new"] .bf-folded .bf-head p { margin-bottom: 0; }
+
+        /* v21.2: drafts from the Log */
+        html[data-look="new"] #brew-modal .log-draft-btn { margin-top: 10px; width: 100%; }
+        html[data-look="new"] .ld-host { display: grid; gap: 8px; margin-top: 10px; }
+        html[data-look="new"] .ld-host[hidden] { display: none; }
+        html[data-look="new"] .ld-pill { display: flex; align-items: center; gap: 6px; padding: 4px 4px 4px 0; border-radius: 18px; background: var(--pill); }
+        html[data-look="new"] .ld-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; min-height: 0; margin: 0; padding: 8px 6px 8px 14px; background: none !important; border: 0 !important; box-shadow: none !important; color: var(--t) !important; text-align: left; font: inherit; }
+        html[data-look="new"] .ld-open .icon, html[data-look="new"] .ld-ic .icon { width: 18px; height: 18px; flex: none; }
+        html[data-look="new"] .ld-open span { display: grid; gap: 1px; min-width: 0; }
+        html[data-look="new"] .ld-open b { font-weight: 650; font-size: 0.95rem; }
+        html[data-look="new"] .ld-open small { color: var(--l); font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        html[data-look="new"] .ld-del { width: 36px; height: 36px; min-height: 0; padding: 0; margin: 0; flex: none; display: grid; place-items: center; border-radius: 18px !important; background: none !important; border: 0 !important; color: var(--l) !important; }
+        html[data-look="new"] .ld-del .icon { width: 17px; height: 17px; }
+        html[data-look="new"] .ld-ic { width: 56px; height: 30px; display: grid; place-items: center; color: var(--l); }

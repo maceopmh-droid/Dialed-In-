@@ -50,7 +50,7 @@
             noteChipsHtml(notes, withCounts) {
                 return notes.map(x => {
                     const color = x.color || (x.f >= 0 ? NOTE_WHEEL[x.f].color : '#7D8984');
-                    return `<span class="flv-note fam-chip" style="${this.famVars(color)}">${this.esc(x.n)}${withCounts ? (x.count > 1 ? `<em>×${x.count}</em>` : '') : `<span class="flv-dots">${[1, 2, 3].map(k => `<b class="${k <= x.strength ? 'on' : ''}"></b>`).join('')}</span>`}</span>`;
+                    return `<span class="flv-note fam-chip"${this.nlNoteAttr(x.n)} style="${this.famVars(color)}">${this.esc(x.n)}${withCounts ? (x.count > 1 ? `<em>×${x.count}</em>` : '') : `<span class="flv-dots">${[1, 2, 3].map(k => `<b class="${k <= x.strength ? 'on' : ''}"></b>`).join('')}</span>`}</span>`;
                 }).join('');
             },
 
@@ -139,9 +139,13 @@
                 const fc = this.flavorCounts(pool, kind);
                 const chips = people.length > 1 && people.length <= 8 ? `<div class="bf-people">${['all', ...people].map(p => `<button type="button" class="chip-btn" aria-pressed="${this.beanFlavorWho === p}" data-who="${this.esc(p)}" onclick="app.setBeanFlavorWho(this.getAttribute('data-who'))">${p === 'all' ? 'All' : this.esc(p)}</button>`).join('')}</div>` : '';
                 const words = this.describeCup(values, tasted, fc.notes.slice(0, 4).map(x => x.n), Object.fromEntries(fc.notes.map(x => [x.n, x.strength])), kind);
-                box.innerHTML = `<div class="bf-head"><div><h3>Flavor profile</h3><p>${pool.length} session${pool.length === 1 ? '' : 's'} · ${this.beanFlavorWho === 'all' ? this.esc(this.lensLabel()) : this.esc(this.beanFlavorWho)}${mineBest ? ' · dashed: your best' : ''}</p></div></div>${chips}<div id="bf-shape"></div>${!tasted.length ? '<div class="flv-empty">No taste sliders set on these sessions yet.</div>' : ''}${fc.notes.length ? `<div class="bf-wheel">${this.wheelSvgStatic(fc, kind)}<div class="flv-notes">${this.noteChipsHtml(fc.notes.slice(0, 12), true)}</div></div>` : ''}${words ? `<div class="flv-words">${this.esc(words)}</div>` : ''}`;
+                // v21.2: Flavor profile folds (Maceo, Nov 3); remembered on this phone, open to start
+                const bfOpen = !(this.newLook && this.newLook()) || safeGet('dialed_bf_fold') !== '1';
+                box.classList.toggle('bf-folded', !bfOpen);
+                const fold = this.newLook && this.newLook() ? `<button type="button" class="bf-fold" aria-expanded="${bfOpen}" aria-controls="bf-body" aria-label="${bfOpen ? 'Fold' : 'Open'} Flavor profile" onclick="app.toggleBeanFlavor()"><svg class="icon" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>` : '';
+                box.innerHTML = `<div class="bf-head"${fold ? ' onclick="if(!event.target.closest(\'.bf-fold\'))app.toggleBeanFlavor()"' : ''}><div><h3>Flavor profile</h3><p>${pool.length} session${pool.length === 1 ? '' : 's'} · ${this.beanFlavorWho === 'all' ? this.esc(this.lensLabel()) : this.esc(this.beanFlavorWho)}${mineBest ? ' · dashed: your best' : ''}</p></div>${fold}</div><div class="bf-body" id="bf-body"${bfOpen ? '' : ' hidden'}>${chips}<div id="bf-shape"></div>${!tasted.length ? '<div class="flv-empty">No taste sliders set on these sessions yet.</div>' : ''}${fc.notes.length ? `<div class="bf-wheel">${this.wheelSvgStatic(fc, kind)}<div class="flv-notes">${this.noteChipsHtml(fc.notes.slice(0, 12), true)}</div></div>` : ''}${words ? `<div class="flv-words">${this.esc(words)}</div>` : ''}</div>`;
                 setTimeout(() => this.fillShapeImages(document.getElementById('detail-view')), 0);
-                if (typeof FlavorShape !== 'undefined' && tasted.length && this.newLook() && this.nlSpinMount) {   // v21.0: the Session screen's shape
+                if (typeof FlavorShape !== 'undefined' && tasted.length && this.newLook() && this.nlSpinMount) { if (!bfOpen) return;   // v21.0: the Session screen's shape (v21.2: not while folded)
                     this.nlSpinMount(document.getElementById('bf-shape'), { id: `bean|${groupKey}`, values: () => this.beanFlavorValues, isSet: k => tasted.includes(k),
                         ghost: this.beanFlavorGhost ? () => this.beanFlavorGhost : null, names: () => (this.beanFlavorKind === 'tea' ? 'tea' : null) });
                 } else if (typeof FlavorShape !== 'undefined' && tasted.length) {
@@ -150,6 +154,13 @@
                     if (bfHost && typeof bfHost.replaceChildren === 'function') bfHost.replaceChildren(this.beanView.el);
                     this.beanView.start();
                 }
+            },
+
+            toggleBeanFlavor() {
+                const open = safeGet('dialed_bf_fold') === '1';
+                safeSet('dialed_bf_fold', open ? '' : '1');
+                if (this.haptic) this.haptic('tick');
+                this.renderBeanFlavor(this.detailBrews || []);
             },
 
             setBeanFlavorWho(who) {
@@ -225,6 +236,7 @@
                 const topFlavors = this.getTopFlavors(brews, 3);
                 document.getElementById('d-top-flavors').innerHTML = topFlavors.map(flavor => this.famChip(flavor)).join('');
 
+                if (this.renderDraftPill) this.renderDraftPill();   // v21.2: Continue draft
                 this.renderBeanFlavor(brews);
                 this.detailBrews = [...brews];
                 this.setDetailTab(this.detailTab || 'timeline');
@@ -246,13 +258,13 @@
                     const notes = String(profile.notes || this.getBrewNotes(master) || '').trim();
                     card.innerHTML = `
                         <div class="master-top">
-                            <div style="font-size:0.65rem; color:var(--matcha); font-weight:800; text-transform:uppercase;">${this.esc(masterOwner)}'s Master</div>
+                            <div style="font-size:0.65rem; color:var(--matcha); font-weight:800; text-transform:uppercase;">${this.esc(masterOwner)}'s go-to</div>
                             ${masterOwner === this.user ? `
                                 <div class="master-actions">
-                                    <button class="btn-clean" onclick="app.openMasterModal('${app.escJs(master.id)}')" title="Edit master recipe">
+                                    <button class="btn-clean" onclick="app.openMasterModal('${app.escJs(master.id)}')" title="Edit go-to recipe">
                                         <svg class="icon" style="width:14px;height:14px;"><use href="#i-edit-2"/></svg>
                                     </button>
-                                    <button class="btn-clean danger" onclick="app.unpinMaster('${app.escJs(master.id)}')" title="Remove master recipe">
+                                    <button class="btn-clean danger" onclick="app.unpinMaster('${app.escJs(master.id)}')" title="Remove go-to recipe">
                                         <svg class="icon" style="width:14px;height:14px;"><use href="#i-trash-2"/></svg>
                                     </button>
                                 </div>
@@ -264,7 +276,7 @@
                     `;
                     masterBox.appendChild(card);
                 });
-                this.moreDom(masterBox, 2, 'master recipes');   // v15.1
+                this.moreDom(masterBox, 2, 'go-to recipes');   // v15.1
 
                 const logBox = document.getElementById('d-logs');
                 const keyedLogs = this.canPatchDom(logBox);

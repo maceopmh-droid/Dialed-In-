@@ -250,7 +250,8 @@
             // ---- Drafts, on your own profile (above your sessions): each with its coffee, when, the numbers and a tiny curve
             renderShotDraftsCard() {
                 const list = this.shotsOn() ? (this.shotDrafts || []) : [];
-                if (!list.length) return '';
+                const logRows = this.logDraftRowsHtml ? this.logDraftRowsHtml() : '', logN = this.logDrafts ? this.logDrafts().length : 0;   // v21.2: the Log's drafts too
+                if (!list.length && !logRows) return '';
                 const rows = list.map(d => {
                     const s = d.shot || {};
                     const num = v => this.shotVal(v) !== null ? this.fmtNum(Number(v)) : '';
@@ -261,7 +262,7 @@
                         <span class="sd-main"><b>${this.esc(d.coffee || 'Espresso')}</b><span>${bits}</span></span></button>
                         <button type="button" class="sd-del" aria-label="Delete this draft" onclick="app.dismissShot('${this.escJs(String(d.id))}', event)"><svg class="icon" aria-hidden="true"><use href="#i-trash-2"/></svg></button></div>`;
                 }).join('');
-                return `<div class="profile-card shot-drafts"><div class="label">Drafts <span class="sd-count">${Math.max(list.length, this.shotDraftCount || 0)}</span></div>${rows}</div>`;
+                return `<div class="profile-card shot-drafts"><div class="label">Drafts <span class="sd-count">${Math.max(list.length, list.length ? this.shotDraftCount || 0 : 0) + logN}</span></div>${logRows}${rows}</div>`;
             },
 
             // ---- the Shot tab on your posted machine shots: the graph, its key and how each phase went

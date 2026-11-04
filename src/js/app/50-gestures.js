@@ -7,7 +7,7 @@
             // - Coffees: swipe left or right between Mine and All. Feed: between Following, Community and Discover.
             // A swipe never starts on a slider, a 3D flavor shape, a text box or a row that scrolls sideways (except from
             // the very left edge, for Back), and a mostly-up-and-down drag is always just scrolling.
-            swipeSheets() { return ['notif-modal', 'level-modal', 'notif-set-modal', 'shot-modal', 'bugs-modal', 'legal-modal', 'people-modal', 'settings-modal', 'shape-modal', 'achievement-modal', 'fab-modal', 'review-modal']; },
+            swipeSheets() { return ['notif-modal', 'level-modal', 'notif-set-modal', 'shot-modal', 'bugs-modal', 'legal-modal', 'people-modal', 'settings-modal', 'shape-modal', 'achievement-modal', 'fab-modal', 'review-modal', 'brew-modal']; },   // (v21.2: the Log too: swiped away it's kept as a draft)
 
             topSheet() {
                 const open = [...document.querySelectorAll('.modal.active')];
@@ -111,7 +111,7 @@
                     if (!g.lock) {
                         if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
                         const across = Math.abs(dx) > Math.abs(dy) * 1.3, down = dy > 0 && Math.abs(dy) > Math.abs(dx) * 1.3;
-                        if (g.kind === 'sheet') g.lock = down && g.top ? 'down' : (across && dx > 0 && g.side ? 'right' : 'none');
+                        if (g.kind === 'sheet') g.lock = down && g.top ? 'down' : (across && dx > 0 && g.side ? 'right' : (across && dx < 0 && g.side && g.modal && g.modal.id === 'brew-modal' ? 'left' : 'none'));   // (v21.2: the Log goes either way)
                         else if (g.kind === 'back') g.lock = across && dx > 0 ? 'right' : 'none';
                         else g.lock = across ? 'side' : 'none';
                         if (g.lock === 'none') { g = null; return; }
@@ -122,6 +122,7 @@
                     g.dx = dx; g.dy = dy; g.t = Date.now();
                     if (g.lock === 'down') { g.el.style.transform = `translateY(${Math.max(0, dy)}px)`; g.modal.style.opacity = String(Math.max(0.35, 1 - Math.max(0, dy) / (H() * 1.4))); }
                     else if (g.lock === 'right' && g.kind === 'sheet') { g.el.style.transform = `translateX(${Math.max(0, dx)}px)`; g.modal.style.opacity = String(Math.max(0.35, 1 - Math.max(0, dx) / (W() * 1.4))); }
+                    else if (g.lock === 'left' && g.kind === 'sheet') { g.el.style.transform = `translateX(${Math.min(0, dx)}px)`; g.modal.style.opacity = String(Math.max(0.35, 1 - Math.max(0, -dx) / (W() * 1.4))); }
                     else if (g.kind === 'back') g.el.style.transform = `translateX(${g.soft ? Math.max(0, dx) * 0.4 : Math.max(0, dx)}px)`;
                     else if (g.kind === 'tabs') {
                         const i = g.tabs.list.indexOf(g.tabs.now), next = dx < 0 ? i + 1 : i - 1, room = next >= 0 && next < g.tabs.list.length;
@@ -136,13 +137,16 @@
                     const ms = Math.max(1, (s.t || Date.now()) - s.t0), w = W(), h = H();
                     const vx = s.dx / ms, vy = s.dy / ms;
                     if (s.kind === 'sheet') {
-                        const go = s.lock === 'down' ? (s.dy > Math.min(140, h * 0.18) || (vy > 0.5 && s.dy > 40)) : (s.dx > w * 0.3 || (vx > 0.5 && s.dx > 40));
+                        let go = s.lock === 'down' ? (s.dy > Math.min(140, h * 0.18) || (vy > 0.5 && s.dy > 40)) : s.lock === 'left' ? (-s.dx > w * 0.3 || (-vx > 0.5 && -s.dx > 40)) : (s.dx > w * 0.3 || (vx > 0.5 && s.dx > 40));
+                        const isLog = s.modal && s.modal.id === 'brew-modal';
+                        if (go && isLog && this.logSwipeAllowed && !this.logSwipeAllowed()) go = false;   // (v21.2: a running timer or unsaved edit keeps the Log open)
                         const modal = s.modal;
                         s.el.style.transition = ease; modal.style.transition = 'opacity 0.22s ease';
                         if (!go) { s.el.style.transform = ''; modal.style.opacity = ''; setTimeout(() => { clear(s.el); modal.style.transition = ''; }, 240); return; }
-                        s.el.style.transform = s.lock === 'down' ? `translateY(${h}px)` : `translateX(${w}px)`; modal.style.opacity = '0';
+                        s.el.style.transform = s.lock === 'down' ? `translateY(${h}px)` : s.lock === 'left' ? `translateX(${-w}px)` : `translateX(${w}px)`; modal.style.opacity = '0';
                         setTimeout(() => {
-                            modal.dispatchEvent(new MouseEvent('click', { bubbles: true }));   // its own close (what tapping outside it does)
+                            if (isLog && this.logSwipeAway) this.logSwipeAway();   // v21.2: the Log is kept as a draft (if anything's in it)
+                            else modal.dispatchEvent(new MouseEvent('click', { bubbles: true }));   // its own close (what tapping outside it does)
                             if (modal.classList.contains('active')) modal.classList.remove('active');
                             clear(s.el); modal.style.opacity = ''; modal.style.transition = '';
                         }, 200);
