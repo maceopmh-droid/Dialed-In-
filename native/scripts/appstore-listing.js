@@ -66,6 +66,10 @@ const must = (r, what) => { if (!r.ok) throw new Error(`${what} (${why(r)})`); r
     none.forEach(k => { if (have.includes(k)) attrs[k] = 'NONE'; });
     no.forEach(k => { if (have.includes(k)) attrs[k] = false; });
     yes.forEach(k => { if (have.includes(k)) attrs[k] = true; });
+    // v21.6: Apple's social media question (required for updates from September 2026): yes, Dialed In has a feed, likes,
+    // comments and following; not restricted by age (its Terms already ask for 13+, which is where Social Media rates)
+    attrs.socialMedia = true;
+    if (have.includes('socialMediaAgeRestricted')) attrs.socialMediaAgeRestricted = false;
     must(await api('PATCH', `/v1/ageRatingDeclarations/${d.j.data.id}`, { data: { type: 'ageRatingDeclarations', id: d.j.data.id, attributes: attrs } }), 'age rating');
   });
 
@@ -170,7 +174,7 @@ const must = (r, what) => { if (!r.ok) throw new Error(`${what} (${why(r)})`); r
       ids.push(r.j.data.id);
     }
     let states = [];
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 90; i++) {   // (up to 6 minutes: Apple can take a few to take each picture in)
       await new Promise(r => setTimeout(r, 4000));
       states = await Promise.all(ids.map(async id => { const r = await api('GET', `/v1/appScreenshots/${id}`); return r.ok ? ((r.j.data.attributes.assetDeliveryState || {}).state || '?') : 'gone'; }));
       if (states.every(s => s === 'COMPLETE' || s === 'FAILED')) break;
