@@ -136,6 +136,7 @@
                     const q = new URLSearchParams(location.search), s = q.get('s'), c = q.get('c'), r = q.get('r');
                     if (!s && !c && !r) return;
                     safeSet('dialed_pending_share', JSON.stringify({ s: s || '', c: c || '', r: r || '', u: q.get('by') || '' }));
+                    if (s || c) this._shareNow = { s: s || '', c: s ? '' : (c || '') };   // v21.3: opened this time (signed out, it opens as a share page)
                     const u = new URL(location.href); ['s', 'c', 'r', 'by'].forEach(k => u.searchParams.delete(k));
                     history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
                 } catch (e) {}
@@ -149,12 +150,14 @@
                 if (p.s) {
                     const b = this.brews.get(String(p.s));
                     if (b && this.beans.has(String(b.beanId || ''))) { this.setTab('feed'); this.openFeedTarget(b.beanId, String(p.s), false); return; }
-                    if (p.u && p.u !== this.user) this.openAnyProfile(p.u); else this.showToast('That session isn\'t shared with you.');
+                    const miss = () => { if (p.u && p.u !== this.user) this.openAnyProfile(p.u); else this.showToast('That session isn\'t shared with you.'); };
+                    if (this.openSharedLink) this.openSharedLink({ s: String(p.s) }, { onMissing: miss }); else miss();   // v21.3: shared with everyone: its share page
                     return;
                 }
                 if (p.c) {
                     if (this.beans.has(String(p.c))) { this.openFeedTarget(String(p.c)); return; }
-                    if (p.u && p.u !== this.user) this.openAnyProfile(p.u); else this.showToast('That coffee isn\'t shared with you.');
+                    const miss = () => { if (p.u && p.u !== this.user) this.openAnyProfile(p.u); else this.showToast('That coffee isn\'t shared with you.'); };
+                    if (this.openSharedLink) this.openSharedLink({ c: String(p.c) }, { onMissing: miss }); else miss();   // v21.3
                     return;
                 }
                 if (p.r) {

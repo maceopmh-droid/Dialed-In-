@@ -5023,6 +5023,81 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] .nl-fav .sc-strip { margin-top: 14px; }
         html[data-look="new"] [data-fam] .master-pill .sc-cell { padding: 10px 9px 9px !important; }
         html[data-look="new"] .nl-fav .sc-gear { margin-top: 12px; }
+        /* v21.3: share links anyone can open: the Session screen read-only, over everything (the welcome too) */
+        html[data-look="new"] #share-view { display: none; position: fixed; inset: 0; z-index: 5650; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+        html[data-look="new"] #share-view.active { display: block; animation: nlSlideIn 0.26s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        @media (prefers-reduced-motion: reduce) { html[data-look="new"] #share-view.active { animation: none; } }
+        html[data-look="new"] body.shv-open { overflow: hidden; }
+        html[data-look="new"] #share-view .shv-page { min-height: 100%; }
+        html[data-look="new"] #share-view.shv-guest .shv-page { padding-bottom: calc(132px + var(--safe-bottom, 0px)); }
+        html[data-look="new"] .shv-bar { position: fixed; left: 0; right: 0; top: 0; z-index: 3; display: flex; align-items: center; justify-content: space-between; padding: calc(var(--safe-top, 0px) + 8px) 16px 8px; pointer-events: none; }
+        html[data-look="new"] .shv-bar > * { pointer-events: auto; }
+        html[data-look="new"] .shv-bar .nl-glass { -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); background: color-mix(in srgb, var(--c, #141915) 84%, transparent); }
+        html[data-look="new"] .shv-brand { height: 40px; display: inline-flex; align-items: center; gap: 8px; padding: 0 14px 0 6px; border-radius: 20px; background: rgba(20, 16, 14, 0.45); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); color: #fff; font-size: 15px; font-weight: 600; }
+        html[data-look="new"] .shv-brand img { width: 28px; height: 28px; border-radius: 8px; }
+        html[data-look="new"] .shv-join { height: 40px; min-height: 0; width: auto; margin: 0; display: inline-flex; align-items: center; padding: 0 18px; border-radius: 20px !important; border: 0; background: #8DB791; color: #0B160D; font-size: 15px; font-weight: 700; box-shadow: none; }
+        html[data-look="new"][data-theme="light"] .shv-join { background: #4E6B52; color: #fff; }
+        html[data-look="new"] .shv-cta { position: fixed; left: 12px; right: 12px; bottom: calc(var(--safe-bottom, 0px) + 12px); z-index: 3; border-radius: 24px; padding: 14px 14px 14px 18px; display: flex; align-items: center; gap: 12px; background: rgba(24, 20, 18, 0.86); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.08); }
+        html[data-look="new"] .shv-cta div { flex: 1; min-width: 0; }
+        html[data-look="new"] .shv-cta b { display: block; color: #F3EEE6; font-size: 15.5px; font-weight: 650; }
+        html[data-look="new"] .shv-cta small { display: block; color: #B9B2A7; font-size: 13px; margin-top: 2px; line-height: 1.3; }
+        html[data-look="new"] .shv-cta button { height: 42px; min-height: 0; width: auto; margin: 0; flex: none; display: inline-flex; align-items: center; padding: 0 16px; border-radius: 21px !important; border: 0; background: #8DB791; color: #0B160D; font-size: 15px; font-weight: 700; white-space: nowrap; box-shadow: none; }
+        html[data-look="new"][data-theme="light"] .shv-cta { background: rgba(255, 252, 247, 0.92); border-color: rgba(0, 0, 0, 0.06); }
+        html[data-look="new"][data-theme="light"] .shv-cta b { color: #1E2420; }
+        html[data-look="new"][data-theme="light"] .shv-cta small { color: #6E6A61; }
+        html[data-look="new"][data-theme="light"] .shv-cta button { background: #4E6B52; color: #fff; }
+        html[data-look="new"] .shv-more { width: 100%; min-height: 0; margin: 0; display: flex; align-items: center; gap: 12px; text-align: left; border-radius: 22px !important; padding: 14px 16px; background: var(--pill) !important; color: var(--t) !important; border: 0 !important; box-shadow: none !important; }
+        html[data-look="new"] .shv-more span { flex: 1; min-width: 0; }
+        html[data-look="new"] .shv-more b { display: block; font-size: 16px; font-weight: 650; color: var(--n); }
+        html[data-look="new"] .shv-more small { display: block; font-size: 13.5px; color: var(--l); margin-top: 2px; }
+        html[data-look="new"] .shv-more .icon { width: 18px; height: 18px; color: var(--l); }
+        html[data-look="new"] .shv-chero { padding-top: calc(var(--safe-top, 0px) + 68px) !important; }
+        html[data-look="new"] .shv-chero .shv-cover { margin-bottom: 14px; }
+        html[data-look="new"] .shv-notes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+        html[data-look="new"] .shv-sub { color: var(--l); font-size: 14px; margin: 0 0 6px; }
+        html[data-look="new"] .shv-flavor .bf-wheel { margin-top: 10px; }
+        html[data-look="new"] .shv-wait, html[data-look="new"] .shv-none { padding: calc(var(--safe-top, 0px) + 120px) 24px 40px; text-align: center; color: var(--t); }
+        html[data-look="new"] .shv-none h2 { font-family: var(--nl-serif); font-size: 28px; font-weight: 500; margin: 0 0 8px; color: var(--n); }
+        html[data-look="new"] .shv-none p { color: var(--l); margin: 0 0 22px; }
+        html[data-look="new"] .shv-none button { width: auto; padding: 0 22px; }
+        /* v21.3: a coffee's specs, one labeled row each; several values in a row are each their own small button */
+        html[data-look="new"] #detail-view .dh-tags.nl-tags-off { display: none !important; }
+        html[data-look="new"] .nl-specs { margin-top: 18px; border-radius: 20px; background: var(--pill); overflow: hidden; width: 100%; }
+        html[data-look="new"] .nl-specs .nl-spec { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 50px; margin: 0; padding: 0 14px 0 16px; text-align: left; background: none !important; border: 0 !important; border-top: 1px solid color-mix(in srgb, var(--n) 9%, transparent) !important; border-radius: 0 !important; box-shadow: none !important; color: var(--t) !important; font: inherit; letter-spacing: 0; text-transform: none; cursor: default; }
+        html[data-look="new"] .nl-specs .nl-spec:first-child { border-top: 0 !important; }
+        html[data-look="new"] .nl-specs button.nl-spec { cursor: pointer; }
+        html[data-look="new"] .nl-specs button.nl-spec:active { background: color-mix(in srgb, var(--n) 7%, transparent) !important; }
+        html[data-look="new"] .nl-spec-ic { width: 19px !important; height: 19px !important; color: var(--k); stroke: currentColor; flex: none; }
+        html[data-look="new"] .nl-spec-k { width: 74px; flex: none; color: var(--l); font-size: 15px; font-weight: 400; }
+        html[data-look="new"] .nl-spec-v { flex: 1; min-width: 0; color: var(--n); font-size: 16px; font-weight: 600; line-height: 1.3; padding: 13px 0; }
+        html[data-look="new"] .nl-spec-ch { width: 15px !important; height: 15px !important; color: var(--l); stroke: currentColor; flex: none; }
+        html[data-look="new"] .nl-specs .nl-spec-multi { align-items: flex-start; }
+        html[data-look="new"] .nl-spec-multi .nl-spec-ic { margin-top: 15px; }
+        html[data-look="new"] .nl-spec-multi .nl-spec-k { margin-top: 13px; }
+        html[data-look="new"] .nl-spec-multi .nl-spec-v { display: flex; flex-wrap: wrap; gap: 6px; padding: 9px 0; }
+        html[data-look="new"] .nl-specs .nl-spec-pill { display: inline-flex; align-items: center; gap: 2px; height: 32px; min-height: 0; width: auto; margin: 0; padding: 0 8px 0 12px; border-radius: 16px !important; background: color-mix(in srgb, var(--n) 10%, transparent) !important; color: var(--n) !important; border: 0 !important; box-shadow: none !important; font: inherit; font-size: 14.5px; font-weight: 600; letter-spacing: 0; text-transform: none; }
+        html[data-look="new"] .nl-specs .nl-spec-pill.is-plain { padding-right: 12px; }
+        html[data-look="new"] .nl-spec-ch.sm { width: 13px !important; height: 13px !important; }
+        /* v21.3: the stars beside the coffee's tile (like the Coffees list), not on a row of their own */
+        html[data-look="new"] #detail-view .nl-dtoprow { order: 0; display: flex; align-items: center; gap: 16px; margin: 6px 0 2px; position: relative; z-index: 2; }
+        html[data-look="new"] #detail-view .nl-dtoprow .nl-dcover { margin: 0; flex: none; }
+        html[data-look="new"] #detail-view .nl-dtoprow #d-rating-summary { margin-top: 0; flex: 1; min-width: 0; }
+        /* v21.3: the Coffees list: origin, variety and process each with its icon; the count beside the stars */
+        html[data-look="new"] .nl-specline { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 14px; min-width: 0; }
+        html[data-look="new"] .nl-sl { display: inline-flex; align-items: center; gap: 5px; }
+        html[data-look="new"] .nl-sl .icon { width: 15px; height: 15px; color: var(--k); stroke: currentColor; flex: none; }
+        html[data-look="new"] .nl-csess { color: var(--l); font-weight: 500; margin-left: 4px; }
+        /* v21.3: Sessions and its You / Everyone switch on one row */
+        html[data-look="new"] #detail-view #d-lens:not([hidden]) { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
+        html[data-look="new"] #detail-view #d-lens .cp-lead { font-size: 20px; font-weight: 650; color: var(--n); margin: 0; letter-spacing: 0; text-transform: none; }
+        html[data-look="new"] #detail-view #d-lens .comm-filters { margin: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; max-width: 100%; }
+        html[data-look="new"] #detail-view #d-lens .comm-filters::-webkit-scrollbar { display: none; }
+        html[data-look="new"] #detail-view #d-lens .lens-sum { flex-basis: 100%; }
+        /* v21.3: Timeline, Compare and the rest: an icon on each, and the bar stays at the top while you scroll the sessions */
+        html[data-look="new"] #detail-view .insight-tabs { position: sticky; top: calc(var(--safe-top, 0px) + 58px); z-index: 30; margin: 20px -16px 10px; padding: 8px 16px; background: color-mix(in srgb, var(--pg, var(--c)) 84%, transparent); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+        html[data-look="new"] #detail-view .insight-tab { display: inline-flex !important; align-items: center; gap: 7px; height: 38px !important; padding: 0 14px 0 12px !important; border-radius: 19px !important; }
+        html[data-look="new"] #detail-view .insight-tab .it-ic { width: 17px; height: 17px; color: var(--k); stroke: currentColor; flex: none; }
+        html[data-look="new"] #detail-view .insight-tab.active .it-ic { color: var(--c); }
         /* ===================== v19.0: Learn =====================
            The New look's kit (claude/new-look-ds.css) plus the Learn screens' parts (claude/learn-mockups-src.md): pages tinted
            by their typical flavor family, names in the big serif, every section folding. All of it is the New look's. */
@@ -6188,11 +6263,11 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
             <section id="d-flavor" class="bean-flavor"></section>
 
             <div class="insight-tabs">
-                <button class="insight-tab active" data-detail-tab="timeline" onclick="app.setDetailTab('timeline')">Timeline</button>
-                <button class="insight-tab" data-detail-tab="compare" onclick="app.setDetailTab('compare')">Compare</button>
-                <button class="insight-tab" data-detail-tab="side" onclick="app.setDetailTab('side')">Side by side</button>
-                <button class="insight-tab" data-detail-tab="dialin" onclick="app.setDetailTab('dialin')">Dial-in</button>
-                <button class="insight-tab" data-detail-tab="sweet" onclick="app.setDetailTab('sweet')">Sweet spot</button>
+                <button class="insight-tab active" data-detail-tab="timeline" onclick="app.setDetailTab('timeline')"><svg class="icon it-ic" aria-hidden="true"><use href="#i-calendar"/></svg>Timeline</button>
+                <button class="insight-tab" data-detail-tab="compare" onclick="app.setDetailTab('compare')"><svg class="icon it-ic" aria-hidden="true"><use href="#i-repeat"/></svg>Compare</button>
+                <button class="insight-tab" data-detail-tab="side" onclick="app.setDetailTab('side')"><svg class="icon it-ic" aria-hidden="true"><use href="#i-sliders"/></svg>Side by side</button>
+                <button class="insight-tab" data-detail-tab="dialin" onclick="app.setDetailTab('dialin')"><svg class="icon it-ic" aria-hidden="true"><use href="#i-trend"/></svg>Dial-in</button>
+                <button class="insight-tab" data-detail-tab="sweet" onclick="app.setDetailTab('sweet')"><svg class="icon it-ic" aria-hidden="true"><use href="#i-target"/></svg>Sweet spot</button>
             </div>
 
             <div id="d-timeline-pane">
@@ -9450,7 +9525,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const mobileMethod = document.getElementById('mobile-method-select');
                 if (mobileSort) mobileSort.value = this.currentSort;
                 if (mobileMethod) mobileMethod.value = this.currentMethodFilter;
-                if (!this.user) { this.openWelcome(); if (this.hideBoot) this.hideBoot(); }   // v14.0
+                if (!this.user) { this.openWelcome(); if (this.hideBoot) this.hideBoot(); if (this._shareNow && this.openSharedLink) this.openSharedLink(this._shareNow); }   // v14.0 (v21.3: a share link opened signed out shows its page over the welcome)
                 else this.updateBadge('connecting');
                 this.watchInitials();
                 this.watchLikeLines();
@@ -16012,6 +16087,10 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             openWelcome(step = 'intro') {
                 const view = document.getElementById('welcome-view');
                 if (!view) return;
+                // v21.2: nothing stays over the welcome (a session's page is above it; since Save opens that page, a sign-in
+                // that ran out right after saving asked to sign in again behind it)
+                if (this.closeSession && typeof document !== 'undefined' && document.body.classList.contains('nls-open')) this.closeSession(true);
+                if (this.user && this.closeShareView && this._shv) this.closeShareView();
                 this.wl = { step, name: '', color: '', gear: [], gearOpen: '', pick: '', bean: { roaster: '', name: '', origin: '', roast: 'Light', process: '', roastDate: '' } };
                 this.welcomeOpen = true;
                 view.classList.add('active'); view.setAttribute('aria-hidden', 'false');
@@ -23265,6 +23344,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     const q = new URLSearchParams(location.search), s = q.get('s'), c = q.get('c'), r = q.get('r');
                     if (!s && !c && !r) return;
                     safeSet('dialed_pending_share', JSON.stringify({ s: s || '', c: c || '', r: r || '', u: q.get('by') || '' }));
+                    if (s || c) this._shareNow = { s: s || '', c: s ? '' : (c || '') };   // v21.3: opened this time (signed out, it opens as a share page)
                     const u = new URL(location.href); ['s', 'c', 'r', 'by'].forEach(k => u.searchParams.delete(k));
                     history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
                 } catch (e) {}
@@ -23278,12 +23358,14 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 if (p.s) {
                     const b = this.brews.get(String(p.s));
                     if (b && this.beans.has(String(b.beanId || ''))) { this.setTab('feed'); this.openFeedTarget(b.beanId, String(p.s), false); return; }
-                    if (p.u && p.u !== this.user) this.openAnyProfile(p.u); else this.showToast('That session isn\'t shared with you.');
+                    const miss = () => { if (p.u && p.u !== this.user) this.openAnyProfile(p.u); else this.showToast('That session isn\'t shared with you.'); };
+                    if (this.openSharedLink) this.openSharedLink({ s: String(p.s) }, { onMissing: miss }); else miss();   // v21.3: shared with everyone: its share page
                     return;
                 }
                 if (p.c) {
                     if (this.beans.has(String(p.c))) { this.openFeedTarget(String(p.c)); return; }
-                    if (p.u && p.u !== this.user) this.openAnyProfile(p.u); else this.showToast('That coffee isn\'t shared with you.');
+                    const miss = () => { if (p.u && p.u !== this.user) this.openAnyProfile(p.u); else this.showToast('That coffee isn\'t shared with you.'); };
+                    if (this.openSharedLink) this.openSharedLink({ c: String(p.c) }, { onMissing: miss }); else miss();   // v21.3
                     return;
                 }
                 if (p.r) {
@@ -23747,7 +23829,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const list = this.lensOptions(this.detailAllBrews || []), L = list.length ? this.activeLens() : null;
                 if (list.length < 2) { box.hidden = true; box.innerHTML = ''; return; }
                 box.hidden = false;
-                const chips = `<div class="cp-lead">Sessions from</div><div class="comm-filters" role="tablist" aria-label="Sessions from">${list.map(o => `<button type="button" class="comm-chip${o.id === L.id ? ' on' : ''}" role="tab" aria-selected="${o.id === L.id}" data-l="${this.esc(o.id)}" onclick="app.setLens(this.getAttribute('data-l'))">${this.esc(o.name)}${o.n ? `<span class="lens-n">${o.n}</span>` : ''}</button>`).join('')}</div>`;
+                const chips = `<div class="cp-lead">${this.newLook && this.newLook() ? 'Sessions' : 'Sessions from'}</div><div class="comm-filters" role="tablist" aria-label="Sessions from">${list.map(o => `<button type="button" class="comm-chip${o.id === L.id ? ' on' : ''}" role="tab" aria-selected="${o.id === L.id}" data-l="${this.esc(o.id)}" onclick="app.setLens(this.getAttribute('data-l'))">${this.esc(o.name)}${o.n ? `<span class="lens-n">${o.n}</span>` : ''}</button>`).join('')}</div>`;
                 box.innerHTML = chips + (L.id === 'everyone' ? this.everyoneSumHtml() : '');
             },
             // Everyone: how many people, and how it's usually brewed (the middle ratio, time and dose per method; never grind)
@@ -27295,7 +27377,8 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 this.nlBindNav(v); this.nlNavPaint(v, !soft);
             },
 
-            sessionHtml(brew) {
+            sessionHtml(brew, o = {}) {
+                const shared = !!o.shared;   // v21.3: a share link's read-only page (no bar, coach, comparison, likes or comments)
                 const owner = this.getBrewOwner(brew), mine = owner === this.user, bean = this.beans.get(String(brew.beanId || '')), tea = this.isTeaBrew(brew);
                 const fam = this.famOfBrew(brew), pal = this.nlPal(fam), kind = tea ? 'tea' : 'coffee';
                 const name = (bean ? String(bean.name || '').trim() : '') || (tea ? 'Tea' : 'Coffee');
@@ -27308,37 +27391,37 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                         <div class="nls-id">
                             <div class="nls-whorow">${this.nlWho(owner, brew.date, !!ph && pal.dark, pal.pg)}${this.nlMethodPill(brew.method, true)}</div>
                             ${this.nlRoasterHtml(bean, tea, 'nl-roast nls-roast')}
-                            <h1 class="nl-name nls-name" data-nl-fit="60,40,3" style="font-size:${this.nlNameSize(name, 354, 60, 40, 3)}px" role="link" tabindex="0" onclick="app.nlSessionCoffee()">${this.esc(name)}</h1>
+                            <h1 class="nl-name nls-name" data-nl-fit="60,40,3" style="font-size:${this.nlNameSize(name, 354, 60, 40, 3)}px" role="link" tabindex="0" onclick="${shared ? 'app.shareOpenCoffee()' : 'app.nlSessionCoffee()'}">${this.esc(name)}</h1>
                             ${rating > 0 ? `<div class="nls-rate">${this.nlStarsHtml(rating, 20)}<b>${this.esc(this.fmtNum(rating, 1))}</b></div>` : ''}
                         </div>
                     </div>`;
                 const tiles = this.nlSessionTiles(brew);
                 const hasTemp = this.num(brew.temp) > 0;
-                const badges = [...this.resolveEquipmentNames(brew).map(n => ['#i-wl-grinder', n]), ...(this.roastDayLabel ? this.roastDayLabel(brew) : []).map(n => ['', n]), ...this.sessionExtras(brew).filter(x => !(hasTemp && /°C$/.test(x))).map(n => ['', n])];
+                const badges = [...this.resolveEquipmentNames(brew).map(n => ['#i-wl-grinder', n]), ...(this.roastDayLabel && !shared ? this.roastDayLabel(brew) : []).map(n => ['', n]), ...this.sessionExtras(brew).filter(x => !(hasTemp && /°C$/.test(x))).map(n => ['', n])];
                 const sec = (h, body, extra = '') => body ? `<section class="nls-sec"${extra}>${h ? `<h3 class="nl-h3">${h}</h3>` : ''}${body}</section>` : '';
                 const words = this.getBrewNotes(brew);
                 const tasted = this.tastedKeys(brew);
                 const taste = shape || tasted.length ? `<div class="nl-box nls-taste">${shape ? this.nlSpinHtml(brew, fam, { cls: 'nls-tshape', labels: true, lines: true, drag: true }) : ''}${(d => d ? `<p class="nls-desc">${this.esc(d)}</p>` : '')(this.describeCup(this.shapeValues(brew), tasted, this.extractFlavors(brew), this.noteIntensities(brew), kind))}${tasted.map(k => { const val = this.tasteValue(brew, k); return `<div class="nl-srow"><span>${this.esc(this.tasteLabel(k, kind))}</span><span class="nl-bar"><i style="width:${Math.max(4, val * 10)}%;background:${FlavorShape.COLORS[k]}"></i></span><span class="nl-num">${this.esc(this.fmtNum(val, 1))}</span></div>`; }).join('')}</div>` : '';
-                const prev = this.previousBrewFor(brew);
+                const prev = shared ? null : this.previousBrewFor(brew);
                 const vs = prev ? `<div class="nl-box nls-vs">${this.renderVsPane(brew)}</div>` : '';
-                const next = `<div class="nls-next">${this.renderNextPane(brew)}</div>`;
-                const comments = this.normalizeCommentList(brew.comments, `brew-${id}`, brew.date);
+                const next = shared ? '' : `<div class="nls-next">${this.renderNextPane(brew)}</div>`;
+                const comments = shared ? [] : this.normalizeCommentList(brew.comments, `brew-${id}`, brew.date);
                 const bar = `<div class="nls-top nl-navbar"${ph ? ' data-photo' : ''}><button type="button" class="nl-glass" onclick="app.closeSession()" aria-label="Back"><svg class="nl-ic"><use href="#i-arrow-left"/></svg></button><div class="nl-tright"><button type="button" class="nl-glass" onclick="app.shareItem('session', '${app.escJs(id)}', event)" aria-label="Share"><svg class="nl-ic"><use href="#i-share-2"/></svg></button>${more}<button type="button" class="nl-glass" onclick="app.openSettings()" aria-label="Settings"><svg class="nl-ic"><use href="#i-gear"/></svg></button></div></div>`;
-                return `${bar}
+                return `${shared ? '' : bar}
                     <div class="nls-wrap" data-card-brew="${this.esc(id)}">
                         ${hero}
                         <section class="nls-sec nls-first">${this.nlTilesHtml(tiles, 'nls-tiles')}${badges.length ? `<div class="nls-badges">${badges.map(([ic, t]) => `<span class="nl-badge lg">${this.esc(t)}</span>`).join('')}</div>` : ''}</section>
                         ${sec(`In ${this.esc(owner)}'s words`, words ? `<p class="nls-words">“${this.esc(words)}”</p>` : '')}
                         ${sec('Flavors', this.nlNotesHtml(brew, 'wrap', 'lg'))}
-                        ${this.hasShotPane && this.hasShotPane(brew) ? sec('The shot <span>· from the Shot Logger</span>', `<div class="nl-box nls-shot">${this.renderShotPane(brew)}</div>`) : ''}
+                        ${!shared && this.hasShotPane && this.hasShotPane(brew) ? sec('The shot <span>· from the Shot Logger</span>', `<div class="nl-box nls-shot">${this.renderShotPane(brew)}</div>`) : ''}
                         ${sec('Taste', taste)}
                         ${sec(prev ? 'Vs. last time' : '', vs)}
                         ${sec('', next)}
-                        <section class="nls-sec nls-social">
+                        ${shared ? '' : `<section class="nls-sec nls-social">
                             <div class="nls-likes"><div class="thread-lead"><button class="social-btn like-btn ${likes.includes(this.user) ? 'liked' : ''}${this.likePopClass('brew', id)}"${this.likePopStyle('brew', id)} onclick="app.toggleLike('${app.escJs(id)}', event)" aria-label="Like" title="Like"><svg class="heart-icon"><use href="#i-heart"/></svg></button>${likes.length ? `<div class="social-like-line">${this.esc(this.formatLikers(likes))}</div>` : ''}</div></div>
                             <h3 class="nl-h3" id="nls-comments">Comments${comments.length ? ` <span>· ${comments.length}</span>` : ''}</h3>
                             ${this.renderThread('brew', brew, { inputId: `nls-comment-input-${id}` })}
-                        </section>
+                        </section>`}
                     </div>`;
             },
 
@@ -27493,6 +27576,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const avg = this.calculateAverageRating(brews), n = brews.length;
                 const notes = this.lookTopNotes(brews, 3);
                 const where = [teaShelf ? bean.teaType : '', bean.origin, bean.process].filter(Boolean).join(' · ');
+                const specLine = !teaShelf && !(this.isTeaBean && this.isTeaBean(bean)) && this.nlSpecLineHtml ? this.nlSpecLineHtml(bean) : '';   // v21.3: origin, variety, process, each with its icon
                 card.className = 'nl-ccard';
                 card.setAttribute('data-fam', fam);
                 card.setAttribute('role', 'button'); card.setAttribute('tabindex', '0');
@@ -27503,11 +27587,11 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                         <div class="nl-cmain">
                             ${this.nlRoasterHtml(bean, teaShelf, 'nl-roast nl-croast')}
                             <div class="nl-cname">${this.esc(bean.name || '')}</div>
-                            ${avg > 0 ? `<div class="nl-crate"><span class="star-meter" style="--fill:${this.starFill(avg)}%;--whole:${this.starWhole(avg)};--frac:${this.starFrac(avg)}"></span><b>${this.esc(this.formatRating(avg))}</b></div>` : ''}
+                            ${avg > 0 ? `<div class="nl-crate"><span class="star-meter" style="--fill:${this.starFill(avg)}%;--whole:${this.starWhole(avg)};--frac:${this.starFrac(avg)}"></span><b>${this.esc(this.formatRating(avg))}</b>${specLine ? `<span class="nl-csess">· ${n} session${n === 1 ? '' : 's'}</span>` : ''}</div>` : specLine ? `<div class="nl-crate"><span class="nl-csess">${n} session${n === 1 ? '' : 's'}</span></div>` : ''}
                         </div>
                         ${isNew ? `<span class="nl-fresh">New</span>` : ''}
                     </div>
-                    <div class="nl-cmeta"><span>${n} session${n === 1 ? '' : 's'}${where ? ` · ${this.esc(where)}` : ''}</span>${faces}</div>
+                    <div class="nl-cmeta">${specLine || `<span>${n} session${n === 1 ? '' : 's'}${where ? ` · ${this.esc(where)}` : ''}</span>`}${faces}</div>
                     ${notes.length ? `<div class="nl-notes">${notes.map(([nm, st, k]) => this.nlNote(nm, st, k)).join('')}</div>` : ''}`;
             },
 
@@ -27554,6 +27638,14 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 else { const ro = document.getElementById('d-roaster'); if (ro) ro.insertAdjacentHTML('beforebegin', this.nlCoverHtml(bean, 'nl-cover nl-dcover')); }
                 hero.classList.toggle('nl-has-photo', !!coverUrl);
                 ['d-origin', 'd-process', 'd-roast'].forEach(id => { const el = document.getElementById(id); if (el && String(el.textContent || '').trim() === '-') el.hidden = true; });   // (no "-" chips for what isn't filled in)
+                // v21.3: the specs, one labeled row each (teas keep their tags); the stars beside the coffee's tile, like the Coffees list
+                hero.querySelectorAll('.nl-specs').forEach(n => n.remove());
+                const tagsEl = hero.querySelector('.dh-tags'), specs = this.nlSpecRowsHtml && !(this.isTeaBean && this.isTeaBean(bean)) ? this.nlSpecRowsHtml(bean) : '';
+                if (tagsEl) { tagsEl.classList.toggle('nl-tags-off', !!specs); if (specs) tagsEl.insertAdjacentHTML('afterend', specs); }
+                const rs = document.getElementById('d-rating-summary'), nameRow = hero.querySelector('.dh-name-row'), tileEl = hero.querySelector('.nl-dcover');
+                let topRow = hero.querySelector('.nl-dtoprow');
+                if (tileEl && rs) { if (!topRow) { topRow = document.createElement('div'); topRow.className = 'nl-dtoprow'; } tileEl.before(topRow); topRow.appendChild(tileEl); topRow.appendChild(rs); }
+                else { if (rs && nameRow && rs.parentElement !== nameRow) nameRow.appendChild(rs); if (topRow) topRow.remove(); }
                 const notes = this.lookTopNotes(this.detailBrews || brews || [], 3);
                 const top = document.getElementById('d-top-flavors');
                 if (top) top.innerHTML = notes.map(([n, s, k]) => this.nlNote(n, s, k, 'lg')).join('');
@@ -28288,6 +28380,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 if (this.learnActive()) { const top = this.lxTop(); if (top) this.learnRender(true); }
                 if (this.tab === 'my' && this.coffeeScopeNow && this.coffeeScopeNow() === 'learn') { const g = document.getElementById('grid'); if (g && g.querySelector('.lx-home')) { const y = (document.getElementById('main-content') || {}).scrollTop; this.render(); const sc = document.getElementById('main-content'); if (sc && y) sc.scrollTop = y; } }
                 if (what === 'comm' && this.isDetailActive && this.isDetailActive() && this.activeGroup && this.learnDecorateDetail) this.learnDecorateDetail(this.activeGroup, this.detailAllBrews || []);
+                if (this.isDetailActive && this.isDetailActive() && this.activeGroup && this.nlSpecsRefresh) this.nlSpecsRefresh();   // v21.3: Learn's pages arrived: the spec rows become links
             },
             // the first-shot line on the Log screen reads kinds' brewing numbers from here (filled whenever they load)
             lxBrewRemember(wants, list) {
@@ -30320,6 +30413,264 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     const bean = this.beans.get(String(d.beanId)), name = bean ? String(bean.name || '').trim() || 'Coffee' : 'Coffee';
                     return `<div class="sd-row ld-row"><button type="button" class="sd-open" onclick="app.openLogDraft('${this.escJs(d.id)}')" aria-label="Continue your ${this.esc(name)} draft"><span class="ld-ic"><svg class="icon" aria-hidden="true"><use href="#i-edit-2"/></svg></span><span class="sd-main"><b>${this.esc(name)}</b><span>${this.esc([this.logDraftWhen(d), this.logDraftLine(d)].filter(Boolean).join(' · '))}</span></span></button><button type="button" class="sd-del" aria-label="Delete this draft" onclick="app.deleteLogDraft('${this.escJs(d.id)}', event)"><svg class="icon" aria-hidden="true"><use href="#i-trash-2"/></svg></button></div>`;
                 }).join('');
+            },
+            // ===================== v21.3: share links anyone can open =====================
+            // Maceo (Nov 3): "create the shareable links that can be seen and played with for non users to let them interact
+            // and see sessions and coffees". A link to a session (?s=) or a coffee (?c=) opens a read-only page for anyone,
+            // signed in or not: the server (shared_session, shared_coffee) gives only what its owner shows Everyone. The page
+            // is the Session screen without its bar, coach, comparison, likes and comments, with a spinning taste shape; a
+            // coffee shows its flavor profile and its shared sessions. Signed out, a Join button and a "Join free" card lead
+            // to the welcome; the link is remembered, so it opens again once they're in. Signed in, it's how you see a shared
+            // session that isn't in your own sync.
+            // While the page is open its session and coffee sit in the app's lists (marked _shared, never saved or synced)
+            // so the Session screen's drawing works as it is; closing takes them out again.
+            shvGuest() { return !(this.user && this.acctOn && this.acctOn() && typeof Supa !== 'undefined' && Supa.ready && Supa.ready()); },
+            shvEl() {
+                let v = document.getElementById('share-view');
+                if (!v) {
+                    v = document.createElement('div'); v.id = 'share-view'; v.setAttribute('role', 'dialog'); v.setAttribute('aria-label', 'Shared from Dialed In');
+                    v.innerHTML = '<div class="nls-page shv-page" id="shv-page"></div><div id="shv-chrome"></div>';
+                    // names and roasters lead to pages that need an account: here they do nothing
+                    v.addEventListener('click', e => { const t = e.target && e.target.closest ? e.target.closest('[data-profile], [data-roaster]') : null; if (t && v.contains(t)) { e.stopPropagation(); e.preventDefault(); } }, true);
+                    document.body.appendChild(v);
+                }
+                return v;
+            },
+            // p: { s: a session's id } or { c: a coffee's id }; o.onMissing: what to do when the server has nothing to show
+            async openSharedLink(p, o = {}) {
+                if (!p || (!p.s && !p.c) || typeof Supa === 'undefined' || !Supa.on || !Supa.on()) { if (o.onMissing) o.onMissing(); return false; }
+                this.shvEject();
+                this._shv = { stack: [], brews: new Set(), beans: new Set(), colors: [], onMissing: o.onMissing || null };
+                const v = this.shvEl();
+                v.hidden = false; v.classList.add('active'); v.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('shv-open');
+                return this.shvGo(p.s ? 's' : 'c', p.s || p.c);
+            },
+            async shvGo(kind, ref, data = null) {
+                const st = this._shv; if (!st) return false;
+                const page = document.getElementById('shv-page'), v = this.shvEl();
+                if (!data) {
+                    page.removeAttribute('data-fam'); page.setAttribute('data-fam', 'app');
+                    page.innerHTML = `<div class="shv-wait">${this.loaderHtml ? this.loaderHtml('Opening…') : 'Opening…'}</div>`;
+                    this.shvChrome(null);
+                    try { data = await Supa.rpc(kind === 's' ? 'shared_session' : 'shared_coffee', { ref: String(ref) }, { auth: false }); }
+                    catch (e) { data = undefined; console.error('Share link:', e); }
+                    if (this._shv !== st) return false;   // (closed, or another link, while it loaded)
+                    if (data) await this.shvSignPhotos(kind === 's' ? [data.session] : (data.sessions || []));
+                    if (this._shv !== st) return false;
+                }
+                if (!data || (kind === 's' && !data.session) || (kind === 'c' && !data.coffee)) {
+                    if (!st.stack.length && st.onMissing) { const f = st.onMissing; this.closeShareView(); f(); return false; }
+                    this.shvMissing(data === undefined);
+                    return false;
+                }
+                st.stack.push({ kind, ref: String(ref), data });
+                this.shvRender();
+                v.scrollTop = 0;
+                return true;
+            },
+            // a shared photo in the private folder: a short-lived address (anyone may ask for one while it's shared)
+            async shvSignPhotos(list) {
+                const sb = b => b && b.photo && /^sb:/.test(String(b.photo.path || ''));
+                const want = [...new Set((list || []).filter(sb).map(b => b.photo.path))];
+                if (!want.length) return;
+                const got = new Map();
+                try {
+                    const out = await Supa.call('/storage/v1/object/sign/photos', { expiresIn: 7200, paths: want.map(p => p.slice(3)) }, { auth: false });
+                    (Array.isArray(out) ? out : []).forEach((r, k) => { if (r && r.signedURL) got.set('sb:' + (r.path || want[k].slice(3)), Supa.base() + '/storage/v1' + (r.signedURL[0] === '/' ? '' : '/') + r.signedURL); });
+                } catch (e) { console.error('Share link photo:', e); }
+                (list || []).forEach(b => { if (!sb(b)) return; if (got.has(b.photo.path)) b.photo = { ...b.photo, url: got.get(b.photo.path) }; else delete b.photo; });
+            },
+            // its session and coffee in the app's lists while the page is open (the Session screen's drawing reads them there)
+            shvInject(bean, brews, owner) {
+                const st = this._shv; if (!st) return;
+                if (owner && owner.name && owner.color && !this.normalizeHexColor(this.userColors[owner.name])) { this.userColors[owner.name] = owner.color; st.colors.push(owner.name); }
+                if (bean && bean.id && !this.beans.has(String(bean.id))) { this.beans.set(String(bean.id), { ...bean, _shared: true }); st.beans.add(String(bean.id)); }
+                (brews || []).forEach(b => { if (b && b.id && !this.brews.has(String(b.id))) { this.brews.set(String(b.id), { ...b, _shared: true }); st.brews.add(String(b.id)); } });
+            },
+            shvEject() {
+                const st = this._shv; if (!st) return;
+                st.brews.forEach(id => { const b = this.brews.get(id); if (b && b._shared) this.brews.delete(id); });
+                st.beans.forEach(id => { const b = this.beans.get(id); if (b && b._shared) this.beans.delete(id); });
+                st.colors.forEach(n => { delete this.userColors[n]; });
+                st.brews.clear(); st.beans.clear(); st.colors = [];
+            },
+            shvClean(html) { return String(html).replace(/ data-(profile|face|roaster)="[^"]*"/g, ''); },
+            shvRender() {
+                const st = this._shv, top = st && st.stack[st.stack.length - 1]; if (!top) return;
+                const page = document.getElementById('shv-page'), d = top.data, owner = (d.owner && d.owner.name) || '';
+                if (top.kind === 's') {
+                    const brew = { ...d.session, user: d.session.user || owner, owner: d.session.owner || owner };
+                    this.shvInject(d.coffee, [brew], d.owner);
+                    const b = this.brews.get(String(brew.id)) || brew, bean = d.coffee;
+                    const n = Number(d.more) || 0;
+                    const more = bean ? `<section class="nls-sec"><button type="button" class="shv-more" onclick="app.shareOpenCoffee()"><span><b>More on ${this.esc(bean.name || 'this coffee')}</b><small>${n > 1 ? `${n} sessions · its flavor profile` : 'Its details and flavor profile'}</small></span><svg class="icon" aria-hidden="true"><use href="#i-chev-right"/></svg></button></section>` : '';
+                    page.setAttribute('data-fam', this.famOfBrew(b));
+                    page.innerHTML = this.shvClean(this.sessionHtml(b, { shared: true })) + more;
+                    const wrap = page.querySelector('.nls-wrap'); if (wrap && more) wrap.appendChild(page.lastElementChild);
+                    this.shvChrome(top.kind, owner);
+                } else {
+                    const bean = { ...d.coffee }, list = (d.sessions || []).map(s => ({ ...s, user: s.user || owner, owner: s.owner || owner }));
+                    this.shvInject(bean, list, d.owner);
+                    page.setAttribute('data-fam', this.famOfCoffee(this.beans.get(String(bean.id)) || bean));
+                    page.innerHTML = this.shvClean(this.shvCoffeeHtml(bean, list, owner));
+                    this.shvChrome(top.kind, owner);
+                    const pool = list.filter(b => this.tastedKeys(b).length);
+                    if (pool.length && this.nlSpinMount) {
+                        const vals = {}, set = [];
+                        TASTE_KEYS.forEach(k => { const xs = pool.map(b => this.tasteValue(b, k)).filter(x => x !== null); vals[k] = xs.length ? xs.reduce((a, x) => a + x, 0) / xs.length : 5; if (xs.length) set.push(k); });
+                        this.nlSpinMount(document.getElementById('shv-shape'), { id: `share|${bean.id}`, values: () => vals, isSet: k => set.includes(k), names: this.isTeaBean(bean) ? 'tea' : null });
+                    }
+                }
+                this.nlFillShapes(page);
+                this.nlFillSpins(page);
+                if (this.nlFitNames) this.nlFitNames(page);
+                if (this.nlFitTiles) this.nlFitTiles(page);
+                if (this.fillShapeImages) setTimeout(() => this.fillShapeImages(page), 0);
+            },
+            // a coffee: its name and details, what it tastes like across its shared sessions, and the sessions
+            shvCoffeeHtml(bean, list, owner) {
+                const tea = this.isTeaBean(bean), name = String(bean.name || '').trim() || (tea ? 'Tea' : 'Coffee');
+                const rated = list.map(b => this.normalizeRating(b.rating)).filter(r => r > 0), avg = rated.length ? rated.reduce((a, r) => a + r, 0) / rated.length : 0;
+                const specs = [bean.origin, bean.variety, bean.process, bean.roast ? `${bean.roast} roast` : ''].map(x => String(x || '').trim()).filter(Boolean);
+                const notes = this.lookTopNotes(list, 3);
+                const kind = tea ? 'tea' : 'coffee', fc = this.flavorCounts(list, kind);
+                const vals = {}, set = [];
+                TASTE_KEYS.forEach(k => { const xs = list.map(b => this.tasteValue(b, k)).filter(x => x !== null); vals[k] = xs.length ? xs.reduce((a, x) => a + x, 0) / xs.length : 5; if (xs.length) set.push(k); });
+                const words = set.length ? this.describeCup(vals, set, fc.notes.slice(0, 4).map(x => x.n), Object.fromEntries(fc.notes.map(x => [x.n, x.strength])), kind) : '';
+                const profile = set.length || fc.notes.length ? `<section class="nls-sec"><h3 class="nl-h3">Flavor profile</h3><div class="nl-box shv-flavor"><p class="shv-sub">${list.length} session${list.length === 1 ? '' : 's'} · ${this.esc(owner)}</p>${set.length ? '<div id="shv-shape"></div>' : ''}${fc.notes.length ? `<div class="bf-wheel">${this.wheelSvgStatic(fc, kind)}<div class="flv-notes">${this.noteChipsHtml(fc.notes.slice(0, 12), true)}</div></div>` : ''}${words ? `<p class="nls-desc">${this.esc(words)}</p>` : ''}</div></section>` : '';
+                const rows = list.map(b => this.nlLogRow(b).replace(/app\.openSession\(/g, 'app.shareOpenSession(')).join('');
+                return `<div class="nls-wrap shv-coffee">
+                    <div class="nls-hero is-flat shv-chero"><div class="nls-id">
+                        ${this.nlCoverHtml(bean, 'nl-cover shv-cover')}
+                        ${this.nlRoasterHtml(bean, tea, 'nl-roast nls-roast')}
+                        <h1 class="nl-name nls-name" data-nl-fit="60,40,3" style="font-size:${this.nlNameSize(name, 354, 60, 40, 3)}px">${this.esc(name)}</h1>
+                        ${avg > 0 ? `<div class="nls-rate">${this.nlStarsHtml(avg, 20)}<b>${this.esc(this.formatRating(avg))}</b></div>` : ''}
+                    </div></div>
+                    <section class="nls-sec nls-first">${this.nlSpecRowsHtml ? this.nlSpecRowsHtml(bean, { links: false }) : specs.length ? `<div class="nls-badges">${specs.map(t => `<span class="nl-badge lg">${this.esc(t)}</span>`).join('')}</div>` : ''}${notes.length ? `<div class="shv-notes">${notes.map(([n, s, k]) => this.nlNote(n, s, k, 'lg')).join('')}</div>` : ''}</section>
+                    ${profile}
+                    <section class="nls-sec"><h3 class="nl-h3">${list.length ? `Sessions <span>· ${list.length}</span>` : 'Sessions'}</h3>${list.length ? `<div class="nl-proflogs">${rows}</div>` : `<p class="shv-sub">${this.esc(owner)} hasn't shared a session on it with everyone yet.</p>`}</section>
+                </div>`;
+            },
+            // the bar on top (Dialed In and Join; Back once you've gone further in; signed in: close) and, signed out, the Join card
+            shvChrome(kind, owner = '') {
+                const host = document.getElementById('shv-chrome'); if (!host) return;
+                const st = this._shv, deep = !!(st && st.stack.length > 1), guest = this.shvGuest();
+                const left = deep ? `<button type="button" class="nl-glass" onclick="app.shareBack()" aria-label="Back"><svg class="nl-ic"><use href="#i-arrow-left"/></svg></button>`
+                    : `<span class="shv-brand"><img src="icon.png" alt="" width="28" height="28">Dialed In</span>`;
+                const right = guest ? `<button type="button" class="shv-join" onclick="app.shareJoin()">Join</button>`
+                    : `<button type="button" class="nl-glass" onclick="app.closeShareView()" aria-label="Close"><svg class="nl-ic"><use href="#i-x"/></svg></button>`;
+                const cta = guest && kind ? `<div class="shv-cta"><div><b>${kind === 's' ? `Log your coffee like ${this.esc(owner || 'this')}` : 'Brewing this coffee too?'}</b><small>${kind === 's' ? 'Dial in, track every bag, see what your friends brew' : `Log it on Dialed In and compare with ${this.esc(owner || 'them')}`}</small></div><button type="button" onclick="app.shareJoin()">Join free</button></div>` : '';
+                const pg = document.getElementById('shv-page'); host.setAttribute('data-fam', (kind && pg && pg.getAttribute('data-fam')) || 'app');   // (the bar's buttons in the page's colors)
+                host.innerHTML = `<div class="shv-bar">${left}${right}</div>${cta}`;
+                document.getElementById('share-view').classList.toggle('shv-guest', guest && !!kind);
+            },
+            shvMissing(failed) {
+                const page = document.getElementById('shv-page'), guest = this.shvGuest();
+                page.setAttribute('data-fam', 'app');
+                page.innerHTML = `<div class="shv-none"><h2>${failed ? 'Couldn\'t open this link' : 'This isn\'t shared with everyone'}</h2><p>${failed ? 'Check your connection and try again.' : 'Its owner may keep it for friends, or it\'s no longer there.'}</p>${guest ? '<button type="button" class="btn-primary" onclick="app.shareJoin()">Join Dialed In</button>' : '<button type="button" class="btn-outline" onclick="app.closeShareView()">Close</button>'}</div>`;
+                this.shvChrome(null);
+            },
+            shareOpenCoffee() {
+                const st = this._shv, top = st && st.stack[st.stack.length - 1]; if (!top || top.kind !== 's') return;
+                const c = top.data.coffee; if (!c || !c.id) return;
+                if (this.haptic) this.haptic('tick');
+                this.shvGo('c', c.id);
+            },
+            shareOpenSession(id) {
+                const st = this._shv, top = st && st.stack[st.stack.length - 1]; if (!top || top.kind !== 'c') return;
+                const s = (top.data.sessions || []).find(x => String(x.id) === String(id)); if (!s) return;
+                if (this.haptic) this.haptic('tick');
+                this.shvGo('s', id, { session: s, coffee: top.data.coffee, owner: top.data.owner, more: (top.data.sessions || []).length });
+            },
+            shareBack() {
+                const st = this._shv; if (!st || st.stack.length < 2) return;
+                st.stack.pop();
+                this.shvRender();
+                this.shvEl().scrollTop = 0;
+            },
+            closeShareView() {
+                this.shvEject();
+                this._shv = null;
+                const v = document.getElementById('share-view');
+                if (v) { v.classList.remove('active', 'shv-guest'); v.hidden = true; v.setAttribute('aria-hidden', 'true'); const pg = document.getElementById('shv-page'); if (pg) pg.innerHTML = ''; }
+                document.body.classList.remove('shv-open');
+                if (this.user && this.render) this.render();
+            },
+            // Join: the welcome (it's right behind); the link is remembered, so it opens again once they're signed in
+            shareJoin() {
+                const top = this._shv && this._shv.stack[this._shv.stack.length - 1];
+                if (top) safeSet('dialed_pending_share', JSON.stringify({ s: top.kind === 's' ? top.ref : '', c: top.kind === 'c' ? top.ref : '', r: '', u: (top.data.owner && top.data.owner.name) || '' }));
+                this.closeShareView();
+                if (!this.user && this.openWelcome) this.openWelcome();
+            },
+            // ===================== v21.3: a coffee's specs, one row each =====================
+            // Maceo (Nov 3): "make the specs of the bean more clear like origin, variety, process separation because right now
+            // it's all together"; he picked labeled rows (Nov 4) and asked what happens with more than one origin or process
+            // (Urrao's Anaerobic Natural, Alchemy's three origins). One row per kind of spec, each with its icon and label; a
+            // row with one value opens its Learn page; a row with several shows each as its own small button; anything Learn
+            // doesn't know is plain text. The Coffees list gets the same icons on one line instead of "Colombia · Washed".
+            nlSpecItems(bean) {
+                const out = { origin: [], region: [], variety: [], process: [], roast: [] };
+                if (!bean) return out;
+                const split = s => String(s || '').split(/,|\/|&|\+|;|\band\b/i).map(x => x.trim()).filter(Boolean);
+                const learn = typeof LearnEngine !== 'undefined' && this.learnOn && this.learnOn() && this.lxTags;
+                const it = (kind, id, label) => ({ kind, id, label, page: !!(learn && this.lxHasPage(kind, id)) });
+                const t = learn ? this.lxTags(bean) : null;
+                if (t) {
+                    const o = t.origin || {}, cs = o.countries || [], rid = cs.length === 1 && o.region ? `${cs[0]}:${o.region}` : '';
+                    if (rid && this.lxEntry('region', rid)) { const rn = this.lxName('region', rid); out.region.push(it('region', rid, o.placeName && o.placeName !== rn ? `${o.placeName}, ${rn}` : rn)); }
+                    else if (cs.length === 1 && o.placeName) out.region.push({ label: o.placeName });
+                    cs.forEach(cc => out.origin.push(it('origin', cc, this.lxName('origin', cc))));
+                    const cn = cs.length === 1 ? this.lxName('origin', cs[0]) : '';
+                    (t.variety || []).forEach(id => { const n = this.lxName('variety', id); out.variety.push(it('variety', id, n === cn ? `${n} (variety)` : n)); });
+                    if (t.species && t.species !== 'arabica') out.variety.push(it('species', t.species, this.lxName('species', t.species)));
+                    else if (t.species === 'arabica' && !(t.variety || []).length) out.variety.push(it('species', 'arabica', 'Arabica'));
+                    const p = t.process || {};
+                    if (p.base) out.process.push(it('process', p.base, LearnEngine.processName(p) || this.lxName('process', p.base)));
+                    (p.layers || []).forEach(id => out.process.push(it('process', id, this.lxName('process', id))));
+                    if (p.decaf) out.process.push({ label: p.decaf === 'decaf' ? 'Decaf' : 'Decaf · ' + this.lxName('decaf', p.decaf) });
+                    // what Learn didn't recognize stays, as it was written
+                    [['origin', bean.origin], ['variety', bean.variety], ['process', bean.process]].forEach(([k, text]) => split(text).forEach(part => {
+                        const f = LearnEngine.field(k, part, {}), known = (f.chips || []).some(ch => ch.t === 'ok' || ch.t === 'info');
+                        if (!known && !out[k].some(x => String(x.label).toLowerCase() === part.toLowerCase())) out[k].push({ label: part });
+                    }));
+                } else {
+                    split(bean.origin).forEach(x => out.origin.push({ label: x }));
+                    split(bean.variety).forEach(x => out.variety.push({ label: x }));
+                    split(bean.process).forEach(x => out.process.push({ label: x }));
+                }
+                if (String(bean.roast || '').trim()) out.roast.push({ label: String(bean.roast).trim() });
+                return out;
+            },
+            NL_SPEC_ROWS: [['origin', 'i-pin', 'Origin', 'Origins'], ['region', 'i-globe', 'Region', 'Regions'], ['variety', 'i-leaf-line', 'Variety', 'Varieties'], ['process', 'i-drop', 'Process', 'Process'], ['roast', 'i-flame', 'Roast', 'Roast']],
+            nlSpecRowsHtml(bean, o = {}) {   // (o.links false: no Learn buttons, e.g. on a share link's page)
+                const items = this.nlSpecItems(bean);
+                if (o.links === false) Object.values(items).forEach(list => list.forEach(x => { x.page = false; }));
+                const ic = id => `<svg class="icon nl-spec-ic" aria-hidden="true"><use href="#${id}"/></svg>`, chev = (c = '') => `<svg class="icon nl-spec-ch${c}" aria-hidden="true"><use href="#i-chev-right"/></svg>`;
+                const rows = this.NL_SPEC_ROWS.map(([k, icon, one, many]) => {
+                    const list = items[k]; if (!list.length) return '';
+                    if (list.length === 1) {
+                        const x = list[0], inner = `${ic(icon)}<span class="nl-spec-k">${one}</span><span class="nl-spec-v">${this.esc(x.label)}</span>`;
+                        return x.page ? `<button type="button" class="nl-spec" onclick="${this.lxGo(x.kind, x.id)}">${inner}${chev()}</button>` : `<div class="nl-spec">${inner}</div>`;
+                    }
+                    const pills = list.map(x => x.page ? `<button type="button" class="nl-spec-pill" onclick="${this.lxGo(x.kind, x.id)}">${this.esc(x.label)}${chev(' sm')}</button>` : `<span class="nl-spec-pill is-plain">${this.esc(x.label)}</span>`).join('');
+                    return `<div class="nl-spec nl-spec-multi">${ic(icon)}<span class="nl-spec-k">${many}</span><span class="nl-spec-v">${pills}</span></div>`;
+                }).filter(Boolean);
+                return rows.length ? `<div class="nl-specs" role="list" aria-label="About this ${this.isTeaBean && this.isTeaBean(bean) ? 'tea' : 'coffee'}">${rows.join('')}</div>` : '';
+            },
+            // the Coffees list: one line, an icon for each (origin, variety, process)
+            nlSpecLineHtml(bean) {   // (as written on the bag: "Anaerobic Natural", not Learn's "Natural, Anaerobic")
+                const tidy = s => String(s || '').split(/\s*[,/;]\s*/).map(x => x.trim()).filter(Boolean).join(', ');
+                const bits = [[bean && bean.origin, 'i-pin'], [bean && bean.variety, 'i-leaf-line'], [bean && bean.process, 'i-drop']].map(([v, icon]) => tidy(v) ? `<span class="nl-sl"><svg class="icon" aria-hidden="true"><use href="#${icon}"/></svg>${this.esc(tidy(v))}</span>` : '').filter(Boolean);
+                return bits.length ? `<span class="nl-specline">${bits.join('')}</span>` : '';
+            },
+            // the coffee page's rows again (Learn's pages arrived after the page was drawn)
+            nlSpecsRefresh() {
+                const old = document.querySelector('#detail-view .nl-specs'), bean = this.activeGroup && this.activeGroup.meta;
+                if (!old || !bean) return;
+                const html = this.nlSpecRowsHtml(bean);
+                if (html && old.outerHTML !== html) old.outerHTML = html;
             },
         };
         window.onload = () => app.init();

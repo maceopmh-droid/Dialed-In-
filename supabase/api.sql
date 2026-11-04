@@ -2559,6 +2559,90 @@ begin
     select jsonb_build_object('kinds', coalesce(jsonb_object_agg(kind || ':' || id, jsonb_build_array(sessions, people, coffees)), '{}'::jsonb)) from agg);
 end $$;
 
+-- ---------------------------------------------------------------- v21.3: share links anyone can open
+-- Maceo (Nov 3): "create the shareable links that can be seen and played with for non users". A link to one session
+-- (?s=) or one coffee (?c=) opens for anyone, signed in or not, but shows only what its owner already shows Everyone:
+-- a session shared with Everyone, by someone who has claimed their account and whose profile isn't private, that
+-- hasn't been hidden or removed after a report. Its words and its photo come only when they're shared with Everyone
+-- too. Never likes, comments, who liked, account ids, the bag's roast date or anything else of the owner's. A coffee
+-- shows its details and the sessions on it that pass the same test.
+create or replace function internal.share_owner_ok(pid uuid) returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (select 1 from profiles o where o.id = pid and not o.is_private and o.auth_id is not null)
+     and not exists (select 1 from reports r where r.target_type = 'profile' and r.target_id = pid and r.status in ('hidden', 'removed'));
+$$;
+create or replace function internal.share_ok(s sessions) returns boolean
+language sql stable security definer set search_path = public as $$
+  select s.id is not null and s.deleted_at is null and s.audience = 'everyone' and internal.share_owner_ok(s.owner_id)
+     and not exists (select 1 from reports r where r.target_type = 'session' and r.target_id = s.id and r.status in ('hidden', 'removed'));
+$$;
+create or replace function internal.share_session_json(s sessions) returns jsonb
+language sql stable security definer set search_path = public as $$
+  select internal.session_build(s, k,
+           (select n from session_notes n where n.session_id = s.id and n.audience = 'everyone'),
+           (select p from session_photos p where p.session_id = s.id and p.audience = 'everyone'
+              and not exists (select 1 from reports r where r.target_type = 'photo' and r.target_id = s.id and r.status in ('hidden', 'removed'))),
+           '[]'::jsonb, '[]'::jsonb, null)
+         - 'likes' - 'comments' - 'helpWanted' - 'newHere' - 'equipment' - 'audience' - 'noteAudience' - 'photoAudience' - 'roastDate' - 'masterProfile'
+  from (select 1) one left join coffees k on k.id = s.coffee_id and k.deleted_at is null;
+$$;
+create or replace function internal.share_coffee_json(k coffees) returns jsonb
+language sql stable security definer set search_path = public as $$
+  select case when k.id is null then null else jsonb_strip_nulls(jsonb_build_object(
+      'type', 'bean', 'id', coalesce(k.legacy_id, k.id::text), 'user', internal.name_of(k.owner_id), 'owner', internal.name_of(k.owner_id),
+      'roaster', coalesce(k.roaster_text, r.name, ''), 'name', k.name, 'origin', coalesce(k.origin, ''), 'process', coalesce(k.process, ''),
+      'variety', coalesce(k.variety, ''), 'roast', coalesce(k.roast, ''),
+      'kind', case when k.kind = 'tea' then 'tea' end, 'teaType', case when k.kind = 'tea' then k.tea_type end,
+      'blend', case when k.kind = 'tea' and k.tea->>'blend' = 'true' then true end, 'ingredients', case when k.kind = 'tea' then k.tea->'ingredients' end,
+      'cover', case when jsonb_typeof(k.cover) = 'object' then nullif(k.cover - 'photo', '{}'::jsonb) end,   -- (its color, not its photo: that's in a private folder)
+      'date', k.created_at)) end
+  from (select 1) one left join roasters r on r.id = k.roaster_id;
+$$;
+create or replace function internal.share_owner_json(pid uuid) returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_strip_nulls(jsonb_build_object('name', coalesce(o.legacy_name, o.display_name), 'color', o.color)) from profiles o where o.id = pid;
+$$;
+-- one session: { session, coffee, owner, more } (more: how many shared sessions its coffee has), or null
+create or replace function shared_session(ref text) returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare s sessions; k coffees;
+begin
+  if coalesce(btrim(ref), '') = '' or length(ref) > 64 then return null; end if;
+  select * into s from sessions x where x.legacy_id = ref limit 1;
+  if s.id is null and internal.is_uuid(ref) then select * into s from sessions x where x.id = ref::uuid; end if;
+  if not coalesce(internal.share_ok(s), false) then return null; end if;
+  select * into k from coffees x where x.id = s.coffee_id and x.deleted_at is null;
+  return jsonb_build_object('session', internal.share_session_json(s), 'coffee', internal.share_coffee_json(k),
+    'owner', internal.share_owner_json(s.owner_id),
+    'more', case when k.id is null then 0 else (select count(*) from sessions x where x.coffee_id = k.id and internal.share_ok(x)) end);
+end $$;
+-- one coffee: { coffee, owner, sessions } (its shared sessions, newest first, at most 60), or null
+create or replace function shared_coffee(ref text) returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare k coffees;
+begin
+  if coalesce(btrim(ref), '') = '' or length(ref) > 64 then return null; end if;
+  select * into k from coffees x where x.legacy_id = ref and x.deleted_at is null limit 1;
+  if k.id is null and internal.is_uuid(ref) then select * into k from coffees x where x.id = ref::uuid and x.deleted_at is null; end if;
+  if k.id is null or not internal.share_owner_ok(k.owner_id) then return null; end if;
+  return jsonb_build_object('coffee', internal.share_coffee_json(k), 'owner', internal.share_owner_json(k.owner_id),
+    'sessions', coalesce((select jsonb_agg(internal.share_session_json(x) order by x.brewed_at desc, x.id)
+                          from (select * from sessions y where y.coffee_id = k.id and internal.share_ok(y) order by y.brewed_at desc, y.id limit 60) x), '[]'::jsonb));
+end $$;
+-- a shared session's photo: anyone with the link may ask for a short-lived address for it (the photos folder stays private)
+create or replace function internal.photo_shared(obj text) returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (select 1 from session_photos p join sessions s on s.id = p.session_id
+                 where p.path = 'sb:' || obj and p.audience = 'everyone' and internal.share_ok(s)
+                   and not exists (select 1 from reports r where r.target_type = 'photo' and r.target_id = s.id and r.status in ('hidden', 'removed')));
+$$;
+do $$ begin
+  if exists (select 1 from information_schema.tables where table_schema = 'storage' and table_name = 'objects') then
+    drop policy if exists photos_read_shared on storage.objects;
+    create policy photos_read_shared on storage.objects for select to anon using (bucket_id = 'photos' and internal.photo_shared(name));
+  end if;
+end $$;
+
 -- push_event and friends run as the signed-in person (so the row rules apply to every write) and use the helpers in
 -- "internal", so signed-in people need them; the app's web address doesn't serve that schema, so they can't be called
 -- directly.
@@ -2585,3 +2669,9 @@ revoke execute on all functions in schema internal from public, anon;
 revoke execute on function internal.push_payload(bigint, text), internal.push_text(notifications) from authenticated;   -- the sender's alone (it has the phones' addresses and the VAPID key)
 -- v16.9: the machine functions' alone (they take a machine's token and act as its owner), and making machines
 revoke execute on function internal.shot_inbox(text, jsonb), internal.machine_sync(text), internal.machine_for(text), internal.add_machine(uuid, text), internal.shot_post(uuid) from authenticated;
+-- v21.3: share links: the two share functions are for anyone, signed in or not; the signed-out key may use the one
+-- helper the shared-photo rule needs (it says yes or no about one photo, nothing else)
+revoke execute on function shared_session(text), shared_coffee(text) from public;
+grant execute on function shared_session(text), shared_coffee(text) to anon, authenticated;
+grant usage on schema internal to anon;
+grant execute on function internal.photo_shared(text) to anon;

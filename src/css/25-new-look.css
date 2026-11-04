@@ -871,3 +871,78 @@
         html[data-look="new"] .nl-fav .sc-strip { margin-top: 14px; }
         html[data-look="new"] [data-fam] .master-pill .sc-cell { padding: 10px 9px 9px !important; }
         html[data-look="new"] .nl-fav .sc-gear { margin-top: 12px; }
+        /* v21.3: share links anyone can open: the Session screen read-only, over everything (the welcome too) */
+        html[data-look="new"] #share-view { display: none; position: fixed; inset: 0; z-index: 5650; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+        html[data-look="new"] #share-view.active { display: block; animation: nlSlideIn 0.26s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        @media (prefers-reduced-motion: reduce) { html[data-look="new"] #share-view.active { animation: none; } }
+        html[data-look="new"] body.shv-open { overflow: hidden; }
+        html[data-look="new"] #share-view .shv-page { min-height: 100%; }
+        html[data-look="new"] #share-view.shv-guest .shv-page { padding-bottom: calc(132px + var(--safe-bottom, 0px)); }
+        html[data-look="new"] .shv-bar { position: fixed; left: 0; right: 0; top: 0; z-index: 3; display: flex; align-items: center; justify-content: space-between; padding: calc(var(--safe-top, 0px) + 8px) 16px 8px; pointer-events: none; }
+        html[data-look="new"] .shv-bar > * { pointer-events: auto; }
+        html[data-look="new"] .shv-bar .nl-glass { -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); background: color-mix(in srgb, var(--c, #141915) 84%, transparent); }
+        html[data-look="new"] .shv-brand { height: 40px; display: inline-flex; align-items: center; gap: 8px; padding: 0 14px 0 6px; border-radius: 20px; background: rgba(20, 16, 14, 0.45); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); color: #fff; font-size: 15px; font-weight: 600; }
+        html[data-look="new"] .shv-brand img { width: 28px; height: 28px; border-radius: 8px; }
+        html[data-look="new"] .shv-join { height: 40px; min-height: 0; width: auto; margin: 0; display: inline-flex; align-items: center; padding: 0 18px; border-radius: 20px !important; border: 0; background: #8DB791; color: #0B160D; font-size: 15px; font-weight: 700; box-shadow: none; }
+        html[data-look="new"][data-theme="light"] .shv-join { background: #4E6B52; color: #fff; }
+        html[data-look="new"] .shv-cta { position: fixed; left: 12px; right: 12px; bottom: calc(var(--safe-bottom, 0px) + 12px); z-index: 3; border-radius: 24px; padding: 14px 14px 14px 18px; display: flex; align-items: center; gap: 12px; background: rgba(24, 20, 18, 0.86); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.08); }
+        html[data-look="new"] .shv-cta div { flex: 1; min-width: 0; }
+        html[data-look="new"] .shv-cta b { display: block; color: #F3EEE6; font-size: 15.5px; font-weight: 650; }
+        html[data-look="new"] .shv-cta small { display: block; color: #B9B2A7; font-size: 13px; margin-top: 2px; line-height: 1.3; }
+        html[data-look="new"] .shv-cta button { height: 42px; min-height: 0; width: auto; margin: 0; flex: none; display: inline-flex; align-items: center; padding: 0 16px; border-radius: 21px !important; border: 0; background: #8DB791; color: #0B160D; font-size: 15px; font-weight: 700; white-space: nowrap; box-shadow: none; }
+        html[data-look="new"][data-theme="light"] .shv-cta { background: rgba(255, 252, 247, 0.92); border-color: rgba(0, 0, 0, 0.06); }
+        html[data-look="new"][data-theme="light"] .shv-cta b { color: #1E2420; }
+        html[data-look="new"][data-theme="light"] .shv-cta small { color: #6E6A61; }
+        html[data-look="new"][data-theme="light"] .shv-cta button { background: #4E6B52; color: #fff; }
+        html[data-look="new"] .shv-more { width: 100%; min-height: 0; margin: 0; display: flex; align-items: center; gap: 12px; text-align: left; border-radius: 22px !important; padding: 14px 16px; background: var(--pill) !important; color: var(--t) !important; border: 0 !important; box-shadow: none !important; }
+        html[data-look="new"] .shv-more span { flex: 1; min-width: 0; }
+        html[data-look="new"] .shv-more b { display: block; font-size: 16px; font-weight: 650; color: var(--n); }
+        html[data-look="new"] .shv-more small { display: block; font-size: 13.5px; color: var(--l); margin-top: 2px; }
+        html[data-look="new"] .shv-more .icon { width: 18px; height: 18px; color: var(--l); }
+        html[data-look="new"] .shv-chero { padding-top: calc(var(--safe-top, 0px) + 68px) !important; }
+        html[data-look="new"] .shv-chero .shv-cover { margin-bottom: 14px; }
+        html[data-look="new"] .shv-notes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+        html[data-look="new"] .shv-sub { color: var(--l); font-size: 14px; margin: 0 0 6px; }
+        html[data-look="new"] .shv-flavor .bf-wheel { margin-top: 10px; }
+        html[data-look="new"] .shv-wait, html[data-look="new"] .shv-none { padding: calc(var(--safe-top, 0px) + 120px) 24px 40px; text-align: center; color: var(--t); }
+        html[data-look="new"] .shv-none h2 { font-family: var(--nl-serif); font-size: 28px; font-weight: 500; margin: 0 0 8px; color: var(--n); }
+        html[data-look="new"] .shv-none p { color: var(--l); margin: 0 0 22px; }
+        html[data-look="new"] .shv-none button { width: auto; padding: 0 22px; }
+        /* v21.3: a coffee's specs, one labeled row each; several values in a row are each their own small button */
+        html[data-look="new"] #detail-view .dh-tags.nl-tags-off { display: none !important; }
+        html[data-look="new"] .nl-specs { margin-top: 18px; border-radius: 20px; background: var(--pill); overflow: hidden; width: 100%; }
+        html[data-look="new"] .nl-specs .nl-spec { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 50px; margin: 0; padding: 0 14px 0 16px; text-align: left; background: none !important; border: 0 !important; border-top: 1px solid color-mix(in srgb, var(--n) 9%, transparent) !important; border-radius: 0 !important; box-shadow: none !important; color: var(--t) !important; font: inherit; letter-spacing: 0; text-transform: none; cursor: default; }
+        html[data-look="new"] .nl-specs .nl-spec:first-child { border-top: 0 !important; }
+        html[data-look="new"] .nl-specs button.nl-spec { cursor: pointer; }
+        html[data-look="new"] .nl-specs button.nl-spec:active { background: color-mix(in srgb, var(--n) 7%, transparent) !important; }
+        html[data-look="new"] .nl-spec-ic { width: 19px !important; height: 19px !important; color: var(--k); stroke: currentColor; flex: none; }
+        html[data-look="new"] .nl-spec-k { width: 74px; flex: none; color: var(--l); font-size: 15px; font-weight: 400; }
+        html[data-look="new"] .nl-spec-v { flex: 1; min-width: 0; color: var(--n); font-size: 16px; font-weight: 600; line-height: 1.3; padding: 13px 0; }
+        html[data-look="new"] .nl-spec-ch { width: 15px !important; height: 15px !important; color: var(--l); stroke: currentColor; flex: none; }
+        html[data-look="new"] .nl-specs .nl-spec-multi { align-items: flex-start; }
+        html[data-look="new"] .nl-spec-multi .nl-spec-ic { margin-top: 15px; }
+        html[data-look="new"] .nl-spec-multi .nl-spec-k { margin-top: 13px; }
+        html[data-look="new"] .nl-spec-multi .nl-spec-v { display: flex; flex-wrap: wrap; gap: 6px; padding: 9px 0; }
+        html[data-look="new"] .nl-specs .nl-spec-pill { display: inline-flex; align-items: center; gap: 2px; height: 32px; min-height: 0; width: auto; margin: 0; padding: 0 8px 0 12px; border-radius: 16px !important; background: color-mix(in srgb, var(--n) 10%, transparent) !important; color: var(--n) !important; border: 0 !important; box-shadow: none !important; font: inherit; font-size: 14.5px; font-weight: 600; letter-spacing: 0; text-transform: none; }
+        html[data-look="new"] .nl-specs .nl-spec-pill.is-plain { padding-right: 12px; }
+        html[data-look="new"] .nl-spec-ch.sm { width: 13px !important; height: 13px !important; }
+        /* v21.3: the stars beside the coffee's tile (like the Coffees list), not on a row of their own */
+        html[data-look="new"] #detail-view .nl-dtoprow { order: 0; display: flex; align-items: center; gap: 16px; margin: 6px 0 2px; position: relative; z-index: 2; }
+        html[data-look="new"] #detail-view .nl-dtoprow .nl-dcover { margin: 0; flex: none; }
+        html[data-look="new"] #detail-view .nl-dtoprow #d-rating-summary { margin-top: 0; flex: 1; min-width: 0; }
+        /* v21.3: the Coffees list: origin, variety and process each with its icon; the count beside the stars */
+        html[data-look="new"] .nl-specline { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 14px; min-width: 0; }
+        html[data-look="new"] .nl-sl { display: inline-flex; align-items: center; gap: 5px; }
+        html[data-look="new"] .nl-sl .icon { width: 15px; height: 15px; color: var(--k); stroke: currentColor; flex: none; }
+        html[data-look="new"] .nl-csess { color: var(--l); font-weight: 500; margin-left: 4px; }
+        /* v21.3: Sessions and its You / Everyone switch on one row */
+        html[data-look="new"] #detail-view #d-lens:not([hidden]) { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
+        html[data-look="new"] #detail-view #d-lens .cp-lead { font-size: 20px; font-weight: 650; color: var(--n); margin: 0; letter-spacing: 0; text-transform: none; }
+        html[data-look="new"] #detail-view #d-lens .comm-filters { margin: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; max-width: 100%; }
+        html[data-look="new"] #detail-view #d-lens .comm-filters::-webkit-scrollbar { display: none; }
+        html[data-look="new"] #detail-view #d-lens .lens-sum { flex-basis: 100%; }
+        /* v21.3: Timeline, Compare and the rest: an icon on each, and the bar stays at the top while you scroll the sessions */
+        html[data-look="new"] #detail-view .insight-tabs { position: sticky; top: calc(var(--safe-top, 0px) + 58px); z-index: 30; margin: 20px -16px 10px; padding: 8px 16px; background: color-mix(in srgb, var(--pg, var(--c)) 84%, transparent); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+        html[data-look="new"] #detail-view .insight-tab { display: inline-flex !important; align-items: center; gap: 7px; height: 38px !important; padding: 0 14px 0 12px !important; border-radius: 19px !important; }
+        html[data-look="new"] #detail-view .insight-tab .it-ic { width: 17px; height: 17px; color: var(--k); stroke: currentColor; flex: none; }
+        html[data-look="new"] #detail-view .insight-tab.active .it-ic { color: var(--c); }

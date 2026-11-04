@@ -52,7 +52,7 @@ function setup() {
     create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text references storage.buckets (id), name text, owner uuid, unique (bucket_id, name));
     create function storage.foldername(name text) returns text[] language sql immutable as $$ select (string_to_array(name, '/'))[1:array_length(string_to_array(name, '/'), 1) - 1] $$;
     alter table storage.objects enable row level security;
-    grant usage on schema storage to authenticated, anon; grant select, insert, update, delete on storage.objects to authenticated;`);
+    grant usage on schema storage to authenticated, anon; grant select, insert, update, delete on storage.objects to authenticated; grant select on storage.objects to anon;`);   // (as Supabase: the row rules decide what the signed-out key reads)
   psql(fs.readFileSync(path.join(__dirname, 'storage.sql'), 'utf8'));
   if (arg('rows')) {
     const { buildImport } = require('./import_v9.js');
