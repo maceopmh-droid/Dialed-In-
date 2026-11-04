@@ -19,17 +19,17 @@ FONT_TEXT = os.environ.get('FONT_TEXT', os.path.join(HERE, 'fonts', 'InterDispla
 # the set, in App Store order: (raw screen, headline, line under it, tilt in degrees: + leans left, - leans right).
 # The first three show in search results.
 SET = [
-    ('01_coffee', 'See how your\ncoffee tastes', 'Every cup becomes a flavor shape\nyou can spin and compare.', -5),
+    ('01_session', 'Every cup gets\nits own page', 'Your photo, a flavor shape you can spin,\nand what you tasted.', -5),
     ('02_next_shot', 'Know what to\nchange next', 'A coach reads your notes and numbers\nand says what to try on the next shot.', 5),
     ('03_feed', 'Brew with\nyour friends', 'Photos, likes and comments\non every cup.', -5),
     ('04_community', 'Join a coffee\ncommunity', 'A weekly goal you fill together,\nand everyone\'s sessions in one place.', 5),
     ('05_help', 'Stuck? Ask\nfor help', 'Ask about any session,\nand anyone can answer.', -5),
-    ('06_roaster', 'Every roaster\ngets a page', 'Their coffees, the best shot on them,\nand who drinks them.', 5),
-    ('07_dialin', 'Watch yourself\ndial in', 'Your ratings shot by shot,\nright up to the one that clicks.', -5),
-    ('08_log_taste', 'Log a cup\nin seconds', 'Taste sliders, flavor notes and a timer,\nfor every way you brew.', 5),
-    ('09_palate', 'Learn what\nyou like', 'Your palate, learned from\neverything you brew.', -5),
+    ('06_learn', 'Learn every\ncoffee', 'Every variety, origin and process,\nchecked against its sources.', 5),
+    ('07_coffee', 'Every coffee\ngets a page', 'Its specs, its flavor notes and\nevery session you brew of it.', -5),
+    ('08_dialin', 'Watch yourself\ndial in', 'Your ratings shot by shot,\nright up to the one that clicks.', 5),
+    ('09_log_taste', 'Log a cup\nin seconds', 'Taste sliders, flavor notes and a timer,\nfor every way you brew.', -5),
 ]
-BOTH = ('01_coffee', 'Light or dark,\nyour call', 'It follows your phone,\nor pick one in Settings.')
+BOTH = ('07_coffee', 'Light or dark,\nyour call', 'It follows your phone,\nor pick one in Settings.')
 
 # matcha: the app's own green, deep enough that a dark phone and white type both sit well on it
 TOP, BOTTOM = (92, 118, 91), (66, 88, 66)

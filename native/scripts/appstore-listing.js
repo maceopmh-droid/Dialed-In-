@@ -1,6 +1,7 @@
 // Fills in the App Store listing through the App Store Connect API, from native/appstore/listing.json: category,
 // subtitle, privacy policy, description, keywords, support link, age rating, content rights, the review account and
-// notes, price (free), where it's sold, screenshots, and the build. It never submits for review (that's Maceo's call),
+// notes, price (free), where it's sold, screenshots, and the build. It submits for review only when the commit that
+// started it says [submit] (that's Maceo's call each time),
 // and it leaves what the API can't do (the App Privacy answers) and personal details (the review contact's name and
 // phone) for App Store Connect itself. Prints only what was set or what Apple said (GitHub Actions logs are public).
 //   env ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_FILE, BUNDLE_ID, VERSION, REVIEW_PASSWORD, SHOTS_DIR (optional)
@@ -84,6 +85,9 @@ const must = (r, what) => { if (!r.ok) throw new Error(`${what} (${why(r)})`); r
     const locs = must(await api('GET', `/v1/appStoreVersions/${ver.id}/appStoreVersionLocalizations?limit=50`), 'version languages');
     vloc = (locs.j.data || []).find(x => x.attributes.locale === L.locale);
     const attributes = { description: L.description, keywords: L.keywords, promotionalText: L.promotionalText, supportUrl: L.supportUrl };
+    // v21.6: What's New, on an update (an app's first version has none, and Apple refuses it there)
+    const live = (vs.j.data || []).some(v => /READY_FOR_SALE|READY_FOR_DISTRIBUTION/.test(stateOf(v)));
+    if (live && L.whatsNew) attributes.whatsNew = L.whatsNew;
     if (vloc) must(await api('PATCH', `/v1/appStoreVersionLocalizations/${vloc.id}`, { data: { type: 'appStoreVersionLocalizations', id: vloc.id, attributes } }), 'description');
     else vloc = must(await api('POST', '/v1/appStoreVersionLocalizations', { data: { type: 'appStoreVersionLocalizations', attributes: { locale: L.locale, ...attributes }, relationships: { appStoreVersion: { data: { type: 'appStoreVersions', id: ver.id } } } } }), 'description').j.data;
   });
@@ -182,8 +186,24 @@ const must = (r, what) => { if (!r.ok) throw new Error(`${what} (${why(r)})`); r
     must(await api('PATCH', `/v1/appStoreVersions/${ver.id}/relationships/build`, { data: { type: 'builds', id: b.id } }), 'picking the build');
   });
 
-  todo.push('App Privacy (App Store Connect, App Privacy): the answers in the submission sheet; Apple has no API for this part');
-  todo.push('Submit for Review (the version page, Add for Review), when you\'re ready');
+  // v21.6: submit for review, only when the commit that started this run says [submit] (Maceo's call each time:
+  // Nov 4, "push the newest version to AppStore now") and everything above went in
+  const submit = process.env.SUBMIT === '1';
+  if (submit && !problems.length && !todo.some(t => /processed build/.test(t))) {
+    await step(`submitted ${VERSION} for review`, async () => {
+      const open = must(await api('GET', `/v1/reviewSubmissions?filter[app]=${appId}&filter[platform]=IOS&limit=10`), 'review submissions');
+      let sub = (open.j.data || []).find(x => /READY_FOR_REVIEW/.test(x.attributes.state || ''));
+      if (!sub) sub = must(await api('POST', '/v1/reviewSubmissions', { data: { type: 'reviewSubmissions', attributes: { platform: 'IOS' }, relationships: { app: { data: { type: 'apps', id: appId } } } } }), 'starting a review submission').j.data;
+      const items = must(await api('GET', `/v1/reviewSubmissions/${sub.id}/items?limit=20`), 'its items');
+      const has = (items.j.data || []).some(it => it.relationships && it.relationships.appStoreVersion && it.relationships.appStoreVersion.data && it.relationships.appStoreVersion.data.id === ver.id);
+      if (!has) must(await api('POST', '/v1/reviewSubmissionItems', { data: { type: 'reviewSubmissionItems', relationships: { reviewSubmission: { data: { type: 'reviewSubmissions', id: sub.id } }, appStoreVersion: { data: { type: 'appStoreVersions', id: ver.id } } } } }), 'adding the version');
+      must(await api('PATCH', `/v1/reviewSubmissions/${sub.id}`, { data: { type: 'reviewSubmissions', id: sub.id, attributes: { submitted: true } } }), 'submitting');
+      say('Sent to App Review', `version ${VERSION}: submitted`);
+    });
+  } else {
+    todo.push('App Privacy (App Store Connect, App Privacy): the answers in the submission sheet; Apple has no API for this part');
+    todo.push(submit ? 'Not submitted: something above didn\'t go in (see the notes); fix it and run again with [submit]' : 'Submit for Review (the version page, Add for Review), when you\'re ready');
+  }
   say('App Store listing', `set: ${done.join(' | ') || 'nothing'}`);
   if (problems.length) console.log(`::error title=App Store listing::not set: ${problems.join(' | ')}`);
   say('Still for you in App Store Connect', todo.join(' | '));
