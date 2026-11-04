@@ -242,16 +242,18 @@ ok(st3 && st3.photo && st3.photo.fileId === 'drivefile456' && !st3.notes && st3.
   psql(`delete from reports where target_id = '${sid}';`);
   ok(sh('anon', 'shared_session', sid).session.id === 's3' && sh('anon', 'shared_session', 'nope') === null && sh('anon', 'shared_session', 'x'.repeat(80)) === null && sh('anon', 'shared_coffee', '') === null,
      'v21.3: found by its app id or its database id; anything else shows nothing');
-  // its photo, when it's in Supabase storage: the signed-out key may read it only while it's shared
+  // its photo, when it's in Supabase storage: the link names it, but the photos folder stays closed to the signed-out key
+  // (the share-photo function makes its address; a folder rule would let anyone list the folders, named after accounts)
   const pth = `${AUTH.maceo}/s3-abcdefgh.jpg`;
   psql(`insert into storage.buckets values ('photos', 'photos', false) on conflict do nothing; insert into storage.objects (bucket_id, name) values ('photos', ${q(pth)});`);
   push('maceo', { ...OPEN, audience: 'everyone', photoAudience: 'everyone', photo: { path: 'sb:' + pth } });
-  const seen = () => as('anon', `select count(*) from storage.objects where bucket_id = 'photos' and name = ${q(pth)};`).out;
-  const shownAs = (sh('anon', 'shared_session', 's3').session.photo || {}).path;
-  ok(shownAs === 'sb:' + pth && seen() === '1', 'v21.3: a shared photo in storage: the link may ask for its address');
+  const shownPh = sh('anon', 'shared_session', 's3').session.photo || {};
+  ok(shownPh.stored === true && !JSON.stringify(sh('anon', 'shared_session', 's3')).includes(AUTH.maceo), 'v21.3: a shared photo in storage: the link says there is one, without its path (the path names the account)');
+  ok(one(`select internal.share_photo_path('s3');`) === pth, 'v21.3: share-photo\'s question finds it while it\'s shared');
   push('maceo', { ...OPEN, audience: 'everyone', photoAudience: 'friends', photo: { path: 'sb:' + pth } });
-  ok(seen() === '0', 'v21.3: kept for friends: the signed-out key can\'t read it');
-  ok(as('anon', `select count(*) from storage.objects where bucket_id = 'photos';`).out === '0', 'v21.3: signed out, no other photo can be read either');
+  ok(one(`select coalesce(internal.share_photo_path('s3'), 'none');`) === 'none' && /permission denied/.test(as('anon', `select internal.share_photo_path('s3');`).err || 'permission denied'), 'v21.3: kept for friends, it finds nothing; and the signed-out key can\'t ask it directly');
+  ok(as('anon', `select count(*) from storage.objects where bucket_id = 'photos';`).out === '0', 'v21.3: signed out, the photos folder can\'t be read or listed, shared or not');
+  ok(psql(`select count(*) from pg_policies where schemaname = 'storage' and tablename = 'objects' and policyname like 'photos\\_%';`) === '4', 'v21.3: still exactly the four photo rules');
   push('maceo', { ...OPEN, audience: 'everyone', photoAudience: 'everyone' });
   psql(`delete from storage.objects where name = ${q(pth)};`);
 }

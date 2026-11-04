@@ -36,7 +36,3 @@ do $$ begin   -- pictures only, up to 2 MB (the app sends a small JPEG)
   end if;
 end $$;
 
--- v21.3: a shared session's photo, for share links opened signed out: only a photo shared with Everyone, on a session
--- shared with Everyone by a public profile (api.sql brings the same rule to the live project)
-drop policy if exists photos_read_shared on storage.objects;
-create policy photos_read_shared on storage.objects for select to anon using (bucket_id = 'photos' and internal.photo_shared(name));

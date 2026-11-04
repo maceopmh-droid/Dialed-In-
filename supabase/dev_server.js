@@ -153,6 +153,17 @@ async function handle(req, res) {
     return send(res, out.status, Buffer.from(await out.arrayBuffer()));
   }
 
+  // -- v21.3: share-photo (the real one is a Deno function on Supabase): a shared session's stored photo, for a share
+  // link opened signed out. The database decides (internal.share_photo_path, as the database owner, like theirs).
+  if (url.pathname === '/functions/v1/share-photo' && req.method === 'GET') {
+    const ref = String(url.searchParams.get('s') || '').slice(0, 64);
+    let p = ''; try { p = psql(`select coalesce(internal.share_photo_path(${lit(ref)}), '');`); } catch (e) { p = ''; }
+    if (!ref || !p || !fs.existsSync(path.join(FILES, p))) return send(res, ref ? 404 : 400, { url: null });
+    const t = crypto.randomBytes(12).toString('hex');
+    links.set(t, { path: p, until: Date.now() + 7200 * 1000 });
+    return send(res, 200, { url: `http://localhost:${PORT}/storage/v1/object/sign/photos/${p.split('/').map(encodeURIComponent).join('/')}?token=${t}` });
+  }
+
   const who = whoFrom(req);
   if (who.expired || who.bad) return send(res, 401, { code: 'PGRST301', message: who.expired ? 'JWT expired' : 'JWT invalid', details: null, hint: null });
 

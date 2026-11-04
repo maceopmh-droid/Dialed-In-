@@ -2578,14 +2578,28 @@ language sql stable security definer set search_path = public as $$
 $$;
 create or replace function internal.share_session_json(s sessions) returns jsonb
 language sql stable security definer set search_path = public as $$
-  select internal.session_build(s, k,
+  select case when j->'photo'->>'path' like 'sb:%' then jsonb_set(j, '{photo}', '{"stored": true}'::jsonb) else j end   -- (a photo in the private folder: its address comes from share-photo; its path names the account)
+  from (select internal.session_build(s, k,
            (select n from session_notes n where n.session_id = s.id and n.audience = 'everyone'),
            (select p from session_photos p where p.session_id = s.id and p.audience = 'everyone'
               and not exists (select 1 from reports r where r.target_type = 'photo' and r.target_id = s.id and r.status in ('hidden', 'removed'))),
            '[]'::jsonb, '[]'::jsonb, null)
-         - 'likes' - 'comments' - 'helpWanted' - 'newHere' - 'equipment' - 'audience' - 'noteAudience' - 'photoAudience' - 'roastDate' - 'masterProfile'
-  from (select 1) one left join coffees k on k.id = s.coffee_id and k.deleted_at is null;
+         - 'likes' - 'comments' - 'helpWanted' - 'newHere' - 'equipment' - 'audience' - 'noteAudience' - 'photoAudience' - 'roastDate' - 'masterProfile' as j
+  from (select 1) one left join coffees k on k.id = s.coffee_id and k.deleted_at is null) x;
 $$;
+-- the share-photo function's question: where a shared session's stored photo is (only when the link would show it)
+create or replace function internal.share_photo_path(ref text) returns text
+language plpgsql stable security definer set search_path = public as $$
+declare s sessions; p text;
+begin
+  if coalesce(btrim(ref), '') = '' or length(ref) > 64 then return null; end if;
+  select * into s from sessions x where x.legacy_id = ref limit 1;
+  if s.id is null and internal.is_uuid(ref) then select * into s from sessions x where x.id = ref::uuid; end if;
+  if not coalesce(internal.share_ok(s), false) then return null; end if;
+  select ph.path into p from session_photos ph where ph.session_id = s.id and ph.audience = 'everyone' and ph.path like 'sb:%'
+    and not exists (select 1 from reports r where r.target_type = 'photo' and r.target_id = s.id and r.status in ('hidden', 'removed'));
+  return case when p is null then null else substr(p, 4) end;
+end $$;
 create or replace function internal.share_coffee_json(k coffees) returns jsonb
 language sql stable security definer set search_path = public as $$
   select case when k.id is null then null else jsonb_strip_nulls(jsonb_build_object(
@@ -2629,17 +2643,13 @@ begin
     'sessions', coalesce((select jsonb_agg(internal.share_session_json(x) order by x.brewed_at desc, x.id)
                           from (select * from sessions y where y.coffee_id = k.id and internal.share_ok(y) order by y.brewed_at desc, y.id limit 60) x), '[]'::jsonb));
 end $$;
--- a shared session's photo: anyone with the link may ask for a short-lived address for it (the photos folder stays private)
-create or replace function internal.photo_shared(obj text) returns boolean
-language sql stable security definer set search_path = public as $$
-  select exists (select 1 from session_photos p join sessions s on s.id = p.session_id
-                 where p.path = 'sb:' || obj and p.audience = 'everyone' and internal.share_ok(s)
-                   and not exists (select 1 from reports r where r.target_type = 'photo' and r.target_id = s.id and r.status in ('hidden', 'removed')));
-$$;
+-- a shared session's photo, signed out: the share-photo function (supabase/functions/share-photo) asks shared_session and
+-- makes a short-lived address itself. No signed-out rule on the photos folder: one would let the signed-out key list
+-- the folders, and every folder is named after an account. (v21.3's first try had one; this takes it out again.)
+drop function if exists internal.photo_shared(text) cascade;
 do $$ begin
   if exists (select 1 from information_schema.tables where table_schema = 'storage' and table_name = 'objects') then
     drop policy if exists photos_read_shared on storage.objects;
-    create policy photos_read_shared on storage.objects for select to anon using (bucket_id = 'photos' and internal.photo_shared(name));
   end if;
 end $$;
 
@@ -2669,9 +2679,7 @@ revoke execute on all functions in schema internal from public, anon;
 revoke execute on function internal.push_payload(bigint, text), internal.push_text(notifications) from authenticated;   -- the sender's alone (it has the phones' addresses and the VAPID key)
 -- v16.9: the machine functions' alone (they take a machine's token and act as its owner), and making machines
 revoke execute on function internal.shot_inbox(text, jsonb), internal.machine_sync(text), internal.machine_for(text), internal.add_machine(uuid, text), internal.shot_post(uuid) from authenticated;
--- v21.3: share links: the two share functions are for anyone, signed in or not; the signed-out key may use the one
--- helper the shared-photo rule needs (it says yes or no about one photo, nothing else)
+-- v21.3: share links: the two share functions are for anyone, signed in or not
 revoke execute on function shared_session(text), shared_coffee(text) from public;
 grant execute on function shared_session(text), shared_coffee(text) to anon, authenticated;
-grant usage on schema internal to anon;
-grant execute on function internal.photo_shared(text) to anon;
+revoke usage on schema internal from anon;

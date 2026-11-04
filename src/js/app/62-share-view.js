@@ -53,17 +53,19 @@
                 v.scrollTop = 0;
                 return true;
             },
-            // a shared photo in the private folder: a short-lived address (anyone may ask for one while it's shared)
+            // a shared photo in the private folder: the link only says there is one; the share-photo function gives a two-hour
+            // address for it (the folder itself stays closed, and its path names the account). None: the page goes without.
             async shvSignPhotos(list) {
-                const sb = b => b && b.photo && /^sb:/.test(String(b.photo.path || ''));
-                const want = [...new Set((list || []).filter(sb).map(b => b.photo.path))];
-                if (!want.length) return;
-                const got = new Map();
-                try {
-                    const out = await Supa.call('/storage/v1/object/sign/photos', { expiresIn: 7200, paths: want.map(p => p.slice(3)) }, { auth: false });
-                    (Array.isArray(out) ? out : []).forEach((r, k) => { if (r && r.signedURL) got.set('sb:' + (r.path || want[k].slice(3)), Supa.base() + '/storage/v1' + (r.signedURL[0] === '/' ? '' : '/') + r.signedURL); });
-                } catch (e) { console.error('Share link photo:', e); }
-                (list || []).forEach(b => { if (!sb(b)) return; if (got.has(b.photo.path)) b.photo = { ...b.photo, url: got.get(b.photo.path) }; else delete b.photo; });
+                const stored = (list || []).filter(b => b && b.photo && b.photo.stored);
+                await Promise.all(stored.slice(0, 24).map(async b => {
+                    let url = '';
+                    try {
+                        const c = Supa.cfg(), r = await fetch(`${Supa.base()}/functions/v1/share-photo?s=${encodeURIComponent(String(b.id))}`, { headers: { apikey: c.anonKey } });
+                        const j = r.ok ? await r.json() : null; url = j && typeof j.url === 'string' ? j.url : '';
+                    } catch (e) { url = ''; }
+                    if (url) b.photo = { url }; else delete b.photo;
+                }));
+                (list || []).forEach(b => { if (b && b.photo && b.photo.stored) delete b.photo; });
             },
             // its session and coffee in the app's lists while the page is open (the Session screen's drawing reads them there)
             shvInject(bean, brews, owner) {
