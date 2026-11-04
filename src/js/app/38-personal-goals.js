@@ -7,6 +7,15 @@
                 return list.filter(g => g && ['week', 'coffees', 'beat'].includes(g.type) && Number(g.target) > 0 && !seen.has(g.type) && seen.add(g.type)).slice(0, 3);
             },
 
+            // v21.7: the goals say coffee, tea or both, by what you drink (a new tea counts toward "new ones a month" and a tea
+            // can be the one to beat, just like a coffee). Nothing logged yet: both, or tea on Teas.
+            goalWords() {
+                let tea = false, coffee = false;
+                this.brewsOf(this.user).forEach(b => { if (this.isTeaBrew && this.isTeaBrew(b)) tea = true; else coffee = true; });
+                if (!tea && !coffee) { if (this.teaMode && this.teaMode()) tea = true; else tea = coffee = true; }
+                return tea && coffee ? { one: 'coffee or tea', many: 'coffees or teas', One: 'Coffee or tea' } : tea ? { one: 'tea', many: 'teas', One: 'Tea' } : { one: 'coffee', many: 'coffees', One: 'Coffee' };
+            },
+
             saveGoals(list) {
                 if (!this.user || !this.pushGearWith) return;
                 this.pushGearWith({ goals: list.slice(0, 3) });
@@ -30,7 +39,7 @@
                 this.brewsOf(this.user).forEach(b => {
                     const key = this.groupKeyOfBrew(b), bean = this.beans.get(String(b.beanId || ''));
                     if (!bean) return;
-                    const cur = by.get(key) || { key, name: bean.name || this.beanLabel(bean), label: this.beanLabel(bean), n: 0, best: 0 };
+                    const cur = by.get(key) || { key, name: bean.name || this.beanLabel(bean), label: this.beanLabel(bean), n: 0, best: 0, tea: !!(this.isTeaBean && this.isTeaBean(bean)) };
                     cur.n += 1; cur.best = Math.max(cur.best, this.normalizeRating(b.rating));
                     by.set(key, cur);
                 });
@@ -47,20 +56,22 @@
                     const a = this.monthStartOf(now), first = new Map();
                     mine.forEach(b => { const k = this.groupKeyOfBrew(b), t = this.localTime(b.date); if (Number.isFinite(t) && (!first.has(k) || t < first.get(k))) first.set(k, t); });
                     const n = [...first.values()].filter(t => t >= a && t <= now + 864e5).length;
-                    return { have: n, target: Number(g.target), done: n >= Number(g.target), title: `${g.target} new coffee${Number(g.target) === 1 ? '' : 's'} a month`, sub: `${Math.min(n, g.target)} of ${g.target} this month` };
+                    const gw = this.goalWords();
+                    return { have: n, target: Number(g.target), done: n >= Number(g.target), title: `${g.target} new ${Number(g.target) === 1 ? gw.one : gw.many} a month`, sub: `${Math.min(n, g.target)} of ${g.target} this month` };
                 }
                 // a rating to beat on one coffee, since the goal was set
                 const since = Date.parse(g.since || '') || 0;
                 const best = mine.filter(b => this.groupKeyOfBrew(b) === g.key && this.localTime(b.date) >= since).reduce((m, b) => Math.max(m, this.normalizeRating(b.rating)), 0);
                 const t = Number(g.target);
-                return { have: best, target: t, done: best >= t, title: `${this.fmtNum(t, 1)} ★ on ${g.name || 'one coffee'}`, sub: best ? `Best since you set it: ${this.fmtNum(best, 1)} ★` : 'Not brewed since you set it' };
+                return { have: best, target: t, done: best >= t, title: `${this.fmtNum(t, 1)} ★ on ${g.name || `one ${this.goalWords().one}`}`, sub: best ? `Best since you set it: ${this.fmtNum(best, 1)} ★` : 'Not brewed since you set it' };
             },
 
             renderGoalsCard() {
                 if (!this.user) return '';
                 const goals = this.myGoals();
                 if (!goals.length) {
-                    return `<div class="profile-card pg-card"><div class="label">Your goals</div><div class="fab-sub">Set one of your own: sessions a week, new coffees a month, or a rating to beat on one coffee. Only you see them.</div><button type="button" class="btn-outline pp-act pg-add" onclick="app.openGoalEditor()">Add a goal</button></div>`;
+                    const gw = this.goalWords();
+                    return `<div class="profile-card pg-card"><div class="label">Your goals</div><div class="fab-sub">Set one of your own: sessions a week, new ${gw.many} a month, or a rating to beat on one ${gw.one}. Only you see them.</div><button type="button" class="btn-outline pp-act pg-add" onclick="app.openGoalEditor()">Add a goal</button></div>`;
                 }
                 const rows = goals.map(g => {
                     const p = this.goalProgress(g), pct = Math.max(0, Math.min(100, p.target ? (p.have / p.target) * 100 : 0));
@@ -85,19 +96,19 @@
 
             renderGoalEditor() {
                 const body = document.getElementById('review-body'), e = this._goalEdit; if (!body || !e) return;
-                const have = new Set(this.myGoals().map(g => g.type));
-                const kinds = [['week', 'Sessions a week'], ['coffees', 'New coffees a month'], ['beat', 'A rating to beat']];
+                const have = new Set(this.myGoals().map(g => g.type)), gw = this.goalWords();
+                const kinds = [['week', 'Sessions a week'], ['coffees', `New ${gw.many} a month`], ['beat', 'A rating to beat']];
                 const open = kinds.filter(([k]) => !have.has(k) || k === e.type);
                 const seg = e.editing || open.length < 2 ? `<p class="pg-kind">${(kinds.find(([k]) => k === e.type) || ['', ''])[1]}</p>` : `<div class="seg-control pg-kinds" role="tablist">${open.map(([k, l]) => `<button type="button" aria-pressed="${k === e.type}" onclick="app.setGoalKind('${app.escJs(k)}')">${l}</button>`).join('')}</div>`;
-                const coffees = this.goalCoffees();
+                const coffees = this.goalCoffees(), picked = coffees.find(c => c.key === e.key) || coffees[0] || {};   // (v21.7: the picked one says Coffee or Tea)
                 const step = e.type === 'beat' ? 0.5 : 1, min = e.type === 'beat' ? 0.5 : 1, max = e.type === 'beat' ? 5 : e.type === 'week' ? 21 : 10;
                 const num = `<div class="pg-step"><button type="button" aria-label="Less" onclick="app.stepGoal(${-step}, ${min}, ${max})"${e.target <= min ? ' disabled' : ''}>−</button><b>${this.esc(e.type === 'beat' ? `${this.fmtNum(e.target, 1)} ★` : String(e.target))}</b><button type="button" aria-label="More" onclick="app.stepGoal(${step}, ${min}, ${max})"${e.target >= max ? ' disabled' : ''}>+</button></div>`;
                 const sel = e.type === 'beat'
-                    ? (coffees.length ? `<label class="pg-field"><span>Coffee</span><select aria-label="Coffee"  onchange="app.setGoalCoffee(this.value)">${coffees.map(c => `<option value="${this.esc(c.key)}"${c.key === e.key ? ' selected' : ''}>${this.esc(c.label)}${c.best ? ` (best ${this.fmtNum(c.best, 1)} ★)` : ''}</option>`).join('')}</select></label>` : '<p class="pp-empty">Log a session first, then pick its coffee here.</p>')
+                    ? (coffees.length ? `<label class="pg-field"><span>${picked.tea ? 'Tea' : 'Coffee'}</span><select aria-label="${picked.tea ? 'Tea' : 'Coffee'}"  onchange="app.setGoalCoffee(this.value)">${coffees.map(c => `<option value="${this.esc(c.key)}"${c.key === e.key ? ' selected' : ''}>${this.esc(c.label)}${c.best ? ` (best ${this.fmtNum(c.best, 1)} ★)` : ''}</option>`).join('')}</select></label>` : `<p class="pp-empty">Log a session first, then pick its ${this.esc(gw.one)} here.</p>`)
                     : '';
-                const say = e.type === 'week' ? 'Sessions you log Monday to Sunday.' : e.type === 'coffees' ? 'Coffees you brew for the first time this month.' : 'Your best rating on this coffee from now on.';
+                const say = e.type === 'week' ? 'Sessions you log Monday to Sunday.' : e.type === 'coffees' ? `${gw.many.charAt(0).toUpperCase()}${gw.many.slice(1)} you brew for the first time this month.` : `Your best rating on this ${picked.tea ? 'tea' : 'coffee'} from now on.`;
                 const can = e.type !== 'beat' || (coffees.length && e.key);
-                body.innerHTML = `${seg}${sel}<div class="pg-field"><span>${e.type === 'beat' ? 'Rating to reach' : e.type === 'week' ? 'Sessions' : 'New coffees'}</span>${num}</div><p class="pg-say">${this.esc(say)}</p>
+                body.innerHTML = `${seg}${sel}<div class="pg-field"><span>${e.type === 'beat' ? 'Rating to reach' : e.type === 'week' ? 'Sessions' : `New ${gw.many}`}</span>${num}</div><p class="pg-say">${this.esc(say)}</p>
                     <div class="pg-actions">${e.editing ? '<button type="button" class="btn-outline pp-act acct-delete" onclick="app.removeGoal()">Remove</button>' : ''}<button type="button" class="btn-primary pp-act" onclick="app.saveGoal()"${can ? '' : ' disabled'}>${e.editing ? 'Save' : 'Set goal'}</button></div>`;
             },
 
