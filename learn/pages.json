@@ -3244,10 +3244,12 @@
           ]
         },
         {
-          "value": "41",
-          "label": "improved varieties released by Ethiopian research since 1978",
+          "value": "41–44",
+          "label": "improved varieties released by Ethiopian research since the late 1970s; counts differ by source",
           "src": [
-            "atumo-2026"
+            "atumo-2026",
+            "melese-2021",
+            "jarc-breeding-asic-2023"
           ]
         },
         {
@@ -3354,7 +3356,9 @@
         "coffeehunter-eth",
         "sweetmarias-eth-varieties",
         "ally-eth-varieties",
-        "mcm-adorsi"
+        "mcm-adorsi",
+        "melese-2021",
+        "jarc-breeding-asic-2023"
       ],
       "updated": "2026-10-28"
     },
