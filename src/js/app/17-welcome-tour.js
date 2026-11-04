@@ -7,6 +7,8 @@
                     { key: 'aeropress', label: 'AeroPress', type: 'Brewer', icon: 'i-method-aeropress', ask: 'Which AeroPress?', eg: 'AeroPress Original' },
                     { key: 'french', label: 'French press', type: 'Brewer', icon: 'i-method-french-press', ask: 'Which press?', eg: 'Bodum Chambord' },
                     { key: 'moka', label: 'Moka pot', type: 'Brewer', icon: 'i-method-moka-pot', ask: 'Which moka pot?', eg: 'Bialetti Moka Express' },
+                    { key: 'teapot', label: 'Teapot', type: 'Brewer', icon: 'i-method-western', ask: 'Which teapot or infuser?', eg: 'Hario Chacha Kyusu' },   // v21.7: tea gear too
+                    { key: 'gaiwan', label: 'Gaiwan', type: 'Brewer', icon: 'i-method-gongfu', ask: 'Which gaiwan?', eg: 'Porcelain gaiwan, 100 ml' },
                     { key: 'kettle', label: 'Kettle', type: 'Kettle', icon: 'i-wl-kettle', ask: 'Which kettle?', eg: 'Fellow Stagg EKG' },
                     { key: 'scale', label: 'Scale', type: 'Scale', icon: 'i-wl-scale', ask: 'Which scale?', eg: 'Timemore Black Mirror' }
                 ];
@@ -21,7 +23,7 @@
                 // that ran out right after saving asked to sign in again behind it)
                 if (this.closeSession && typeof document !== 'undefined' && document.body.classList.contains('nls-open')) this.closeSession(true);
                 if (this.user && this.closeShareView && this._shv) this.closeShareView();
-                this.wl = { step, name: '', color: '', gear: [], gearOpen: '', pick: '', bean: { roaster: '', name: '', origin: '', roast: 'Light', process: '', roastDate: '' } };
+                this.wl = { step, name: '', color: '', gear: [], gearOpen: '', pick: '', kind: this.drinkNow ? this.drinkNow() : 'coffee', bean: { roaster: '', name: '', origin: '', roast: 'Light', process: '', roastDate: '', teaType: '' } };   // (v21.7: kind: your first one is a coffee or a tea)
                 this.welcomeOpen = true;
                 view.classList.add('active'); view.setAttribute('aria-hidden', 'false');
                 document.body.classList.add('wl-open');
@@ -75,7 +77,7 @@
                         <div class="wl-mark">Dialed In</div>
                         <div class="wl-hero"><div class="wl-glow"></div><div class="wl-shape" id="wl-shape"></div></div>
                         <h1 class="wl-h1">Dial in every cup.</h1>
-                        <p class="wl-lead">Log every cup, see what your friends and communities are brewing, and get a coach that tells you exactly what to change next. Earn crema as you go, from Seed to Dialed In.</p>
+                        <p class="wl-lead">Log every cup of coffee or tea, see what your friends and communities are brewing, and get a coach that tells you exactly what to change next. Earn crema as you go, from Seed to Dialed In.</p>
                         ${G.rows.length && !(this.acctOn() && !G.sessions) ? `<div class="wl-proof">${this.wlFaces(G.rows)}<span>${esc(this.wlNames(G.rows))} · ${esc(G.sessions.toLocaleString())} sessions logged</span></div>` : ''}
                         <div class="wl-actions">
                             <button type="button" class="btn-primary wl-main" onclick="app.wlIntro('new')">I'm new to Dialed In</button>
@@ -119,7 +121,7 @@
                     html = `<div class="wl-step">
                         ${this.wlTop(2, 'name')}
                         <h2 class="wl-h2">What do you brew with?</h2>
-                        <p class="wl-sub">Add your machine, grinder and anything else. Logging gets faster, and friends see it on your profile.</p>
+                        <p class="wl-sub">Add your machine, grinder, teapot and anything else. Logging gets faster, and friends see it on your profile.</p>
                         <div class="wl-tiles">${kinds.map(k => { const n = s.gear.filter(g => g.kind === k.key).length; return `<button type="button" class="wl-tile${n ? ' has' : ''}${s.gearOpen === k.key ? ' open' : ''}" data-k="${k.key}" onclick="app.wlGearOpen(this.getAttribute('data-k'))"><svg class="icon"><use href="#${k.icon}"/></svg><span>${esc(k.label)}</span>${n ? `<b>${n}</b>` : ''}</button>`; }).join('')}</div>
                         ${open ? `<div class="wl-add">
                             <label for="wl-gear-name">${esc(open.ask)}</label>
@@ -135,13 +137,17 @@
                     </div>`;
                     if (open) setTimeout(() => { const i = document.getElementById('wl-gear-name'); if (i) i.focus(); }, 60);
                 } else if (s.step === 'coffee') {
-                    const pop = this.wlPopularCoffees(), b = s.bean;
+                    // v21.7: a coffee or a tea (the same switch as the add form, at the top), so tea drinkers start with theirs
+                    const tea = s.kind === 'tea', kind = tea ? 'tea' : 'coffee';
+                    const pop = this.wlPopularCoffees(kind), b = s.bean;
                     const chips = (field, opts) => opts.map(o => `<button type="button" class="wl-pill${b[field] === o ? ' on' : ''}" data-f="${field}" data-v="${o}" onclick="app.wlBeanChip(this.getAttribute('data-f'), this.getAttribute('data-v'))">${o}</button>`).join('');
-                    const roasters = (() => { try { return this.roasterData().roasters.map(r => r.name); } catch (e) { return []; } })();
+                    const roasters = (() => { try { return this.roasterData(kind).roasters.map(r => r.name); } catch (e) { return []; } })();
+                    const sw = (k, label, icon) => `<button type="button" role="radio" aria-checked="${kind === k}" data-kind="${k}" onclick="app.wlKind(this.getAttribute('data-kind'))"><svg class="icon" aria-hidden="true"><use href="${icon}"/></svg>${label}</button>`;
                     html = `<div class="wl-step">
                         ${this.wlTop(3, 'gear')}
-                        <h2 class="wl-h2">What's in your hopper?</h2>
-                        <p class="wl-sub">Pick a coffee people are brewing, or add the bag you've got.</p>
+                        <div class="seg-control kind-switch wl-kind" role="radiogroup" aria-label="Coffee or tea">${sw('coffee', 'Coffee', '#i-bean')}${sw('tea', 'Tea', '#i-teabag')}</div>
+                        <h2 class="wl-h2">${tea ? 'What\'s in your teapot?' : 'What\'s in your hopper?'}</h2>
+                        <p class="wl-sub">${tea ? 'Pick a tea people are drinking, or add the one you\'ve got.' : 'Pick a coffee people are brewing, or add the bag you\'ve got.'}</p>
                         ${pop.length ? `<div class="wl-label">Popular right now</div>
                         <div class="wl-beans">${pop.map(c => `<button type="button" class="wl-bean${s.pick === c.id ? ' on' : ''}" data-id="${esc(c.id)}" onclick="app.wlPickBean(this.getAttribute('data-id'))">
                             <b>${esc(c.name)}</b><span>${esc(c.roaster)}</span>
@@ -150,13 +156,13 @@
                         </button>`).join('')}</div>
                         <div class="wl-or"><span>or add your own</span></div>` : ''}
                         <div class="wl-form">
-                            <input class="wl-input" id="wl-b-roaster" list="wl-roasters" maxlength="60" placeholder="Roaster" value="${esc(b.roaster)}" oninput="app.wlBean('roaster', this.value)">
+                            <input class="wl-input" id="wl-b-roaster" list="wl-roasters" maxlength="60" placeholder="${tea ? 'Brand' : 'Roaster'}" value="${esc(b.roaster)}" oninput="app.wlBean('roaster', this.value)">
                             <datalist id="wl-roasters">${roasters.map(r => `<option value="${esc(r)}"></option>`).join('')}</datalist>
-                            <input class="wl-input" id="wl-b-name" maxlength="60" placeholder="Coffee name" value="${esc(b.name)}" oninput="app.wlBean('name', this.value)">
+                            <input class="wl-input" id="wl-b-name" maxlength="60" placeholder="${tea ? 'Tea name' : 'Coffee name'}" value="${esc(b.name)}" oninput="app.wlBean('name', this.value)">
                             <input class="wl-input" id="wl-b-origin" maxlength="60" placeholder="Origin (optional)" value="${esc(b.origin)}" oninput="app.wlBean('origin', this.value)">
-                            <div class="wl-pills"><span>Roast</span>${chips('roast', ['Light', 'Medium', 'Dark'])}</div>
+                            ${tea ? `<div class="wl-pills"><span>Type</span>${chips('teaType', TEA_TYPES)}</div>` : `<div class="wl-pills"><span>Roast</span>${chips('roast', ['Light', 'Medium', 'Dark'])}</div>
                             <div class="wl-pills"><span>Process</span>${chips('process', ['Washed', 'Natural', 'Honey', 'Anaerobic'])}</div>
-                            <label class="wl-date"><span>Roast date on the bag (optional)</span><input class="wl-input" id="wl-b-roastdate" type="date" value="${esc(b.roastDate || '')}" oninput="app.wlBean('roastDate', this.value)"></label>
+                            <label class="wl-date"><span>Roast date on the bag (optional)</span><input class="wl-input" id="wl-b-roastdate" type="date" value="${esc(b.roastDate || '')}" oninput="app.wlBean('roastDate', this.value)"></label>`}
                         </div>
                         <div class="wl-actions">
                             <button type="button" class="btn-primary wl-main" id="wl-finish" onclick="app.wlFinish()">Finish setup</button>
@@ -244,7 +250,7 @@
             // gear people in the group already use, for this kind (most common first)
             wlGearSuggestions(kind) {
                 const seen = new Map();
-                const words = { machine: /espresso|gaggia|breville|lelit|rancilio|decent|bambino|linea|profitec|ecm|rocket|flair|casa/i, pourover: /v60|chemex|kalita|origami|dripper|orea|april|hario|pour/i, aeropress: /aeropress/i, french: /french|press|bodum|espro/i, moka: /moka|bialetti/i };
+                const words = { machine: /espresso|gaggia|breville|lelit|rancilio|decent|bambino|linea|profitec|ecm|rocket|flair|casa/i, pourover: /v60|chemex|kalita|origami|dripper|orea|april|hario(?!.*(chacha|kyusu|tea))|pour/i, aeropress: /aeropress/i, french: /french|press|bodum|espro/i, moka: /moka|bialetti/i, teapot: /teapot|tea pot|kyusu|infuser|tetsubin|chacha|yixing/i, gaiwan: /gaiwan/i };
                 this.gearByUser.forEach(g => (g && Array.isArray(g.items) ? g.items : []).forEach(it => {
                     const name = String(it.name || '').trim(); if (!name) return;
                     const ok = it.type === kind.type && (kind.type !== 'Brewer' || (words[kind.key] && words[kind.key].test(name)));
@@ -270,10 +276,11 @@
 
             wlGearDel(i) { const s = this.wl; if (!s) return; s.gear.splice(i, 1); this.renderWelcome(); },
 
-            wlPopularCoffees() {
+            wlPopularCoffees(kind = 'coffee') {   // (v21.7: coffees or teas; someone's own blend is theirs, so never offered)
                 const now = Date.now(), byBean = new Map();
                 this.brews.forEach(b => {
-                    const id = String(b.beanId || ''); if (!this.beans.has(id)) return;
+                    const id = String(b.beanId || ''), bean = this.beans.get(id); if (!bean) return;
+                    if ((this.kindOfBean ? this.kindOfBean(bean) : 'coffee') !== kind || bean.blend) return;
                     const t = this.toTime(b.date) || 0, x = byBean.get(id) || { n: 0, recent: 0, ratings: [], people: new Set() };
                     x.n++; if (now - t < 45 * 864e5) x.recent++; const r = this.normalizeRating(b.rating); if (r) x.ratings.push(r); x.people.add(this.getBrewOwner(b));
                     byBean.set(id, x);
@@ -285,7 +292,16 @@
             wlPickBean(id) {
                 const s = this.wl; if (!s) return;
                 s.pick = s.pick === id ? '' : id;
-                if (s.pick) s.bean = { roaster: '', name: '', origin: '', roast: 'Light', process: '', roastDate: s.bean.roastDate || '' };   // (the roast date stays: it's your bag's either way)
+                if (s.pick) s.bean = { roaster: '', name: '', origin: '', roast: 'Light', process: '', roastDate: s.bean.roastDate || '', teaType: '' };   // (the roast date stays: it's your bag's either way)
+                this.renderWelcome();
+            },
+
+            wlKind(k) {   // v21.7: Coffee / Tea at the top of the last step (what you typed stays; a pick was of the other kind)
+                const s = this.wl; if (!s) return;
+                const next = k === 'tea' ? 'tea' : 'coffee';
+                if (s.kind === next) return;
+                s.kind = next; s.pick = '';
+                if (this.haptic) this.haptic('tick');
                 this.renderWelcome();
             },
 
@@ -319,8 +335,8 @@
                 const s = this.wl; if (!s) return;
                 const acct = this.acctOn() && (Supa.session() || {}).profile;   // v14.2: on the new backend you already are your profile
                 const name = acct ? String(acct.name) : String(s.name || '').trim(); if (!acct && (!this.validPersonName(name) || this.wlTaken(name))) { s.step = 'name'; this.renderWelcome(); return; }
-                const b = s.bean;
-                if (!skipCoffee && !s.pick && (b.roaster.trim() || b.name.trim()) && !(b.roaster.trim() && b.name.trim())) { this.wlShake(b.roaster.trim() ? 'wl-b-name' : 'wl-b-roaster'); this.showToast('Add both the roaster and the coffee name, or skip for now.'); return; }
+                const b = s.bean, tea = s.kind === 'tea';
+                if (!skipCoffee && !s.pick && (b.roaster.trim() || b.name.trim()) && !(b.roaster.trim() && b.name.trim())) { this.wlShake(b.roaster.trim() ? 'wl-b-name' : 'wl-b-roaster'); this.showToast(tea ? 'Add both the brand and the tea name, or skip for now.' : 'Add both the roaster and the coffee name, or skip for now.'); return; }
                 const now = new Date().toISOString(), color = s.color || this.wlFreeColor();
                 // you
                 if (acct) { this.user = name; this.setUserColor(name, color, true); }
@@ -339,11 +355,17 @@
                 let firstBean = skipCoffee ? '' : s.pick;
                 if (!skipCoffee && !firstBean && b.roaster.trim() && b.name.trim()) {
                     const id = `${Date.now() + 50}`, bdate = new Date(Date.now() - 1000).toISOString();   // a moment before you joined, so the join post is on top
-                    const payload = this.buildBeanPayload({ id, user: name, owner: name, date: bdate, roaster: '', name: '', variety: '', origin: '', process: '', roast: 'Light', likes: [], comments: [] }, { id, date: bdate, roaster: b.roaster.trim(), name: b.name.trim(), variety: '', origin: b.origin.trim(), process: b.process, roast: b.roast || 'Light', roastDate: String(b.roastDate || '').slice(0, 10) });
+                    const payload = tea
+                        ? this.buildBeanPayload({ id, user: name, owner: name, date: bdate, kind: 'tea', roaster: '', name: '', variety: '', origin: '', process: '', roast: '', likes: [], comments: [] }, { id, date: bdate, kind: 'tea', teaType: TEA_TYPES.includes(b.teaType) ? b.teaType : '', roaster: b.roaster.trim(), name: b.name.trim(), variety: '', origin: b.origin.trim(), process: '', roastDate: '' })
+                        : this.buildBeanPayload({ id, user: name, owner: name, date: bdate, roaster: '', name: '', variety: '', origin: '', process: '', roast: 'Light', likes: [], comments: [] }, { id, date: bdate, roaster: b.roaster.trim(), name: b.name.trim(), variety: '', origin: b.origin.trim(), process: b.process, roast: b.roast || 'Light', roastDate: String(b.roastDate || '').slice(0, 10) });
                     if (payload) { this.push(payload); firstBean = id; }
                 }
                 this.wlFirstBean = firstBean;
-                this.wlFirstRoast = firstBean && firstBean === s.pick ? String(b.roastDate || '').slice(0, 10) : '';   // a picked coffee: the roast date goes on your first session
+                this.wlFirstRoast = !tea && firstBean && firstBean === s.pick ? String(b.roastDate || '').slice(0, 10) : '';   // a picked coffee: the roast date goes on your first session
+                // v21.7: picked Tea: the app opens on Teas (the tour shows how to switch), like adding a tea from the form does
+                const want = tea ? 'tea' : 'coffee';
+                if (this.drinkNow && this.drinkNow() !== want) { this.drink = want; safeSet('dialed_drink', want); this.currentMethodFilter = 'all'; this.roasterFilter = ''; this._roasterCache = null; }
+                if (this.paintDrinkChrome) this.paintDrinkChrome();
                 this.closeWelcome();
                 this.setTab('feed');
                 this.render();
@@ -355,12 +377,15 @@
                 const desk = window.matchMedia && window.matchMedia('(min-width: 769px)').matches;
                 const nl = !desk && !!(this.newLook && this.newLook());   // v18.7: the New look's Settings is the gear at the top
                 const nav = tab => desk ? `#sidebar .nav-btn[data-tab="${tab}"]` : `#mobile-nav .mob-item[data-tab="${tab}"]`;
+                const tea = !!(this.teaMode && this.teaMode()), w = this.drinkWords ? this.drinkWords(tea ? 'tea' : 'coffee') : { item: 'coffee', Items: 'Coffees', company: 'roaster', companies: 'roasters', Companies: 'Roasters' };
                 return [
                     { sel: nav('feed'), tab: 'feed', title: 'Feed', text: 'Following is the people you follow, Community is your groups (with a weekly goal), and Discover is everyone. Like, comment, or ask for help dialing in. Your welcome post is already up.' },
-                    { sel: nav('my'), tab: 'my', title: 'Coffees', text: 'Yours under Mine, everyone\'s under All. Open one to log a session and get the next-shot coach, and switch between your take, your friends\' and everyone\'s.' },
-                    { sel: desk ? '#search-input' : '#top-search-btn', tab: 'my', title: 'Search', text: 'Find any coffee by name, roaster or origin. It searches roasters on the Roasters tab.' },
-                    { sel: nav('roasters'), tab: 'roasters', title: 'Roasters', text: 'Every roaster you and your people have brewed, with their coffees, ratings and how their espresso runs.' },
-                    { sel: desk ? '#sidebar .nav-btn:not([data-tab]):not(.settings-nav-btn)' : '#mobile-nav .mob-fab', tab: 'my', title: 'Add a coffee', text: 'New bag? Add it here, then log sessions on it. Each session keeps its bag\'s roast date.' },
+                    { sel: nav('my'), tab: 'my', title: w.Items, text: tea ? 'Yours under Mine, everyone\'s under All. Open one to log a cup and get advice for the next one, and switch between your take, your friends\' and everyone\'s.' : 'Yours under Mine, everyone\'s under All. Open one to log a session and get the next-shot coach, and switch between your take, your friends\' and everyone\'s.' },
+                    // v21.7: how tea works: the title is the switch (Maceo, Nov 4: "make sure people know how to do teas too")
+                    { sel: '#drink-title', tab: 'my', title: 'Coffee or tea', text: tea ? 'Coffee too? Tap Teas up here and pick Coffees. Each has its own shelf, methods and flavor wheel, and your feed and profile show both.' : 'Drink tea too? Tap Coffees up here and pick Teas: your teas and their brands, tea methods like Western, Gongfu and Matcha, and a tea flavor wheel. Tap it again to come back to coffee.' },
+                    { sel: desk ? '#search-input' : '#top-search-btn', tab: 'my', title: 'Search', text: `Find any ${w.item} by name, ${w.company} or origin. It searches ${w.companies} on the ${w.Companies} tab.` },
+                    { sel: nav('roasters'), tab: 'roasters', title: w.Companies, text: tea ? 'Every tea brand you and your people have tried, with their teas and ratings.' : 'Every roaster you and your people have brewed, with their coffees, ratings and how their espresso runs.' },
+                    { sel: desk ? '#sidebar .nav-btn:not([data-tab]):not(.settings-nav-btn)' : '#mobile-nav .mob-fab', tab: 'my', title: `Add a ${w.item}`, text: tea ? 'New tea? Add it here, then log cups of it. Coffee? Pick Coffee at the top of the form.' : 'New bag? Add it here, then log sessions on it. Tea? Pick Tea at the top of the form.' },
                     { sel: nav('profile'), tab: 'profile', title: 'Profile', text: 'Your level and crema, your stats and taste, and More: achievements, monthly awards and recaps. Anyone else\'s is a tap away.' },
                     { sel: desk ? '#sidebar .settings-nav-btn' : (nl ? '.header-controls .nl-setbtn' : '#mobile-controls-btn'), tab: 'feed', title: 'Settings', text: desk || nl ? 'Light or dark, your profile picture, notifications and privacy. Something broken? Report a bug here.' : 'Sorting, filters and Settings: light or dark, your profile picture, notifications and privacy. Something broken? Report a bug here.' }
                 ];
@@ -386,7 +411,7 @@
                 const id = this.wlFirstBean;
                 this.endTour();
                 if (id && this.beans.has(String(id))) { const rd = this.wlFirstRoast || ''; this.openFeedTarget(id, '', false); setTimeout(() => { this.openBrewModal(); const f = this.getBrewForm(); if (rd && f && f.roastDate && !f.roastDate.value) { f.roastDate.value = rd; this.paintRoastDays(); } }, 250); }
-                else { this.coffeeScope = 'all'; this.setTab('my'); this.showToast('Open any coffee and tap Log a session.'); }
+                else { this.coffeeScope = 'all'; this.setTab('my'); this.showToast(`Open any ${this.teaMode && this.teaMode() ? 'tea' : 'coffee'} and tap Log a session.`); }
             },
 
             renderTour() {
@@ -397,7 +422,7 @@
                     el.innerHTML = `<div class="wl-dim"></div><div class="wl-bubble wl-final" role="dialog" aria-label="All set">
                         <div class="wl-final-face" data-face="${this.esc(this.user || '')}" style="background:${this.esc(this.getUserColor(this.user))}">${this.esc(this.feedInitial(this.user))}</div>
                         <h4>You're dialed in, ${this.esc(this.user)}.</h4>
-                        <p>${bean ? `Your first coffee is ready: <b>${this.esc(bean.name || 'Coffee')}</b>. Log a session and the coach starts learning your taste.` : 'Pick any coffee, log a session, and the coach starts learning your taste.'}</p>
+                        <p>${bean ? `Your first ${this.isTeaBean && this.isTeaBean(bean) ? 'tea' : 'coffee'} is ready: <b>${this.esc(bean.name || 'Coffee')}</b>. Log a session and the coach starts learning your taste.` : 'Pick any coffee or tea, log a session, and the coach starts learning your taste.'}</p>
                         <div class="wl-final-actions"><button type="button" class="btn-primary" onclick="app.tourFirstSession()">Log your first session</button><button type="button" class="wl-link" onclick="app.endTour()">Look around first</button></div>
                     </div>`;
                     const fb = el.querySelector('.wl-bubble');

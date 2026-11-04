@@ -9,13 +9,14 @@
                 const myBeans = (this.buildBeanGroups ? this.buildBeanGroups() : []).filter(it => it.group && it.group.users && it.group.users.has(me));   // (what Coffees › Mine lists)
                 const pd = this.ppState ? this.ppState().data : null, gl = this.grState ? this.grState().list : null;
                 const flag = k => safeGet(`dialed_gs_${k}`) === '1';
+                const gw = this.goalWords ? this.goalWords() : { many: 'coffees' };   // (v21.7: coffee or tea, below too)
                 return [
-                    { k: 'coffee', t: `Add your first ${this.drinkWords(this.drinkNow()).item}`, s: 'The bag you\'re brewing now', done: myBeans.length > 0 || [...this.brews.values()].some(mine), go: 'app.gsGo(\'coffee\')' },
+                    { k: 'coffee', t: `Add your first ${this.drinkNow() === 'tea' ? 'tea or coffee' : 'coffee or tea'}`, s: 'The bag or tin you\'re brewing now', done: myBeans.length > 0 || [...this.brews.values()].some(mine), go: 'app.gsGo(\'coffee\')' },
                     { k: 'log', t: 'Log a session', s: 'Dose, time and how it tasted; the coach suggests your next one', done: [...this.brews.values()].some(mine), go: 'app.gsGo(\'log\')' },
                     { k: 'people', t: 'Follow people', s: 'See everyone on Dialed In and follow a few', done: !!(pd && (pd.following || []).length), go: 'app.gsGo(\'people\')', acct: true },
                     { k: 'community', t: 'Join or start a community', s: 'Friends, a café or a city, with its own weekly goal', done: !!(gl && gl.length), go: 'app.gsGo(\'community\')', acct: true },
                     { k: 'learn', t: 'Explore Learn', s: 'Varieties, processes and every coffee country', done: flag('learn'), go: 'app.gsGo(\'learn\')', coffee: true },
-                    { k: 'goal', t: 'Set a goal', s: 'Sessions a week, new coffees, or a rating to beat', done: !!(this.myGoals && this.myGoals().length), go: 'app.gsGo(\'goal\')' },
+                    { k: 'goal', t: 'Set a goal', s: `Sessions a week, new ${gw.many}, or a rating to beat`, done: !!(this.myGoals && this.myGoals().length), go: 'app.gsGo(\'goal\')' },
                     { k: 'level', t: 'See your level', s: 'Earn crema as you brew, taste and share', done: flag('level'), go: 'app.gsGo(\'level\')' },
                 ].filter(it => (!it.acct || (this.acctOn && this.acctOn())) && (!it.coffee || (this.learnOn && this.learnOn())));
             },
