@@ -823,3 +823,51 @@
 
         /* v21.0: the photo's label has room under the dose / pull / time boxes */
         html[data-look="new"] #brew-modal .photo-label { display: block; margin-top: 22px !important; }
+
+        /* v21.2: every flavor note in its own color, everywhere (the coffee page's Flavor profile, Compare and the other tabs,
+           your palate, the Log form's wheel, its hints and your picked notes), like the feed's notes */
+        html[data-look="new"] .fam-chip[data-nf], html[data-look="new"] [data-fam] .fam-chip[data-nf], html[data-look="new"] .flv-note[data-nf],
+        html[data-look="new"] .note-chip[data-nf], html[data-look="new"] .modal-card .note-chip[data-nf], html[data-look="new"] .pick.fam-pick[data-nf] { background: var(--fbg) !important; color: var(--ffg) !important; border: 0 !important; box-shadow: none !important; }
+        html[data-look="new"] .note-chip[data-nf][aria-pressed="true"], html[data-look="new"] .modal-card .note-chip[data-nf][aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--ffg) !important; font-weight: 750; }
+        html[data-look="new"] .flv-note[data-nf] em, html[data-look="new"] .fam-chip[data-nf] em { color: inherit; opacity: 0.7; font-style: normal; }
+        html[data-look="new"] .pick.fam-pick[data-nf] .pick-dot { background: var(--ffg) !important; }
+        html[data-look="new"] .flv-note[data-nf] .flv-dots b, html[data-look="new"] .pick.fam-pick[data-nf] .dots i { background: color-mix(in srgb, var(--ffg) 28%, transparent); }
+        html[data-look="new"] .flv-note[data-nf] .flv-dots b.on, html[data-look="new"] .pick.fam-pick[data-nf] .dots i.on { background: var(--ffg); }
+
+        /* v21.2: Flavor profile folds */
+        html[data-look="new"] #d-flavor .bf-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; cursor: pointer; }
+        html[data-look="new"] .bf-fold { width: 34px; height: 34px; min-height: 0; padding: 0; margin: -2px -4px 0 0; flex: none; display: grid; place-items: center; border-radius: 17px !important; background: var(--pill) !important; border: 0 !important; color: var(--t) !important; }
+        html[data-look="new"] .bf-fold .icon { width: 18px; height: 18px; transition: transform 0.2s ease; }
+        html[data-look="new"] .bf-folded .bf-fold .icon { transform: rotate(-90deg); }
+        html[data-look="new"] .bf-folded .bf-head p { margin-bottom: 0; }
+
+        /* v21.2: drafts from the Log */
+        html[data-look="new"] #brew-modal .log-draft-btn { margin-top: 10px; width: 100%; }
+        html[data-look="new"] .ld-host { display: grid; gap: 8px; margin-top: 10px; }
+        html[data-look="new"] .ld-host[hidden] { display: none; }
+        html[data-look="new"] .ld-pill { display: flex; align-items: center; gap: 6px; padding: 4px 4px 4px 0; border-radius: 18px; background: var(--pill); }
+        html[data-look="new"] .ld-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; min-height: 0; margin: 0; padding: 8px 6px 8px 14px; background: none !important; border: 0 !important; box-shadow: none !important; color: var(--t) !important; text-align: left; font: inherit; }
+        html[data-look="new"] .ld-open .icon, html[data-look="new"] .ld-ic .icon { width: 18px; height: 18px; flex: none; }
+        html[data-look="new"] .ld-open span { display: grid; gap: 1px; min-width: 0; }
+        html[data-look="new"] .ld-open b { font-weight: 650; font-size: 0.95rem; }
+        html[data-look="new"] .ld-open small { color: var(--l); font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        html[data-look="new"] .ld-del { width: 36px; height: 36px; min-height: 0; padding: 0; margin: 0; flex: none; display: grid; place-items: center; border-radius: 18px !important; background: none !important; border: 0 !important; color: var(--l) !important; }
+        html[data-look="new"] .ld-del .icon { width: 17px; height: 17px; }
+        html[data-look="new"] .ld-ic { width: 56px; height: 30px; display: grid; place-items: center; color: var(--l); }
+        /* v21.2: the yellow "something new" dot sits on the Profile icon's top corner (the bar is icons only, 60px tall,
+           so the old spot, 3px above the item, put it on the bar's edge, over whatever scrolled under it) */
+        html[data-look="new"] .mob-item { position: relative; }
+        html[data-look="new"] .mob-item .nav-dot { top: 14px; left: calc(50% + 8px); width: 8px; height: 8px; }
+        /* v21.2: the favorite recipe card, headed like a session: their face and "Maceo's favorite recipe" in their color,
+           level with the edit and remove buttons, a hint of their color on the edge, and tiles that fit a 19.1 g dose */
+        html[data-look="new"] [data-fam] .master-pill.nl-fav { padding: 16px 16px 18px !important; border-color: color-mix(in srgb, var(--fav) 45%, transparent) !important; }
+        html[data-look="new"] .nl-fav .master-top { align-items: center; }
+        html[data-look="new"] .fav-who { display: flex; align-items: center; gap: 11px; min-width: 0; }
+        html[data-look="new"] .fav-title { display: flex; flex-direction: column; min-width: 0; }
+        html[data-look="new"] .fav-title b { font-family: var(--nl-hand); font-weight: 600; font-size: 23px; line-height: 1.1; letter-spacing: -0.005em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        html[data-look="new"] .fav-title small { font-size: 14.5px; font-weight: 600; line-height: 1.25; color: inherit !important; opacity: 0.9; }
+        html[data-look="new"] .nl-pfp.fav-pfp { width: 38px; height: 38px; font-size: 15px; }
+        html[data-look="new"] .nl-fav .master-actions { gap: 6px; }
+        html[data-look="new"] .nl-fav .sc-strip { margin-top: 14px; }
+        html[data-look="new"] [data-fam] .master-pill .sc-cell { padding: 10px 9px 9px !important; }
+        html[data-look="new"] .nl-fav .sc-gear { margin-top: 12px; }

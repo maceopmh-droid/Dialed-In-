@@ -17,6 +17,10 @@
             openWelcome(step = 'intro') {
                 const view = document.getElementById('welcome-view');
                 if (!view) return;
+                // v21.2: nothing stays over the welcome (a session's page is above it; since Save opens that page, a sign-in
+                // that ran out right after saving asked to sign in again behind it)
+                if (this.closeSession && typeof document !== 'undefined' && document.body.classList.contains('nls-open')) this.closeSession(true);
+                if (this.user && this.closeShareView && this._shv) this.closeShareView();
                 this.wl = { step, name: '', color: '', gear: [], gearOpen: '', pick: '', bean: { roaster: '', name: '', origin: '', roast: 'Light', process: '', roastDate: '' } };
                 this.welcomeOpen = true;
                 view.classList.add('active'); view.setAttribute('aria-hidden', 'false');
