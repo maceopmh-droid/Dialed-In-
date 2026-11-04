@@ -387,12 +387,7 @@
                         grind: mine.grind ?? '',
                         dose: mine.dose ?? '',
                         yield: '',
-                        time: '',
-                        acidity: mine.acidity ?? 5,
-                        sweetness: mine.sweetness ?? 5,
-                        body: mine.body ?? 5,
-                        finish: mine.finish ?? 5,
-                        balance: mine.balance ?? 5,
+                        time: '',   // (v21.0: the taste sliders start fresh, not set: a new cup is tasted afresh (Maceo, Nov 3))
                         isMaster: false,
                         notes: '',
                         flavors: this.extractFlavors(mine),

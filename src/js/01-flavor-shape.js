@@ -456,13 +456,17 @@
             function fitView(sp, vals, W, H, zoom0) {
                 const sm = prefs.smooth, fill = sp.opts.fill || 0.86, cap = sp.opts.fitCap || 4.6, ring = sp.opts.ring || '';
                 const cy = sp.opts.cy ?? 0.5, padB = sp.opts.padB ?? 0;   // v17.5: where its middle goes (0 top, 1 bottom), never past the bottom edge
-                const key = `${W}x${H}|${sp.pitch.toFixed(3)}|${sm}|${fill}|${zoom0}|${ring}|${cy}|${padB}|${FLOOR.concat(TOPK).map(k => val(vals, k)).join(',')}`;
+                const gk = sp.ghostVals ? sp.ghostVals() : null;
+                const key = `${W}x${H}|${sp.pitch.toFixed(3)}|${sm}|${fill}|${zoom0}|${ring}|${cy}|${padB}|${FLOOR.concat(TOPK).map(k => val(vals, k)).join(',')}|${gk ? FLOOR.concat(TOPK).map(k => val(gk, k)).join(',') : '-'}`;
                 if (fits.has(key)) return fits.get(key);
                 const hh = heightOf(vals);
                 let rMax = 0.03; for (let j = 0; j < 72; j++) rMax = Math.max(rMax, radius(vals, (j / 72) * 2 * Math.PI, sm));
+                const gh = sp.ghostVals ? sp.ghostVals() : null;   // v21.0: the dashed best outline is part of the picture too
+                if (gh) for (let j = 0; j < 72; j++) rMax = Math.max(rMax, radius(gh, (j / 72) * 2 * Math.PI, sm));
                 if (ring) rMax = Math.max(rMax, 1);   // (the circle at 10 is part of the picture)
-                const pts = [[0, ring === 'axis' ? Math.max(hh, 2) : ring === 'disc' ? Math.max(hh, 1.55) : hh, 0]];   // (the soft stem fades out near its top: it needn't all fit)
-                [0, 0.2, 0.4, 0.6, 0.8].forEach(t => { const r = rMax * profile(t, sm); for (let j = 0; j < 36; j++) { const a = (j / 36) * 2 * Math.PI; pts.push([r * Math.cos(a), hh * t, r * Math.sin(a)]); } });
+                const hg = gh ? Math.max(hh, heightOf(gh)) : hh;
+                const pts = [[0, ring === 'axis' ? Math.max(hg, 2) : ring === 'disc' ? Math.max(hg, 1.55) : hg, 0]];   // (the soft stem fades out near its top: it needn't all fit)
+                [0, 0.2, 0.4, 0.6, 0.8].forEach(t => { const r = rMax * profile(t, sm); for (let j = 0; j < 36; j++) { const a = (j / 36) * 2 * Math.PI; pts.push([r * Math.cos(a), hg * t, r * Math.sin(a)]); } });
                 const box = (z, ly) => {
                     const { MVP } = matrices(W, H, 0, sp.pitch, z, ly);
                     let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
@@ -496,7 +500,7 @@
                 const R = sharedR(), { under, glc, over, gl } = R;
                 if (!gl) {   // no WebGL: the flat top view, once
                     if (c.width !== vw || c.height !== vh) { c.width = vw; c.height = vh; }
-                    flat(c.getContext('2d'), sp.vals(), null, W, H, dpr, sp.theme(), namesOf(sp.opts)); return true;
+                    flat(c.getContext('2d'), sp.vals(), sp.ghostVals ? sp.ghostVals() : null, W, H, dpr, sp.theme(), namesOf(sp.opts)); return true;
                 }
                 [under, glc, over].forEach(x => { if (x.width < vw || x.height < vh) { x.width = Math.max(x.width, vw); x.height = Math.max(x.height, vh); } });
                 const u = under.getContext('2d'), o = over.getContext('2d'), th = sp.theme();
@@ -506,7 +510,7 @@
                 if (sp.opts.fit) { const f = fitView(sp, vals, W, H, zoom); zoom = f.zoom; lookY = f.lookY; }
                 const { MVP, MV } = matrices(W, H, sp.yaw, sp.pitch, zoom, lookY);
                 gl.upload(vals, prefs.smooth); gl.draw(MVP, MV, th.dark, vw, vh);
-                overlay(u, o, vals, null, MVP, MV, W, H, dpr, sp.pitch, th, sp.opts);
+                overlay(u, o, vals, sp.ghostVals ? sp.ghostVals() : null, MVP, MV, W, H, dpr, sp.pitch, th, sp.opts);   // (v21.0: with the dashed best outline when it has one)
                 if (c.width !== vw || c.height !== vh) { c.width = vw; c.height = vh; }
                 const x = c.getContext('2d');
                 x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, vw, vh);
@@ -551,7 +555,9 @@
                 const sp = { canvas, opts, yaw: opts.id && yaws.has(opts.id) ? yaws.get(opts.id) : (opts.yaw ?? -0.72), pitch: opts.pitch ?? 0.5, near: false, last: 0, drawn: 0, sig: '', gone: 0, dragging: false, idleSince: 0,
                     vals: () => (typeof opts.values === 'function' ? opts.values() : opts.values) || {},
                     theme: () => (typeof opts.theme === 'function' ? opts.theme() : opts.theme) || themeColors(),
-                    key: () => { const v = sp.vals(), t = sp.theme(); return FLOOR.concat(TOPK).map(k => val(v, k)).join(',') + (opts.isSet ? FLOOR.concat(TOPK).map(k => opts.isSet(k) ? 1 : 0).join('') : '') + t.surface + t.dark; } };
+                    key: () => { const v = sp.vals(), t = sp.theme(), g = sp.ghostVals ? sp.ghostVals() : null; return FLOOR.concat(TOPK).map(k => val(v, k)).join(',') + (opts.isSet ? FLOOR.concat(TOPK).map(k => opts.isSet(k) ? 1 : 0).join('') : '') + t.surface + t.dark + (g ? '|' + FLOOR.concat(TOPK).map(k => val(g, k)).join(',') : ''); } };
+                // v21.0: an optional dashed outline (your best), as the boxed view had; ghost(on) shows or hides it
+                if (opts.ghost) sp.ghostVals = () => { if (sp.ghostOff) return null; const g = typeof opts.ghost === 'function' ? opts.ghost() : opts.ghost; return g || null; };
                 sp.inMain = !!(canvas.closest && canvas.closest('#main-content'));
                 sp.nio = nearIO(canvas);
                 if (sp.nio && seenWatch()) { byCanvas.set(canvas, sp); sp.nio.observe(canvas); seenIO.observe(canvas); }
@@ -569,7 +575,8 @@
                 spins.add(sp); wakeSpins();
                 return { redraw() { sp.sig = ''; wakeSpins(); }, destroy() { unwatch(sp); }, state() { return { yaw: sp.yaw, pitch: sp.pitch, near: sp.near, drawn: sp.drawn, dragging: sp.dragging, paused: !!sp.paused, top: sp.top || false }; },
                     pause(on) { sp.paused = !!on; sp.idleSince = 0; wakeSpins(); },   // v17.5: stop turning (and go on again)
-                    view(top) { sp.top = !!top; sp.pitchTo = top ? Math.PI / 2 - 0.001 : (opts.pitch ?? 0.5); wakeSpins(); } };   // looking straight down, or back to the side
+                    view(top) { sp.top = !!top; sp.pitchTo = top ? Math.PI / 2 - 0.001 : (opts.pitch ?? 0.5); wakeSpins(); },
+                    ghost(on) { sp.ghostOff = !on; sp.sig = ''; wakeSpins(); }, hasGhost() { return !!(sp.ghostVals && (typeof opts.ghost === 'function' ? opts.ghost() : opts.ghost)); } };   // looking straight down, or back to the side
             }
             function spinCount() { return [...spins].filter(sp => sp.canvas.isConnected).length; }
             return { createView, snapshot, spin, spinCount, setPref, prefs, FLOOR, TOPK, NAMES, TEA_NAMES, COLORS, KEYS: FLOOR.concat(TOPK) };

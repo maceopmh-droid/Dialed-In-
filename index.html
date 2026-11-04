@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v20.3 -->
+<!-- Dialed In v21.0 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="20.3">
+    <meta name="dialed-in-version" content="21.0">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -27,34 +27,16 @@
         var onChange = function () { if (pref === 'system') { apply(); if (typeof app !== 'undefined' && app.onThemeChange) app.onThemeChange(); } };
         if (mq && mq.addEventListener) mq.addEventListener('change', onChange); else if (mq && mq.addListener) mq.addListener(onChange);
     } catch (e) {}
-    // v17.2: the New look (Settings, Appearance), saved per phone; classic unless it's switched on
-    // v18.7: someone new (a phone that has never opened Dialed In) starts in the New look; phones already using the app keep
-    // the look they have (anyone who never switched stays classic)
+    // v17.2: the New look; v21.0: the only look (Maceo, Nov 3: "get rid of the old look. new look only"). The classic look,
+    // its switch in Settings and its safety net are gone; every phone opens in the New look. __dialedLook stays so older
+    // calls keep working, but it can't turn the New look off.
     try {
-        var look = 'classic';
-        try {
-            var saved = localStorage.getItem('dialed_look');
-            if (saved === null) {
-                var used = false;
-                for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i) || ''; if (k.indexOf('dialed_') === 0 && k !== 'dialed_supabase') { used = true; break; } }
-                if (!used) { saved = 'new'; localStorage.setItem('dialed_look', 'new'); }
-            }
-            look = saved === 'new' ? 'new' : 'classic';
-        } catch (e) {}
-        // v17.3: a safety net. Each start in the New look is counted until the app has been up a few seconds; after two starts
-        // in a row that never got that far (a phone that couldn't draw it), this one opens in the classic look and says so
-        if (look === 'new') {
-            try {
-                var tries = Number(localStorage.getItem('dialed_look_boot')) || 0;
-                if (tries >= 2) { look = 'classic'; localStorage.setItem('dialed_look', 'classic'); localStorage.setItem('dialed_look_boot', '0'); localStorage.setItem('dialed_look_fell', '1'); }
-                else localStorage.setItem('dialed_look_boot', String(tries + 1));
-            } catch (e) {}
-        }
-        var paint = function () { document.documentElement.setAttribute('data-look', look); };
+        try { localStorage.removeItem('dialed_look_boot'); localStorage.removeItem('dialed_look_fell'); } catch (e) {}
+        var paint = function () { document.documentElement.setAttribute('data-look', 'new'); };
         window.__dialedLook = {
-            get pref() { return look; },
-            set: function (p) { look = p === 'new' ? 'new' : 'classic'; try { localStorage.setItem('dialed_look', look); localStorage.setItem('dialed_look_boot', '0'); } catch (e) {} paint(); },
-            isNew: function () { return document.documentElement.getAttribute('data-look') === 'new'; }
+            get pref() { return 'new'; },
+            set: function () { paint(); },
+            isNew: function () { return true; }
         };
         paint();
     } catch (e) {}
@@ -4951,6 +4933,48 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] .ro-rate { color: var(--t, var(--nl-ink)); font-size: 14px; font-weight: 700; }   /* (a roaster's number reads like a coffee card's) */
         /* v18.7: the welcome's step headings in the New look's serif, like its page and sheet titles (new people start in the New look) */
         html[data-look="new"] .wl-h2 { font-family: var(--nl-serif); font-weight: 500; letter-spacing: -0.012em; }
+
+        /* v21.0: the Session screen's shape on the coffee page (Flavor profile) and the Log form (How did it taste?): no box, the
+           soft plate under it, the round stop / top-view / your-best buttons in its corner */
+        html[data-look="new"] .nl-spinmount { max-width: 420px; margin: 4px auto 2px; }
+        html[data-look="new"] .nls-mshape { width: 100%; height: 290px; display: block; background: transparent !important; border: 0 !important; }
+        html[data-look="new"] .nl-spinmount .nl-spinctl { top: 0; right: 0; }
+        html[data-look="new"] .nl-spinctl button[hidden] { display: none !important; }
+        html[data-look="new"] #bf-shape, html[data-look="new"] #taste-shape { background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; min-height: 0; }
+
+        /* v21.0: People › Suggested leads to everyone on the app */
+        html[data-look="new"] .pp-all { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; margin: 0; padding: 12px 0; min-height: 0; background: none !important; border: 0 !important; border-top: 1px solid var(--line) !important; border-radius: 0 !important; box-shadow: none !important; color: var(--nl-ink); text-align: left; font: inherit; cursor: pointer; }
+        html[data-look="new"] .pp-list .pp-all:first-child { border-top: 0 !important; }
+        html[data-look="new"] .pp-all span { display: grid; gap: 2px; min-width: 0; }
+        html[data-look="new"] .pp-all b { font-weight: 650; font-size: 0.98rem; }
+        html[data-look="new"] .pp-all small { color: var(--nl-muted); font-size: 0.84rem; }
+        html[data-look="new"] .pp-chev, html[data-look="new"] .gs-chev { width: 18px; height: 18px; flex: none; transform: rotate(-90deg); color: var(--nl-faint); }
+        html[data-look="new"] .pp-back { display: inline-flex; align-items: center; gap: 6px; width: auto; min-height: 0; margin: 4px 0 0; padding: 8px 14px 8px 10px; border-radius: 999px !important; background: var(--nl-surface2) !important; border: 0 !important; color: var(--nl-ink); font: inherit; font-weight: 600; font-size: 0.92rem; }
+        html[data-look="new"] .pp-back .icon { width: 18px; height: 18px; }
+        html[data-look="new"] .pp-note { margin: 0 0 6px; color: var(--nl-muted); font-size: 0.86rem; font-weight: 400; line-height: 1.4; }
+
+        /* v21.0: Get started, at the top of Coffees › Mine for someone new */
+        html[data-look="new"] .gs-card { grid-column: 1 / -1; margin: 4px 0 14px; padding: 18px 18px 8px; }
+        html[data-look="new"] .gs-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+        html[data-look="new"] .gs-head h3 { margin: 0; font-family: var(--nl-serif, Georgia, serif); font-size: 1.45rem; font-weight: 600; line-height: 1.15; color: var(--t); }
+        html[data-look="new"] .gs-head p { margin: 4px 0 0; color: var(--l); font-size: 0.88rem; }
+        html[data-look="new"] .gs-x { width: 34px; height: 34px; min-height: 0; padding: 0; margin: -4px -4px 0 0; flex: none; display: grid; place-items: center; border-radius: 17px !important; background: var(--pill) !important; border: 0 !important; color: var(--l) !important; }
+        html[data-look="new"] .gs-x .icon { width: 16px; height: 16px; }
+        html[data-look="new"] .gs-bar { height: 6px; margin: 14px 0 6px; border-radius: 3px; background: var(--pill); overflow: hidden; }
+        html[data-look="new"] .gs-bar i { display: block; height: 100%; border-radius: 3px; background: var(--k); }
+        html[data-look="new"] .gs-list { display: grid; }
+        html[data-look="new"] .gs-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 0; margin: 0; padding: 12px 0; background: none !important; border: 0 !important; border-top: 1px solid var(--hl) !important; border-radius: 0 !important; box-shadow: none !important; color: var(--t); text-align: left; font: inherit; cursor: pointer; }
+        html[data-look="new"] .gs-list .gs-row:first-child { border-top: 0 !important; }
+        html[data-look="new"] .gs-dot { width: 24px; height: 24px; flex: none; border-radius: 12px; border: 1.8px solid color-mix(in srgb, var(--t) 28%, transparent); display: grid; place-items: center; color: var(--c); }
+        html[data-look="new"] .gs-row.is-done .gs-dot { background: var(--k); border-color: var(--k); }
+        html[data-look="new"] .gs-dot svg { width: 16px; height: 16px; }
+        html[data-look="new"] .gs-txt { display: grid; gap: 2px; min-width: 0; flex: 1; }
+        html[data-look="new"] .gs-txt b { font-weight: 650; font-size: 0.98rem; }
+        html[data-look="new"] .gs-txt small { color: var(--l); font-size: 0.84rem; line-height: 1.35; }
+        html[data-look="new"] .gs-row.is-done .gs-txt b { color: var(--l); text-decoration: line-through; text-decoration-thickness: 1px; }
+
+        /* v21.0: the photo's label has room under the dose / pull / time boxes */
+        html[data-look="new"] #brew-modal .photo-label { display: block; margin-top: 22px !important; }
         /* ===================== v19.0: Learn =====================
            The New look's kit (claude/new-look-ds.css) plus the Learn screens' parts (claude/learn-mockups-src.md): pages tinted
            by their typical flavor family, names in the big serif, every section folding. All of it is the New look's. */
@@ -6257,10 +6281,6 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                         <button type="button" data-theme-opt="dark" onclick="app.setThemePref('dark')">Dark</button>
                     </div>
                 </div>
-                <div class="set-row set-look">
-                    <span class="set-main"><b>New look</b><small>Turn off to go back to the classic look</small></span>
-                    <button type="button" class="goal-sw" id="set-look-sw" role="switch" aria-checked="false" aria-label="New look" onclick="app.toggleNewLook(this)"></button>
-                </div>
                 <div class="set-row set-color">
                     <span class="set-main"><b>Your color</b><small>Your name and picture in the app</small></span>
                     <span class="set-color-val"><span id="user-color-value" class="user-color-value">#586A58</span><i id="user-color-swatch" class="set-swatch"></i></span>
@@ -6284,7 +6304,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v20.3</div>
+            <div class="app-version">Dialed In · v21.0</div>
         </div>
     </div>
 
@@ -6424,6 +6444,19 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
                 <div id="method-extras" class="method-extras" hidden></div>
 
+                <!-- v21.0: the photo sits right under the numbers, above How did it taste? (Maceo, Nov 3) -->
+                <label class="photo-label">Session photo (optional)</label>
+                <div class="photo-upload-card">
+                    <div class="photo-preview empty" id="session-photo-preview">No photo added yet.</div>
+                    <div class="photo-action-row">
+                        <button type="button" class="btn-outline photo-picker-btn" onclick="app.openPhotoSourcePicker()">Add Photo</button>
+                        <button type="button" class="btn-outline photo-remove-btn" id="session-photo-remove" onclick="app.removeDraftPhoto()" style="display:none;">Remove Photo</button>
+                    </div>
+                    <div class="custom-flavor-note">Adds a compact photo thumbnail to this session.</div>
+                </div>
+                <input type="file" id="photo-camera-input" class="file-picker-input" accept="image/*" capture="environment" onchange="app.handlePhotoInput(event, 'camera')">
+                <input type="file" id="photo-library-input" class="file-picker-input" accept="image/*" onchange="app.handlePhotoInput(event, 'library')">
+
                 </div>
                 <div class="bf-col bf-taste">
                 <!-- Taste (v10): sliders drawn as the flavor shape, read against your best shot -->
@@ -6481,18 +6514,6 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 <div class="bf-col bf-end">
                 <label>Observations</label>
                 <textarea name="notes" rows="2" oninput="app.renderTasteTip()"></textarea>
-
-                <label>Session Photo (Optional)</label>
-                <div class="photo-upload-card">
-                    <div class="photo-preview empty" id="session-photo-preview">No photo added yet.</div>
-                    <div class="photo-action-row">
-                        <button type="button" class="btn-outline photo-picker-btn" onclick="app.openPhotoSourcePicker()">Add Photo</button>
-                        <button type="button" class="btn-outline photo-remove-btn" id="session-photo-remove" onclick="app.removeDraftPhoto()" style="display:none;">Remove Photo</button>
-                    </div>
-                    <div class="custom-flavor-note">Adds a compact photo thumbnail to this session.</div>
-                </div>
-                <input type="file" id="photo-camera-input" class="file-picker-input" accept="image/*" capture="environment" onchange="app.handlePhotoInput(event, 'camera')">
-                <input type="file" id="photo-library-input" class="file-picker-input" accept="image/*" onchange="app.handlePhotoInput(event, 'library')">
 
                 <!-- Rating Slider -->
                 <label>Session Rating (Optional)</label>
@@ -7136,13 +7157,17 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
             function fitView(sp, vals, W, H, zoom0) {
                 const sm = prefs.smooth, fill = sp.opts.fill || 0.86, cap = sp.opts.fitCap || 4.6, ring = sp.opts.ring || '';
                 const cy = sp.opts.cy ?? 0.5, padB = sp.opts.padB ?? 0;   // v17.5: where its middle goes (0 top, 1 bottom), never past the bottom edge
-                const key = `${W}x${H}|${sp.pitch.toFixed(3)}|${sm}|${fill}|${zoom0}|${ring}|${cy}|${padB}|${FLOOR.concat(TOPK).map(k => val(vals, k)).join(',')}`;
+                const gk = sp.ghostVals ? sp.ghostVals() : null;
+                const key = `${W}x${H}|${sp.pitch.toFixed(3)}|${sm}|${fill}|${zoom0}|${ring}|${cy}|${padB}|${FLOOR.concat(TOPK).map(k => val(vals, k)).join(',')}|${gk ? FLOOR.concat(TOPK).map(k => val(gk, k)).join(',') : '-'}`;
                 if (fits.has(key)) return fits.get(key);
                 const hh = heightOf(vals);
                 let rMax = 0.03; for (let j = 0; j < 72; j++) rMax = Math.max(rMax, radius(vals, (j / 72) * 2 * Math.PI, sm));
+                const gh = sp.ghostVals ? sp.ghostVals() : null;   // v21.0: the dashed best outline is part of the picture too
+                if (gh) for (let j = 0; j < 72; j++) rMax = Math.max(rMax, radius(gh, (j / 72) * 2 * Math.PI, sm));
                 if (ring) rMax = Math.max(rMax, 1);   // (the circle at 10 is part of the picture)
-                const pts = [[0, ring === 'axis' ? Math.max(hh, 2) : ring === 'disc' ? Math.max(hh, 1.55) : hh, 0]];   // (the soft stem fades out near its top: it needn't all fit)
-                [0, 0.2, 0.4, 0.6, 0.8].forEach(t => { const r = rMax * profile(t, sm); for (let j = 0; j < 36; j++) { const a = (j / 36) * 2 * Math.PI; pts.push([r * Math.cos(a), hh * t, r * Math.sin(a)]); } });
+                const hg = gh ? Math.max(hh, heightOf(gh)) : hh;
+                const pts = [[0, ring === 'axis' ? Math.max(hg, 2) : ring === 'disc' ? Math.max(hg, 1.55) : hg, 0]];   // (the soft stem fades out near its top: it needn't all fit)
+                [0, 0.2, 0.4, 0.6, 0.8].forEach(t => { const r = rMax * profile(t, sm); for (let j = 0; j < 36; j++) { const a = (j / 36) * 2 * Math.PI; pts.push([r * Math.cos(a), hg * t, r * Math.sin(a)]); } });
                 const box = (z, ly) => {
                     const { MVP } = matrices(W, H, 0, sp.pitch, z, ly);
                     let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
@@ -7176,7 +7201,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 const R = sharedR(), { under, glc, over, gl } = R;
                 if (!gl) {   // no WebGL: the flat top view, once
                     if (c.width !== vw || c.height !== vh) { c.width = vw; c.height = vh; }
-                    flat(c.getContext('2d'), sp.vals(), null, W, H, dpr, sp.theme(), namesOf(sp.opts)); return true;
+                    flat(c.getContext('2d'), sp.vals(), sp.ghostVals ? sp.ghostVals() : null, W, H, dpr, sp.theme(), namesOf(sp.opts)); return true;
                 }
                 [under, glc, over].forEach(x => { if (x.width < vw || x.height < vh) { x.width = Math.max(x.width, vw); x.height = Math.max(x.height, vh); } });
                 const u = under.getContext('2d'), o = over.getContext('2d'), th = sp.theme();
@@ -7186,7 +7211,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 if (sp.opts.fit) { const f = fitView(sp, vals, W, H, zoom); zoom = f.zoom; lookY = f.lookY; }
                 const { MVP, MV } = matrices(W, H, sp.yaw, sp.pitch, zoom, lookY);
                 gl.upload(vals, prefs.smooth); gl.draw(MVP, MV, th.dark, vw, vh);
-                overlay(u, o, vals, null, MVP, MV, W, H, dpr, sp.pitch, th, sp.opts);
+                overlay(u, o, vals, sp.ghostVals ? sp.ghostVals() : null, MVP, MV, W, H, dpr, sp.pitch, th, sp.opts);   // (v21.0: with the dashed best outline when it has one)
                 if (c.width !== vw || c.height !== vh) { c.width = vw; c.height = vh; }
                 const x = c.getContext('2d');
                 x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, vw, vh);
@@ -7231,7 +7256,9 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 const sp = { canvas, opts, yaw: opts.id && yaws.has(opts.id) ? yaws.get(opts.id) : (opts.yaw ?? -0.72), pitch: opts.pitch ?? 0.5, near: false, last: 0, drawn: 0, sig: '', gone: 0, dragging: false, idleSince: 0,
                     vals: () => (typeof opts.values === 'function' ? opts.values() : opts.values) || {},
                     theme: () => (typeof opts.theme === 'function' ? opts.theme() : opts.theme) || themeColors(),
-                    key: () => { const v = sp.vals(), t = sp.theme(); return FLOOR.concat(TOPK).map(k => val(v, k)).join(',') + (opts.isSet ? FLOOR.concat(TOPK).map(k => opts.isSet(k) ? 1 : 0).join('') : '') + t.surface + t.dark; } };
+                    key: () => { const v = sp.vals(), t = sp.theme(), g = sp.ghostVals ? sp.ghostVals() : null; return FLOOR.concat(TOPK).map(k => val(v, k)).join(',') + (opts.isSet ? FLOOR.concat(TOPK).map(k => opts.isSet(k) ? 1 : 0).join('') : '') + t.surface + t.dark + (g ? '|' + FLOOR.concat(TOPK).map(k => val(g, k)).join(',') : ''); } };
+                // v21.0: an optional dashed outline (your best), as the boxed view had; ghost(on) shows or hides it
+                if (opts.ghost) sp.ghostVals = () => { if (sp.ghostOff) return null; const g = typeof opts.ghost === 'function' ? opts.ghost() : opts.ghost; return g || null; };
                 sp.inMain = !!(canvas.closest && canvas.closest('#main-content'));
                 sp.nio = nearIO(canvas);
                 if (sp.nio && seenWatch()) { byCanvas.set(canvas, sp); sp.nio.observe(canvas); seenIO.observe(canvas); }
@@ -7249,7 +7276,8 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 spins.add(sp); wakeSpins();
                 return { redraw() { sp.sig = ''; wakeSpins(); }, destroy() { unwatch(sp); }, state() { return { yaw: sp.yaw, pitch: sp.pitch, near: sp.near, drawn: sp.drawn, dragging: sp.dragging, paused: !!sp.paused, top: sp.top || false }; },
                     pause(on) { sp.paused = !!on; sp.idleSince = 0; wakeSpins(); },   // v17.5: stop turning (and go on again)
-                    view(top) { sp.top = !!top; sp.pitchTo = top ? Math.PI / 2 - 0.001 : (opts.pitch ?? 0.5); wakeSpins(); } };   // looking straight down, or back to the side
+                    view(top) { sp.top = !!top; sp.pitchTo = top ? Math.PI / 2 - 0.001 : (opts.pitch ?? 0.5); wakeSpins(); },
+                    ghost(on) { sp.ghostOff = !on; sp.sig = ''; wakeSpins(); }, hasGhost() { return !!(sp.ghostVals && (typeof opts.ghost === 'function' ? opts.ghost() : opts.ghost)); } };   // looking straight down, or back to the side
             }
             function spinCount() { return [...spins].filter(sp => sp.canvas.isConnected).length; }
             return { createView, snapshot, spin, spinCount, setPref, prefs, FLOOR, TOPK, NAMES, TEA_NAMES, COLORS, KEYS: FLOOR.concat(TOPK) };
@@ -10488,12 +10516,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                         grind: mine.grind ?? '',
                         dose: mine.dose ?? '',
                         yield: '',
-                        time: '',
-                        acidity: mine.acidity ?? 5,
-                        sweetness: mine.sweetness ?? 5,
-                        body: mine.body ?? 5,
-                        finish: mine.finish ?? 5,
-                        balance: mine.balance ?? 5,
+                        time: '',   // (v21.0: the taste sliders start fresh, not set: a new cup is tasted afresh (Maceo, Nov 3))
                         isMaster: false,
                         notes: '',
                         flavors: this.extractFlavors(mine),
@@ -12128,7 +12151,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                         return [...hits];
                     };
                     // v17.2: both looks (classic and New) in both themes
-                    for (const look of ['classic', 'new']) for (const theme0 of ['light', 'dark']) {
+                    for (const look of ['new']) for (const theme0 of ['light', 'dark']) {   // (v21.0: the New look is the only look)
                         if (window.__dialedLook) { window.__dialedLook.set(look); this._nlFam = null; }
                         const theme = theme0, lk = look === 'new' ? 'new look ' : '';
                         safe('theme', () => this.setThemePref(theme));
@@ -12161,8 +12184,8 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     // v17.2: the New look's own checks
                     section = 'new look';
                     {
-                        let stored = ''; try { window.__dialedLook.set('new'); stored = localStorage.getItem('dialed_look'); } catch (e) {}
-                        check(stored === 'new' && document.documentElement.getAttribute('data-look') === 'new', 'the New look switch is saved and sets data-look');
+                        try { window.__dialedLook.set('classic'); } catch (e) {}
+                        check(document.documentElement.getAttribute('data-look') === 'new' && this.newLook() && !document.getElementById('set-look-sw'), 'the New look is the only look (no switch, and it can\'t be turned off)');   // v21.0
                         this._nlFam = null;
                         // v17.4: colors without limits
                         check(this.toneOfNotes([['Sour', 3, 'coffee'], ['Thin', 2, 'coffee']]) === null, 'notes that only taste off give no color');
@@ -12210,11 +12233,6 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                             check(document.getElementById('detail-view').getAttribute('data-fam'), 'the coffee page wears its coffee\'s family');
                             safe('close', () => this.closeDetail());
                         }
-                        window.__dialedLook.set('classic'); this.onThemeChange();
-                        safe('classic coffee page', () => sb && this.openFeedTarget(sb.beanId, '', false));
-                        const dv = document.getElementById('detail-view');
-                        check(!dv.hasAttribute('data-fam') && !dv.querySelector('.nl-dphoto, .nl-logrow, .nl-dcover, .nl-navbar, [data-nf]') && !!dv.querySelector('.detail-hero > .dh-top'), 'with the switch off, the coffee page is classic again');
-                        safe('close', () => this.closeDetail());
                     }
                     if (onProgress) onProgress('screens');
                     // 4. every bean page
@@ -16574,7 +16592,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                         : `No ${dw.items} yet. Add your first one with the + button.`;
                     grid.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:3rem;">${message}</div>`;
                 }
-                if (this.tab === 'my' && grid.insertAdjacentHTML) grid.insertAdjacentHTML('afterbegin', this.coffeeScopeHtml() + this.roasterFilterHtml());
+                if (this.tab === 'my' && grid.insertAdjacentHTML) grid.insertAdjacentHTML('afterbegin', this.coffeeScopeHtml() + (this.gsCardHtml ? this.gsCardHtml() : '') + this.roasterFilterHtml());   // (v21.0: Get started, for someone new)
             },
 
             // ===================== v9 features =====================
@@ -18969,6 +18987,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             },
 
             paintTasteSliders() {
+                if (this._tasteSpin) this._tasteSpin.redraw();   // v21.0: the shape follows the sliders even while it isn't turning
                 const form = this.getBrewForm();
                 const ref = this.tasteReference();
                 document.querySelectorAll('#brew-modal .ns').forEach(row => {
@@ -19009,7 +19028,11 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
 
             renderTasteSection() {
                 const host = document.getElementById('taste-shape');
-                if (host && typeof FlavorShape !== 'undefined') {
+                if (host && typeof FlavorShape !== 'undefined' && this.newLook() && this.nlSpinMount) {   // v21.0: the Session screen's shape, with your best dashed
+                    this._tasteSpin = this.nlSpinMount(host, { id: 'log-taste', values: () => this.formTasteValues(), isSet: k => this.tasteTouched.has(k),
+                        ghost: () => { const r = this.tasteReference(); return r ? this.shapeValues(r) : null; }, names: () => (this.logKind === 'tea' ? 'tea' : null) });
+                    const bb = host.querySelector('.nl-sc-best'); if (bb) bb.hidden = !this.tasteReference();
+                } else if (host && typeof FlavorShape !== 'undefined') {
                     if (!this.tasteView) {
                         this.tasteView = FlavorShape.createView({ names: () => (this.logKind === 'tea' ? 'tea' : null), values: () => this.formTasteValues(), ghost: () => { const r = this.tasteReference(); return r ? this.shapeValues(r) : null; }, ghostLabel: 'Best', isSet: k => this.tasteTouched.has(k) });
                     }
@@ -19403,7 +19426,10 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const words = this.describeCup(values, tasted, fc.notes.slice(0, 4).map(x => x.n), Object.fromEntries(fc.notes.map(x => [x.n, x.strength])), kind);
                 box.innerHTML = `<div class="bf-head"><div><h3>Flavor profile</h3><p>${pool.length} session${pool.length === 1 ? '' : 's'} · ${this.beanFlavorWho === 'all' ? this.esc(this.lensLabel()) : this.esc(this.beanFlavorWho)}${mineBest ? ' · dashed: your best' : ''}</p></div></div>${chips}<div id="bf-shape"></div>${!tasted.length ? '<div class="flv-empty">No taste sliders set on these sessions yet.</div>' : ''}${fc.notes.length ? `<div class="bf-wheel">${this.wheelSvgStatic(fc, kind)}<div class="flv-notes">${this.noteChipsHtml(fc.notes.slice(0, 12), true)}</div></div>` : ''}${words ? `<div class="flv-words">${this.esc(words)}</div>` : ''}`;
                 setTimeout(() => this.fillShapeImages(document.getElementById('detail-view')), 0);
-                if (typeof FlavorShape !== 'undefined' && tasted.length) {
+                if (typeof FlavorShape !== 'undefined' && tasted.length && this.newLook() && this.nlSpinMount) {   // v21.0: the Session screen's shape
+                    this.nlSpinMount(document.getElementById('bf-shape'), { id: `bean|${groupKey}`, values: () => this.beanFlavorValues, isSet: k => tasted.includes(k),
+                        ghost: this.beanFlavorGhost ? () => this.beanFlavorGhost : null, names: () => (this.beanFlavorKind === 'tea' ? 'tea' : null) });
+                } else if (typeof FlavorShape !== 'undefined' && tasted.length) {
                     if (!this.beanView) this.beanView = FlavorShape.createView({ names: () => (this.beanFlavorKind === 'tea' ? 'tea' : null), values: () => this.beanFlavorValues, ghost: () => this.beanFlavorGhost, ghostLabel: 'Your best' });
                     const bfHost = document.getElementById('bf-shape');
                     if (bfHost && typeof bfHost.replaceChildren === 'function') bfHost.replaceChildren(this.beanView.el);
@@ -21275,7 +21301,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
 
             openPeople(tab) {
                 if (!this.acctOn()) return;
-                const st = this.ppState(); st.q = ''; st.results = null; st.menu = ''; st.tab = tab === 'groups' ? 'groups' : 'people';
+                const st = this.ppState(); st.q = ''; st.results = null; st.menu = ''; st.view = ''; st.tab = tab === 'groups' ? 'groups' : 'people';
                 const q = document.getElementById('people-q'); if (q) q.value = '';
                 document.getElementById('people-modal').classList.add('active');
                 this.renderPeople();
@@ -21339,6 +21365,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                         : `<p class="pp-empty">Nobody by that name yet.</p>`;
                     return;
                 }
+                if (st.view === 'everyone' && this.everyoneHtml) { body.innerHTML = this.everyoneHtml(); return; }   // v21.0: Suggested, everyone
                 if (!d) { body.innerHTML = this.loadingBlockHtml(); return; }
                 const following = d.following || [], followers = d.followers || [];
                 const requests = followers.filter(f => f.status === 'pending');
@@ -22004,7 +22031,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 return [
                     group('Privacy and notifications', `${priv}${row('app.openNotifSettings()', 'Notifications', 'Choose what you hear about, on this phone and in the app')}`),   // v15.8: the phone switch moved into Notifications
                     group('Community', `${row('app.openGuidelines()', 'Community guidelines', 'What\'s welcome here, and how reporting works')}${this.isReviewer && this.isReviewer() ? row('app.openReview()', 'Review reports', 'Reports waiting for a reviewer') : ''}`),
-                    group('Help', `${row('app.openBugReport()', 'Report a bug', 'Something broken or confusing? Tell us')}${this.isReviewer && this.isReviewer() ? row('app.openBugReports()', 'Bug reports', 'What people have reported') : ''}`),   // v15.1
+                    group('Help', `${row('app.gsShow()', 'Get started', 'A quick guide to what you can do in Dialed In')}${row('app.openBugReport()', 'Report a bug', 'Something broken or confusing? Tell us')}${this.isReviewer && this.isReviewer() ? row('app.openBugReports()', 'Bug reports', 'What people have reported') : ''}`),   // v15.1
                     group('Your data', `${row('app.downloadMyData()', 'Download my data', 'Everything on your account, in one file')}${row('app.exportData(\'csv\')', 'Export sessions', 'A spreadsheet (CSV) of your sessions')}`),
                     group('About', `${link('terms', 'Terms of Use')}${link('privacy', 'Privacy Policy')}${link('support', 'Help and support')}`, 'acct-legal'),
                     `<div class="set-group set-end"><button type="button" class="set-row acct-out" onclick="app.signOut()"><span class="set-main"><b>Sign out</b></span></button><button type="button" class="set-row acct-delete" onclick="app.deleteMyAccount()"><span class="set-main"><b>Delete account</b></span></button></div>`
@@ -22187,8 +22214,47 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             suggestionsHtml() {
                 const st = this.sugState();
                 const rows = (st.list || []).filter(p => { const r = this.relationTo(p.name); return !r.you && !r.blocked && p.name !== this.user; }).slice(0, 6);
-                if (!rows.length) return '';
-                return `<h3 class="pp-h">Suggested</h3><div class="pp-list">${rows.map(p => this.peopleRowHtml(p.name, this.relationTo(p.name), { color: p.color, sub: p.reason || '' })).join('')}</div>`;
+                // v21.0: Suggested always leads to everyone on the app (Maceo, Nov 3), even when nothing matches you yet
+                const all = `<button type="button" class="pp-all" onclick="app.openEveryone()"><span><b>See everyone on Dialed In</b><small>Every person on the app, people you don't follow first</small></span><svg class="icon pp-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>`;
+                return `<h3 class="pp-h">Suggested</h3><div class="pp-list">${rows.map(p => this.peopleRowHtml(p.name, this.relationTo(p.name), { color: p.color, sub: p.reason || '' })).join('')}${all}</div>`;
+            },
+
+            // ---- v21.0: Suggested, everyone: every person on Dialed In (People), for finding people you don't follow without
+            // knowing their name. The suggestions (and why) first, then everyone else you don't follow (newest first), then the
+            // people you already follow.
+            async loadEveryone(force) {
+                const st = this.sugState();
+                if (st.evLoading || !this.acctOn() || !Supa.ready()) return;
+                if (!force && st.everyone && Date.now() - st.evAt < 60000) return;
+                st.evLoading = true; st.evFailed = false;
+                try { const r = await Supa.rpc('everyone_people', {}); st.everyone = Array.isArray(r) ? r : []; st.evAt = Date.now(); }
+                catch (e) { st.evFailed = true; }
+                finally { st.evLoading = false; }
+                const m = document.getElementById('people-modal');
+                if (m && m.classList.contains('active')) this.renderPeople();
+            },
+            openEveryone() {
+                const st = this.ppState(); st.view = 'everyone'; st.q = '';
+                const q = document.getElementById('people-q'); if (q) q.value = '';
+                this.renderPeople();
+                const b = document.getElementById('people-body'); if (b && b.closest) { const sc = b.closest('.modal-card'); if (sc) sc.scrollTop = 0; }
+                this.loadEveryone(true); this.loadSuggestions();
+            },
+            closeEveryone() { const st = this.ppState(); st.view = ''; this.renderPeople(); },
+            everyoneHtml() {
+                const st = this.sugState(), back = `<button type="button" class="pp-back" onclick="app.closeEveryone()"><svg class="icon" aria-hidden="true"><use href="#i-arrow-left"/></svg><span>People</span></button>`;
+                if (!st.everyone) return back + (st.evFailed ? `<p class="pp-empty">Couldn't load everyone. Check your connection and try again.</p>` : this.loadingBlockHtml());
+                const why = new Map((st.list || []).map(p => [String(p.name).toLowerCase(), p.reason || '']));
+                const month = iso => { const d = new Date(iso); return isNaN(d) ? '' : `Joined ${d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`; };
+                const rows = st.everyone.filter(p => p && p.name && p.name !== this.user).map(p => {
+                    const k = String(p.name).toLowerCase(), r0 = this.relationTo(p.name), rel = this.ppState().data ? r0 : { ...r0, you: p.you || null, followsYou: Boolean(p.followsYou) };   // (after a Follow, your fresh list wins)
+                    rel.friend = rel.friend || (rel.you === 'accepted' && rel.followsYou);
+                    return { p, rel, why: why.get(k) || '', rank: rel.you ? 2 : why.has(k) ? 0 : 1 };
+                }).filter(x => !x.rel.blocked);
+                rows.sort((a, b) => a.rank - b.rank);   // (stable: the server's order, newest first, within each)
+                const sub = x => x.why || (x.rel.friend ? 'Friends' : x.rel.followsYou && !x.rel.you ? 'Follows you' : x.p.private && !x.rel.you ? 'Private profile' : month(x.p.joined));
+                const n = rows.length;
+                return `${back}<h3 class="pp-h">Suggested<span>${n}</span></h3><p class="pp-note">Everyone on Dialed In. People you don't follow come first.</p>${n ? `<div class="pp-list">${rows.map(x => this.peopleRowHtml(x.p.name, x.rel, { color: x.p.color, sub: sub(x) })).join('')}</div>` : `<p class="pp-empty">Nobody else here yet. Share your profile and invite a friend.</p>`}`;
             },
 
             // ---- your profile's link: opens your profile (with Follow) for anyone signed in
@@ -23501,10 +23567,10 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
 
             // ---- v15.1: the Coffees tab holds yours (Mine) and everyone's you can see (All); it remembers which
             coffeeScopeNow() {
-                if (!this.coffeeScope) { const v = safeGet('dialed_coffee_scope'); this.coffeeScope = v === 'all' || v === 'learn' ? v : 'mine'; }
+                if (!this.coffeeScope) this.coffeeScope = 'mine';   // v21.0: opening the app (or a reload) always starts on Mine, never Learn (Maceo, Nov 3)
                 return this.coffeeScope === 'learn' && !(this.learnOn && this.learnOn()) ? 'mine' : this.coffeeScope;   // (v19.0: Learn is the New look's, and coffee's)
             },
-            setCoffeeScope(v) { this.coffeeScope = v === 'all' || (v === 'learn' && this.learnOn && this.learnOn()) ? v : 'mine'; safeSet('dialed_coffee_scope', this.coffeeScope); this.render(); window.scrollTo(0, 0); const sc = document.getElementById('main-content'); if (sc) sc.scrollTop = 0; },
+            setCoffeeScope(v) { if (v === 'learn' && this.gsMark) this.gsMark('learn'); this.coffeeScope = v === 'all' || (v === 'learn' && this.learnOn && this.learnOn()) ? v : 'mine'; safeSet('dialed_coffee_scope', this.coffeeScope); this.render(); window.scrollTo(0, 0); const sc = document.getElementById('main-content'); if (sc) sc.scrollTop = 0; },
             coffeeScopeHtml() {
                 const m = this.coffeeScopeNow();
                 const tabs = [['mine', 'Mine'], ['all', 'All'], ...(this.learnOn && this.learnOn() ? [['learn', 'Learn']] : [])];   // v19.0: Coffees › Learn
@@ -23921,6 +23987,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             },
             // tapping it: the level, its badge, the crema, what's next, every level (by tier), and how to earn more
             openLevel(name) {
+                if (name === this.user && this.gsMark) this.gsMark('level');   // v21.0: Get started's "See your level"
                 const m = document.getElementById('level-modal'), body = document.getElementById('level-body');
                 if (!m || !body) return;
                 if (this.nlTint) this.nlTint('#level-modal .modal-card', this.famOfPerson(name));   // v17.2: the person's palate
@@ -26746,11 +26813,34 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             NL_IC_PLAY: '<svg viewBox="0 0 24 24" class="nl-ic" aria-hidden="true"><path d="M8.5 6.2v11.6c0 .6.7 1 1.2.7l9-5.8c.5-.3.5-1.1 0-1.4l-9-5.8c-.5-.3-1.2.1-1.2.7z" fill="currentColor"/></svg>',
             NL_IC_TOP: '<svg viewBox="0 0 24 24" class="nl-ic" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/></svg>',
             NL_IC_SIDE: '<svg viewBox="0 0 24 24" class="nl-ic" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="16" rx="7.5" ry="3"/><path d="M12 4v12"/></svg>',
+            NL_IC_BEST: '<svg viewBox="0 0 24 24" class="nl-ic" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-dasharray="2.6 2.4" stroke-linecap="round"><path d="M12 4.2c3.7 2.9 6.2 6.4 6.2 9.6a6.2 6.2 0 0 1-12.4 0c0-3.2 2.5-6.7 6.2-9.6z"/></svg>',
+            // v21.0: the Session screen's shape (no box: the soft plate under it, turning, a finger turns it, stop and look-from-the-top
+            // buttons) put into any page: the coffee page's Flavor profile and the Log form's How did it taste? (Maceo, Nov 3:
+            // "copy the look and ui of the blob in the sessions to the bean and log pages"). With a best to show, a third button
+            // shows or hides its dashed outline (what the old box's "Your best" chip did). Colors from the page it sits on.
+            // o: { id, values: () => vals, isSet: k => bool, ghost: () => vals | null, names: () => 'tea' | null }
+            nlSpinMount(host, o = {}) {
+                if (!host || typeof FlavorShape === 'undefined' || !FlavorShape.spin) return null;
+                const old = host.querySelector && host.querySelector('canvas.nl-spin');
+                if (old && old._nlSpin && old.isConnected) { old._nlSpin.redraw(); return old._nlSpin; }
+                const best = o.ghost ? `<button type="button" class="nl-sc-best" aria-label="Hide your best" aria-pressed="true" onclick="app.nlSpinCtl(this, 'best')">${this.NL_IC_BEST}</button>` : '';
+                host.innerHTML = `<div class="nl-spinwrap nl-spinmount"><canvas class="nl-spin nl-drag nls-mshape" width="0" height="0" aria-label="Flavor shape"></canvas><div class="nl-spinctl"><button type="button" class="nl-sc-pause" aria-label="Stop turning" aria-pressed="false" onclick="app.nlSpinCtl(this, 'pause')">${this.NL_IC_PAUSE}</button><button type="button" class="nl-sc-top" aria-label="Look from the top" aria-pressed="false" onclick="app.nlSpinCtl(this, 'top')">${this.NL_IC_TOP}</button>${best}</div></div>`;
+                const c = host.querySelector('canvas'), themes = {};
+                const famNow = () => { const el = c.closest && c.closest('[data-fam]'); return (el && el.getAttribute('data-fam')) || 'app'; };
+                c._nlSpin = FlavorShape.spin(c, {
+                    id: o.id || '', values: o.values, isSet: o.isSet, ghost: o.ghost || null,
+                    names: typeof o.names === 'function' ? o.names() : (o.names || null),
+                    theme: () => { const k = `${this.nlDark() ? 'd' : 'l'}|${famNow()}`; return themes[k] || (themes[k] = this.nlShapeTheme(famNow(), 'box')); },
+                    labels: false, lines: false, interactive: true, fit: true, zoom: 1, fps: 0, speed: 0.45, ring: this.NL_RING, cy: 0.55, padB: 6
+                });
+                return c._nlSpin;
+            },
             nlSpinCtl(btn, what) {
                 const wrap = btn && btn.closest ? btn.closest('.nl-spinwrap') : null, c = wrap && wrap.querySelector('canvas'), h = c && c._nlSpin;
                 if (!h || !h.state) return;
                 const st = h.state();
                 if (what === 'pause') { const on = !st.paused; h.pause(on); btn.setAttribute('aria-pressed', String(on)); btn.setAttribute('aria-label', on ? 'Turn again' : 'Stop turning'); btn.innerHTML = on ? this.NL_IC_PLAY : this.NL_IC_PAUSE; }
+                else if (what === 'best') { const on = btn.getAttribute('aria-pressed') !== 'true'; if (h.ghost) h.ghost(on); btn.setAttribute('aria-pressed', String(on)); btn.setAttribute('aria-label', on ? 'Hide your best' : 'Show your best'); }   // v21.0
                 else { const on = !st.top; h.view(on); btn.setAttribute('aria-pressed', String(on)); btn.setAttribute('aria-label', on ? 'Look from the side' : 'Look from the top'); btn.innerHTML = on ? this.NL_IC_SIDE : this.NL_IC_TOP; }
                 if (this.haptic) this.haptic('tick');
             },
@@ -26838,15 +26928,6 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
 
             // after every draw: shapes, names, and the Session screen if it's open
             nlAfterRender() {
-                if (!this._nlFellChecked) {   // v17.3: the New look couldn't open on this phone last time (theme-boot turned it off)
-                    this._nlFellChecked = true;
-                    let fell = false; try { fell = localStorage.getItem('dialed_look_fell') === '1'; if (fell) localStorage.removeItem('dialed_look_fell'); } catch (e) {}
-                    if (fell && this.showToast) setTimeout(() => this.showToast('The New look didn\'t open on this phone, so it\'s off for now. Settings, Appearance turns it back on.'), 1500);
-                }
-                if (this.newLook() && !this._nlBootOk) {   // up and drawing: this start counts as a good one
-                    this._nlBootOk = true;
-                    setTimeout(() => { try { localStorage.setItem('dialed_look_boot', '0'); } catch (e) {} }, 8000);
-                }
                 const tinted = () => typeof document !== 'undefined' && document.getElementById ? [document.getElementById('main-content'), document.getElementById('grid'), document.querySelector ? document.querySelector('.header-sticky') : null] : [];
                 if (!this.newLook()) { const bd = typeof document !== 'undefined' ? document.body : null; if (bd && bd.hasAttribute && bd.hasAttribute('data-nltab')) bd.removeAttribute('data-nltab'); tinted().forEach(el => { if (el && el.hasAttribute && el.hasAttribute('data-fam')) el.removeAttribute('data-fam'); }); this.nlExtras(false); return; }
                 if (document.body.getAttribute('data-nltab') !== this.tab) document.body.setAttribute('data-nltab', this.tab);
@@ -29954,6 +30035,71 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const f = J.feel || {}, feelLine = f.acidity || f.body ? `The ${J.placeKind || 'place'} is described with ${f.acidity ? `${this.esc(f.acidity)} acidity` : ''}${f.acidity && f.body ? ' and ' : ''}${f.body ? `a ${this.esc(f.body)} body` : ''}.` : '';
                 const tends = J.ranked.length ? `<div class="lx-jstep lx-jend"><span class="lx-jic">${this.lxIc('i-coffee', 20)}</span><span class="lx-rmain"><small class="lx-jk">This combination tends toward</small><span class="lx-cupbox"><span class="lx-notes">${J.ranked.map(x => this.lxNote(x[0])).join('')}</span>${sharedLine || feelLine ? `<span class="lx-p">${sharedLine}${feelLine}</span>` : ''}<small class="lx-note">Pieced together from what’s said about each part, not a prediction. Roast and your recipe move it a lot.</small></span></span></div>` : '';
                 return `<div class="lx-journey">${J.steps.map(step).join('')}${tends}</div>`;
+            },
+            // ===================== v21.0: Get started =====================
+            // Maceo (Nov 3): "think of a way to help new users see all of the features like creating a community, learning etc".
+            // A card at the top of Coffees › Mine for someone new (fewer than 5 sessions of their own): what Dialed In can do,
+            // one tap each, ticked off as they do it (worked out from what's already on the phone, so it's right on every
+            // phone). Hide it with ×; Settings, Help, Get started brings it back for anyone.
+            GS_FEW: 5,
+            gsItems() {
+                const me = this.user, mine = b => this.getBrewOwner(b) === me;
+                const myBeans = (this.buildBeanGroups ? this.buildBeanGroups() : []).filter(it => it.group && it.group.users && it.group.users.has(me));   // (what Coffees › Mine lists)
+                const pd = this.ppState ? this.ppState().data : null, gl = this.grState ? this.grState().list : null;
+                const flag = k => safeGet(`dialed_gs_${k}`) === '1';
+                return [
+                    { k: 'coffee', t: `Add your first ${this.drinkWords(this.drinkNow()).item}`, s: 'The bag you\'re brewing now', done: myBeans.length > 0 || [...this.brews.values()].some(mine), go: 'app.gsGo(\'coffee\')' },
+                    { k: 'log', t: 'Log a session', s: 'Dose, time and how it tasted; the coach suggests your next one', done: [...this.brews.values()].some(mine), go: 'app.gsGo(\'log\')' },
+                    { k: 'people', t: 'Follow people', s: 'See everyone on Dialed In and follow a few', done: !!(pd && (pd.following || []).length), go: 'app.gsGo(\'people\')', acct: true },
+                    { k: 'community', t: 'Join or start a community', s: 'Friends, a café or a city, with its own weekly goal', done: !!(gl && gl.length), go: 'app.gsGo(\'community\')', acct: true },
+                    { k: 'learn', t: 'Explore Learn', s: 'Varieties, processes and every coffee country', done: flag('learn'), go: 'app.gsGo(\'learn\')', coffee: true },
+                    { k: 'goal', t: 'Set a goal', s: 'Sessions a week, new coffees, or a rating to beat', done: !!(this.myGoals && this.myGoals().length), go: 'app.gsGo(\'goal\')' },
+                    { k: 'level', t: 'See your level', s: 'Earn crema as you brew, taste and share', done: flag('level'), go: 'app.gsGo(\'level\')' },
+                ].filter(it => (!it.acct || (this.acctOn && this.acctOn())) && (!it.coffee || (this.learnOn && this.learnOn())));
+            },
+            gsVisible() {
+                if (!this.user || this.tab !== 'my' || this.coffeeScopeNow() !== 'mine') return false;
+                if (safeGet('dialed_gs_show') === '1') return true;   // brought back from Settings
+                if (safeGet('dialed_gs_hide') === '1') return false;
+                const mineN = [...this.brews.values()].filter(b => this.getBrewOwner(b) === this.user).length;
+                if (mineN >= this.GS_FEW) return false;
+                const items = this.gsItems();
+                return items.some(it => !it.done);
+            },
+            gsCardHtml() {
+                if (!this.newLook() || !this.gsVisible()) return '';
+                // what the card needs to know that isn't on the phone yet (who you follow, your communities)
+                if (this.acctOn && this.acctOn() && typeof Supa !== 'undefined' && Supa.ready && Supa.ready()) {
+                    if (this.ppState && !this.ppState().data && !this._gsPpLoad) { this._gsPpLoad = true; this.loadPeople().then(() => this.tab === 'my' && this.render()).catch(() => {}); }
+                    if (this.grState && !this.grState().list && !this._gsGrLoad) { this._gsGrLoad = true; this.loadGroups().then(() => this.tab === 'my' && this.render()).catch(() => {}); }
+                }
+                const items = this.gsItems(), done = items.filter(it => it.done).length, pct = Math.round(done / Math.max(1, items.length) * 100);
+                const check = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.6 3.6 7.4-8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+                const rows = items.map(it => `<button type="button" class="gs-row${it.done ? ' is-done' : ''}" onclick="${it.go}"><span class="gs-dot">${it.done ? check : ''}</span><span class="gs-txt"><b>${this.esc(it.t)}</b><small>${this.esc(it.s)}</small></span><svg class="icon gs-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>`).join('');
+                return `<section class="gs-card nl-box" data-fam="app" aria-label="Get started"><div class="gs-head"><div><h3>Get started</h3><p>${done} of ${items.length} done</p></div><button type="button" class="gs-x" aria-label="Hide Get started" onclick="app.gsHide()"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button></div><div class="gs-bar" role="progressbar" aria-valuenow="${done}" aria-valuemin="0" aria-valuemax="${items.length}"><i style="width:${pct}%"></i></div><div class="gs-list">${rows}</div></section>`;
+            },
+            gsHide() { safeSet('dialed_gs_hide', '1'); safeSet('dialed_gs_show', ''); if (this.haptic) this.haptic('tick'); this.render(); this.showToast('Hidden. Settings, Help, Get started brings it back.'); },
+            gsShow() {   // Settings, Help, Get started
+                safeSet('dialed_gs_show', '1'); safeSet('dialed_gs_hide', '');
+                this.closeModals();
+                this.coffeeScope = 'mine'; this.setTab('my');
+                const sc = document.getElementById('main-content'); if (sc) sc.scrollTop = 0; window.scrollTo(0, 0);
+            },
+            gsMark(k) { if (safeGet(`dialed_gs_${k}`) !== '1') safeSet(`dialed_gs_${k}`, '1'); },
+            gsGo(k) {
+                if (this.haptic) this.haptic('tick');
+                const firstMine = () => { const b = [...this.brews.values()].filter(x => this.getBrewOwner(x) === this.user && this.beans.has(String(x.beanId))).sort((a, c) => String(c.date).localeCompare(String(a.date)))[0]; return b ? String(b.beanId) : ([...this.beans.keys()][0] || ''); };
+                if (k === 'coffee') { this.openBeanModal(); return; }
+                if (k === 'log') {
+                    const id = firstMine();
+                    if (!id) { this.showToast(`Add a ${this.drinkWords(this.drinkNow()).item} first, then log a session on it.`); this.openBeanModal(); return; }
+                    this.openFeedTarget(id, '', false); setTimeout(() => { if (this.activeId) this.openBrewModal(); }, 350); return;
+                }
+                if (k === 'people') { this.openPeople(); if (this.openEveryone) this.openEveryone(); return; }
+                if (k === 'community') { this.openPeople('groups'); return; }
+                if (k === 'learn') { this.gsMark('learn'); this.setCoffeeScope('learn'); return; }
+                if (k === 'goal') { if (this.openGoalEditor) this.openGoalEditor(); return; }
+                if (k === 'level') { this.gsMark('level'); if (this.openLevel) this.openLevel(this.user); }
             },
         };
         window.onload = () => app.init();

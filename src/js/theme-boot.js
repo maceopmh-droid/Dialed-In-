@@ -18,34 +18,16 @@
         var onChange = function () { if (pref === 'system') { apply(); if (typeof app !== 'undefined' && app.onThemeChange) app.onThemeChange(); } };
         if (mq && mq.addEventListener) mq.addEventListener('change', onChange); else if (mq && mq.addListener) mq.addListener(onChange);
     } catch (e) {}
-    // v17.2: the New look (Settings, Appearance), saved per phone; classic unless it's switched on
-    // v18.7: someone new (a phone that has never opened Dialed In) starts in the New look; phones already using the app keep
-    // the look they have (anyone who never switched stays classic)
+    // v17.2: the New look; v21.0: the only look (Maceo, Nov 3: "get rid of the old look. new look only"). The classic look,
+    // its switch in Settings and its safety net are gone; every phone opens in the New look. __dialedLook stays so older
+    // calls keep working, but it can't turn the New look off.
     try {
-        var look = 'classic';
-        try {
-            var saved = localStorage.getItem('dialed_look');
-            if (saved === null) {
-                var used = false;
-                for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i) || ''; if (k.indexOf('dialed_') === 0 && k !== 'dialed_supabase') { used = true; break; } }
-                if (!used) { saved = 'new'; localStorage.setItem('dialed_look', 'new'); }
-            }
-            look = saved === 'new' ? 'new' : 'classic';
-        } catch (e) {}
-        // v17.3: a safety net. Each start in the New look is counted until the app has been up a few seconds; after two starts
-        // in a row that never got that far (a phone that couldn't draw it), this one opens in the classic look and says so
-        if (look === 'new') {
-            try {
-                var tries = Number(localStorage.getItem('dialed_look_boot')) || 0;
-                if (tries >= 2) { look = 'classic'; localStorage.setItem('dialed_look', 'classic'); localStorage.setItem('dialed_look_boot', '0'); localStorage.setItem('dialed_look_fell', '1'); }
-                else localStorage.setItem('dialed_look_boot', String(tries + 1));
-            } catch (e) {}
-        }
-        var paint = function () { document.documentElement.setAttribute('data-look', look); };
+        try { localStorage.removeItem('dialed_look_boot'); localStorage.removeItem('dialed_look_fell'); } catch (e) {}
+        var paint = function () { document.documentElement.setAttribute('data-look', 'new'); };
         window.__dialedLook = {
-            get pref() { return look; },
-            set: function (p) { look = p === 'new' ? 'new' : 'classic'; try { localStorage.setItem('dialed_look', look); localStorage.setItem('dialed_look_boot', '0'); } catch (e) {} paint(); },
-            isNew: function () { return document.documentElement.getAttribute('data-look') === 'new'; }
+            get pref() { return 'new'; },
+            set: function () { paint(); },
+            isNew: function () { return true; }
         };
         paint();
     } catch (e) {}

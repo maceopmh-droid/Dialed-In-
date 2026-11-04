@@ -66,7 +66,7 @@
                         return [...hits];
                     };
                     // v17.2: both looks (classic and New) in both themes
-                    for (const look of ['classic', 'new']) for (const theme0 of ['light', 'dark']) {
+                    for (const look of ['new']) for (const theme0 of ['light', 'dark']) {   // (v21.0: the New look is the only look)
                         if (window.__dialedLook) { window.__dialedLook.set(look); this._nlFam = null; }
                         const theme = theme0, lk = look === 'new' ? 'new look ' : '';
                         safe('theme', () => this.setThemePref(theme));
@@ -99,8 +99,8 @@
                     // v17.2: the New look's own checks
                     section = 'new look';
                     {
-                        let stored = ''; try { window.__dialedLook.set('new'); stored = localStorage.getItem('dialed_look'); } catch (e) {}
-                        check(stored === 'new' && document.documentElement.getAttribute('data-look') === 'new', 'the New look switch is saved and sets data-look');
+                        try { window.__dialedLook.set('classic'); } catch (e) {}
+                        check(document.documentElement.getAttribute('data-look') === 'new' && this.newLook() && !document.getElementById('set-look-sw'), 'the New look is the only look (no switch, and it can\'t be turned off)');   // v21.0
                         this._nlFam = null;
                         // v17.4: colors without limits
                         check(this.toneOfNotes([['Sour', 3, 'coffee'], ['Thin', 2, 'coffee']]) === null, 'notes that only taste off give no color');
@@ -148,11 +148,6 @@
                             check(document.getElementById('detail-view').getAttribute('data-fam'), 'the coffee page wears its coffee\'s family');
                             safe('close', () => this.closeDetail());
                         }
-                        window.__dialedLook.set('classic'); this.onThemeChange();
-                        safe('classic coffee page', () => sb && this.openFeedTarget(sb.beanId, '', false));
-                        const dv = document.getElementById('detail-view');
-                        check(!dv.hasAttribute('data-fam') && !dv.querySelector('.nl-dphoto, .nl-logrow, .nl-dcover, .nl-navbar, [data-nf]') && !!dv.querySelector('.detail-hero > .dh-top'), 'with the switch off, the coffee page is classic again');
-                        safe('close', () => this.closeDetail());
                     }
                     if (onProgress) onProgress('screens');
                     // 4. every bean page

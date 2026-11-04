@@ -149,8 +149,47 @@
             suggestionsHtml() {
                 const st = this.sugState();
                 const rows = (st.list || []).filter(p => { const r = this.relationTo(p.name); return !r.you && !r.blocked && p.name !== this.user; }).slice(0, 6);
-                if (!rows.length) return '';
-                return `<h3 class="pp-h">Suggested</h3><div class="pp-list">${rows.map(p => this.peopleRowHtml(p.name, this.relationTo(p.name), { color: p.color, sub: p.reason || '' })).join('')}</div>`;
+                // v21.0: Suggested always leads to everyone on the app (Maceo, Nov 3), even when nothing matches you yet
+                const all = `<button type="button" class="pp-all" onclick="app.openEveryone()"><span><b>See everyone on Dialed In</b><small>Every person on the app, people you don't follow first</small></span><svg class="icon pp-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>`;
+                return `<h3 class="pp-h">Suggested</h3><div class="pp-list">${rows.map(p => this.peopleRowHtml(p.name, this.relationTo(p.name), { color: p.color, sub: p.reason || '' })).join('')}${all}</div>`;
+            },
+
+            // ---- v21.0: Suggested, everyone: every person on Dialed In (People), for finding people you don't follow without
+            // knowing their name. The suggestions (and why) first, then everyone else you don't follow (newest first), then the
+            // people you already follow.
+            async loadEveryone(force) {
+                const st = this.sugState();
+                if (st.evLoading || !this.acctOn() || !Supa.ready()) return;
+                if (!force && st.everyone && Date.now() - st.evAt < 60000) return;
+                st.evLoading = true; st.evFailed = false;
+                try { const r = await Supa.rpc('everyone_people', {}); st.everyone = Array.isArray(r) ? r : []; st.evAt = Date.now(); }
+                catch (e) { st.evFailed = true; }
+                finally { st.evLoading = false; }
+                const m = document.getElementById('people-modal');
+                if (m && m.classList.contains('active')) this.renderPeople();
+            },
+            openEveryone() {
+                const st = this.ppState(); st.view = 'everyone'; st.q = '';
+                const q = document.getElementById('people-q'); if (q) q.value = '';
+                this.renderPeople();
+                const b = document.getElementById('people-body'); if (b && b.closest) { const sc = b.closest('.modal-card'); if (sc) sc.scrollTop = 0; }
+                this.loadEveryone(true); this.loadSuggestions();
+            },
+            closeEveryone() { const st = this.ppState(); st.view = ''; this.renderPeople(); },
+            everyoneHtml() {
+                const st = this.sugState(), back = `<button type="button" class="pp-back" onclick="app.closeEveryone()"><svg class="icon" aria-hidden="true"><use href="#i-arrow-left"/></svg><span>People</span></button>`;
+                if (!st.everyone) return back + (st.evFailed ? `<p class="pp-empty">Couldn't load everyone. Check your connection and try again.</p>` : this.loadingBlockHtml());
+                const why = new Map((st.list || []).map(p => [String(p.name).toLowerCase(), p.reason || '']));
+                const month = iso => { const d = new Date(iso); return isNaN(d) ? '' : `Joined ${d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`; };
+                const rows = st.everyone.filter(p => p && p.name && p.name !== this.user).map(p => {
+                    const k = String(p.name).toLowerCase(), r0 = this.relationTo(p.name), rel = this.ppState().data ? r0 : { ...r0, you: p.you || null, followsYou: Boolean(p.followsYou) };   // (after a Follow, your fresh list wins)
+                    rel.friend = rel.friend || (rel.you === 'accepted' && rel.followsYou);
+                    return { p, rel, why: why.get(k) || '', rank: rel.you ? 2 : why.has(k) ? 0 : 1 };
+                }).filter(x => !x.rel.blocked);
+                rows.sort((a, b) => a.rank - b.rank);   // (stable: the server's order, newest first, within each)
+                const sub = x => x.why || (x.rel.friend ? 'Friends' : x.rel.followsYou && !x.rel.you ? 'Follows you' : x.p.private && !x.rel.you ? 'Private profile' : month(x.p.joined));
+                const n = rows.length;
+                return `${back}<h3 class="pp-h">Suggested<span>${n}</span></h3><p class="pp-note">Everyone on Dialed In. People you don't follow come first.</p>${n ? `<div class="pp-list">${rows.map(x => this.peopleRowHtml(x.p.name, x.rel, { color: x.p.color, sub: sub(x) })).join('')}</div>` : `<p class="pp-empty">Nobody else here yet. Share your profile and invite a friend.</p>`}`;
             },
 
             // ---- your profile's link: opens your profile (with Follow) for anyone signed in

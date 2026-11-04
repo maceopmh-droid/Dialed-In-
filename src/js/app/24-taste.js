@@ -108,6 +108,7 @@
             },
 
             paintTasteSliders() {
+                if (this._tasteSpin) this._tasteSpin.redraw();   // v21.0: the shape follows the sliders even while it isn't turning
                 const form = this.getBrewForm();
                 const ref = this.tasteReference();
                 document.querySelectorAll('#brew-modal .ns').forEach(row => {
@@ -148,7 +149,11 @@
 
             renderTasteSection() {
                 const host = document.getElementById('taste-shape');
-                if (host && typeof FlavorShape !== 'undefined') {
+                if (host && typeof FlavorShape !== 'undefined' && this.newLook() && this.nlSpinMount) {   // v21.0: the Session screen's shape, with your best dashed
+                    this._tasteSpin = this.nlSpinMount(host, { id: 'log-taste', values: () => this.formTasteValues(), isSet: k => this.tasteTouched.has(k),
+                        ghost: () => { const r = this.tasteReference(); return r ? this.shapeValues(r) : null; }, names: () => (this.logKind === 'tea' ? 'tea' : null) });
+                    const bb = host.querySelector('.nl-sc-best'); if (bb) bb.hidden = !this.tasteReference();
+                } else if (host && typeof FlavorShape !== 'undefined') {
                     if (!this.tasteView) {
                         this.tasteView = FlavorShape.createView({ names: () => (this.logKind === 'tea' ? 'tea' : null), values: () => this.formTasteValues(), ghost: () => { const r = this.tasteReference(); return r ? this.shapeValues(r) : null; }, ghostLabel: 'Best', isSet: k => this.tasteTouched.has(k) });
                     }
