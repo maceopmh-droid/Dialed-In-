@@ -858,6 +858,16 @@
            so the old spot, 3px above the item, put it on the bar's edge, over whatever scrolled under it) */
         html[data-look="new"] .mob-item { position: relative; }
         html[data-look="new"] .mob-item .nav-dot { top: 14px; left: calc(50% + 8px); width: 8px; height: 8px; }
-        /* v21.2: the favorite recipe card's tiles are narrower than a session's: a 19.1 g dose fits instead of "1…" */
-        html[data-look="new"] [data-fam] .master-pill .sc-cell { padding: 10px 8px 9px !important; }
-        html[data-look="new"] [data-fam] .master-pill .sc-cell b { font-size: 18px; }
+        /* v21.2: the favorite recipe card, headed like a session: their face and "Maceo's favorite recipe" in their color,
+           level with the edit and remove buttons, a hint of their color on the edge, and tiles that fit a 19.1 g dose */
+        html[data-look="new"] [data-fam] .master-pill.nl-fav { padding: 16px 16px 18px !important; border-color: color-mix(in srgb, var(--fav) 45%, transparent) !important; }
+        html[data-look="new"] .nl-fav .master-top { align-items: center; }
+        html[data-look="new"] .fav-who { display: flex; align-items: center; gap: 11px; min-width: 0; }
+        html[data-look="new"] .fav-title { display: flex; flex-direction: column; min-width: 0; }
+        html[data-look="new"] .fav-title b { font-family: var(--nl-hand); font-weight: 600; font-size: 23px; line-height: 1.1; letter-spacing: -0.005em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        html[data-look="new"] .fav-title small { font-size: 14.5px; font-weight: 600; line-height: 1.25; color: inherit !important; opacity: 0.9; }
+        html[data-look="new"] .nl-pfp.fav-pfp { width: 38px; height: 38px; font-size: 15px; }
+        html[data-look="new"] .nl-fav .master-actions { gap: 6px; }
+        html[data-look="new"] .nl-fav .sc-strip { margin-top: 14px; }
+        html[data-look="new"] [data-fam] .master-pill .sc-cell { padding: 10px 9px 9px !important; }
+        html[data-look="new"] .nl-fav .sc-gear { margin-top: 12px; }

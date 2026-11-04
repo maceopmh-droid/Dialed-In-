@@ -5010,9 +5010,19 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
            so the old spot, 3px above the item, put it on the bar's edge, over whatever scrolled under it) */
         html[data-look="new"] .mob-item { position: relative; }
         html[data-look="new"] .mob-item .nav-dot { top: 14px; left: calc(50% + 8px); width: 8px; height: 8px; }
-        /* v21.2: the favorite recipe card's tiles are narrower than a session's: a 19.1 g dose fits instead of "1…" */
-        html[data-look="new"] [data-fam] .master-pill .sc-cell { padding: 10px 8px 9px !important; }
-        html[data-look="new"] [data-fam] .master-pill .sc-cell b { font-size: 18px; }
+        /* v21.2: the favorite recipe card, headed like a session: their face and "Maceo's favorite recipe" in their color,
+           level with the edit and remove buttons, a hint of their color on the edge, and tiles that fit a 19.1 g dose */
+        html[data-look="new"] [data-fam] .master-pill.nl-fav { padding: 16px 16px 18px !important; border-color: color-mix(in srgb, var(--fav) 45%, transparent) !important; }
+        html[data-look="new"] .nl-fav .master-top { align-items: center; }
+        html[data-look="new"] .fav-who { display: flex; align-items: center; gap: 11px; min-width: 0; }
+        html[data-look="new"] .fav-title { display: flex; flex-direction: column; min-width: 0; }
+        html[data-look="new"] .fav-title b { font-family: var(--nl-hand); font-weight: 600; font-size: 23px; line-height: 1.1; letter-spacing: -0.005em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        html[data-look="new"] .fav-title small { font-size: 14.5px; font-weight: 600; line-height: 1.25; color: inherit !important; opacity: 0.9; }
+        html[data-look="new"] .nl-pfp.fav-pfp { width: 38px; height: 38px; font-size: 15px; }
+        html[data-look="new"] .nl-fav .master-actions { gap: 6px; }
+        html[data-look="new"] .nl-fav .sc-strip { margin-top: 14px; }
+        html[data-look="new"] [data-fam] .master-pill .sc-cell { padding: 10px 9px 9px !important; }
+        html[data-look="new"] .nl-fav .sc-gear { margin-top: 12px; }
         /* ===================== v19.0: Learn =====================
            The New look's kit (claude/new-look-ds.css) plus the Learn screens' parts (claude/learn-mockups-src.md): pages tinted
            by their typical flavor family, names in the big serif, every section folding. All of it is the New look's. */
@@ -19586,9 +19596,16 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     const profile = this.getMasterProfile(master);
                     const eq = this.resolveEquipmentNames(profile);
                     const notes = String(profile.notes || this.getBrewNotes(master) || '').trim();
+                    // v21.2 (Maceo: "in Maceo's color and larger … it doesn't fit in well, there's empty space"): in the New look the
+                    // card is headed like a session, their face and "Maceo's favorite recipe" in their own color, level with the buttons
+                    const nlFav = this.newLook && this.newLook(), favC = this.getUserColor(masterOwner);
+                    if (nlFav) { card.classList.add('nl-fav'); card.style.setProperty('--fav', favC); }
+                    const favHead = nlFav
+                        ? `<div class="fav-who"><span class="nl-pfp fav-pfp" data-face="${this.esc(masterOwner)}" data-profile="${this.esc(masterOwner)}" style="background:${this.esc(favC)};--ring:${this.esc(favC)}">${this.esc(this.feedInitial(masterOwner))}</span><span class="fav-title" style="color:${this.esc(this.nameColor(masterOwner))}"><b>${this.esc(masterOwner)}'s</b><small>favorite recipe</small></span></div>`
+                        : `<div style="font-size:0.65rem; color:var(--matcha); font-weight:800; text-transform:uppercase;">${this.esc(masterOwner)}'s favorite recipe</div>`;
                     card.innerHTML = `
                         <div class="master-top">
-                            <div style="font-size:0.65rem; color:var(--matcha); font-weight:800; text-transform:uppercase;">${this.esc(masterOwner)}'s favorite recipe</div>
+                            ${favHead}
                             ${masterOwner === this.user ? `
                                 <div class="master-actions">
                                     <button class="btn-clean" onclick="app.openMasterModal('${app.escJs(master.id)}')" title="Edit favorite recipe">

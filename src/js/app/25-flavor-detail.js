@@ -256,9 +256,16 @@
                     const profile = this.getMasterProfile(master);
                     const eq = this.resolveEquipmentNames(profile);
                     const notes = String(profile.notes || this.getBrewNotes(master) || '').trim();
+                    // v21.2 (Maceo: "in Maceo's color and larger … it doesn't fit in well, there's empty space"): in the New look the
+                    // card is headed like a session, their face and "Maceo's favorite recipe" in their own color, level with the buttons
+                    const nlFav = this.newLook && this.newLook(), favC = this.getUserColor(masterOwner);
+                    if (nlFav) { card.classList.add('nl-fav'); card.style.setProperty('--fav', favC); }
+                    const favHead = nlFav
+                        ? `<div class="fav-who"><span class="nl-pfp fav-pfp" data-face="${this.esc(masterOwner)}" data-profile="${this.esc(masterOwner)}" style="background:${this.esc(favC)};--ring:${this.esc(favC)}">${this.esc(this.feedInitial(masterOwner))}</span><span class="fav-title" style="color:${this.esc(this.nameColor(masterOwner))}"><b>${this.esc(masterOwner)}'s</b><small>favorite recipe</small></span></div>`
+                        : `<div style="font-size:0.65rem; color:var(--matcha); font-weight:800; text-transform:uppercase;">${this.esc(masterOwner)}'s favorite recipe</div>`;
                     card.innerHTML = `
                         <div class="master-top">
-                            <div style="font-size:0.65rem; color:var(--matcha); font-weight:800; text-transform:uppercase;">${this.esc(masterOwner)}'s favorite recipe</div>
+                            ${favHead}
                             ${masterOwner === this.user ? `
                                 <div class="master-actions">
                                     <button class="btn-clean" onclick="app.openMasterModal('${app.escJs(master.id)}')" title="Edit favorite recipe">
