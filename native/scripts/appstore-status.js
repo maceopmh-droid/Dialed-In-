@@ -15,6 +15,12 @@ const lines = [];
   const apps = await get(`/v1/apps?filter[bundleId]=${encodeURIComponent(BUNDLE)}&limit=5`);
   const app = ((apps.j && apps.j.data) || []).find(a => a.attributes.bundleId === BUNDLE);
   if (!app) { lines.push(`no app found (HTTP ${apps.status})`); return; }
+  // what anyone sees on the App Store (Apple's public lookup, US store): the name, the version people get, its link
+  try {
+    const pub = await (await fetch(`https://itunes.apple.com/lookup?id=${app.id}&country=us`)).json();
+    const r = (pub.results || [])[0];
+    lines.push(r ? `public App Store (US): "${r.trackName}" version ${r.version}, released ${String(r.currentVersionReleaseDate || '').slice(0, 10)}, ${r.formattedPrice || r.price}, ${r.trackViewUrl.split('?')[0]}` : `public App Store (US): not listed (app id ${app.id})`);
+  } catch (e) { lines.push('public App Store: lookup failed'); }
   const vs = await get(`/v1/apps/${app.id}/appStoreVersions?filter[platform]=IOS&limit=20`);
   ((vs.j && vs.j.data) || []).forEach(v => lines.push(`version ${v.attributes.versionString}: ${v.attributes.appVersionState || v.attributes.appStoreState} (store state ${v.attributes.appStoreState}; release ${v.attributes.releaseType || '?'}; made ${String(v.attributes.createdDate || '').slice(0, 16)})`));
   const rs = await get(`/v1/reviewSubmissions?filter[app]=${app.id}&limit=20`);
