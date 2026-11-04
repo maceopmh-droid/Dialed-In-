@@ -187,6 +187,7 @@
             },
             // tapping it: the level, its badge, the crema, what's next, every level (by tier), and how to earn more
             openLevel(name) {
+                if (name === this.user && this.gsMark) this.gsMark('level');   // v21.0: Get started's "See your level"
                 const m = document.getElementById('level-modal'), body = document.getElementById('level-body');
                 if (!m || !body) return;
                 if (this.nlTint) this.nlTint('#level-modal .modal-card', this.famOfPerson(name));   // v17.2: the person's palate

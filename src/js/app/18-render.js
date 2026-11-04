@@ -217,6 +217,6 @@
                         : `No ${dw.items} yet. Add your first one with the + button.`;
                     grid.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:3rem;">${message}</div>`;
                 }
-                if (this.tab === 'my' && grid.insertAdjacentHTML) grid.insertAdjacentHTML('afterbegin', this.coffeeScopeHtml() + this.roasterFilterHtml());
+                if (this.tab === 'my' && grid.insertAdjacentHTML) grid.insertAdjacentHTML('afterbegin', this.coffeeScopeHtml() + (this.gsCardHtml ? this.gsCardHtml() : '') + this.roasterFilterHtml());   // (v21.0: Get started, for someone new)
             },
 

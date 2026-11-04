@@ -508,10 +508,6 @@
                         <button type="button" data-theme-opt="dark" onclick="app.setThemePref('dark')">Dark</button>
                     </div>
                 </div>
-                <div class="set-row set-look">
-                    <span class="set-main"><b>New look</b><small>Turn off to go back to the classic look</small></span>
-                    <button type="button" class="goal-sw" id="set-look-sw" role="switch" aria-checked="false" aria-label="New look" onclick="app.toggleNewLook(this)"></button>
-                </div>
                 <div class="set-row set-color">
                     <span class="set-main"><b>Your color</b><small>Your name and picture in the app</small></span>
                     <span class="set-color-val"><span id="user-color-value" class="user-color-value">#586A58</span><i id="user-color-swatch" class="set-swatch"></i></span>
@@ -675,6 +671,19 @@
                 </div>
                 <div id="method-extras" class="method-extras" hidden></div>
 
+                <!-- v21.0: the photo sits right under the numbers, above How did it taste? (Maceo, Nov 3) -->
+                <label class="photo-label">Session photo (optional)</label>
+                <div class="photo-upload-card">
+                    <div class="photo-preview empty" id="session-photo-preview">No photo added yet.</div>
+                    <div class="photo-action-row">
+                        <button type="button" class="btn-outline photo-picker-btn" onclick="app.openPhotoSourcePicker()">Add Photo</button>
+                        <button type="button" class="btn-outline photo-remove-btn" id="session-photo-remove" onclick="app.removeDraftPhoto()" style="display:none;">Remove Photo</button>
+                    </div>
+                    <div class="custom-flavor-note">Adds a compact photo thumbnail to this session.</div>
+                </div>
+                <input type="file" id="photo-camera-input" class="file-picker-input" accept="image/*" capture="environment" onchange="app.handlePhotoInput(event, 'camera')">
+                <input type="file" id="photo-library-input" class="file-picker-input" accept="image/*" onchange="app.handlePhotoInput(event, 'library')">
+
                 </div>
                 <div class="bf-col bf-taste">
                 <!-- Taste (v10): sliders drawn as the flavor shape, read against your best shot -->
@@ -732,18 +741,6 @@
                 <div class="bf-col bf-end">
                 <label>Observations</label>
                 <textarea name="notes" rows="2" oninput="app.renderTasteTip()"></textarea>
-
-                <label>Session Photo (Optional)</label>
-                <div class="photo-upload-card">
-                    <div class="photo-preview empty" id="session-photo-preview">No photo added yet.</div>
-                    <div class="photo-action-row">
-                        <button type="button" class="btn-outline photo-picker-btn" onclick="app.openPhotoSourcePicker()">Add Photo</button>
-                        <button type="button" class="btn-outline photo-remove-btn" id="session-photo-remove" onclick="app.removeDraftPhoto()" style="display:none;">Remove Photo</button>
-                    </div>
-                    <div class="custom-flavor-note">Adds a compact photo thumbnail to this session.</div>
-                </div>
-                <input type="file" id="photo-camera-input" class="file-picker-input" accept="image/*" capture="environment" onchange="app.handlePhotoInput(event, 'camera')">
-                <input type="file" id="photo-library-input" class="file-picker-input" accept="image/*" onchange="app.handlePhotoInput(event, 'library')">
 
                 <!-- Rating Slider -->
                 <label>Session Rating (Optional)</label>
@@ -939,6 +936,7 @@
 @@include js/app/57-learn-coffee.js
 @@include js/app/58-learn-tree.js
 @@include js/app/59-learn-atlas.js
+@@include js/app/60-get-started.js
 @@include js/app/99-end.js
 @@include js/99-boot.js
     </script>

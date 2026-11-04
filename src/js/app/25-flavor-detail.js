@@ -141,7 +141,10 @@
                 const words = this.describeCup(values, tasted, fc.notes.slice(0, 4).map(x => x.n), Object.fromEntries(fc.notes.map(x => [x.n, x.strength])), kind);
                 box.innerHTML = `<div class="bf-head"><div><h3>Flavor profile</h3><p>${pool.length} session${pool.length === 1 ? '' : 's'} · ${this.beanFlavorWho === 'all' ? this.esc(this.lensLabel()) : this.esc(this.beanFlavorWho)}${mineBest ? ' · dashed: your best' : ''}</p></div></div>${chips}<div id="bf-shape"></div>${!tasted.length ? '<div class="flv-empty">No taste sliders set on these sessions yet.</div>' : ''}${fc.notes.length ? `<div class="bf-wheel">${this.wheelSvgStatic(fc, kind)}<div class="flv-notes">${this.noteChipsHtml(fc.notes.slice(0, 12), true)}</div></div>` : ''}${words ? `<div class="flv-words">${this.esc(words)}</div>` : ''}`;
                 setTimeout(() => this.fillShapeImages(document.getElementById('detail-view')), 0);
-                if (typeof FlavorShape !== 'undefined' && tasted.length) {
+                if (typeof FlavorShape !== 'undefined' && tasted.length && this.newLook() && this.nlSpinMount) {   // v21.0: the Session screen's shape
+                    this.nlSpinMount(document.getElementById('bf-shape'), { id: `bean|${groupKey}`, values: () => this.beanFlavorValues, isSet: k => tasted.includes(k),
+                        ghost: this.beanFlavorGhost ? () => this.beanFlavorGhost : null, names: () => (this.beanFlavorKind === 'tea' ? 'tea' : null) });
+                } else if (typeof FlavorShape !== 'undefined' && tasted.length) {
                     if (!this.beanView) this.beanView = FlavorShape.createView({ names: () => (this.beanFlavorKind === 'tea' ? 'tea' : null), values: () => this.beanFlavorValues, ghost: () => this.beanFlavorGhost, ghostLabel: 'Your best' });
                     const bfHost = document.getElementById('bf-shape');
                     if (bfHost && typeof bfHost.replaceChildren === 'function') bfHost.replaceChildren(this.beanView.el);

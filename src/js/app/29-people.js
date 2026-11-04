@@ -35,7 +35,7 @@
 
             openPeople(tab) {
                 if (!this.acctOn()) return;
-                const st = this.ppState(); st.q = ''; st.results = null; st.menu = ''; st.tab = tab === 'groups' ? 'groups' : 'people';
+                const st = this.ppState(); st.q = ''; st.results = null; st.menu = ''; st.view = ''; st.tab = tab === 'groups' ? 'groups' : 'people';
                 const q = document.getElementById('people-q'); if (q) q.value = '';
                 document.getElementById('people-modal').classList.add('active');
                 this.renderPeople();
@@ -99,6 +99,7 @@
                         : `<p class="pp-empty">Nobody by that name yet.</p>`;
                     return;
                 }
+                if (st.view === 'everyone' && this.everyoneHtml) { body.innerHTML = this.everyoneHtml(); return; }   // v21.0: Suggested, everyone
                 if (!d) { body.innerHTML = this.loadingBlockHtml(); return; }
                 const following = d.following || [], followers = d.followers || [];
                 const requests = followers.filter(f => f.status === 'pending');

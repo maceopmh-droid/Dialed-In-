@@ -355,10 +355,10 @@
 
             // ---- v15.1: the Coffees tab holds yours (Mine) and everyone's you can see (All); it remembers which
             coffeeScopeNow() {
-                if (!this.coffeeScope) { const v = safeGet('dialed_coffee_scope'); this.coffeeScope = v === 'all' || v === 'learn' ? v : 'mine'; }
+                if (!this.coffeeScope) this.coffeeScope = 'mine';   // v21.0: opening the app (or a reload) always starts on Mine, never Learn (Maceo, Nov 3)
                 return this.coffeeScope === 'learn' && !(this.learnOn && this.learnOn()) ? 'mine' : this.coffeeScope;   // (v19.0: Learn is the New look's, and coffee's)
             },
-            setCoffeeScope(v) { this.coffeeScope = v === 'all' || (v === 'learn' && this.learnOn && this.learnOn()) ? v : 'mine'; safeSet('dialed_coffee_scope', this.coffeeScope); this.render(); window.scrollTo(0, 0); const sc = document.getElementById('main-content'); if (sc) sc.scrollTop = 0; },
+            setCoffeeScope(v) { if (v === 'learn' && this.gsMark) this.gsMark('learn'); this.coffeeScope = v === 'all' || (v === 'learn' && this.learnOn && this.learnOn()) ? v : 'mine'; safeSet('dialed_coffee_scope', this.coffeeScope); this.render(); window.scrollTo(0, 0); const sc = document.getElementById('main-content'); if (sc) sc.scrollTop = 0; },
             coffeeScopeHtml() {
                 const m = this.coffeeScopeNow();
                 const tabs = [['mine', 'Mine'], ['all', 'All'], ...(this.learnOn && this.learnOn() ? [['learn', 'Learn']] : [])];   // v19.0: Coffees › Learn

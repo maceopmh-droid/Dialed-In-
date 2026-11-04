@@ -1473,6 +1473,22 @@ begin
   return out;
 end $$;
 
+-- v21.0: everyone on Dialed In (People, Suggested, See everyone): every account but your own, for finding people you don't
+-- follow without knowing their name (Maceo, Nov 3). Runs as the signed-in person, so the profiles row rule leaves out
+-- anyone either of you has blocked. Only names that someone signed in as (auth_id): a Sheet-era name nobody claimed
+-- isn't a person on the app yet. Newest first, then by name.
+create or replace function everyone_people() returns jsonb
+language sql stable set search_path = public as $$
+  select coalesce(jsonb_agg(x order by (x->>'joined') desc nulls last, lower(x->>'name')), '[]'::jsonb) from (
+    select jsonb_build_object('name', internal.name_of(p.id), 'color', p.color, 'private', p.is_private,
+             'joined', coalesce(p.joined_at, p.created_at),
+             'you', (select f.status from follows f where f.follower = me() and f.followee = p.id),
+             'followsYou', exists (select 1 from follows f where f.follower = p.id and f.followee = me() and f.status = 'accepted')) as x
+    from profiles p
+    where me() is not null and p.id <> me() and p.auth_id is not null
+    limit 2000) s;
+$$;
+
 -- "Help me dial this in": the asker marks the most helpful answer (the session's helpfulAnswer, kept with its other
 -- fields), and its author hears about it
 alter table notifications drop constraint if exists notifications_kind_check;
@@ -2550,7 +2566,7 @@ grant usage on schema internal to authenticated;
 grant execute on all functions in schema internal to authenticated;
 -- only signed-in people can call these (Postgres lets everyone run a new function unless told otherwise)
 revoke execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text, boolean), coffee_community(text, text, timestamptz, int), monthly_highlights(date), report_item(text, text, text),
-  profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
+  profile_page(text, timestamptz, int), suggest_people(int), everyone_people(), review_reports(), resolve_report(text, uuid, text),
   push_key(), push_ready(), save_push(jsonb), remove_push(text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
@@ -2558,7 +2574,7 @@ revoke execute on function pull_events(), push_event(jsonb), claim_name(text), c
   coffee_catalog(text, int), set_avatar(text), faces(jsonb), set_crema(int), report_bug(text, jsonb), review_bugs(int), close_bug(uuid, boolean), my_notification_prefs(), set_notification_pref(text, boolean),
   my_shots(int), post_shot(uuid), shot_later(uuid), dismiss_shot(uuid), shot_for_session(text), learn_community(jsonb), learn_overview() from public, anon;
 grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text, boolean), coffee_community(text, text, timestamptz, int), monthly_highlights(date), report_item(text, text, text),
-  profile_page(text, timestamptz, int), suggest_people(int), review_reports(), resolve_report(text, uuid, text),
+  profile_page(text, timestamptz, int), suggest_people(int), everyone_people(), review_reports(), resolve_report(text, uuid, text),
   push_key(), push_ready(), save_push(jsonb), remove_push(text),
   follow(text), unfollow(text), answer_follow(text, boolean), block(text), unblock(text), my_people(), find_people(text),
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),

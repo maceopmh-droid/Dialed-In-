@@ -256,11 +256,34 @@
             NL_IC_PLAY: '<svg viewBox="0 0 24 24" class="nl-ic" aria-hidden="true"><path d="M8.5 6.2v11.6c0 .6.7 1 1.2.7l9-5.8c.5-.3.5-1.1 0-1.4l-9-5.8c-.5-.3-1.2.1-1.2.7z" fill="currentColor"/></svg>',
             NL_IC_TOP: '<svg viewBox="0 0 24 24" class="nl-ic" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/></svg>',
             NL_IC_SIDE: '<svg viewBox="0 0 24 24" class="nl-ic" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="16" rx="7.5" ry="3"/><path d="M12 4v12"/></svg>',
+            NL_IC_BEST: '<svg viewBox="0 0 24 24" class="nl-ic" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-dasharray="2.6 2.4" stroke-linecap="round"><path d="M12 4.2c3.7 2.9 6.2 6.4 6.2 9.6a6.2 6.2 0 0 1-12.4 0c0-3.2 2.5-6.7 6.2-9.6z"/></svg>',
+            // v21.0: the Session screen's shape (no box: the soft plate under it, turning, a finger turns it, stop and look-from-the-top
+            // buttons) put into any page: the coffee page's Flavor profile and the Log form's How did it taste? (Maceo, Nov 3:
+            // "copy the look and ui of the blob in the sessions to the bean and log pages"). With a best to show, a third button
+            // shows or hides its dashed outline (what the old box's "Your best" chip did). Colors from the page it sits on.
+            // o: { id, values: () => vals, isSet: k => bool, ghost: () => vals | null, names: () => 'tea' | null }
+            nlSpinMount(host, o = {}) {
+                if (!host || typeof FlavorShape === 'undefined' || !FlavorShape.spin) return null;
+                const old = host.querySelector && host.querySelector('canvas.nl-spin');
+                if (old && old._nlSpin && old.isConnected) { old._nlSpin.redraw(); return old._nlSpin; }
+                const best = o.ghost ? `<button type="button" class="nl-sc-best" aria-label="Hide your best" aria-pressed="true" onclick="app.nlSpinCtl(this, 'best')">${this.NL_IC_BEST}</button>` : '';
+                host.innerHTML = `<div class="nl-spinwrap nl-spinmount"><canvas class="nl-spin nl-drag nls-mshape" width="0" height="0" aria-label="Flavor shape"></canvas><div class="nl-spinctl"><button type="button" class="nl-sc-pause" aria-label="Stop turning" aria-pressed="false" onclick="app.nlSpinCtl(this, 'pause')">${this.NL_IC_PAUSE}</button><button type="button" class="nl-sc-top" aria-label="Look from the top" aria-pressed="false" onclick="app.nlSpinCtl(this, 'top')">${this.NL_IC_TOP}</button>${best}</div></div>`;
+                const c = host.querySelector('canvas'), themes = {};
+                const famNow = () => { const el = c.closest && c.closest('[data-fam]'); return (el && el.getAttribute('data-fam')) || 'app'; };
+                c._nlSpin = FlavorShape.spin(c, {
+                    id: o.id || '', values: o.values, isSet: o.isSet, ghost: o.ghost || null,
+                    names: typeof o.names === 'function' ? o.names() : (o.names || null),
+                    theme: () => { const k = `${this.nlDark() ? 'd' : 'l'}|${famNow()}`; return themes[k] || (themes[k] = this.nlShapeTheme(famNow(), 'box')); },
+                    labels: false, lines: false, interactive: true, fit: true, zoom: 1, fps: 0, speed: 0.45, ring: this.NL_RING, cy: 0.55, padB: 6
+                });
+                return c._nlSpin;
+            },
             nlSpinCtl(btn, what) {
                 const wrap = btn && btn.closest ? btn.closest('.nl-spinwrap') : null, c = wrap && wrap.querySelector('canvas'), h = c && c._nlSpin;
                 if (!h || !h.state) return;
                 const st = h.state();
                 if (what === 'pause') { const on = !st.paused; h.pause(on); btn.setAttribute('aria-pressed', String(on)); btn.setAttribute('aria-label', on ? 'Turn again' : 'Stop turning'); btn.innerHTML = on ? this.NL_IC_PLAY : this.NL_IC_PAUSE; }
+                else if (what === 'best') { const on = btn.getAttribute('aria-pressed') !== 'true'; if (h.ghost) h.ghost(on); btn.setAttribute('aria-pressed', String(on)); btn.setAttribute('aria-label', on ? 'Hide your best' : 'Show your best'); }   // v21.0
                 else { const on = !st.top; h.view(on); btn.setAttribute('aria-pressed', String(on)); btn.setAttribute('aria-label', on ? 'Look from the side' : 'Look from the top'); btn.innerHTML = on ? this.NL_IC_SIDE : this.NL_IC_TOP; }
                 if (this.haptic) this.haptic('tick');
             },
@@ -348,15 +371,6 @@
 
             // after every draw: shapes, names, and the Session screen if it's open
             nlAfterRender() {
-                if (!this._nlFellChecked) {   // v17.3: the New look couldn't open on this phone last time (theme-boot turned it off)
-                    this._nlFellChecked = true;
-                    let fell = false; try { fell = localStorage.getItem('dialed_look_fell') === '1'; if (fell) localStorage.removeItem('dialed_look_fell'); } catch (e) {}
-                    if (fell && this.showToast) setTimeout(() => this.showToast('The New look didn\'t open on this phone, so it\'s off for now. Settings, Appearance turns it back on.'), 1500);
-                }
-                if (this.newLook() && !this._nlBootOk) {   // up and drawing: this start counts as a good one
-                    this._nlBootOk = true;
-                    setTimeout(() => { try { localStorage.setItem('dialed_look_boot', '0'); } catch (e) {} }, 8000);
-                }
                 const tinted = () => typeof document !== 'undefined' && document.getElementById ? [document.getElementById('main-content'), document.getElementById('grid'), document.querySelector ? document.querySelector('.header-sticky') : null] : [];
                 if (!this.newLook()) { const bd = typeof document !== 'undefined' ? document.body : null; if (bd && bd.hasAttribute && bd.hasAttribute('data-nltab')) bd.removeAttribute('data-nltab'); tinted().forEach(el => { if (el && el.hasAttribute && el.hasAttribute('data-fam')) el.removeAttribute('data-fam'); }); this.nlExtras(false); return; }
                 if (document.body.getAttribute('data-nltab') !== this.tab) document.body.setAttribute('data-nltab', this.tab);
