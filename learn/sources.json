@@ -10916,6 +10916,536 @@
       "title": "San Vito",
       "publisher": "Fodor's Travel",
       "url": "https://fodors.fodors.com/world/mexico-and-central-america/costa-rica/the-osa-peninsula-and-the-south-pacific/san-vito"
+    },
+    "sucafina-hnd": {
+      "title": "Honduras",
+      "publisher": "Sucafina, origins",
+      "url": "https://www.sucafina.com/na/origins/honduras",
+      "accessed": "2026-11"
+    },
+    "presidency-hnd-2016": {
+      "title": "The 6 Regions of Honduran Coffee Give You 6 Reasons to Love it",
+      "publisher": "Honduras Presidency, via PR Newswire",
+      "url": "https://prnewswire.com/news-releases/the-6-regions-of-honduran-coffee-give-you-6-reasons-to-love-it-300350941.html",
+      "year": 2016
+    },
+    "royalny-hnd-2023": {
+      "title": "Origin Profile: Honduras Coffee",
+      "publisher": "Royal New York",
+      "url": "https://www.royalny.com/?p=139566",
+      "year": 2023
+    },
+    "cafeimports-hnd": {
+      "title": "Honduras",
+      "publisher": "Cafe Imports (Europe), origins",
+      "url": "https://www.cafeimports.com/europe?r=Honduras",
+      "accessed": "2026-11"
+    },
+    "laprensa-hnd-2024": {
+      "title": "Los departamentos que más café producen en Honduras (IHCAFE figures for the 2022–2023 harvest)",
+      "publisher": "La Prensa (Honduras)",
+      "url": "https://www.laprensa.hn/economia/departamentos-cafe-producen-honduras-EA19803315",
+      "year": 2024
+    },
+    "elheraldo-hnd-2024b": {
+      "title": "¿Cuáles son los siete departamentos que más café producen en Honduras? (Luis Rodríguez; IHCAFE figures for the 2022–2023 harvest)",
+      "publisher": "El Heraldo (Honduras)",
+      "url": "https://www.elheraldo.hn/economia/siete-departamentos-mas-cafe-producen-honduras-PA19802085",
+      "year": 2024
+    },
+    "elheraldo-hnd-2022": {
+      "title": "Seis municipios tienen la mayor producción de café en Honduras (Álvaro Mejía; IHCAFE figures for the 2021–2022 harvest)",
+      "publisher": "El Heraldo (Honduras)",
+      "url": "https://www.elheraldo.hn/economia/municipios-produccion-cafe-cosecha-honduras-PK11396449",
+      "year": 2022
+    },
+    "laprensa-hnd-2018": {
+      "title": "Más de 3.3 millones de quintales de café produce occidente de Honduras",
+      "publisher": "La Prensa (Honduras)",
+      "url": "https://www.laprensa.hn/honduras/produccion-cafe-occidente-honduras-copan-caficultura-hondurena-AWLP1220404",
+      "year": 2018
+    },
+    "pdg-es-hnd-2024": {
+      "title": "Recorrido por algunas zonas productoras de café en Honduras (Mónica Torres)",
+      "publisher": "Perfect Daily Grind Español",
+      "url": "https://perfectdailygrind.com/es/2024/07/12/recorrido-zonas-productoras-cafe-honduras/",
+      "year": 2024
+    },
+    "coffeereview-agalta-2003": {
+      "title": "Honduran Black Gold (Agalta Coffee Company)",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/honduran-black-gold/",
+      "year": 2003
+    },
+    "dnb-cocaol": {
+      "title": "Cooperativa Cafetalera de Olancho Limitada (COCAOL)",
+      "publisher": "Dun & Bradstreet business directory (dunsguide.com)",
+      "url": "https://dunsguide.com/company/cc9f0760df02d007eaa716ff9ee1204e/cooperativa-cafetalera-de-olancho-limitada-cocaol",
+      "accessed": "2026-11"
+    },
+    "elheraldo-capucas-2016": {
+      "title": "El genio detrás del éxito de Café Capucas",
+      "publisher": "El Heraldo (Honduras)",
+      "url": "https://www.elheraldo.hn/honduras/el-genio-detras-del-exito-de-cafe-capucas-DBEH958496",
+      "year": 2016
+    },
+    "atlas-capucas": {
+      "title": "Capucas (tag archive of trip reports)",
+      "publisher": "Atlas Coffee Importers",
+      "url": "https://www.atlascoffee.com/tag/capucas",
+      "accessed": "2026-11"
+    },
+    "ukgi-hwc": {
+      "title": "Cafés del Occidente Hondureño (H W C)",
+      "publisher": "GOV.UK, protected food and drink names",
+      "url": "https://www.gov.uk/protected-food-drink-names/cafes-del-occidente-hondureno-h-w-c",
+      "accessed": "2026-11"
+    },
+    "garciabodan-do-2018": {
+      "title": "Denomination of Origin in Honduras (Némesis Escalante Ochoa)",
+      "publisher": "García & Bodán",
+      "url": "https://garciabodan.com/en/?p=8352",
+      "year": 2018
+    },
+    "origin-gi-marcala": {
+      "title": "Sostenibilidad DO Café Marcala (undated presentation by Zoyla Moreno, Consejo Regulador DO Café Marcala)",
+      "publisher": "oriGIn",
+      "url": "https://www.origin-gi.com/wp-content/uploads/2017/10/03-presentacion_sostenibilidad_DO_CAFE_Marcala_Italia.pdf",
+      "year": null
+    },
+    "elheraldo-lapaz-2018": {
+      "title": "Café orgánico de La Paz conquista Europa y EUA",
+      "publisher": "El Heraldo (Honduras)",
+      "url": "https://www.elheraldo.hn/honduras/cafe-organico-de-la-paz-conquista-europa-y-eua-AXEH1205014",
+      "year": 2018
+    },
+    "cicy-soconusco-2020": {
+      "title": "El oro rojo del Soconusco, Chiapas: el café (Reyes Palomeque et al.), Desde el Herbario CICY 12: 252–258",
+      "publisher": "Centro de Investigación Científica de Yucatán (CICY)",
+      "url": "https://www.cicy.mx/Documentos/CICY/Desde_Herbario/2020/2020-11-19-G.-Reyes-palomeque-El-oro-rojo-del-Soconusco.pdf",
+      "year": 2020
+    },
+    "mdp-chiapas-2026": {
+      "title": "Domestic coffee consumption in Chiapas remains low despite high production",
+      "publisher": "Mexico Daily Post",
+      "url": "https://mexicodailypost.news/2026/05/18/domestic-coffee-consumption-in-chiapas-remains-low-despite-high-production/",
+      "year": 2026
+    },
+    "dof-pluma-2020": {
+      "title": "Declaración de protección de la denominación de origen Pluma (27 January 2020)",
+      "publisher": "Diario Oficial de la Federación (SIDOF)",
+      "url": "https://sidof.segob.gob.mx/notas/docFuente/5585437",
+      "year": 2020
+    },
+    "wto-pluma-2020-en": {
+      "title": "Declaration of protection of the appellation of origin Pluma (English translation, WIPO Lex MX233)",
+      "publisher": "WIPO Lex / WTO",
+      "url": "https://wipolex-resources-eu-central-1-358922420655.s3.amazonaws.com/edocs/lexdocs/laws/en/mx/mx233en-wto.pdf",
+      "year": 2020
+    },
+    "cafeimports-mex-2015": {
+      "title": "Regional Select: Mexico (Andrew Miller)",
+      "publisher": "Cafe Imports blog",
+      "url": "https://www.cafeimports.com/north-america/blog/wp-json/wp/v2/posts/407",
+      "year": 2015
+    },
+    "sadr-puebla-cafe": {
+      "title": "Café Poblano (catalog of Puebla coffee and producers; undated, cites the 2019–2025 seasons)",
+      "publisher": "Secretaría de Desarrollo Rural del Estado de Puebla (SADR) website",
+      "url": "https://sadr.puebla.gob.mx/images/catalogos/CAFEPOBLANO.pdf",
+      "accessed": "2026-11"
+    },
+    "chapingo-rga-55": {
+      "title": "Dos siglos del café en México (presentation by Artemio Cruz León), Revista de Geografía Agrícola núm. 55",
+      "publisher": "Universidad Autónoma Chapingo",
+      "url": "https://revistas.chapingo.mx/geografia/article/download/255/277/459"
+    },
+    "redalyc-huatusco-2016": {
+      "title": "La posición competitiva de las organizaciones cafetaleras en Huatusco, Veracruz (Rodríguez-Hernández et al.), Revista Mexicana de Ciencias Agrícolas Pub. Esp. 15",
+      "publisher": "Redalyc",
+      "url": "https://www.redalyc.org/pdf/2631/263146724006.pdf",
+      "year": 2016
+    },
+    "star-ken-dss-2026": {
+      "title": "Boon for farmers as coffee earnings hit Sh38.3 billion",
+      "publisher": "The Star (Kenya), reporting Coffee Directorate and Nairobi Coffee Exchange data",
+      "url": "https://the-star.co.ke/counties/central/2026-07-16-boon-for-farmers-as-coffee-earnings-hit-sh383-billion",
+      "year": 2026,
+      "accessed": "2026-11"
+    },
+    "kilimo-nce-2026": {
+      "title": "Coffee supremacy: Kericho leads volumes as Kirinyaga tops prices at NCE",
+      "publisher": "Kilimo News (Henry Kinyua), reporting Nairobi Coffee Exchange data to Sale 27",
+      "url": "https://kilimonews.co.ke/agricultural-products/coffee-supremacy-kericho-leads-volumes-as-kirinyaga-tops-prices-at-nce/",
+      "year": 2026,
+      "accessed": "2026-11"
+    },
+    "afca-kenya": {
+      "title": "AFCA chapter: Kenya",
+      "publisher": "African Fine Coffees Association",
+      "url": "https://afca.coffee/chapters/uncategorized/kenya/",
+      "accessed": "2026-11"
+    },
+    "driftaway-krb-portfolio": {
+      "title": "KRB: Kenya Kirinyaga Rungeto & Baragwi",
+      "publisher": "Driftaway Coffee",
+      "url": "https://driftaway.coffee/portfolio/KRB",
+      "accessed": "2026-11"
+    },
+    "standard-mathira-2020": {
+      "title": "Natural coffee deal to revive dead factories in Nyeri",
+      "publisher": "The Standard (Kenya)",
+      "url": "https://www.standardmedia.co.ke/farmkenya/news/article/2001392012/natural-coffee-deal-to-revive-dead-factories-in-nyeri",
+      "year": 2020,
+      "accessed": "2026-11"
+    },
+    "cafeimports-kenya-2018": {
+      "title": "Origin report: Kenya 2018",
+      "publisher": "Cafe Imports",
+      "url": "https://www.cafeimports.com/north-america/blog/wp-json/wp/v2/posts/29053",
+      "year": 2018,
+      "accessed": "2026-11"
+    },
+    "coffeereview-kenya-2015": {
+      "title": "Kenya coffees 2015: still great, still Kenya (Kenneth Davids with Jason Sarley)",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/kenya-coffees-2015-still-great-still-kenya/",
+      "year": 2015,
+      "accessed": "2026-11"
+    },
+    "coffeereview-nyeri-hillfarm-2022": {
+      "title": "Kenya Nyeri Hill Farm AA TOP (Buon Caffe), 94 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/kenya-nyeri-hill-farm-aa-top/",
+      "year": 2022,
+      "accessed": "2026-11"
+    },
+    "coffeereview-nyeri-cafetaster-2022": {
+      "title": "Kenya, Nyeri growing region (CafeTaster), 95 points",
+      "publisher": "Coffee Review",
+      "url": "https://coffeereview.com/?p=22599",
+      "year": 2022,
+      "accessed": "2026-11"
+    },
+    "sweetmarias-mutwewathi": {
+      "title": "Kenya Nyeri Mutwewathi AA (listing)",
+      "publisher": "Sweet Maria's",
+      "url": "https://www.sweetmarias.com/products/kenya-nyeri-mutwewathi-aa-8091",
+      "year": 2024,
+      "accessed": "2026-11"
+    },
+    "ccs-kiamabara": {
+      "title": "Factory profile: Kiamabara",
+      "publisher": "Collaborative Coffee Source",
+      "url": "https://collaborativecoffeesource.com/the-collaborative-blog/2016/07/05/factory-profile-kiamabara",
+      "year": 2016,
+      "accessed": "2026-11"
+    },
+    "ccs-gathiruini": {
+      "title": "Factory profile: Gathiruini",
+      "publisher": "Collaborative Coffee Source",
+      "url": "https://collaborativecs.squarespace.com/the-collaborative-blog/2016/07/15/factory-profile-gathiruini",
+      "year": 2016,
+      "accessed": "2026-11"
+    },
+    "ccs-kiangai": {
+      "title": "Factory profile: Kiangai",
+      "publisher": "Collaborative Coffee Source",
+      "url": "https://collaborativecoffeesource.com/the-collaborative-blog/2016/07/14/factory-profile-kiangai",
+      "year": 2016,
+      "accessed": "2026-11"
+    },
+    "coffeehunter-kiaragana": {
+      "title": "Kiaragana AA",
+      "publisher": "Coffee Hunter",
+      "url": "https://coffeehunter.com/coffee/kiaragana-aa/",
+      "accessed": "2026-11"
+    },
+    "way-mutitu-natural": {
+      "title": "Kenya Mutitu Natural (Coffeein) (listing)",
+      "publisher": "The Way to Coffee",
+      "url": "https://www.thewaytocoffee.com/beans/kenya-mutitu-natural/",
+      "accessed": "2026-11"
+    },
+    "star-kioru-2026": {
+      "title": "Relief as Murang'a coffee prices hit Sh105 per kilo",
+      "publisher": "The Star (Kenya)",
+      "url": "https://www.the-star.co.ke/counties/central/2026-05-23-relief-as-muranga-coffee-prices-hit-sh105-per-kilo",
+      "year": 2026,
+      "accessed": "2026-11"
+    },
+    "bd-acreage-2025": {
+      "title": "Acreage under coffee shrinks as investors eye profitable ventures",
+      "publisher": "Business Daily (Kenya), reporting AFA data",
+      "url": "https://www.businessdailyafrica.com/bd/markets/commodities/acreage-under-coffee-shrinks-investors-eye-profitable-ventures-5179654",
+      "year": 2025,
+      "accessed": "2026-11"
+    },
+    "star-acreage-2025": {
+      "title": "Leading counties in growth of acreage under coffee",
+      "publisher": "The Star (Kenya), reporting AFA data",
+      "url": "https://www.the-star.co.ke/news/infographics/2025-09-02-leading-counties-in-growth-of-acreage-under-coffee",
+      "year": 2025,
+      "accessed": "2026-11"
+    },
+    "star-ken-2024": {
+      "title": "Coffee reforms attributed to improved earnings, systems",
+      "publisher": "The Star (Kenya), reporting Coffee Directorate (AFA) data",
+      "url": "https://www.the-star.co.ke/counties/central/2024-03-14-coffee-reforms-attributed-to-improved-earnings-systems/",
+      "year": 2024,
+      "accessed": "2026-11"
+    },
+    "dk-cws": {
+      "title": "Coffee washing stations",
+      "publisher": "Dukunde Kawa cooperative",
+      "url": "https://dukundekawa.kitech.rw/cws",
+      "accessed": "2026-11"
+    },
+    "mcm-rwanda-trip-2023": {
+      "title": "Time to Plan for Rwanda!",
+      "publisher": "Melbourne Coffee Merchants, 6 June 2023",
+      "url": "https://melbournecoffeemerchants.com.au/?p=9159",
+      "year": 2023
+    },
+    "royal-nkara": {
+      "title": "Rwanda FT Dukunde Kawa Nkara",
+      "publisher": "Royal Coffee",
+      "url": "https://royalcoffee.com/product/3427097000009447995/",
+      "accessed": "2026-11"
+    },
+    "cr-gakenke-2015": {
+      "title": "Rwanda Dukunde Kawa Musasa (Caffe Luxxe), 92 points",
+      "publisher": "Coffee Review, April 2015",
+      "url": "https://www.coffeereview.com/review/rwanda-dukunde-kawa-musasa/",
+      "year": 2015
+    },
+    "cr-mbilima-2024": {
+      "title": "Dukunde Kawa Rwanda (JBC Coffee Roasters), 92 points",
+      "publisher": "Coffee Review, July 2024",
+      "url": "https://www.coffeereview.com/review/dukunde-kawa-rwanda-2/",
+      "year": 2024
+    },
+    "newtimes-gakenke-2014": {
+      "title": "Gakenke scoops Cup of Excellence",
+      "publisher": "The New Times (Kigali), 9 August 2014",
+      "url": "https://www.newtimes.co.rw/article/110028/gakenke-scoops-cup-of-excellence/amp",
+      "year": 2014
+    },
+    "mcm-harvest-2025": {
+      "title": "Harvest Update: Rwanda 2025",
+      "publisher": "Melbourne Coffee Merchants, 18 November 2025",
+      "url": "https://melbournecoffeemerchants.com.au/harvest-update-rwanda/",
+      "year": 2025
+    },
+    "gisaro-2013": {
+      "title": "La structuration du monde paysan au Rwanda : cas des coopératives et des stations de lavage de café de Maraba et de Karaba, District de Huye (doctoral thesis)",
+      "publisher": "Gisaro Ca-Madeberi Ya-Bititi, Université de Liège – Gembloux Agro-Bio Tech, 2013",
+      "url": "https://orbi.uliege.be/bitstream/2268/148494/1/GISARO%202013.pdf",
+      "year": 2013
+    },
+    "mcm-kabuye": {
+      "title": "Maraba Kabuye",
+      "publisher": "Melbourne Coffee Merchants (page modified 2019)",
+      "url": "https://melbournecoffeemerchants.com.au/?p=3058",
+      "year": 2019
+    },
+    "mcm-koakaka-rwamweru": {
+      "title": "Koakaka Rwamweru Women's Coffee",
+      "publisher": "Melbourne Coffee Merchants (page modified 2023)",
+      "url": "https://melbournecoffeemerchants.com.au/?p=597",
+      "year": 2023
+    },
+    "mcm-karambi-women": {
+      "title": "Karambi Women's Coffee",
+      "publisher": "Melbourne Coffee Merchants (page modified 2024)",
+      "url": "https://melbournecoffeemerchants.com.au/?p=1981",
+      "year": 2024
+    },
+    "mdpi-jenkins-2023": {
+      "title": "Enhancing Coffee Quality in Rwanda: A Cost Benefit Analysis of Government Policies",
+      "publisher": "Jenkins, Mbakop and Miklyaev, Sustainability 15(23):16513, December 2023",
+      "url": "https://mdpi.com/2071-1050/15/23/16513",
+      "year": 2023
+    },
+    "cr-karambi-natural-2022": {
+      "title": "Rwanda Karambi Station Natural (RamsHead Coffee Roasters), 93 points",
+      "publisher": "Coffee Review, July 2022",
+      "url": "https://www.coffeereview.com/?p=22494",
+      "year": 2022
+    },
+    "cr-gitesi-2014": {
+      "title": "Rwanda Karongi Gitesi (GivCOFFEE), 93 points",
+      "publisher": "Coffee Review, May 2014",
+      "url": "https://www.coffeereview.com/review/rwanda-karongi-gitesi-3/",
+      "year": 2014
+    },
+    "cr-gitesi-2017": {
+      "title": "Gitesi Rwanda (Cimarron Coffee Roasters), 93 points",
+      "publisher": "Coffee Review, June 2017",
+      "url": "https://www.coffeereview.com/review/gitesi-rwanda/",
+      "year": 2017
+    },
+    "tsu-intango": {
+      "title": "Intango",
+      "publisher": "This Side Up (green coffee importer)",
+      "url": "https://thissideupcoffee.squarespace.com/intango",
+      "accessed": "2026-11"
+    },
+    "coava-intango": {
+      "title": "Karongi Intango",
+      "publisher": "Coava Coffee Roasters",
+      "url": "https://coavacoffee.com/producers/karongi-intango",
+      "accessed": "2026-11"
+    },
+    "coe-murundo-2018": {
+      "title": "Murundo CWS, Rwanda 2018 (#3A, 90.03)",
+      "publisher": "Cup of Excellence farm directory",
+      "url": "https://farmdirectory.cupofexcellence.org/listing/2018-rwanda-90-03-10/",
+      "year": 2018
+    },
+    "cr-gatare-2020": {
+      "title": "Rwanda Gatare Namasheke (Temple Coffee Roasters), 93 points",
+      "publisher": "Coffee Review, May 2020",
+      "url": "https://www.coffeereview.com/review/rwanda-gatare-namasheke/",
+      "year": 2020
+    },
+    "cr-tumba-2019": {
+      "title": "Rwanda Rulindo Tumba (Big Creek Coffee Roasters), 91 points",
+      "publisher": "Coffee Review, March 2019",
+      "url": "https://www.coffeereview.com/review/rwanda-rulindo-tumba/",
+      "year": 2019
+    },
+    "algrano-burega-2022": {
+      "title": "Burega Women's Micro-lot – Buliza CWS FW Gr A – Rulindo – Northern Province (May–July 2022)",
+      "publisher": "Algrano",
+      "url": "https://www.algrano.com/products/5840-rwanda-burega-women-s-micro-lot-buliza-cws-fw-gr-a-rulindo-northern-province-arabica-lavado-may-jul-2022",
+      "year": 2022
+    },
+    "melese-2021": {
+      "title": "Coffee (Coffea arabica L.): Methods, Objectives, and Future Strategies of Breeding in Ethiopia (Review)",
+      "publisher": "Sustainability (MDPI), Melese & Kolech",
+      "url": "https://mdpi.com/2071-1050/13/19/10814",
+      "year": 2021
+    },
+    "million-2020-jimma": {
+      "title": "Adoption Status and Factors Determining Coffee Technology Adoption in Jimma Zone, South West Ethiopia",
+      "publisher": "Coffee and Cocoa Research Journal (DOAJ record), Million, Like & Chalchisa",
+      "url": "https://doaj.org/article/2f626deea2144297958d20db37bf8f28",
+      "year": 2020
+    },
+    "anteneh-2015-western": {
+      "title": "Adoption and Impact of Coffee Production Technologies in the Case of Western Ethiopia",
+      "publisher": "Journal of Biology, Agriculture and Healthcare, Anteneh, Bezabih & Asfaw",
+      "url": "https://core.ac.uk/download/234661822.pdf",
+      "year": 2015
+    },
+    "getaneh-cwd-asic-2021": {
+      "title": "Genetics of coffee wilt disease (Gibberella xylarioides) resistance in Arabica coffee (e-poster, Getaneh, Adugna & Alamerew)",
+      "publisher": "Jimma Agricultural Research Center / Jimma University, at ASIC 2021",
+      "url": "https://alphavisa.com/asic/2021/documents/eposters/S1-P-14_5037_ADMIKEW-GETANEH.pdf",
+      "year": 2021
+    },
+    "coffeereview-74158-hamasho-2024": {
+      "title": "Ethiopia Sidama Bensa Hamasho Washed G1 74158 (Libero Coffee), 93 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/ethiopia-sidama-bensa-hamasho-washed-g1-74158/",
+      "year": 2024
+    },
+    "coffeereview-74158-bursa-2024": {
+      "title": "Ethiopia Sidama Arbegona Bursa Natural (Bargain Cafe), 93 points",
+      "publisher": "Coffee Review",
+      "url": "https://coffeereview.com/?p=25038",
+      "year": 2024
+    },
+    "coffeereview-74158-alo-natural-2025": {
+      "title": "Ethiopia Sidama Bensa Alo Single Variety 74158 Natural (Taster's Coffee), 94 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/ethiopia-sidama-bensa-alo-single-variety-74158-natural/",
+      "year": 2025
+    },
+    "sey-assefa-hamasho-74158": {
+      "title": "Assefa Dukamo Hamasho 74158, Washed (listing)",
+      "publisher": "SEY Coffee",
+      "url": "https://www.seycoffee.com/products/assefa-dukamo",
+      "year": 2021
+    },
+    "archers-hamasho-74158": {
+      "title": "Ethiopia: Hamasho Village Washed, Archers Lot (listing)",
+      "publisher": "Archers Coffee",
+      "url": "https://archerscoffee.com/products/ethiopia-hamasho-washed-archers-lot",
+      "year": 2025
+    },
+    "coe-nw-assefa-2024": {
+      "title": "Assefa Dengisso Horisa, national winner, Cup of Excellence Ethiopia 2024 (farm directory)",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://farmdirectory.cupofexcellence.org/listing/nw-assefa-ethiopia-2024",
+      "year": 2024
+    },
+    "mcm-ayla-natural": {
+      "title": "Ayla Bombe Natural (listing)",
+      "publisher": "Melbourne Coffee Merchants",
+      "url": "https://melbournecoffeemerchants.com.au/coffee/ayla-natural/",
+      "year": 2025
+    },
+    "mcm-banko-gotiti": {
+      "title": "Banko Gotiti Washed Premium (listing)",
+      "publisher": "Melbourne Coffee Merchants",
+      "url": "https://melbournecoffeemerchants.com.au/?p=8969",
+      "year": 2024
+    },
+    "mcm-weblist-2025-05": {
+      "title": "MCM Web List 2.05.25 (green coffee offer list)",
+      "publisher": "Melbourne Coffee Merchants",
+      "url": "https://melbournecoffeemerchants.com.au/wp-content/uploads/2025/05/MCM-Web-List-2.05.25.pdf",
+      "year": 2025
+    },
+    "samplecoffee-mensur-74110": {
+      "title": "Ethiopia Mensur Abahika (listing)",
+      "publisher": "Sample Coffee",
+      "url": "https://cdn.samplecoffee.com.au/coffee/mensur-abahika-74110-74112",
+      "year": 2024
+    },
+    "samplecoffee-tsegaye-tekebo": {
+      "title": "Ethiopia Tsegaye Tekebo (listing)",
+      "publisher": "Sample Coffee",
+      "url": "https://dev-2024.samplecoffee.com.au/coffee/tsegaye-tekebo",
+      "year": 2024
+    },
+    "samplecoffee-abebe-cherfo": {
+      "title": "Ethiopia Abebe Cherfo (listing)",
+      "publisher": "Sample Coffee",
+      "url": "https://samplecoffee.com.au/coffee/abebe-cherfo",
+      "year": 2024
+    },
+    "samplecoffee-kurume": {
+      "title": "Kurume (varietal page)",
+      "publisher": "Sample Coffee",
+      "url": "https://samplecoffee.com.au/coffee/varietals/kurume",
+      "year": 2026
+    },
+    "centralcoast-jigesa-2025": {
+      "title": "Ethiopia Jigesa Kurume Wolisho Washed (listing)",
+      "publisher": "Central Coast Coffee Roasting",
+      "url": "https://www.centralcoastcoffee.com.au/products/ethiopia-jigesa-kurume-wolisho-washed",
+      "year": 2025
+    },
+    "centralcoast-huke-2025": {
+      "title": "Ethiopia Huke Kurume Wolisho Natural (listing)",
+      "publisher": "Central Coast Coffee Roasting",
+      "url": "https://www.centralcoastcoffee.com.au/products/ethiopia-huke-kurume-wolisho-natural",
+      "year": 2025
+    },
+    "chk-allianceforcoffeeexcellence-org-directory-86-24-": {
+      "title": "Murangara CWS/RWACOF (I), Rwanda 2014 (#21)",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/directory/86-24-2/",
+      "year": 2014
+    },
+    "chk-library-sweetmarias-com-rwanda-a-photo-set-may-2": {
+      "title": "Rwanda: A Photo Set, May 2018",
+      "publisher": "Sweet Maria's",
+      "url": "https://library.sweetmarias.com/rwanda-a-photo-set-may-2018/",
+      "year": 2018
     }
   }
 }
