@@ -60,7 +60,7 @@
             },
 
             coachFromBrew(brew) {
-                return { id: String(brew.id), owner: this.getBrewOwner(brew), beanKey: this.groupKeyOfBrew(brew), beanId: String(brew.beanId || ''), method: brew.method || '', date: brew.date,
+                return { id: String(brew.id), owner: this.getBrewOwner(brew), beanKey: this.groupKeyOfBrew(brew), beanId: String(brew.beanId || ''), method: brew.method || '', sub: brew.sub || '', date: brew.date,
                     grind: brew.grind, dose: this.num(brew.dose), yield: this.num(brew.yield), time: this.num(brew.time), rating: this.normalizeRating(brew.rating),
                     text: this.getBrewNotes(brew), flavors: this.extractFlavors(brew), values: this.shapeValues(brew), tasted: this.tastedKeys(brew), tastedExplicit: Array.isArray(brew.tasted) && brew.tasted.length > 0,   /* v16.2: an empty list is no list (see tasteValue) */ verdict: String(brew.verdict || ''), grinder: this.grinderFor(brew) };
             },
@@ -70,7 +70,7 @@
                 const editing = form && form.elements && form.elements.id ? String(form.elements.id.value || '') : '';
                 const existing = editing ? this.brews.get(editing) : null;
                 const r = this.readFormRecipe();
-                return { id: editing, owner: this.user, beanKey: this.activeGroup ? this.beanGroupKey(this.activeGroup.meta) : '', beanId: String(this.activeId || ''), method: r.method,
+                return { id: editing, owner: this.user, beanKey: this.activeGroup ? this.beanGroupKey(this.activeGroup.meta) : '', beanId: String(this.activeId || ''), method: r.method, sub: (this.methodExtras && (METHOD_KINDS[r.method] || []).includes(this.methodExtras.sub)) ? this.methodExtras.sub : '',
                     date: existing ? existing.date : new Date().toISOString(), grind: form && form.grind ? form.grind.value : '', dose: this.num(r.dose), yield: this.num(r.yield), time: this.num(r.time),
                     rating: form && form.rating ? this.normalizeRating(form.rating.value) : 0, text: form && form.notes ? form.notes.value : '', flavors: [...this.selFlavors],
                     values: this.formTasteValues(), tasted: [...this.tasteTouched], tastedExplicit: true, grinder: this.formGrinder(r.method) };
@@ -79,7 +79,7 @@
             // shots on this coffee by this person and method, up to this one (older cards never see the future)
             coachPast(c) {
                 const t = this.localTime(c.date);
-                return Array.from(this.brews.values()).filter(b => String(b.id) !== c.id && this.getBrewOwner(b) === c.owner && (b.method || '') === c.method
+                return Array.from(this.brews.values()).filter(b => String(b.id) !== c.id && this.getBrewOwner(b) === c.owner && (b.method || '') === c.method && (b.sub || '') === (c.sub || '')   // (v21.6: a turbo shot against turbo shots)
                     && this.groupKeyOfBrew(b) === c.beanKey && (!Number.isFinite(t) || !(this.localTime(b.date) > t)) && !(this.learnPotatoBrew && this.learnPotatoBrew(b)))   // (v19.0: a potato-defect cup isn't a best shot)
                     .sort((a, b) => this.localTime(a.date) - this.localTime(b.date));
             },
@@ -159,8 +159,8 @@
                 return avg <= this.num(first.time) - 4 ? { first, from: this.num(first.time), lo: Math.min(...recent), hi: Math.max(...recent) } : null;
             },
 
-            coachPalate(owner, method, excludeId) {
-                const rows = this.brewsOf(owner).filter(b => (b.method || '') === method && String(b.id) !== excludeId && this.normalizeRating(b.rating) >= 4 && this.ratioOf(b) > 0 && this.num(b.time) > 0);
+            coachPalate(owner, method, excludeId, sub = '') {
+                const rows = this.brewsOf(owner).filter(b => (b.method || '') === method && (b.sub || '') === (sub || '') && String(b.id) !== excludeId && this.normalizeRating(b.rating) >= 4 && this.ratioOf(b) > 0 && this.num(b.time) > 0);
                 if (rows.length < 3) return null;
                 const q = (arr, p) => { const a = [...arr].sort((x, y) => x - y); return a[Math.min(a.length - 1, Math.max(0, Math.round(p * (a.length - 1))))]; };
                 const ratios = rows.map(b => this.ratioOf(b)), times = rows.map(b => this.num(b.time));
@@ -169,7 +169,7 @@
 
             // v11.6: median time of this person's other 4★+ shots on this coffee (null under 2 shots)
             coachCoffeeTimes(c) {
-                const ts = this.brewsOf(c.owner).filter(b => (b.method || '') === c.method && String(b.id) !== c.id && this.groupKeyOfBrew(b) === c.beanKey && this.normalizeRating(b.rating) >= 4 && this.num(b.time) > 0)
+                const ts = this.brewsOf(c.owner).filter(b => (b.method || '') === c.method && (b.sub || '') === (c.sub || '') && String(b.id) !== c.id && this.groupKeyOfBrew(b) === c.beanKey && this.normalizeRating(b.rating) >= 4 && this.num(b.time) > 0)
                     .map(b => this.num(b.time)).sort((x, y) => x - y);
                 if (ts.length < 2) return null;
                 const h = ts.length / 2;
@@ -223,7 +223,7 @@
                 const gm = this.grindModel(c.owner, c.method, c);
                 const drift = this.coachDrift(c, past.filter(b => this.sameGrinder(this.grinderFor(b), c.grinder)));   // v15.7: same grind on the same grinder
                 const refG = ref ? this.grinderFor(ref) : null, refSameG = this.sameGrinder(refG, c.grinder);
-                const pal = this.coachPalate(c.owner, c.method, c.id);
+                const pal = this.coachPalate(c.owner, c.method, c.id, c.sub);
                 const bean = this.coachBean(c);
                 // v11.6: time baseline = your best shot's time, unless it's an outlier; then your usual on this coffee, then your usual overall
                 const cof = this.coachCoffeeTimes(c);
@@ -322,7 +322,7 @@
                         mode = 'ratio'; head = `Stop earlier: back to ${backYield} g, keep the grind.`;
                         next = recipe(keepG, dose, backYield);
                         why.push(words('over') || 'It read bitter.', `The bitterness comes from the long ratio (1:${this.fmtNum(ratio, 1)} vs 1:${this.fmtNum(refRatio, 1)} on your best), not the grind.`);
-                    } else if (esp && ((dT !== null && dT <= -4) || (c.time > 0 && c.time < 22))) {
+                    } else if (esp && ((dT !== null && dT <= -4) || (c.time > 0 && c.time < 22 && !/^(Turbo|Soup)$/.test(c.sub || '')))) {   // (v21.6: a turbo or soup shot is fast on purpose)
                         mode = 'puck';
                         if (drift) { head = `Fast and bitter: that's channeling. Go finer (${finer.replace(/^grind /, '')}) and prep the puck.`; next = recipe(finer, dose, backYield); }
                         else { head = 'Fast and bitter: that\'s channeling, so don\'t go coarser.'; next = recipe(keepG, c.dose, c.yield); }
@@ -380,7 +380,7 @@
                 if (pal) { const rr = this.fmtNum(pal.r0, 1) === this.fmtNum(pal.r1, 1) ? `1:${this.fmtNum(pal.r0, 1)}` : `1:${this.fmtNum(pal.r0, 1)}\u20131:${this.fmtNum(pal.r1, 1)}`; const tt = Math.round(pal.t0) === Math.round(pal.t1) ? `${Math.round(pal.t0)} s` : `${Math.round(pal.t0)}\u2013${Math.round(pal.t1)} s`; ctx.push(['Your palate', `your 4\u2605+ ${esp ? 'espressos' : 'brews'} sit around ${rr}${esp ? ` in ${tt}` : ''} (${pal.n} shots)`]); }
                 if (!ref) {
                     // first shot: how others did on this coffee (ratio and time only; their grinders aren't yours)
-                    const others = Array.from(this.brews.values()).filter(b => this.groupKeyOfBrew(b) === c.beanKey && this.getBrewOwner(b) !== c.owner && (b.method || '') === c.method && rate(b) > 0 && this.ratioOf(b) > 0);
+                    const others = Array.from(this.brews.values()).filter(b => this.groupKeyOfBrew(b) === c.beanKey && this.getBrewOwner(b) !== c.owner && (b.method || '') === c.method && (b.sub || '') === (c.sub || '') && rate(b) > 0 && this.ratioOf(b) > 0);
                     const top = others.sort((a, b) => rate(b) - rate(a))[0];
                     if (top) ctx.push(['Others on this coffee', `${this.getBrewOwner(top)}'s best: ${this.fmtNum(rate(top))}\u2605 at 1:${this.fmtNum(this.ratioOf(top), 1)}${this.num(top.time) > 0 ? ` in ${this.fmtNum(this.num(top.time))} s` : ''}`]);
                     if (mode !== 'ask') conf = [conf, 'first shot of this coffee'].filter(Boolean).join(' \u00b7 ');

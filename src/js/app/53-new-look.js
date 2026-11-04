@@ -480,8 +480,8 @@
                 if (d.getFullYear() !== new Date().getFullYear()) o.year = 'numeric';
                 try { return d.toLocaleDateString(undefined, o); } catch (e) { return d.toDateString().slice(4, 10); }
             },
-            nlMethodPill(method, solid, compact) {
-                const label = this.methodLabel(method) || 'Espresso';
+            nlMethodPill(method, solid, compact, sub) {
+                const label = this.methodShort ? this.methodShort(method, sub) : (this.methodLabel(method) || 'Espresso');
                 // (v18.6: compact, just its icon, beside a Follow button: the three crowded the name)
                 if (compact) return `<span class="nl-mpill compact${solid ? ' solid' : ''}" role="img" aria-label="${this.esc(label)}" title="${this.esc(label)}"><svg class="nl-ic"><use href="${this.methodIconUse(method)}"/></svg></span>`;
                 return `<span class="nl-mpill${solid ? ' solid' : ''}"><svg class="nl-ic"><use href="${this.methodIconUse(method)}"/></svg>${this.esc(label)}</span>`;
@@ -516,7 +516,7 @@
                 const unlocks = this.achievementUnlockByBrew.get(String(brew.id)) || [];
                 const ph = this.nlPhoto(brew), shape = this.nlHasShape(brew);
                 const follow = entry.community ? this.communityFollowHtml(owner) : '';
-                const right = `<div class="nl-tright">${follow}${this.nlMethodPill(brew.method, false, !!follow)}<button type="button" class="nl-glass" onclick="app.shareItem('session', '${app.escJs(brew.id)}', event)" aria-label="Share"><svg class="nl-ic"><use href="#i-share-2"/></svg></button></div>`;
+                const right = `<div class="nl-tright">${follow}${this.nlMethodPill(brew.method, false, !!follow, brew.sub)}<button type="button" class="nl-glass" onclick="app.shareItem('session', '${app.escJs(brew.id)}', event)" aria-label="Share"><svg class="nl-ic"><use href="#i-share-2"/></svg></button></div>`;
                 const top = onPhoto => `<div class="nl-ctop${onPhoto ? '' : ' flat'}">${this.nlWho(owner, entry.date || brew.date, onPhoto, pal.c)}${right}</div>`;
                 const media = ph ? `<div class="nl-ph session-photo-wrap">${this.nlPhotoImg(ph)}<div class="nl-fade"></div>${top(true)}</div>`
                     : shape ? `<div class="nl-ph nl-shapemedia flat">${this.nlSpinHtml(brew, fam, { cls: 'nl-bigspin' })}<div class="nl-fade short"></div>${top(false)}</div>`
@@ -580,7 +580,8 @@
                     v = document.createElement('div'); v.id = 'session-view'; v.setAttribute('role', 'dialog'); v.setAttribute('aria-label', 'Session');
                     v.innerHTML = '<div class="nls-page" id="nls-page"></div>';
                     // a tap that leaves for another page (a person, a roaster) closes this one first
-                    v.addEventListener('click', e => { const t = e.target && e.target.closest ? e.target.closest('[data-profile], [data-roaster]') : null; if (t && v.contains(t)) this.closeSession(true); }, true);
+                    // (v21.6: closed just after, so the page it opens remembers this one for Back)
+                    v.addEventListener('click', e => { const t = e.target && e.target.closest ? e.target.closest('[data-profile], [data-roaster]') : null; if (t && v.contains(t)) setTimeout(() => this.closeSession(true), 0); }, true);
                     document.body.appendChild(v);
                 }
                 this._sessionId = String(brewId);
@@ -640,7 +641,7 @@
                 }
                 const drafts = soft && this.captureDrafts ? this.captureDrafts() : null;
                 this._nlsHtml = html; this._nlsKey = key;
-                page.setAttribute('data-fam', this.famOfBrew(brew));
+                page.setAttribute('data-fam', this.famOfBrew(brew)); this.nlBackdrop(page);
                 page.innerHTML = html;
                 if (drafts && this.restoreDrafts) this.restoreDrafts(drafts);
                 this.nlFillShapes(page);
@@ -662,7 +663,7 @@
                     <div class="nls-hero ${ph ? 'has-photo' : shape ? 'has-shape' : 'is-flat'}">
                         ${ph ? `${this.nlPhotoImg(ph, 'nls-photo')}<div class="nl-pfade"></div>` : shape ? `<div class="nls-bigshape">${this.nlSpinHtml(brew, fam, { cls: 'nls-shape', pg: true, drag: true })}</div>` : ''}
                         <div class="nls-id">
-                            <div class="nls-whorow">${this.nlWho(owner, brew.date, !!ph && pal.dark, pal.pg)}${this.nlMethodPill(brew.method, true)}</div>
+                            <div class="nls-whorow">${this.nlWho(owner, brew.date, !!ph && pal.dark, pal.pg)}${this.nlMethodPill(brew.method, true, false, brew.sub)}</div>
                             ${this.nlRoasterHtml(bean, tea, 'nl-roast nls-roast')}
                             <h1 class="nl-name nls-name" data-nl-fit="60,40,3" style="font-size:${this.nlNameSize(name, 354, 60, 40, 3)}px" role="link" tabindex="0" onclick="${shared ? 'app.shareOpenCoffee()' : 'app.nlSessionCoffee()'}">${this.esc(name)}</h1>
                             ${rating > 0 ? `<div class="nls-rate">${this.nlStarsHtml(rating, 20)}<b>${this.esc(this.fmtNum(rating, 1))}</b></div>` : ''}
@@ -701,8 +702,14 @@
             nlSessionCoffee() {
                 const brew = this.brews.get(this._sessionId || '');
                 if (!brew) return;
+                // v21.6: the coffee's Back comes back to this session (Maceo, Nov 4), even when it's the coffee under it
+                const from = this.snapPage ? this.snapPage() : null;
                 this.closeSession(true);
-                this.openFeedTarget(brew.beanId, '', false);
+                if (from) { if (!from.over) this.navStack = []; this.navStack = this.navStack || []; this.navStack.push(from); }
+                this._navKeep = true;
+                try { this.openFeedTarget(brew.beanId, '', false); } finally { this._navKeep = false; }
+                this.setDetailBackLabel();
+                const d = document.getElementById('detail-view'); if (d) d.scrollTop = 0;
             },
 
             // ⋯ on the Session screen: Edit and Delete (yours), Report (someone else's), as the app allows today

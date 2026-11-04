@@ -34,7 +34,7 @@
                 const st = this._shv; if (!st) return false;
                 const page = document.getElementById('shv-page'), v = this.shvEl();
                 if (!data) {
-                    page.removeAttribute('data-fam'); page.setAttribute('data-fam', 'app');
+                    page.removeAttribute('data-fam'); page.setAttribute('data-fam', 'app'); this.nlBackdrop(page);
                     page.innerHTML = `<div class="shv-wait">${this.loaderHtml ? this.loaderHtml('Opening…') : 'Opening…'}</div>`;
                     this.shvChrome(null);
                     try { data = await Supa.rpc(kind === 's' ? 'shared_session' : 'shared_coffee', { ref: String(ref) }, { auth: false }); }
@@ -91,14 +91,14 @@
                     const b = this.brews.get(String(brew.id)) || brew, bean = d.coffee;
                     const n = Number(d.more) || 0;
                     const more = bean ? `<section class="nls-sec"><button type="button" class="shv-more" onclick="app.shareOpenCoffee()"><span><b>More on ${this.esc(bean.name || 'this coffee')}</b><small>${n > 1 ? `${n} sessions · its flavor profile` : 'Its details and flavor profile'}</small></span><svg class="icon" aria-hidden="true"><use href="#i-chev-right"/></svg></button></section>` : '';
-                    page.setAttribute('data-fam', this.famOfBrew(b));
+                    page.setAttribute('data-fam', this.famOfBrew(b)); this.nlBackdrop(page);
                     page.innerHTML = this.shvClean(this.sessionHtml(b, { shared: true })) + more;
                     const wrap = page.querySelector('.nls-wrap'); if (wrap && more) wrap.appendChild(page.lastElementChild);
                     this.shvChrome(top.kind, owner);
                 } else {
                     const bean = { ...d.coffee }, list = (d.sessions || []).map(s => ({ ...s, user: s.user || owner, owner: s.owner || owner }));
                     this.shvInject(bean, list, d.owner);
-                    page.setAttribute('data-fam', this.famOfCoffee(this.beans.get(String(bean.id)) || bean));
+                    page.setAttribute('data-fam', this.famOfCoffee(this.beans.get(String(bean.id)) || bean)); this.nlBackdrop(page);
                     page.innerHTML = this.shvClean(this.shvCoffeeHtml(bean, list, owner));
                     this.shvChrome(top.kind, owner);
                     const pool = list.filter(b => this.tastedKeys(b).length);
@@ -153,7 +153,7 @@
             },
             shvMissing(failed) {
                 const page = document.getElementById('shv-page'), guest = this.shvGuest();
-                page.setAttribute('data-fam', 'app');
+                page.setAttribute('data-fam', 'app'); this.nlBackdrop(page);
                 page.innerHTML = `<div class="shv-none"><h2>${failed ? 'Couldn\'t open this link' : 'This isn\'t shared with everyone'}</h2><p>${failed ? 'Check your connection and try again.' : 'Its owner may keep it for friends, or it\'s no longer there.'}</p>${guest ? '<button type="button" class="btn-primary" onclick="app.shareJoin()">Join Dialed In</button>' : '<button type="button" class="btn-outline" onclick="app.closeShareView()">Close</button>'}</div>`;
                 this.shvChrome(null);
             },

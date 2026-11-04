@@ -42,6 +42,8 @@
             kindOfBrew(brew) { return this.isTeaBrew(brew) ? 'tea' : 'coffee'; },
             methodsFor(kind) { return kind === 'tea' ? TEA_METHODS : COFFEE_METHODS; },
             methodLabel(m) { return m === 'Aeropress' ? 'AeroPress' : String(m || ''); },
+            // v21.6: an espresso's kind names it ("Turbo", "Soup"); other methods keep their name (their kind is in the extras line)
+            methodShort(m, sub) { return m === 'Espresso' && sub && (METHOD_KINDS.Espresso || []).includes(sub) ? (/^(Turbo|Soup|Salami)$/.test(sub) ? `${sub} shot` : sub) : (this.methodLabel(m) || 'Espresso'); },
             tasteMetaFor(kind) { return kind === 'tea' ? TEA_TASTE_META : TASTE_META; },
             tasteLabel(k, kind) { const m = this.tasteMetaFor(kind).find(x => x[0] === k); return m ? m[1] : k; },
             wheelFor(kind) { return kind === 'tea' ? TEA_WHEEL : NOTE_WHEEL; },

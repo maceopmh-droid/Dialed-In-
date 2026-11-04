@@ -230,7 +230,18 @@
             // ---- going between pages: a stack, so Back steps back one page at a time
             roasterViewActive() { const v = document.getElementById('roaster-view'); return Boolean(v && v.classList.contains('active')); },
 
+            // v21.6: Back goes to the page you were on (Maceo, Nov 4: "it should take you to the last page you were on not the last
+            // like main page you were on"): a session's page and a producer's page are places too. Each remembers the page under
+            // it (over), so going back to it puts that page back first, with the session or producer on top.
             snapPage() {
+                if (typeof document !== 'undefined') {
+                    const pv = document.getElementById('producer-view');
+                    if (pv && pv.classList.contains('active') && this._producer) return { kind: 'producer', name: this._producer, scroll: pv.scrollTop, over: this.snapUnder() };
+                    if (this.sessionViewActive && this.sessionViewActive() && this._sessionId) { const sv = document.getElementById('session-view'); return { kind: 'session', id: this._sessionId, scroll: sv ? sv.scrollTop : 0, over: this.snapUnder() }; }
+                }
+                return this.snapUnder();
+            },
+            snapUnder() {
                 if (this.roasterViewActive()) return { kind: 'roaster', key: this.roasterOpen, roKind: this.roasterOpenKind || 'coffee', scroll: document.getElementById('roaster-view').scrollTop };
                 if (this.isDetailActive()) return { kind: 'bean', lens: this._lens || '', group: { meta: this.activeGroup.meta, ids: [...this.activeGroup.ids], users: new Set(this.activeGroup.users) }, scroll: document.getElementById('detail-view').scrollTop };
                 return null;
@@ -282,6 +293,16 @@
             goBackPage() {
                 const prev = (this.navStack || []).pop();
                 if (prev && prev.kind === 'learn' && this.learnRestore) { this.learnRestore(prev); return; }   // v19.0: back to the Learn page it came from
+                // v21.6: back to a session's page or a producer's page: first the page that was under it, then it on top
+                if (prev && (prev.kind === 'session' || prev.kind === 'producer')) {
+                    const alive = prev.kind === 'session' ? this.brews.has(String(prev.id)) : !!(this.producerCoffees && this.producerCoffees(prev.name).length);
+                    if (!alive) { this.goBackPage(); return; }
+                    if (prev.over) { this.navStack.push(prev.over); this.goBackPage(); }
+                    else { this.hideRoasterView(); document.getElementById('detail-view').classList.remove('active'); this.openCommentId = null; this.roasterOpen = ''; this.render(); }
+                    if (prev.kind === 'session') { this.openSession(prev.id); const v = document.getElementById('session-view'); if (v) { v.style.animation = 'none'; v.scrollTop = prev.scroll || 0; setTimeout(() => { v.scrollTop = prev.scroll || 0; v.style.animation = ''; }, 30); } }   // (no slide-in: it's going back)
+                    else { this.openProducer(prev.name); const v = document.getElementById('producer-view'); if (v) v.scrollTop = prev.scroll || 0; }
+                    return;
+                }
                 if (!prev) { this.hideRoasterView(); document.getElementById('detail-view').classList.remove('active'); this.openCommentId = null; this.roasterOpen = ''; this.render(); return; }
                 if (prev.kind === 'roaster' && this.roasterFind(prev.key, prev.roKind)) {
                     prev.key = this.roasterFind(prev.key, prev.roKind).key;
@@ -313,6 +334,8 @@
                 const dw = this.drinkWords(this.drinkNow());
                 if (!prev) return ({ feed: 'Feed', profile: 'Profile', roasters: dw.Companies })[this.tab] || dw.Items;   // v13.4: where Back actually goes (v17.0: Teas / Brands in tea mode)
                 if (prev.kind === 'roaster') { const r = this.roasterFind(prev.key, prev.roKind); return r ? r.name : 'Back'; }
+                if (prev.kind === 'session') return 'Session';   // v21.6
+                if (prev.kind === 'producer') return prev.name || 'Back';
                 if (prev.kind === 'learn') return this.lxPageTitle ? this.lxPageTitle((prev.stack || [])[(prev.stack || []).length - 1]) : 'Learn';   // v19.0
                 return (prev.group && prev.group.meta && prev.group.meta.name) || 'Back';
             },

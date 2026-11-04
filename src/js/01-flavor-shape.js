@@ -5,9 +5,9 @@
         const FlavorShape = (() => {
             const FLOOR = ['acidity', 'sweetness', 'body', 'bitterness', 'finish'];
             const TOPK = 'balance';
-            const NAMES = { acidity: 'Acidity', sweetness: 'Sweetness', body: 'Body', bitterness: 'Bitterness', finish: 'Finish', balance: 'Complexity' };
+            const NAMES = { acidity: 'Acidity', sweetness: 'Sweetness', body: 'Body', bitterness: 'Bitterness', finish: 'Finish', balance: 'Clarity' };
             // v17.0: a tea reads the same six places in tea words (opts.names: an object, or a function for a live view)
-            const TEA_NAMES = { acidity: 'Astringency', sweetness: 'Sweetness', body: 'Body', bitterness: 'Bitterness', finish: 'Finish', balance: 'Complexity' };
+            const TEA_NAMES = { acidity: 'Astringency', sweetness: 'Sweetness', body: 'Body', bitterness: 'Bitterness', finish: 'Finish', balance: 'Clarity' };
             const namesOf = opts => { const n = opts && (typeof opts.names === 'function' ? opts.names() : opts.names); return n === 'tea' ? TEA_NAMES : (n && typeof n === 'object' ? n : NAMES); };
             const COLORS = { acidity: '#EDB92E', sweetness: '#EE7A62', body: '#A0663F', bitterness: '#8A63C4', finish: '#5F8FDB', balance: '#36B38C' };
             const N = FLOOR.length, SEG = 2 * Math.PI / N, NP = 200, NT = 60;

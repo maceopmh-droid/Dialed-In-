@@ -49,6 +49,7 @@
                 const top = document.getElementById('d-top-flavors');
                 const about = this.lxAboutHtml(bean, brews || []);
                 if (top && about) top.insertAdjacentHTML('afterend', about);
+                if (this.nlTilesPaint) this.nlTilesPaint();   // v21.6: beside Who grew it? (redrawn when this is)
             },
             // About this coffee: the bag's words decoded, how it fits what you've tasted, and how that kind tastes here
             lxAboutHtml(bean, brews) {

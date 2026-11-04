@@ -419,7 +419,7 @@
                     ...(seedMaster ? { masterGrind: String(seedMaster.grind || '') } : {})
                 }, existing);
                 if (existing) {   // fields this form doesn't show (and ones future versions add) stay as they were
-                    const managed = new Set([...Object.keys(payload), 'temp', 'brewer', 'inverted', 'heat', 'preheated', 'recipeName', 'timeUnit', 'steeps', 'teabag', 'bags', 'rinse', 'style', 'milk', 'mix', 'actor', 'actorColor', 'eventAt', 'commentMeta']);   // (v17.0: a tea's steeps, teabags, rinse, matcha style and milk too)
+                    const managed = new Set([...Object.keys(payload), 'temp', 'brewer', 'inverted', 'heat', 'preheated', 'sub', 'recipeName', 'timeUnit', 'steeps', 'teabag', 'bags', 'rinse', 'style', 'milk', 'mix', 'actor', 'actorColor', 'eventAt', 'commentMeta']);   // (v17.0: a tea's steeps, teabags, rinse, matcha style and milk too)
                     Object.keys(existing).forEach(k => { if (!managed.has(k) && existing[k] !== undefined) payload[k] = existing[k]; });
                 }
 

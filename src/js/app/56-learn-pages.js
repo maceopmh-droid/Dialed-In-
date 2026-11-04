@@ -148,7 +148,7 @@
             },
             // a sentence from the numbers: the two or three sliders furthest from the middle
             lxTasteSentence(cv) {
-                const P = { acidity: ['low acidity', 'gentle acidity', 'bright acidity'], sweetness: ['little sweetness', 'some sweetness', 'lots of sweetness'], body: ['a light body', 'a medium body', 'a full body'], finish: ['a short finish', 'a clean finish', 'a long finish'], bitterness: ['little bitterness', 'some bitterness', 'noticeable bitterness'], balance: ['a simple profile', 'some depth', 'a layered profile'] };
+                const P = { acidity: ['low acidity', 'gentle acidity', 'bright acidity'], sweetness: ['little sweetness', 'some sweetness', 'lots of sweetness'], body: ['a light body', 'a medium body', 'a full body'], finish: ['a short finish', 'a clean finish', 'a long finish'], bitterness: ['little bitterness', 'some bitterness', 'noticeable bitterness'], balance: ['a muddy cup', 'a clear cup', 'a crystal-clear cup'] };
                 const lvl = v => v < 4 ? 0 : v <= 6.5 ? 1 : 2;
                 const picks = cv.set.map(k => ({ k, v: cv.vals[k], d: Math.abs(cv.vals[k] - 5.25) })).sort((a, b) => b.d - a.d).slice(0, 3).map(x => P[x.k][lvl(x.v)]);
                 if (!picks.length) return '';

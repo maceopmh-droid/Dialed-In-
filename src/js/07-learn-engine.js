@@ -568,10 +568,11 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             const SEMI_WASHED_DEMUC = new Set(['BRA', 'GTM', 'HND', 'SLV', 'NIC', 'CRI', 'PAN', 'MEX']);
             function readProcess(text, ctx = {}) {
                 const out = { base: '', variant: '', honey: '', layers: [], decaf: '', grade: [], added: false, ask: null, suggest: null, none: false, unknown: [] };
-                const bases = [];
+                const bases = [], partBases = [];
                 const raw = String(text || '');
                 if (/\b\d{2,3}\s?(?:h|hr|hrs|hour|hours)\b/i.test(raw) && !out.layers.includes('extended')) out.layers.push('extended');   // "72 hour", "120h": a long ferment
                 parts(raw).forEach(p => {
+                    partBases.push(bases.length);   // (where this part's bases start)
                     let n = norm(p).replace(/\b\d{2,3} ?(?:h|hr|hrs|hour|hours)\b/g, ' ').replace(/\s+/g, ' ').trim();
                     if (!n) return;
                     if (NONE_PROC.has(n)) { out.none = true; return; }
@@ -608,7 +609,12 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     }
                 });
                 const uniq = [...new Set(bases)];
+                // v21.6: more than one process, each in its own part ("Washed, Natural", "Honey + Anaerobic Natural": a coffee
+                // made of lots processed differently) is kept as such (Maceo, Nov 4: "Allow for multiple processes per coffee");
+                // two in one phrase ("washed natural") still asks which it is
+                const own = partBases.map((st, i) => new Set(bases.slice(st, i + 1 < partBases.length ? partBases[i + 1] : bases.length))), oneEach = own.every(s => s.size <= 1);
                 if (uniq.length === 1) out.base = uniq[0];
+                else if (uniq.length > 1 && oneEach) { out.base = uniq[0]; out.bases = uniq; }
                 else if (uniq.length > 1) out.ask = { kind: 'two-bases', options: uniq };
                 // "anaerobic" etc. with no base: the base stays unknown (never assume natural)
                 if (out.layers.includes('extended') && out.layers.includes('fermentation')) out.layers = out.layers.filter(l => l !== 'fermentation');
@@ -634,7 +640,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 if (kept('origin')) o.suggest = null;
                 return { v: VERSION, variety: v.ids, varietyNot: v.not, species: v.species, varietySuggest: v.suggest,
                     origin: { countries: o.countries, region: o.region, place: o.place, placeName: o.placeName, blend: o.blend, continents: o.continents }, originSuggest: o.suggest,
-                    process: { base: p.base, variant: p.variant, honey: p.honey, layers: p.layers, decaf: p.decaf, grade: p.grade, added: p.added }, processAsk: p.ask, processSuggest: p.suggest,
+                    process: { base: p.base, bases: p.bases || (p.base ? [p.base] : []), variant: p.variant, honey: p.honey, layers: p.layers, decaf: p.decaf, grade: p.grade, added: p.added }, processAsk: p.ask, processSuggest: p.suggest,
                     roast: readRoast(b.roast) };
             }
             // what one form field says as it's typed (the chips under it)
@@ -663,7 +669,8 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 }
                 if (kind === 'process') {
                     const p = readProcess(text, ctx);
-                    if (p.base) chips.push({ t: 'ok', kind: 'process', id: p.base, name: processName(p) });
+                    if (p.bases && p.bases.length > 1) p.bases.forEach(id => chips.push({ t: 'ok', kind: 'process', id, name: processName({ ...p, base: id, variant: id === 'washed' ? p.variant : (id === 'honey' && p.variant === 'pulped-natural' ? p.variant : ''), honey: id === 'honey' ? p.honey : '' }) }));
+                    else if (p.base) chips.push({ t: 'ok', kind: 'process', id: p.base, name: processName(p) });
                     p.layers.forEach(id => chips.push({ t: 'ok', kind: 'process', id, name: proc[id].name, meta: id === 'co-ferment' ? 'added ingredients' : '' }));
                     if (p.decaf) chips.push({ t: 'ok', kind: 'decaf', id: p.decaf, name: p.decaf === 'decaf' ? 'Decaf' : `Decaf · ${decafs[p.decaf].name}` });
                     p.grade.forEach(g => chips.push({ t: 'info', kind: 'grade', id: g, name: `${g} · a grade, not a process` }));
@@ -731,7 +738,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 if (t.species === 'arabica' && !vs.length) out.push(cs.length === 1 && cs[0].code === 'ETH' ? '“Arabica” is the species, not a variety. In Ethiopia that usually means local landraces or research-station selections.' : '“Arabica” is the coffee species; the bag doesn’t name the variety.');
                 // the process: the base, then what's on top
                 const p = t.process;
-                if (p.base && PSAY[p.base] && !(p.layers.includes('kenyan-soak'))) out.push(PSAY[p.base][0]);
+                (p.bases && p.bases.length > 1 ? p.bases : [p.base]).forEach(b => { if (b && PSAY[b] && !(p.layers.includes('kenyan-soak') && b === 'washed')) out.push(PSAY[b][0]); });
                 p.layers.forEach(l => { if (PSAY[l]) out.push(l === 'fermentation' && p.base !== 'washed' ? '“Fermented” on its own doesn’t say how; nearly all coffee ferments a little on its way to the bag.' : PSAY[l][0]); });
                 if (p.decaf && PSAY[p.decaf]) out.push(PSAY[p.decaf][0]);
                 return out.join(' ');
@@ -766,7 +773,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 t.variety.forEach(id => k.push(`variety:${id}`));
                 if (t.species && t.species !== 'arabica') k.push(`species:${t.species}`);
                 if (t.origin.countries.length === 1 && !t.origin.blend) k.push(`origin:${t.origin.countries[0]}`);
-                if (t.process.base) k.push(`process:${t.process.base}`);
+                (t.process.bases && t.process.bases.length ? t.process.bases : [t.process.base]).forEach(b => { if (b) k.push(`process:${b}`); });
                 t.process.layers.forEach(id => k.push(`process:${id}`));
                 return k;
             }

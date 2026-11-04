@@ -450,7 +450,7 @@
                                     <div class="feed-actor" style="color:${this.esc(color)};" data-profile="${this.esc(owner)}">${this.esc(owner)}${this.levelDotHtml ? this.levelDotHtml(owner) : ''}</div>
                                     <div class="feed-time" data-time="${this.esc(String(entry.date || brew.date || ''))}">${this.esc(this.formatRelativeDate(entry.date || brew.date))}</div>
                                 </div>
-                                ${entry.community ? this.communityFollowHtml(owner) : ''}<div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(brew.method)}"/></svg>${this.esc(this.methodLabel(brew.method) || 'Espresso')}</div><button type="button" class="feed-share" onclick="app.shareItem('session', '${app.escJs(brew.id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>
+                                ${entry.community ? this.communityFollowHtml(owner) : ''}<div class="feed-type sc-method"><svg class="method-icon"><use href="${this.methodIconUse(brew.method)}"/></svg>${this.esc(this.methodShort(brew.method, brew.sub) || 'Espresso')}</div><button type="button" class="feed-share" onclick="app.shareItem('session', '${app.escJs(brew.id)}', event)" aria-label="Share" title="Share"><svg class="icon"><use href="#i-share-2"/></svg></button>
                             </div>
                             <div class="sc-title">
                                 <div class="sc-name"><div class="feed-card-title">${this.esc(coffeeName)}</div>${roasterName ? `<div class="sc-roaster"><span class="ro-link" role="link" tabindex="0" data-roaster="${this.esc(roasterName)}"${this.isTeaBrew(brew) ? ' data-kind="tea"' : ''} onclick="app.openRoasterFrom(this, event)">${this.esc(roasterName)}</span></div>` : (bean && this.teaMakerName(bean) ? `<div class="sc-roaster">${this.esc(this.teaMakerName(bean))}</div>` : '')}${(tag => tag ? `<div class="sc-tags">${tag}</div>` : '')(this.helpTagHtml ? this.helpTagHtml(brew) : '')}</div>
@@ -491,6 +491,7 @@
             // brewer, temperature, heat, inverted: the extras the old recipe line carried
             sessionExtras(b) {
                 const out = [];
+                if (b.sub && b.method !== 'Espresso') out.push(String(b.sub));   // v21.6 (an espresso's kind is on its method pill)
                 if (b.brewer) out.push(String(b.brewer));
                 if (b.temp && !(this.isTeaBrew && this.isTeaBrew(b))) out.push(`${this.fmtNum(b.temp)}°C`);   // (a tea's temperature is in its strip)
                 if (b.heat) out.push(`${b.heat} heat`);

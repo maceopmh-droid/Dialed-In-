@@ -16,20 +16,32 @@
             ['body', 'Body', ['Thin', 'Medium', 'Heavy']],
             ['finish', 'Finish', ['Short', 'Clean', 'Lingering']],
             ['bitterness', 'Bitterness', ['Clean', 'Noticeable', 'Harsh']],
-            ['balance', 'Complexity', ['Simple', 'Some depth', 'Layered']]
+            ['balance', 'Clarity', ['Muddy', 'Clear', 'Crystal clear']]   // (v21.6: was Complexity; Maceo, Nov 4. Same key, so older sessions' numbers now read as clarity)
         ];
         const TASTE_KEYS = TASTE_META.map(m => m[0]);
         const INITIAL_SEL = '.feed-avatar, .cmt-avatar, .person-dot, .hero-avatar, .aw-face, .cq-face b, .thread-faces i, .wr-face, .wr-who b, .mrc-face, .dh-faces i';
 
         // ---- per-method logging (v11): same form, labels and extras change with the method
         const METHOD_PROFILES = {
-            'Espresso': { dose: 'Dose (g)', yld: 'Pull (g)', time: 'Time (s)', ratio: 2, extras: [], recipes: false },
-            'Pour Over': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Total time (s)', ratio: 16, extras: ['brewer', 'temp'], recipes: true },
+            'Espresso': { dose: 'Dose (g)', yld: 'Pull (g)', time: 'Time (s)', ratio: 2, extras: ['sub'], recipes: false },
+            'Pour Over': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Total time (s)', ratio: 16, extras: ['sub', 'brewer', 'temp'], recipes: true },
             'French Press': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Total time (s)', ratio: 16, extras: ['temp'], recipes: true },
             'Aeropress': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Total time (s)', ratio: 15, extras: ['temp', 'inverted'], recipes: true },
             'Moka Pot': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Time (s)', ratio: 9, extras: ['heat', 'preheated'], recipes: true },
-            'Cold Brew': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Steep (hours)', ratio: 8, extras: [], recipes: true, hours: true }
+            'Cold Brew': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Steep (hours)', ratio: 8, extras: ['sub'], recipes: true, hours: true },
+            // v21.6 (Maceo, Nov 4): OXO's Rapid Brewer, a pump-pressed concentrate, hot or cold (OXO: 20 g or 40 g to 160 ml, 2 or 5 minutes)
+            'OXO Rapid Brewer': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Steep (s)', ratio: 8, extras: ['sub', 'temp'], recipes: true }
         };
+        // v21.6: the kinds of each method (Maceo, Nov 4: "different types of espressos like turbo shots soup shots salami maybe as a
+        // sub catagory of espresso ... and add subcategories for other brew methods if it's applicable"). Optional; nothing picked
+        // is the method's usual way. A coach compares a kind with the same kind.
+        const METHOD_KINDS = {
+            'Espresso': ['Ristretto', 'Lungo', 'Turbo', 'Soup', 'Allongé', 'Salami'],
+            'Pour Over': ['Iced'],
+            'Cold Brew': ['Immersion', 'Slow drip'],
+            'OXO Rapid Brewer': ['Hot', 'Cold']
+        };
+        const METHOD_KIND_NONE = { 'Espresso': 'Regular shot', 'Pour Over': 'Hot', 'Cold Brew': 'Choose…', 'OXO Rapid Brewer': 'Choose…' };
         const STEP_KINDS = {
             pour: { label: 'Pour', color: '#4F86D9' }, wait: { label: 'Wait', color: '#8A958C' }, swirl: { label: 'Swirl', color: '#D9A03A' },
             stir: { label: 'Stir', color: '#D9A03A' }, drawdown: { label: 'Drawdown', color: '#3E8F62' }, steep: { label: 'Steep', color: '#8A63C4' },
@@ -54,6 +66,10 @@
             { id: 'aero-standard', name: 'Everyday AeroPress', method: 'Aeropress', dose: 15, water: 225, temp: 90, credit: 'Simple and forgiving', steps: [
                 { k: 'pour', d: 10, s: 1, n: 'All the water in' }, { k: 'stir', d: 10, n: 'A few stirs' }, { k: 'steep', d: 100, n: 'Cap on, wait' }, { k: 'press', d: 30, n: 'Press slow and steady' }] },
             { id: 'moka-classic', name: 'Classic moka pot', method: 'Moka Pot', dose: 18, water: 160, credit: 'Hot water in the base, medium-low heat', steps: [] },
-            { id: 'cold-classic', name: 'Overnight cold brew', method: 'Cold Brew', dose: 100, water: 800, credit: 'Concentrate: dilute 1:1 to drink', steps: [] }
+            { id: 'cold-classic', name: 'Overnight cold brew', method: 'Cold Brew', dose: 100, water: 800, credit: 'Concentrate: dilute 1:1 to drink', steps: [] },
+            { id: 'oxo-rapid-hot', name: 'Rapid Brewer, hot', method: 'OXO Rapid Brewer', sub: 'Hot', dose: 20, water: 160, temp: 96, credit: 'OXO\'s guide: concentrate, dilute 1:2 to 1:3', steps: [
+                { k: 'pour', d: 15, s: 1, n: 'Hot water to the fill line' }, { k: 'steep', d: 120, n: 'Pump on, let it steep' }, { k: 'press', d: 30, n: 'Unlock and pump until it stops dripping' }] },
+            { id: 'oxo-rapid-cold', name: 'Rapid Brewer, cold', method: 'OXO Rapid Brewer', sub: 'Cold', dose: 40, water: 160, credit: 'OXO\'s guide: concentrate, dilute 1:2 to 1:3', steps: [
+                { k: 'pour', d: 15, s: 1, n: 'Cold or room-temperature water to the fill line' }, { k: 'steep', d: 300, n: 'Pump on, let it steep' }, { k: 'press', d: 30, n: 'Unlock and pump until it stops dripping' }] }
         ];
 

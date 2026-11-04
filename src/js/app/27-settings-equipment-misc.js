@@ -379,7 +379,7 @@
                 const header = [
                     'Date', 'User', 'Bean', 'Method', 'Dose', 'Yield', 'Time',
                     'Rating(/5)', 'Likes', 'Comments', 'Equipment',
-                    'Acidity', 'Sweetness', 'Body', 'Finish', 'Complexity', 'Flavors', 'Notes'
+                    'Acidity', 'Sweetness', 'Body', 'Finish', 'Clarity', 'Flavors', 'Notes'
                 ];
                 const rows = [header.map(col => this.csvEscape(col)).join(',')];
                 data.brews.forEach(brew => {

@@ -42,7 +42,7 @@
             extrasFrom(brew) {
                 const b = brew || {};
                 return { temp: b.temp || '', brewer: b.brewer || '', inverted: !!b.inverted, heat: b.heat || '', preheated: !!b.preheated, steeps: Array.isArray(b.steeps) ? b.steeps.map(Number).filter(v => v > 0) : [],
-                    teabag: !!b.teabag, bags: Number(b.bags) || 0, rinse: !!b.rinse, style: b.style || '', milk: b.milk || '',
+                    teabag: !!b.teabag, bags: Number(b.bags) || 0, rinse: !!b.rinse, style: b.style || '', milk: b.milk || '', sub: b.sub || '',
                     mix: Array.isArray(b.mix) ? b.mix.filter(it => it && it.name).map(it => ({ name: String(it.name), amount: it.amount ?? '', unit: it.unit || 'g', ...(it.ref ? { ref: String(it.ref) } : {}) })) : [] };   // (v17.0: a tea's steeps, teabags, rinse, matcha style and milk; v17.1: what went in the cup)
             },
 
@@ -61,7 +61,10 @@
                 const box = document.getElementById('method-extras');
                 if (!box) return;
                 const p = this.methodProfile(method), x = this.methodExtras || {};
+                const kinds = METHOD_KINDS[method] || [];
                 const field = {
+                    // v21.6: the kind of shot or brew (optional)
+                    sub: kinds.length ? `<div><label>Kind</label><select name="sub" onchange="app.methodExtras.sub = this.value">${['', ...kinds].map(v => `<option value="${this.esc(v)}"${v === (x.sub || '') ? ' selected' : ''}>${this.esc(v || METHOD_KIND_NONE[method] || 'Choose…')}</option>`).join('')}</select></div>` : '',
                     brewer: `<div><label>Brewer</label><select name="brewer" onchange="app.methodExtras.brewer = this.value">${['', 'V60', 'Kalita Wave', 'Chemex', 'Origami', 'April', 'Orea', 'Other'].map(v => `<option value="${v}"${v === x.brewer ? ' selected' : ''}>${v || 'Choose…'}</option>`).join('')}</select></div>`,
                     temp: `<div><label>Water temp (°C)</label><input type="number" name="temp" min="0" max="212" step="any" inputmode="numeric" placeholder="${p.tea && this.teaTempHint ? this.teaTempHint() : 94}" value="${this.esc(x.temp)}" oninput="app.methodExtras.temp = this.value; app.paintTempF(this)"><small class="temp-f" aria-live="polite">${this.tempFText(x.temp)}</small></div>`,
                     // v17.0: tea
@@ -95,6 +98,7 @@
                     else if (k === 'milk') { const st = MATCHA_STYLES.find(v => v.key === (x.style || 'usucha')); const ml = Number(x.milk); if ((p.minutes || (method === 'Matcha' && st && st.milk)) && ml > 0 && ml <= 1000) out.milk = Math.round(ml); }
                     else if (k === 'mix') { const list = this.cleanMix ? this.cleanMix(x.mix) : []; if (list.length) out.mix = list; }
                     else if (k === 'inverted' || k === 'preheated') out[k] = !!x[k];
+                    else if (k === 'sub') { if ((METHOD_KINDS[method] || []).includes(x.sub)) out.sub = x.sub; }   // v21.6
                     else if (k === 'steeps') { const list = (Array.isArray(x.steeps) ? x.steeps : []).map(Number).filter(v => v > 0 && v <= 3600).slice(0, 30); if (list.length) out.steeps = list; }   // v17.0
                     else if (x[k]) out[k] = String(x[k]).slice(0, 30);
                 });
@@ -178,7 +182,7 @@
                 this.recipeStepsFor = r.method;
                 if (r.lock) this.recipeLock = r.lock;
                 form.dose.value = this.fmtNum(r.dose, 1); form.yield.value = Math.round(r.water);
-                this.methodExtras = { ...(this.methodExtras || {}), ...(r.brewer ? { brewer: r.brewer } : {}), ...(r.temp ? { temp: r.temp } : {}) };
+                this.methodExtras = { ...(this.methodExtras || {}), ...(r.brewer ? { brewer: r.brewer } : {}), ...(r.temp ? { temp: r.temp } : {}), ...(r.sub ? { sub: r.sub } : {}) };   // (v21.6: the Rapid Brewer's hot or cold)
                 this.applyMethodProfile(r.method);
                 this.renderTasteTip();
             },
