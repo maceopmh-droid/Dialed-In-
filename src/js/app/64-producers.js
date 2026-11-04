@@ -98,7 +98,7 @@
                 const ic = id => `<svg class="icon nl-dt-ic" aria-hidden="true"><use href="#${id}"/></svg>`;
                 // (Maceo, Nov 4, a few minutes later: "get rid of the subtext and condense it vertically": one line each, an icon
                 // and its name; an open one is tinted, and its panel sits under the pair)
-                const tile = (t, open, icon, title, cls = '') => `<button type="button" class="nl-dtile${cls}${open ? ' is-on' : ''}" data-t="${t}" aria-expanded="${open}" onclick="app.nlTileTap('${t}')">${ic(icon)}<b>${title}</b></button>`;
+                const tile = (t, open, icon, title, cls = '') => `<button type="button" class="nl-dtile${cls}${open ? ' is-on' : ''}" data-t="${t}" aria-expanded="${open}" onclick="app.nlTileTap(this.getAttribute('data-t'))">${ic(icon)}<b>${title}</b></button>`;
                 const right = chain ? tile('chain', cOpen, 'i-tree', 'From farm to cup') : tile('add', false, 'i-plus', 'Who grew it?', ' is-add');
                 about.insertAdjacentHTML('beforebegin', `<div class="nl-dtiles" id="nl-dtiles">${tile('about', aOpen, 'i-book', this.esc(sec.getAttribute('data-title') || 'About this coffee'))}${right}</div>`);
                 about.hidden = !aOpen; if (chain) chain.hidden = !cOpen;
