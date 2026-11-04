@@ -262,6 +262,21 @@ $$;
 -- {hue: 0-359, tone: 0-100 (how colorful), photo: a picture in the owner's own folder of the public "avatars" bucket}
 alter table coffees add column if not exists cover jsonb;
 alter table coffees add column if not exists learn jsonb;   -- v19.0: Learn's tags (see the Learn section)
+alter table coffees add column if not exists chain jsonb;   -- v21.4: who grew it and the steps to your cup (all optional)
+-- v21.4 (Maceo, Nov 4: "include not just roasters but the actual producers"): the farm, producer or co-op that grew a
+-- coffee, its washing station or mill, its exporter and importer, as the bag or the roaster says. Plain names only:
+-- tidied, at most 80 characters each, no links, the usual word filter.
+create or replace function internal.chain_name(t text) returns text
+language sql stable set search_path = public as $$
+  select case when t is null or t ~* '(https?://|www\.|<|>)' then null
+              else nullif(left(btrim(regexp_replace(internal.clean_text(t), '\s+', ' ', 'g')), 80), '') end
+$$;
+create or replace function internal.chain_of(ev jsonb) returns jsonb
+language sql stable set search_path = public as $$
+  select case when jsonb_typeof(ev->'chain') = 'object' then nullif(jsonb_strip_nulls(jsonb_build_object(
+      'producer', internal.chain_name(ev->'chain'->>'producer'), 'mill', internal.chain_name(ev->'chain'->>'mill'),
+      'exporter', internal.chain_name(ev->'chain'->>'exporter'), 'importer', internal.chain_name(ev->'chain'->>'importer'))), '{}'::jsonb) end
+$$;
 create or replace function internal.cover_of(ev jsonb) returns jsonb language sql stable set search_path = public as $$
   select case when jsonb_typeof(ev->'cover') = 'object' then nullif(jsonb_strip_nulls(jsonb_build_object(
     'hue', case when jsonb_typeof(ev->'cover'->'hue') = 'number' and (ev->'cover'->>'hue')::numeric between 0 and 360 then round((ev->'cover'->>'hue')::numeric)::int % 360 end,
@@ -281,6 +296,7 @@ language sql stable set search_path = public as $$
       'kind', case when k.kind = 'tea' then 'tea' end, 'teaType', case when k.kind = 'tea' then k.tea_type end,   -- (v17.0: only on teas, so a coffee reads as it always did)
       'blend', case when k.kind = 'tea' and k.tea->>'blend' = 'true' then true end, 'ingredients', case when k.kind = 'tea' then k.tea->'ingredients' end,   -- (v17.1)
       'cover', k.cover,   -- (v17.4)
+      'chain', k.chain,   -- (v21.4: who grew it)
       'learnKeep', k.learn->'keep',   -- (v19.0: "Keep as typed" answers, so no phone asks again)
       'date', k.created_at, 'eventAt', k.updated_at,
       'likes', coalesce((select jsonb_agg(internal.name_of(l.user_id) order by l.created_at, l.user_id) from coffee_likes l where l.coffee_id = k.id), '[]'::jsonb),
@@ -852,12 +868,12 @@ begin
   if not found then
     if lower(btrim(coalesce(ev->>'owner', ev->>'user', me_nm))) <> lower(me_nm) then return; end if;   -- someone else's coffee you can't see
     perform internal.rate_hit(me_id, 'coffee');   -- v14.6
-    insert into coffees (legacy_id, owner_id, roaster_id, roaster_text, name, origin, process, variety, roast, roast_date, created_at, kind, tea_type, tea, cover, learn)
+    insert into coffees (legacy_id, owner_id, roaster_id, roaster_text, name, origin, process, variety, roast, roast_date, created_at, kind, tea_type, tea, cover, learn, chain)
     values (ev->>'id', me_id, internal.roaster_for(ev->>'roaster', me_id), nullif(btrim(ev->>'roaster'), ''), coalesce(nullif(btrim(ev->>'name'), ''), case when ev->>'kind' = 'tea' then 'Tea' else 'Coffee' end),
             nullif(btrim(ev->>'origin'), ''), nullif(btrim(ev->>'process'), ''), nullif(btrim(ev->>'variety'), ''), nullif(btrim(ev->>'roast'), ''),
             internal.try_date(ev->>'roastDate'), coalesce(internal.try_ts(ev->>'date'), now()),
             case when ev->>'kind' = 'tea' then 'tea' else 'coffee' end, case when ev->>'kind' = 'tea' then internal.tea_type(ev->>'teaType') end,
-            case when ev->>'kind' = 'tea' then internal.tea_details(ev) end, internal.cover_of(ev), internal.learn_on_save(null::coffees, ev))
+            case when ev->>'kind' = 'tea' then internal.tea_details(ev) end, internal.cover_of(ev), internal.learn_on_save(null::coffees, ev), internal.chain_of(ev))
     returning * into k;
   elsif k.deleted_at is not null then return;                                                         -- deleted stays deleted
   elsif k.owner_id = me_id then                                                    -- only the owner edits a coffee, as in the app today
@@ -871,6 +887,8 @@ begin
       tea = case when ev->>'kind' is distinct from 'tea' and ev ? 'kind' then null when not ev ? 'ingredients' then tea else internal.tea_details(ev) end,
       -- (v17.4: a save from a version before pictures has no "cover": it leaves the picture as it was)
       cover = case when not ev ? 'cover' then cover else internal.cover_of(ev) end,
+      -- (v21.4: a save from a version before "Grown by" has no "chain": it leaves it as it was)
+      chain = case when not ev ? 'chain' then chain else internal.chain_of(ev) end,
       -- (v19.0: Learn's tags: the ones sent, else kept while the words stay the same, else cleared for the backfill)
       learn = internal.learn_on_save(k, ev)
     where id = k.id;
@@ -2609,6 +2627,7 @@ language sql stable security definer set search_path = public as $$
       'kind', case when k.kind = 'tea' then 'tea' end, 'teaType', case when k.kind = 'tea' then k.tea_type end,
       'blend', case when k.kind = 'tea' and k.tea->>'blend' = 'true' then true end, 'ingredients', case when k.kind = 'tea' then k.tea->'ingredients' end,
       'cover', case when jsonb_typeof(k.cover) = 'object' then nullif(k.cover - 'photo', '{}'::jsonb) end,   -- (its color, not its photo: that's in a private folder)
+      'chain', k.chain,   -- (v21.4: who grew it, as the bag says)
       'date', k.created_at)) end
   from (select 1) one left join roasters r on r.id = k.roaster_id;
 $$;

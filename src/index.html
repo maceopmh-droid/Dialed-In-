@@ -595,6 +595,19 @@
                     <div><label>Origin</label><input type="text" name="origin" placeholder="e.g., Ethiopia, Colombia"></div>
                     <div><label id="lbl-process">Process</label><input type="text" name="process" placeholder="e.g., Washed, Natural, Honey"></div>
                 </div>
+
+                <details class="chain-fold" id="chain-fold">
+                    <summary><span>Where it came from <span class="lbl-opt">(optional)</span></span><svg class="icon" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+                    <p class="chain-note">Only what the bag or the roaster says. Leave the rest empty.</p>
+                    <label>Grown by</label>
+                    <input type="text" name="chainProducer" list="chain-producers" autocomplete="off" maxlength="80" placeholder="Farm, producer or co-op"><datalist id="chain-producers"></datalist>
+                    <label>Washing station or mill</label>
+                    <input type="text" name="chainMill" list="chain-mills" autocomplete="off" maxlength="80" placeholder="e.g., Beneficio, washing station"><datalist id="chain-mills"></datalist>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem;">
+                        <div><label>Exporter</label><input type="text" name="chainExporter" list="chain-exporters" autocomplete="off" maxlength="80"><datalist id="chain-exporters"></datalist></div>
+                        <div><label>Importer</label><input type="text" name="chainImporter" list="chain-importers" autocomplete="off" maxlength="80"><datalist id="chain-importers"></datalist></div>
+                    </div>
+                </details>
                 
                 <div class="coffee-only">
                 <label>Roast Profile</label>
@@ -943,6 +956,7 @@
 @@include js/app/61-log-drafts.js
 @@include js/app/62-share-view.js
 @@include js/app/63-coffee-specs.js
+@@include js/app/64-producers.js
 @@include js/app/99-end.js
 @@include js/99-boot.js
     </script>

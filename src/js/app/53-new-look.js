@@ -923,6 +923,7 @@
                 const top = document.getElementById('d-top-flavors');
                 if (top) top.innerHTML = notes.map(([n, s, k]) => this.nlNote(n, s, k, 'lg')).join('');
                 if (this.learnDecorateDetail) this.learnDecorateDetail(group, this.detailAllBrews || brews || []);   // v19.0: tags that open Learn; About this coffee
+                if (this.nlChainPaint) this.nlChainPaint(bean);   // v21.4: From farm to cup, under About this coffee
                 this.nlFillShapes(view);
                 this.nlNavBars();
             },

@@ -74,7 +74,8 @@
                     process: pick('process'),
                     roast: pick('roast'),
                     roastDate: pick('roastDate'),
-                    teaType: pick('teaType')   // v17.0
+                    teaType: pick('teaType'),   // v17.0
+                    chain: (byTime.find(b => b && b.chain && typeof b.chain === 'object' && Object.keys(b.chain).length) || {}).chain   // v21.4: who grew it, from whichever bag says
                 };
             },
 

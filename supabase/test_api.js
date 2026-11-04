@@ -214,6 +214,19 @@ push('maceo', { ...OPEN, audience: 'everyone', photoAudience: 'everyone' });
 let st3 = pull('stranger').find(e => e.id === 's3');
 ok(st3 && st3.photo && st3.photo.fileId === 'drivefile456' && !st3.notes && st3.audience === 'everyone' && !st3.noteAudience,
    'Maceo shares the session and the photo with everyone, keeps the note for friends: a stranger sees the session and photo, not the note');
+// --- v21.4: who grew it (the farm-to-cup chain): saved tidy, kept by older saves, cleared on purpose, on share links
+{
+  const beanNow = () => pull('maceo').find(e => e.type === 'bean' && e.id === 'b1');
+  push('maceo', { ...B1, chain: { producer: '  Finca   El Paraíso ', mill: 'Beneficio Central', exporter: 'x'.repeat(120), importer: 'see https://spam.example', extra: 'no' } });
+  let ch = (beanNow() || {}).chain || {};
+  ok(ch.producer === 'Finca El Paraíso' && ch.mill === 'Beneficio Central' && ch.exporter === 'x'.repeat(80) && !('importer' in ch) && !('extra' in ch),
+     'v21.4: who grew it is saved tidy: spaces tidied, at most 80 characters, no links, only the four steps');
+  push('maceo', { ...B1 });
+  ok(((beanNow() || {}).chain || {}).producer === 'Finca El Paraíso', 'v21.4: a save from an older app (no chain) leaves it as it was');
+  ok((JSON.parse(as('anon', `select shared_coffee('b1');`).out || 'null') || { coffee: {} }).coffee.chain?.producer === 'Finca El Paraíso', 'v21.4: a coffee\'s share link shows who grew it');
+  push('maceo', { ...B1, chain: {} });
+  ok(!(beanNow() || {}).chain, 'v21.4: emptied in the app: cleared');
+}
 // --- v21.3: share links anyone can open (signed out too): only what's shared with Everyone
 {
   const sh = (who, fn, ref) => { const r = as(who, `select ${fn}(${q(ref)});`); return r.err ? { err: r.err } : JSON.parse(r.out || 'null'); };
