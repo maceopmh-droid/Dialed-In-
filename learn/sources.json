@@ -7465,7 +7465,7 @@
     "coffeereview-bm139-2024": {
       "title": "Ruvumu Natural #13 Burundi (JBC Coffee Roasters), 93 points",
       "publisher": "Coffee Review",
-      "url": "https://coffeereview.com/?p=24786",
+      "url": "https://www.coffeereview.com/review/ruvumu-natural-13-burundi/",
       "year": 2024
     },
     "sweetmarias-jackson": {
@@ -11860,6 +11860,139 @@
       "publisher": "Cup of Excellence farm directory",
       "url": "https://farmdirectory.cupofexcellence.org/?p=3626",
       "year": 2010
+    },
+    "ozone-sl34-varietal": {
+      "title": "Coffee varietal: SL34",
+      "publisher": "Ozone Coffee",
+      "url": "https://ozonecoffee.co.uk/blogs/varietals/sl-34"
+    },
+    "coffeereview-nemba-2023": {
+      "title": "Burundi Nemba Washed Process (Wonderstate Coffee), 94 points",
+      "publisher": "Coffee Review",
+      "url": "https://coffeereview.com/?p=23406",
+      "year": 2023
+    },
+    "coffeereview-nemba-2024": {
+      "title": "Nemba Burundi (JBC Coffee Roasters), 93 points",
+      "publisher": "Coffee Review",
+      "url": "https://coffeereview.com/?p=24953",
+      "year": 2024
+    },
+    "coffeereview-nsinduka-2026": {
+      "title": "Nsinduka Rwanda (JBC Coffee Roasters), 94 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/?p=29527",
+      "year": 2026
+    },
+    "samplecoffee-rama": {
+      "title": "Rama Washing Station, Kayanza, Burundi (listing)",
+      "publisher": "Sample Coffee",
+      "url": "https://samplecoffee.com.au/coffee/rama-washing-station"
+    },
+    "samplecoffee-redbourbon": {
+      "title": "Red Bourbon: coffees featuring it",
+      "publisher": "Sample Coffee",
+      "url": "https://samplecoffee.com.au/coffee/varietals/red-bourbon"
+    },
+    "greenlife-kenya-varieties": {
+      "title": "Coffee variety and seasonality",
+      "publisher": "Greenlife Crop Protection Africa",
+      "url": "https://www.greenlife.co.ke/coffee-variety-and-seasonality",
+      "year": 2025
+    },
+    "gcc-french-mission": {
+      "title": "Glossary: French Mission Bourbon",
+      "publisher": "Green Coffee Collective",
+      "url": "https://greencoffeecollective.com/pages/glossary/french-mission-bourbon"
+    },
+    "standard-missionaries-2021": {
+      "title": "Early missionaries woke up and smelled the coffee (Amos Kareithi)",
+      "publisher": "The Standard (Kenya)",
+      "url": "https://standardmedia.co.ke/amp/national/article/2001413040/early-missionaries-woke-up-and-smelled-the-coffee",
+      "year": 2021
+    },
+    "nation-ndege-coffee": {
+      "title": "How Africans got a taste of sweet coffee exports cash (Prof. Ndege, Moi University)",
+      "publisher": "Daily Nation (Seeds of Gold)",
+      "url": "https://nation.africa/kenya/business/seeds-of-gold/how-africans-got-a-taste-of-sweet-coffee-exports-cash-278182"
+    },
+    "coffeereview-slv-yb-2011": {
+      "title": "El Salvador Amarillo Yellow Bourbon (JBC Coffee Roasters), 93 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/el-salvador-amarillo-yellow-bourbon/",
+      "year": 2011
+    },
+    "coffeereview-benitez-yb-2025": {
+      "title": "Wilton Benitez Colombia Yellow Bourbon (JBC Coffee Roasters), 96 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/wilton-benitez-colombia-yellow-bourbon/",
+      "year": 2025
+    },
+    "ferreira-2021": {
+      "title": "Chemical and sensory characteristics in the selection of Bourbon genotypes (Ferreira et al., Bioscience Journal 37, e37032)",
+      "publisher": "UNESP institutional repository (record and abstract)",
+      "url": "https://repositorio.unesp.br/items/7d6c9474-ad67-4541-bbba-921771ee5c12/full",
+      "year": 2021
+    },
+    "ferreira-2021-pdf": {
+      "title": "Chemical and sensory characteristics in the selection of Bourbon genotypes (Ferreira et al., 2021), full text",
+      "publisher": "Bioscience Journal (full-text copy, Distant Reader)",
+      "url": "https://distantreader.org/stacks/journals/bj/bj-54155.pdf",
+      "year": 2021
+    },
+    "bonomo-2004": {
+      "title": "Avaliação de progênies obtidas de cruzamentos de descendentes do Híbrido de Timor com as cultivares Catuaí Vermelho e Catuaí Amarelo",
+      "publisher": "Bragantia 63(2), Instituto Agronômico de Campinas (Bonomo, Cruz, Viana, Pereira, Oliveira & Carneiro)",
+      "url": "https://www.redalyc.org/pdf/908/90863206.pdf",
+      "year": 2004
+    },
+    "agronegocios-roya-2020": {
+      "title": "Fedecafeteros pide tomar acciones frente a la roya",
+      "publisher": "Agronegocios (Colombia)",
+      "url": "https://www.agronegocios.co/agricultura/fedecafeteros-pide-tomar-acciones-frente-a-la-roya-que-ya-alcanzo-un-62-a-nivel-nacional-2970403",
+      "year": 2020
+    },
+    "coffeehero-hybrids-2025": {
+      "title": "Catimor and Sarchimor",
+      "publisher": "Coffee Hero (roaster, Sydney)",
+      "url": "https://coffeehero.com.au/blogs/news/catimor-and-sarchimor",
+      "year": 2025
+    },
+    "ozone-catimor-collection": {
+      "title": "Catimor coffee beans (variety collection page)",
+      "publisher": "Ozone Coffee",
+      "url": "https://ozonecoffee.co.uk/collections/coffee-varietal-catimor",
+      "accessed": "2026-11"
+    },
+    "sample-ihcafe-90": {
+      "title": "Coffee varietals: IHCAFE 90",
+      "publisher": "Sample Coffee (roaster, Sydney)",
+      "url": "https://samplecoffee.com.au/coffee/varietals/ihcafe-90",
+      "accessed": "2026-11"
+    },
+    "sweetmarias-ihcafe": {
+      "title": "IHCAFE (glossary)",
+      "publisher": "Sweet Maria's",
+      "url": "https://library.sweetmarias.com/glossary/ihcafe/",
+      "accessed": "2026-11"
+    },
+    "elheraldo-ihcafe-seed-2025": {
+      "title": "Innovación cafetalera: semillas certificadas y diversificación en fincas en el IHCAFE",
+      "publisher": "El Heraldo (Honduras)",
+      "url": "https://www.elheraldo.hn/economia/cafehonduras/innovacion-cafetalera-semillas-certificadas-diversificacion-fincas-ihcafe-AG24220145",
+      "year": 2025
+    },
+    "gcc-cr95": {
+      "title": "Costa Rica 95 (glossary)",
+      "publisher": "Green Coffee Collective (UK green-coffee seller)",
+      "url": "https://greencoffeecollective.com/pages/glossary/costa-rica-95",
+      "accessed": "2026-11"
+    },
+    "chk-coffeereview-com-review-ruvumu-natural-13-burund": {
+      "title": "Ruvumu Natural #13 Burundi (JBC Coffee Roasters), 93 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/ruvumu-natural-13-burundi/",
+      "year": 2024
     }
   }
 }
