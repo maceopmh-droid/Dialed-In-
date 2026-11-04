@@ -3818,8 +3818,8 @@
       "year": 2024
     },
     "usda-gain-per-2022": {
-      "title": "Peru Coffee Annual (GAIN report PE2022-0009)",
-      "publisher": "USDA Foreign Agricultural Service (copy hosted by APEDA)",
+      "title": "Peru: Coffee Annual (GAIN report PE2022-0009, April 2022)",
+      "publisher": "USDA Foreign Agricultural Service (copy hosted by APEDA AgriExchange)",
       "url": "https://agriexchange.apeda.gov.in/MarketReport/Reports/Coffee_Annual_Peru_060622.pdf",
       "year": 2022
     },
@@ -4136,10 +4136,10 @@
       "url": "https://royalcoffee.com/indonesian-coffee-cultivars-and-varieties/"
     },
     "sweetmarias-aceh-2019": {
-      "title": "Sumatra arabica varieties in Aceh",
-      "publisher": "Sweet Maria's Coffee Library",
-      "year": 2019,
-      "url": "https://library.sweetmarias.com/sumatra-arabica-varieties-in-aceh/"
+      "title": "Sumatra Arabica varieties in Aceh",
+      "publisher": "Sweet Maria's Coffee Library (signed Thompson), November 2019",
+      "url": "https://library.sweetmarias.com/sumatra-arabica-varieties-in-aceh/",
+      "year": 2019
     },
     "cafeimports-glossary": {
       "title": "Coffee Variety Glossary",
@@ -5310,7 +5310,7 @@
     },
     "wcr-rwanda": {
       "title": "Rwanda",
-      "publisher": "World Coffee Research, country page",
+      "publisher": "World Coffee Research",
       "url": "https://worldcoffeeresearch.org/countries/rwanda"
     },
     "ktpress-rwa-2026": {
@@ -5481,10 +5481,10 @@
       "year": 2016
     },
     "fao-yemen-assessment-2025": {
-      "title": "FAO Yemen assessment report: Coffee value chain in Yemen, export potential and investment opportunities",
-      "publisher": "FAO (via United Nations Yemen)",
+      "title": "Coffee value chain in Yemen: export potential and investment opportunities (FAO and IFC, 2023)",
+      "publisher": "FAO and IFC (posted by United Nations Yemen)",
       "url": "https://yemen.un.org/en/290202-fao-yemen-assessment-report-coffee-value-chain-yemen-export-potential-and-investment",
-      "year": 2025
+      "year": 2023
     },
     "fao-yemen-2025": {
       "title": "Yemen: Coffee (Coffea spp.), country crop profile",
@@ -5790,8 +5790,8 @@
       "year": 2017
     },
     "cenicafe-ecomill-2013": {
-      "title": "ECOMILL®: tecnología de bajo impacto ambiental para el lavado del café (Avances Técnicos 432)",
-      "publisher": "Cenicafé",
+      "title": "ECOMILL®: Tecnología de bajo impacto ambiental para el lavado del café (Avances Técnicos 432)",
+      "publisher": "Cenicafé (C. E. Oliveros T., J. R. Sanz U., C. A. Ramírez G. & C. A. Tibaduiza V.)",
       "url": "https://biblioteca.cenicafe.org/bitstream/10778/500/1/Avt0432.pdf",
       "year": 2013
     },
@@ -5877,7 +5877,7 @@
       "year": 2023
     },
     "ineffable-fes-120h": {
-      "title": "Product listing: El Vergel Guava Banana, natural anaerobic 60 h (Colombia)",
+      "title": "Specialty coffee listing, including “FES Anaeróbico 120h” (Colombian Pink Bourbon, washed, thermal shock); the old product link now opens this listing",
       "publisher": "Ineffable Coffee",
       "url": "https://ineffablecoffee.com/en/products/el-vergel-guava-banana-colombia-natural-anaerobico-60h"
     },
@@ -5992,6 +5992,3589 @@
       "publisher": "Cup of Excellence (Alliance for Coffee Excellence)",
       "url": "https://cupofexcellence.org/ecuador-2021/",
       "year": 2021
+    },
+    "cenicafe-huila-2021": {
+      "title": "Evaluación regional de nuevas líneas mejoradas de café para conformar una variedad regional para la caficultura del Huila (chapter in Aplicación de ciencia, tecnología e innovación en el cultivo del café ajustado a las condiciones particulares del Huila, vol. 2)",
+      "publisher": "Cenicafé (M. F. Abella-Díaz et al.)",
+      "url": "https://biblioteca.cenicafe.org/bitstream/10778/4264/1/cap02.pdf",
+      "year": 2021
+    },
+    "criollo-narino-2020": {
+      "title": "Oferta ambiental y calidad de taza de café (Coffea arabica L.) var. Castillo en el sur de Colombia",
+      "publisher": "Revista de Ciencias Agrícolas (C. P. Criollo-Velásquez, J. A. Muñoz-Belalcazar, T. C. Lagos-Burbano)",
+      "url": "https://dialnet.unirioja.es/descarga/articulo/8248088.pdf",
+      "year": 2020
+    },
+    "royal-narino-launion": {
+      "title": "Colombia Nariño La Unión AA (listing)",
+      "publisher": "Royal Coffee",
+      "url": "https://royalcoffee.com/?p=830720"
+    },
+    "sey-buesaco": {
+      "title": "Buesaco, Caturra, washed (listing)",
+      "publisher": "Sey Coffee",
+      "url": "https://www.seycoffee.com/products/buesaco"
+    },
+    "royalny-colombia-2020": {
+      "title": "Origin profile: Colombia",
+      "publisher": "Royal Coffee New York",
+      "url": "https://www.royalny.com/?p=43032",
+      "year": 2020
+    },
+    "otus-santander": {
+      "title": "Santander (Otus Coffee Company listing, on The Way to Coffee)",
+      "publisher": "The Way to Coffee",
+      "url": "https://www.thewaytocoffee.com/beans/santander/"
+    },
+    "interamerican-bucaramanga": {
+      "title": "Colombia Bucaramanga",
+      "publisher": "InterAmerican Coffee",
+      "url": "https://www.interamericancoffee.com/colombia-bucaramanga/"
+    },
+    "larepublica-santander-2014": {
+      "title": "Café de Santander, quinta denominación de origen protegida",
+      "publisher": "La República",
+      "url": "https://www.larepublica.co/archivo/cafe-santander-quinta-denominacion-de-origen-protegida-2165541",
+      "year": 2014
+    },
+    "royal-asopep": {
+      "title": "Colombia Organic Tolima ASOPEP (listing)",
+      "publisher": "Royal Coffee",
+      "url": "https://royalcoffee.com/?p=180289"
+    },
+    "fnc-landscape-2021": {
+      "title": "Colombian Coffee Cultural Landscape celebrates 10 years as World Heritage",
+      "publisher": "Federación Nacional de Cafeteros",
+      "url": "https://federaciondecafeteros.org/wp/listado-noticias/colombian-coffee-cultural-landscape-celebrates-10-years-as-world-heritage/?lang=en",
+      "year": 2021
+    },
+    "wiki-coffee-axis": {
+      "title": "Colombian coffee growing axis",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Colombian_coffee_growing_axis"
+    },
+    "interamerican-asoarhuaco": {
+      "title": "Colombia ASOARHUACO Excelso Organic",
+      "publisher": "InterAmerican Coffee",
+      "url": "https://interamericancoffee.com/?p=11710"
+    },
+    "sustainableharvest-asoanei-2015": {
+      "title": "A gem from the mountains of Colombia",
+      "publisher": "Sustainable Harvest (Chris Ryan)",
+      "url": "https://sustainableharvest.com/blog/a-gem-from-the-mountains-of-colombia",
+      "year": 2015
+    },
+    "coffeehunter-santa-barbara": {
+      "title": "Santa Barbara Main, Antioquia (listing)",
+      "publisher": "Coffee Hunter (Mercanta)",
+      "url": "https://coffeehunter.com/coffee/santa-barbara-antioquia/"
+    },
+    "wiki-guji-zone": {
+      "title": "Guji Zone",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Guji_Zone"
+    },
+    "wiki-west-guji": {
+      "title": "West Guji Zone",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/West_Guji_Zone"
+    },
+    "wiki-sidama-region": {
+      "title": "Sidama Region",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Sidama_Region"
+    },
+    "wiki-swepr": {
+      "title": "South West Ethiopia Peoples' Region",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/South_West_Ethiopia_Peoples%27_Region"
+    },
+    "wiki-keffa-zone": {
+      "title": "Keffa Zone",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Keffa_Zone"
+    },
+    "wiki-east-hararghe": {
+      "title": "East Hararghe Zone",
+      "publisher": "Wikipedia (citing Ethiopia's Central Statistical Agency)",
+      "url": "https://en.wikipedia.org/wiki/East_Hararghe_Zone"
+    },
+    "wiki-west-hararghe": {
+      "title": "West Hararghe Zone",
+      "publisher": "Wikipedia (citing Ethiopia's Central Statistical Agency)",
+      "url": "https://en.wikipedia.org/wiki/West_Hararghe_Zone"
+    },
+    "royal-yirg-2017": {
+      "title": "Ethiopia: a disambiguation of the nation",
+      "publisher": "Royal Coffee (Max Nicholas-Fulmer; updated 2020)",
+      "url": "https://royalcoffee.com/ethiopia-a-disambiguation-of-the-nation/",
+      "year": 2017
+    },
+    "coffeereview-kaffa-2025": {
+      "title": "Ethiopia Washed Kaffa Gimbo Lot Rich Espresso (Kakalove Cafe), review",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/ethiopia-washed-kaffa-gimbo-lot-rich-espresso/",
+      "year": 2025
+    },
+    "coffeereview-kaffa-2024": {
+      "title": "Ethiopia Washed Kaffa Lot Taco (Kakalove Cafe), review",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/ethiopia-washed-kaffa-lot-taco/",
+      "year": 2024
+    },
+    "coffeereview-kaffa-geisha-2025": {
+      "title": "Ethiopia Kaffa Gimbo Alvenor Geisha Washed G1 (1980 Cafe), review",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/ethiopia-kaffa-gimbo-alvenor-geisha-washed-g1/",
+      "year": 2025
+    },
+    "quantum-kaffa": {
+      "title": "Origin: Ethiopia, Kaffa forest coffee from the Tega & Tula farms",
+      "publisher": "Quantum Coffee Roasters",
+      "url": "https://quantumroasters.co.uk/a/blog/post/the-tega-and-tula-farms-of-the-kaffa-forest-ethiopia"
+    },
+    "interamerican-harrar": {
+      "title": "Ethiopia Harrar G4",
+      "publisher": "InterAmerican Coffee",
+      "url": "https://interamericancoffee.com/?p=793"
+    },
+    "coffeereview-harrar-2017": {
+      "title": "Ethiopia Harrar Natural G3 Longberry (Red Rock Roasters), review",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/ethiopia-harrar-natural-g3-longberry/",
+      "year": 2017
+    },
+    "coffeereview-harrar-mesela-2016": {
+      "title": "Ethiopia Harrar Mesela (Caffè Luxxe), review",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/ethiopia-harrar-mesela/",
+      "year": 2016
+    },
+    "dcn-coe-eth-2020": {
+      "title": "Three lots score 90+ at first Ethiopia Cup of Excellence",
+      "publisher": "Daily Coffee News",
+      "url": "https://dailycoffeenews.com/2020/05/14/three-lots-score-90-at-first-ethiopia-cup-of-excellence",
+      "year": 2020
+    },
+    "inpi-campo-das-vertentes": {
+      "title": "Ficha técnica de registro de indicação geográfica: Campo das Vertentes (Indicação de Procedência BR402019000013-5)",
+      "publisher": "INPI (Instituto Nacional da Propriedade Industrial, Brazil)",
+      "url": "https://www.gov.br/inpi/pt-br/servicos/indicacoes-geograficas/arquivos/fichas-tecnicas-de-indicacoes-geograficas/CampodasVertentes.pdf",
+      "year": 2026
+    },
+    "inpi-alta-mogiana": {
+      "title": "Ficha técnica de registro de indicação geográfica: Alta Mogiana (Indicação de Procedência IG200703)",
+      "publisher": "INPI (Instituto Nacional da Propriedade Industrial, Brazil)",
+      "url": "https://www.gov.br/inpi/pt-br/servicos/indicacoes-geograficas/arquivos/fichas-tecnicas-de-indicacoes-geograficas/AltaMogiana.pdf",
+      "year": 2023
+    },
+    "mapa-ig-catalog-2021": {
+      "title": "Cafés brasileiros com indicação geográfica (catalog of Brazil's coffee geographical indications)",
+      "publisher": "Brazil's Ministry of Agriculture (MAPA), with Sebrae, Cecafé, BSCA and the regional associations",
+      "url": "https://www.gov.br/agricultura/pt-br/assuntos/sustentabilidade/indicacao-geografica/arquivos-publicacoes-ig/catalogo-cafes-brasileiros-com-indicacao-geografica/@@download/file/CAF%C3%89S%20BRASILEIROS%20COM%20INDICA%C3%87%C3%83O%20GEOGR%C3%81FICA.pdf",
+      "year": 2021
+    },
+    "inpi-cerrado-do": {
+      "title": "Ficha técnica de registro de indicação geográfica: Região do Cerrado Mineiro (Denominação de Origem IG201011)",
+      "publisher": "INPI (Instituto Nacional da Propriedade Industrial, Brazil)",
+      "url": "https://www.gov.br/inpi/pt-br/servicos/indicacoes-geograficas/arquivos/fichas-tecnicas-de-indicacoes-geograficas/copy_of_RegiodoCerradoMineiroDO.pdf",
+      "year": 2022
+    },
+    "epamig-cerrado-2023": {
+      "title": "Cultivares de café para a Região do Cerrado Mineiro (booklet)",
+      "publisher": "EPAMIG (Minas Gerais agricultural research agency), with the Federação dos Cafeicultores do Cerrado",
+      "url": "https://epamig.br/wp-content/uploads/2023/06/Cartilha-Cultivares-RCM-Epamig.pdf",
+      "year": 2023
+    },
+    "cultivar-cerrado-seedlings-2021": {
+      "title": "Produtores do Cerrado Mineiro investem no plantio de novas cultivares de café",
+      "publisher": "Revista Cultivar (quoting EPAMIG and regional nurseries)",
+      "url": "https://revistacultivar.com.br/noticias/produtores-do-cerrado-mineiro-investem-no-plantio-de-novas-cultivares-de-cafe",
+      "year": 2021
+    },
+    "agenciaminas-epamig-2019": {
+      "title": "Cafés mais tolerantes à ferrugem são destaque em safra promissora de Minas Gerais",
+      "publisher": "Agência Minas (on EPAMIG research)",
+      "url": "https://www.agenciaminas.mg.gov.br/news/pdf/106694.pdf",
+      "year": 2019
+    },
+    "diariodocomercio-mantiqueira-2020": {
+      "title": "Mantiqueira de Minas é reconhecida com IG",
+      "publisher": "Diário do Comércio",
+      "url": "https://diariodocomercio.com.br/agronegocio/mantiqueira-de-minas-e-reconhecida-com-ig/",
+      "year": 2020
+    },
+    "inpi-matas-de-minas": {
+      "title": "Ficha técnica de registro de indicação geográfica: Matas de Minas (Indicação de Procedência BR402018000002-7)",
+      "publisher": "INPI (Instituto Nacional da Propriedade Industrial, Brazil)",
+      "url": "https://www.gov.br/inpi/pt-br/servicos/indicacoes-geograficas/arquivos/fichas-tecnicas-de-indicacoes-geograficas/copy2_of_MatasdeMinas.pdf",
+      "year": 2026
+    },
+    "origin-oeste-bahia": {
+      "title": "Oeste da Bahia (coffee geographical indication fact sheet)",
+      "publisher": "oriGIn (Organization for an International Geographical Indications Network)",
+      "url": "https://www.origin-gi.com/wp-content/uploads/2022/02/oeste_da_bahia.pdf",
+      "year": 2022
+    },
+    "algrano-peru": {
+      "title": "Peru as a coffee origin country",
+      "publisher": "Algrano (green coffee trading platform)",
+      "url": "https://lp.algrano.com/peru",
+      "accessed": "2026-10"
+    },
+    "agrolatam-peru-2026": {
+      "title": "Perú: exportaciones de café, sequía y producción 2026",
+      "publisher": "Agrolatam",
+      "url": "https://www.agrolatam.com/agricultura-4266/peru-exportaciones-cafe-sequia-produccion-2026/",
+      "year": 2026
+    },
+    "andina-yuraqyaku-2026": {
+      "title": "Ayacucho: apoyo de Devida permite que cafeteros de cooperativa mejoren cultivos",
+      "publisher": "Agencia Andina",
+      "url": "https://andina.pe/agencia/noticia-ayacucho-apoyo-devida-permite-cafeteros-cooperativa-mejoren-cultivos-1077237.aspx",
+      "year": 2026
+    },
+    "agraria-vraem-2025": {
+      "title": "Vraem: cafetaleros promovidos por Devida destacan en subasta de cafés especiales",
+      "publisher": "Agraria.pe",
+      "url": "https://agraria.pe/noticias/vraem-cafetaleros-promovidos-por-devida-destacan-en-subasta--40582",
+      "year": 2025
+    },
+    "agraria-vraem-2022": {
+      "title": "Productores del Vraem promocionan sus mejores variedades de café y cacao en CADE 2022",
+      "publisher": "Agraria.pe",
+      "url": "https://agraria.pe/noticias/productores-del-vraem-promocionan-sus-mejores-variedades-de--29897",
+      "year": 2022
+    },
+    "andina-puno-2018": {
+      "title": "Peru: get to know Puno's specialty coffees demanded in Europe and U.S.",
+      "publisher": "Agencia Andina",
+      "url": "https://andina.pe/ingles/noticia-peru-get-to-know-punos-specialty-coffees-demanded-in-europe-and-u-s-709453.aspx",
+      "year": 2018
+    },
+    "elbuho-cusco-2026": {
+      "title": "Cusco: 1,850 familias caficultoras buscan aumentar su producción en 50% este 2026",
+      "publisher": "El Búho",
+      "url": "https://elbuho.pe/2026/03/cusco-1850-familias-caficultoras-buscan-aumentar-su-produccion-en-50-este-2026/",
+      "year": 2026
+    },
+    "navarro-sanmartin-2021": {
+      "title": "Cuantificación de cafeína y su efecto en la calidad sensorial en tres variedades de café, según nivel altitudinal en la Región San Martín",
+      "publisher": "Navarro-Ramírez, Pezo-Gonzáles & García-Paredes, Revista Agrotecnológica Amazónica (Universidad Nacional de San Martín)",
+      "url": "https://revistas.unsm.edu.pe/index.php/raa/article/download/164/138",
+      "year": 2021
+    },
+    "agraria-expocafe-sm-2026": {
+      "title": "Conecta Café San Martín generó intenciones de compra por S/ 13.9 millones",
+      "publisher": "Agraria.pe (citing Midagri and the San Martín regional government)",
+      "url": "https://agraria.pe/noticias/conecta-cafe-san-martin-genero-intenciones-de-compra-por-s-1-42951",
+      "year": 2026
+    },
+    "senamhi-selva-2024": {
+      "title": "Reporte agrometeorológico de impactos, Región Selva (12–18 March 2024)",
+      "publisher": "SENAMHI (Peru's national weather service)",
+      "url": "https://www.senamhi.gob.pe/load/file/02973SENA-37.pdf",
+      "year": 2024
+    },
+    "agraria-huanuco-2020": {
+      "title": "Productores de Huánuco venden más de 32 toneladas de café a Estados Unidos",
+      "publisher": "Agraria.pe",
+      "url": "https://agraria.pe/index.php/noticias/productores-de-huanuco-venden-mas-de-32-toneladas-de-cafe-a--21684",
+      "year": 2020
+    },
+    "infomercado-piura-2018": {
+      "title": "Piura: producción de café superaría los 64 mil quintales este año",
+      "publisher": "Infomercado (from El Tiempo, quoting Piura's regional agriculture office)",
+      "url": "https://infomercado.pe/piura-produccion-de-cafe-superaria-los-64-mil-quintales-este-ano/",
+      "year": 2018
+    },
+    "agraria-norandino-2022": {
+      "title": "Planta de Norandino procesa el 10% de la producción de café peruano",
+      "publisher": "Agraria.pe",
+      "url": "https://agraria.pe/noticias/planta-de-norandino-procesa-el-10-de-la-produccion-de-cafe-p-26807",
+      "year": 2022
+    },
+    "eltiempo-piura-2023": {
+      "title": "Piura: Ayabaca gana el premio al mejor café especial 2023",
+      "publisher": "El Tiempo",
+      "url": "https://eltiempo.pe/detail/piura-ayabaca-gana-el-premio-al-mejor-cafe-especial-2023",
+      "year": 2023
+    },
+    "campos-amazonas-2022": {
+      "title": "Caracterización de la comercialización de café orgánico, provincia Rodríguez de Mendoza, región Amazonas, Perú",
+      "publisher": "Campos Trigoso, Pajares Quevedo & Rituay Trujillo, Revista de Investigación Científica UNTRM",
+      "url": "https://revistas.untrm.edu.pe/index.php/CNI/article/download/882/1309/4074",
+      "year": 2022
+    },
+    "oscco-2020": {
+      "title": "Selección, identificación y zonificación de café (Coffea arabica L.) por su adaptabilidad, rendimiento, calidad sensorial y resistencia a plagas y enfermedades",
+      "publisher": "Oscco Medina et al., Agroindustrial Science",
+      "url": "https://dialnet.unirioja.es/descarga/articulo/8085662.pdf",
+      "year": 2020
+    },
+    "senamhi-riesgo-2024": {
+      "title": "Pronóstico de riesgo agroclimático, agosto–octubre 2024: café",
+      "publisher": "SENAMHI (Peru's national weather service)",
+      "url": "https://cdn.www.gob.pe/uploads/document/file/6753984/5851811-riesgo_agroclimatico_cafe_ago24.pdf",
+      "year": 2024
+    },
+    "royalny-cr-2020": {
+      "title": "Origin Profile: Costa Rica Coffee (Jan 31, 2020)",
+      "publisher": "Royal Coffee New York",
+      "url": "https://dev.royalny.com/?p=46477",
+      "year": 2020
+    },
+    "royalny-cr-profile": {
+      "title": "Origin profile: Costa Rica (current page)",
+      "publisher": "Royal Coffee New York",
+      "url": "https://www.royalny.com/origin-profile-costa-rica",
+      "accessed": "2026-10"
+    },
+    "pdg-es-cr-2022": {
+      "title": "Recorrido por las zonas cafeteras de Costa Rica (Xótchil Méndez D.)",
+      "publisher": "Perfect Daily Grind (Spanish edition), Jul 27, 2022",
+      "url": "https://perfectdailygrind.com/es/2022/07/27/recorrido-zonas-cafeteras-costa-rica/",
+      "year": 2022
+    },
+    "mag-congreso-2024": {
+      "title": "Informe anual al Congreso Nacional Cafetalero (año cafetalero 2023-2024)",
+      "publisher": "Ministerio de Agricultura y Ganadería (MAG), Costa Rica",
+      "url": "https://www.mag.go.cr/bibliotecavirtual/Informe-Congreso-Cafetalero-2024.pdf",
+      "year": 2024
+    },
+    "crhoy-cafe-2026": {
+      "title": "Café perdió miles de hectáreas y productores en los últimos 20 años (Francisco Ruiz)",
+      "publisher": "CR Hoy, Sep 29, 2026",
+      "url": "https://www.crhoy.com/nacionales/cafe-perdio-miles-de-hectareas-y-productores-en-los-ultimos-20-anos/",
+      "year": 2026
+    },
+    "ace-cri-2024": {
+      "title": "Costa Rica 2024 (Cup of Excellence results and auction)",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/costa-rica-2024/",
+      "year": 2024
+    },
+    "mida-tierrasaltas-2011": {
+      "title": "Caracterización del sistema productivo de café en Tierras Altas de la provincia de Chiriquí (Valdespino & Jaramillo)",
+      "publisher": "MIDA, Panama's agriculture ministry (PRONAZA)",
+      "url": "https://mida.gob.pa/wp-content/uploads/2021/07/SistemaProductivo-Cafe-Tierras-Altas-1.pdf",
+      "year": 2011
+    },
+    "wiki-tierras-altas": {
+      "title": "Tierras Altas District",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Tierras_Altas_District",
+      "accessed": "2026-10"
+    },
+    "pdg-panama-2020": {
+      "title": "A guide to specialty coffee in Panama (Manuel Otero)",
+      "publisher": "Perfect Daily Grind, Nov 17, 2020",
+      "url": "https://perfectdailygrind.com/2020/11/a-guide-to-specialty-coffee-in-panama/",
+      "year": 2020
+    },
+    "cafeimports-pan": {
+      "title": "Origins: Panama",
+      "publisher": "Cafe Imports",
+      "url": "https://www.cafeimports.com/north-america/panama",
+      "accessed": "2026-10"
+    },
+    "coffeeness-nic": {
+      "title": "Nicaragua coffee: why it deserves your attention",
+      "publisher": "Coffeeness",
+      "url": "https://www.coffeeness.de/en/nicaragua-coffee/",
+      "accessed": "2026-10"
+    },
+    "una-matagalpa-2021": {
+      "title": "Caracterización socioeconómica y fitosanitaria de 25 sistemas de producción de café en tres municipios de Matagalpa, 2020 (Jarquín & Jiménez-Martínez)",
+      "publisher": "Revista Científica La Calera 21(37), Universidad Nacional Agraria, Nicaragua",
+      "url": "https://repositorio.una.edu.ni/4471/1/ppnf01j37cs.pdf",
+      "year": 2021
+    },
+    "unan-prodecoop-2019": {
+      "title": "Influencia e importancia del cooperativismo de PRODECOOP R.L. en el desarrollo local del departamento de Estelí 2015-2017 (Mendoza Ortiz & Gutiérrez Álvarez)",
+      "publisher": "UNAN-Managua, graduation seminar",
+      "url": "https://repositorio.unan.edu.ni/10965/1/19717.pdf",
+      "year": 2019
+    },
+    "unanleon-coomapcoj-2018": {
+      "title": "El cooperativismo en el área del café (Cruz Mercado, Castillo Centeno & Gadea-Toledo)",
+      "publisher": "Revista Iberoamericana de Bioeconomía y Cambio Climático 4(8), UNAN-León, CUR Jinotega",
+      "url": "https://revistasnicaragua.cnu.edu.ni/index.php/ribcc/article/download/5158/5320/10163",
+      "year": 2018
+    },
+    "smithsonian-ucamiraflor": {
+      "title": "Unión de Cooperativas Héroes y Mártires de Miraflor (UCA Miraflor)",
+      "publisher": "Smithsonian's National Zoo & Conservation Biology Institute (Bird Friendly coffee)",
+      "url": "https://www.nationalzoo.si.edu/node/10908",
+      "accessed": "2026-10"
+    },
+    "thanksgiving-ucamiraflor-2021": {
+      "title": "UCA Miraflor",
+      "publisher": "Thanksgiving Coffee, Aug 4, 2021",
+      "url": "https://thanksgivingcoffee.com/blogs/blog/ucamiraflor",
+      "year": 2021
+    },
+    "groundsforchange-miraflor": {
+      "title": "Nicaragua Miraflor (listing)",
+      "publisher": "Grounds for Change",
+      "url": "https://groundsforchange.com/products/nicaragua-segovia",
+      "accessed": "2026-10"
+    },
+    "burman-riococo": {
+      "title": "Nicaraguan SHG Org. San Juan De Rio Coco (listing)",
+      "publisher": "Burman Coffee Traders",
+      "url": "https://burmancoffee.com/?p=28466",
+      "accessed": "2026-10"
+    },
+    "burman-jinotega-2025": {
+      "title": "Nicaraguan Jinotega BCT Select, washed (listing, arrival Apr 2025)",
+      "publisher": "Burman Coffee Traders",
+      "url": "https://burmancoffee.com/?p=2557",
+      "year": 2025
+    },
+    "interamerican-reyna": {
+      "title": "Nicaragua Reyna del Cafe Fair Trade Organic",
+      "publisher": "InterAmerican Coffee",
+      "url": "https://interamericancoffee.com/?p=2936",
+      "year": 2016
+    },
+    "ace-nic-2006-5dejunio": {
+      "title": "84.46: Cooperativa 5 de Junio, Las Sabanas, Madriz (Nicaragua 2006, farm directory)",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/?p=186786",
+      "year": 2006
+    },
+    "ace-nic-2004-lacuesta": {
+      "title": "85.87: La Cuesta, Madriz (Nicaragua 2004, farm directory)",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/?p=186347",
+      "year": 2004
+    },
+    "wiki-nic-municipalities": {
+      "title": "Municipalities of Nicaragua",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Municipalities_of_Nicaragua",
+      "accessed": "2026-10"
+    },
+    "nomad-hartmann": {
+      "title": "Hartmann (Panama Geisha natural, listing)",
+      "publisher": "Nomad Coffee",
+      "url": "https://nomadcoffee.es/en/products/hartmann",
+      "accessed": "2026-10"
+    },
+    "waytocoffee-hartmann": {
+      "title": "Panama Finca Hartmann (Kudu Coffee Roasters listing)",
+      "publisher": "The Way to Coffee",
+      "url": "https://www.thewaytocoffee.com/beans/panama-finca-hartmann",
+      "accessed": "2026-10"
+    },
+    "wiki-cachi": {
+      "title": "Cachí, Costa Rica",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Cach%C3%AD,_Costa_Rica",
+      "accessed": "2026-10"
+    },
+    "buyfromcr-coopeldos": {
+      "title": "Coopeldos coffee (supplier listing)",
+      "publisher": "Buy from Costa Rica, export supplier directory",
+      "url": "https://buyfromcostarica.com/en/product/coopeldos-coffee/",
+      "accessed": "2026-10"
+    },
+    "hilje-tilaran-2008": {
+      "title": "Coffee in a peripheral area of Costa Rica: Tilarán 1900-1994 (Hilje Quirós & Torres Hernández), catalog record",
+      "publisher": "Kimuk, CONARE repository (Universidad Nacional de Costa Rica)",
+      "url": "https://kimuk.conare.ac.cr/Record/PUNA_4f53c77a19667989d584642455a0bf33",
+      "year": 2008
+    },
+    "wiki-german-guatemalan": {
+      "title": "German Guatemalans",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/German_Guatemalan",
+      "accessed": "2026-10"
+    },
+    "kiddle-cafe-gtm": {
+      "title": "Café de Guatemala (copy of the Spanish Wikipedia article)",
+      "publisher": "Kiddle, encyclopedia for children",
+      "url": "https://ninos.kiddle.co/Caf%C3%A9_de_Guatemala",
+      "accessed": "2026-10"
+    },
+    "laprensa-hnd-2025": {
+      "title": "Comayagua, Copán y Lempira, los mayores productores de café en Honduras (figures from IHCAFE’s Memoria de Cosecha 2024–2025)",
+      "publisher": "La Prensa (Honduras), Nov 13, 2025",
+      "url": "https://www.laprensa.hn/honduras/comayagua-copan-y-lempira-los-mayores-productores-de-cafe-en-honduras-BM28177666",
+      "year": 2025
+    },
+    "elheraldo-hnd-2024": {
+      "title": "¿En qué departamentos de Honduras se produce más café y de mejor calidad? (IHCAFE figures for the 2023–2024 harvest)",
+      "publisher": "El Heraldo (Honduras), Oct 1, 2024",
+      "url": "https://www.elheraldo.hn/economia/departamentos-honduras-cafe-mejor-calidad-cosecha-2024-EO21854365",
+      "year": 2024
+    },
+    "elheraldo-hnd-2018": {
+      "title": "Café hondureño, el aromático que cautiva a varios países del mundo (the six coffee regions and their departments)",
+      "publisher": "El Heraldo (Honduras), Jun 17, 2018",
+      "url": "https://www.elheraldo.hn/economia/cafe-hondureno-el-aromatico-que-cautiva-a-varios-paises-del-mundo-KMEH1188460",
+      "year": 2018
+    },
+    "jornada-mex-2018": {
+      "title": "Variedades de café en México (Esteban Escamilla Prado and Salvador Díaz Cárdenas, Universidad Autónoma Chapingo, CRUO-CENACAFÉ)",
+      "publisher": "La Jornada del Campo, no. 128, May 19, 2018",
+      "url": "https://www.jornada.com.mx/2018/05/19/cam-variedades.html",
+      "year": 2018
+    },
+    "star-ken-2026": {
+      "title": "Kericho tops Kenya coffee sales as earnings hit Sh31.9bn",
+      "publisher": "The Star (Kenya), reporting Nairobi Coffee Exchange data",
+      "url": "https://the-star.co.ke/news/2026-07-08-kericho-tops-kenya-coffee-sales-as-earnings-hit-sh319bn",
+      "year": 2026
+    },
+    "standard-ken-2025": {
+      "title": "Five counties fetch Sh16 billion from coffee",
+      "publisher": "The Standard (Kenya)",
+      "url": "https://www.thestandard.ke/business/amp/smart-harvest/article/2001519048/five-counties-fetch-sh16-billion-from-coffee",
+      "year": 2025
+    },
+    "bd-kiambu-2024": {
+      "title": "Kiambu tops land size under coffee amid real estate craze",
+      "publisher": "Business Daily (Kenya)",
+      "url": "https://www.businessdailyafrica.com/bd/markets/commodities/kiambu-tops-land-size-under-coffee-amid-real-estate-craze--4546346",
+      "year": 2024
+    },
+    "wiki-ruiru": {
+      "title": "Ruiru",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Ruiru",
+      "accessed": "2026-10"
+    },
+    "royal-oaklands": {
+      "title": "Kenya Oaklands Natural",
+      "publisher": "Royal Coffee",
+      "url": "https://royalcoffee.com/product/3427097000049124960/",
+      "accessed": "2026-10"
+    },
+    "coffeehunter-tatu": {
+      "title": "Tatu Estate",
+      "publisher": "Coffee Hunter",
+      "url": "https://coffeehunter.com/coffee/tatu-estate/",
+      "accessed": "2026-10"
+    },
+    "mcm-rianjagi": {
+      "title": "Rianjagi Peaberry",
+      "publisher": "Melbourne Coffee Merchants",
+      "url": "https://melbournecoffeemerchants.com.au/coffee/rianjagi-pb/",
+      "accessed": "2026-10"
+    },
+    "cafeimports-kaguthi": {
+      "title": "Kaguthi AA",
+      "publisher": "Cafe Imports",
+      "url": "https://www.cafeimports.com/europe/beanology/view/kaguthi-aa-13742",
+      "accessed": "2026-10"
+    },
+    "mcm-kagumoini": {
+      "title": "Kagumoini AB",
+      "publisher": "Melbourne Coffee Merchants",
+      "url": "https://melbournecoffeemerchants.com.au/coffee/kagumoini-ab/",
+      "accessed": "2026-10"
+    },
+    "atlas-gatunyu": {
+      "title": "Gatunyu Kigio Farmers Cooperative Society",
+      "publisher": "Atlas Coffee Importers",
+      "url": "https://atlascoffee.com/coffees/gatunyu-kigio",
+      "accessed": "2026-10"
+    },
+    "coffeehunter-gakuyuini": {
+      "title": "Gakuyu-ini AA",
+      "publisher": "Coffee Hunter",
+      "url": "https://coffeehunter.com/coffee/gakuyu-ini-aa/",
+      "accessed": "2026-10"
+    },
+    "coopcoffees-othaya": {
+      "title": "Othaya FCS (member profile)",
+      "publisher": "Cooperative Coffees",
+      "url": "https://coopcoffees.com/member/profile/1645498",
+      "accessed": "2026-10"
+    },
+    "royal-ndiaini-2026": {
+      "title": "Crown Jewel Kenya Natural Ndiaini Factory (CJ1686 analysis)",
+      "publisher": "Royal Coffee",
+      "url": "https://cdn.royalcoffee.com/wp-content/uploads/2026/07/13132239/Crown-Jewel-Kenya-Natural-Ndiaini-Factory-CJ1686.pdf",
+      "year": 2026
+    },
+    "royal-ichamama": {
+      "title": "Crown Jewel Kenya Anaerobic Natural Ichamama Factory Othaya Town",
+      "publisher": "Royal Coffee",
+      "url": "https://royalcoffee.com/product/3427097000045636348/",
+      "accessed": "2026-10"
+    },
+    "standard-mathira-2023": {
+      "title": "How coffee processing methods turned Nyeri farmers' fortunes",
+      "publisher": "The Standard (Kenya)",
+      "url": "https://www.standardmedia.co.ke/entertainment/central/article/2001466720/how-coffee-processing-methods-turned-nyeri-farmers-fortunes",
+      "year": 2023
+    },
+    "coe-muyongwe-2014": {
+      "title": "CWS Muyongwe/Sotkamu, Rwanda 2014 (#2, 90.69)",
+      "publisher": "Cup of Excellence farm directory",
+      "url": "https://farmdirectory.cupofexcellence.org/listing/2014-rwanda-90-69-3/",
+      "year": 2014
+    },
+    "coe-muyongwe-2015": {
+      "title": "Muyongwe Coffee, Rwanda 2015 (#1, 90.42)",
+      "publisher": "Cup of Excellence farm directory",
+      "url": "https://farmdirectory.cupofexcellence.org/?p=6989",
+      "year": 2015
+    },
+    "coe-muyongwe-2018": {
+      "title": "Muyongwe/CBC CWS, Rwanda 2018 (#18, 87.59)",
+      "publisher": "Cup of Excellence farm directory",
+      "url": "https://farmdirectory.cupofexcellence.org/?p=10632",
+      "year": 2018
+    },
+    "coe-dukundekawa-2012": {
+      "title": "RWASHOSCO/Musasa-Ruli Dukundekawa washing station, Rwanda 2012 (#18, 86.53)",
+      "publisher": "Cup of Excellence farm directory",
+      "url": "https://farmdirectory.cupofexcellence.org/listing/2012-rwanda-86-53-4/",
+      "year": 2012
+    },
+    "coe-dukundekawa-2015": {
+      "title": "Dukundekawa Musasa/Mbirima, Rwanda 2015 (#21, 85.97)",
+      "publisher": "Cup of Excellence farm directory",
+      "url": "https://farmdirectory.cupofexcellence.org/listing/2015-rwanda-85-97-14/",
+      "year": 2015
+    },
+    "ace-rwa-2013": {
+      "title": "Rwanda 2013 (Cup of Excellence winners)",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/?p=211982",
+      "year": 2013
+    },
+    "ace-rwa-2018-p2": {
+      "title": "Rwanda 2018 farm directory, winners 8–17",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/farm-directory/wpbdp_category/rwanda-2018/page/2/",
+      "year": 2018
+    },
+    "ace-rwa-2018-news": {
+      "title": "After hiatus, Rwanda Cup of Excellence returns with 340+ coffee submissions",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/?p=212085",
+      "year": 2018
+    },
+    "coe-huyemountain-2012": {
+      "title": "Huye Mountain Coffee washing station, Rwanda 2012 (#2, 89.83)",
+      "publisher": "Cup of Excellence farm directory",
+      "url": "https://farmdirectory.cupofexcellence.org/listing/2012-rwanda-89-83/",
+      "year": 2012
+    },
+    "barn-huyemountain": {
+      "title": "Huye Mountain Natural",
+      "publisher": "The Barn (roaster, wholesale)",
+      "url": "https://wholesale.thebarn.de/products/huye-mountain-natural",
+      "accessed": "2026-10"
+    },
+    "mcm-maraba": {
+      "title": "Maraba Cooperative",
+      "publisher": "Melbourne Coffee Merchants",
+      "url": "https://melbournecoffeemerchants.com.au/maraba-cooperative/",
+      "accessed": "2026-10"
+    },
+    "sh-maraba": {
+      "title": "Maraba",
+      "publisher": "Sustainable Harvest",
+      "url": "https://www.sustainableharvest.com/maraba",
+      "accessed": "2026-10"
+    },
+    "coe-gitesi-2012": {
+      "title": "Gitesi washing station, Rwanda 2012 (#1, 90.19)",
+      "publisher": "Cup of Excellence farm directory",
+      "url": "https://farmdirectory.cupofexcellence.org/listing/2012-rwanda-90-19-4/",
+      "year": 2012
+    },
+    "coe-gitesi-2014": {
+      "title": "Gitesi CWS/KOPAKIKA, Rwanda 2014 (#23, 85.79)",
+      "publisher": "Cup of Excellence farm directory",
+      "url": "https://farmdirectory.cupofexcellence.org/listing/2014-rwanda-85-79-9/",
+      "year": 2014
+    },
+    "coe-murangara-2014": {
+      "title": "Murangara CWS/RWACOF (I), Rwanda 2014 (#21, 86.24)",
+      "publisher": "Cup of Excellence farm directory",
+      "url": "https://farmdirectory.cupofexcellence.org/?p=4667",
+      "year": 2014
+    },
+    "coe-rwamatamu-2015": {
+      "title": "Rwamatamu CWS, Rwanda 2015 (#10b, 86.92)",
+      "publisher": "Cup of Excellence farm directory",
+      "url": "https://farmdirectory.cupofexcellence.org/?p=4957",
+      "year": 2015
+    },
+    "coe-mahembe-2015": {
+      "title": "Mahembe/Nyagatare, Rwanda 2015 (#2, 90.13)",
+      "publisher": "Cup of Excellence farm directory",
+      "url": "https://farmdirectory.cupofexcellence.org/?p=6990",
+      "year": 2015
+    },
+    "coe-mahembe-2012": {
+      "title": "Mahembe washing station, Rwanda 2012 (#4, 89.28)",
+      "publisher": "Alliance for Coffee Excellence farm directory",
+      "url": "https://allianceforcoffeeexcellence.org/directory/89-28-4/",
+      "year": 2012
+    },
+    "newtimes-nyamasheke-2017": {
+      "title": "Nyamasheke moves to enhance coffee quality, farmers' income",
+      "publisher": "The New Times (Rwanda)",
+      "url": "https://www.newtimes.co.rw/article/137310/News/nyamasheke-moves-to-enhance-coffee-quality-farmersa-income/amp",
+      "year": 2017
+    },
+    "sucafina-karambi": {
+      "title": "Karambi Anaerobic FW (Farmgate Initiative)",
+      "publisher": "Sucafina",
+      "url": "https://www.sucafina.com/na/offerings/karambi-anaerobic-fw-farmgate-initiative",
+      "accessed": "2026-10"
+    },
+    "coe-sacof-2014": {
+      "title": "Sacof Rulindo, Rwanda 2014 (#12, 87.12)",
+      "publisher": "Cup of Excellence farm directory",
+      "url": "https://farmdirectory.cupofexcellence.org/?p=4656",
+      "year": 2014
+    },
+    "algrano-buliza-2022": {
+      "title": "Rwanda Buliza CWS FW Gr. A, Rulindo, Northern Province (June 2022)",
+      "publisher": "Algrano",
+      "url": "https://www.algrano.com/en/products/2681-rwanda-buliza-cws-fw-gr-a-rulindo-northern-province-arabica-lavado-jun-2022",
+      "year": 2022
+    },
+    "driftaway-kinini": {
+      "title": "RRC: Rwanda Rulindo Kinini Village",
+      "publisher": "Driftaway Coffee",
+      "url": "https://driftaway.coffee/?p=1457206",
+      "accessed": "2026-10"
+    },
+    "usitc-robusta-2024": {
+      "title": "Robusta on the rise (Executive Briefings on Trade, January 2024)",
+      "publisher": "U.S. International Trade Commission (Amelia Shister Graytock)",
+      "url": "https://usitc.gov/publications/332/executive_briefings/ebot_robusta_on_the_rise.pdf",
+      "year": 2024
+    },
+    "sca-plants-of-world": {
+      "title": "Coffee plants of the world",
+      "publisher": "Specialty Coffee Association, research",
+      "url": "https://sca.coffee/research/coffee-plants-of-the-world",
+      "accessed": "2026-10"
+    },
+    "davis-uganda-2023": {
+      "title": "A review of the indigenous coffee resources of Uganda and their potential for coffee sector sustainability and development (Davis, Kiwuka, Faruk, Mulumba & Kalema)",
+      "publisher": "Frontiers in Plant Science 13:1057317",
+      "url": "https://www.frontiersin.org/journals/plant-science/articles/10.3389/fpls.2022.1057317/pdf",
+      "year": 2023
+    },
+    "davis-liberica-2025": {
+      "title": "Genomic data define species delimitation in Liberica coffee with implications for crop development and conservation (Davis et al.)",
+      "publisher": "Nature Plants (abstract in the University of Zaragoza repository, Zaguán)",
+      "url": "https://zaguan.unizar.es/record/165574?ln=fr",
+      "year": 2025
+    },
+    "dcn-beyond-heirloom-2018": {
+      "title": "Beyond 'heirloom': new book sheds light on Ethiopia's coffee varieties",
+      "publisher": "Daily Coffee News",
+      "url": "https://dailycoffeenews.com/2018/07/10/beyond-heirloom-new-book-sheds-light-on-ethiopias-coffee-varieties",
+      "year": 2018
+    },
+    "royal-varieties-guide-2019": {
+      "title": "The Coffee Roaster's Complete Guide to Coffee Varieties and Cultivars",
+      "publisher": "Royal Coffee (Chris Kornman)",
+      "url": "https://royalcoffee.com/the-coffee-roasters-complete-guide-to-coffee-varieties-and-cultivars/",
+      "year": 2019
+    },
+    "gessese-2020-awada": {
+      "title": "Summary of a Decade of South Ethiopian Coffee Improvement Activities at Awada Coffee Research Center",
+      "publisher": "Mesfin Kebede Gessese, in Horticultural Crops (IntechOpen)",
+      "url": "https://cdn.intechopen.com/pdfs/65909.pdf",
+      "year": 2020
+    },
+    "bayetta-2007": {
+      "title": "Arabica coffee (Coffea arabica L.) local landrace development strategy in its center of origin and diversity",
+      "publisher": "Bellachew Bayetta & Jean-Pierre Labouisse, 21st ASIC conference proceedings (CIRAD Agritrop record)",
+      "url": "https://agritrop.cirad.fr/540084",
+      "year": 2007
+    },
+    "benti-2021": {
+      "title": "Genetic diversity among commercial arabica coffee (Coffea arabica L.) varieties in Ethiopia using simple sequence repeat markers",
+      "publisher": "Benti et al., Journal of Crop Improvement 35(2): 147-168 (IRD record)",
+      "url": "https://www.documentation.ird.fr/hor/fdi:010079733",
+      "year": 2021
+    },
+    "merga-2025-horoguduru": {
+      "title": "Evaluation and Selection of Advanced Arabica Coffee Lines in Horo Guduru Wollega, Western Ethiopia",
+      "publisher": "Dawit Merga et al. (Jimma Agricultural Research Center, EIAR), Trends in Agricultural Sciences 4(4): 287-298",
+      "url": "https://tas.scione.com/cms/pdf.php?artid=372",
+      "year": 2025
+    },
+    "mcm-adorsi": {
+      "title": "Adorsi Washed (listing)",
+      "publisher": "Melbourne Coffee Merchants",
+      "url": "https://melbournecoffeemerchants.com.au/?p=8963"
+    },
+    "mcm-hadeso": {
+      "title": "Hadeso Natural (listing)",
+      "publisher": "Melbourne Coffee Merchants",
+      "url": "https://melbournecoffeemerchants.com.au/coffee/hadeso-natural/"
+    },
+    "sey-alo-74158-2025": {
+      "title": "Tamiru Tadesse Tesema, Alo Village 74158, Classic Washed (listing)",
+      "publisher": "SEY Coffee",
+      "url": "https://seycoffee.com/products/2025-tamiru-tadesse-tesema-alo-village-washed-ethiopia",
+      "year": 2025
+    },
+    "coffeereview-74158-coe8": {
+      "title": "Ethiopia CoE #8 Sidama Arbegona Muluneh Tute Galcho 74158 Natural (Small Eyes Cafe), 95 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/ethiopia-coe-8-sidama-arbegona-muluneh-tute-galcho-74158-natural/",
+      "year": 2022
+    },
+    "coffeereview-74158-tamiru": {
+      "title": "Ethiopia Sidama Bensa Farmer Tamiru 74158 Natural (Taster's Coffee), 96 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/ethiopia-sidama-bensa-farmer-tamiru-74158-natural/",
+      "year": 2021
+    },
+    "coffeereview-kurume-hambela": {
+      "title": "Ethiopia Hambela Kurume Natural (Aokamomo Coffee), 93 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/ethiopia-hambela-kurume-natural",
+      "year": 2024
+    },
+    "samplecoffee-girma-kurume": {
+      "title": "Ethiopia Girma Sintayehu Kurume (listing)",
+      "publisher": "Sample Coffee",
+      "url": "https://samplecoffee.com.au/coffee/girma-sintayehu-kurume"
+    },
+    "samplecoffee-genji-challa": {
+      "title": "Ethiopia Genji Challa (listing)",
+      "publisher": "Sample Coffee",
+      "url": "https://samplecoffee.com.au/coffee/genji-challa"
+    },
+    "samplecoffee-banko-gotiti": {
+      "title": "Ethiopia Banko Gotiti Premium (listing)",
+      "publisher": "Sample Coffee",
+      "url": "https://samplecoffee.com.au/coffee/banko-gotiti"
+    },
+    "samplecoffee-duwancho": {
+      "title": "Ethiopia Duwancho Washed Premium (listing)",
+      "publisher": "Sample Coffee",
+      "url": "https://samplecoffee.com.au/coffee/duwancho"
+    },
+    "mengesha-2026-gedeo": {
+      "title": "Coffee Quality and Its Determinant Factors in the Gedeo Zone of Southern Ethiopia (paper summary; DOI 10.20372/nadre:24877)",
+      "publisher": "Tekalign Mengesha (via Synapse Social)",
+      "url": "https://www.synapsesocial.com/papers/69e1cf985cdc762e9d858914",
+      "year": 2026
+    },
+    "keycoffee-74148-2025": {
+      "title": "Coffee Future Department series Vol. 4: Ethiopia JARC74148 (press release, in Japanese)",
+      "publisher": "Key Coffee Inc. (via Digital PR Platform)",
+      "url": "https://origin.digitalpr.jp/pdf.php?r=117841",
+      "year": 2025
+    },
+    "ace-eth-2022": {
+      "title": "Ethiopia 2022 (Cup of Excellence results)",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/ethiopia-2022/",
+      "year": 2022
+    },
+    "coffeereview-74110-uraga": {
+      "title": "Ethiopia Washed Guji Uraga Tome Variety 74110 (U&Me Buna), 93 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/ethiopia-washed-guji-uraga-tome-variety-74110/",
+      "year": 2024
+    },
+    "coffeereview-74110-sidamo": {
+      "title": "Ethiopia Sidamo Assefa 74110 Natural (Buon Caffe), 93 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/ethiopia-sidamo-assefa-74110-natural/",
+      "year": 2025
+    },
+    "coffeereview-74110-bacha": {
+      "title": "Ethiopia Natural Sidama Bacha 74110 (Kakalove Cafe), 95 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/ethiopia-natural-sidama-bacha-74110/",
+      "year": 2024
+    },
+    "coffeereview-74110-dawencho": {
+      "title": "Ethiopia Dawencho 74110 Natural Espresso (Quartet Kaffe), 94 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/?p=22333",
+      "year": 2022
+    },
+    "coffeereview-74112-kercha": {
+      "title": "Ethiopia Guji Kercha Sakicha Red Honey 74112 (Kafe Coffee Roastery), 91 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/ethiopia-guji-kercha-sakicha-red-honey-74112/",
+      "year": 2024
+    },
+    "coffeereview-birhanu-sisters": {
+      "title": "Birhanu Sisters' Ethiopia (Swelter Coffee), 93 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/?p=22726",
+      "year": 2022
+    },
+    "sweetmarias-acatenango-gesha": {
+      "title": "Guatemala Acatenango Gesha AA (listing)",
+      "publisher": "Sweet Maria's",
+      "url": "https://www.sweetmarias.com/products/guatemala-acatenango-gesha-aa-8405",
+      "accessed": "2026-10"
+    },
+    "coffeereview-sanadolfo-2016": {
+      "title": "Colombia San Adolfo (Red Rooster Coffee Roaster), 94 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/colombia-san-adolfo/",
+      "year": 2016
+    },
+    "coffeereview-motta-2017": {
+      "title": "Edgar Motta Colombia Pink Bourbon (Sweet Bloom Coffee Roasters), 94 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/edgar-motta-colombia-pink-bourbon/",
+      "year": 2017
+    },
+    "sey-meneses-2026": {
+      "title": "Susan Meneses, Pink Bourbon, washed (listing)",
+      "publisher": "Sey Coffee",
+      "url": "https://seycoffee.com/products/2026-susan-meneses-colombia",
+      "year": 2026
+    },
+    "sey-burbano-2025": {
+      "title": "Liliana Burbano, El Nogal, 2nd harvest, Pink Bourbon, washed (listing)",
+      "publisher": "Sey Coffee",
+      "url": "https://seycoffee.com/products/2025-liliana-burbano-el-nogal-2nd-harvest-colombia",
+      "year": 2025
+    },
+    "sucafina-villarazo": {
+      "title": "Villarazo Pink Bourbon Natural (offering)",
+      "publisher": "Sucafina North America",
+      "url": "https://sucafina.com/na/offerings/villarazo-pink-bourbon-natural",
+      "accessed": "2026-10"
+    },
+    "sey-montoya-2026": {
+      "title": "Carmen Montoya, Bella Vista, Chiroso, washed (listing)",
+      "publisher": "Sey Coffee",
+      "url": "https://seycoffee.com/products/2026-carmen-montoya-bella-vista-colombia",
+      "year": 2026
+    },
+    "partners-tresmosqueteros": {
+      "title": "Colombia Chiroso: Tres Mosqueteros",
+      "publisher": "Partners Coffee",
+      "url": "https://partnerscoffee.com/blogs/education/colombia-chiroso-tres-mosqueteros",
+      "accessed": "2026-10"
+    },
+    "dcn-coe-col-2020": {
+      "title": "18 first-time competitors win 2020 Colombia Cup of Excellence awards",
+      "publisher": "Daily Coffee News",
+      "url": "https://dailycoffeenews.com/2020/10/21/18-first-time-competitors-win-2020-colombia-cup-of-excellence-awards",
+      "year": 2020
+    },
+    "coe-lapalma-2023": {
+      "title": "La Palma, Pedro Miguel Echavarria, Colombia 2023 (#8, 89.39)",
+      "publisher": "Cup of Excellence farm directory",
+      "url": "https://farmdirectory.cupofexcellence.org/?p=17974",
+      "year": 2023
+    },
+    "sweetmarias-ladespensa": {
+      "title": "Colombia Urrao La Despensa Chiroso (listing)",
+      "publisher": "Sweet Maria's",
+      "url": "https://www.sweetmarias.com/products/colombia-urrao-la-despensa-chiroso-8282",
+      "year": 2025
+    },
+    "ceremony-salazar": {
+      "title": "Colombia José Herman Salazar (Bourbon Ají, washed)",
+      "publisher": "Ceremony Coffee Roasters",
+      "url": "https://ceremonycoffee.com/products/colombia-jose-herman-salazar",
+      "year": 2026
+    },
+    "algrano-aji-2025": {
+      "title": "Bourbon Aji Natural, Wilmer Cuellar, Las Brisas (offer)",
+      "publisher": "Algrano (seller: Majestic Coffees)",
+      "url": "https://www.algrano.com/products/7719-colombia-bourbon-aji-natural-arabica-natural-sun-dried-may-jun-2025",
+      "year": 2025
+    },
+    "ozone-sudanrume": {
+      "title": "Sudan Rume coffee: wild origins, genetic legacy and the 2015 WBC win",
+      "publisher": "Ozone Coffee",
+      "url": "https://ozonecoffee.co.uk/blogs/varietals/coffee-varietal-sudan-rume",
+      "accessed": "2026-10"
+    },
+    "coffeereview-margaritas-rume-2025": {
+      "title": "Las Margaritas Sudan Rume (JBC Coffee Roasters), 95 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/las-margaritas-sudan-rume/",
+      "year": 2025
+    },
+    "coffeereview-rume-2020": {
+      "title": "Sudan Rume (modcup coffee), 94 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/sudan-rume/",
+      "year": 2020
+    },
+    "sweetmarias-wushwush": {
+      "title": "Wush Wush (glossary)",
+      "publisher": "Sweet Maria's Coffee Library",
+      "url": "https://library.sweetmarias.com/glossary/wush-wush/",
+      "accessed": "2026-10"
+    },
+    "coffeereview-wushwush-2021": {
+      "title": "Colombia Wush Wush (SkyTop Coffee), 94 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/colombia-wush-wush/",
+      "year": 2021
+    },
+    "coffeereview-trujillo-wushwush-2026": {
+      "title": "Paola Trujillo Wush Wush (JBC Coffee Roasters), 95 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/paola-trujillo-wush-wush/",
+      "year": 2026
+    },
+    "sweetmarias-java-cultivar": {
+      "title": "Java cultivar (glossary)",
+      "publisher": "Sweet Maria's Coffee Library",
+      "url": "https://library.sweetmarias.com/glossary/java-cultivar/",
+      "accessed": "2026-10"
+    },
+    "sweetmarias-buenosaires-java": {
+      "title": "Nicaragua Buenos Aires Java (listing)",
+      "publisher": "Sweet Maria's",
+      "url": "https://www.sweetmarias.com/products/nicaragua-buenos-aires-java-8450",
+      "accessed": "2026-10"
+    },
+    "sey-floripondio-java": {
+      "title": "La Familia Rodriguez, Floripondio, Java, washed (listing)",
+      "publisher": "Sey Coffee",
+      "url": "https://www.seycoffee.com/products/floripondio-java",
+      "year": 2019
+    },
+    "coffeereview-gorigesha-2023": {
+      "title": "Gesha Village Ethiopia Gori Gesha (VERYTIME), 94 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/gesha-village-ethiopia-gori-gesha/",
+      "year": 2023
+    },
+    "dcn-yemen-names-2022": {
+      "title": "Study backed by Qima and Lavazza examines Yemeni coffee names",
+      "publisher": "Daily Coffee News (Nick Brown)",
+      "url": "https://dailycoffeenews.com/2022/09/07/study-backed-by-qima-and-lavazza-examines-yemeni-coffee-names",
+      "year": 2022
+    },
+    "freshcup-yemen-names-2022": {
+      "title": "New names, same faces: genetic accuracy for Yemeni coffee",
+      "publisher": "Fresh Cup (Valorie Clark)",
+      "url": "https://freshcup.com/new-names-same-faces-genetic-accuracy-for-yemeni-coffee",
+      "year": 2022
+    },
+    "gcr-qima-auction-2020": {
+      "title": "Qima auction brings world's first offering of Yemenia coffee genetic group",
+      "publisher": "Global Coffee Report",
+      "url": "https://www.gcrmag.com/qima-auction-brings-worlds-first-offering-of-yemenia-coffee-genetic-group",
+      "year": 2020
+    },
+    "coffeereview-bait-alal-2021": {
+      "title": "Bait Alal Community (Qima Coffee), 93",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/?p=21566",
+      "year": 2021
+    },
+    "coffeereview-al-kawlah-2023": {
+      "title": "Yemen Al Kawlah Special Reserve Natural (RamsHead Coffee Roasters), 95",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/?p=23656",
+      "year": 2023
+    },
+    "coffeereview-al-obrah-2025": {
+      "title": "Yemen Al Obrah (Utopian Coffee), 95",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/?p=25908",
+      "year": 2025
+    },
+    "coffeereview-lot106-2021": {
+      "title": "Yemen Lot 106 (Port of Mokha), 96",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/yemen-lot-106/",
+      "year": 2021
+    },
+    "coffeereview-pom-lot19-2021": {
+      "title": "Port of Mokha Auction Lot 19: Mohamed Ahmed Al Rumaim (Euphora Coffee), 92",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/port-of-mokha-auction-lot-19-mohamed-ahmed-al-rumaim/",
+      "year": 2021
+    },
+    "coffeereview-mashtal-2021": {
+      "title": "Yemen Al Mashtal Al Burhani (Paradise Roasters), 94",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/yemen-al-mashtal-al-burhani/",
+      "year": 2021
+    },
+    "coffeereview-mahal-aqeeq-2022": {
+      "title": "Yemen Haraaz Red Mahal Aqeeq ul Station Natural (PT's Coffee Roasting Co.), 97",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/?p=22320",
+      "year": 2022
+    },
+    "coffeereview-wadi-mahjr-2021": {
+      "title": "Yemen Sheba Auction Lot 1: Wadi Al Mahjr (Euphora Coffee), 95",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/yemen-sheba-auction-lot-1-wadi-al-mahjr/",
+      "year": 2021
+    },
+    "coffeereview-haimi-jul-2021": {
+      "title": "Yemen Mocha Haimi (Dragonfly Coffee Roasters), 94",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/?p=21319",
+      "year": 2021
+    },
+    "coffeereview-haimi-oct-2021": {
+      "title": "Yemen Mocha Haimi (Dragonfly Coffee Roasters), 93",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/?p=21568",
+      "year": 2021
+    },
+    "coffeereview-khulani-2021": {
+      "title": "Yemen Mocha Khulani (Dragonfly Coffee Roasters), 93",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/?p=21314",
+      "year": 2021
+    },
+    "coffeereview-jaadi-2022": {
+      "title": "Yemen Natural Sana'a Manakhah Ja'adi (Kakalove Cafe), 95",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/yemen-natural-sanaa-manakhah-jaadi/",
+      "year": 2022
+    },
+    "coffeereview-malacara-orange-2021": {
+      "title": "El Salvador Malacara B Orange (Cafe Grumpy), 93",
+      "publisher": "Coffee Review",
+      "url": "https://coffeereview.com/?p=20826",
+      "year": 2021
+    },
+    "coffeereview-benitez-orange-2023": {
+      "title": "Wilton Benitez Orange Bourbon (JBC Coffee Roasters), 96",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/wilton-benitez-orange-bourbon/",
+      "year": 2023
+    },
+    "coffeereview-benitez-orange-2024": {
+      "title": "Colombia Wilton Benitez Orange Bourbon (Big Shoulders Coffee), 94",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/colombia-wilton-benitez-orange-bourbon/",
+      "year": 2024
+    },
+    "coffeereview-benitez-orange-jul-2024": {
+      "title": "Wilton Benitez Orange Bourbon (JBC Coffee Roasters), 95",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/?p=24941",
+      "year": 2024
+    },
+    "coffeereview-benitez-orange-2025": {
+      "title": "Wilton Benitez Orange Bourbon (JBC Coffee Roasters), 95",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/?p=27205",
+      "year": 2025
+    },
+    "coffeereview-benitez-orange-2026": {
+      "title": "Wilton Benitez Orange Bourbon (JBC Coffee Roasters), 97",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/?p=29623",
+      "year": 2026
+    },
+    "coffeereview-rustys-orange-2024": {
+      "title": "Orange Bourbon Natural (Rusty's Hawaiian), 95",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/orange-bourbon-natural/",
+      "year": 2024
+    },
+    "cuvee-orange-2016": {
+      "title": "Orange Bourbon: featured coffee",
+      "publisher": "Cuvée Coffee",
+      "url": "https://cuveecoffee.com/blogs/news/orange-bourbon-featured-coffee",
+      "year": 2016
+    },
+    "pdg-papayo-2024": {
+      "title": "A variedade Papayo: por que você pode começar a vê-la em competições?",
+      "publisher": "Perfect Daily Grind Brasil (Thomas Wensma)",
+      "url": "https://perfectdailygrind.com/pt/2024/05/29/variedade-cafe-papayo/",
+      "year": 2024
+    },
+    "partners-papayo-2023": {
+      "title": "Colombia - Papayo (2023)",
+      "publisher": "Partners Coffee",
+      "url": "https://www.partnerscoffee.com/blogs/education/colombia-papayo-2023",
+      "year": 2023
+    },
+    "coffeereview-mostra-papayo-2024": {
+      "title": "Colombia Papayo (Mostra Coffee), 94",
+      "publisher": "Coffee Review",
+      "url": "https://coffeereview.com/?p=24907",
+      "year": 2024
+    },
+    "coffeereview-lord-baltimore-2020": {
+      "title": "Colombia Finca Lord Baltimore Papayo (Paradise Roasters), 94",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/?p=19876",
+      "year": 2020
+    },
+    "beanscene-simpson-wbc-2025": {
+      "title": "Behind Jack Simpson's WBC triumph",
+      "publisher": "BeanScene",
+      "url": "https://www.beanscenemag.com.au/behind-jack-simpsons-wbc-triumph/",
+      "year": 2025
+    },
+    "cenicafe-informe-2025": {
+      "title": "Informe anual de actividades 2025",
+      "publisher": "Cenicafé",
+      "url": "https://publicaciones.cenicafe.org/index.php/infanual/article/download/4883/5069/3799",
+      "year": 2025
+    },
+    "ozone-mejorado": {
+      "title": "Typica Mejorado: the variety that isn't a Typica",
+      "publisher": "Ozone Coffee",
+      "url": "https://ozonecoffee.co.uk/blogs/varietals/typica-mejorado-the-variety-that-isnt-a-typica",
+      "accessed": "2026-10"
+    },
+    "samplecoffee-mejorado": {
+      "title": "Coffee varietals: Typica Mejorado",
+      "publisher": "Sample Coffee",
+      "url": "https://samplecoffee.com.au/coffee/varietals/typica-mejorado",
+      "accessed": "2026-10"
+    },
+    "sey-arashi-2023": {
+      "title": "Abel Salinas, Arashi, Mejorado, washed (listing)",
+      "publisher": "SEY Coffee",
+      "url": "https://www.seycoffee.com/products/2023-abel-salinas-arashi-ecuador",
+      "year": 2023
+    },
+    "coe-ecuador-2021": {
+      "title": "Ecuador 2021 (competition results)",
+      "publisher": "Cup of Excellence (Alliance for Coffee Excellence)",
+      "url": "https://cupofexcellence.org/ecuador-2021/",
+      "year": 2021
+    },
+    "dcn-ecuador-coe-2021": {
+      "title": "Inaugural Ecuador Cup of Excellence auction results in record-breaking price per pound",
+      "publisher": "Daily Coffee News",
+      "url": "https://dailycoffeenews.com/2021/12/07/inaugural-ecuador-cup-of-excellence-auction-results-in-record-breaking-price-per-pound",
+      "year": 2021
+    },
+    "pdg-geisha-competencias-2026": {
+      "title": "¿Está el Geisha perdiendo terreno en las competencias de café?",
+      "publisher": "Perfect Daily Grind Español (Thomas Wensma)",
+      "url": "https://perfectdailygrind.com/es/2026/10/05/geisha-perdiendo-terreno-competencias-cafe/",
+      "year": 2026
+    },
+    "ozone-sl34": {
+      "title": "SL34: the Kenyan coffee selection that isn't the Bourbon it seemed",
+      "publisher": "Ozone Coffee",
+      "url": "https://ozonecoffee.co.uk/blogs/varietals/coffee-varietal-sl-34",
+      "year": 2026
+    },
+    "coffeereview-kenya-2020": {
+      "title": "The joy of Kenya, classic coffee-producing origin",
+      "publisher": "Coffee Review (Kim Westerman)",
+      "url": "https://www.coffeereview.com/the-joy-of-kenya-classic-coffee-producing-origin/",
+      "year": 2020
+    },
+    "wcr-sl14": {
+      "title": "SL14",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/sl14",
+      "accessed": "2026-10"
+    },
+    "wcr-pache": {
+      "title": "Pache",
+      "publisher": "World Coffee Research, Arabica varieties catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/pache",
+      "accessed": "2026-10"
+    },
+    "royal-uganda-2026": {
+      "title": "Uganda green coffee export review",
+      "publisher": "Royal Coffee (Isabella Vitaliano)",
+      "url": "https://royalcoffee.com/uganda-green-coffee-export-review/",
+      "year": 2026
+    },
+    "coffeereview-sipi-2023": {
+      "title": "Uganda Sipi Falls Station Anaerobic Natural (GK Coffee)",
+      "publisher": "Coffee Review",
+      "url": "https://coffeereview.com/?p=23907",
+      "year": 2023
+    },
+    "coffeereview-bwayi-2009": {
+      "title": "Burundi Bwayi Lot No. 8 (Counter Culture Coffee)",
+      "publisher": "Coffee Review",
+      "url": "https://coffeereview.com/?p=9913",
+      "year": 2009
+    },
+    "coffeereview-kinyovu-2009": {
+      "title": "Burundi Kinyovu (Kaldi's Coffee Roasting)",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/?p=9911",
+      "year": 2009
+    },
+    "ace-mibirizi-2012": {
+      "title": "NCMC Mibirizi Washing Station, Rwanda 2012 (farm directory)",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/directory/89-03-6/",
+      "year": 2012
+    },
+    "sweetmarias-elcoyote-2025": {
+      "title": "Costa Rica Red Honey El Coyote (listing)",
+      "publisher": "Sweet Maria's",
+      "url": "https://www.sweetmarias.com/products/costa-rica-red-honey-el-coyote-8349",
+      "year": 2025
+    },
+    "ace-elcipres-2012": {
+      "title": "El Ciprés, Costa Rica 2012 (farm directory)",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/farm-directory/86-10-6/",
+      "year": 2012
+    },
+    "ozone-maragogype": {
+      "title": "Maragogype coffee: nature's accidental giant",
+      "publisher": "Ozone Coffee",
+      "url": "https://ozonecoffee.co.uk/blogs/varietals/coffee-varietal-maragogype",
+      "year": 2026
+    },
+    "coffeereview-bigbean-2018": {
+      "title": "\"Big-bean\" coffee varieties: novelty, scarcity, and atypical sensory pleasures",
+      "publisher": "Coffee Review (Kim Westerman)",
+      "url": "https://www.coffeereview.com/big-bean-coffee-varieties-novelty-scarcity-and-atypical-sensory-pleasures/",
+      "year": 2018
+    },
+    "sweetmarias-maragogype": {
+      "title": "Maragogype (glossary)",
+      "publisher": "Sweet Maria's",
+      "url": "https://library.sweetmarias.com/glossary/maragogype/",
+      "year": 2026
+    },
+    "pdg-maracaturra-2016": {
+      "title": "Maracaturra: why a CoE-winning farm grows hybrid varietals",
+      "publisher": "Perfect Daily Grind (Angie Katherine Molina Ospina)",
+      "url": "https://perfectdailygrind.com/2016/12/maracaturra-why-a-coe-winning-farm-grows-hybrid-varietals/",
+      "year": 2016
+    },
+    "sweetmarias-kents": {
+      "title": "Kents (glossary)",
+      "publisher": "Sweet Maria's",
+      "url": "https://library.sweetmarias.com/glossary/kents/",
+      "year": 2026
+    },
+    "gleaner-melissa-2025": {
+      "title": "Battered beans",
+      "publisher": "The Gleaner (Jamaica)",
+      "url": "https://jamaica-gleaner.com/article/news/20251222/battered-beans",
+      "year": 2025
+    },
+    "gleaner-replant-2026": {
+      "title": "JACRA leads major replanting drive on Jamaica Blue Mountain Coffee Day",
+      "publisher": "The Gleaner (Jamaica)",
+      "url": "https://jamaica-gleaner.com/article/lead-stories/20260112/jacra-leads-major-replanting-drive-jamaica-blue-mountain-coffee-day",
+      "year": 2026
+    },
+    "waytocoffee-losalpes-mibirizi": {
+      "title": "Costa Rica Aromas del Chirripó Los Alpes Mibirizi (Scenery Coffee)",
+      "publisher": "The Way to Coffee",
+      "url": "https://www.thewaytocoffee.com/beans/costa-rica-aromas-del-chirripo-los-alpes-mibirizi",
+      "year": 2026
+    },
+    "tonon-2014": {
+      "title": "Identificação de linhagens de cafeeiro Bourbon Amarelo para produção de cafés especiais no Estado de São Paulo (8º CIIC)",
+      "publisher": "IAC Centro de Café / Embrapa",
+      "url": "https://www.cnpm.embrapa.br/projetos/ciic2016/resumo2014/RE14146.pdf",
+      "year": 2014
+    },
+    "romano-2022": {
+      "title": "Characterization of Yellow Bourbon coffee strains for the production of differentiated specialty coffees",
+      "publisher": "Bragantia (IAC)",
+      "url": "https://qa1.scielo.br/j/brag/a/MpsrBj3cQZpL593ZhDcZCpQ/?lang=en",
+      "year": 2022
+    },
+    "ferreira-2013": {
+      "title": "Desempenho agronômico de seleções de café Bourbon Vermelho e Bourbon Amarelo de diferentes origens",
+      "publisher": "Pesquisa Agropecuária Brasileira (Embrapa)",
+      "url": "https://apct.sede.embrapa.br/pab/article/download/12228/11349/73871",
+      "year": 2013
+    },
+    "pereira-2011": {
+      "title": "Caracterização da qualidade de bebida e outras características de acessos do banco de germoplasma de café de Minas Gerais",
+      "publisher": "EPAMIG / Embrapa Café (VII Simpósio de Pesquisa dos Cafés do Brasil)",
+      "url": "https://www.alice.cnptia.embrapa.br/alice/bitstream/doc/903958/1/Caracterizacaodaqualidadedebebida.pdf",
+      "year": 2011
+    },
+    "esalq-bourbonamarelo": {
+      "title": "Bourbon Amarelo (Dicionário Terminológico Bilíngue – Plantas)",
+      "publisher": "ESALQ-USP",
+      "url": "https://www.esalq.usp.br/d-plant/bourbonamarelo",
+      "year": 2014
+    },
+    "dcn-yellowbourbon-2019": {
+      "title": "The fascinating history and renewal of Brazil's Yellow Bourbon",
+      "publisher": "Daily Coffee News",
+      "url": "https://dailycoffeenews.com/2019/04/18/the-fascinating-history-and-renewal-of-brazils-yellow-bourbon",
+      "year": 2019
+    },
+    "coe-saopedro-2012": {
+      "title": "Fazenda São Pedro, Brazil Pulped Naturals 2012 (88.47, Yellow Bourbon)",
+      "publisher": "Cup of Excellence farm directory",
+      "url": "https://farmdirectory.cupofexcellence.org/listing/2012-brazil-pulped-naturals-88-47-3/",
+      "year": 2012
+    },
+    "ace-bra-2025": {
+      "title": "Brazil 2025 (Cup of Excellence results and auction)",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/brazil-2025/",
+      "year": 2025
+    },
+    "coffeereview-ybourbon-2005": {
+      "title": "Brazil Yellow Bourbon (Paradise Roasters), 92 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/brazil-yellow-bourbon/",
+      "year": 2005
+    },
+    "pdg-bourbon-2020": {
+      "title": "Bourbon coffee variety: a guide for producers and roasters",
+      "publisher": "Perfect Daily Grind",
+      "url": "https://perfectdailygrind.com/2020/02/bourbon-coffee-variety-a-guide-for-producers-roasters/",
+      "year": 2020
+    },
+    "ace-slv-2025": {
+      "title": "El Salvador 2025 (Cup of Excellence results and auction)",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/el-salvador-2025/",
+      "year": 2025
+    },
+    "paradise-k7-noelani": {
+      "title": "Kona K7, Noelani Farm (listing)",
+      "publisher": "Paradise Roasters",
+      "url": "https://paradiseroasters.com/products/kona-k7-noelani-farm"
+    },
+    "coffeereview-k7-2023": {
+      "title": "Kona K7 (Paradise Roasters), 95 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/kona-k7-2",
+      "year": 2023
+    },
+    "thegrounds-boyceharris": {
+      "title": "Kenya Boyce Harris (Chania and Oreti Estates, Thika) (listing)",
+      "publisher": "The Grounds",
+      "url": "https://shop.thegrounds.com.au/products/kenya-boyce-harris"
+    },
+    "coffeereview-bm139-2024": {
+      "title": "Ruvumu Natural #13 Burundi (JBC Coffee Roasters), 93 points",
+      "publisher": "Coffee Review",
+      "url": "https://coffeereview.com/?p=24786",
+      "year": 2024
+    },
+    "sweetmarias-jackson": {
+      "title": "Jackson (glossary)",
+      "publisher": "Sweet Maria's",
+      "url": "https://library.sweetmarias.com/glossary/jackson/"
+    },
+    "pdg-laurina-2022": {
+      "title": "What is Laurina coffee?",
+      "publisher": "Perfect Daily Grind",
+      "url": "https://perfectdailygrind.com/2022/04/what-is-laurina-coffee/",
+      "year": 2022
+    },
+    "tango-1963": {
+      "title": "Teor de óleo e de cafeína em variedades de café (Oil and caffeine content in the coffee bean)",
+      "publisher": "J. S. Tango & A. Carvalho, Bragantia 22: 793–798",
+      "url": "https://scielo.br/j/brag/a/NWLNXmXXJhYGCdsGh4WrzxM/?lang=pt",
+      "year": 1963
+    },
+    "baumann-1998": {
+      "title": "Non-destructive analysis of natural variability in bean caffeine content of Laurina coffee",
+      "publisher": "Baumann, Sondahl, Waldhauser & Kretschmar, Phytochemistry 49(6): 1569–1573 (record on FAO AGRIS)",
+      "url": "https://agris.fao.org/search/en/records/65de42937c7033e84bea577b",
+      "year": 1998
+    },
+    "coffeereview-laurina-socorro-2024": {
+      "title": "Guatemala El Socorro Laurina (Willoughby's Coffee & Tea), 91 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/guatemala-el-socorro-laurina/",
+      "year": 2024
+    },
+    "coffeereview-pointu-huladaddy-2022": {
+      "title": "Pointu Laurina (Hula Daddy Kona Coffee), 95 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/pointu-laurina/",
+      "year": 2022
+    },
+    "coffeereview-pointu-konafarm-2020": {
+      "title": "Kona Pointu Laurina (Kona Farm Direct), 93 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/kona-pointu-laurina/",
+      "year": 2020
+    },
+    "sweetmarias-caturra": {
+      "title": "Caturra",
+      "publisher": "Sweet Maria's Coffee Library",
+      "url": "https://library.sweetmarias.com/glossary/caturra/"
+    },
+    "coffeereview-caturra-p3": {
+      "title": "Caturra reviews, page 3 (20 reviews, Jan 2024–Feb 2025)",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/types/caturra/page/3/",
+      "year": 2025
+    },
+    "ozone-pacas": {
+      "title": "Pacas: the compact powerhouse of Central American coffee",
+      "publisher": "Ozone Coffee",
+      "url": "https://ozonecoffee.co.uk/blogs/varietals/coffee-varietal-pacas"
+    },
+    "coffeehunter-cafepacas-2021": {
+      "title": "Delving into Café Pacas, El Salvador",
+      "publisher": "Coffee Hunter (Mercanta)",
+      "url": "https://coffeehunter.com/delving-into-cafe-pacas-el-salvador/",
+      "year": 2021
+    },
+    "ozone-pacamara": {
+      "title": "The Pacamara: a love letter to coffee's most fascinating varietal",
+      "publisher": "Ozone Coffee",
+      "url": "https://ozonecoffee.co.uk/blogs/varietals/coffee-varietal-pacamara"
+    },
+    "elmundo-pacamara-2024": {
+      "title": "Hoy es el Día del Café Pacamara y El Salvador buscará promocionarlo",
+      "publisher": "Diario El Mundo (El Salvador), March 22, 2024",
+      "url": "https://diario.elmundo.sv/economia/hoy-es-el-dia-del-cafe-pacamara-y-el-salvador-buscara-promocionarlo",
+      "year": 2024
+    },
+    "coffeereview-herbazu-2012": {
+      "title": "Costa Rica Herbazu Villa Sarchi Honey (Olympia Coffee Roasting), 91 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/costa-rica-herbazu-villa-sarchi-honey/",
+      "year": 2012
+    },
+    "coffeereview-villasarchi-2013": {
+      "title": "Costa Rica Villa Sarchi, espresso (Simon Hsieh's Aroma Roast Coffees), 91 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/costa-rica-villa-sarchi/",
+      "year": 2013
+    },
+    "coffeereview-esperanza-2021": {
+      "title": "Esperanza Villa Sarchi (El Gran Cafe), 90 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/esperanza-villa-sarchi/",
+      "year": 2021
+    },
+    "ace-cri-2025": {
+      "title": "Costa Rica 2025 (Cup of Excellence results)",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/costa-rica-2025/",
+      "year": 2025
+    },
+    "thewaytocoffee-salvador": {
+      "title": "Salva d'Or, El Salvador, Bourbon Tekisic / Bourbon Mejorado (Tusell Tostadores)",
+      "publisher": "The Way to Coffee",
+      "url": "https://www.thewaytocoffee.com/beans/salva-d-or/"
+    },
+    "coffeereview-isaias-2018": {
+      "title": "Minas Gerais Isaias Ferreira No. 2 (Novel Coffee Roasters), 91 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/minas-gerais-isaias-ferreira-no-2/",
+      "year": 2018
+    },
+    "coffeereview-saojoao-2008": {
+      "title": "Fazenda Sao Joao Brasil (Ritual Coffee Roasters), 92 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/?p=9649",
+      "year": 2008
+    },
+    "coffeereview-catuai-p2": {
+      "title": "Catuai reviews, page 2 (20 of 164 reviews, Nov 2022–Oct 2023)",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/types/catuai/page/2/",
+      "year": 2023
+    },
+    "cenicafe-avt337-2005": {
+      "title": "Castillo: nueva variedad de café con resistencia a la roya (Avances Técnicos 337)",
+      "publisher": "Cenicafé (G. Alvarado-Alvarado, H. E. Posada-Suárez, H. A. Cortina-Guerrero)",
+      "url": "https://www.cenicafe.org/es/publications/avt0337.pdf",
+      "year": 2005
+    },
+    "cenicafe-avt426-2012": {
+      "title": "Variedad Castillo®: preguntas frecuentes (Avances Técnicos 426)",
+      "publisher": "Cenicafé (H. A. Cortina Guerrero, M. P. Moncada Botero, J. C. Herrera Pinilla)",
+      "url": "https://biblioteca.cenicafe.org/bitstream/10778/410/1/avt0426.pdf",
+      "year": 2012
+    },
+    "cenicafe-avt469-2016": {
+      "title": "Cenicafé 1: nueva variedad de porte bajo, altamente productiva, resistente a la roya y al CBD, con mayor calidad física del grano (Avances Técnicos 469)",
+      "publisher": "Cenicafé (C. P. Flórez R., C. E. Maldonado L., H. A. Cortina G. et al.)",
+      "url": "https://biblioteca.cenicafe.org/bitstream/10778/4178/1/AVT0469.pdf",
+      "year": 2016
+    },
+    "cenicafe-avt300-2002": {
+      "title": "Tabi: variedad de café de porte alto con resistencia a la roya (Avances Técnicos 300)",
+      "publisher": "Cenicafé (G. Moreno-Ruiz)",
+      "url": "https://www.cenicafe.org/es/publications/avt0300.pdf",
+      "year": 2002
+    },
+    "cenicafe-castillo-cup-2009": {
+      "title": "Calidad física y en taza de los componentes de la Variedad Castillo® y sus derivadas regionales",
+      "publisher": "Alvarado-Alvarado, Moreno-González, Montoya-Restrepo & Alarcón-Suárez, Cenicafé 60(3): 210–228",
+      "url": "https://www.cenicafe.org/es/publications/arc060(03)210-228.pdf",
+      "year": 2009
+    },
+    "sprudge-coe-col-2010": {
+      "title": "The Castillo and the Curious: COE Colombia auction results varietal scoop",
+      "publisher": "Sprudge, October 2010",
+      "url": "https://sprudge.com/the-castillo-and-the-curious-coe-colombia-auction-results-varietal-scoop-5827.html",
+      "year": 2010
+    },
+    "ace-col-2021": {
+      "title": "Colombia 2021 (Cup of Excellence results)",
+      "publisher": "Cup of Excellence (Alliance for Coffee Excellence)",
+      "url": "https://cupofexcellence.org/colombia-2021/",
+      "year": 2021
+    },
+    "juica-2019": {
+      "title": "Comportamiento de tres cultivares de café (Catimor, Colombia y Costa Rica 95) en el valle de El Perené, Junín, Perú",
+      "publisher": "Julca-Otiniano, Alarcón Águila, Alvarado Huamán, Borjas Ventura & Castro Cepero, Chilean Journal of Agricultural & Animal Sciences",
+      "url": "https://revistas.udec.cl/index.php/chjaas/article/download/848/1507",
+      "year": 2018
+    },
+    "sweetmarias-cr95": {
+      "title": "Costa Rica 95 (CR95) variety",
+      "publisher": "Sweet Maria's Coffee Library",
+      "url": "https://library.sweetmarias.com/glossary/costa-rica-95-cr95-variety/",
+      "accessed": "2026-10"
+    },
+    "iaea-ihcafe-lempira": {
+      "title": "Virulence genes of a new race of rust (Hemileia vastatrix) affecting Lempira coffee and other resistant/susceptible varieties in Honduras",
+      "publisher": "Y. A. Morales Reyes, Instituto Hondureño del Café (IHCAFE); paper for the FAO/IAEA International Symposium on Plant Mutation Breeding and Biotechnology",
+      "url": "https://conferences.iaea.org/event/145/contributions/5035/contribution.pdf",
+      "year": 2018
+    },
+    "pdg-hnd-varieties-2020": {
+      "title": "Honduran coffee: exploring common varieties",
+      "publisher": "Perfect Daily Grind (Miguel A. Hernández Zambrano), March 2020",
+      "url": "https://perfectdailygrind.com/2020/03/honduran-coffee-exploring-common-varieties/",
+      "year": 2020
+    },
+    "pdg-cuscatleco-2023": {
+      "title": "Conoce la variedad de café Cuscatleco y qué la caracteriza",
+      "publisher": "Perfect Daily Grind (Español), Luis Alfredo Maldonado",
+      "url": "https://perfectdailygrind.com/es/?p=26183",
+      "year": 2023
+    },
+    "chk-baristahustle-com-p-410804": {
+      "title": "Santander (The Coffee Buyer's Guide to Colombia)",
+      "publisher": "Barista Hustle",
+      "url": "https://www.baristahustle.com/?p=410804"
+    },
+    "chk-burmancoffee-com-p-59746": {
+      "title": "Ethiopian Yirgacheffe Washed Gr. 1 – Kochere Chelelektu (listing)",
+      "publisher": "Burman Coffee Traders",
+      "url": "https://burmancoffee.com/?p=59746"
+    },
+    "chk-faolex-fao-org-docs-pdf-cos77526-pdf": {
+      "title": "Decreto Ejecutivo N° 33062-MAG (reglamento a la Ley 2762), article 73: regiones cafetaleras electorales",
+      "publisher": "Government of Costa Rica, La Gaceta N° 85 (FAOLEX copy)",
+      "url": "https://faolex.fao.org/docs/pdf/cos77526.pdf",
+      "year": 2006
+    },
+    "chk-ptscoffee-com-blogs-meet-our-farmers-koyner-dunc": {
+      "title": "Koyner Duncan family, Duncan Estate",
+      "publisher": "PT's Coffee Roasting Co.",
+      "url": "https://ptscoffee.com/blogs/meet-our-farmers/koyner-duncan-family-duncan-estate"
+    },
+    "chk-fau-isle-flvc-org-node-30068": {
+      "title": "Germans in Guatemala During World War II (M.A. thesis, Sharon Yvonne Clifford)",
+      "publisher": "Florida Atlantic University",
+      "url": "https://fau.isle.flvc.org/node/30068",
+      "year": "1974"
+    },
+    "chk-atlascoffee-com-coffees-othaya-society": {
+      "title": "Empowering Coffee Farmers Through Value Addition",
+      "publisher": "Atlas Coffee Importers",
+      "url": "https://atlascoffee.com/coffees/othaya-society"
+    },
+    "chk-coffeereview-com-review-yemen-al-wadi": {
+      "title": "Yemen Al Wadi (Port of Mokha), 94",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/yemen-al-wadi/",
+      "year": 2021
+    },
+    "chk-gcrmag-com-jack-simpson-wins-2025-world-barista-": {
+      "title": "Jack Simpson wins 2025 World Barista Championship",
+      "publisher": "Global Coffee Report",
+      "url": "https://www.gcrmag.com/jack-simpson-wins-2025-world-barista-championship",
+      "year": 2025
+    },
+    "chk-perfectdailygrind-com-2023-09-typica-coffee-mejo": {
+      "title": "What is Typica Mejorado & will it become more popular in coffee shops?",
+      "publisher": "Perfect Daily Grind (Thomas Wensma)",
+      "url": "https://perfectdailygrind.com/2023/09/typica-coffee-mejorado/",
+      "year": 2023
+    },
+    "chk-library-sweetmarias-com-glossary-scottish-missio": {
+      "title": "Scottish Mission (glossary)",
+      "publisher": "Sweet Maria's",
+      "url": "https://library.sweetmarias.com/glossary/scottish-mission/"
+    },
+    "prensalibre-anacafe14-2014": {
+      "title": "Presentan variedad de café resistente a la roya",
+      "publisher": "Prensa Libre (Roxana Larios)",
+      "url": "https://www.prensalibre.com/?p=142092",
+      "year": 2014
+    },
+    "prensalibre-anacafe14-2016": {
+      "title": "Planta resistente a roya dará sus primeros frutos",
+      "publisher": "Prensa Libre (Natiana Gándara)",
+      "url": "https://www.prensalibre.com/?p=362859",
+      "year": 2016
+    },
+    "noticiasagricolas-anacafe14-2017": {
+      "title": "Planta resistente à ferrugem prestes a dar seus primeiros frutos na Guatemala",
+      "publisher": "Notícias Agrícolas (translation of Prensa Libre)",
+      "url": "https://www.noticiasagricolas.com.br/noticia/186167",
+      "year": 2017
+    },
+    "quantum-planhoyo-2026": {
+      "title": "ORIGIN - El Salvador: Finca Plan del Hoyo – Anacafé 14",
+      "publisher": "Quantum Coffee Roasters",
+      "url": "https://quantumroasters.co.uk/a/blog/post/origin-el-salvador-finca-plan-del-hoyo-anacafe-14",
+      "year": 2026
+    },
+    "coffeereview-elgrancafe-2021": {
+      "title": "El Gran Cafe: Espresso No. 2 (91 points)",
+      "publisher": "Coffee Review",
+      "url": "https://coffeereview.com/?p=21845",
+      "year": 2021
+    },
+    "ace-mex-2024": {
+      "title": "Mexico 2024 (Cup of Excellence results)",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/mexico-2024/",
+      "year": 2024
+    },
+    "ace-mex-2019": {
+      "title": "México 2019 (Cup of Excellence results)",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/?p=218515",
+      "year": 2019
+    },
+    "mag-slv-2017": {
+      "title": "Informe del Proyecto: Renovación del Parque Cafetalero con Variedades Mejoradas … en El Salvador (código 91008)",
+      "publisher": "Ministerio de Agricultura y Ganadería / CENTA, El Salvador",
+      "url": "https://transparencia.gob.sv/institutions/fantel/documents/220757/download",
+      "year": 2017
+    },
+    "pdg-monteclaro-2023": {
+      "title": "Varietal Monte Claro: ¿qué lo caracteriza y cuál es su potencial?",
+      "publisher": "Perfect Daily Grind (Español), Luis Alfredo Maldonado",
+      "url": "https://perfectdailygrind.com/es/2023/09/04/varietal-monte-claro-que-lo-caracteriza-y-potencial/",
+      "year": 2023
+    },
+    "wcr-mexico": {
+      "title": "Mexico (focus country)",
+      "publisher": "World Coffee Research",
+      "url": "https://worldcoffeeresearch.org/focus-countries/mexico",
+      "accessed": "2026-10"
+    },
+    "silva-rincon-2024": {
+      "title": "La variedad de café Geisha y su estatus en el mundo y en México",
+      "publisher": "Silva Rincón et al., Revista Mexicana de Ciencias Agrícolas 15(7)",
+      "url": "https://cienciasagricolas.inifap.gob.mx/index.php/agricolas/article/download/3403/6862",
+      "year": 2024
+    },
+    "agraria-marsellesa-2015": {
+      "title": "Llegarán a Perú plantas y semillas de café resistentes a la roya",
+      "publisher": "Agraria.pe",
+      "url": "https://agraria.pe/noticias/llegaran-a-peru-plantas-y-semillas-8420",
+      "year": 2015
+    },
+    "laprensani-hibridos-2014": {
+      "title": "Híbridos: la nueva tendencia en el agro",
+      "publisher": "La Prensa, Nicaragua (Lucydalia Baca Castellón)",
+      "url": "https://www.laprensani.com/2014/02/14/economia/182451-hibridos-la-nueva-tendencia-en-el-agro",
+      "year": 2014
+    },
+    "idr-iapar59-folder": {
+      "title": "Cultivar de café IAPAR 59 (folder)",
+      "publisher": "IAPAR / IDR-Paraná",
+      "url": "https://www.idrparana.pr.gov.br/system/files/publico/pesquisa/publicacoes/folder/fld-iapar-59/Folder%20Cafe%20IAPAR%2059.PDF",
+      "accessed": "2026-10"
+    },
+    "revistacultivar-iapar-2016": {
+      "title": "Instituto Agronômico do Paraná desenvolve tecnologias para incrementar a cafeicultura no Estado",
+      "publisher": "Revista Cultivar (Lucas Tadeu Ferreira)",
+      "url": "https://revistacultivar.com.br/noticias/instituto-agronomico-do-parana-desenvolve-tecnologias-para-incrementar-a-cafeicultura-no-estado",
+      "year": 2016
+    },
+    "carvalho-procafe-cup": {
+      "title": "Qualidade da bebida de cultivares de café com resistência à ferrugem do cafeeiro",
+      "publisher": "Carvalho, Matiello, Almeida, Ferreira, Padilha, Ferreira & Galdino (Embrapa Café / Fundação Procafé), Embrapa Alice repository",
+      "url": "https://www.alice.cnptia.embrapa.br/alice/bitstream/doc/909808/1/Qualidadedabebida.pdf",
+      "accessed": "2026-10"
+    },
+    "petek-2006": {
+      "title": "Seleção de progênies de Coffea arabica com resistência simultânea à mancha aureolada e à ferrugem alaranjada",
+      "publisher": "Petek, Sera, Sera, Fonseca & Ito, Bragantia 65(1)",
+      "url": "https://www.redalyc.org/pdf/908/90865109.pdf",
+      "year": 2006
+    },
+    "bonomo-2011": {
+      "title": "Comportamento de cafeeiros portadores de resistência à ferrugem em Viçosa, Minas Gerais",
+      "publisher": "Bonomo et al., 7º Simpósio de Pesquisa dos Cafés do Brasil (UFV repository)",
+      "url": "https://thoth.dti.ufv.br/items/8b86775b-bbde-4f25-9786-3845d0cf2215",
+      "year": 2011
+    },
+    "furlani-2007": {
+      "title": "Avaliação de cultivares de café arábica em região marginal",
+      "publisher": "Furlani Junior, Borges, Lazarini, Fazuoli & Andreotti, Acta Scientiarum Agronomy 29(2)",
+      "url": "https://www.redalyc.org/pdf/3030/303026573007.pdf",
+      "year": 2007
+    },
+    "coffeereview-tierraviva-2026": {
+      "title": "Fifth Heaven Coffee (Café Quinto Cielo): Puerto Rico Medium Roast (93 points)",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/?p=29362",
+      "year": 2026
+    },
+    "upr-paquete-1999": {
+      "title": "Conjunto Tecnológico para la Producción de Café (Publicación 104)",
+      "publisher": "Estación Experimental Agrícola, University of Puerto Rico at Mayagüez",
+      "url": "https://caribbeanclimatehub.org/wp-content/uploads/2015/06/Technological-Package-Coffee.pdf",
+      "year": 1999
+    },
+    "rodriguez-2020": {
+      "title": "Identificación de líneas interespecíficas de cafetos con resistencia a Hemileia vastatrix y adaptabilidad a la región cafetalera de Puerto Rico",
+      "publisher": "Rodríguez, González & Bosques, Journal of Agriculture of the University of Puerto Rico 104(2)",
+      "url": "https://revistas.upr.edu/index.php/jaupr/article/download/19040/17179/21519",
+      "year": 2020
+    },
+    "jordao-2023": {
+      "title": "Produtividade e qualidade de bebida de cultivares de cafeeiros irrigados na região do Cerrado Mineiro",
+      "publisher": "Jordão, undergraduate thesis (TCC), Universidade Federal de Uberlândia, Monte Carmelo",
+      "url": "https://repositorio.ufu.br/bitstream/123456789/36863/1/ProdutividadeQualidadeBebida.pdf",
+      "year": 2023
+    },
+    "chk-cdn-royalcoffee-com-wp-content-uploads-2025-09-2": {
+      "title": "Crown Jewel Mexico Washed Marsellesa Givette Pérez Orea (CJ1636)",
+      "publisher": "Royal Coffee",
+      "url": "https://cdn.royalcoffee.com/wp-content/uploads/2025/09/23081035/Crown-Jewel-Mexico-Washed-Marsellesa-Givette-Perez-Orea-CJ1636.pdf",
+      "year": 2025
+    },
+    "chk-algrano-com-products-7687-zambia-marsellesa-full": {
+      "title": "Zambia Marsellesa Fully Washed AA",
+      "publisher": "Algrano (lot from Mount Sunzu Coffee)",
+      "url": "https://www.algrano.com/products/7687-zambia-marsellesa-fully-washed-aa-arabica-lavado-may-sep-2025",
+      "year": 2025
+    },
+    "sidalc-sarchimor-2000": {
+      "title": "Sarchimor - promising new arabica hybrid (semi dwarf)",
+      "publisher": "SIDALC library record (India, CCRI trials)",
+      "url": "https://sidalc.net/search/Record/KOHA-OAI-BVE:89393",
+      "year": 2000
+    },
+    "awati-2016": {
+      "title": "Evaluation of arabica coffee cultivars under Pulney hill conditions of Tamil Nadu",
+      "publisher": "Awati, Anand & Raghuramulu (Regional Coffee Research Station, Thandigudi), Indian Journal of Horticulture 73(4)",
+      "url": "https://journal.iahs.org.in/index.php/ijh/article/view/1629",
+      "year": 2016
+    },
+    "georgehowell-kerehaklu": {
+      "title": "Kerehaklu, India",
+      "publisher": "George Howell Coffee",
+      "url": "https://www.georgehowellcoffee.com/products/kerehaklu-india",
+      "accessed": "2026-10"
+    },
+    "waytocoffee-balanoor": {
+      "title": "Balanoor Chandragiri Washed (Naivo Coffee Company listing)",
+      "publisher": "The Way to Coffee",
+      "url": "https://www.thewaytocoffee.com/beans/balanoor-chandragiri-washed",
+      "accessed": "2026-10"
+    },
+    "coffeeboard-foi-2013": {
+      "title": "Flavour of India - The Fine Cup Award, cupping competition 2013: winners list",
+      "publisher": "Coffee Board of India",
+      "url": "https://coffeeboard.gov.in/Kaapi Shastra/FLAVOUR OF INDIA2013 WinnersList.pdf",
+      "year": 2013
+    },
+    "procafe-arara-2017": {
+      "title": "Procafé: Cultivar de café Arara, a campeã de qualidade",
+      "publisher": "Notícias Agrícolas (source: Fundação Procafé)",
+      "url": "https://www.noticiasagricolas.com.br/noticia/204263",
+      "year": 2017
+    },
+    "bartelega-2017": {
+      "title": "Dinâmica dos nutrientes e desenvolvimento dos frutos de cafeeiro da cultivar Arara durante o ciclo produtivo",
+      "publisher": "Bartelega, Couto, Angelo, Paiva & Matiello (Fundação Procafé), 43º Congresso Brasileiro de Pesquisas Cafeeiras, via Embrapa Alice",
+      "url": "https://www.alice.cnptia.embrapa.br/alice/handle/doc/1080029?mode=full",
+      "year": 2017
+    },
+    "matiello-2007": {
+      "title": "Comportamento de progênies de café com resistência à ferrugem-do-cafeeiro no Sul do Estado de Minas Gerais",
+      "publisher": "Matiello, Ferreira & Carvalho, 5º Simpósio de Pesquisa dos Cafés do Brasil, via Embrapa Alice",
+      "url": "https://www.alice.cnptia.embrapa.br/handle/doc/905658?locale=en",
+      "year": 2007
+    },
+    "paiva-2009": {
+      "title": "Comportamento agronômico de progênies de cafeeiro (Coffea arabica L.) em Varginha/MG",
+      "publisher": "Paiva, Carvalho, Almeida, Matiello & Ferreira, VI Simpósio de Pesquisa dos Cafés do Brasil, via Embrapa Alice",
+      "url": "https://www.alice.cnptia.embrapa.br/handle/doc/903742?locale=en",
+      "year": 2009
+    },
+    "costa-2009": {
+      "title": "Qualidade da bebida de genótipos de café com resistência à ferrugem-do-cafeeiro",
+      "publisher": "Costa, Carvalho, Matiello, Almeida, Ferreira, Padilha & Carvalho, VI Simpósio de Pesquisa dos Cafés do Brasil, via Embrapa Alice",
+      "url": "https://www.alice.cnptia.embrapa.br/alice/handle/doc/903238?mode=full",
+      "year": 2009
+    },
+    "putra-ferry-2015": {
+      "title": "Keragaan Kopi Arabika Java Preanger di Jawa Barat",
+      "publisher": "Putra & Ferry, SIRINOV 3(3), Balai Penelitian Tanaman Industri dan Penyegar (Indonesian Ministry of Agriculture)",
+      "url": "https://kikp-pertanian.id/brmptri/uploaded_files/temporary/DigitalCollection/M2Y5OWJjNzVkZmI3ODlhNGYwMjUwZWI2NmI0ZWUwOTk4ZGVmZDE3Yw==.pdf",
+      "year": 2015
+    },
+    "prastowo-2010": {
+      "title": "Budidaya dan Pasca Panen Kopi",
+      "publisher": "Prastowo et al., Pusat Penelitian dan Pengembangan Perkebunan, Indonesian Ministry of Agriculture",
+      "url": "https://repository.pertanian.go.id/bitstreams/c9094c6a-ba3f-4461-88bf-f842fcc7596e/download",
+      "year": 2010
+    },
+    "randriani-2018": {
+      "title": "Pengenalan Varietas Unggul Kopi",
+      "publisher": "Randriani & Dani, IAARD Press (Indonesian Agency for Agricultural Research and Development)",
+      "url": "https://jatim.brmp.pertanian.go.id/informasi-publik/download/varietas-unggul-baru/deskripsi-varietas-unggul-kopi",
+      "year": 2018
+    },
+    "republika-sigararutang-2017": {
+      "title": "Kopi Sigararutang jadi andalan ekspor Sumut",
+      "publisher": "Republika (Antara)",
+      "url": "https://news.republika.co.id/berita/p0gxun328/kopi-sigararutang-jadi-andalan-ekspor-sumut",
+      "year": 2017
+    },
+    "investortrust-mawardi-2023": {
+      "title": "Surip Mawardi, puluhan tahun kembangkan kopi tahan karat daun",
+      "publisher": "InvestorTrust",
+      "url": "https://investortrust.id/esg/69/surip-mawardi-puluhan-tahun-kembangkan-kopi-tahan-karat-daun",
+      "year": 2023
+    },
+    "ozone-batian": {
+      "title": "Batian coffee varietal",
+      "publisher": "Ozone Coffee",
+      "url": "https://ozonecoffee.co.uk/blogs/varietals/coffee-varietal-batian",
+      "accessed": "2026-10"
+    },
+    "thebarn-izidro": {
+      "title": "Paulo Izidro (Brazil, Paraiso, natural)",
+      "publisher": "The Barn Coffee Roasters",
+      "url": "https://thebarn.de/products/paulo-izidro",
+      "accessed": "2026-10"
+    },
+    "ace-bra-2019": {
+      "title": "Brazil 2019 Cup of Excellence results",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/directory/wpbdp_category/brazil-2019/",
+      "year": 2019
+    },
+    "ace-bra-nat-2018": {
+      "title": "Brazil Naturals 2018 Cup of Excellence results (page 4)",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/directory/wpbdp_category/brazil-naturals-2018/page/4",
+      "year": 2018
+    },
+    "algrano-br483": {
+      "title": "Lote 150, Catiguá MG2, natural (BR-483)",
+      "publisher": "Algrano",
+      "url": "https://www.algrano.com/en/coffees/BR-483",
+      "year": 2020
+    },
+    "lacabra-maracatu": {
+      "title": "Sítio Maracatu (Brazil, Catiguá, natural)",
+      "publisher": "La Cabra",
+      "url": "https://lacabra.com/products/sitio-maracatu",
+      "accessed": "2026-10"
+    },
+    "agenciaminas-cerrado-2021": {
+      "title": "Variedades de café da Epamig conquistam as primeiras colocações em Prêmio da Região do Cerrado Mineiro",
+      "publisher": "Agência Minas (Minas Gerais state news agency)",
+      "url": "https://www.agenciaminas.mg.gov.br/news/pdf/112071.pdf",
+      "year": 2021
+    },
+    "cultivar-epamig39-2013": {
+      "title": "Epamig completa 39 anos: pesquisas de café marcam trajetória",
+      "publisher": "Revista Cultivar",
+      "url": "https://revistacultivar.com.br/noticias/epamig-completa-39-anos-pesquisas-de-cafe-marcam-trajetoria-",
+      "year": 2013
+    },
+    "hulupi-2013": {
+      "title": "Performance of some Arabica coffee local varieties from Gayo highland",
+      "publisher": "Hulupi, Nugroho & Yusianto, Coffee and Cocoa Research Journal (Pelita Perkebunan, ICCRI) 29(2), via FAO AGRIS",
+      "url": "https://agris.fao.org/search/en/records/67598e86c7a957febdfc1883",
+      "year": 2013
+    },
+    "widayat-2022": {
+      "title": "Review: Semua mengenai sejarah, biologi, keanekaragaman genetik, paska panen, dan sensori kopi Arabica Gayo",
+      "publisher": "Widayat et al. (Universitas Syiah Kuala, BRIN), Prosiding Seminar Nasional",
+      "url": "https://semnasthp.usk.ac.id/prosiding/256-263_1_1_2022_Widayat-etal.pdf",
+      "year": 2022
+    },
+    "sweetmarias-glossary-ateng": {
+      "title": "Glossary: Ateng",
+      "publisher": "Sweet Maria's Coffee Library",
+      "url": "https://library.sweetmarias.com/glossary/ateng/"
+    },
+    "das-2021": {
+      "title": "Vegetative vigour, yield and field tolerance to leaf rust in four F1 hybrids of coffee (Coffea arabica L.) in India",
+      "publisher": "Das, Shivanna & Prakash (Central Coffee Research Institute), Journal of Horticultural Sciences 16(2)",
+      "url": "https://jhs.iihr.res.in/index.php/jhs/article/download/968/920/7404",
+      "year": 2021
+    },
+    "rao-asic-2025": {
+      "title": "International Multi Location Variety Trial (IMLVT) of Arabica coffee in India: its relevance and implications in breeding for durable rust resistance",
+      "publisher": "Rao, Das, Manjunath, Suresh Kumar & Berny Mier y Teran (CCRI, Coffee Board of India; World Coffee Research), ASIC 2025 poster",
+      "url": "https://www.alphavisa.com/asic/2025/documents/eposters/S2/S2_NAYANI.pdf",
+      "year": 2025
+    },
+    "epamig-ct152-2012": {
+      "title": "Comportamento da cultivar Paraíso ao nematoide Meloidogyne exigua (Circular Técnica 152)",
+      "publisher": "EPAMIG (Salgado, Pereira, Carvalho, Rezende, Ferreira & de Pauli)",
+      "url": "https://livrariaepamig.com.br/wp-content/uploads/2023/03/CT-152.pdf",
+      "year": 2012
+    },
+    "epamig-ct338-2021": {
+      "title": "Cultivar de café MGS Paraíso 2: potencial de produtividade e qualidade na região do Sul de Minas Gerais (Circular Técnica 338)",
+      "publisher": "EPAMIG (Botelho, Nadaleti, Silva, Carvalho, Pereira, Oliveira, Abrahão, Andrade & Ferreira)",
+      "url": "https://livrariaepamig.com.br/wp-content/uploads/2023/02/ct-338.pdf",
+      "year": 2021
+    },
+    "epamig-ct353-2021": {
+      "title": "Conheça algumas cultivares de café arábica da EPAMIG (Circular Técnica 353)",
+      "publisher": "EPAMIG (Abrahão, Ferreira, Ferreira, Pereira, Oliveira, Botelho, Vilela, Carvalho & Figueiredo)",
+      "url": "https://livrariaepamig.com.br/wp-content/uploads/2023/02/ct-353.pdf",
+      "year": 2021
+    },
+    "cultivar-illy-2023": {
+      "title": "Lote da cultivar MGS Paraíso 2 vence o Prêmio Internacional de Café Ernesto Illy",
+      "publisher": "Revista Cultivar (Mariana de Assis)",
+      "url": "https://revistacultivar.com.br/noticias/lote-da-cultivar-mgs-paraiso-2-vence-o-premio-internacional-de-cafe-ernesto-illy",
+      "year": 2023
+    },
+    "epamig-quality-2016": {
+      "title": "Café: Pesquisas da EPAMIG melhoram qualidade da bebida",
+      "publisher": "Notícias Agrícolas (from EPAMIG)",
+      "url": "https://www.noticiasagricolas.com.br/noticia/180613",
+      "year": 2016
+    },
+    "epamig-oeste-2018": {
+      "title": "EPAMIG Oeste alavanca cafeicultura no Cerrado Mineiro",
+      "publisher": "Notícias Agrícolas (from EPAMIG)",
+      "url": "https://www.noticiasagricolas.com.br/noticia/225478",
+      "year": 2018
+    },
+    "sweetmarias-glossary-icatu": {
+      "title": "Icatu (glossary entry)",
+      "publisher": "Sweet Maria's Coffee Library",
+      "url": "https://library.sweetmarias.com/glossary/icatu/"
+    },
+    "ferrao-es": {
+      "title": "Comportamento de cultivares de café arábica na região serrana do estado do Espírito Santo",
+      "publisher": "Ferrão, Fonseca, Ferrão, Rocha, Andrade Neto & Fornazier, Simpósio de Pesquisa dos Cafés do Brasil (Embrapa Alice repository)",
+      "url": "https://www.alice.cnptia.embrapa.br/alice/bitstream/doc/902637/1/Comportamentodecultivaresdecafe.pdf"
+    },
+    "procafe-maturacao-2018": {
+      "title": "Procafé: Combinação de variedades de café permite facilidade na colheita",
+      "publisher": "Notícias Agrícolas (from Fundação Procafé)",
+      "url": "https://www.noticiasagricolas.com.br/noticia/218079",
+      "year": 2018
+    },
+    "cultivar-rondonia-2019": {
+      "title": "Estudos genéticos selecionam variedade de café arábica para a região amazônica",
+      "publisher": "Revista Cultivar (on Embrapa Rondônia research)",
+      "url": "https://www.revistacultivar.com.br/noticias/estudos-geneticos-selecionam-variedade-de-cafe-arabica-para-a-regiao-amazonica",
+      "year": 2019
+    },
+    "procafe-birds-2020": {
+      "title": "Procafé: Variedades de café com nomes de pássaros voam alto na produtividade",
+      "publisher": "Notícias Agrícolas (from Fundação Procafé)",
+      "url": "https://www.noticiasagricolas.com.br/noticia/264082",
+      "year": 2020
+    },
+    "ico-coffeeboard-2006": {
+      "title": "Breeding coffee plants with durable resistance to coffee leaf rust, anthracnose and other diseases (project proposal, WP Board 979/05 Rev. 1)",
+      "publisher": "International Coffee Organization, proposal submitted by the Coffee Board of India",
+      "url": "https://ico.org/documents/wpboard979r1e.pdf",
+      "year": 2006
+    },
+    "ram-1994": {
+      "title": "Augmentation and utilization of coffee germplasm in India",
+      "publisher": "Ram, Prakash, Jyothi, Mishra, Srinivasan & Naidu, Indian Journal of Plant Genetic Resources 7(1)",
+      "url": "https://ispgr.in/index.php/ijpgr/article/download/779/607",
+      "year": 1994
+    },
+    "gi-bababudangiri-2017": {
+      "title": "Application for registration of the Geographical Indication 'Bababudangiri Arabica'",
+      "publisher": "Coffee Board of India, via oriGIn",
+      "url": "https://www.origin-gi.com/wp-content/uploads/2022/02/608-bababudangiri-arabica.pdf",
+      "year": 2017
+    },
+    "craves-batian-2011": {
+      "title": "New Kenyan coffee varietal",
+      "publisher": "Coffee & Conservation (Julie Craves)",
+      "url": "https://www.coffeehabitat.com/?p=1977",
+      "year": 2011
+    },
+    "malta-2002": {
+      "title": "Qualidade de grãos de diferentes cultivares de cafeeiro (Coffea arabica L.)",
+      "publisher": "Malta, Santos & Silva, Acta Scientiarum 24(5)",
+      "url": "https://periodicos.uem.br/ojs/index.php/ActaSciAgron/article/download/2386/1793",
+      "year": 2002
+    },
+    "embrapa-bourbon-2021": {
+      "title": "Caracterização agronômica e sensorial de diferentes genótipos de Bourbon visando à produção de cafés especiais (Boletim de Pesquisa e Desenvolvimento 2)",
+      "publisher": "Embrapa Café (Ferreira, Carvalho & Nadaleti)",
+      "url": "https://www.infoteca.cnptia.embrapa.br/infoteca/bitstream/doc/1131673/1/Embrapa-Cafe-Boletim-n2-VersaoFinal.pdf",
+      "year": 2021
+    },
+    "coffeereview-riunggunung-2024": {
+      "title": "Java Riunggunung Estate (Roadmap CoffeeWorks), 93",
+      "publisher": "Coffee Review",
+      "url": "https://coffeereview.com/?p=24894",
+      "year": 2024
+    },
+    "coffeereview-kerinci-2020": {
+      "title": "Kerinci Palompek Sumatra (JBC Coffee Roasters), 94",
+      "publisher": "Coffee Review",
+      "url": "https://coffeereview.com/?p=19944",
+      "year": 2020
+    },
+    "bertrand-2011": {
+      "title": "Performance of Coffea arabica F1 hybrids in agroforestry and full-sun cropping systems in comparison with American pure line cultivars",
+      "publisher": "Bertrand et al., Euphytica",
+      "url": "https://link.springer.com/doi/10.1007/s10681-011-0372-7",
+      "year": 2011
+    },
+    "etienne-2018": {
+      "title": "Coffee somatic embryogenesis: how did research, experience gained and innovations promote the commercial propagation of elite clones from the two cultivated species?",
+      "publisher": "Etienne et al., Frontiers in Plant Science",
+      "url": "https://www.frontiersin.org/articles/10.3389/fpls.2018.01630/pdf",
+      "year": 2018
+    },
+    "ace-cri-2022": {
+      "title": "Costa Rica 2022 (Cup of Excellence results)",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/costa-rica-2022/",
+      "year": 2022
+    },
+    "catie-korea": {
+      "title": "Korean coffee taster highlights the quality of hybrids developed by CATIE",
+      "publisher": "CATIE",
+      "url": "https://catie.ac.cr/en/?p=28500",
+      "accessed": "2026-10"
+    },
+    "sweetmarias-cassiopea-2025": {
+      "title": "Costa Rica Zarcero Monte Brisas Cassiopea",
+      "publisher": "Sweet Maria's",
+      "url": "https://www.sweetmarias.com/products/costa-rica-zarcero-monte-brisas-cassiopea-8417",
+      "year": 2025
+    },
+    "way-lajas-casiopea": {
+      "title": "Casiopea, Natural Anaerobic, Las Lajas, Costa Rica (Sumo Coffee Roasters listing)",
+      "publisher": "The Way to Coffee (listing)",
+      "url": "https://astro.thewaytocoffee.com/beans/casiopea-natural-anaerobic-las-lajas-costa-rica",
+      "year": 2025
+    },
+    "matamoros-2020": {
+      "title": "Efecto de fitohormonas y fertilizantes sobre el enraizamiento y crecimiento de mini-estaquillas de híbridos F1 de café (Coffea arabica)",
+      "publisher": "Matamoros-Quesada, Mesén-Sequeira & Jiménez-Alvarado, Revista de Ciencias Ambientales",
+      "url": "https://revistas.una.ac.cr/index.php/ambientales/article/download/13225/18446/49771",
+      "year": 2020
+    },
+    "techreview-2019": {
+      "title": "The accident that led to the discovery of climate-change-proof coffee",
+      "publisher": "MIT Technology Review (Diego Arguedas Ortiz)",
+      "url": "https://www.technologyreview.com/2019/04/24/135937/the-accident-that-led-to-the-discovery-of-climate-change-proof-coffee/",
+      "year": 2019
+    },
+    "coffeereview-lascuadras-2016": {
+      "title": "Costa Rica Las Cuadras F1 Hybrid Natural (Argyle Coffee Roasters)",
+      "publisher": "Coffee Review",
+      "url": "https://coffeereview.com/?p=14569",
+      "year": 2016
+    },
+    "fulcrum-esperanza": {
+      "title": "Costa Rica Aquiares Esperanza (listing)",
+      "publisher": "Fulcrum Coffee Roasters",
+      "url": "https://www.fulcrumcoffee.com/products/costa-rica-aquiares-esparanza",
+      "accessed": "2026-10"
+    },
+    "prolog-esperanza": {
+      "title": "Prolog: Aquiares, Esperanza, Natural, Costa Rica (listing)",
+      "publisher": "Sigma Coffee (Prolog Coffee)",
+      "url": "https://sigmacoffee.co.uk/products/prolog-aquiares-mariana-natural-anaerobic-costa-rica-copy",
+      "accessed": "2026-10"
+    },
+    "ozone-sumava-h3": {
+      "title": "Costa Rica Sumava H3 anaerobic honey",
+      "publisher": "Ozone Coffee",
+      "url": "https://ozonecoffee.co.uk/blogs/passenger/costa-rica-sumava-h3-anaerobic-honey-090",
+      "year": 2023
+    },
+    "way-volcanazul-h3": {
+      "title": "#17 Costa Rica, Yellow Honey H3 (Stillers Coffee listing)",
+      "publisher": "The Way to Coffee (listing)",
+      "url": "https://www.thewaytocoffee.com/beans/17-costa-rica-yellow-honey-h3",
+      "accessed": "2026-10"
+    },
+    "monogram-mundomaya": {
+      "title": "Monogram: Carlos Cadena, Mundo Maya, filter (listing)",
+      "publisher": "Uphill Coffee (Monogram Coffee)",
+      "url": "https://skiuphill.ca/products/monogram-carlos-cadena-filter-coffee-copy",
+      "accessed": "2026-10"
+    },
+    "cirad-starmaya-2019": {
+      "title": "Arabica coffee: Starmaya, a hybrid variety available in seed form for the first time",
+      "publisher": "CIRAD",
+      "url": "https://www.cirad.fr/en/press-area/press-releases/2019/starmaya-coffee-seeds-arabica",
+      "year": 2019
+    },
+    "algrano-sunzu-starmaya-2025": {
+      "title": "Zambia Starmaya Fully Washed AA (Mount Sunzu Coffee, May–Sep 2025)",
+      "publisher": "Algrano (listing)",
+      "url": "https://www.algrano.com/products/7688-zambia-starmaya-fully-washed-aa-arabica-lavado-may-sep-2025",
+      "year": 2025
+    },
+    "coffeereview-kenya-2008": {
+      "title": "Coffees of Kenya: still struggling, still great (Kenneth Davids)",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/coffees-of-kenya-still-struggling-still-great",
+      "year": 2008
+    },
+    "way-circulor-ruiru11": {
+      "title": "Kenya Coffea Circulor Ordo Isolated Ruiru 11 AA Washed (listing)",
+      "publisher": "The Way to Coffee (listing)",
+      "url": "https://www.thewaytocoffee.com/beans/kenya-coffea-circulor-ordo-isolated-ruiru-11-aa-washed-wx",
+      "accessed": "2026-10"
+    },
+    "dcn-coe-nic-2018": {
+      "title": "F1 hybrids excel at the 2018 Nicaragua Cup of Excellence (Nick Brown)",
+      "publisher": "Daily Coffee News",
+      "url": "https://dailycoffeenews.com/2018/04/26/f1-hybrids-excel-at-the-2018-nicaragua-cup-of-excellence/",
+      "year": 2018
+    },
+    "coe-nic-2018": {
+      "title": "Nicaragua 2018 (Cup of Excellence results)",
+      "publisher": "Cup of Excellence",
+      "url": "https://cupofexcellence.org/nicaragua-2018/",
+      "year": 2018
+    },
+    "chk-samplecoffee-com-au-coffee-putra-gayo-mill": {
+      "title": "Indonesia Putra Gayo Mill",
+      "publisher": "Sample Coffee",
+      "url": "https://samplecoffee.com.au/coffee/putra-gayo-mill"
+    },
+    "chk-sipora-polije-ac-id-35901-2-bab-201-20pendahulua": {
+      "title": "Bab 1 Pendahuluan (undergraduate thesis chapter)",
+      "publisher": "Politeknik Negeri Jember (SIPORA repository)",
+      "url": "https://sipora.polije.ac.id/35901/2/Bab%201%20Pendahuluan.pdf"
+    },
+    "chk-repository-pertanian-go-id-bitstreams-25b13d05-d": {
+      "title": "Budidaya dan Pascapanen Kopi",
+      "publisher": "IAARD Press (Indonesian Agency for Agricultural Research and Development)",
+      "url": "https://repository.pertanian.go.id/bitstreams/25b13d05-d413-4c7c-971a-21e976607411/download",
+      "year": 2012
+    },
+    "chk-sigmacoffee-co-uk-products-prolog-aquiares-natur": {
+      "title": "Prolog: Aquiares, Natural Anaerobic Esperanza, Costa Rica (listing)",
+      "publisher": "Sigma Coffee (Prolog Coffee)",
+      "url": "https://sigmacoffee.co.uk/products/prolog-aquiares-natural-anaerobic-esperanza-costa-rica"
+    },
+    "chk-repository-embuni-ac-ke-items-5a7e84fe-27a0-4041": {
+      "title": "Variation and Association of Cup Quality Attributes and Resistance to Coffee Berry Disease in Coffea arabica L. Composite Cultivar, Ruiru 11",
+      "publisher": "Gichimu, Gichuru, Mamati & Nyende, African Journal of Horticultural Science (University of Embu repository)",
+      "url": "https://repository.embuni.ac.ke/items/5a7e84fe-27a0-4041-9d4a-2a71ae1e3c4c/full",
+      "year": 2013
+    },
+    "fas-gtm-2025": {
+      "title": "Guatemala: Coffee Annual (GAIN report GT2025-0007, summary page)",
+      "publisher": "USDA Foreign Agricultural Service",
+      "url": "https://www.fas.usda.gov/data/guatemala-coffee-annual-10",
+      "year": 2025
+    },
+    "faolex-hnd-2000": {
+      "title": "Decreto No. 213-2000: reforma de la Ley Orgánica del Instituto Hondureño del Café (La Gaceta No. 29,360, 22 December 2000)",
+      "publisher": "Congreso Nacional de Honduras (via FAOLEX)",
+      "url": "https://faolex.fao.org/docs/pdf/hon24019.pdf",
+      "year": 2000
+    },
+    "pdg-es-parainema-2026": {
+      "title": "Lo que debes conocer de la variedad Parainema (Francisco Aimone)",
+      "publisher": "Perfect Daily Grind (Spanish)",
+      "url": "https://perfectdailygrind.com/es/2026/07/15/que-debes-conocer-variedad-parainema/",
+      "year": 2026
+    },
+    "csc-ico-2016": {
+      "title": "El Salvador (Consejo Salvadoreño del Café presentation, coffee year 2015/16): coffee areas by mountain range, varieties, altitude grades, processing",
+      "publisher": "Consejo Salvadoreño del Café, published by the International Coffee Organization",
+      "url": "https://www.ico.org/documents/cy2015-16/Presentations/7.2%20EL%20SALVADOR.pdf",
+      "year": 2016
+    },
+    "elmundo-isc-2025": {
+      "title": "El 36 % de las fincas en El Salvador son propiedad de mujeres (Instituto Salvadoreño del Café figures)",
+      "publisher": "Diario El Mundo (Uveli Alemán)",
+      "url": "https://diario.elmundo.sv/economia/el-36-de-las-fincas-en-el-salvador-son-propiedad-de-mujeres",
+      "year": 2025
+    },
+    "dcn-nic-2025": {
+      "title": "Nicaragua coffee report: weather helps production though smallholders challenged (USDA Coffee Annual, May 2025)",
+      "publisher": "Daily Coffee News",
+      "url": "https://dailycoffeenews.com/?p=188363",
+      "year": 2025
+    },
+    "coffeereview-gtm": {
+      "title": "Coffees from the Americas: Guatemala",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/coffee-reference/coffee-categories/geographic-origins/coffees-from-the-americas/guatemala/",
+      "year": 2022
+    },
+    "wcr-slv": {
+      "title": "El Salvador",
+      "publisher": "World Coffee Research",
+      "url": "https://worldcoffeeresearch.org/countries/el-salvador"
+    },
+    "oaxaca-cafe-2024": {
+      "title": "Estrategia para el desarrollo integral y sostenible del sector cafetalero en Oaxaca (August 2024; SIAP and INEGI figures for 2022)",
+      "publisher": "Gobierno del Estado de Oaxaca (SEDECO), with GIZ",
+      "url": "https://www.oaxaca.gob.mx/sedeco/wp-content/uploads/sites/60/2025/06/Estrategia-integral-para-el-desarrollo-sostenible-GIZ-compacta-1.pdf",
+      "year": 2024
+    },
+    "wcr-venecia": {
+      "title": "Venecia",
+      "publisher": "World Coffee Research (variety catalog)",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/venecia"
+    },
+    "elfinanciero-cri-2014": {
+      "title": "Icafe pone a disposición nueva variedad del café tolerante a la roya (Andrea Rodríguez V., 8 January 2014)",
+      "publisher": "El Financiero (Costa Rica)",
+      "url": "https://www.elfinancierocr.com/economia-y-politica/icafe-pone-a-disposicion-nueva-variedad-del-cafe-tolerante-a-la-roya/T6ARGMEEANALVCYDSQQ4DH6QAQ/story/",
+      "year": 2014
+    },
+    "beanscene-cri-2016": {
+      "title": "Costa Rica upholds ban on Robusta cultivation (12 October 2016)",
+      "publisher": "BeanScene",
+      "url": "https://www.beanscenemag.com.au/costa-rica-upholds-ban-on-robusta-cultivation",
+      "year": 2016
+    },
+    "revistaeyn-cri-2018": {
+      "title": "Costa Rica permitirá cultivo de café robusta tras 30 años de prohibición (Reuters, 22 February 2018)",
+      "publisher": "Estrategia & Negocios",
+      "url": "https://www.revistaeyn.com/centroamericaymundo/costa-rica-permitira-cultivo-de-cafe-robusta-tras-30-anos-de-prohibicion-HXEN1154627",
+      "year": 2018
+    },
+    "observador-cri-2021": {
+      "title": "Cafetaleros promueven siembra de la variedad robusta en Costa Rica, ausente desde 1998 (16 August 2021)",
+      "publisher": "El Observador (Costa Rica)",
+      "url": "https://observador.cr/cafetaleros-promueven-siembra-de-la-variedad-robusta-en-costa-rica-ausente-desde-1998/",
+      "year": 2021
+    },
+    "tvn-pan-2025": {
+      "title": "Día Internacional del Café: Panamá celebra su aroma, consumo y un ritual que también se pide a domicilio (MIDA coffee-chain figures)",
+      "publisher": "TVN Noticias (Panama)",
+      "url": "https://www.tvn-2.com/nacionales/dia-internacional-cafe-panama-consumo-produccion-nacional_1_2208636.amp.html",
+      "year": 2025
+    },
+    "eyn-pan-2024": {
+      "title": "Producción de zafra cafetalera de Panamá 2023/2024 aumentaría un 20 % (10 June 2024)",
+      "publisher": "Estrategia & Negocios",
+      "url": "https://www.revistaeyn.com/centroamericaymundo/produccion-de-zafra-cafetalera-de-panama-2023-2024-aumentaria-un-20-KH19789164",
+      "year": 2024
+    },
+    "laestrella-geisha-2024": {
+      "title": "Café Geisha, un grano en auge comercial (Bernabé Yangüez, 10 June 2024)",
+      "publisher": "La Estrella de Panamá",
+      "url": "https://www.laestrella.com.pa/economia/cafe-geisha-un-grano-en-auge-comercial-GE7633282",
+      "year": 2024
+    },
+    "laestrella-robusta-2026": {
+      "title": "De café comercial a especialidad sostenible: la reconversión ecológica del 'robusta' panameño (Mirta Rodríguez P., MIDA figures)",
+      "publisher": "La Estrella de Panamá",
+      "url": "https://www.laestrella.com.pa/economia/cafe-robusta-el-oro-negro-que-busca-impulsar-la-produccion-cafetalera-de-panama-DH24540388",
+      "year": 2026
+    },
+    "vanguardia-robusta-2023": {
+      "title": "¿Café arábigo o robusta? El fuerte dilema del futuro de la caficultura de Colombia",
+      "publisher": "Vanguardia",
+      "url": "https://www.vanguardia.com/economia/nacional/cafe-arabigo-o-robusta-el-fuerte-dilema-del-futuro-de-la-caficultura-de-colombia-XN7917451",
+      "year": 2023
+    },
+    "valora-robusta-2024": {
+      "title": "Federación de cafeteros lanza proyección para fin de año en Colombia; analiza producción de robusta",
+      "publisher": "Valora Analitik (María Camila Pérez Godoy)",
+      "url": "https://www.valoraanalitik.com/?p=413611",
+      "year": 2024
+    },
+    "embrapa-incaper-2020": {
+      "title": "Cultivares do Incaper ganham destaque na produção de canéfora do Espírito Santo",
+      "publisher": "Embrapa Café, via Notícias Agrícolas",
+      "url": "https://www.noticiasagricolas.com.br/noticia/265009",
+      "year": 2020
+    },
+    "mercanta-peru-2016": {
+      "title": "A lotta latas….but no llamas: Stephen Cornford reports from Peru",
+      "publisher": "Mercanta (The Coffee Hunters)",
+      "url": "https://coffeehunter.com/a-lotta-latas-but-no-llamas-stephen-cornford-reports-from-peru/",
+      "year": 2016
+    },
+    "sweetmarias-ecu": {
+      "title": "Ecuador (green coffee collection page, oEmbed view)",
+      "publisher": "Sweet Maria's",
+      "url": "https://www.sweetmarias.com/collections/ecuador.oembed",
+      "accessed": "2026-10"
+    },
+    "expreso-ecu-2026": {
+      "title": "La racha del café: precios al alza, Ecuador sin base productiva consolidada",
+      "publisher": "Diario Expreso (Ecuador)",
+      "url": "https://www.expreso.ec/economia-y-negocios/la-racha-cafe-precios-al-alza-ecuador-sin-base-productiva-consolidada-reactivacion-cambio-climatico-productividad-cafe-robusta-arabica-279180.html",
+      "year": 2026
+    },
+    "ibce-bol-2024": {
+      "title": "Bolivia: exportaciones de café (CIFRAS, boletín electrónico bisemanal Nº 1.228, 16 May 2024; INE data)",
+      "publisher": "Instituto Boliviano de Comercio Exterior (IBCE)",
+      "url": "https://www.ibce.org.bo//images/ibcecifras_documentos/cifras-1228-Bolivia-Exportaciones-de-cafe.pdf",
+      "year": 2024
+    },
+    "ibce-bol-2026": {
+      "title": "Exportación de café (CIFRAS, boletín electrónico bisemanal Nº 1.428, 25 June 2026; INE data)",
+      "publisher": "Instituto Boliviano de Comercio Exterior (IBCE)",
+      "url": "https://www.ibce.org.bo//images/ibcecifras_documentos/Cifras_1.428_Exportacion_de_cafe_1782396236.pdf",
+      "year": 2026
+    },
+    "correodelsur-bol-2022": {
+      "title": "¿Chuquisaca puede ser un departamento productor de café?",
+      "publisher": "Correo del Sur",
+      "url": "https://correodelsur.com/panorama/20220612/chuquisaca-puede-ser-un-departamento-productor-de-cafe.html",
+      "year": 2022
+    },
+    "eju-bol-2017": {
+      "title": "Exportación de café boliviano cae 100% en 5 años debido a 3 factores",
+      "publisher": "eju.tv",
+      "url": "https://eju.tv/?p=976838",
+      "year": 2017
+    },
+    "mcm-bolivia-2023": {
+      "title": "Bolivia has landed!",
+      "publisher": "Melbourne Coffee Merchants",
+      "url": "https://melbournecoffeemerchants.com.au/?p=8919",
+      "year": 2023
+    },
+    "mcm-bolivia-2024": {
+      "title": "Bring on Bolivia!",
+      "publisher": "Melbourne Coffee Merchants",
+      "url": "https://melbournecoffeemerchants.com.au/?p=10173",
+      "year": 2024
+    },
+    "mcm-bolivia-solmanana": {
+      "title": "Small Producers of Sol de la Mañana",
+      "publisher": "Melbourne Coffee Merchants",
+      "url": "https://melbournecoffeemerchants.com.au/?p=6950",
+      "accessed": "2026-10"
+    },
+    "vankesteren-ven-1989": {
+      "title": "Venezuela y el Acuerdo Internacional del Café: consecuencias de la suspensión del régimen de cuotas del Convenio Internacional del Café",
+      "publisher": "Alfredo Van Kesteren, for the Junta del Acuerdo de Cartagena (hosted by Cenicafé, Ensayos sobre Economía Cafetera)",
+      "url": "https://publicaciones.cenicafe.org/index.php/ecc/article/download/996/1185/926",
+      "year": 1989
+    },
+    "wcr-caripe": {
+      "title": "Caripe",
+      "publisher": "World Coffee Research, variety catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/caripe",
+      "accessed": "2026-10"
+    },
+    "baristamag-caripe-2024": {
+      "title": "The Caripe Variety: A Groundbreaking Milestone in Venezuelan Coffee Farming",
+      "publisher": "Barista Magazine (Vasileia Fanarioti)",
+      "url": "https://baristamagazine.com/the-caripe-variety-a-groundbreaking-milestone-in-venezuelan-coffee-farming",
+      "year": 2024
+    },
+    "aporrea-ven-2024": {
+      "title": "La tendencia de los cafés de especial y la enfermedad de la roya del café (opinion)",
+      "publisher": "Aporrea (Freddy A. Colmenárez-Betancourt, former INIA coffee researcher)",
+      "url": "https://www.aporrea.org/actualidad/a331145.html",
+      "year": 2024
+    },
+    "interempresas-ven-2019": {
+      "title": "¿Qué papel ha jugado el café en la economía venezolana?",
+      "publisher": "Interempresas",
+      "url": "https://www.interempresas.net/Alimentaria/253371-Que-papel-ha-jugado-el-cafe-en-la-economia-venezolana.html",
+      "year": 2019
+    },
+    "agraria-ecu-2024": {
+      "title": "Producción ecuatoriana de café está en declive y abastece el 50% de su consumo nacional",
+      "publisher": "Agraria.pe (from Primicias)",
+      "url": "https://agraria.pe/noticias/produccion-ecuatoriana-de-cafe-esta-en-declive-y-abastece-el-35331",
+      "year": 2024
+    },
+    "vistazo-ecu-2025": {
+      "title": "Café ecuatoriano debe potenciar su producción: el consumo interno se incrementa",
+      "publisher": "Vistazo",
+      "url": "https://www.vistazo.com/enfoque/2025-10-02-cafe-ecuatoriano-potenciar-produccion-consumo-interno-crece-HB10222775",
+      "year": 2025
+    },
+    "mcm-lallama-ethiosar": {
+      "title": "La Llama Ethiosar Lactic Washed",
+      "publisher": "Melbourne Coffee Merchants",
+      "url": "https://melbournecoffeemerchants.com.au/?p=5459",
+      "year": 2020
+    },
+    "burman-caplami-2021": {
+      "title": "Cameroon CAPLAMI Premium Washed Processed (green coffee listing)",
+      "publisher": "Burman Coffee Traders",
+      "url": "https://burmancoffee.com/?p=105637",
+      "year": 2021
+    },
+    "bic-littoral-2025": {
+      "title": "Coffee: Littoral region sees output dive as farmers shift crops",
+      "publisher": "Business in Cameroon",
+      "url": "https://www.businessincameroon.com/agriculture/0206-14711-coffee-littoral-region-sees-output-dive-as-farmers-shift-crops",
+      "year": 2025
+    },
+    "ct-cicc-2026": {
+      "title": "« La filière reste confrontée à des contraintes structurelles » (interview with CICC president Apollinaire Ngwé)",
+      "publisher": "Cameroon Tribune",
+      "url": "https://cameroon-tribune.cm/article.html/81200/fr.html/details_2",
+      "year": 2026
+    },
+    "nestle-cwa-robusta-2026": {
+      "title": "Robusta coffee yield research (Nestlé and CNRA variety-mix study)",
+      "publisher": "Nestlé Central and West Africa",
+      "url": "https://www.nestle-cwa.com/en/media/news/robusta-coffee-yield-research",
+      "year": 2026
+    },
+    "euafrica-nestle-civ-2025": {
+      "title": "Celebrating Ivorian coffee and supporting communities in Côte d'Ivoire: a commitment by Nestlé",
+      "publisher": "EU-Africa Chamber of Commerce",
+      "url": "https://eu-africa-chamber.org/celebrating-ivorian-coffee-and-supporting-communities-in-cote-divoire-a-commitment-by-nestle/",
+      "year": 2025
+    },
+    "usda-psd-mwi": {
+      "title": "Production - Malawi (PSD country summary: coffee, green, 60 kg bags)",
+      "publisher": "USDA Foreign Agricultural Service",
+      "url": "https://www.fas.usda.gov/data/production/country/mi",
+      "year": 2025
+    },
+    "afca-malawi-2024": {
+      "title": "AFCA chapter: Malawi",
+      "publisher": "African Fine Coffees Association",
+      "url": "https://afca.coffee/chapters/uncategorized/malawi/",
+      "year": 2024
+    },
+    "andytown-kateshi-2025": {
+      "title": "The return of Zambian coffee and the Kateshi Estate",
+      "publisher": "Andytown Coffee Roasters",
+      "url": "https://andytownsf.com/blogs/news/the-return-of-zambian-coffee-and-the-kateshi-estate",
+      "year": 2025
+    },
+    "fbmea-zwe-2023": {
+      "title": "Zimbabwe's coffee sector seeks additional investment in push to raise export earnings to US$10M",
+      "publisher": "Food Business MEA",
+      "url": "https://www.foodbusinessmea.com/zimbabwes-coffee-sector-seeks-additional-investment-in-push-to-raise-export-earnings-to-us10m/",
+      "year": 2023
+    },
+    "tvbrics-zwe-2025": {
+      "title": "Zimbabwe's coffee exports increase by 14% in the first half of 2025 (reproducing The Herald, ZimStat data)",
+      "publisher": "TV BRICS",
+      "url": "https://tvbrics.com/en/news/zimbabwe-s-coffee-exports-increase-by-14-in-the-first-half-of-2025/",
+      "year": 2025
+    },
+    "dgtresor-sle-2025": {
+      "title": "Sierra Léone : agriculture et politique agricole",
+      "publisher": "Direction générale du Trésor (French Ministry of the Economy)",
+      "url": "https://www.tresor.economie.gouv.fr/PagesInternationales/Pages/1e588fa5-5ec7-4fa7-a5ad-d34a10b1726f/files/3d1fdef3-4aeb-459b-9b89-94eb58a581ac",
+      "year": 2025
+    },
+    "awoko-sle-2024": {
+      "title": "Cashew and coffee exports decline in 2023",
+      "publisher": "Awoko Newspaper (Freetown)",
+      "url": "https://awokonewspapersl.com/cashew-and-coffee-exports-decline-in-2023/",
+      "year": 2024
+    },
+    "tcj-stenophylla-2023": {
+      "title": "Progress made in climate-resistant coffee species in Sierra Leone",
+      "publisher": "Tea & Coffee Trade Journal",
+      "url": "https://www.teaandcoffee.net/news/32259/progress-made-into-climate-resistant-coffee-species-in-sierra-leone/",
+      "year": 2023
+    },
+    "sucafina-stenophylla-2023": {
+      "title": "What can we learn from stenophylla?",
+      "publisher": "Sucafina",
+      "url": "https://www.sucafina.com/na/news/what-can-we-learn-from-stenophylla",
+      "year": 2023
+    },
+    "nespresso-sds-2014": {
+      "title": "9 firsts achieved by Nespresso and TechnoServe in South Sudan, in their efforts to revive high quality coffee production",
+      "publisher": "Nestlé Nespresso",
+      "url": "https://nestle-nespresso.com/node/544",
+      "year": 2014
+    },
+    "nespresso-sds-2016": {
+      "title": "Nespresso and local coffee farmers in South Sudan progress in rebuilding coffee industry (press release)",
+      "publisher": "Nestlé Nespresso via Cision/Newswire",
+      "url": "https://www.newswire.ca/news-releases/nespresso-and-local-coffee-farmers-in-south-sudan-progress-in-rebuilding-coffee-industry-595857171.html",
+      "year": 2016
+    },
+    "coffeereview-mdg-2020": {
+      "title": "Madagascar Yellow Bourbon Santatra Coop (Paradise Roasters), 92 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/madagascar-yellow-bourbon-santatra-coop/",
+      "year": 2020
+    },
+    "qima-itasy": {
+      "title": "Madagascar Itasy (Qima Cafe) bean listing",
+      "publisher": "The Way to Coffee",
+      "url": "https://www.thewaytocoffee.com/beans/madagascar-itasy/",
+      "year": null
+    },
+    "unctad-mdg-2017": {
+      "title": "Le café (Coffea canephora et C. arabica), ENEV atelier national, Antananarivo, 20 July 2017",
+      "publisher": "UNCTAD (National Green Export Review of Madagascar)",
+      "url": "https://unctad.org/meetings/en/Presentation/ditcted-20072017-Madagascar-Cafe.pdf",
+      "year": 2017
+    },
+    "unctad-mdg-2016-cafe": {
+      "title": "Le café (Coffea canephora et C. arabica): perspectives de développement (Alain Pierre Randrianjohary)",
+      "publisher": "UNCTAD (National Green Export Review of Madagascar)",
+      "url": "https://unctad.org/meetings/en/SessionalDocuments/Alain%20Pierre%20RANDRIANJOHARY%20-%20Cafe.pdf",
+      "year": 2016
+    },
+    "coffeereview-espresso-world": {
+      "title": "Around the espresso world in a demitasse",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/coffee-reference/espresso/buying-espresso/around-the-world-in-a-demitasse/",
+      "year": null
+    },
+    "chk-faolex-fao-org-docs-pdf-hon12778-pdf": {
+      "title": "Ley Orgánica del Instituto Hondureño del Café (Decreto No. 83, December 1970)",
+      "publisher": "Congreso Nacional de Honduras (via FAOLEX)",
+      "url": "https://faolex.fao.org/docs/pdf/hon12778.pdf",
+      "year": 1970
+    },
+    "chk-larepublica-net-noticia-economia-en-zonas-rurale": {
+      "title": "Economía en zonas rurales se beneficiaría con siembra de café robusta",
+      "publisher": "La República (Costa Rica)",
+      "url": "https://www.larepublica.net/noticia/economia-en-zonas-rurales-se-beneficiaria-con-siembra-de-cafe-robusta",
+      "year": 2021
+    },
+    "chk-publicaciones-cenicafe-org-index-php-infgerente-": {
+      "title": "Informe anual de actividades de la Gerencia Técnica, 1998–1999",
+      "publisher": "Federación Nacional de Cafeteros de Colombia (via Cenicafé)",
+      "url": "https://publicaciones.cenicafe.org/index.php/infgerente/article/download/5044/5695/4403",
+      "year": 1999
+    },
+    "habtu-typica-eth": {
+      "title": "Ethiopian specialty coffee to Japan (presentation, export data 2020–2022)",
+      "publisher": "Minilik Habtu, Typica Specialty Coffee (hosted by UNIDO ITPO Tokyo)",
+      "url": "https://itpo-tokyo.unido.org/files/05-Mr.-Minilik-Habtu_Ethiopian-Specialty-Coffee-To-Japan-v2.pdf"
+    },
+    "riechmann-kafa-2007": {
+      "title": "Literature survey on biological data and research carried out in Bonga area, Kafa, Ethiopia",
+      "publisher": "Dennis Riechmann, for the PPP project on sustainable coffee production in Ethiopia (Kafa Biosphere Reserve)",
+      "url": "https://www.kafa-biosphere.com/assets/content-documents/Literature-Survey-for-BR-Kafa.pdf",
+      "year": 2007
+    },
+    "royal-kenya-auction-2018": {
+      "title": "Auction coffees: Kenya",
+      "publisher": "Royal Coffee",
+      "url": "https://royalcoffee.com/auction-coffees-kenya/",
+      "year": 2018
+    },
+    "sucafina-kenya-origin": {
+      "title": "Kenya (origin page)",
+      "publisher": "Sucafina",
+      "url": "https://www.sucafina.com/na/origins/kenya"
+    },
+    "karanja-1993": {
+      "title": "Ruiru 11, adoption and performance in the estate sector in Kenya (Kenya Coffee 58(679): 1533–1543), AGRIS record",
+      "publisher": "A.M. Karanja, Coffee Research Foundation (FAO AGRIS)",
+      "url": "https://agris.fao.org/search/en/providers/122560/records/6471edd12a40512c710ec8ec",
+      "year": 1993
+    },
+    "morjaria-igc-2016": {
+      "title": "Understanding constraints to value addition in Rwanda's coffee sector (MINEACOM workshop on trade and export development, Kigali)",
+      "publisher": "Ameet Morjaria, Kellogg School of Management, for the International Growth Centre",
+      "url": "https://www.theigc.org/sites/default/files/2016/11/amorjaria-RW20161214-updated.pdf",
+      "year": 2016
+    },
+    "newtimes-rwa-2026b": {
+      "title": "Rwanda: Can the coffee sector sustain its strongest harvest in years?",
+      "publisher": "The New Times (Kigali), via AllAfrica",
+      "url": "https://allafrica.com/stories/202601150170.html",
+      "year": 2026
+    },
+    "coe-maraba-2012": {
+      "title": "RWASHOSCO/Maraba IV Kibingo washing station, Rwanda 2012 (farm directory)",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/?p=188252",
+      "year": 2012
+    },
+    "bfh-burundi-2023": {
+      "title": "Analyse du secteur café au Burundi (research project, Oct 2022–Mar 2023)",
+      "publisher": "Bern University of Applied Sciences (BFH)",
+      "url": "https://www.bfh.ch/en/research/research-projects/2022-307-978-761/",
+      "year": 2023
+    },
+    "algrano-burundi": {
+      "title": "Burundi (origin page)",
+      "publisher": "Algrano",
+      "url": "https://www.algrano.com/es/origins/burundi"
+    },
+    "sucafina-bdi-2024": {
+      "title": "Burundi harvest is looking great",
+      "publisher": "Sucafina",
+      "url": "https://sucafina.com/na/news/burundi-harvest-is-looking-great",
+      "year": 2024
+    },
+    "burundieco-2024": {
+      "title": "Journal Burundi Eco no. 606 (26 April 2024)",
+      "publisher": "Burundi Eco",
+      "url": "https://burundi-eco.com/wp-content/uploads/2024/04/Journal-Burundi-Eco-nr-606-du-vendredi-26-Avril-2024.pdf",
+      "year": 2024
+    },
+    "tresor-bdi-ken": {
+      "title": "Coffee and tea in Burundi and Kenya (regional note, data to 2024)",
+      "publisher": "Service économique régional de Nairobi, French Treasury (Direction générale du Trésor)",
+      "url": "https://www.tresor.economie.gouv.fr/PagesInternationales/Pages/190588ee-787a-40d0-a52c-ae448e51c34a/files/7bf16097-7e87-4b93-b240-a5cb0b2f4cde"
+    },
+    "starbucks-tanzania-2023b": {
+      "title": "Tanzania coffee growing map (updated, October 2023)",
+      "publisher": "Starbucks (hosted by Arizona State University)",
+      "url": "https://live-sgacms.ws.asu.edu/sites/default/files/2023-10/Tanzania%20Map_Updated.pdf",
+      "year": 2023
+    },
+    "artizan-tza-robusta-2024": {
+      "title": "Tanzania Organic Robusta (new arrival)",
+      "publisher": "Artizan Coffee",
+      "url": "https://artizancoffee.com/blogs/arrivals/tanzania-organic-robusta-1193",
+      "year": 2024
+    },
+    "afca-tza-directory": {
+      "title": "Tanzania coffee growers and estates (directory listing, Kahawa House, Moshi)",
+      "publisher": "African Fine Coffees Association",
+      "url": "https://afca.coffee/?p=4297"
+    },
+    "uia-coffee-profile": {
+      "title": "Coffee sector profile (undated; data to 2006/07)",
+      "publisher": "Uganda Investment Authority",
+      "url": "https://www.ugandainvest.go.ug/uia/images/Download_Center/SECTOR_PROFILE/coffee_sector_profile.pdf"
+    },
+    "sucafina-uga-2025": {
+      "title": "Uganda 2025/26 Robusta fly crop: slight gains, farmer confidence",
+      "publisher": "Sucafina",
+      "url": "https://sucafina.com/na/news/uganda-2025-26-robusta-fly-crop-slight-gains-farmer-confidence",
+      "year": 2025
+    },
+    "coffeebridge-2025": {
+      "title": "Policy recommendations to unlock the DRC's quality Robusta potential (COFFEEBRIDGE policy brief)",
+      "publisher": "Broeckhoven, Van den Bruel, Bollen, Depecker & Verbist, BELSPO BRAIN-be",
+      "url": "https://www.belspo.be/belspo/brain2-be/projects/FinalReports/COFFEEBRIDGE_PolicyBrief.pdf",
+      "year": 2025
+    },
+    "bankable-drc-2025": {
+      "title": "DR Congo: Arabica prices surge amidst escalating conflict in production basins",
+      "publisher": "Bankable Africa",
+      "url": "https://bankable.africa/en/agriculture/2002-819-dr-congo-arabica-prices-surge-amidst-escalating-conflict-in-production-basins",
+      "year": 2025
+    },
+    "reuters-drc-2025": {
+      "title": "DRC coffee farmers fear war will undo recent gains (Reuters)",
+      "publisher": "Reuters, via TimesLIVE",
+      "url": "https://www.timeslive.co.za/news/africa/2025-09-15-drc-coffee-farmers-fear-war-will-undo-recent-gains",
+      "year": 2025
+    },
+    "cropgpt-drc-2025": {
+      "title": "Civil war and smuggling dent coffee exports in the Democratic Republic of Congo",
+      "publisher": "CropGPT (citing FAO/FAOSTAT)",
+      "url": "https://cropgpt.ai/civil-war-and-smuggling-dent-coffee-exports-in-the-democratic-republic-of-congo",
+      "year": 2025
+    },
+    "acp-drc-2026": {
+      "title": "RDC : les exportations des produits agricoles en baisse en 2025",
+      "publisher": "Agence Congolaise de Presse (ACP)",
+      "url": "https://acp.cd/economie/rdc-les-exportations-des-produits-agricoles-en-baisse-en-2025/",
+      "year": 2026
+    },
+    "ips-drc-2011": {
+      "title": "RD Congo : des efforts pour relancer la filière café",
+      "publisher": "IPS (Badylon Kawanda Bakiman)",
+      "url": "https://ipsnews.net/francais/?p=5657",
+      "year": 2011
+    },
+    "bamenga-2025": {
+      "title": "Profitability analysis of the Robusta coffee value chain in the Tshopo Province, Democratic Republic of Congo (Agriculture 15(3): 312), AGRIS record",
+      "publisher": "Bamenga Bopoko, Trefon, Mate & Michel (MDPI; FAO AGRIS)",
+      "url": "https://agris.fao.org/search/en/records/67bca030e27dfa1251895a67",
+      "year": 2025
+    },
+    "dcn-muungano-2024": {
+      "title": "Support a pioneering DRC cooperative affected by rebel conflict",
+      "publisher": "Daily Coffee News",
+      "url": "https://dailycoffeenews.com/2024/08/14/support-a-pioneering-drc-cooperative-affected-by-rebel-conflict",
+      "year": 2024
+    },
+    "ofi-drc": {
+      "title": "DR Congo coffee (Virunga Coffee, scan and shop)",
+      "publisher": "ofi",
+      "url": "https://ofi.com/scan-and-shop/dr-congo-coffee.html"
+    },
+    "roast-additive-2023": {
+      "title": "Additive fermentation: “infused” coffee is gaining popularity, and sparking industry debate (Chris Kornman)",
+      "publisher": "Roast Magazine (Jan/Feb 2023)",
+      "url": "https://www.roastmagazine.com/stories/additive-fermentation-infused-coffee",
+      "year": 2023
+    },
+    "coffeereview-kahiko-orange-2024": {
+      "title": "Kahiko Orange (Hula Daddy Kona Coffee), 98",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/kahiko-orange/",
+      "year": 2024
+    },
+    "coffeereview-kahiko-2026": {
+      "title": "Kahiko (Hula Daddy Kona Coffee), 95",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/kahiko-2/",
+      "year": 2026
+    },
+    "frisvad-2018": {
+      "title": "Safety of the fungal workhorses of industrial biotechnology: update on the mycotoxin and secondary metabolite potential of Aspergillus niger, Aspergillus oryzae, and Trichoderma reesei",
+      "publisher": "Frisvad, Møller, Larsen, Kumar & Arnau, Applied Microbiology and Biotechnology 102(22): 9481–9515 (DTU record)",
+      "url": "https://orbit.dtu.dk/en/publications/safety-of-the-fungal-workhorses-of-industrial-biotechnology-updat/",
+      "year": 2018
+    },
+    "bh-pickle-coffee": {
+      "title": "Lactic fermentation and how to pickle coffee (Lucia Solis’s Fermentation Training Camp, Risaralda)",
+      "publisher": "Barista Hustle",
+      "url": "https://www.baristahustle.com/?p=405752"
+    },
+    "carvalhoneto-thesis-2019": {
+      "title": "Advances in coffee fermentation technology: study of the microbial diversity by next-generation sequencing and evaluation of a new bioreactor system (doctoral thesis, Dão Pedro de Carvalho Neto)",
+      "publisher": "Universidade Federal do Paraná (BDTD record)",
+      "url": "https://bdtd.ibict.br/vufind/Record/UFPR_2ab4fd9d55427eee2d7b7c98331d0738",
+      "year": 2019
+    },
+    "biorxiv-castillo-pineapple-2025": {
+      "title": "Metagenomic, metabolomic and sensorial characteristics of fermented Coffea arabica L. var. Castillo beans inoculated with microbial starter cultures (preprint)",
+      "publisher": "bioRxiv (also in PubMed Central, PMC12817937)",
+      "url": "https://www.biorxiv.org/content/10.1101/2025.01.22.634363.full.pdf",
+      "year": 2025
+    },
+    "ace-brazil-2024": {
+      "title": "Brazil 2024 Cup of Excellence results and auction",
+      "publisher": "Alliance for Coffee Excellence",
+      "url": "https://allianceforcoffeeexcellence.org/brazil-2024/",
+      "year": 2024
+    },
+    "dcn-coe-experimental-2023": {
+      "title": "Cup of Excellence coffee competition adds Experimental category in Brazil (Nick Brown)",
+      "publisher": "Daily Coffee News",
+      "url": "https://dailycoffeenews.com/2023/11/08/cup-of-excellence-coffee-competition-adds-experimental-category-in-brazil",
+      "year": 2023
+    },
+    "aims-cm-arabica-2026": {
+      "title": "Profile of chemical compounds, aroma, and cup quality of arabica coffee from ohmic-heated carbonic maceration",
+      "publisher": "Mustafa, Salengke, Laga, Bastian, Hasizah, Mursalim, Dirpan, Ilham & Reta, AIMS Agriculture and Food 11(1): 153–176",
+      "url": "https://www.aimspress.com/article/doi/10.3934/agrfood.2026009",
+      "year": 2026
+    },
+    "baristamag-coe-brazil-2025": {
+      "title": "A recap of the 2025 Brazil Cup of Excellence (Michaela Tomchek)",
+      "publisher": "Barista Magazine",
+      "url": "https://www.baristamagazine.com/a-recap-of-brazil-cup-of-excellence-2025/",
+      "year": 2025
+    },
+    "coffeereview-monteblanco-2019": {
+      "title": "Colombia Monteblanco Gesha Cold Fermentation (Old Soul Co.), 93",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/colombia-monteblanco-gesha-cold-fermentation/",
+      "year": 2019
+    },
+    "coffeereview-monteblanco-2020": {
+      "title": "Monteblanco Cold Fermentation Geisha (Steady State Roasting), 94",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/monteblanco-cold-fermentation-geisha/",
+      "year": 2020
+    },
+    "kalro-dry-ferment-2025": {
+      "title": "Exploring the effect of fermentation temperature and duration on sensory characteristics of dry processed coffee (e-poster, Kathurima, Njoroge & Murimi)",
+      "publisher": "Coffee Research Institute, KALRO, Kenya (ASIC conference e-poster)",
+      "url": "https://www.alphavisa.com/asic/2025/documents/eposters/S8/S8_WAGIKONDI-KATHURIMA.pdf",
+      "year": 2025
+    },
+    "penuela-2023": {
+      "title": "Influence of temperature-controlled fermentation on the quality of mild coffee (Coffea arabica L.) cultivated at different elevations",
+      "publisher": "Peñuela-Martínez, Moreno-Riascos & Medina-Rivera (Cenicafé), Agriculture 13(6): 1132",
+      "url": "https://www.mdpi.com/2077-0472/13/6/1132",
+      "year": 2023
+    },
+    "wirawati-backslop-2025": {
+      "title": "Artificial luwak coffee fermentation using submerged bioreactor and backslopping methods",
+      "publisher": "Wirawati & Winarto, Asian Journal of Tropical Biotechnology 22(2): 49–55",
+      "url": "https://smujo.id/bbs/article/view/21721",
+      "year": 2025
+    },
+    "subko-kdp-thermal": {
+      "title": "Project Giri: Kalledevarapura Estate, Karnataka, Thermal Shock (listing)",
+      "publisher": "Subko Coffee Roasters (India)",
+      "url": "https://www.subko.coffee/products/kdp-thermal-shock"
+    },
+    "bw-benitez-redbourbon": {
+      "title": "Wilton Benitez – Thermal Shock Red Bourbon (listing)",
+      "publisher": "Black & White Coffee Roasters",
+      "url": "https://blackwhiteroasters.com/products/r-wilton-benitez-thermal-shock-red-bourbon"
+    },
+    "sucafina-yeast-washed": {
+      "title": "Yeast-inoculated fully washed dry fermentation",
+      "publisher": "Sucafina",
+      "url": "https://sucafina.com/na/lp/yeast-inoculated-fully-washed-dry-fermentation"
+    },
+    "sucafina-burundi-yeast": {
+      "title": "Adding value (& yeast) in Burundi",
+      "publisher": "Sucafina (From the Field; first published July 2021)",
+      "url": "https://sucafina.com/na/news/adding-value-yeast-in-burundi",
+      "year": 2021
+    },
+    "dcn-yeast-france": {
+      "title": "Improving coffee through yeast control: lessons from France",
+      "publisher": "Daily Coffee News",
+      "url": "https://dailycoffeenews.com/?p=82263"
+    },
+    "pdg-microbes-2021-es": {
+      "title": "Cómo los microorganismos afectan la fermentación y el perfil sensorial del café (Spanish edition; “Nucoffee es patrocinador de Perfect Daily Grind”)",
+      "publisher": "Perfect Daily Grind",
+      "url": "https://perfectdailygrind.com/es/2021/02/03/como-los-microorganismos-afectan-la-fermentacion-y-el-perfil-sensorial-del-cafe/",
+      "year": 2021
+    },
+    "oncuba-cub-2023": {
+      "title": "¿No hay café en Cuba?",
+      "publisher": "OnCuba News",
+      "url": "https://oncubanews.com/cuba/economia/no-hay-cafe-en-cuba",
+      "year": 2023
+    },
+    "oncuba-cub-2021": {
+      "title": "Cuba apuesta por producir café en el llano con tecnología vietnamita",
+      "publisher": "OnCuba News",
+      "url": "https://oncubanews.com/cuba/cuba-apuesta-por-producir-cafe-en-el-llano-con-tecnologia-vietnamita",
+      "year": 2021
+    },
+    "diariodecuba-gtmo-2025": {
+      "title": "Un proyecto español promete 'transformar' la mermada producción de café en Guantánamo",
+      "publisher": "Diario de Cuba",
+      "url": "https://diariodecuba.com/cuba/1743192266_60491.html",
+      "year": 2025
+    },
+    "directoriocubano-gtmo-2026": {
+      "title": "Cosecha de café en Guantánamo inicia con meta de 294.568 latas",
+      "publisher": "Directorio Cubano",
+      "url": "https://www.directoriocubano.info/?p=151669",
+      "year": 2026
+    },
+    "directoriocubano-stgo-2023": {
+      "title": "Santiago de Cuba entregará más de 4000 toneladas de café",
+      "publisher": "Directorio Cubano",
+      "url": "https://www.directoriocubano.info/?p=66186",
+      "year": 2023
+    },
+    "directoriocubano-hav-2022": {
+      "title": "Insuficiente producción de café en Cuba",
+      "publisher": "Directorio Cubano",
+      "url": "https://www.directoriocubano.info/cuba/insuficiente-produccion-de-cafe-en-cuba/",
+      "year": 2022
+    },
+    "gourmetkava-cuba": {
+      "title": "Cuba Lavado, whole bean Arabica coffee",
+      "publisher": "GourmetKava (Czech roaster)",
+      "url": "https://www.gourmetkava.cz/en/our-gourmetkava/cuba-lavado-whole-bean-arabica-coffee-125p-137"
+    },
+    "waytocoffee-turquino": {
+      "title": "Kuba Turquino Lavado (roasted by Caffè 4 U)",
+      "publisher": "The Way to Coffee",
+      "url": "https://www.thewaytocoffee.com/beans/cuba-turquino-washed"
+    },
+    "eldinero-dom-2016": {
+      "title": "Siete variedades de café en busca de más rentabilidad",
+      "publisher": "elDinero",
+      "url": "https://eldinero.com.do/30828/siete-variedades-de-cafe-en-busca-de-mas-rentabilidad/",
+      "year": 2016
+    },
+    "eldinero-dom-2020": {
+      "title": "Una nueva ruta para la recuperación del café dominicano",
+      "publisher": "elDinero",
+      "url": "https://www.eldinero.com.do/128821/una-nueva-ruta-para-la-recuperacion-del-cafe-dominicano/",
+      "year": 2020
+    },
+    "eldinero-dom-2023": {
+      "title": "Cambio climático impacta la producción cafetalera en República Dominicana",
+      "publisher": "elDinero",
+      "url": "https://eldinero.com.do/248900/cambio-climatico-impacta-la-produccion-cafetalera-en-republica-dominicana/",
+      "year": 2023
+    },
+    "reeap-barahona-2014": {
+      "title": "Caracterización del nivel tecnológico de explotaciones cafetaleras en la DO Café Barahona (R.D.) como estrategia de posicionamiento (Collazos Bravo, Pimentel Pujols and Urbano López de Meneses)",
+      "publisher": "Revista Española de Estudios Agrosociales y Pesqueros, no. 239",
+      "url": "https://mapa.gob.es/ministerio/pags/biblioteca/revistas/pdf_REEAP/r239_107_128.pdf",
+      "year": 2014
+    },
+    "acento-dom-2024": {
+      "title": "Diez años después, el café se recupera lentamente de los efectos de la roya",
+      "publisher": "Acento",
+      "url": "https://acento.com.do/ecologia/diez-anos-despues-el-cafe-se-recupera-lentamente-de-los-efectos-de-la-roya-9401551.html",
+      "year": 2024
+    },
+    "cepal-dom-2017": {
+      "title": "Sector cafetalero en República Dominicana, análisis del impacto del cambio climático (Juan Pablo Peñaló and Diana Ramírez, presentation)",
+      "publisher": "CEPAL event files",
+      "url": "https://www.cepal.org/sites/default/files/events/files/presentacion_17.10.17_diana_ramirez_y_juan_pablo_penalo.pdf",
+      "year": 2017
+    },
+    "burman-baptiste": {
+      "title": "Haitian Singing Rooster High Altitude Baptiste UCOCAB Group CAB Co-op",
+      "publisher": "Burman Coffee Traders",
+      "url": "https://burmancoffee.com/haitian-singing-rooster-high-altitude-baptiste-ucocab-group-cab-co-op/"
+    },
+    "cafeimports-jam": {
+      "title": "Origins: Jamaica",
+      "publisher": "Cafe Imports",
+      "url": "https://www.cafeimports.com/europe/jamaica"
+    },
+    "gleaner-jam-2014": {
+      "title": "Coffee year ends with smallest crop in five years",
+      "publisher": "The Gleaner",
+      "url": "https://jamaica-gleaner.com/article/business/20140831/coffee-year-ends-smallest-crop-five-years",
+      "year": 2014
+    },
+    "metro-pr-2018": {
+      "title": "Nuevas semillas rumbo a salvar la industria del café en Puerto Rico",
+      "publisher": "Metro Puerto Rico",
+      "url": "https://www.metro.pr/pr/noticias/2018/04/27/nuevas-semillas-rumbo-salvar-la-industria-del-cafe-puerto-rico.html",
+      "year": 2018
+    },
+    "uprm-eea-ct-1999": {
+      "title": "Conjunto tecnológico para la producción de café (Publicación 104, July 1999)",
+      "publisher": "Estación Experimental Agrícola, University of Puerto Rico at Mayagüez (copy hosted by the USDA Caribbean Climate Hub)",
+      "url": "https://caribbeanclimatehub.org/wp-content/uploads/2015/06/Technological-Package-Coffee.pdf",
+      "year": 1999
+    },
+    "uprm-eea-ct-2018": {
+      "title": "Conjunto tecnológico para la producción de café (Publicación 104, revised 2018)",
+      "publisher": "Estación Experimental Agrícola, University of Puerto Rico at Mayagüez",
+      "url": "https://www.uprm.edu/eea/wp-content/uploads/sites/177/2019/12/CT-cafe-Texto.pdf",
+      "year": 2018
+    },
+    "staradvertiser-dole-2026": {
+      "title": "Dole Food to cease coffee farm operations on Oahu (Andrew Gomes, Honolulu Star-Advertiser)",
+      "publisher": "The Garden Island",
+      "url": "https://www.thegardenisland.com/2026/10/17/business/dole-food-to-cease-coffee-farm-operations-on-oahu/",
+      "year": 2026
+    },
+    "staradvertiser-kauai-2026": {
+      "title": "Kauai Coffee Co. gets new land lease after tumultuous negotiations (Andrew Gomes)",
+      "publisher": "Honolulu Star-Advertiser",
+      "url": "https://www.staradvertiser.com/2026/06/27/hawaii-news/kauai-coffee-co-gets-new-land-lease-after-tumultuous-negotiations/",
+      "year": 2026
+    },
+    "sprudge-kauai-2026": {
+      "title": "Update: The Kauai Coffee Company has secured their land lease",
+      "publisher": "Sprudge",
+      "url": "https://sprudge.com/update-the-kauai-coffee-company-has-secured-their-land-lease-1138488.html",
+      "year": 2026
+    },
+    "burman-waialua": {
+      "title": "Hawaiian Oahu – Waialua Estate – Washed Processed",
+      "publisher": "Burman Coffee Traders",
+      "url": "https://burmancoffee.com/?p=26426"
+    },
+    "kqed-maui-2012": {
+      "title": "Maui coffee farm tour",
+      "publisher": "KQED Bay Area Bites",
+      "url": "https://www.kqed.org/bayareabites/45849/maui-coffee-farm-tour",
+      "year": 2012
+    },
+    "wiki-molokai": {
+      "title": "Molokai coffee",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Molokai_coffee"
+    },
+    "rirdc-aus-2007": {
+      "title": "The influence of processing on the flavour of Australian coffee (James Drinnan, RIRDC Publication No. 07/065)",
+      "publisher": "Rural Industries Research and Development Corporation",
+      "url": "https://era.dpi.qld.gov.au/id/eprint/7385/1/07-065.pdf",
+      "year": 2007
+    },
+    "scu-terroir-2023": {
+      "title": "Australian coffee character wheel and terroir (news release)",
+      "publisher": "Southern Cross University",
+      "url": "https://www.scu.edu.au/news/2023/coffee-wheel-and-terroir/",
+      "year": 2023
+    },
+    "scu-taste-2023": {
+      "title": "The taste of Australian-grown coffee (news release)",
+      "publisher": "Southern Cross University",
+      "url": "https://www.scu.edu.au/news/2023/taste-of-australian-grown-coffee/",
+      "year": 2023
+    },
+    "quantum-skybury": {
+      "title": "Australia, Skybury coffee",
+      "publisher": "Quantum Roasters",
+      "url": "https://quantumroasters.co.uk/products/australia-skybury-coffee"
+    },
+    "waytocoffee-skybury": {
+      "title": "Rarity Australien (roasted by TADAH kafferosteri)",
+      "publisher": "The Way to Coffee",
+      "url": "https://www.thewaytocoffee.com/beans/rarity-australien/"
+    },
+    "agrifutures-zentveld-2020": {
+      "title": "From crop to cup: the life of an Australian coffee roaster pioneer",
+      "publisher": "AgriFutures Australia",
+      "url": "https://agrifutures.com.au/news/from-crop-to-cup-the-life-of-an-australian-coffee-roaster-pioneer/",
+      "year": 2020
+    },
+    "oncuba-cub-2025": {
+      "title": "Cafeteras vacías: sin costumbres tampoco hay país (Ángel Marqués Dolz)",
+      "publisher": "OnCuba News",
+      "url": "https://oncubanews.com/?p=579539",
+      "year": 2025
+    },
+    "jcea-frats-2019": {
+      "title": "Jamaica Coffee Exporters Association supports National Coffee Farmer Registration and Tracking System (FRATS)",
+      "publisher": "Jamaica Coffee Exporters Association",
+      "url": "https://jamaicacoffee.org/jamaica-coffee-exporters-association-supports-national-coffee-farmer-registration-and-tracking-system-frats/",
+      "year": 2019
+    },
+    "wiki-coffee-production": {
+      "title": "List of countries by coffee production (FAOSTAT data, 2023)",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/List_of_countries_by_coffee_production"
+    },
+    "sm-yemen-sector-2020": {
+      "title": "Yemeni green coffee sector information (undated overview, c. 2020, linked to the exporter Pearl of Tehama)",
+      "publisher": "Hosted by Sweet Maria's Coffee Library",
+      "url": "https://library.sweetmarias.com/wp-content/uploads/2021/05/Yemeni-Green-Coffee-Sector-Information.pdf",
+      "year": 2020
+    },
+    "th3rdwave-hayma": {
+      "title": "Yemen Hayma AA anaerobic, direct trade (lot listing; Bait Alal, Hayma, 2,300 m, Udaini)",
+      "publisher": "Th3rdwave Coffee (lot bought through We The Origin)",
+      "url": "https://www.th3rdwave.coffee/fr/p/yemen-hayma-aa-anaerobic-direct-trade/",
+      "accessed": "2026-10"
+    },
+    "arabnews-saudi-coffee-2023": {
+      "title": "The story of Saudi coffee from a regional tradition to a global market",
+      "publisher": "Arab News (Nada Hameed)",
+      "url": "https://arabnews.com/node/2375831/lifestyle",
+      "year": 2023
+    },
+    "ajel-asir-2023": {
+      "title": "Farmers in Asir region revive traditional coffee farms, boost coffee production",
+      "publisher": "AJEL English",
+      "url": "https://english.ajel.sa/saudi-arabia/farmers-in-asir-region-revive-traditional-coffee-farms-boost-coffee-production",
+      "year": 2023
+    },
+    "arabnews-asir-2026": {
+      "title": "Asir's mountain terraces emerge as Saudi coffee production hub",
+      "publisher": "Arab News (Saudi Press Agency)",
+      "url": "https://www.arabnews.pk/saudi-arabia/asirs-mountain-terraces-emerge-as-saudi-coffee-production-hub-3003040",
+      "year": 2026
+    },
+    "coffeeboard-db-2024": {
+      "title": "Database on Coffee, July 2024 (table 4.13, monthly shipment of coffee from India by types)",
+      "publisher": "Coffee Board of India",
+      "url": "https://coffeeboard.gov.in/Database/DATABASE3_JULY2024.pdf",
+      "year": 2024
+    },
+    "bis-is3581-2019": {
+      "title": "IS 3581:2019, Green coffee: specification (third revision)",
+      "publisher": "Bureau of Indian Standards (copy hosted by FSSAI)",
+      "url": "https://cdd.fssai.gov.in/viewFile.php?id=176",
+      "year": 2019
+    },
+    "jipr-mm-arabica-2023": {
+      "title": "Implications of GI on Indian specialty coffee: a case study on 'Monsooned Malabar Arabica Coffee'",
+      "publisher": "Rekha Menon P and P Vasanthakumari, Journal of Intellectual Property Rights 27(5)",
+      "url": "https://or.niscpr.res.in/index.php/JIPR/article/view/4128",
+      "year": 2023
+    },
+    "coffeereview-lekali-2018": {
+      "title": "Lekali Nepal (Barrington Coffee Roasting), 90 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/review/lekali-nepal/",
+      "year": 2018
+    },
+    "paudel-nepal-2021": {
+      "title": "Effect of altitude and shade on production and physical attributes of coffee in Gulmi, Syangja and Palpa districts of Nepal",
+      "publisher": "Paudel, Parajuli, Regmi & Budhathoki, Journal of Agriculture and Natural Resources 4(1)",
+      "url": "https://nepjol.info/index.php/janr/article/view/33275",
+      "year": 2021
+    },
+    "coffeereview-china": {
+      "title": "Coffee reviews: China (listing of reviews, 2014–2025)",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/types/china",
+      "accessed": "2026-10"
+    },
+    "ace-goy-2026": {
+      "title": "Gems of Yunnan 2026 (competition and auction results)",
+      "publisher": "Alliance for Coffee Excellence, run with the Specialty Coffee Society of Yunnan",
+      "url": "https://allianceforcoffeeexcellence.org/?p=246106",
+      "year": 2026
+    },
+    "xinhua-yunnan-2025": {
+      "title": "China's leading coffee province sees 358 pct surge in coffee exports in 2024",
+      "publisher": "Xinhua (via english.www.gov.cn)",
+      "url": "https://english.www.gov.cn/archive/statistics/202502/25/content_WS67bd5f34c6d0868f4e8eff30.html",
+      "year": 2025
+    },
+    "chinadaily-yunnan-2025": {
+      "title": "Yunnan percolating perky profits for coffee farmers",
+      "publisher": "China Daily (Zhu Wenqian and Li Yingqing), via China Daily HK",
+      "url": "https://chinadailyhk.com/article/609096",
+      "year": 2025
+    },
+    "chinadaily-yunnan-2022": {
+      "title": "Buzz brewing for quality Yunnan coffee beans",
+      "publisher": "China Daily (Zhu Wenqian and Li Yingqing), via Invest in China",
+      "url": "https://investinchina.chinaservicesinfo.com/s/202204/02/WS6247e31b498e6a12c1228dfc/buzz-brewing-for-quality-yunnan-coffee-beans.html",
+      "year": 2022
+    },
+    "taiwannews-tainung-2025": {
+      "title": "Taiwan unveils first homegrown coffee variety",
+      "publisher": "Taiwan News (with CNA)",
+      "url": "https://www.taiwannews.com.tw/news/6241580",
+      "year": 2025
+    },
+    "foodnext-tainung-2025": {
+      "title": "Low-altitude farms can grow specialty beans: Tainung No. 1, Taiwan's first home-bred coffee variety (in Chinese)",
+      "publisher": "foodNEXT (editorial desk, from the Ministry of Agriculture's Taiwan Agricultural Research Institute)",
+      "url": "https://www.foodnext.net/science/technology/paper/6111128217",
+      "year": 2025
+    },
+    "myanseed-coffee-brief": {
+      "title": "Brief from market system analysis of coffee in Chin State (undated, c. 2022; cites the Myanmar Agricultural Statistics Book 2021)",
+      "publisher": "myanSEED Agribusiness Consultancy (hosted by MIMU)",
+      "url": "https://www.themimu.info/sites/themimu.info/files/assessment_file_attachments/Policy_brief.pdf"
+    },
+    "originco-myanmar": {
+      "title": "Myanmar coffee guide",
+      "publisher": "Origin Coffee Roasters (UK)",
+      "url": "https://www.origincoffee.co.uk/blogs/journal/myanmar-coffee-guide",
+      "accessed": "2026-10"
+    },
+    "yemyint-mmr-2016": {
+      "title": "Myanmar coffee industry in brief (presentation, Nov 8, 2016)",
+      "publisher": "U Ye Myint, chairman, Mandalay Coffee Association (Myanmar Centre for Responsible Business)",
+      "url": "https://www.myanmar-responsiblebusiness.org/pdf/2016-11-08-Food-Safety/14-Mandalay-Coffee-Association-Ye-Myint.pdf",
+      "year": 2016
+    },
+    "afd-laos-2021": {
+      "title": "Laos: increasingly sustainable coffee production",
+      "publisher": "Agence Française de Développement (AFD)",
+      "url": "https://www.afd.fr/en/actualites/laos-increasingly-sustainable-coffee-production",
+      "year": 2021
+    },
+    "unodc-laos-2025": {
+      "title": "Brewing change: from opium poppies to premium coffee in the mountains of Lao PDR",
+      "publisher": "United Nations Office on Drugs and Crime (via UN Lao PDR)",
+      "url": "https://laopdr.un.org/en/node/307204",
+      "year": 2025
+    },
+    "coffeemag-laos-2013": {
+      "title": "Laos: the art of coffee, part II",
+      "publisher": "Coffee magazine (Gary Hirson)",
+      "url": "https://magazine.coffee/blog/1/141/laos-the-art-of-coffee-part-ii",
+      "year": 2013
+    },
+    "fftc-laos-2022": {
+      "title": "Is Lao coffee sector at its crossroad? An analysis of coffee market and coffee producers",
+      "publisher": "Phanhpakit Onphanhdala (National University of Laos), FFTC Agricultural Policy Platform",
+      "url": "https://ap.fftc.org.tw/article/3252",
+      "year": 2022
+    },
+    "gcr-laos-2013": {
+      "title": "Laos' Arabica rush",
+      "publisher": "Global Coffee Report",
+      "url": "https://www.gcrmag.com/laos-arabica-rush",
+      "year": 2013
+    },
+    "jakpost-kintamani-2008": {
+      "title": "Kintamani coffee gets certification",
+      "publisher": "The Jakarta Post",
+      "url": "https://www.thejakartapost.com/news/2008/12/13/kintamani-coffee-gets-certification.html",
+      "year": 2008
+    },
+    "asu-java-2024": {
+      "title": "Java coffee growing map",
+      "publisher": "Starbucks Coffee Academy (Arizona State University)",
+      "url": "https://live-sgacms.ws.asu.edu/sites/default/files/2024-03/Java%20Map_ENG_New.pdf",
+      "year": 2024
+    },
+    "asu-bali-2023": {
+      "title": "Bali coffee growing map",
+      "publisher": "Starbucks Coffee Academy (Arizona State University)",
+      "url": "https://live-sgacms.ws.asu.edu/sites/default/files/2023-05/English_Bali%20%282%29.pdf",
+      "year": 2023
+    },
+    "burman-bali-kintamani": {
+      "title": "Indonesian Bali Org. – Kintamani – Natural (listing)",
+      "publisher": "Burman Coffee Traders",
+      "url": "https://burmancoffee.com/?p=2455",
+      "accessed": "2026-10"
+    },
+    "interamerican-sumatra-g1tp": {
+      "title": "Indonesia Sumatra Mandheling G1 TP",
+      "publisher": "InterAmerican Coffee",
+      "url": "https://interamericancoffee.com/?p=336",
+      "accessed": "2026-10"
+    },
+    "mongabay-luwak-2016": {
+      "title": "World's most expensive coffee often produced from caged, abused civets, study finds",
+      "publisher": "Mongabay",
+      "url": "https://news.mongabay.com/2016/05/worlds-expensive-coffee-often-produced-caged-abused-civets-study-finds/",
+      "year": 2016
+    },
+    "mercon-png-b15": {
+      "title": "Papua New Guinean Eastern Highlands Grade B-15 green coffee beans",
+      "publisher": "Mercon Specialty (StoneX)",
+      "url": "https://specialtycoffee.stonex.com/products/papua-new-guinean-eastern-highlands-gr-b-15-green-coffee-beans",
+      "accessed": "2026-10"
+    },
+    "dcn-png-grades-2021": {
+      "title": "New green coffee grading standards coming from Papua New Guinea",
+      "publisher": "Daily Coffee News",
+      "url": "https://dailycoffeenews.com/2021/08/25/new-green-coffee-grading-standards-coming-from-papua-new-guinea",
+      "year": 2021
+    },
+    "cafeimports-png-eu": {
+      "title": "Origins: Papua New Guinea",
+      "publisher": "Cafe Imports",
+      "url": "https://www.cafeimports.com/europe/papua-new-guinea",
+      "accessed": "2026-10"
+    },
+    "coffeehunter-png": {
+      "title": "Papua New Guinea (origin page)",
+      "publisher": "Coffee Hunter",
+      "url": "https://coffeehunter.com/our-origins/papua-new-guinea/",
+      "accessed": "2026-10"
+    },
+    "asu-png-2023": {
+      "title": "Papua New Guinea coffee growing map",
+      "publisher": "Starbucks Coffee Academy (Arizona State University)",
+      "url": "https://live-sgacms.ws.asu.edu/sites/default/files/2023-10/Papua%20New%20Guinea_Updated_2.pdf",
+      "year": 2023
+    },
+    "stonex-vnm-g1-washed": {
+      "title": "Robusta Grade 1 Washed SC 15 (Vietnam, Lâm Đồng)",
+      "publisher": "Mercon Specialty (StoneX)",
+      "url": "https://specialtycoffee.stonex.com/products/robusta-grade-1-washed-sc-15",
+      "accessed": "2026-10"
+    },
+    "stonex-vnm-lotus": {
+      "title": "Vietnamese Lotus green coffee beans (Cầu Đất, washed Catimor)",
+      "publisher": "Mercon Specialty (StoneX)",
+      "url": "https://specialtycoffee.stonex.com/products/vietnamese-lotus-green-coffee-beans",
+      "accessed": "2026-10"
+    },
+    "coffeereview-truegrit-2025": {
+      "title": "True Grit (100% Robusta) by Nguyen Coffee Supply, 85 points",
+      "publisher": "Coffee Review",
+      "url": "https://www.coffeereview.com/?p=26462",
+      "year": 2025
+    },
+    "nongnghiep-wasi-2024": {
+      "title": "WASI's great contribution to the coffee industry: transferring high-quality coffee varieties for replanting",
+      "publisher": "Vietnam Agriculture (Nông nghiệp)",
+      "url": "https://vietnamagriculture.nongnghiep.vn/wasis-great-contribution-to-the-coffee-industry-transferring-high-quality-coffee-varieties-for-replanting-d400144.html",
+      "year": 2024
+    },
+    "wcr-tr9": {
+      "title": "TR9",
+      "publisher": "World Coffee Research variety catalog",
+      "url": "https://varieties.worldcoffeeresearch.org/varieties/tr9",
+      "accessed": "2026-10"
+    },
+    "sucafina-vnm-wetpolished": {
+      "title": "VN Robusta Queen Wet Polished Scr 18 (offering)",
+      "publisher": "Sucafina",
+      "url": "https://sucafina.com/emea/offerings/vn-robusta-queen-wet-polished-scr-18-impact",
+      "accessed": "2026-10"
+    },
+    "kanjana-tha-2021": {
+      "title": "The effect of harvesting labor constraints on the production of Robusta coffee farmers in Chumphon Province, Thailand (Kwanmuang & Lertjunthuk), J. Int. Coop. Agric. Dev. 19: 2–16",
+      "publisher": "Nagoya University (ICREA)",
+      "url": "https://icrea.agr.nagoya-u.ac.jp/jpn/journal/Vol19_02-16_Original_Kanjana.pdf#zoom=75",
+      "year": 2021
+    },
+    "giz-coffeepp-2024": {
+      "title": "Coffee++ project shared climate change knowledge at the coffee buying stations in Chumphon and Ranong",
+      "publisher": "Thai-German Cooperation (GIZ)",
+      "url": "https://www.thai-german-cooperation.info/news/coffee-project-shared-climate-change-knowledge-at-the-coffee-buying-stations-in-chumphon-and-ranong/",
+      "year": 2024
+    },
+    "mdpi-tha-2024": {
+      "title": "Influence of post-harvest processing and drying techniques on physicochemical properties of Thai Arabica coffee (Sai Aung Moon et al.), AgriEngineering 6: 2198–2213",
+      "publisher": "MDPI",
+      "url": "https://mdpi-res.com/d_attachment/agriengineering/agriengineering-06-00129/article_deploy/agriengineering-06-00129.pdf",
+      "year": 2024
+    },
+    "waytocoffee-tha-2018": {
+      "title": "Specialty coffee in Thailand",
+      "publisher": "The Way to Coffee",
+      "url": "https://www.thewaytocoffee.com/specialtycoffeeblog/specialty-coffee-in-thailand",
+      "year": 2018
+    },
+    "eurlex-2015-1134": {
+      "title": "Commission Implementing Regulation (EU) 2015/1134 of 9 July 2015 (Kafae Doi Tung, PGI)",
+      "publisher": "EUR-Lex, European Union",
+      "url": "https://eur-lex.europa.eu/eli/reg/2015/1134/oj",
+      "year": 2015
+    },
+    "philstar-psa-2024": {
+      "title": "Millennials, Gen Zs perk up coffee production in Philippines",
+      "publisher": "The Philippine Star (citing PSA)",
+      "url": "https://www.philstar.com/business/2024/02/20/2334572/millennials-gen-zs-perk-coffee-production-philippines/amp/",
+      "year": 2024
+    },
+    "psa-ilocos-2024": {
+      "title": "Highlights on coffee production, Ilocos Region 2023 (SR-2024-041)",
+      "publisher": "Philippine Statistics Authority, Regional Statistical Services Office I",
+      "url": "https://rsso01.psa.gov.ph/system/files/attachment-dir/SR-2024-041%20HIGHLIGHTS%20ON%20COFFEE%20PRODUCTION%20ILOCOS%20REGION%202023.pdf",
+      "year": 2024
+    },
+    "da-phl-roadmap-2022": {
+      "title": "The Philippine Coffee Industry Roadmap (2021–2025)",
+      "publisher": "Department of Agriculture (Bureau of Agricultural Research; High Value Crops Development Program)",
+      "url": "https://hvcdp.da.gov.ph/wp-content/uploads/2023/07/Philippine-Coffee-Industry-Roadmap.pdf",
+      "year": 2022
+    },
+    "bernama-perak-2026": {
+      "title": "'Cherita Secangkir Kopi' drives Perak's coffee aspirations",
+      "publisher": "Bernama",
+      "url": "https://bernama.com/en/news.php?id=2555795",
+      "year": 2026
+    },
+    "mardi-fftc-2016": {
+      "title": "Exploring the potentials of coffee industry in Malaysia (Abdul Wahab & Mohammad Nor, MARDI)",
+      "publisher": "FFTC Agricultural Policy Platform",
+      "url": "https://ap.fftc.org.tw/node/1005",
+      "year": 2016
+    },
+    "uum-mys-2026": {
+      "title": "Exploring the drivers of coffee production in Malaysia: a short and long-term analysis (Anizah Md Ali), Journal of Economics and Sustainability 8(1): 38–57",
+      "publisher": "Universiti Utara Malaysia",
+      "url": "https://e-journal.uum.edu.my/index.php/jes/en/article/download/28164/5023/103366",
+      "year": 2026
+    },
+    "thestar-paloh-2026": {
+      "title": "Refining elephant beans into speciality coffee",
+      "publisher": "The Star (Malaysia)",
+      "url": "https://www.thestar.com.my/metro/metro-news/2026/09/17/refining-elephant-beans-into-speciality-coffee",
+      "year": 2026
+    },
+    "borneopost-sarawak-2025": {
+      "title": "Potential a-brewing for Sarawak's coffee industry",
+      "publisher": "The Borneo Post",
+      "url": "https://www.theborneopost.com/2025/12/14/potential-a-brewing-for-sarawaks-coffee-industry/",
+      "year": 2025
+    },
+    "lee-sarawak-2023": {
+      "title": "Liberica coffee development and refinement project in Sarawak, Malaysia (Kenny Wee Ting Lee), Proceedings 89(1): 15",
+      "publisher": "MDPI (International Coffee Convention 2023)",
+      "url": "https://www2.mdpi.com/2504-3900/89/1/15",
+      "year": 2023
+    },
+    "boell-tls-2026": {
+      "title": "Hope in a cup: Timor-Leste's path to a sustainable coffee future (Nuno Ridenio)",
+      "publisher": "Heinrich Böll Stiftung Southeast Asia",
+      "url": "https://th.boell.org/en/node/2683",
+      "year": 2026
+    },
+    "tatoli-tls-2025": {
+      "title": "Coffee exports drop, Timor-Leste ships nothing else in Q1",
+      "publisher": "TATOLI (Timor-Leste news agency)",
+      "url": "https://en.tatoli.tl/2025/05/15/coffee-exports-drop-timor-leste-ships-nothing-else-in-q1/23/",
+      "year": 2025
+    },
+    "tatoli-tls-2024": {
+      "title": "Timor-Leste exports 906 tons of coffee",
+      "publisher": "TATOLI (Timor-Leste news agency)",
+      "url": "https://en.tatoli.tl/?p=55290",
+      "year": 2024
+    },
+    "lusa-tls-2025": {
+      "title": "Timor-Leste non-oil exports grew 21.7% in 2024 (Lusa, 22 March 2025)",
+      "publisher": "Lusa, via AMAN Alliance",
+      "url": "https://www.aman-alliance.org/Home/ContentDetail/87636",
+      "year": 2025
+    },
+    "adb-tls-2019": {
+      "title": "National Coffee Sector Development Plan supported by ADB for Timor-Leste launched",
+      "publisher": "Asian Development Bank",
+      "url": "https://www.adb.org/news/national-coffee-sector-development-plan-supported-adb-timor-leste-launched",
+      "year": 2019
+    },
+    "sweetmarias-tls-aifu": {
+      "title": "Timor Leste Aifu Ermera (listing)",
+      "publisher": "Sweet Maria's",
+      "url": "https://www.sweetmarias.com/products/timor-leste-aifu-ermera-8232",
+      "year": 2025
+    },
+    "merlo-tls-2025": {
+      "title": "Timor Leste Sakoko (bean of the month, November 2025)",
+      "publisher": "Merlo Coffee",
+      "url": "https://www.merlo.com.au/blogs/bean-of-the-month/timor-leste-sakoko-november-2025",
+      "year": 2025
+    },
+    "burman-tls-letefoho": {
+      "title": "Timor Org. Ermera Lacau – Arabica – Washed Processed (listing)",
+      "publisher": "Burman Coffee Traders",
+      "url": "https://burmancoffee.com/?p=145876",
+      "year": 2024
+    },
+    "asu-tls-2023": {
+      "title": "Timor-Leste coffee growing map",
+      "publisher": "Starbucks Coffee Academy (Arizona State University)",
+      "url": "https://live-sgacms.ws.asu.edu/sites/default/files/2023-10/Timor-Leste%20Map_Updated.pdf",
+      "year": 2023
+    },
+    "wiki-tls-coffee": {
+      "title": "Coffee industry of Timor-Leste",
+      "publisher": "Wikipedia (citing the World Bank)",
+      "url": "https://en.wikipedia.org/wiki/Coffee_industry_of_Timor-Leste",
+      "accessed": "2026-10"
+    },
+    "chk-directoriocubano-info-p-155165": {
+      "title": "El café sigue perdido en Cuba y Guantánamo apenas cumple el 36 % del plan de cosecha",
+      "publisher": "Directorio Cubano",
+      "url": "https://www.directoriocubano.info/?p=155165",
+      "year": 2026
+    },
+    "chk-de-statista-com-statistics-934137-haiti-green-co": {
+      "title": "Haiti: green coffee production volume, 2010–2021",
+      "publisher": "Statista (data from Index Mundi)",
+      "url": "https://de.statista.com/statistics/934137/haiti-green-coffee-production-volume/",
+      "year": 2020
+    },
+    "chk-hca-wildapricot-org-resources-documents-doa-hico": {
+      "title": "Grown with Aloha: a guide to Hawaiʻi's coffee industry",
+      "publisher": "Hawaii Coffee Association",
+      "url": "https://hca.wildapricot.org/resources/Documents/DOA-HICoffeeAssoc-Booklet.v4_print.pdf",
+      "year": 2018
+    },
+    "chk-rfdtv-com-indonesia-coffee-output-falls-as-weath": {
+      "title": "Indonesia coffee output falls as weather cuts yields",
+      "publisher": "RFD-TV (reporting the USDA FAS Jakarta forecast)",
+      "url": "https://www.rfdtv.com/indonesia-coffee-output-falls-as-weather-cuts-yields",
+      "year": 2026
+    },
+    "chk-burmancoffee-com-product-green-coffee-beans-timo": {
+      "title": "Timor-Leste Letefoho – Natural Processed (listing)",
+      "publisher": "Burman Coffee Traders",
+      "url": "https://burmancoffee.com/product/green-coffee-beans/timor-letefoho-natural/",
+      "year": 2023
     }
   }
 }
