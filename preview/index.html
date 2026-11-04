@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v21.1 -->
+<!-- Dialed In v21.2 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="21.1">
+    <meta name="dialed-in-version" content="21.2">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -4975,6 +4975,54 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
 
         /* v21.0: the photo's label has room under the dose / pull / time boxes */
         html[data-look="new"] #brew-modal .photo-label { display: block; margin-top: 22px !important; }
+
+        /* v21.2: every flavor note in its own color, everywhere (the coffee page's Flavor profile, Compare and the other tabs,
+           your palate, the Log form's wheel, its hints and your picked notes), like the feed's notes */
+        html[data-look="new"] .fam-chip[data-nf], html[data-look="new"] [data-fam] .fam-chip[data-nf], html[data-look="new"] .flv-note[data-nf],
+        html[data-look="new"] .note-chip[data-nf], html[data-look="new"] .modal-card .note-chip[data-nf], html[data-look="new"] .pick.fam-pick[data-nf] { background: var(--fbg) !important; color: var(--ffg) !important; border: 0 !important; box-shadow: none !important; }
+        html[data-look="new"] .note-chip[data-nf][aria-pressed="true"], html[data-look="new"] .modal-card .note-chip[data-nf][aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--ffg) !important; font-weight: 750; }
+        html[data-look="new"] .flv-note[data-nf] em, html[data-look="new"] .fam-chip[data-nf] em { color: inherit; opacity: 0.7; font-style: normal; }
+        html[data-look="new"] .pick.fam-pick[data-nf] .pick-dot { background: var(--ffg) !important; }
+        html[data-look="new"] .flv-note[data-nf] .flv-dots b, html[data-look="new"] .pick.fam-pick[data-nf] .dots i { background: color-mix(in srgb, var(--ffg) 28%, transparent); }
+        html[data-look="new"] .flv-note[data-nf] .flv-dots b.on, html[data-look="new"] .pick.fam-pick[data-nf] .dots i.on { background: var(--ffg); }
+
+        /* v21.2: Flavor profile folds */
+        html[data-look="new"] #d-flavor .bf-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; cursor: pointer; }
+        html[data-look="new"] .bf-fold { width: 34px; height: 34px; min-height: 0; padding: 0; margin: -2px -4px 0 0; flex: none; display: grid; place-items: center; border-radius: 17px !important; background: var(--pill) !important; border: 0 !important; color: var(--t) !important; }
+        html[data-look="new"] .bf-fold .icon { width: 18px; height: 18px; transition: transform 0.2s ease; }
+        html[data-look="new"] .bf-folded .bf-fold .icon { transform: rotate(-90deg); }
+        html[data-look="new"] .bf-folded .bf-head p { margin-bottom: 0; }
+
+        /* v21.2: drafts from the Log */
+        html[data-look="new"] #brew-modal .log-draft-btn { margin-top: 10px; width: 100%; }
+        html[data-look="new"] .ld-host { display: grid; gap: 8px; margin-top: 10px; }
+        html[data-look="new"] .ld-host[hidden] { display: none; }
+        html[data-look="new"] .ld-pill { display: flex; align-items: center; gap: 6px; padding: 4px 4px 4px 0; border-radius: 18px; background: var(--pill); }
+        html[data-look="new"] .ld-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; min-height: 0; margin: 0; padding: 8px 6px 8px 14px; background: none !important; border: 0 !important; box-shadow: none !important; color: var(--t) !important; text-align: left; font: inherit; }
+        html[data-look="new"] .ld-open .icon, html[data-look="new"] .ld-ic .icon { width: 18px; height: 18px; flex: none; }
+        html[data-look="new"] .ld-open span { display: grid; gap: 1px; min-width: 0; }
+        html[data-look="new"] .ld-open b { font-weight: 650; font-size: 0.95rem; }
+        html[data-look="new"] .ld-open small { color: var(--l); font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        html[data-look="new"] .ld-del { width: 36px; height: 36px; min-height: 0; padding: 0; margin: 0; flex: none; display: grid; place-items: center; border-radius: 18px !important; background: none !important; border: 0 !important; color: var(--l) !important; }
+        html[data-look="new"] .ld-del .icon { width: 17px; height: 17px; }
+        html[data-look="new"] .ld-ic { width: 56px; height: 30px; display: grid; place-items: center; color: var(--l); }
+        /* v21.2: the yellow "something new" dot sits on the Profile icon's top corner (the bar is icons only, 60px tall,
+           so the old spot, 3px above the item, put it on the bar's edge, over whatever scrolled under it) */
+        html[data-look="new"] .mob-item { position: relative; }
+        html[data-look="new"] .mob-item .nav-dot { top: 14px; left: calc(50% + 8px); width: 8px; height: 8px; }
+        /* v21.2: the favorite recipe card, headed like a session: their face and "Maceo's favorite recipe" in their color,
+           level with the edit and remove buttons, a hint of their color on the edge, and tiles that fit a 19.1 g dose */
+        html[data-look="new"] [data-fam] .master-pill.nl-fav { padding: 16px 16px 18px !important; border-color: color-mix(in srgb, var(--fav) 45%, transparent) !important; }
+        html[data-look="new"] .nl-fav .master-top { align-items: center; }
+        html[data-look="new"] .fav-who { display: flex; align-items: center; gap: 11px; min-width: 0; }
+        html[data-look="new"] .fav-title { display: flex; flex-direction: column; min-width: 0; }
+        html[data-look="new"] .fav-title b { font-family: var(--nl-hand); font-weight: 600; font-size: 23px; line-height: 1.1; letter-spacing: -0.005em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        html[data-look="new"] .fav-title small { font-size: 14.5px; font-weight: 600; line-height: 1.25; color: inherit !important; opacity: 0.9; }
+        html[data-look="new"] .nl-pfp.fav-pfp { width: 38px; height: 38px; font-size: 15px; }
+        html[data-look="new"] .nl-fav .master-actions { gap: 6px; }
+        html[data-look="new"] .nl-fav .sc-strip { margin-top: 14px; }
+        html[data-look="new"] [data-fam] .master-pill .sc-cell { padding: 10px 9px 9px !important; }
+        html[data-look="new"] .nl-fav .sc-gear { margin-top: 12px; }
         /* ===================== v19.0: Learn =====================
            The New look's kit (claude/new-look-ds.css) plus the Learn screens' parts (claude/learn-mockups-src.md): pages tinted
            by their typical flavor family, names in the big serif, every section folding. All of it is the New look's. */
@@ -6132,6 +6180,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </button>
                 <button class="btn-outline" onclick="app.cloneLatestSession()" style="width:auto; padding:12px 16px;">Clone</button>
             </div>
+            <div id="d-draft" class="ld-host" hidden></div>
         </div>
 
         <div style="padding: 2rem 3rem 150px;">
@@ -6147,7 +6196,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
             </div>
 
             <div id="d-timeline-pane">
-                <label style="font-size:0.7rem; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); font-weight:800; display:block; margin-bottom:1rem;">Master recipes</label>
+                <label style="font-size:0.7rem; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); font-weight:800; display:block; margin-bottom:1rem;">Favorite recipes</label>
                 <div id="d-masters" style="margin-bottom: 3rem;"></div>
                 
                 <label style="font-size:0.7rem; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); font-weight:800; display:block; margin-bottom:1rem;">Session history</label>
@@ -6304,7 +6353,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v21.1</div>
+            <div class="app-version">Dialed In · v21.2</div>
         </div>
     </div>
 
@@ -6527,12 +6576,14 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
 
                 <!-- Master recipe toggle -->
                 <div class="toggle-row">
-                    <span style="font-weight:700; font-size:0.9rem; color:var(--matcha);">Pin as master recipe?</span>
+                    <span style="font-weight:700; font-size:0.9rem; color:var(--matcha);">Pin as your favorite recipe?</span>
                     <label class="switch"><input type="checkbox" id="isMasterInput"><span class="slider"></span></label>
                 </div>
 
                 <div id="share-row" class="share-row" hidden></div>
                 <button type="submit" class="btn-primary" style="margin-top: 2rem;">Save session</button>
+                <!-- v21.2: keep it for later (Maceo, Nov 3) -->
+                <button type="button" class="btn-outline log-draft-btn nl-only" id="log-draft-btn" onclick="app.saveLogDraft()">Save as draft</button>
                 <button type="button" class="btn-outline" style="margin-top:10px; border:none; background:none; color:#AAA;" onclick="app.closeBrewModal()">Dismiss</button>
                 </div>
             </form>
@@ -6579,7 +6630,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
     <!-- Master recipe modal -->
     <div id="master-modal" class="modal" onclick="if(event.target===this) app.closeModals()">
         <div class="modal-card">
-            <h2>Master recipe</h2>
+            <h2>Favorite recipe</h2>
             <form onsubmit="app.handleMasterSubmit(event)">
                 <input type="hidden" name="id" id="master-edit-id">
 
@@ -6611,7 +6662,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 <label>Tasting Notes</label>
                 <textarea name="notes" rows="3" placeholder="Flavor texture, balance, finish..."></textarea>
 
-                <button type="submit" class="btn-primary" style="margin-top: 2rem;">Save master recipe</button>
+                <button type="submit" class="btn-primary" style="margin-top: 2rem;">Save favorite recipe</button>
                 <button type="button" class="btn-outline" style="margin-top:10px; border:none; background:none; color:#AAA;" onclick="app.closeModals()">Dismiss</button>
             </form>
         </div>
@@ -11970,10 +12021,10 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     mode = 'refine';
                     if (esp && c.time > 0) aim = [Math.round(c.time - 2), Math.round(c.time + 2)];
                     const best = ref ? (c.rating > refR ? `It beats your ${this.fmtNum(refR)}\u2605 from ${this.shortDate(ref.date)}.` : `It matches your ${this.fmtNum(refR)}\u2605 from ${this.shortDate(ref.date)}, your best so far.`) : 'Your first rated shot of this coffee.';   // v14.7: a tie isn't a win
-                    if (c.rating >= 5 && U0 < 1 && O0 < 1) { head = 'Perfect score. Lock this recipe in.'; next = recipe(keepG, c.dose, c.yield); why.push(best, 'Repeat it exactly, and pin it as your master recipe.'); }
+                    if (c.rating >= 5 && U0 < 1 && O0 < 1) { head = 'Perfect score. Lock this recipe in.'; next = recipe(keepG, c.dose, c.yield); why.push(best, 'Repeat it exactly, and pin it as your favorite recipe.'); }
                     else if (saidU && U0 >= 1.2 && U0 > O0) { head = esp ? `Your best yet. Next time, let it run to ${this.fmtNum(c.yield + 2, 1)} g instead of ${this.fmtNum(c.yield, 1)} g.` : `Your best yet. Next time, grind one step finer (${plainG(finer)}).`; next = esp ? recipe(keepG, c.dose, c.yield + 2) : recipe(finer, c.dose, c.yield); why.push(best, words('under'), esp ? 'Letting a little more coffee through brings out more sweetness and softens that sourness, without touching the grind that got you here.' : 'A slightly finer grind extracts a little more sweetness to balance it.'); }
                     else if (saidO && O0 >= 1.2 && O0 > U0) { head = esp ? `Your best yet. Next time, stop it at ${this.fmtNum(Math.max(c.dose, c.yield - 2), 1)} g instead of ${this.fmtNum(c.yield, 1)} g.` : `Your best yet. Next time, grind one step coarser (${plainG(coarser)}).`; next = esp ? recipe(keepG, c.dose, Math.max(c.dose, c.yield - 2)) : recipe(coarser, c.dose, c.yield); why.push(best, words('over'), esp ? 'Stopping a little earlier leaves the harsher end of the shot behind and keeps the sweetness.' : 'A slightly coarser grind takes the edge off.'); }
-                    else { head = 'Your best yet. Repeat it exactly.'; next = recipe(keepG, c.dose, c.yield); why.push(best, 'Change nothing next time; if it repeats, pin it as your master recipe.'); }
+                    else { head = 'Your best yet. Repeat it exactly.'; next = recipe(keepG, c.dose, c.yield); why.push(best, 'Change nothing next time; if it repeats, pin it as your favorite recipe.'); }
                     conf = '';
                 } else if (U >= 1.2 && O >= 1.2) {
                     conf = confOf(Math.min(U, O) + 1);
@@ -15961,6 +16012,10 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             openWelcome(step = 'intro') {
                 const view = document.getElementById('welcome-view');
                 if (!view) return;
+                // v21.2: nothing stays over the welcome (a session's page is above it; since Save opens that page, a sign-in
+                // that ran out right after saving asked to sign in again behind it)
+                if (this.closeSession && typeof document !== 'undefined' && document.body.classList.contains('nls-open')) this.closeSession(true);
+                if (this.user && this.closeShareView && this._shv) this.closeShareView();
                 this.wl = { step, name: '', color: '', gear: [], gearOpen: '', pick: '', bean: { roaster: '', name: '', origin: '', roast: 'Light', process: '', roastDate: '' } };
                 this.welcomeOpen = true;
                 view.classList.add('active'); view.setAttribute('aria-hidden', 'false');
@@ -16928,7 +16983,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     detail.push('Body read light on the taste sliders.');
                 } else if (signal.kind === 'balanced') {
                     headline = 'Keep this recipe.';
-                    detail.push(this.isMasterBrew(brew) ? 'It\'s already pinned as a master recipe.' : 'It\'s worth pinning as a master recipe.');
+                    detail.push(this.isMasterBrew(brew) ? 'It\'s already pinned as your favorite recipe.' : 'It\'s worth pinning as your favorite recipe.');
                 } else if (signal.kind === 'off') {
                     headline = 'Low rating, but no taste clue to act on.';
                     detail.push('Add a quick verdict, taste sliders or a note next time, and a specific change will show here.');
@@ -16978,12 +17033,15 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
 
             // ---- bean page extras ----
             // ---- v12.2: a flavor note as a chip in its wheel family's color (shaded, no dot)
+            // v21.2: every flavor note wears its own color (Maceo, Nov 3: "multiple places where there are flavor notes that are
+            // not color coded"): the tone the feed's notes use (54-nl-tones), as data-nf on the chip
+            nlNoteAttr(name, kind) { if (!(this.newLook && this.newLook() && this.noteToneKey)) return ''; try { return ` data-nf="${this.esc(this.noteToneKey(name, kind || (this.teaMode && this.teaMode() ? 'tea' : 'coffee')))}"`; } catch (e) { return ''; } },
             famChip(name) {
                 const at = this.noteLocate(name);
                 const hex = at && at.f >= 0 ? at.color : '#7D8984';   // (v17.0: a tea note in its tea family's color)
                 const s = String(this.normalizeHexColor(hex) || '#7D8984').slice(1);
                 const rgb = [0, 2, 4].map(i => parseInt(s.slice(i, i + 2), 16)).join(', ');
-                return `<span class="fam-chip" style="${this.famVars(hex)}">${this.esc(name)}</span>`;
+                return `<span class="fam-chip"${this.nlNoteAttr(name)} style="${this.famVars(hex)}">${this.esc(name)}</span>`;
             },
 
             // the star widget stays beside the name unless that would split a word or squeeze the name past two lines;
@@ -17150,7 +17208,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const rated = latestFirst.filter(b => this.normalizeRating(b.rating) > 0);
                 const best = rated.slice().sort((a, b) => this.normalizeRating(b.rating) - this.normalizeRating(a.rating))[0];
                 const pick = master ? this.getMasterProfile(master) : (best || latestFirst[0]);
-                const pickLabel = master ? 'Master recipe' : `${best ? 'Best-rated' : 'Latest'} ${this.shotWord(pick && pick.method)}`;
+                const pickLabel = master ? 'Favorite recipe' : `${best ? 'Best-rated' : 'Latest'} ${this.shotWord(pick && pick.method)}`;
                 const methods = [...new Set(list.map(b => b.method).filter(Boolean))];
                 const avg = key => list.reduce((s, b) => s + (b[key] === undefined || b[key] === '' ? 5 : this.num(b[key])), 0) / list.length;
                 // v17.5: in the New look each bar wears its taste's color (sweetness red, acidity yellow…), all six tastes, in tea words for a tea
@@ -17205,7 +17263,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     const rated = s.ratings.filter(Boolean);
                     const n = s.shots.length;
                     const status = s.dialedAt >= 0
-                        ? `Dialed in on session ${s.dialedAt + 1} · ${s.how === 'pinned as Master' ? 'Master' : 'first 4.5★+'}`
+                        ? `Dialed in on session ${s.dialedAt + 1} · ${s.how === 'pinned as Master' ? 'Favorite recipe' : 'first 4.5★+'}`
                         : (rated.length ? `Best so far ${this.fmtNum(Math.max(...rated))}★` : 'No ratings yet');
                     return `<div class="di-row"><i style="background:${this.esc(s.color)}"></i><b>${this.esc(s.owner)}</b><span>${this.esc(status)}</span><em>${n} session${n === 1 ? '' : 's'}</em></div>`;
                 }).join('');
@@ -19109,7 +19167,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 }
                 if (tasted.every(k => Math.abs(cur.values[k] - this.tasteValue(R, k)) <= 1) && (dT === null || Math.abs(dT) <= 3) && !ev.length) {
                     ev.push({ side: 'ok', text: 'Within 1 of your best on every slider you moved' });
-                    return { ...base, conf: '', head: 'Right on your target. Keep this recipe.', detail: 'Worth pinning as Master if it keeps repeating.' };
+                    return { ...base, conf: '', head: 'Right on your target. Keep this recipe.', detail: 'Worth pinning as your favorite recipe if it keeps repeating.' };
                 }
                 if (dS !== null && dS <= -2) return { ...base, conf: 'possible', head: 'Less sweet than your best, but no clear direction yet.', detail: 'If it tasted sharp, raise Acidity. If it tasted harsh or drying, raise Bitterness. Then the tip can tell finer from coarser.' };
                 return { ...base, conf: 'possible', head: 'A little different from your best shot, but nothing points to grind or ratio.', detail: 'Keep the recipe and see if the difference repeats.' };
@@ -19134,6 +19192,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             renderTasteTip() {
                 const box = document.getElementById('taste-tip');
                 if (!box) return;
+                if (this.newLook && this.newLook()) { if (box.innerHTML) box.innerHTML = ''; box.hidden = true; return; }   // v21.2: no next-shot box in the Log (Maceo, Nov 3); the session's page has the coach once it's saved
                 if (this.logKind === 'tea' && this.teaTipHtml) { box.innerHTML = this.teaTipHtml(); return; }   // v17.0: next-steep advice, never grind
                 const c = this.coachFromForm();
                 if (c.method && this.activeGroup) {
@@ -19231,7 +19290,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     if (this.wheelFam == null) tray.innerHTML = '<p class="note-help">Start broad, then go specific. “Tastes off” notes help the coach most.</p>';
                     else {
                         const groups = this.wheelGroup == null ? WH[this.wheelFam].groups : [WH[this.wheelFam].groups[this.wheelGroup]];
-                        tray.innerHTML = groups.map(([g, notes]) => `${this.wheelGroup == null ? `<div class="note-group">${this.esc(g)}</div>` : ''}<div class="note-chips">${notes.map(nm => `<button type="button" class="note-chip" aria-pressed="${this.selFlavors.includes(nm)}" onclick="app.pickNote('${app.escJs(nm)}', event)">${this.esc(nm)}</button>`).join('')}</div>`).join('');
+                        tray.innerHTML = groups.map(([g, notes]) => `${this.wheelGroup == null ? `<div class="note-group">${this.esc(g)}</div>` : ''}<div class="note-chips">${notes.map(nm => `<button type="button" class="note-chip"${this.nlNoteAttr(nm, lk)} aria-pressed="${this.selFlavors.includes(nm)}" onclick="app.pickNote('${app.escJs(nm)}', event)">${this.esc(nm)}</button>`).join('')}</div>`).join('');
                     }
                 }
                 const picked = document.getElementById('note-picked');
@@ -19240,7 +19299,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                         const lv = this.noteIntensity[nm] || 2;
                         const at = this.noteLocate(nm, lk);
                         const color = at ? at.color : 'var(--text-muted)';
-                        return `<span class="pick fam-pick" style="--fc:${color};${this.famVars(/^#/.test(color) ? color : '#7D8984')}"><i class="pick-dot"></i>${this.esc(nm)}<button type="button" class="dots" onclick="app.cycleNote('${app.escJs(nm)}', event)" aria-label="${this.esc(nm)} strength ${lv} of 3">${[1, 2, 3].map(i => `<i class="${i <= lv ? 'on' : ''}"></i>`).join('')}</button><button type="button" class="x" onclick="app.pickNote('${app.escJs(nm)}', event)" aria-label="Remove ${this.esc(nm)}">×</button></span>`;
+                        return `<span class="pick fam-pick"${this.nlNoteAttr(nm, lk)} style="--fc:${color};${this.famVars(/^#/.test(color) ? color : '#7D8984')}"><i class="pick-dot"></i>${this.esc(nm)}<button type="button" class="dots" onclick="app.cycleNote('${app.escJs(nm)}', event)" aria-label="${this.esc(nm)} strength ${lv} of 3">${[1, 2, 3].map(i => `<i class="${i <= lv ? 'on' : ''}"></i>`).join('')}</button><button type="button" class="x" onclick="app.pickNote('${app.escJs(nm)}', event)" aria-label="Remove ${this.esc(nm)}">×</button></span>`;
                     }).join('')}</div>` : '';
                 }
                 const hints = document.getElementById('note-hints');
@@ -19251,7 +19310,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                         Array.from(this.brews.values()).filter(b => this.groupKeyOfBrew(b) === key).forEach(b => this.extractFlavors(b).forEach(n => counts2.set(n, (counts2.get(n) || 0) + 1)));
                     }
                     const top = [...counts2.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6).map(([n]) => n);
-                    hints.innerHTML = top.length ? `<div class="note-hints"><span>Others noted:</span>${top.map(nm => `<button type="button" class="note-chip hint" aria-pressed="${this.selFlavors.includes(nm)}" onclick="app.pickNote('${app.escJs(nm)}', event)">${this.esc(nm)}</button>`).join('')}</div>` : '';
+                    hints.innerHTML = top.length ? `<div class="note-hints"><span>Others noted:</span>${top.map(nm => `<button type="button" class="note-chip hint"${this.nlNoteAttr(nm, lk)} aria-pressed="${this.selFlavors.includes(nm)}" onclick="app.pickNote('${app.escJs(nm)}', event)">${this.esc(nm)}</button>`).join('')}</div>` : '';
                 }
                 this.renderCupWords();
             },
@@ -19335,7 +19394,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             noteChipsHtml(notes, withCounts) {
                 return notes.map(x => {
                     const color = x.color || (x.f >= 0 ? NOTE_WHEEL[x.f].color : '#7D8984');
-                    return `<span class="flv-note fam-chip" style="${this.famVars(color)}">${this.esc(x.n)}${withCounts ? (x.count > 1 ? `<em>×${x.count}</em>` : '') : `<span class="flv-dots">${[1, 2, 3].map(k => `<b class="${k <= x.strength ? 'on' : ''}"></b>`).join('')}</span>`}</span>`;
+                    return `<span class="flv-note fam-chip"${this.nlNoteAttr(x.n)} style="${this.famVars(color)}">${this.esc(x.n)}${withCounts ? (x.count > 1 ? `<em>×${x.count}</em>` : '') : `<span class="flv-dots">${[1, 2, 3].map(k => `<b class="${k <= x.strength ? 'on' : ''}"></b>`).join('')}</span>`}</span>`;
                 }).join('');
             },
 
@@ -19424,9 +19483,13 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const fc = this.flavorCounts(pool, kind);
                 const chips = people.length > 1 && people.length <= 8 ? `<div class="bf-people">${['all', ...people].map(p => `<button type="button" class="chip-btn" aria-pressed="${this.beanFlavorWho === p}" data-who="${this.esc(p)}" onclick="app.setBeanFlavorWho(this.getAttribute('data-who'))">${p === 'all' ? 'All' : this.esc(p)}</button>`).join('')}</div>` : '';
                 const words = this.describeCup(values, tasted, fc.notes.slice(0, 4).map(x => x.n), Object.fromEntries(fc.notes.map(x => [x.n, x.strength])), kind);
-                box.innerHTML = `<div class="bf-head"><div><h3>Flavor profile</h3><p>${pool.length} session${pool.length === 1 ? '' : 's'} · ${this.beanFlavorWho === 'all' ? this.esc(this.lensLabel()) : this.esc(this.beanFlavorWho)}${mineBest ? ' · dashed: your best' : ''}</p></div></div>${chips}<div id="bf-shape"></div>${!tasted.length ? '<div class="flv-empty">No taste sliders set on these sessions yet.</div>' : ''}${fc.notes.length ? `<div class="bf-wheel">${this.wheelSvgStatic(fc, kind)}<div class="flv-notes">${this.noteChipsHtml(fc.notes.slice(0, 12), true)}</div></div>` : ''}${words ? `<div class="flv-words">${this.esc(words)}</div>` : ''}`;
+                // v21.2: Flavor profile folds (Maceo, Nov 3); remembered on this phone, open to start
+                const bfOpen = !(this.newLook && this.newLook()) || safeGet('dialed_bf_fold') !== '1';
+                box.classList.toggle('bf-folded', !bfOpen);
+                const fold = this.newLook && this.newLook() ? `<button type="button" class="bf-fold" aria-expanded="${bfOpen}" aria-controls="bf-body" aria-label="${bfOpen ? 'Fold' : 'Open'} Flavor profile" onclick="app.toggleBeanFlavor()"><svg class="icon" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>` : '';
+                box.innerHTML = `<div class="bf-head"${fold ? ' onclick="if(!event.target.closest(\'.bf-fold\'))app.toggleBeanFlavor()"' : ''}><div><h3>Flavor profile</h3><p>${pool.length} session${pool.length === 1 ? '' : 's'} · ${this.beanFlavorWho === 'all' ? this.esc(this.lensLabel()) : this.esc(this.beanFlavorWho)}${mineBest ? ' · dashed: your best' : ''}</p></div>${fold}</div><div class="bf-body" id="bf-body"${bfOpen ? '' : ' hidden'}>${chips}<div id="bf-shape"></div>${!tasted.length ? '<div class="flv-empty">No taste sliders set on these sessions yet.</div>' : ''}${fc.notes.length ? `<div class="bf-wheel">${this.wheelSvgStatic(fc, kind)}<div class="flv-notes">${this.noteChipsHtml(fc.notes.slice(0, 12), true)}</div></div>` : ''}${words ? `<div class="flv-words">${this.esc(words)}</div>` : ''}</div>`;
                 setTimeout(() => this.fillShapeImages(document.getElementById('detail-view')), 0);
-                if (typeof FlavorShape !== 'undefined' && tasted.length && this.newLook() && this.nlSpinMount) {   // v21.0: the Session screen's shape
+                if (typeof FlavorShape !== 'undefined' && tasted.length && this.newLook() && this.nlSpinMount) { if (!bfOpen) return;   // v21.0: the Session screen's shape (v21.2: not while folded)
                     this.nlSpinMount(document.getElementById('bf-shape'), { id: `bean|${groupKey}`, values: () => this.beanFlavorValues, isSet: k => tasted.includes(k),
                         ghost: this.beanFlavorGhost ? () => this.beanFlavorGhost : null, names: () => (this.beanFlavorKind === 'tea' ? 'tea' : null) });
                 } else if (typeof FlavorShape !== 'undefined' && tasted.length) {
@@ -19435,6 +19498,13 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     if (bfHost && typeof bfHost.replaceChildren === 'function') bfHost.replaceChildren(this.beanView.el);
                     this.beanView.start();
                 }
+            },
+
+            toggleBeanFlavor() {
+                const open = safeGet('dialed_bf_fold') === '1';
+                safeSet('dialed_bf_fold', open ? '' : '1');
+                if (this.haptic) this.haptic('tick');
+                this.renderBeanFlavor(this.detailBrews || []);
             },
 
             setBeanFlavorWho(who) {
@@ -19510,6 +19580,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const topFlavors = this.getTopFlavors(brews, 3);
                 document.getElementById('d-top-flavors').innerHTML = topFlavors.map(flavor => this.famChip(flavor)).join('');
 
+                if (this.renderDraftPill) this.renderDraftPill();   // v21.2: Continue draft
                 this.renderBeanFlavor(brews);
                 this.detailBrews = [...brews];
                 this.setDetailTab(this.detailTab || 'timeline');
@@ -19529,15 +19600,22 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     const profile = this.getMasterProfile(master);
                     const eq = this.resolveEquipmentNames(profile);
                     const notes = String(profile.notes || this.getBrewNotes(master) || '').trim();
+                    // v21.2 (Maceo: "in Maceo's color and larger … it doesn't fit in well, there's empty space"): in the New look the
+                    // card is headed like a session, their face and "Maceo's favorite recipe" in their own color, level with the buttons
+                    const nlFav = this.newLook && this.newLook(), favC = this.getUserColor(masterOwner);
+                    if (nlFav) { card.classList.add('nl-fav'); card.style.setProperty('--fav', favC); }
+                    const favHead = nlFav
+                        ? `<div class="fav-who"><span class="nl-pfp fav-pfp" data-face="${this.esc(masterOwner)}" data-profile="${this.esc(masterOwner)}" style="background:${this.esc(favC)};--ring:${this.esc(favC)}">${this.esc(this.feedInitial(masterOwner))}</span><span class="fav-title" style="color:${this.esc(this.nameColor(masterOwner))}"><b>${this.esc(masterOwner)}'s</b><small>favorite recipe</small></span></div>`
+                        : `<div style="font-size:0.65rem; color:var(--matcha); font-weight:800; text-transform:uppercase;">${this.esc(masterOwner)}'s favorite recipe</div>`;
                     card.innerHTML = `
                         <div class="master-top">
-                            <div style="font-size:0.65rem; color:var(--matcha); font-weight:800; text-transform:uppercase;">${this.esc(masterOwner)}'s Master</div>
+                            ${favHead}
                             ${masterOwner === this.user ? `
                                 <div class="master-actions">
-                                    <button class="btn-clean" onclick="app.openMasterModal('${app.escJs(master.id)}')" title="Edit master recipe">
+                                    <button class="btn-clean" onclick="app.openMasterModal('${app.escJs(master.id)}')" title="Edit favorite recipe">
                                         <svg class="icon" style="width:14px;height:14px;"><use href="#i-edit-2"/></svg>
                                     </button>
-                                    <button class="btn-clean danger" onclick="app.unpinMaster('${app.escJs(master.id)}')" title="Remove master recipe">
+                                    <button class="btn-clean danger" onclick="app.unpinMaster('${app.escJs(master.id)}')" title="Remove favorite recipe">
                                         <svg class="icon" style="width:14px;height:14px;"><use href="#i-trash-2"/></svg>
                                     </button>
                                 </div>
@@ -19549,7 +19627,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     `;
                     masterBox.appendChild(card);
                 });
-                this.moreDom(masterBox, 2, 'master recipes');   // v15.1
+                this.moreDom(masterBox, 2, 'favorite recipes');   // v15.1
 
                 const logBox = document.getElementById('d-logs');
                 const keyedLogs = this.canPatchDom(logBox);
@@ -20071,13 +20149,15 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 this.push(payload);
                 this.resetTimer();
                 this.closeModals();
+                if (this.logDraftDone) this.logDraftDone();   // v21.2: a draft that became this session is gone
+                if (this.newLook && this.newLook() && this.openSession) setTimeout(() => { if (this.brews.has(id)) this.openSession(id); }, 60);   // v21.2: saved: straight to its page (Maceo, Nov 3)
             },
 
             openMasterModal(id) {
                 const brew = this.brews.get(id);
                 if (!brew) return;
                 if (this.getBrewOwner(brew) !== this.user) {
-                    this.showToast('Only the owner can edit this master recipe.');
+                    this.showToast('Only the owner can edit this favorite recipe.');
                     return;
                 }
 
@@ -20145,7 +20225,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const brew = this.brews.get(id);
                 if (!brew) return;
                 if (this.getBrewOwner(brew) !== this.user) {
-                    this.showToast('Only the owner can save this master recipe.');
+                    this.showToast('Only the owner can save this favorite recipe.');
                     return;
                 }
 
@@ -20176,24 +20256,24 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 }, brew);
                 this.push({ type: 'brew', ...updated });
                 this.closeModals();
-                this.showToast('Master recipe saved.');
+                this.showToast('Favorite recipe saved.');
             },
 
             unpinMaster(id) {
                 const brew = this.brews.get(id);
                 if (!brew) return;
                 if (this.getBrewOwner(brew) !== this.user) {
-                    this.showToast('Only the owner can remove this master recipe.');
+                    this.showToast('Only the owner can remove this favorite recipe.');
                     return;
                 }
-                if (!confirm('Remove this master recipe? The session will stay in history.')) return;
+                if (!confirm('Remove this favorite recipe? The session will stay in history.')) return;
                 const updated = this.withBrewOwner({
                     ...brew,
                     isMaster: false,
                     masterProfile: null
                 }, brew);
                 this.push({ type: 'brew', ...updated });
-                this.showToast('Master recipe removed.');
+                this.showToast('Favorite recipe removed.');
             },
 
             editBean() {
@@ -20401,7 +20481,14 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
 
             openModal(id) {
                 document.getElementById(id).classList.add('active');
-                if (id === 'brew-modal') { this._brewSnap = undefined; setTimeout(() => { this._brewSnap = this.brewFormSnap(); }, 0); }
+                if (id === 'brew-modal') {
+                    this._brewSnap = undefined; setTimeout(() => { this._brewSnap = this.brewFormSnap(); }, 0);
+                    // v21.2: always from the top (Maceo, Nov 3: Clone "sometimes just brings you to the very bottom"): the sheet kept
+                    // where it was last scrolled; set again after it has drawn, in case something below scrolled it
+                    const top = () => { const m = document.getElementById('brew-modal'), c = m && m.querySelector('.modal-card'); if (m) m.scrollTop = 0; if (c) c.scrollTop = 0; };
+                    const db = document.getElementById('log-draft-btn'), f = this.getBrewForm(); if (db) db.hidden = !!(f && f.elements.id.value);   // (v21.2: an edit isn't a draft)
+                    top(); requestAnimationFrame(top); setTimeout(top, 120); setTimeout(top, 400);
+                }
             },
 
             closeModals() {
@@ -23856,7 +23943,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     ['local', 'A session from a roaster you marked local', 5, 'up to 5 a day'],
                     ['origin', 'A new origin country', 20],
                     ['method', 'A new brew method', 30],
-                    ['master', 'Pinning a master recipe', 10],
+                    ['master', 'Pinning a favorite recipe', 10],
                     ['comment', 'A comment', 3, 'up to 10 a day'],
                     ['likeGiven', 'A like you give', 1],
                     ['likeGot', 'A like on your session', 2],
@@ -25340,7 +25427,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             // - Coffees: swipe left or right between Mine and All. Feed: between Following, Community and Discover.
             // A swipe never starts on a slider, a 3D flavor shape, a text box or a row that scrolls sideways (except from
             // the very left edge, for Back), and a mostly-up-and-down drag is always just scrolling.
-            swipeSheets() { return ['notif-modal', 'level-modal', 'notif-set-modal', 'shot-modal', 'bugs-modal', 'legal-modal', 'people-modal', 'settings-modal', 'shape-modal', 'achievement-modal', 'fab-modal', 'review-modal']; },
+            swipeSheets() { return ['notif-modal', 'level-modal', 'notif-set-modal', 'shot-modal', 'bugs-modal', 'legal-modal', 'people-modal', 'settings-modal', 'shape-modal', 'achievement-modal', 'fab-modal', 'review-modal', 'brew-modal']; },   // (v21.2: the Log too: swiped away it's kept as a draft)
 
             topSheet() {
                 const open = [...document.querySelectorAll('.modal.active')];
@@ -25444,7 +25531,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     if (!g.lock) {
                         if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
                         const across = Math.abs(dx) > Math.abs(dy) * 1.3, down = dy > 0 && Math.abs(dy) > Math.abs(dx) * 1.3;
-                        if (g.kind === 'sheet') g.lock = down && g.top ? 'down' : (across && dx > 0 && g.side ? 'right' : 'none');
+                        if (g.kind === 'sheet') g.lock = down && g.top ? 'down' : (across && dx > 0 && g.side ? 'right' : (across && dx < 0 && g.side && g.modal && g.modal.id === 'brew-modal' ? 'left' : 'none'));   // (v21.2: the Log goes either way)
                         else if (g.kind === 'back') g.lock = across && dx > 0 ? 'right' : 'none';
                         else g.lock = across ? 'side' : 'none';
                         if (g.lock === 'none') { g = null; return; }
@@ -25455,6 +25542,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     g.dx = dx; g.dy = dy; g.t = Date.now();
                     if (g.lock === 'down') { g.el.style.transform = `translateY(${Math.max(0, dy)}px)`; g.modal.style.opacity = String(Math.max(0.35, 1 - Math.max(0, dy) / (H() * 1.4))); }
                     else if (g.lock === 'right' && g.kind === 'sheet') { g.el.style.transform = `translateX(${Math.max(0, dx)}px)`; g.modal.style.opacity = String(Math.max(0.35, 1 - Math.max(0, dx) / (W() * 1.4))); }
+                    else if (g.lock === 'left' && g.kind === 'sheet') { g.el.style.transform = `translateX(${Math.min(0, dx)}px)`; g.modal.style.opacity = String(Math.max(0.35, 1 - Math.max(0, -dx) / (W() * 1.4))); }
                     else if (g.kind === 'back') g.el.style.transform = `translateX(${g.soft ? Math.max(0, dx) * 0.4 : Math.max(0, dx)}px)`;
                     else if (g.kind === 'tabs') {
                         const i = g.tabs.list.indexOf(g.tabs.now), next = dx < 0 ? i + 1 : i - 1, room = next >= 0 && next < g.tabs.list.length;
@@ -25469,13 +25557,16 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     const ms = Math.max(1, (s.t || Date.now()) - s.t0), w = W(), h = H();
                     const vx = s.dx / ms, vy = s.dy / ms;
                     if (s.kind === 'sheet') {
-                        const go = s.lock === 'down' ? (s.dy > Math.min(140, h * 0.18) || (vy > 0.5 && s.dy > 40)) : (s.dx > w * 0.3 || (vx > 0.5 && s.dx > 40));
+                        let go = s.lock === 'down' ? (s.dy > Math.min(140, h * 0.18) || (vy > 0.5 && s.dy > 40)) : s.lock === 'left' ? (-s.dx > w * 0.3 || (-vx > 0.5 && -s.dx > 40)) : (s.dx > w * 0.3 || (vx > 0.5 && s.dx > 40));
+                        const isLog = s.modal && s.modal.id === 'brew-modal';
+                        if (go && isLog && this.logSwipeAllowed && !this.logSwipeAllowed()) go = false;   // (v21.2: a running timer or unsaved edit keeps the Log open)
                         const modal = s.modal;
                         s.el.style.transition = ease; modal.style.transition = 'opacity 0.22s ease';
                         if (!go) { s.el.style.transform = ''; modal.style.opacity = ''; setTimeout(() => { clear(s.el); modal.style.transition = ''; }, 240); return; }
-                        s.el.style.transform = s.lock === 'down' ? `translateY(${h}px)` : `translateX(${w}px)`; modal.style.opacity = '0';
+                        s.el.style.transform = s.lock === 'down' ? `translateY(${h}px)` : s.lock === 'left' ? `translateX(${-w}px)` : `translateX(${w}px)`; modal.style.opacity = '0';
                         setTimeout(() => {
-                            modal.dispatchEvent(new MouseEvent('click', { bubbles: true }));   // its own close (what tapping outside it does)
+                            if (isLog && this.logSwipeAway) this.logSwipeAway();   // v21.2: the Log is kept as a draft (if anything's in it)
+                            else modal.dispatchEvent(new MouseEvent('click', { bubbles: true }));   // its own close (what tapping outside it does)
                             if (modal.classList.contains('active')) modal.classList.remove('active');
                             clear(s.el); modal.style.opacity = ''; modal.style.transition = '';
                         }, 200);
@@ -25762,7 +25853,8 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             // ---- Drafts, on your own profile (above your sessions): each with its coffee, when, the numbers and a tiny curve
             renderShotDraftsCard() {
                 const list = this.shotsOn() ? (this.shotDrafts || []) : [];
-                if (!list.length) return '';
+                const logRows = this.logDraftRowsHtml ? this.logDraftRowsHtml() : '', logN = this.logDrafts ? this.logDrafts().length : 0;   // v21.2: the Log's drafts too
+                if (!list.length && !logRows) return '';
                 const rows = list.map(d => {
                     const s = d.shot || {};
                     const num = v => this.shotVal(v) !== null ? this.fmtNum(Number(v)) : '';
@@ -25773,7 +25865,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                         <span class="sd-main"><b>${this.esc(d.coffee || 'Espresso')}</b><span>${bits}</span></span></button>
                         <button type="button" class="sd-del" aria-label="Delete this draft" onclick="app.dismissShot('${this.escJs(String(d.id))}', event)"><svg class="icon" aria-hidden="true"><use href="#i-trash-2"/></svg></button></div>`;
                 }).join('');
-                return `<div class="profile-card shot-drafts"><div class="label">Drafts <span class="sd-count">${Math.max(list.length, this.shotDraftCount || 0)}</span></div>${rows}</div>`;
+                return `<div class="profile-card shot-drafts"><div class="label">Drafts <span class="sd-count">${Math.max(list.length, list.length ? this.shotDraftCount || 0 : 0) + logN}</span></div>${logRows}${rows}</div>`;
             },
 
             // ---- the Shot tab on your posted machine shots: the graph, its key and how each phase went
@@ -30100,6 +30192,138 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 if (k === 'learn') { this.gsMark('learn'); this.setCoffeeScope('learn'); return; }
                 if (k === 'goal') { if (this.openGoalEditor) this.openGoalEditor(); return; }
                 if (k === 'level') { this.gsMark('level'); if (this.openLevel) this.openLevel(this.user); }
+            },
+            // ===================== v21.2: drafts from the Log =====================
+            // Maceo (Nov 3): "make drafts able to be saved from logs", and "if you swipe [the Log away], it should auto save it as
+            // a draft". A new session you haven't saved can be kept as a draft (Save as draft, or swipe the Log away with
+            // something in it), kept on this phone, and picked up later from the coffee's page (Continue draft) or your
+            // profile's Drafts (next to the espresso machine's). Saving it as a session, or deleting it, clears it.
+            LOG_DRAFTS_KEY: 'dialed_log_drafts',
+            LOG_DRAFTS_MAX: 20,
+            logDrafts() {
+                try { const all = JSON.parse(safeGet(this.LOG_DRAFTS_KEY) || '{}'); return (Array.isArray(all[this.user]) ? all[this.user] : []).filter(d => d && d.id && d.beanId); }
+                catch (e) { return []; }
+            },
+            logDraftsPut(list) {
+                try { const all = JSON.parse(safeGet(this.LOG_DRAFTS_KEY) || '{}'); all[this.user] = list.slice(0, this.LOG_DRAFTS_MAX); safeSet(this.LOG_DRAFTS_KEY, JSON.stringify(all)); return true; }
+                catch (e) { return false; }
+            },
+            logDraftsFor(beanId) { return this.logDrafts().filter(d => String(d.beanId) === String(beanId)); },
+
+            // the Log as it stands, as a session-shaped record openBrewModal can fill back in
+            logDraftFromForm() {
+                const form = this.getBrewForm();
+                if (!form || form.elements.id.value || !this.activeId) return null;   // (an edit of a saved session isn't a draft)
+                const method = form.method.value;
+                const eq = [...document.querySelectorAll('#equipment-selector .equipment-checkbox:checked')].map(cb => cb.value);
+                const secs = this.timerSeconds ? Math.round(this.timerSeconds()) : 0;
+                const num = k => (form[k] ? String(form[k].value || '') : '');
+                let photo = this.draftPhoto || null;
+                try { if (photo && JSON.stringify(photo).length > 900000) photo = null; } catch (e) { photo = null; }   // (a huge unsent picture doesn't fit on the phone's shelf)
+                return {
+                    id: this._draftId || `d${Date.now()}`, beanId: String(this.activeId), savedAt: new Date().toISOString(), user: this.user, owner: this.user,
+                    method, grind: num('grind'), dose: num('dose'), yield: num('yield'), time: num('time') || (secs >= 1 ? String(secs) : ''),
+                    acidity: num('acidity'), sweetness: num('sweetness'), body: num('body'), finish: num('finish'), balance: num('balance'), bitterness: num('bitterness'),
+                    tasted: TASTE_KEYS.filter(k => this.tasteTouched && this.tasteTouched.has(k)),
+                    flavors: [...(this.selFlavors || [])].filter(Boolean), flavorNotes: Object.fromEntries((this.selFlavors || []).filter(Boolean).map(n => [n, (this.noteIntensity || {})[n] || 2])),
+                    notes: num('notes'), rating: num('rating'), verdict: form.verdict ? form.verdict.value : '', isMaster: !!(document.getElementById('isMasterInput') || {}).checked,
+                    roastDate: form.roastDate ? String(form.roastDate.value || '') : '', equipment: eq, recipeName: this.recipeName || '',
+                    ...(this.collectMethodExtras ? this.collectMethodExtras(method) : {}),
+                    photo, share: this.share ? { ...this.share } : null
+                };
+            },
+
+            // Save as draft (auto: the Log swiped away with something in it)
+            saveLogDraft(auto = false) {
+                const form = this.getBrewForm();
+                if (form && form.elements.id.value) { if (!auto) this.showToast('This session is already saved. Save your changes or dismiss them.'); return false; }
+                if (!auto && !this.brewFormDirty()) { this.showToast('Nothing to save yet.'); return false; }
+                const d = this.logDraftFromForm();
+                if (!d) return false;
+                const list = this.logDrafts().filter(x => x.id !== d.id);
+                if (!this.logDraftsPut([d, ...list])) { this.showToast('Couldn\'t keep the draft on this phone.'); return false; }
+                this._draftId = null; this._brewSnap = undefined;
+                this.closeModals();
+                if (this.timer && this.resetTimer) this.resetTimer();
+                if (this.haptic) this.haptic('success');
+                this.showToast(auto ? 'Saved as a draft. Continue it from the coffee\'s page.' : 'Draft saved. Continue it from the coffee\'s page.');
+                this.render();
+                if (this.isDetailActive && this.isDetailActive() && this.renderDraftPill) this.renderDraftPill();
+                return true;
+            },
+
+            // the Log swiped away: a live timer keeps it open; an edit with changes keeps it open; otherwise a draft if there's anything in it
+            logSwipeAllowed() {
+                const form = this.getBrewForm();
+                if (this.timer && this.timer.on) { this.showToast('The timer is running. Stop it first.'); return false; }
+                if (form && form.elements.id.value && this.brewFormDirty()) { this.showToast('Save your changes or tap Dismiss.'); return false; }
+                return true;
+            },
+            logSwipeAway() {
+                if (this.brewFormDirty() && this.saveLogDraft(true)) return;
+                this.closeModals();
+                if (this.timer && this.resetTimer) this.resetTimer();
+            },
+
+            // pick a draft up again: its coffee's page, then the Log filled in as it was
+            openLogDraft(id) {
+                const d = this.logDrafts().find(x => x.id === id);
+                if (!d) { this.showToast('That draft isn\'t on this phone any more.'); return; }
+                if (!this.beans.has(String(d.beanId))) { this.showToast('Its coffee isn\'t here any more.'); return; }
+                const go = () => {
+                    this.openBrewModal({ ...d, flavors: d.flavors || [] });
+                    const form = this.getBrewForm();
+                    if (form) {
+                        if (form.bitterness && d.bitterness !== '') form.bitterness.value = d.bitterness;
+                        if (form.rating) { form.rating.value = d.rating || 0; this.updateRatingDisplay(form.rating.value); }
+                        if (form.verdict && d.verdict) { form.verdict.value = d.verdict; if (this.renderVerdict) this.renderVerdict(); }
+                        if (form.roastDate && d.roastDate) { form.roastDate.value = d.roastDate; if (this.paintRoastDays) this.paintRoastDays(); }
+                        if (this.paintTasteSliders) this.paintTasteSliders();
+                    }
+                    if (d.share && this.shareOpen) { try { this.shareOpen(d.share); } catch (e) {} }
+                    this._draftId = d.id;
+                    setTimeout(() => { this._brewSnap = this.brewFormSnap(); }, 30);   // (opened as it was saved: nothing new to keep yet)
+                };
+                if (String(this.activeId) === String(d.beanId) && this.isDetailActive && this.isDetailActive()) go();
+                else { this.openFeedTarget(d.beanId, '', false); setTimeout(go, 350); }
+            },
+            deleteLogDraft(id, ev) {
+                if (ev) { ev.stopPropagation(); ev.preventDefault(); }
+                if (!confirm('Delete this draft?')) return;
+                this.logDraftsPut(this.logDrafts().filter(x => x.id !== id));
+                if (this.haptic) this.haptic('tick');
+                this.render();
+                if (this.isDetailActive && this.isDetailActive() && this.renderDraftPill) this.renderDraftPill();
+            },
+            // saved as a session: the draft it came from is done
+            logDraftDone() {
+                if (!this._draftId) return;
+                this.logDraftsPut(this.logDrafts().filter(x => x.id !== this._draftId));
+                this._draftId = null;
+            },
+
+            logDraftLine(d) {
+                const n = v => (v !== '' && v != null && isFinite(Number(v)) && Number(v) > 0 ? this.fmtNum(Number(v)) : '');
+                const bits = [d.method || '', n(d.dose) && n(d.yield) ? `${n(d.dose)} → ${n(d.yield)} g` : n(d.dose) ? `${n(d.dose)} g` : '', n(d.time) ? `${n(d.time)} s` : ''].filter(Boolean);
+                return bits.join(' · ');
+            },
+            logDraftWhen(d) { return this.nlAgo ? this.nlAgo(d.savedAt) : this.shortDate(d.savedAt); },
+
+            // the coffee's page: Continue draft, under Log a session (only when there's one for this coffee)
+            renderDraftPill() {
+                const host = document.getElementById('d-draft');
+                if (!host) return;
+                const list = this.activeId ? this.logDraftsFor(this.activeId) : [];
+                host.hidden = !list.length;
+                host.innerHTML = list.slice(0, 3).map(d => `<div class="ld-pill"><button type="button" class="ld-open" onclick="app.openLogDraft('${this.escJs(d.id)}')"><svg class="icon" aria-hidden="true"><use href="#i-edit-2"/></svg><span><b>Continue draft</b><small>${this.esc([this.logDraftLine(d), this.logDraftWhen(d)].filter(Boolean).join(' · '))}</small></span></button><button type="button" class="ld-del" aria-label="Delete this draft" onclick="app.deleteLogDraft('${this.escJs(d.id)}', event)"><svg class="icon" aria-hidden="true"><use href="#i-trash-2"/></svg></button></div>`).join('');
+            },
+
+            // your profile's Drafts: the Log's drafts (each with its coffee), above the espresso machine's
+            logDraftRowsHtml() {
+                return this.logDrafts().map(d => {
+                    const bean = this.beans.get(String(d.beanId)), name = bean ? String(bean.name || '').trim() || 'Coffee' : 'Coffee';
+                    return `<div class="sd-row ld-row"><button type="button" class="sd-open" onclick="app.openLogDraft('${this.escJs(d.id)}')" aria-label="Continue your ${this.esc(name)} draft"><span class="ld-ic"><svg class="icon" aria-hidden="true"><use href="#i-edit-2"/></svg></span><span class="sd-main"><b>${this.esc(name)}</b><span>${this.esc([this.logDraftWhen(d), this.logDraftLine(d)].filter(Boolean).join(' · '))}</span></span></button><button type="button" class="sd-del" aria-label="Delete this draft" onclick="app.deleteLogDraft('${this.escJs(d.id)}', event)"><svg class="icon" aria-hidden="true"><use href="#i-trash-2"/></svg></button></div>`;
+                }).join('');
             },
         };
         window.onload = () => app.init();
