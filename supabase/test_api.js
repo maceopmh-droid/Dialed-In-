@@ -271,7 +271,11 @@ const found = JSON.parse(fx('newbie', `select find_people('ma');`));
 ok(found.length === 1 && found[0].name === 'Maceo' && found[0].you === 'accepted' && found[0].followsYou === true, 'find_people: typing "ma" finds Maceo, with who follows whom');
 ok(fx('twin', `select block('Brew Buddy');`) === 'blocked' && JSON.parse(fx('newbie', `select find_people('brew');`)).length === 0 && /nobody by that name/.test(fx('newbie', `select follow('Brew-Buddy');`)),
    'blocking ends the follows both ways; the blocked person can no longer find or follow them (and isn\'t told why)');
+ok(!JSON.parse(fx('newbie', 'select everyone_people();')).some(p => p.name === 'Brew-Buddy') && !JSON.parse(fx('twin', 'select everyone_people();')).some(p => p.name === 'Brew Buddy'), 'v21.0: everyone_people leaves out anyone blocked, both ways');
 ok(fx('twin', `select unblock('Brew Buddy');`) === 'unblocked' && JSON.parse(fx('newbie', `select find_people('brew-');`)).length === 1, 'unblocking makes them findable again');
+const everyone = JSON.parse(fx('newbie', 'select everyone_people();'));
+ok(everyone.some(p => p.name === 'Brew-Buddy') && everyone.some(p => p.name === 'Maceo' && p.you === 'accepted' && p.followsYou === true) && !everyone.some(p => p.name === 'Brew Buddy'), 'v21.0: everyone_people lists every other account, with who follows whom, never yourself');
+ok(/permission denied/.test(fx('anon', 'select everyone_people();')), 'v21.0: signed out, nobody is listed');
 ok(/nobody by that name/.test(fx('newbie', `select follow('nobody here');`)) && /permission denied/.test(fx('anon', `select follow('maceo');`)), 'following someone who doesn\'t exist, or while signed out, is refused');
 
 // --- groups (the database side of phase 3)

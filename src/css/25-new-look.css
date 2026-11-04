@@ -820,3 +820,6 @@
         html[data-look="new"] .gs-txt b { font-weight: 650; font-size: 0.98rem; }
         html[data-look="new"] .gs-txt small { color: var(--l); font-size: 0.84rem; line-height: 1.35; }
         html[data-look="new"] .gs-row.is-done .gs-txt b { color: var(--l); text-decoration: line-through; text-decoration-thickness: 1px; }
+
+        /* v21.0: the photo's label has room under the dose / pull / time boxes */
+        html[data-look="new"] #brew-modal .photo-label { display: block; margin-top: 22px !important; }

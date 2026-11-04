@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v20.3 -->
+<!-- Dialed In v21.0 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="20.3">
+    <meta name="dialed-in-version" content="21.0">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -4972,6 +4972,9 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] .gs-txt b { font-weight: 650; font-size: 0.98rem; }
         html[data-look="new"] .gs-txt small { color: var(--l); font-size: 0.84rem; line-height: 1.35; }
         html[data-look="new"] .gs-row.is-done .gs-txt b { color: var(--l); text-decoration: line-through; text-decoration-thickness: 1px; }
+
+        /* v21.0: the photo's label has room under the dose / pull / time boxes */
+        html[data-look="new"] #brew-modal .photo-label { display: block; margin-top: 22px !important; }
         /* ===================== v19.0: Learn =====================
            The New look's kit (claude/new-look-ds.css) plus the Learn screens' parts (claude/learn-mockups-src.md): pages tinted
            by their typical flavor family, names in the big serif, every section folding. All of it is the New look's. */
@@ -6301,7 +6304,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v20.3</div>
+            <div class="app-version">Dialed In · v21.0</div>
         </div>
     </div>
 
@@ -10513,12 +10516,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                         grind: mine.grind ?? '',
                         dose: mine.dose ?? '',
                         yield: '',
-                        time: '',
-                        acidity: mine.acidity ?? 5,
-                        sweetness: mine.sweetness ?? 5,
-                        body: mine.body ?? 5,
-                        finish: mine.finish ?? 5,
-                        balance: mine.balance ?? 5,
+                        time: '',   // (v21.0: the taste sliders start fresh, not set: a new cup is tasted afresh (Maceo, Nov 3))
                         isMaster: false,
                         notes: '',
                         flavors: this.extractFlavors(mine),
