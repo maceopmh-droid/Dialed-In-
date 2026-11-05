@@ -1747,6 +1747,8 @@ declare me_id uuid := me(); uid uuid := auth.uid(); g record; k record; heir uui
 begin
   if me_id is null then raise exception 'Sign in first.' using errcode = '28000'; end if;
   if lower(btrim(coalesce(confirm_name, ''))) <> lower(internal.name_of(me_id)) then raise exception 'Type your name exactly to confirm.' using errcode = '22023'; end if;
+  -- v21.8: kept awards that name them, and their Friends' copy, go (the next phone works those months out again without them)
+  delete from frozen_awards f where f.scope = 'f:' || me_id::text or position(to_jsonb(internal.name_of(me_id))::text in f.awards::text) > 0;
   for g in select id from groups where owner_id = me_id loop perform leave_group(g.id); end loop;
   for k in select id from coffees where owner_id = me_id loop
     select s.owner_id into heir from sessions s where s.coffee_id = k.id and s.owner_id <> me_id order by s.brewed_at limit 1;
@@ -1859,6 +1861,64 @@ begin
     from profiles p
     where lower(coalesce(p.legacy_name, p.display_name)) in (select lower(btrim(n)) from jsonb_array_elements_text(case when jsonb_typeof(names) = 'array' then names else '[]'::jsonb end) with ordinality as x(n, i) where i <= 200)
       and not exists (select 1 from blocks b where (b.blocker = me_id and b.blocked = p.id) or (b.blocker = p.id and b.blocked = me_id))), '[]'::jsonb);
+end $$;
+
+-- ---------------------------------------------------------------- v21.8: a finished month's awards, frozen
+-- Maceo, Nov 5: "make the awards frozen past the first of the month because sometimes I edit old beans and stuff and it
+-- makes it this month and then it screws it up". Each phone used to work a finished month's awards out again from
+-- what's there now, so an edit, a late like or a deleted session could change who won. From the 2nd of the next month
+-- the first phone to work them out keeps its copy here, and every phone shows that copy from then on. One copy per
+-- private community and month ('g:' and its id), and one per person for their Friends ('f:' and their id), which only
+-- they see. Later copies are ignored: the first one stands.
+create table if not exists frozen_awards (
+  scope text not null,
+  month text not null check (month ~ '^\d{4}-(0[1-9]|1[0-2])$'),
+  awards jsonb not null,
+  frozen_by uuid references profiles(id) on delete set null,
+  frozen_at timestamptz not null default now(),
+  primary key (scope, month)
+);
+alter table frozen_awards enable row level security;   -- no rules: only the two calls below touch it
+
+-- yours: every frozen month of your private communities and of your Friends
+create or replace function my_frozen_awards() returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare me_id uuid := me();
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  return coalesce((select jsonb_agg(jsonb_build_object('scope', case when f.scope like 'f:%' then 'friends' else substr(f.scope, 3) end, 'month', f.month, 'awards', f.awards) order by f.scope, f.month)
+    from frozen_awards f
+    where f.scope = 'f:' || me_id::text
+       or (f.scope like 'g:%' and exists (select 1 from group_members m join groups g on g.id = m.group_id
+                                          where m.user_id = me_id and not g.is_open and m.group_id::text = substr(f.scope, 3)))), '[]'::jsonb);
+end $$;
+
+-- keep a finished month's awards (sc: a private community's id you're in, or 'friends'; mo: '2026-10'); returns the copy
+-- that stands, which is an earlier phone's if there was one
+create or replace function freeze_awards(sc text, mo text, list jsonb) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare me_id uuid := me(); k text; first_day date; kept jsonb;
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  if coalesce(mo, '') !~ '^\d{4}-(0[1-9]|1[0-2])$' then raise exception 'Not a month.' using errcode = '22023'; end if;
+  first_day := to_date(mo || '-01', 'YYYY-MM-DD');
+  -- the 2nd of the next month has begun wherever the phone is (the earliest time zones are 14 hours ahead of UTC)
+  if now() < ((first_day + interval '1 month' + interval '1 day')::timestamp at time zone 'UTC') - interval '14 hours' then
+    raise exception 'That month isn''t over yet.' using errcode = '22023';
+  end if;
+  if sc = 'friends' then k := 'f:' || me_id::text;
+  elsif coalesce(sc, '') ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+        and exists (select 1 from group_members m join groups g on g.id = m.group_id where m.group_id = sc::uuid and m.user_id = me_id and not g.is_open) then
+    k := 'g:' || sc;
+  else raise exception 'Not one of your communities.' using errcode = '42501';
+  end if;
+  if jsonb_typeof(list) is distinct from 'array' or jsonb_array_length(list) > 40 or octet_length(list::text) > 24000
+     or exists (select 1 from jsonb_array_elements(list) a where jsonb_typeof(a) <> 'object' or jsonb_typeof(a->'winners') is distinct from 'array') then
+    raise exception 'Those aren''t awards.' using errcode = '22023';
+  end if;
+  insert into frozen_awards (scope, month, awards, frozen_by) values (k, mo, list, me_id) on conflict (scope, month) do nothing;
+  select f.awards into kept from frozen_awards f where f.scope = k and f.month = mo;
+  return kept;
 end $$;
 
 -- Bug reports from Settings: what happened in the person's words, plus the app version, phone and screen. Reviewers
@@ -2685,7 +2745,7 @@ revoke execute on function pull_events(), push_event(jsonb), claim_name(text), c
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version(),
   coffee_catalog(text, int), set_avatar(text), faces(jsonb), set_crema(int), report_bug(text, jsonb), review_bugs(int), close_bug(uuid, boolean), my_notification_prefs(), set_notification_pref(text, boolean),
-  my_shots(int), post_shot(uuid), shot_later(uuid), dismiss_shot(uuid), shot_for_session(text), learn_community(jsonb), learn_overview() from public, anon;
+  my_shots(int), post_shot(uuid), shot_later(uuid), dismiss_shot(uuid), shot_for_session(text), learn_community(jsonb), learn_overview(), my_frozen_awards(), freeze_awards(text, text, jsonb) from public, anon;
 grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text, boolean), coffee_community(text, text, timestamptz, int), monthly_highlights(date), report_item(text, text, text),
   profile_page(text, timestamptz, int), suggest_people(int), everyone_people(), review_reports(), resolve_report(text, uuid, text),
   push_key(), push_ready(), save_push(jsonb), remove_push(text),
@@ -2693,7 +2753,7 @@ grant execute on function pull_events(), push_event(jsonb), claim_name(text), cr
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version(),
   coffee_catalog(text, int), set_avatar(text), faces(jsonb), set_crema(int), report_bug(text, jsonb), review_bugs(int), close_bug(uuid, boolean), my_notification_prefs(), set_notification_pref(text, boolean),
-  my_shots(int), post_shot(uuid), shot_later(uuid), dismiss_shot(uuid), shot_for_session(text), learn_community(jsonb), learn_overview() to authenticated;
+  my_shots(int), post_shot(uuid), shot_later(uuid), dismiss_shot(uuid), shot_for_session(text), learn_community(jsonb), learn_overview(), my_frozen_awards(), freeze_awards(text, text, jsonb) to authenticated;
 revoke execute on all functions in schema internal from public, anon;
 revoke execute on function internal.push_payload(bigint, text), internal.push_text(notifications) from authenticated;   -- the sender's alone (it has the phones' addresses and the VAPID key)
 -- v16.9: the machine functions' alone (they take a machine's token and act as its owner), and making machines

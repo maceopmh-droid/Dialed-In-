@@ -110,25 +110,33 @@
                 if (full && this.acctOn && this.acctOn()) {
                     const groups = this.crewGroups().filter(g => g.members.length >= 2 && g.members.some(m => m.name === name));
                     const W = 7 * 864e5, thisWeek = this.weekStartOf(Date.now());
+                    // v21.8: each week once, however many of your communities reached their goal with you that week (it was
+                    // once per community: the same people in two communities, or joining an older one, doubled it up)
+                    const goalWeeks = new Set();
                     groups.forEach(g => this.withCrewScope(g, () => {
                         const since = Date.parse(g.since || '') || 0;
                         for (let i = 0; i <= 26; i++) {   // this week too, once it's reached
                             const ws = this.weekStartOf(thisWeek - i * W + 3 * 3600e3);
                             if (since && ws + W < since) break;
                             const q = this.crewQuest(ws + 3 * 864e5);
-                            if (q && q.done && q.counts && q.counts[name] > 0) n.goal++;
+                            if (q && q.done && q.counts && q.counts[name] > 0) goalWeeks.add(ws);
                         }
                     }));
+                    n.goal = goalWeeks.size;
+                    // v21.8: each award once a month, and taking the month once, however many of your communities (and your
+                    // Friends) gave it to you: the same people in several of them counted the same win again for each
+                    const won = new Set(), champs = new Set();
                     const fr = this.friendsCrew ? this.friendsCrew() : null;
                     [...groups, ...(fr ? [fr] : [])].forEach(c => this.withCrewScope(c, () => {
                         this.awardMonths().filter(k => !this.monthLocked(k)).forEach(k => {
                             const [y, m] = k.split('-').map(Number), awards = this.crewAwardsMemo(y, m - 1);
                             if (!awards.length || this.awardsNeedReveal(k, awards)) return;   // revealing them is when they count
-                            n.award += awards.filter(a => a.winners.includes(name)).length;
+                            awards.filter(a => a.winners.includes(name)).forEach(a => won.add(`${k}|${a.key || a.title}`));
                             const st = this.awardStandings(awards), top = st.length ? st[0][1] : 0;
-                            if (top && st.some(r => r[0] === name && r[1] === top)) n.champ++;
+                            if (top && st.some(r => r[0] === name && r[1] === top)) champs.add(k);
                         });
                     }));
+                    n.award = won.size; n.champ = champs.size;
                 }
                 const pts = Object.fromEntries(this.cremaRules().map(r => [r[0], r[2]]));
                 const parts = this.cremaRules().map(([k, label, p]) => ({ k, label, n: n[k], pts: n[k] * p })).filter(x => x.n > 0);

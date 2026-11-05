@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v21.8 -->
+<!-- Dialed In v21.9 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="21.8">
+    <meta name="dialed-in-version" content="21.9">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -6499,7 +6499,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v21.8</div>
+            <div class="app-version">Dialed In · v21.9</div>
         </div>
     </div>
 
@@ -11044,6 +11044,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     if (changed) this.persistCloudCache();
                     if (this.adoptSheetOutbox && Cloud.confirms) this.adoptSheetOutbox();   // v14.2: saves made on the Sheet that never left this phone
                     if (this.checkNotifications) this.checkNotifications();   // v14.4: the bell's unread count
+                    if (this.loadFrozenAwards && !this._frozenLoaded) this.loadFrozenAwards();   // v21.8: finished months' awards, as first kept
                     if (this.checkShotDrafts) this.checkShotDrafts();   // v16.9: shots from your espresso machine
                     if (this.checkPendingJoin) this.checkPendingJoin();   // v14.4: an invite link opened before signing in
                     if (this.checkPendingProfile) this.checkPendingProfile();   // v14.5: a profile link
@@ -13698,9 +13699,78 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             // Central) freeze at that moment instead, so they stay exactly as everyone first saw them
             awardsCutoff(y, m) { return Math.max(this.monthRange(y, m)[1], Date.parse('2026-10-09T00:46:16Z')); },
 
+            // ---- v21.8: a finished month's awards, frozen. Maceo, Nov 5: "make the awards frozen past the first of the month
+            // because sometimes I edit old beans and stuff and it makes it this month and then it screws it up". The month's
+            // close (below) only rebuilt it from what's there now: an edited session counts as it is now, a late like counts,
+            // a deleted one drops out. From the 2nd of the next month the first phone to work a month out keeps its copy on
+            // the server (freeze_awards; the first copy stands) and every phone shows that copy from then on: one per
+            // private community, and one per person for their Friends.
+            frozenStore() {
+                if (!this._frozenAw || this._frozenFor !== this.user) {   // (per person: someone else signing in on this phone starts empty)
+                    this._frozenAw = new Map(); this._frozenFor = this.user; this._frozenLoaded = false; this._freezeAsked = null;
+                    try { const raw = JSON.parse(safeGet(`dialed_frozen_awards:${this.user || ''}`) || '[]'); (Array.isArray(raw) ? raw : []).forEach(x => this.frozenPut(x)); } catch (e) { /* none kept on this phone yet */ }
+                }
+                return this._frozenAw;
+            },
+            frozenKeep() { try { safeSet(`dialed_frozen_awards:${this.user || ''}`, JSON.stringify([...this.frozenStore()].map(([key, awards]) => ({ scope: key.split('|')[0], month: key.split('|')[1], awards })))); } catch (e) { /* full: kept in memory */ } },
+            // a kept copy comes from the server (any phone of the community wrote it): only award-shaped fields, plain text
+            cleanAwards(list) {
+                if (!Array.isArray(list)) return null;
+                const txt = (v, n) => typeof v === 'string' ? v.slice(0, n) : '';
+                const names = v => (Array.isArray(v) ? v : []).filter(x => typeof x === 'string' && x.trim()).map(x => x.slice(0, 40)).slice(0, 6);
+                return list.slice(0, 40).filter(a => a && typeof a === 'object' && Array.isArray(a.winners)).map(a => {
+                    const out = {};
+                    Object.entries(a).forEach(([f, v]) => { if (/^[a-zA-Z]{1,24}$/.test(f) && (typeof v === 'number' && Number.isFinite(v) || typeof v === 'boolean' || typeof v === 'string')) out[f] = typeof v === 'string' ? v.slice(0, 200) : v; });
+                    out.key = /^[a-z0-9_-]{1,30}$/i.test(String(a.key || '')) ? String(a.key) : 'award';
+                    out.title = txt(a.title, 60) || 'Award';
+                    out.icon = /^i-[a-z0-9-]{1,40}$/.test(String(a.icon || '')) ? a.icon : 'i-medal';
+                    out.color = /^#[0-9a-f]{3,8}$/i.test(String(a.color || '')) ? a.color : '#C49A2C';
+                    out.winners = names(a.winners);
+                    out.stat = txt(a.stat, 160);
+                    out.runner = a.runner && typeof a.runner === 'object' && Array.isArray(a.runner.names) ? { names: names(a.runner.names), value: Number.isFinite(Number(a.runner.value)) ? Number(a.runner.value) : 0 } : null;
+                    return out;
+                }).filter(a => a.winners.length);
+            },
+            frozenPut(x) {
+                if (!x || !/^(friends|[0-9a-f-]{36})$/.test(String(x.scope || '')) || !/^\d{4}-\d{2}$/.test(String(x.month || ''))) return false;
+                const awards = this.cleanAwards(x.awards); if (!awards || !awards.length) return false;
+                this.frozenStore().set(`${x.scope}|${x.month}`, awards);
+                return true;
+            },
+            frozenScopeId() { return this._crewScope && this.acctOn && this.acctOn() && /^(friends|[0-9a-f-]{36})$/.test(String(this._crewScope.id)) ? String(this._crewScope.id) : ''; },
+            frozenChanged() { this._awFrozen = null; this._awMemo = null; this._cremaMemo = null; if (this.render && this.tab === 'profile') this.render(); },
+            async loadFrozenAwards() {
+                if (this._frozenLoading || !(this.acctOn && this.acctOn()) || typeof Supa === 'undefined' || !Supa.ready()) return;
+                this._frozenLoading = true;
+                try {
+                    const rows = await Supa.rpc('my_frozen_awards', {});
+                    const before = JSON.stringify([...this.frozenStore()]);
+                    (Array.isArray(rows) ? rows : []).forEach(x => this.frozenPut(x));
+                    this._frozenLoaded = true;
+                    if (JSON.stringify([...this.frozenStore()]) !== before) { this.frozenKeep(); this.frozenChanged(); }
+                } catch (e) { /* next sync tries again */ } finally { this._frozenLoading = false; }
+            },
+            // keep this phone's copy of a finished month (from its 2nd), once per session; the copy that stands comes back
+            freezeAwardsSoon(sid, month, awards) {
+                if (!this._frozenLoaded || !this.syncedOnce || typeof Supa === 'undefined' || !Supa.ready()) return;
+                if (sid === 'friends' ? !(this.ppState && this.ppState().data) : !(this.grState && this.grState().list)) return;   // (who's in it known first)
+                this._freezeAsked = this._freezeAsked || new Set();
+                const key = `${sid}|${month}`; if (this._freezeAsked.has(key)) return; this._freezeAsked.add(key);
+                const list = this.cleanAwards(JSON.parse(JSON.stringify(awards)));
+                if (!list || !list.length) return;
+                Supa.rpc('freeze_awards', { sc: sid, mo: month, list }).then(kept => {
+                    if (!this.frozenPut({ scope: sid, month, awards: kept })) return;
+                    this.frozenKeep();
+                    if (JSON.stringify(this.frozenStore().get(key)) !== JSON.stringify(list)) this.frozenChanged();   // an earlier phone's copy stands: show it
+                }).catch(() => { this._freezeAsked.delete(key); });
+            },
+
             crewAwardsMemo(y, m) {
                 const k = `${this._crewScope ? `${this._crewScope.id}:${[...this._crewScope.names].sort().join(',')}` : ''}|${y}-${m}`;   // v14.6: per community (v15.0: and who's in it)
                 const cut = this.awardsCutoff(y, m);
+                // v21.8: kept on the server: that copy, whatever has changed since
+                const sid = this.frozenScopeId(), month = `${y}-${String(m + 1).padStart(2, '0')}`;
+                if (sid && Date.now() >= cut) { const kept = this.frozenStore().get(`${sid}|${month}`); if (kept) return kept; }
                 if (Date.now() >= cut) {
                     // v12.7: a finished month: frozen at its close, so later edits can't change the winners
                     const log = this.eventLog || [];
@@ -13709,9 +13779,10 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     const stamp = `${n}:${last}`;
                     if (!this._awFrozen) this._awFrozen = new Map();
                     const hit = this._awFrozen.get(k);
-                    if (hit && hit.stamp === stamp) return hit.awards;
+                    if (hit && hit.stamp === stamp) { if (sid && Date.now() >= new Date(y, m + 1, 2).getTime()) this.freezeAwardsSoon(sid, month, hit.awards); return hit.awards; }
                     const awards = this.withStateAsOf(cut, () => this.crewAwards(y, m));
                     this._awFrozen.set(k, { stamp, awards });
+                    if (sid && Date.now() >= new Date(y, m + 1, 2).getTime()) this.freezeAwardsSoon(sid, month, awards);   // v21.8: from the 2nd of the next month
                     return awards;
                 }
                 const stamp = `${this.eventLog ? this.eventLog.length : 0}:${this.brews.size}:${this.beans.size}`;
@@ -24264,25 +24335,33 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 if (full && this.acctOn && this.acctOn()) {
                     const groups = this.crewGroups().filter(g => g.members.length >= 2 && g.members.some(m => m.name === name));
                     const W = 7 * 864e5, thisWeek = this.weekStartOf(Date.now());
+                    // v21.8: each week once, however many of your communities reached their goal with you that week (it was
+                    // once per community: the same people in two communities, or joining an older one, doubled it up)
+                    const goalWeeks = new Set();
                     groups.forEach(g => this.withCrewScope(g, () => {
                         const since = Date.parse(g.since || '') || 0;
                         for (let i = 0; i <= 26; i++) {   // this week too, once it's reached
                             const ws = this.weekStartOf(thisWeek - i * W + 3 * 3600e3);
                             if (since && ws + W < since) break;
                             const q = this.crewQuest(ws + 3 * 864e5);
-                            if (q && q.done && q.counts && q.counts[name] > 0) n.goal++;
+                            if (q && q.done && q.counts && q.counts[name] > 0) goalWeeks.add(ws);
                         }
                     }));
+                    n.goal = goalWeeks.size;
+                    // v21.8: each award once a month, and taking the month once, however many of your communities (and your
+                    // Friends) gave it to you: the same people in several of them counted the same win again for each
+                    const won = new Set(), champs = new Set();
                     const fr = this.friendsCrew ? this.friendsCrew() : null;
                     [...groups, ...(fr ? [fr] : [])].forEach(c => this.withCrewScope(c, () => {
                         this.awardMonths().filter(k => !this.monthLocked(k)).forEach(k => {
                             const [y, m] = k.split('-').map(Number), awards = this.crewAwardsMemo(y, m - 1);
                             if (!awards.length || this.awardsNeedReveal(k, awards)) return;   // revealing them is when they count
-                            n.award += awards.filter(a => a.winners.includes(name)).length;
+                            awards.filter(a => a.winners.includes(name)).forEach(a => won.add(`${k}|${a.key || a.title}`));
                             const st = this.awardStandings(awards), top = st.length ? st[0][1] : 0;
-                            if (top && st.some(r => r[0] === name && r[1] === top)) n.champ++;
+                            if (top && st.some(r => r[0] === name && r[1] === top)) champs.add(k);
                         });
                     }));
+                    n.award = won.size; n.champ = champs.size;
                 }
                 const pts = Object.fromEntries(this.cremaRules().map(r => [r[0], r[2]]));
                 const parts = this.cremaRules().map(([k, label, p]) => ({ k, label, n: n[k], pts: n[k] * p })).filter(x => x.n > 0);
@@ -27377,8 +27456,11 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const tierOf = t => { const n = this.levelTiers()[t].name; return n === 'The top' ? 'Top' : n; };
                 const ladder = `<div class="lvl-sec"><div class="lvl-cap">Levels</div>${list.map((x, i) => `<div class="nl-lvl-tier${i === L.i ? ' on' : ''}${i > L.i ? ' locked' : ''}">${this.nlLevelBadge(i, 34)}<span><b>${this.esc(this.nlLevelName(i))}</b><small>Level ${i + 1} · ${this.esc(tierOf(x.t))}</small></span><em>${fmt(x.min)}</em></div>`).join('')}</div>`;   // (v18.1: every level, by name)
                 const how = `<div class="lvl-sec"><div class="lvl-cap">How to earn crema</div>${this.cremaRules().map(r => `<div class="lvl-line"><span>${this.esc(word[r[0]] || r[1])}${r[3] ? `<small> · ${this.esc(r[3])}</small>` : ''}</span><b>+${r[2]}</b></div>`).join('')}</div>`;
+                // v21.8: where your crema came from (yours only: someone else's total is what their app saved)
+                const parts = own ? this.cremaFor(name, true).parts : [];
+                const from = parts.length ? `<div class="lvl-sec lvl-from"><div class="lvl-cap">Where your crema came from</div>${parts.slice().sort((a, b) => b.pts - a.pts).map(x => `<div class="lvl-line"><span>${this.esc(word[x.k] || (this.cremaRules().find(r => r[0] === x.k) || [])[1] || x.k)}<small> · ${fmt(x.n)}</small></span><b>${fmt(x.pts)}</b></div>`).join('')}</div>` : '';
                 const share = own && this.openLevelStory ? '<button type="button" class="btn-outline lvl-share" onclick="app.openLevelStory()"><svg class="icon"><use href="#i-share-2"/></svg>Share</button>' : '';
-                return `<div class="lvl-hero nl-lvl-hero">${this.nlLevelBadge(L.i, 92)}<div class="lvl-kicker">${own ? 'Your level' : `${this.esc(name)}'s level`}</div><h3>${this.esc(this.nlLevelName(L.i))}</h3><div class="lvl-crema">Level ${L.n} · ${this.esc(this.nlTierName(L))} · <b>${fmt(L.crema)}</b> crema</div>${L.next ? `<div class="lvl-bar big"><i style="width:${L.pct.toFixed(1)}%"></i></div><div class="lvl-next">${fmt(L.next.min - L.crema)} more to level ${L.n + 1}</div>` : '<div class="lvl-next">The top level.</div>'}${share}</div>${ladder}${how}`;
+                return `<div class="lvl-hero nl-lvl-hero">${this.nlLevelBadge(L.i, 92)}<div class="lvl-kicker">${own ? 'Your level' : `${this.esc(name)}'s level`}</div><h3>${this.esc(this.nlLevelName(L.i))}</h3><div class="lvl-crema">Level ${L.n} · ${this.esc(this.nlTierName(L))} · <b>${fmt(L.crema)}</b> crema</div>${L.next ? `<div class="lvl-bar big"><i style="width:${L.pct.toFixed(1)}%"></i></div><div class="lvl-next">${fmt(L.next.min - L.crema)} more to level ${L.n + 1}</div>` : '<div class="lvl-next">The top level.</div>'}${share}</div>${from}${ladder}${how}`;
             },
 
             // v17.5: an achievement on a card: its own little card in the color of whoever earned it; tap it for their achievements
