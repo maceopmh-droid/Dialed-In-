@@ -73,6 +73,32 @@ const must = (r, what) => { if (!r.ok) throw new Error(`${what} (${why(r)})`); r
     must(await api('PATCH', `/v1/ageRatingDeclarations/${d.j.data.id}`, { data: { type: 'ageRatingDeclarations', id: d.j.data.id, attributes: attrs } }), 'age rating');
   });
 
+  // ---- v21.8: [replace] (Maceo, Nov 5: "replace the Apple update with this one"): a version waiting for review (or in
+  // review) is taken back out, so this run can put this version and its build in its place. Apple marks the version
+  // Developer Rejected, which can be changed again: below, its number becomes this one. Without [replace] nothing in review
+  // is touched.
+  if (process.env.REPLACE === '1') {
+    const st = v => v.attributes.appVersionState || v.attributes.appStoreState || '';
+    const all = must(await api('GET', `/v1/apps/${appId}/appStoreVersions?filter[platform]=IOS&limit=20`), 'versions');
+    const inReview = (all.j.data || []).find(v => /WAITING_FOR_REVIEW|IN_REVIEW/.test(st(v)));
+    if (!inReview) say('Nothing to take out of review', 'no version is waiting for review; going on as usual');
+    else {
+      const subs = must(await api('GET', `/v1/reviewSubmissions?filter[app]=${appId}&filter[platform]=IOS&limit=10`), 'review submissions');
+      const sub = (subs.j.data || []).find(x => /WAITING_FOR_REVIEW|IN_REVIEW/.test(x.attributes.state || ''));
+      if (!sub) { console.log(`::error title=App Store listing::version ${inReview.attributes.versionString} is ${st(inReview)} but no open review submission was found to cancel`); process.exit(1); }
+      must(await api('PATCH', `/v1/reviewSubmissions/${sub.id}`, { data: { type: 'reviewSubmissions', id: sub.id, attributes: { canceled: true } } }), 'taking it out of review');
+      let now = '';
+      for (let i = 0; i < 40; i++) {   // up to 10 minutes for Apple to finish taking it out
+        await new Promise(res => setTimeout(res, 15000));
+        const v = must(await api('GET', `/v1/appStoreVersions/${inReview.id}`), 'the version');
+        now = st(v.j.data);
+        if (!/WAITING_FOR_REVIEW|IN_REVIEW/.test(now)) break;
+      }
+      if (/WAITING_FOR_REVIEW|IN_REVIEW/.test(now)) { console.log(`::error title=App Store listing::asked Apple to take ${inReview.attributes.versionString} out of review, but after 10 minutes it is still ${now}; run again later`); process.exit(1); }
+      say('Taken out of review', `version ${inReview.attributes.versionString} (review submission ${sub.id.slice(0, 8)}): now ${now}; ${VERSION} goes in its place`);
+    }
+  }
+
   // ---- the version: number, copyright, text
   const vs = must(await api('GET', `/v1/apps/${appId}/appStoreVersions?filter[platform]=IOS&limit=20`), 'versions');
   let ver = (vs.j.data || []).find(v => /PREPARE_FOR_SUBMISSION|DEVELOPER_REJECTED|REJECTED|METADATA_REJECTED|INVALID_BINARY/.test(v.attributes.appStoreState || v.attributes.appVersionState || ''));

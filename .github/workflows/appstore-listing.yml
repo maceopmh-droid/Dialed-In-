@@ -35,5 +35,6 @@ jobs:
           VERSION=$(grep -o '<meta name="dialed-in-version" content="[0-9.]*"' index.html | grep -o '[0-9][0-9.]*' | head -1)
           S="$RUNNER_TEMP/shots"; git fetch -q --depth 1 origin app-store-shots && git worktree add -q "$S" FETCH_HEAD || S=""
           SUBMIT=0; case "$HEAD_MSG" in *"[submit]"*) SUBMIT=1;; esac
-          ASC_KEY_ID="$ASC_KEY_ID" ASC_KEY_FILE="$k" VERSION="$VERSION" SHOTS_DIR="$S" SUBMIT="$SUBMIT" node native/scripts/appstore-listing.js; rc=$?
+          REPLACE=0; case "$HEAD_MSG" in *"[replace]"*) REPLACE=1;; esac   # v21.8: take the version waiting for review back out, to put this one in its place
+          ASC_KEY_ID="$ASC_KEY_ID" ASC_KEY_FILE="$k" VERSION="$VERSION" SHOTS_DIR="$S" SUBMIT="$SUBMIT" REPLACE="$REPLACE" node native/scripts/appstore-listing.js; rc=$?
           rm -f "$k"; exit $rc
