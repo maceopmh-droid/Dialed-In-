@@ -13739,16 +13739,19 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             },
             frozenScopeId() { return this._crewScope && this.acctOn && this.acctOn() && /^(friends|[0-9a-f-]{36})$/.test(String(this._crewScope.id)) ? String(this._crewScope.id) : ''; },
             frozenChanged() { this._awFrozen = null; this._awMemo = null; this._cremaMemo = null; if (this.render && this.tab === 'profile') this.render(); },
-            async loadFrozenAwards() {
-                if (this._frozenLoading || !(this.acctOn && this.acctOn()) || typeof Supa === 'undefined' || !Supa.ready()) return;
-                this._frozenLoading = true;
-                try {
-                    const rows = await Supa.rpc('my_frozen_awards', {});
-                    const before = JSON.stringify([...this.frozenStore()]);
-                    (Array.isArray(rows) ? rows : []).forEach(x => this.frozenPut(x));
-                    this._frozenLoaded = true;
-                    if (JSON.stringify([...this.frozenStore()]) !== before) { this.frozenKeep(); this.frozenChanged(); }
-                } catch (e) { /* next sync tries again */ } finally { this._frozenLoading = false; }
+            loadFrozenAwards() {   // (asked again while it's loading: the same load, so whoever asked can wait for it)
+                if (this._frozenP) return this._frozenP;
+                if (!(this.acctOn && this.acctOn()) || typeof Supa === 'undefined' || !Supa.ready()) return Promise.resolve();
+                this._frozenP = (async () => {
+                    try {
+                        const rows = await Supa.rpc('my_frozen_awards', {});
+                        const before = JSON.stringify([...this.frozenStore()]);
+                        (Array.isArray(rows) ? rows : []).forEach(x => this.frozenPut(x));
+                        this._frozenLoaded = true;
+                        if (JSON.stringify([...this.frozenStore()]) !== before) { this.frozenKeep(); this.frozenChanged(); }
+                    } catch (e) { /* next sync tries again */ }
+                })().finally(() => { this._frozenP = null; });
+                return this._frozenP;
             },
             // keep this phone's copy of a finished month (from its 2nd), once per session; the copy that stands comes back
             freezeAwardsSoon(sid, month, awards) {
