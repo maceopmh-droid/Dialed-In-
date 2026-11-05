@@ -98,8 +98,14 @@
             wlSendCode(again = false) {
                 const s = this.wl; if (!s) return;
                 const email = String(s.email || '').trim();
+                // v14.6: App Review signs in with a password. v21.8: the review address with anything typed after it (Apple's
+                // tester put the password in the same box, Nov 4, and a code went to an address that doesn't exist) still
+                // goes to the password screen
+                const rev = REVIEW_EMAILS.find(r => email.toLowerCase().startsWith(r));
+                if (rev) { s.email = rev; s.step = 'password'; this.renderWelcome(); return; }
                 if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { if (s.step === 'email') { this.wlShake('wl-email'); this.wlSay('Enter your email address.'); } return; }
-                if (REVIEW_EMAILS.includes(email.toLowerCase())) { s.email = email; s.step = 'password'; this.renderWelcome(); return; }   // v14.6: App Review
+                // v21.8: an ending no address can have (letters only, or an xn-- name): say so instead of mailing a code nobody gets
+                if (!/^(?:[a-z]{2,24}|xn--[a-z0-9-]{2,59})$/i.test(email.split('.').pop())) { if (s.step === 'email') { this.wlShake('wl-email'); this.wlSay('Check your email address.'); } return; }
                 return this.wlBusy(async () => {
                     await Supa.sendCode(email);
                     s.email = email;
