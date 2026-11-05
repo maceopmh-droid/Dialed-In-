@@ -111,7 +111,7 @@
         .pg-bar i { display: block; height: 100%; border-radius: inherit; background: var(--matcha); }
         .pg-row small { font-size: 0.78rem; color: var(--text-muted); }
         .pg-add { margin-top: 10px; }
-        .pg-kinds { margin: 4px 0 14px; }
+        .pg-kinds { margin: 4px 0 14px; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); }   /* v21.8: one column per kind left to pick (two once one is set) */
         .pg-kinds button { font-size: 0.78rem; }
         .pg-field { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 10px 0; }
         .pg-field > span { font-size: 0.9rem; font-weight: 700; text-transform: none; letter-spacing: 0; color: var(--ink); }
