@@ -10,6 +10,7 @@
 <meta name="theme-color" content="#F3EEE4" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0C100D" media="(prefers-color-scheme: dark)">
 <meta name="color-scheme" content="light dark">
+<script>try{if(/Android/i.test(navigator.userAgent))document.documentElement.classList.add('is-android')}catch(e){}</script>
 <script>try{var t=localStorage.getItem('dialedin.site.theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-site-theme',t)}catch(e){}</script>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Dialed In">
@@ -132,6 +133,31 @@ a{color:var(--link)}a:hover{color:var(--link-hover)}
 .tl-dot{position:absolute;left:0;top:0;width:14px;height:14px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 5px var(--bg)}
 .tl li:last-child .tl-dot{background:var(--bg);box-shadow:0 0 0 5px var(--bg),inset 0 0 0 2px var(--accent)}
 @media (max-width:700px){.tl{grid-template-columns:minmax(0,1fr);gap:26px}.tl::before{display:none}.tl li{padding:0 0 0 36px}.tl li:not(:last-child)::after{content:"";position:absolute;left:6px;top:14px;bottom:-26px;width:2px;background:var(--accent)}.tl li:nth-last-child(2)::after{background:linear-gradient(180deg,var(--accent),var(--line-3))}}
+
+/* the two ways in: the iPhone app leads, the web app is the second door (on Android the web app leads) */
+.cta-pair{display:flex;flex-wrap:wrap;gap:12px;align-items:stretch}
+.cta{display:inline-flex;align-items:center;gap:14px;min-height:66px;max-width:100%;box-sizing:border-box;padding:10px 28px 10px 12px;border-radius:999px;text-decoration:none;border:1px solid transparent;transition:filter .2s ease, background .2s ease}
+.cta:hover{filter:brightness(1.06)}
+.cta-icon{flex:none;display:block;width:42px;height:42px;border-radius:11px;box-shadow:0 0 0 1px rgba(255,255,255,.22)}
+.cta-glyph{flex:none;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.cta-t{display:flex;flex-direction:column;line-height:1.2;min-width:0}
+.cta-t b{font-size:17px;font-weight:700;white-space:nowrap}
+.cta-t small{margin-top:3px;font-size:13.5px;font-weight:600;opacity:.8;white-space:nowrap}
+.cta-app{background:var(--btn-grad);color:var(--on-accent);box-shadow:0 10px 28px rgba(var(--sh-rgb), calc(0.4 * var(--sh)))}
+.cta-web{background:var(--card);color:var(--text);border-color:var(--line-3)}
+.cta-web .cta-glyph{background:var(--tint);color:var(--accent)}
+.cta-app:hover,.cta-app:focus-visible{color:var(--on-accent)}
+.cta-web:hover,.cta-web:focus-visible{color:var(--text)}
+.is-android .cta-web{order:-1;background:var(--btn-grad);color:var(--on-accent);border-color:transparent;box-shadow:0 10px 28px rgba(var(--sh-rgb), calc(0.4 * var(--sh)))}
+.is-android .cta-web .cta-glyph{background:rgba(255,255,255,.18);color:inherit}
+.is-android .cta-app{background:var(--card);color:var(--text);border-color:var(--line-3);box-shadow:none}
+.is-android .cta-app.btn-sheen::after{display:none}
+.cta-lead{margin:0 0 14px;display:flex;align-items:center;gap:10px;font-size:16px;font-weight:700;color:var(--text-strong)}
+.cta-lead svg{flex:none;color:var(--accent)}
+.cta-fine{margin:16px 0 0;font-size:14.5px;line-height:1.5;color:var(--muted)}
+.cta.sm{min-height:56px;padding:7px 22px 7px 8px;width:100%}
+.cta.sm .cta-icon,.cta.sm .cta-glyph{width:40px;height:40px}
+@media (max-width:560px){.cta-pair{flex-direction:column}.cta{width:100%}}
 </style>
 </head>
 <body>
@@ -163,7 +189,7 @@ a{color:var(--link)}a:hover{color:var(--link-hover)}
 <a class="mnav-link" href="./#faq" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: var(--text); font-size: 18px; font-weight: 600; text-decoration: none">FAQ</a>
 <a class="mnav-link" href="./#install" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: var(--text); font-size: 18px; font-weight: 600; text-decoration: none">Add to your home screen</a>
 <a class="mnav-link" href="about.html" aria-current="page" style="display: flex; align-items: center; min-height: 52px; padding: 0 16px; border-radius: 14px; color: var(--text); font-size: 18px; font-weight: 600; text-decoration: none">About</a>
-<a class="btn-primary" href="https://maceopmh-droid.github.io/Dialed-In-/" style="margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 54px; border-radius: 999px; background: var(--btn-grad); color: var(--on-accent); font-size: 17px; font-weight: 700; text-decoration: none">Open the web app</a>
+<div class="cta-pair" style="margin-top: 6px; flex-direction: column; gap: 8px"><a class="cta cta-app btn-sheen sm" href="https://apps.apple.com/us/app/dialed-in-social-coffee-log/id6823776642" data-store-live><img class="cta-icon" src="assets/icon.webp" alt="" width="42" height="42"><span class="cta-t"><b>Get the iPhone app</b></span></a><a class="cta cta-web sm" href="https://maceopmh-droid.github.io/Dialed-In-/"><span class="cta-glyph"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3c2.6 2.6 3.9 5.6 3.9 9s-1.3 6.4-3.9 9c-2.6-2.6-3.9-5.6-3.9-9s1.3-6.4 3.9-9z"></path></svg></span><span class="cta-t"><b>Open the web app</b></span></a></div>
 </div>
 </header>
 
@@ -249,12 +275,7 @@ a{color:var(--link)}a:hover{color:var(--link-hover)}
 <h2 style="margin: 0; font-family: Lora, ui-serif, Georgia, serif; font-weight: 600; font-size: clamp(32px, 4vw, 48px); line-height: 1.08; letter-spacing: -0.02em; color: var(--text-strong); text-wrap: balance">Say hi.</h2>
 <p style="margin: 18px 0 0; max-width: 520px; font-size: 18px; color: var(--text-3)">Ideas, bugs, or a coffee I should try: email <a href="mailto:dialedincoffeeapp@gmail.com">dialedincoffeeapp@gmail.com</a>.</p>
 </div>
-<div style="flex: 0 1 auto; display: flex; flex-wrap: wrap; gap: 14px">
-<a class="btn-primary btn-sheen" href="https://maceopmh-droid.github.io/Dialed-In-/" style="display: inline-flex; align-items: center; gap: 10px; min-height: 54px; max-width: 100%; box-sizing: border-box; padding: 12px 24px; line-height: 1.25; border-radius: 999px; background: var(--btn-grad); color: var(--on-accent); font-size: 17px; font-weight: 700; text-decoration: none; box-shadow: 0 10px 28px rgba(var(--sh-rgb), calc(0.4 * var(--sh)))">
-<span style="text-wrap: balance">Claim your free <span style="white-space: nowrap">early-adopter</span> account</span>
-<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>
-</a>
-</div>
+<div style="flex: 0 1 auto; min-width: 0"><div class="cta-pair"><a class="cta cta-app btn-sheen" href="https://apps.apple.com/us/app/dialed-in-social-coffee-log/id6823776642" data-store-live><img class="cta-icon" src="assets/icon.webp" alt="" width="42" height="42"><span class="cta-t"><b>Get the iPhone app</b><small>Free on the App Store</small></span></a><a class="cta cta-web" href="https://maceopmh-droid.github.io/Dialed-In-/"><span class="cta-glyph"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3c2.6 2.6 3.9 5.6 3.9 9s-1.3 6.4-3.9 9c-2.6-2.6-3.9-5.6-3.9-9s1.3-6.4 3.9-9z"></path></svg></span><span class="cta-t"><b>Use the web app</b><small>Any phone or computer</small></span></a></div><p class="cta-fine">Your free early-adopter account, either way.</p></div>
 </div>
 </div>
 </section>
