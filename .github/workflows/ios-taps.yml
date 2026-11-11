@@ -1,11 +1,12 @@
 # Real iPhone taps in the simulator (through iOS's own touch handling, with idb) for what a desktop browser can't show:
 # what native/tap-probe.js checks (v15.0: the bottom bar from Feed, and posting a comment with the keyboard up). Signed
 # in as the review account. The simulator copy gets native/tap-probe.js and the account's password; it's never
-# uploaded. Runs when pushed to `ios-taps`.
+# uploaded. Runs when pushed to `ios-taps`. v21.11: pushed to a branch starting `ios-taps-kb`, it checks the Log with the
+# keyboard up instead and keeps screenshots of it (only the review account's made-up data is on screen).
 name: ios taps
 on:
   push:
-    branches: [ios-taps, ios-taps-2]
+    branches: [ios-taps, ios-taps-2, 'ios-taps-kb*']
 
 jobs:
   taps:
@@ -42,13 +43,15 @@ jobs:
           set -e
           echo "::add-mask::$REVIEW_PASSWORD"
           dev=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; xs=[x for k in sorted(d, reverse=True) if 'iOS' in k for x in d[k] if x['name'].startswith('iPhone 17') and 'Pro' not in x['name'] and 'Air' not in x['name']] or [x for k in sorted(d, reverse=True) if 'iOS' in k for x in d[k] if x['name'].startswith('iPhone')]; print(xs[0]['udid'])")
+          # the on-screen keyboard, as on a phone (not the Mac's keyboard standing in for it)
+          defaults write com.apple.iphonesimulator ConnectHardwareKeyboard -bool false || true
           xcrun simctl boot "$dev"; xcrun simctl bootstatus "$dev" -b >/dev/null
           app=build/dd/Build/Products/Debug-iphonesimulator/App.app
           cp tap-probe.js "$app/public/tap-probe.js"
           python3 - "$app/public/index.html" <<'PY'
           import json, os, sys
           p = sys.argv[1]; s = open(p).read()
-          cfg = {'email': 'appreview@dialed-in.app', 'pw': os.environ['REVIEW_PASSWORD'], 'url': 'http://127.0.0.1:8766'}
+          cfg = {'email': 'appreview@dialed-in.app', 'pw': os.environ['REVIEW_PASSWORD'], 'url': 'http://127.0.0.1:8766', 'mode': 'keyboard' if os.environ.get('GITHUB_REF_NAME', '').startswith('ios-taps-kb') else ''}
           open(p, 'w').write(s.replace('</head>', '<script>window.__tapProbe = ' + json.dumps(cfg) + ';</script><script src="tap-probe.js"></script></head>', 1))
           PY
           xcrun simctl install "$dev" "$app"
@@ -72,6 +75,12 @@ jobs:
                   elif u.path == '/text':
                       r = subprocess.run(['idb', 'ui', 'text', q['t'][0], '--udid', dev], capture_output=True, text=True)
                       if r.returncode: print('text failed', r.stderr.strip()[:200], flush=True)
+                  elif u.path == '/shot':
+                      # v21.11: a screenshot of the simulator (the keyboard check); only made-up review-account data on screen
+                      import os, re
+                      os.makedirs('build/shots', exist_ok=True)
+                      name = re.sub(r'[^a-z0-9_-]', '', q['name'][0].lower())[:40] or 'shot'
+                      subprocess.run(['xcrun', 'simctl', 'io', dev, 'screenshot', f'build/shots/{name}.png'], capture_output=True)
                   elif u.path == '/result': print('RESULT ' + q['r'][0], flush=True)
                   elif u.path == '/log': print('LOG ' + q['m'][0], flush=True)
                   elif u.path in ('/hello', '/done'): print(u.path[1:], flush=True)
@@ -95,3 +104,10 @@ jobs:
           print('::notice title=Taps::' + ' | '.join(lines))
           " "$r"
           rm -f "$app/public/index.html"
+      - name: Keep the keyboard check's screenshots (v21.11)
+        if: always() && startsWith(github.ref_name, 'ios-taps-kb')
+        uses: actions/upload-artifact@v4
+        with:
+          name: keyboard-shots
+          path: native/build/shots/
+          if-no-files-found: warn
