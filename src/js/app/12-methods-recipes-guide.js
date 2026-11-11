@@ -55,6 +55,27 @@
                 this.renderMethodExtras(method);
                 this.renderRecipeCard(method);
                 this.activeMethod = method;
+                this.paintMethodFields(method);
+            },
+
+            // v21.10: a method with no grinder or no brew time (Instant) hides those boxes, and the timer, like tea hides grind
+            paintMethodFields(method) {
+                const form = this.getBrewForm(); if (!form) return;
+                const p = method ? this.methodProfile(method) : {}, tea = this.logKind === 'tea';
+                const noGrind = tea || !!p.noGrind, noTime = !!p.noTime;
+                if (form.grind) {
+                    const wrap = form.grind.closest('div'); if (wrap) wrap.hidden = noGrind;
+                    form.grind.required = !noGrind;
+                    if (noGrind) form.grind.value = '';
+                }
+                const grid = form.method && form.method.closest('.brew-grid-2'); if (grid) grid.classList.toggle('solo', noGrind);
+                if (form.time) {
+                    const wrap = document.getElementById('fld-time'); if (wrap) wrap.hidden = noTime;
+                    form.time.required = !noTime;
+                    if (noTime) form.time.value = '';
+                }
+                const modal = document.getElementById('brew-modal'); if (modal) modal.classList.toggle('no-time', noTime);
+                const roast = modal && modal.querySelector('.roast-row'); if (roast) roast.hidden = tea || !!p.noRoastDate;   // (no roast date on a tea or a jar of instant)
             },
 
             renderMethodExtras(method) {

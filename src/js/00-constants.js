@@ -30,7 +30,10 @@
             'Moka Pot': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Time (s)', ratio: 9, extras: ['heat', 'preheated'], recipes: true },
             'Cold Brew': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Steep (hours)', ratio: 8, extras: ['sub'], recipes: true, hours: true },
             // v21.6 (Maceo, Nov 4): OXO's Rapid Brewer, a pump-pressed concentrate, hot or cold (OXO: 20 g or 40 g to 160 ml, 2 or 5 minutes)
-            'OXO Rapid Brewer': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Steep (s)', ratio: 8, extras: ['sub', 'temp'], recipes: true }
+            'OXO Rapid Brewer': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Steep (s)', ratio: 8, extras: ['sub', 'temp'], recipes: true },
+            // v21.10 (Maceo, Nov 11: "add instant as a brew type"): instant coffee, stirred into water: no grind and no brew time
+            // (noGrind / noTime / noRoastDate hide those in the Log: a jar has no roast date); about 2 g to 180 g, hot or iced
+            'Instant': { dose: 'Coffee (g)', yld: 'Water (g)', time: 'Time (s)', ratio: 90, extras: ['sub', 'temp'], recipes: false, noGrind: true, noTime: true, noRoastDate: true }
         };
         // v21.6: the kinds of each method (Maceo, Nov 4: "different types of espressos like turbo shots soup shots salami maybe as a
         // sub catagory of espresso ... and add subcategories for other brew methods if it's applicable"). Optional; nothing picked
@@ -39,9 +42,10 @@
             'Espresso': ['Ristretto', 'Lungo', 'Turbo', 'Soup', 'Allongé', 'Salami'],
             'Pour Over': ['Iced'],
             'Cold Brew': ['Immersion', 'Slow drip'],
-            'OXO Rapid Brewer': ['Hot', 'Cold']
+            'OXO Rapid Brewer': ['Hot', 'Cold'],
+            'Instant': ['Iced']
         };
-        const METHOD_KIND_NONE = { 'Espresso': 'Regular shot', 'Pour Over': 'Hot', 'Cold Brew': 'Choose…', 'OXO Rapid Brewer': 'Choose…' };
+        const METHOD_KIND_NONE = { 'Espresso': 'Regular shot', 'Pour Over': 'Hot', 'Cold Brew': 'Choose…', 'OXO Rapid Brewer': 'Choose…', 'Instant': 'Hot' };
         const STEP_KINDS = {
             pour: { label: 'Pour', color: '#4F86D9' }, wait: { label: 'Wait', color: '#8A958C' }, swirl: { label: 'Swirl', color: '#D9A03A' },
             stir: { label: 'Stir', color: '#D9A03A' }, drawdown: { label: 'Drawdown', color: '#3E8F62' }, steep: { label: 'Steep', color: '#8A63C4' },

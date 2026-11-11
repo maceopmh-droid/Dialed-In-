@@ -250,7 +250,7 @@
             // ---- Discover's filters: Help, New here, one method
             commFilterHtml() {
                 const st = this.commState(), f = st.filter || '';
-                const opts = [['', 'All'], ['help', 'Help'], ['new', 'New here'], ...['Espresso', 'Pour Over', 'French Press', 'AeroPress', 'Moka Pot', 'Cold Brew', 'OXO Rapid Brewer'].map(m => ['m:' + m, m])];
+                const opts = [['', 'All'], ['help', 'Help'], ['new', 'New here'], ...['Espresso', 'Pour Over', 'French Press', 'AeroPress', 'Moka Pot', 'Cold Brew', 'OXO Rapid Brewer', 'Instant'].map(m => ['m:' + m, m])];
                 return `<div class="comm-filters" role="tablist" aria-label="Show">${opts.map(([k, l]) => `<button type="button" class="comm-chip${k === f ? ' on' : ''}" role="tab" aria-selected="${k === f}" data-f="${this.esc(k)}" onclick="app.setCommFilter(this.getAttribute('data-f'))">${this.esc(l)}</button>`).join('')}</div>`;
             },
 

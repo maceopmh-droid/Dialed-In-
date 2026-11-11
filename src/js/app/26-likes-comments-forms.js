@@ -406,7 +406,7 @@
                     isMaster,
                     masterProfile: seedMaster,
                     notes: form.notes.value.trim(),
-                    roastDate: this.logKind === 'tea' ? '' : form.roastDate ? String(form.roastDate.value || '').slice(0, 10) : (existing ? String(existing.roastDate || '') : ''),   // v15.1: the bag's (v17.0: a tea has none)
+                    roastDate: this.logKind === 'tea' || this.methodProfile(method).noRoastDate ? '' : form.roastDate ? String(form.roastDate.value || '').slice(0, 10) : (existing ? String(existing.roastDate || '') : ''),   // v15.1: the bag's (v17.0: a tea has none)
                     verdict: form.verdict ? form.verdict.value : (existing ? String(existing.verdict || '') : ''),
                     flavors,
                     rating: this.normalizeRating(form.rating.value),
@@ -446,15 +446,11 @@
                 const tea = this.isTeaBrew(brew), methods = this.methodsFor(tea ? 'tea' : 'coffee');
                 form.method.innerHTML = methods.map(m => `<option value="${this.esc(m)}">${this.esc(this.methodLabel(m))}</option>`).join('');
                 form.method.value = methods.includes(profile.method) ? profile.method : methods.includes(brew.method) ? brew.method : methods[0];
-                const gf = document.getElementById('master-grind-field'), row = document.getElementById('master-row-1');
-                if (gf) gf.style.display = tea ? 'none' : '';
-                if (row) row.style.gridTemplateColumns = tea ? '1fr' : '1fr 1fr';
-                form.grind.required = !tea;
-                this.masterLabels(form.method.value);
                 form.grind.value = profile.grind ?? '';
                 form.dose.value = profile.dose ?? '';
                 form.yield.value = profile.yield ?? '';
                 form.time.value = profile.time ?? '';
+                this.masterLabels(form.method.value);   // (and v21.10: no grind for tea or Instant, no time for Instant)
                 form.notes.value = profile.notes || '';
                 this.renderMasterEquipmentSelector(profile.equipment || []);
                 this.openModal('master-modal');

@@ -60,7 +60,7 @@
             },
 
             coachFromBrew(brew) {
-                return { id: String(brew.id), owner: this.getBrewOwner(brew), beanKey: this.groupKeyOfBrew(brew), beanId: String(brew.beanId || ''), method: brew.method || '', sub: brew.sub || '', date: brew.date,
+                return { id: String(brew.id), owner: this.getBrewOwner(brew), beanKey: this.groupKeyOfBrew(brew), beanId: String(brew.beanId || ''), method: brew.method || '', sub: brew.sub || '', temp: this.num(brew.temp), date: brew.date,
                     grind: brew.grind, dose: this.num(brew.dose), yield: this.num(brew.yield), time: this.num(brew.time), rating: this.normalizeRating(brew.rating),
                     text: this.getBrewNotes(brew), flavors: this.extractFlavors(brew), values: this.shapeValues(brew), tasted: this.tastedKeys(brew), tastedExplicit: Array.isArray(brew.tasted) && brew.tasted.length > 0,   /* v16.2: an empty list is no list (see tasteValue) */ verdict: String(brew.verdict || ''), grinder: this.grinderFor(brew) };
             },
@@ -71,7 +71,7 @@
                 const existing = editing ? this.brews.get(editing) : null;
                 const r = this.readFormRecipe();
                 return { id: editing, owner: this.user, beanKey: this.activeGroup ? this.beanGroupKey(this.activeGroup.meta) : '', beanId: String(this.activeId || ''), method: r.method, sub: (this.methodExtras && (METHOD_KINDS[r.method] || []).includes(this.methodExtras.sub)) ? this.methodExtras.sub : '',
-                    date: existing ? existing.date : new Date().toISOString(), grind: form && form.grind ? form.grind.value : '', dose: this.num(r.dose), yield: this.num(r.yield), time: this.num(r.time),
+                    temp: this.tempC ? this.tempC((this.methodExtras || {}).temp) : 0, date: existing ? existing.date : new Date().toISOString(), grind: form && form.grind ? form.grind.value : '', dose: this.num(r.dose), yield: this.num(r.yield), time: this.num(r.time),
                     rating: form && form.rating ? this.normalizeRating(form.rating.value) : 0, text: form && form.notes ? form.notes.value : '', flavors: [...this.selFlavors],
                     values: this.formTasteValues(), tasted: [...this.tasteTouched], tastedExplicit: true, grinder: this.formGrinder(r.method) };
             },
@@ -189,6 +189,7 @@
             },
 
             coach(c) {
+                if (c.method === 'Instant' && this.instantCoach) return this.instantCoach(c);   // v21.10: no grind or time to steer by
                 const esp = c.method === 'Espresso';
                 const past = this.coachPast(c);
                 const rate = b => this.normalizeRating(b.rating);

@@ -95,6 +95,14 @@
                 const p = METHOD_PROFILES[method] || METHOD_PROFILES.Espresso;
                 const set = (id, t) => { const el = document.getElementById(id); if (el) el.textContent = t; };
                 set('master-lbl-dose', p.dose); set('master-lbl-yield', p.yld); set('master-lbl-time', p.time);
+                // v21.10: no grind for tea or Instant, no time for Instant
+                const form = this.getMasterForm && this.getMasterForm(); if (!form) return;
+                const noGrind = !!(p.tea || p.noGrind), noTime = !!p.noTime;
+                const gf = document.getElementById('master-grind-field'), row = document.getElementById('master-row-1');
+                if (gf) gf.style.display = noGrind ? 'none' : '';
+                if (row) row.style.gridTemplateColumns = noGrind ? '1fr' : '1fr 1fr';
+                if (form.grind) { form.grind.required = !noGrind; if (noGrind) form.grind.value = ''; }
+                if (form.time) { const w = form.time.closest('div'); if (w) w.style.display = noTime ? 'none' : ''; form.time.required = !noTime; if (noTime) form.time.value = ''; if (w && w.parentElement) w.parentElement.style.gridTemplateColumns = noTime ? '1fr 1fr' : '1fr 1fr 1fr'; }
             },
 
             // "r, g, b" for a #hex color (so tints work without color-mix)

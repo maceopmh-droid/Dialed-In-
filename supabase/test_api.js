@@ -400,11 +400,43 @@ const lg = JSON.parse(fx('leaver', `select create_group('Leaving soon');`)); fx(
 push('leaver', { type: 'bean', id: 'bl', user: 'Leaver', owner: 'Leaver', roaster: 'Sey', name: 'Gesha', likes: [], comments: [] });
 push('leaver', { type: 'brew', id: 'sl', beanId: 'bl', user: 'Leaver', owner: 'Leaver', method: 'Espresso', date: '2026-10-09T08:00:00.000Z', likes: [], comments: [] });
 push('maceo', { type: 'brew', id: 'sm', beanId: 'bl', user: 'Maceo', owner: 'Maceo', method: 'Espresso', date: '2026-10-09T09:00:00.000Z', likes: [], comments: [] });
+// v21.8: a frozen month that names them (in their group) and one that doesn't (the original crew's)
+const FZ = (() => { const d = new Date(); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() - 2); return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`; })();
+fx('leaver', `select freeze_awards('${lg.id}', '${FZ}', '[{"key":"shot","title":"Shot of the Month","winners":["Leaver"]}]'::jsonb);`);
+fx('maceo', `select freeze_awards('20000000-0000-0000-0000-000000000001', '${FZ}', '[{"key":"early","title":"Early Bird","winners":["Aidan"]}]'::jsonb);`);
 ok(/exactly/.test(fx('leaver', `select delete_account('leave');`)), 'deleting an account needs your name typed exactly');
 ok(fx('leaver', `select delete_account('Leaver');`) === 'deleted' && one(`select count(*) from profiles where display_name = 'Leaver';`) === '0' && one(`select count(*) from sessions where legacy_id = 'sl';`) === '0' &&
    one(`select count(*) from auth.users where id = '${AUTH.leaver}';`) === '0', 'delete account: the profile, its sessions and the sign-in are gone');
 ok(one(`select p.legacy_name from groups g join profiles p on p.id = g.owner_id where g.name = 'Leaving soon';`) === 'Maceo' && one(`select p.legacy_name from coffees k join profiles p on p.id = k.owner_id where k.legacy_id = 'bl';`) === 'Maceo' &&
    one(`select count(*) from sessions where legacy_id = 'sm' and coffee_id is not null;`) === '1', "their group passed to Maceo, and the coffee Maceo brewed stays (now his), so his session keeps its coffee");
+
+ok(one(`select count(*) from frozen_awards where scope = 'g:${lg.id}';`) === '0' && one(`select count(*) from frozen_awards where scope = 'g:20000000-0000-0000-0000-000000000001' and month = '${FZ}';`) === '1',
+   'v21.8: deleting an account clears the kept awards that name them (worked out again without them); others stay');
+
+// --- v21.8: a finished month's awards, frozen (the first phone's copy stands for everyone in that community)
+{
+  const CREW = '20000000-0000-0000-0000-000000000001';
+  const mk = back => { const d = new Date(); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() - back); return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`; };
+  const OLD = mk(3), NOW = mk(0);
+  const A1 = '[{"key":"shot","title":"Shot of the Month","winners":["Maceo"],"value":4.5,"stat":"4.5★"}]', A2 = '[{"key":"shot","title":"Shot of the Month","winners":["Julian"]}]';
+  const f1 = fx('maceo', `select freeze_awards('${CREW}', '${OLD}', '${A1}'::jsonb);`);
+  ok(/"winners": \["Maceo"\]/.test(f1), 'a member keeps a finished month\'s awards for their private community, and gets the copy back ' + f1.slice(0, 80));
+  const f2 = fx('aidan', `select freeze_awards('${CREW}', '${OLD}', '${A2}'::jsonb);`);
+  ok(/"winners": \["Maceo"\]/.test(f2) && one(`select count(*) from frozen_awards where scope = 'g:${CREW}' and month = '${OLD}';`) === '1', 'a second phone\'s copy is ignored: the first one stands, and that\'s what it gets back');
+  const jl = JSON.parse(fx('julian', 'select my_frozen_awards();'));
+  ok(jl.some(x => x.scope === CREW && x.month === OLD && x.awards[0].winners[0] === 'Maceo'), 'everyone in the community reads that copy');
+  ok(!JSON.parse(fx('stranger', 'select my_frozen_awards();')).some(x => x.scope === CREW) && /Not one of your communities/.test(fx('stranger', `select freeze_awards('${CREW}', '${OLD}', '${A2}'::jsonb);`)),
+     'someone outside it can neither read nor keep its awards');
+  ok(/isn.t over yet/.test(fx('maceo', `select freeze_awards('${CREW}', '${NOW}', '${A1}'::jsonb);`)), 'this month can\'t be kept: it isn\'t over (from the 2nd of the next month, in the earliest time zone)');
+  ok(/Not one of your communities/.test(fx('newbie', `select freeze_awards('${open.id}', '${OLD}', '${A1}'::jsonb);`)), 'an open community has no awards to keep');
+  ok(/Not a month/.test(fx('maceo', `select freeze_awards('${CREW}', '2026-13', '${A1}'::jsonb);`)) && /aren.t awards/.test(fx('maceo', `select freeze_awards('${CREW}', '${mk(4)}', '{"x":1}'::jsonb);`)) &&
+     /aren.t awards/.test(fx('maceo', `select freeze_awards('${CREW}', '${mk(4)}', '[{"title":"no winners"}]'::jsonb);`)) && /aren.t awards/.test(fx('maceo', `select freeze_awards('${CREW}', '${mk(4)}', '[${Array(41).fill('{"winners":[]}').join(',')}]'::jsonb);`)),
+     'a bad month, not a list, an award without winners, or too many are refused');
+  const fm = fx('maceo', `select freeze_awards('friends', '${OLD}', '${A2}'::jsonb);`);
+  ok(/Julian/.test(fm) && JSON.parse(fx('maceo', 'select my_frozen_awards();')).some(x => x.scope === 'friends' && x.month === OLD) && !JSON.parse(fx('julian', 'select my_frozen_awards();')).some(x => x.scope === 'friends'),
+     'your Friends\' awards are kept for you alone');
+  ok(/permission denied/.test(as('anon', 'select my_frozen_awards();').err || '') && /permission denied/.test(as('anon', `select freeze_awards('friends', '${OLD}', '[]'::jsonb);`).err || ''), 'signed out: neither call (permission denied)');
+}
 
 // --- the community goal (phase 3 draft): same rotation as the app, totals only
 const cg = JSON.parse(fx('stranger', 'select community_goal();'));

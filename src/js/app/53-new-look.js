@@ -456,8 +456,11 @@
                 const tierOf = t => { const n = this.levelTiers()[t].name; return n === 'The top' ? 'Top' : n; };
                 const ladder = `<div class="lvl-sec"><div class="lvl-cap">Levels</div>${list.map((x, i) => `<div class="nl-lvl-tier${i === L.i ? ' on' : ''}${i > L.i ? ' locked' : ''}">${this.nlLevelBadge(i, 34)}<span><b>${this.esc(this.nlLevelName(i))}</b><small>Level ${i + 1} · ${this.esc(tierOf(x.t))}</small></span><em>${fmt(x.min)}</em></div>`).join('')}</div>`;   // (v18.1: every level, by name)
                 const how = `<div class="lvl-sec"><div class="lvl-cap">How to earn crema</div>${this.cremaRules().map(r => `<div class="lvl-line"><span>${this.esc(word[r[0]] || r[1])}${r[3] ? `<small> · ${this.esc(r[3])}</small>` : ''}</span><b>+${r[2]}</b></div>`).join('')}</div>`;
+                // v21.8: where your crema came from (yours only: someone else's total is what their app saved)
+                const parts = own ? this.cremaFor(name, true).parts : [];
+                const from = parts.length ? `<div class="lvl-sec lvl-from"><div class="lvl-cap">Where your crema came from</div>${parts.slice().sort((a, b) => b.pts - a.pts).map(x => `<div class="lvl-line"><span>${this.esc(word[x.k] || (this.cremaRules().find(r => r[0] === x.k) || [])[1] || x.k)}<small> · ${fmt(x.n)}</small></span><b>${fmt(x.pts)}</b></div>`).join('')}</div>` : '';
                 const share = own && this.openLevelStory ? '<button type="button" class="btn-outline lvl-share" onclick="app.openLevelStory()"><svg class="icon"><use href="#i-share-2"/></svg>Share</button>' : '';
-                return `<div class="lvl-hero nl-lvl-hero">${this.nlLevelBadge(L.i, 92)}<div class="lvl-kicker">${own ? 'Your level' : `${this.esc(name)}'s level`}</div><h3>${this.esc(this.nlLevelName(L.i))}</h3><div class="lvl-crema">Level ${L.n} · ${this.esc(this.nlTierName(L))} · <b>${fmt(L.crema)}</b> crema</div>${L.next ? `<div class="lvl-bar big"><i style="width:${L.pct.toFixed(1)}%"></i></div><div class="lvl-next">${fmt(L.next.min - L.crema)} more to level ${L.n + 1}</div>` : '<div class="lvl-next">The top level.</div>'}${share}</div>${ladder}${how}`;
+                return `<div class="lvl-hero nl-lvl-hero">${this.nlLevelBadge(L.i, 92)}<div class="lvl-kicker">${own ? 'Your level' : `${this.esc(name)}'s level`}</div><h3>${this.esc(this.nlLevelName(L.i))}</h3><div class="lvl-crema">Level ${L.n} · ${this.esc(this.nlTierName(L))} · <b>${fmt(L.crema)}</b> crema</div>${L.next ? `<div class="lvl-bar big"><i style="width:${L.pct.toFixed(1)}%"></i></div><div class="lvl-next">${fmt(L.next.min - L.crema)} more to level ${L.n + 1}</div>` : '<div class="lvl-next">The top level.</div>'}${share}</div>${from}${ladder}${how}`;
             },
 
             // v17.5: an achievement on a card: its own little card in the color of whoever earned it; tap it for their achievements
@@ -920,7 +923,7 @@
                 ['d-origin', 'd-process', 'd-roast'].forEach(id => { const el = document.getElementById(id); if (el && String(el.textContent || '').trim() === '-') el.hidden = true; });   // (no "-" chips for what isn't filled in)
                 // v21.3: the specs, one labeled row each (teas keep their tags); the stars beside the coffee's tile, like the Coffees list
                 hero.querySelectorAll('.nl-specs').forEach(n => n.remove());
-                const tagsEl = hero.querySelector('.dh-tags'), specs = this.nlSpecRowsHtml && !(this.isTeaBean && this.isTeaBean(bean)) ? this.nlSpecRowsHtml(bean) : '';
+                const tagsEl = hero.querySelector('.dh-tags'), specs = this.nlSpecRowsHtml && !(this.isTeaBean && this.isTeaBean(bean)) ? this.nlSpecRowsHtml(bean, { fold: true }) : '';
                 if (tagsEl) { tagsEl.classList.toggle('nl-tags-off', !!specs); if (specs) tagsEl.insertAdjacentHTML('afterend', specs); }
                 const rs = document.getElementById('d-rating-summary'), nameRow = hero.querySelector('.dh-name-row'), tileEl = hero.querySelector('.nl-dcover');
                 let topRow = hero.querySelector('.nl-dtoprow');

@@ -231,9 +231,81 @@
             // Central) freeze at that moment instead, so they stay exactly as everyone first saw them
             awardsCutoff(y, m) { return Math.max(this.monthRange(y, m)[1], Date.parse('2026-10-09T00:46:16Z')); },
 
+            // ---- v21.8: a finished month's awards, frozen. Maceo, Nov 5: "make the awards frozen past the first of the month
+            // because sometimes I edit old beans and stuff and it makes it this month and then it screws it up". The month's
+            // close (below) only rebuilt it from what's there now: an edited session counts as it is now, a late like counts,
+            // a deleted one drops out. From the 2nd of the next month the first phone to work a month out keeps its copy on
+            // the server (freeze_awards; the first copy stands) and every phone shows that copy from then on: one per
+            // private community, and one per person for their Friends.
+            frozenStore() {
+                if (!this._frozenAw || this._frozenFor !== this.user) {   // (per person: someone else signing in on this phone starts empty)
+                    this._frozenAw = new Map(); this._frozenFor = this.user; this._frozenLoaded = false; this._freezeAsked = null;
+                    try { const raw = JSON.parse(safeGet(`dialed_frozen_awards:${this.user || ''}`) || '[]'); (Array.isArray(raw) ? raw : []).forEach(x => this.frozenPut(x)); } catch (e) { /* none kept on this phone yet */ }
+                }
+                return this._frozenAw;
+            },
+            frozenKeep() { try { safeSet(`dialed_frozen_awards:${this.user || ''}`, JSON.stringify([...this.frozenStore()].map(([key, awards]) => ({ scope: key.split('|')[0], month: key.split('|')[1], awards })))); } catch (e) { /* full: kept in memory */ } },
+            // a kept copy comes from the server (any phone of the community wrote it): only award-shaped fields, plain text
+            cleanAwards(list) {
+                if (!Array.isArray(list)) return null;
+                const txt = (v, n) => typeof v === 'string' ? v.slice(0, n) : '';
+                const names = v => (Array.isArray(v) ? v : []).filter(x => typeof x === 'string' && x.trim()).map(x => x.slice(0, 40)).slice(0, 6);
+                return list.slice(0, 40).filter(a => a && typeof a === 'object' && Array.isArray(a.winners)).map(a => {
+                    const out = {};
+                    Object.entries(a).forEach(([f, v]) => { if (/^[a-zA-Z]{1,24}$/.test(f) && (typeof v === 'number' && Number.isFinite(v) || typeof v === 'boolean' || typeof v === 'string')) out[f] = typeof v === 'string' ? v.slice(0, 200) : v; });
+                    out.key = /^[a-z0-9_-]{1,30}$/i.test(String(a.key || '')) ? String(a.key) : 'award';
+                    out.title = txt(a.title, 60) || 'Award';
+                    out.icon = /^i-[a-z0-9-]{1,40}$/.test(String(a.icon || '')) ? a.icon : 'i-medal';
+                    out.color = /^#[0-9a-f]{3,8}$/i.test(String(a.color || '')) ? a.color : '#C49A2C';
+                    out.winners = names(a.winners);
+                    out.stat = txt(a.stat, 160);
+                    out.runner = a.runner && typeof a.runner === 'object' && Array.isArray(a.runner.names) ? { names: names(a.runner.names), value: Number.isFinite(Number(a.runner.value)) ? Number(a.runner.value) : 0 } : null;
+                    return out;
+                }).filter(a => a.winners.length);
+            },
+            frozenPut(x) {
+                if (!x || !/^(friends|[0-9a-f-]{36})$/.test(String(x.scope || '')) || !/^\d{4}-\d{2}$/.test(String(x.month || ''))) return false;
+                const awards = this.cleanAwards(x.awards); if (!awards || !awards.length) return false;
+                this.frozenStore().set(`${x.scope}|${x.month}`, awards);
+                return true;
+            },
+            frozenScopeId() { return this._crewScope && this.acctOn && this.acctOn() && /^(friends|[0-9a-f-]{36})$/.test(String(this._crewScope.id)) ? String(this._crewScope.id) : ''; },
+            frozenChanged() { this._awFrozen = null; this._awMemo = null; this._cremaMemo = null; if (this.render && this.tab === 'profile') this.render(); },
+            loadFrozenAwards() {   // (asked again while it's loading: the same load, so whoever asked can wait for it)
+                if (this._frozenP) return this._frozenP;
+                if (!(this.acctOn && this.acctOn()) || typeof Supa === 'undefined' || !Supa.ready()) return Promise.resolve();
+                this._frozenP = (async () => {
+                    try {
+                        const rows = await Supa.rpc('my_frozen_awards', {});
+                        const before = JSON.stringify([...this.frozenStore()]);
+                        (Array.isArray(rows) ? rows : []).forEach(x => this.frozenPut(x));
+                        this._frozenLoaded = true;
+                        if (JSON.stringify([...this.frozenStore()]) !== before) { this.frozenKeep(); this.frozenChanged(); }
+                    } catch (e) { /* next sync tries again */ }
+                })().finally(() => { this._frozenP = null; });
+                return this._frozenP;
+            },
+            // keep this phone's copy of a finished month (from its 2nd), once per session; the copy that stands comes back
+            freezeAwardsSoon(sid, month, awards) {
+                if (!this._frozenLoaded || !this.syncedOnce || typeof Supa === 'undefined' || !Supa.ready()) return;
+                if (sid === 'friends' ? !(this.ppState && this.ppState().data) : !(this.grState && this.grState().list)) return;   // (who's in it known first)
+                this._freezeAsked = this._freezeAsked || new Set();
+                const key = `${sid}|${month}`; if (this._freezeAsked.has(key)) return; this._freezeAsked.add(key);
+                const list = this.cleanAwards(JSON.parse(JSON.stringify(awards)));
+                if (!list || !list.length) return;
+                Supa.rpc('freeze_awards', { sc: sid, mo: month, list }).then(kept => {
+                    if (!this.frozenPut({ scope: sid, month, awards: kept })) return;
+                    this.frozenKeep();
+                    if (JSON.stringify(this.frozenStore().get(key)) !== JSON.stringify(list)) this.frozenChanged();   // an earlier phone's copy stands: show it
+                }).catch(() => { this._freezeAsked.delete(key); });
+            },
+
             crewAwardsMemo(y, m) {
                 const k = `${this._crewScope ? `${this._crewScope.id}:${[...this._crewScope.names].sort().join(',')}` : ''}|${y}-${m}`;   // v14.6: per community (v15.0: and who's in it)
                 const cut = this.awardsCutoff(y, m);
+                // v21.8: kept on the server: that copy, whatever has changed since
+                const sid = this.frozenScopeId(), month = `${y}-${String(m + 1).padStart(2, '0')}`;
+                if (sid && Date.now() >= cut) { const kept = this.frozenStore().get(`${sid}|${month}`); if (kept) return kept; }
                 if (Date.now() >= cut) {
                     // v12.7: a finished month: frozen at its close, so later edits can't change the winners
                     const log = this.eventLog || [];
@@ -242,9 +314,10 @@
                     const stamp = `${n}:${last}`;
                     if (!this._awFrozen) this._awFrozen = new Map();
                     const hit = this._awFrozen.get(k);
-                    if (hit && hit.stamp === stamp) return hit.awards;
+                    if (hit && hit.stamp === stamp) { if (sid && Date.now() >= new Date(y, m + 1, 2).getTime()) this.freezeAwardsSoon(sid, month, hit.awards); return hit.awards; }
                     const awards = this.withStateAsOf(cut, () => this.crewAwards(y, m));
                     this._awFrozen.set(k, { stamp, awards });
+                    if (sid && Date.now() >= new Date(y, m + 1, 2).getTime()) this.freezeAwardsSoon(sid, month, awards);   // v21.8: from the 2nd of the next month
                     return awards;
                 }
                 const stamp = `${this.eventLog ? this.eventLog.length : 0}:${this.brews.size}:${this.beans.size}`;
