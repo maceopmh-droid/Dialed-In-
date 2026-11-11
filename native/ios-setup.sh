@@ -43,6 +43,67 @@ open(p, 'w').write(s[:-1].rstrip() + '\n' + hooks)
 PY
 fi
 
+# v21.11: the app's own background behind the page follows the app's theme. Maceo, Nov 11: "the weird white space above
+# the keyboard that shows sometimes when you type in log". When the keyboard comes up iOS can slide the page up past its
+# end, and what shows there is the native background, which was always the light cream (#F3EEE4), so in dark mode a pale
+# strip sat above the keyboard. Capacitor's own way in: a subclass of its view controller (set in Main.storyboard) that
+# listens for the page's color ("dialedBg", sent by theme-boot.js whenever the theme is set or changes) and paints the
+# view, the web view, its scroller and the area past the page's end. Before the page says, it follows the phone's setting.
+if ! grep -q DialedBridgeViewController "$AD"; then
+  python3 - "$AD" <<'PY'
+import sys
+p = sys.argv[1]; s = open(p).read()
+assert 'import Capacitor' in s, 'AppDelegate.swift: no "import Capacitor" line'
+if 'import WebKit' not in s:
+    s = s.replace('import Capacitor', 'import Capacitor\nimport WebKit', 1)
+s = s.rstrip() + '\n' + """
+// v21.11: the native background follows the page's theme (see ios-setup.sh)
+class DialedBridgeViewController: CAPBridgeViewController, WKScriptMessageHandler {
+    static let cream = UIColor(red: 0xF3 / 255.0, green: 0xEE / 255.0, blue: 0xE4 / 255.0, alpha: 1)
+    static let ink = UIColor(red: 0x0C / 255.0, green: 0x10 / 255.0, blue: 0x0D / 255.0, alpha: 1)
+
+    override open func capacitorDidLoad() {
+        super.capacitorDidLoad()
+        // until the page says which theme it's in: the phone's own light or dark setting
+        paint(UIColor { $0.userInterfaceStyle == .dark ? DialedBridgeViewController.ink : DialedBridgeViewController.cream })
+        guard let controller = webView?.configuration.userContentController else { return }
+        controller.add(self, name: "dialedBg")
+        // the page also sends its color each time it loads (after its own scripts have run)
+        controller.addUserScript(WKUserScript(source: "window.__dialedTheme && window.__dialedTheme.sendBg && window.__dialedTheme.sendBg();", injectionTime: .atDocumentEnd, forMainFrameOnly: true))
+    }
+
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        guard message.name == "dialedBg", let hex = message.body as? String else { return }
+        let h = hex.trimmingCharacters(in: CharacterSet(charactersIn: "# "))
+        guard h.count == 6, let v = UInt32(h, radix: 16) else { return }
+        paint(UIColor(red: CGFloat((v >> 16) & 0xFF) / 255.0, green: CGFloat((v >> 8) & 0xFF) / 255.0, blue: CGFloat(v & 0xFF) / 255.0, alpha: 1))
+    }
+
+    private func paint(_ color: UIColor) {
+        view.backgroundColor = color
+        webView?.backgroundColor = color
+        webView?.scrollView.backgroundColor = color
+        if #available(iOS 15.0, *) { webView?.underPageBackgroundColor = color }
+    }
+}
+"""
+open(p, 'w').write(s + '\n')
+PY
+fi
+SB="$APP/Base.lproj/Main.storyboard"
+if ! grep -q DialedBridgeViewController "$SB"; then
+  python3 - "$SB" <<'PY'
+import re, sys
+p = sys.argv[1]; s = open(p).read()
+pat = r'customClass="CAPBridgeViewController" customModule="Capacitor"( customModuleProvider="target")?'
+n = len(re.findall(pat, s))
+assert n == 1, f'Main.storyboard: expected one Capacitor view controller, found {n}'
+s = re.sub(pat, 'customClass="DialedBridgeViewController" customModule="App" customModuleProvider="target"', s)
+open(p, 'w').write(s)
+PY
+fi
+grep -q DialedBridgeViewController "$AD" && grep -q DialedBridgeViewController "$SB" || { echo "ios-setup: the background patch didn't go in" >&2; exit 1; }
+
 # the push entitlement (TestFlight and the App Store use Apple's production push service)
 cat > "$APP/App.entitlements" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -94,4 +155,4 @@ for P in ios/App/CapApp-SPM/Package.swift; do
 done
 if grep -qE 'IPHONEOS_DEPLOYMENT_TARGET = (1[0-4]|[0-9])\.' "$PBX"; then echo "ios-setup: the app still targets an iOS below 15" >&2; exit 1; fi
 
-echo "ios-setup: Info.plist, push hooks, entitlement, icon, launch screen, iOS 15 or later"
+echo "ios-setup: Info.plist, push hooks, background color, entitlement, icon, launch screen, iOS 15 or later"

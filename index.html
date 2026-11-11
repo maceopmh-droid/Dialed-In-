@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v21.10 -->
+<!-- Dialed In v21.11 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="21.10">
+    <meta name="dialed-in-version" content="21.11">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -17,11 +17,21 @@
             document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
             var meta = document.querySelector('meta[name="theme-color"]');
             if (meta) meta.setAttribute('content', dark ? '#0C100D' : '#F3EEE4');
+            sendBg();
+        };
+        // v21.11: the iPhone app paints its own background (what shows past the page's end, e.g. above the keyboard)
+        // in this color; Maceo, Nov 11: "the weird white space above the keyboard". Only the iPhone app listens.
+        var sendBg = function () {
+            try {
+                var h = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.dialedBg;
+                if (h) h.postMessage(document.documentElement.getAttribute('data-theme') === 'dark' ? '#0C100D' : '#F3EEE4');
+            } catch (e) {}
         };
         window.__dialedTheme = {
             get pref() { return pref; },
             set: function (p) { pref = p; try { localStorage.setItem('dialed_theme', p); } catch (e) {} apply(); },
-            isDark: function () { return document.documentElement.getAttribute('data-theme') === 'dark'; }
+            isDark: function () { return document.documentElement.getAttribute('data-theme') === 'dark'; },
+            sendBg: sendBg
         };
         apply();
         var onChange = function () { if (pref === 'system') { apply(); if (typeof app !== 'undefined' && app.onThemeChange) app.onThemeChange(); } };
@@ -6513,7 +6523,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v21.10</div>
+            <div class="app-version">Dialed In · v21.11</div>
         </div>
     </div>
 

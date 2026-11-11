@@ -8,11 +8,21 @@
             document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
             var meta = document.querySelector('meta[name="theme-color"]');
             if (meta) meta.setAttribute('content', dark ? '#0C100D' : '#F3EEE4');
+            sendBg();
+        };
+        // v21.11: the iPhone app paints its own background (what shows past the page's end, e.g. above the keyboard)
+        // in this color; Maceo, Nov 11: "the weird white space above the keyboard". Only the iPhone app listens.
+        var sendBg = function () {
+            try {
+                var h = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.dialedBg;
+                if (h) h.postMessage(document.documentElement.getAttribute('data-theme') === 'dark' ? '#0C100D' : '#F3EEE4');
+            } catch (e) {}
         };
         window.__dialedTheme = {
             get pref() { return pref; },
             set: function (p) { pref = p; try { localStorage.setItem('dialed_theme', p); } catch (e) {} apply(); },
-            isDark: function () { return document.documentElement.getAttribute('data-theme') === 'dark'; }
+            isDark: function () { return document.documentElement.getAttribute('data-theme') === 'dark'; },
+            sendBg: sendBg
         };
         apply();
         var onChange = function () { if (pref === 'system') { apply(); if (typeof app !== 'undefined' && app.onThemeChange) app.onThemeChange(); } };
