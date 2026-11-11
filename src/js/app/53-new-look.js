@@ -923,7 +923,7 @@
                 ['d-origin', 'd-process', 'd-roast'].forEach(id => { const el = document.getElementById(id); if (el && String(el.textContent || '').trim() === '-') el.hidden = true; });   // (no "-" chips for what isn't filled in)
                 // v21.3: the specs, one labeled row each (teas keep their tags); the stars beside the coffee's tile, like the Coffees list
                 hero.querySelectorAll('.nl-specs').forEach(n => n.remove());
-                const tagsEl = hero.querySelector('.dh-tags'), specs = this.nlSpecRowsHtml && !(this.isTeaBean && this.isTeaBean(bean)) ? this.nlSpecRowsHtml(bean) : '';
+                const tagsEl = hero.querySelector('.dh-tags'), specs = this.nlSpecRowsHtml && !(this.isTeaBean && this.isTeaBean(bean)) ? this.nlSpecRowsHtml(bean, { fold: true }) : '';
                 if (tagsEl) { tagsEl.classList.toggle('nl-tags-off', !!specs); if (specs) tagsEl.insertAdjacentHTML('afterend', specs); }
                 const rs = document.getElementById('d-rating-summary'), nameRow = hero.querySelector('.dh-name-row'), tileEl = hero.querySelector('.nl-dcover');
                 let topRow = hero.querySelector('.nl-dtoprow');

@@ -238,6 +238,7 @@
                     'Aeropress': '#i-method-aeropress',
                     'Cold Brew': '#i-method-cold-brew',
                     'OXO Rapid Brewer': '#i-method-rapid',   // v21.6
+                    'Instant': '#i-method-instant',   // v21.10
                     'Western': '#i-method-western', 'Gongfu': '#i-method-gongfu', 'Matcha': '#i-method-matcha', 'Cold Steep': '#i-method-cold-steep'   // v17.0
                 };
                 return map[method] || '#i-method-espresso';

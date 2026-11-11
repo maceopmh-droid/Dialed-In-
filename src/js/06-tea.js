@@ -35,7 +35,7 @@
             { key: 'latte', label: 'Latte', short: 'Latte', ratio: 30, milk: true, usual: '2 g in 60 ml, then 150 ml milk' },
             { key: 'iced', label: 'Iced latte', short: 'Iced latte', ratio: 30, milk: true, usual: '2 g in 60 ml, then 150 ml cold milk over ice' }
         ];
-        const COFFEE_METHODS = ['Espresso', 'Pour Over', 'French Press', 'Moka Pot', 'Aeropress', 'Cold Brew', 'OXO Rapid Brewer'];
+        const COFFEE_METHODS = ['Espresso', 'Pour Over', 'French Press', 'Moka Pot', 'Aeropress', 'Cold Brew', 'OXO Rapid Brewer', 'Instant'];
         // the six sliders keep their places (and storage keys); tea reads them in tea words. Acidity's place is astringency.
         const TEA_TASTE_META = [
             ['acidity', 'Astringency', ['Soft', 'Some grip', 'Drying']],

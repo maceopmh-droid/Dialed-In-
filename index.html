@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v21.9 -->
+<!-- Dialed In v21.10 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="21.9">
+    <meta name="dialed-in-version" content="21.10">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -1117,6 +1117,8 @@
         }
 
         /* Timer */
+        #brew-modal.no-time .timer-hero { display: none !important; }   /* v21.10: nothing to time (Instant) */
+        #brew-modal.no-time #recipe-fields { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }   /* (and the numbers two across) */
         .timer-hero {
             background: var(--linen); padding: 2rem; border-radius: var(--radius);
             text-align: center; margin-bottom: 2rem;
@@ -5081,6 +5083,17 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] .nl-specs .nl-spec-pill { display: inline-flex; align-items: center; gap: 2px; height: 28px; min-height: 0; width: auto; margin: 0; padding: 0 7px 0 10px; border-radius: 14px !important; font-size: 14.5px !important; background: color-mix(in srgb, var(--n) 10%, transparent) !important; color: var(--n) !important; border: 0 !important; box-shadow: none !important; font: inherit; font-size: 14.5px; font-weight: 600; letter-spacing: 0; text-transform: none; }
         html[data-look="new"] .nl-specs .nl-spec-pill.is-plain { padding-right: 10px; }
         html[data-look="new"] .nl-spec-ch.sm { width: 13px !important; height: 13px !important; }
+        /* v21.10: the card folds under its "Details" header (remembered per coffee); folded, a short line of what's in it */
+        html[data-look="new"] .nl-specs-head { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 42px; margin: 0; padding: 0 14px 0 16px; background: none !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; text-align: left; cursor: pointer; color: var(--n); -webkit-tap-highlight-color: transparent; }
+        html[data-look="new"] .nl-specs-head:active { background: color-mix(in srgb, var(--n) 7%, transparent) !important; }
+        html[data-look="new"] .nl-specs-t { flex: none; color: var(--n); font-size: 15.5px; font-weight: 600; }
+        html[data-look="new"] .nl-specs-sum { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--l); font-size: 14.5px; text-align: right; }
+        html[data-look="new"] .nl-specs:not(.is-closed) .nl-specs-sum { visibility: hidden; }
+        html[data-look="new"] .nl-specs-chev { width: 16px !important; height: 16px !important; color: var(--l); stroke: currentColor; flex: none; transform: rotate(180deg); transition: transform .2s ease; }
+        html[data-look="new"] .nl-specs.is-closed .nl-specs-chev { transform: none; }
+        html[data-look="new"] .nl-specs.is-closed .nl-specs-rows { display: none; }
+        html[data-look="new"] .nl-specs-rows .nl-spec:first-child { border-top: 1px solid color-mix(in srgb, var(--n) 9%, transparent) !important; }
+        @media (prefers-reduced-motion: reduce) { html[data-look="new"] .nl-specs-chev { transition: none; } }
         /* v21.3: the stars beside the coffee's tile (like the Coffees list), not on a row of their own */
         html[data-look="new"] #detail-view .nl-dtoprow { order: 0; display: flex; align-items: center; gap: 16px; margin: 6px 0 2px; position: relative; z-index: 2; }
         html[data-look="new"] #detail-view .nl-dtoprow .nl-dcover { margin: 0; flex: none; }
@@ -6092,6 +6105,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
         <symbol id="i-method-moka-pot" viewBox="0 0 24 24"><path d="M8.2 3.5h7.6l1 5.5H7.2Z"/><path d="M7.2 9 5.5 20.5h13L16.8 9"/><path d="M6.4 14.2h11.2"/><path d="M16.8 5.2h1.7a1 1 0 0 1 1 1.1l-.6 3.4"/></symbol>
         <symbol id="i-method-aeropress" viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="5" rx="1.2"/><path d="M6.5 8h11M9 8v9.5h6V8"/><path d="M6.5 17.5h11M12 17.5v3.5"/></symbol>
         <symbol id="i-method-rapid" viewBox="0 0 24 24"><path d="M8.5 3.2h7M12 3.2v3"/><rect x="7.8" y="6.2" width="8.4" height="8.6" rx="1.6"/><path d="M6.6 14.8h10.8"/><path d="M8.2 15.4 9.3 20.8h5.4l1.1-5.4"/></symbol>
+        <symbol id="i-method-instant" viewBox="0 0 24 24"><rect x="7.4" y="3.4" width="9.2" height="3.1" rx="1"/><path d="M8 6.5h8l.9 2.4V19a2 2 0 0 1-2 2H9.1a2 2 0 0 1-2-2V8.9Z"/><path d="M7.1 11.4h9.8M7.1 16.2h9.8"/></symbol>
         <symbol id="i-method-cold-brew" viewBox="0 0 24 24"><path d="M6 4h12l-1.4 15.1a2 2 0 0 1-2 1.9H9.4a2 2 0 0 1-2-1.9Z"/><rect x="8.6" y="9" width="3" height="3" rx=".7"/><rect x="12.4" y="12.4" width="3" height="3" rx=".7"/><path d="M15.4 2.2l-1.4 5"/></symbol>
 
         <!-- v17.0: tea -->
@@ -6499,7 +6513,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v21.9</div>
+            <div class="app-version">Dialed In · v21.10</div>
         </div>
     </div>
 
@@ -6800,6 +6814,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                             <option value="Aeropress">AeroPress</option>
                             <option value="Cold Brew">Cold Brew</option>
                             <option value="OXO Rapid Brewer">OXO Rapid Brewer</option>
+                            <option value="Instant">Instant</option>
                         </select>
                     </div>
                     <div id="master-grind-field"><label>Grind</label><input type="text" name="grind" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="24" placeholder="10.4 or 3B" required></div>
@@ -6879,7 +6894,10 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
             'Moka Pot': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Time (s)', ratio: 9, extras: ['heat', 'preheated'], recipes: true },
             'Cold Brew': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Steep (hours)', ratio: 8, extras: ['sub'], recipes: true, hours: true },
             // v21.6 (Maceo, Nov 4): OXO's Rapid Brewer, a pump-pressed concentrate, hot or cold (OXO: 20 g or 40 g to 160 ml, 2 or 5 minutes)
-            'OXO Rapid Brewer': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Steep (s)', ratio: 8, extras: ['sub', 'temp'], recipes: true }
+            'OXO Rapid Brewer': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Steep (s)', ratio: 8, extras: ['sub', 'temp'], recipes: true },
+            // v21.10 (Maceo, Nov 11: "add instant as a brew type"): instant coffee, stirred into water: no grind and no brew time
+            // (noGrind / noTime / noRoastDate hide those in the Log: a jar has no roast date); about 2 g to 180 g, hot or iced
+            'Instant': { dose: 'Coffee (g)', yld: 'Water (g)', time: 'Time (s)', ratio: 90, extras: ['sub', 'temp'], recipes: false, noGrind: true, noTime: true, noRoastDate: true }
         };
         // v21.6: the kinds of each method (Maceo, Nov 4: "different types of espressos like turbo shots soup shots salami maybe as a
         // sub catagory of espresso ... and add subcategories for other brew methods if it's applicable"). Optional; nothing picked
@@ -6888,9 +6906,10 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
             'Espresso': ['Ristretto', 'Lungo', 'Turbo', 'Soup', 'Allongé', 'Salami'],
             'Pour Over': ['Iced'],
             'Cold Brew': ['Immersion', 'Slow drip'],
-            'OXO Rapid Brewer': ['Hot', 'Cold']
+            'OXO Rapid Brewer': ['Hot', 'Cold'],
+            'Instant': ['Iced']
         };
-        const METHOD_KIND_NONE = { 'Espresso': 'Regular shot', 'Pour Over': 'Hot', 'Cold Brew': 'Choose…', 'OXO Rapid Brewer': 'Choose…' };
+        const METHOD_KIND_NONE = { 'Espresso': 'Regular shot', 'Pour Over': 'Hot', 'Cold Brew': 'Choose…', 'OXO Rapid Brewer': 'Choose…', 'Instant': 'Hot' };
         const STEP_KINDS = {
             pour: { label: 'Pour', color: '#4F86D9' }, wait: { label: 'Wait', color: '#8A958C' }, swirl: { label: 'Swirl', color: '#D9A03A' },
             stir: { label: 'Stir', color: '#D9A03A' }, drawdown: { label: 'Drawdown', color: '#3E8F62' }, steep: { label: 'Steep', color: '#8A63C4' },
@@ -8284,7 +8303,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             { key: 'latte', label: 'Latte', short: 'Latte', ratio: 30, milk: true, usual: '2 g in 60 ml, then 150 ml milk' },
             { key: 'iced', label: 'Iced latte', short: 'Iced latte', ratio: 30, milk: true, usual: '2 g in 60 ml, then 150 ml cold milk over ice' }
         ];
-        const COFFEE_METHODS = ['Espresso', 'Pour Over', 'French Press', 'Moka Pot', 'Aeropress', 'Cold Brew', 'OXO Rapid Brewer'];
+        const COFFEE_METHODS = ['Espresso', 'Pour Over', 'French Press', 'Moka Pot', 'Aeropress', 'Cold Brew', 'OXO Rapid Brewer', 'Instant'];
         // the six sliders keep their places (and storage keys); tea reads them in tea words. Acidity's place is astringency.
         const TEA_TASTE_META = [
             ['acidity', 'Astringency', ['Soft', 'Some grip', 'Drying']],
@@ -9949,6 +9968,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     'Aeropress': '#i-method-aeropress',
                     'Cold Brew': '#i-method-cold-brew',
                     'OXO Rapid Brewer': '#i-method-rapid',   // v21.6
+                    'Instant': '#i-method-instant',   // v21.10
                     'Western': '#i-method-western', 'Gongfu': '#i-method-gongfu', 'Matcha': '#i-method-matcha', 'Cold Steep': '#i-method-cold-steep'   // v17.0
                 };
                 return map[method] || '#i-method-espresso';
@@ -11980,7 +12000,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             },
 
             coachFromBrew(brew) {
-                return { id: String(brew.id), owner: this.getBrewOwner(brew), beanKey: this.groupKeyOfBrew(brew), beanId: String(brew.beanId || ''), method: brew.method || '', sub: brew.sub || '', date: brew.date,
+                return { id: String(brew.id), owner: this.getBrewOwner(brew), beanKey: this.groupKeyOfBrew(brew), beanId: String(brew.beanId || ''), method: brew.method || '', sub: brew.sub || '', temp: this.num(brew.temp), date: brew.date,
                     grind: brew.grind, dose: this.num(brew.dose), yield: this.num(brew.yield), time: this.num(brew.time), rating: this.normalizeRating(brew.rating),
                     text: this.getBrewNotes(brew), flavors: this.extractFlavors(brew), values: this.shapeValues(brew), tasted: this.tastedKeys(brew), tastedExplicit: Array.isArray(brew.tasted) && brew.tasted.length > 0,   /* v16.2: an empty list is no list (see tasteValue) */ verdict: String(brew.verdict || ''), grinder: this.grinderFor(brew) };
             },
@@ -11991,7 +12011,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const existing = editing ? this.brews.get(editing) : null;
                 const r = this.readFormRecipe();
                 return { id: editing, owner: this.user, beanKey: this.activeGroup ? this.beanGroupKey(this.activeGroup.meta) : '', beanId: String(this.activeId || ''), method: r.method, sub: (this.methodExtras && (METHOD_KINDS[r.method] || []).includes(this.methodExtras.sub)) ? this.methodExtras.sub : '',
-                    date: existing ? existing.date : new Date().toISOString(), grind: form && form.grind ? form.grind.value : '', dose: this.num(r.dose), yield: this.num(r.yield), time: this.num(r.time),
+                    temp: this.tempC ? this.tempC((this.methodExtras || {}).temp) : 0, date: existing ? existing.date : new Date().toISOString(), grind: form && form.grind ? form.grind.value : '', dose: this.num(r.dose), yield: this.num(r.yield), time: this.num(r.time),
                     rating: form && form.rating ? this.normalizeRating(form.rating.value) : 0, text: form && form.notes ? form.notes.value : '', flavors: [...this.selFlavors],
                     values: this.formTasteValues(), tasted: [...this.tasteTouched], tastedExplicit: true, grinder: this.formGrinder(r.method) };
             },
@@ -12109,6 +12129,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             },
 
             coach(c) {
+                if (c.method === 'Instant' && this.instantCoach) return this.instantCoach(c);   // v21.10: no grind or time to steer by
                 const esp = c.method === 'Espresso';
                 const past = this.coachPast(c);
                 const rate = b => this.normalizeRating(b.rating);
@@ -14258,6 +14279,27 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 this.renderMethodExtras(method);
                 this.renderRecipeCard(method);
                 this.activeMethod = method;
+                this.paintMethodFields(method);
+            },
+
+            // v21.10: a method with no grinder or no brew time (Instant) hides those boxes, and the timer, like tea hides grind
+            paintMethodFields(method) {
+                const form = this.getBrewForm(); if (!form) return;
+                const p = method ? this.methodProfile(method) : {}, tea = this.logKind === 'tea';
+                const noGrind = tea || !!p.noGrind, noTime = !!p.noTime;
+                if (form.grind) {
+                    const wrap = form.grind.closest('div'); if (wrap) wrap.hidden = noGrind;
+                    form.grind.required = !noGrind;
+                    if (noGrind) form.grind.value = '';
+                }
+                const grid = form.method && form.method.closest('.brew-grid-2'); if (grid) grid.classList.toggle('solo', noGrind);
+                if (form.time) {
+                    const wrap = document.getElementById('fld-time'); if (wrap) wrap.hidden = noTime;
+                    form.time.required = !noTime;
+                    if (noTime) form.time.value = '';
+                }
+                const modal = document.getElementById('brew-modal'); if (modal) modal.classList.toggle('no-time', noTime);
+                const roast = modal && modal.querySelector('.roast-row'); if (roast) roast.hidden = tea || !!p.noRoastDate;   // (no roast date on a tea or a jar of instant)
             },
 
             renderMethodExtras(method) {
@@ -17438,6 +17480,14 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const p = METHOD_PROFILES[method] || METHOD_PROFILES.Espresso;
                 const set = (id, t) => { const el = document.getElementById(id); if (el) el.textContent = t; };
                 set('master-lbl-dose', p.dose); set('master-lbl-yield', p.yld); set('master-lbl-time', p.time);
+                // v21.10: no grind for tea or Instant, no time for Instant
+                const form = this.getMasterForm && this.getMasterForm(); if (!form) return;
+                const noGrind = !!(p.tea || p.noGrind), noTime = !!p.noTime;
+                const gf = document.getElementById('master-grind-field'), row = document.getElementById('master-row-1');
+                if (gf) gf.style.display = noGrind ? 'none' : '';
+                if (row) row.style.gridTemplateColumns = noGrind ? '1fr' : '1fr 1fr';
+                if (form.grind) { form.grind.required = !noGrind; if (noGrind) form.grind.value = ''; }
+                if (form.time) { const w = form.time.closest('div'); if (w) w.style.display = noTime ? 'none' : ''; form.time.required = !noTime; if (noTime) form.time.value = ''; if (w && w.parentElement) w.parentElement.style.gridTemplateColumns = noTime ? '1fr 1fr' : '1fr 1fr 1fr'; }
             },
 
             // "r, g, b" for a #hex color (so tints work without color-mix)
@@ -20447,7 +20497,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     isMaster,
                     masterProfile: seedMaster,
                     notes: form.notes.value.trim(),
-                    roastDate: this.logKind === 'tea' ? '' : form.roastDate ? String(form.roastDate.value || '').slice(0, 10) : (existing ? String(existing.roastDate || '') : ''),   // v15.1: the bag's (v17.0: a tea has none)
+                    roastDate: this.logKind === 'tea' || this.methodProfile(method).noRoastDate ? '' : form.roastDate ? String(form.roastDate.value || '').slice(0, 10) : (existing ? String(existing.roastDate || '') : ''),   // v15.1: the bag's (v17.0: a tea has none)
                     verdict: form.verdict ? form.verdict.value : (existing ? String(existing.verdict || '') : ''),
                     flavors,
                     rating: this.normalizeRating(form.rating.value),
@@ -20487,15 +20537,11 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const tea = this.isTeaBrew(brew), methods = this.methodsFor(tea ? 'tea' : 'coffee');
                 form.method.innerHTML = methods.map(m => `<option value="${this.esc(m)}">${this.esc(this.methodLabel(m))}</option>`).join('');
                 form.method.value = methods.includes(profile.method) ? profile.method : methods.includes(brew.method) ? brew.method : methods[0];
-                const gf = document.getElementById('master-grind-field'), row = document.getElementById('master-row-1');
-                if (gf) gf.style.display = tea ? 'none' : '';
-                if (row) row.style.gridTemplateColumns = tea ? '1fr' : '1fr 1fr';
-                form.grind.required = !tea;
-                this.masterLabels(form.method.value);
                 form.grind.value = profile.grind ?? '';
                 form.dose.value = profile.dose ?? '';
                 form.yield.value = profile.yield ?? '';
                 form.time.value = profile.time ?? '';
+                this.masterLabels(form.method.value);   // (and v21.10: no grind for tea or Instant, no time for Instant)
                 form.notes.value = profile.notes || '';
                 this.renderMasterEquipmentSelector(profile.equipment || []);
                 this.openModal('master-modal');
@@ -22729,7 +22775,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             // ---- Discover's filters: Help, New here, one method
             commFilterHtml() {
                 const st = this.commState(), f = st.filter || '';
-                const opts = [['', 'All'], ['help', 'Help'], ['new', 'New here'], ...['Espresso', 'Pour Over', 'French Press', 'AeroPress', 'Moka Pot', 'Cold Brew', 'OXO Rapid Brewer'].map(m => ['m:' + m, m])];
+                const opts = [['', 'All'], ['help', 'Help'], ['new', 'New here'], ...['Espresso', 'Pour Over', 'French Press', 'AeroPress', 'Moka Pot', 'Cold Brew', 'OXO Rapid Brewer', 'Instant'].map(m => ['m:' + m, m])];
                 return `<div class="comm-filters" role="tablist" aria-label="Show">${opts.map(([k, l]) => `<button type="button" class="comm-chip${k === f ? ' on' : ''}" role="tab" aria-selected="${k === f}" data-f="${this.esc(k)}" onclick="app.setCommFilter(this.getAttribute('data-f'))">${this.esc(l)}</button>`).join('')}</div>`;
             },
 
@@ -26501,14 +26547,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     sel.value = list.includes(keep) ? keep : '';
                 }
                 if (form.dose) form.dose.required = !tea;   // v17.1: a tea's leaf is optional (a cup of several things, a teabag)
-                if (form.grind) {
-                    const wrap = form.grind.closest('div');
-                    if (wrap) wrap.hidden = tea;
-                    form.grind.required = !tea;
-                    if (tea) form.grind.value = '';
-                }
-                const grid = sel && sel.closest('.brew-grid-2'); if (grid) grid.classList.toggle('solo', tea);
-                const roast = modal && modal.querySelector('.roast-row'); if (roast) roast.hidden = tea;
+                if (this.paintMethodFields) this.paintMethodFields(sel ? sel.value : '');   // (no grind for tea; v21.10: or Instant)
                 if (modal) modal.querySelectorAll('.ns').forEach(row => {
                     const key = row.getAttribute('data-k'), label = this.tasteLabel(key, k);
                     const name = row.querySelector('.ns-name'); if (name && name.lastChild && name.lastChild.nodeType === 3) name.lastChild.textContent = label;
@@ -27926,7 +27965,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 ['d-origin', 'd-process', 'd-roast'].forEach(id => { const el = document.getElementById(id); if (el && String(el.textContent || '').trim() === '-') el.hidden = true; });   // (no "-" chips for what isn't filled in)
                 // v21.3: the specs, one labeled row each (teas keep their tags); the stars beside the coffee's tile, like the Coffees list
                 hero.querySelectorAll('.nl-specs').forEach(n => n.remove());
-                const tagsEl = hero.querySelector('.dh-tags'), specs = this.nlSpecRowsHtml && !(this.isTeaBean && this.isTeaBean(bean)) ? this.nlSpecRowsHtml(bean) : '';
+                const tagsEl = hero.querySelector('.dh-tags'), specs = this.nlSpecRowsHtml && !(this.isTeaBean && this.isTeaBean(bean)) ? this.nlSpecRowsHtml(bean, { fold: true }) : '';
                 if (tagsEl) { tagsEl.classList.toggle('nl-tags-off', !!specs); if (specs) tagsEl.insertAdjacentHTML('afterend', specs); }
                 const rs = document.getElementById('d-rating-summary'), nameRow = hero.querySelector('.dh-name-row'), tileEl = hero.querySelector('.nl-dcover');
                 let topRow = hero.querySelector('.nl-dtoprow');
@@ -30937,7 +30976,21 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 return out;
             },
             NL_SPEC_ROWS: [['producer', 'i-users', 'Grown by', 'Grown by'], ['origin', 'i-pin', 'Origin', 'Origins'], ['region', 'i-globe', 'Region', 'Regions'], ['variety', 'i-leaf-line', 'Variety', 'Varieties'], ['process', 'i-drop', 'Process', 'Process'], ['roast', 'i-flame', 'Roast', 'Roast'], ['mill', 'i-gear', 'Mill', 'Mills']],
-            nlSpecRowsHtml(bean, o = {}) { return this.nlSpecRowsFromItems(this.nlSpecItems(bean), { ...o, tea: this.isTeaBean && this.isTeaBean(bean) }); },
+            nlSpecRowsHtml(bean, o = {}) { return this.nlSpecRowsFromItems(this.nlSpecItems(bean), { ...o, tea: this.isTeaBean && this.isTeaBean(bean), fold: o.fold && bean ? this.beanGroupKey(bean) : '' }); },
+            // v21.10 (Maceo, Nov 11: "make the tab on the bean page with variety origin etc collapsible? Always start
+            // uncollapsed but if a user collapses that specific one then it stays collapsed until they undo it"): each coffee
+            // you've folded, remembered on this phone
+            nlSpecsClosed() { try { const v = JSON.parse(safeGet('dialed_specs_closed') || '[]'); return Array.isArray(v) ? v.map(String) : []; } catch (e) { return []; } },
+            nlSpecsToggle(btn) {
+                const box = btn && btn.closest('.nl-specs'), key = box && box.getAttribute('data-fold'); if (!key) return;
+                const closed = !box.classList.contains('is-closed');
+                box.classList.toggle('is-closed', closed);
+                btn.setAttribute('aria-expanded', closed ? 'false' : 'true');
+                const list = this.nlSpecsClosed().filter(k => k !== key);
+                if (closed) list.push(key);
+                try { safeSet('dialed_specs_closed', JSON.stringify(list.slice(-300))); } catch (e) { /* full: open again next time */ }
+                if (this.haptic) this.haptic('tick');
+            },
             nlSpecGo(x) { return x.kind === 'producer' ? `app.openProducer('${this.escJs(String(x.id))}')` : this.lxGo(x.kind, x.id); },
             nlSpecRowsFromItems(items, o = {}) {   // (o.links false: no buttons, e.g. on a share link's page)
                 if (o.links === false) Object.values(items).forEach(list => (list || []).forEach(x => { x.page = false; }));
@@ -30953,7 +31006,12 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     const pills = packed.map(x => x.page ? `<button type="button" class="nl-spec-pill" onclick="${this.nlSpecGo(x)}">${this.esc(x.label)}${chev(' sm')}</button>` : `<span class="nl-spec-pill is-plain">${this.esc(x.label)}</span>`).join('');
                     return `<div class="nl-spec nl-spec-multi">${ic(icon)}<span class="nl-spec-k">${many}</span><span class="nl-spec-v">${pills}</span></div>`;
                 }).filter(Boolean);
-                return rows.length ? `<div class="nl-specs" role="list" aria-label="About this ${o.tea ? 'tea' : 'coffee'}">${rows.join('')}</div>` : '';
+                if (!rows.length) return '';
+                if (!o.fold || rows.length < 2) return `<div class="nl-specs" role="list" aria-label="About this ${o.tea ? 'tea' : 'coffee'}">${rows.join('')}</div>`;
+                // v21.10: a "Details" header that folds the rows (open unless you folded this coffee); folded, it shows a short line
+                const closed = this.nlSpecsClosed().includes(String(o.fold));
+                const sum = ['origin', 'variety', 'process'].map(k => (items[k] || [])[0]).filter(Boolean).map(x => this.esc(x.label)).join(' · ');
+                return `<div class="nl-specs is-fold${closed ? ' is-closed' : ''}" data-fold="${this.esc(String(o.fold))}"><button type="button" class="nl-specs-head" aria-expanded="${closed ? 'false' : 'true'}" onclick="app.nlSpecsToggle(this)"><span class="nl-specs-t">Details</span><span class="nl-specs-sum">${sum}</span><svg class="icon nl-specs-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></button><div class="nl-specs-rows" role="list" aria-label="About this ${o.tea ? 'tea' : 'coffee'}">${rows.join('')}</div></div>`;
             },
             // the Coffees list: one line, an icon for each (origin, variety, process)
             nlSpecLineHtml(bean) {   // (as written on the bag: "Anaerobic Natural", not Learn's "Natural, Anaerobic")
@@ -30965,7 +31023,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             nlSpecsRefresh() {
                 const old = document.querySelector('#detail-view .nl-specs'), bean = this.activeGroup && this.activeGroup.meta;
                 if (!old || !bean) return;
-                const html = this.nlSpecRowsHtml(bean);
+                const html = this.nlSpecRowsHtml(bean, { fold: true });
                 if (html && old.outerHTML !== html) old.outerHTML = html;
             },
             // ===================== v21.4: who grew it, and the steps from farm to cup =====================
@@ -31170,6 +31228,84 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 if (v) { v.classList.remove('active'); v.hidden = true; v.setAttribute('aria-hidden', 'true'); }
                 document.body.classList.remove('pv-open');
                 this._producer = null;
+            },
+            // ===================== v21.10: Instant =====================
+            // Maceo, Nov 11: "add instant as a brew type". Instant coffee is stirred into water: there's no grind and no brew
+            // time, so the next cup's advice is about strength (coffee to water) and the water's heat, read from the notes, tags,
+            // sliders and rating, against the person's best cup of it on that coffee (hot against hot, iced against iced).
+            INSTANT_RATIO: 90,   // about 2 g to 180 g, the usual jar's spoonful to a mug
+            instantLine(b) {
+                const dose = this.num(b.dose), water = this.num(b.yield), temp = this.num(b.temp);
+                const parts = [];
+                if (dose > 0 && water > 0) parts.push(`${this.fmtNum(dose)} g in ${this.fmtNum(water, 0)} g (1:${Math.round(water / dose)})`);
+                else if (dose > 0) parts.push(`${this.fmtNum(dose)} g`);
+                if (temp > 0) parts.push(`${this.fmtNum(temp, 0)}°C`);
+                if (b.sub === 'Iced') parts.push('iced');
+                return parts.join(' · ');
+            },
+            instantCoach(c) {
+                const rate = b => this.normalizeRating(b.rating);
+                let ref = null;
+                this.coachPast(c).forEach(b => { const r = rate(b); if (r > 0 && (!ref || r >= rate(ref))) ref = b; });
+                const read = this.coachRead(c.text, { rating: c.rating });
+                const tags = (c.flavors || []).map(f => String(f).toLowerCase());
+                const v = k => (c.tasted || []).includes(k) ? Number(c.values[k]) : null;
+                const ev = [], why = [], ctx = [];
+                const weakBits = [], strongBits = [];
+                if (read.weak > 0) weakBits.push('your notes say weak');
+                ['thin', 'watery', 'weak', 'flat'].forEach(t => { if (tags.includes(t)) weakBits.push(`"${t}"`); });
+                if (v('body') !== null && v('body') <= 3) weakBits.push(`body ${v('body')}`);
+                if (read.strong > 0 || read.over > 0) strongBits.push('your notes say too strong or bitter');
+                ['bitter', 'harsh', 'burnt', 'ashy', 'drying'].forEach(t => { if (tags.includes(t)) strongBits.push(`"${t}"`); });
+                if (v('bitterness') !== null && v('bitterness') >= 7) strongBits.push(`bitterness ${v('bitterness')}`);
+                weakBits.forEach(t => ev.push({ side: 'under', text: t }));
+                strongBits.forEach(t => ev.push({ side: 'over', text: t }));
+                if (c.rating > 0) ev.push({ side: 'ok', text: `${this.fmtNum(c.rating)}★` });
+                if (ref) ctx.push(['Your best on this coffee', `${this.instantLine(ref)} · ${this.fmtNum(rate(ref))}★`]);
+                const k = { mode: 'ask', head: '', next: '', why, ev, ctx, conf: '', ref, from: 'instant' };
+                const dose = this.num(c.dose), water = this.num(c.yield), ratio = dose > 0 && water > 0 ? water / dose : 0;
+                if (!ratio) { k.head = 'Log the coffee and the water: the advice reads the strength against your best cup of this coffee.'; return k; }
+                if (c.rating >= 4.5 && !weakBits.length && !strongBits.length) {
+                    k.mode = 'hold'; k.head = 'Repeat it exactly.'; k.next = this.instantLine(c);
+                    why.unshift('Your notes don\'t flag anything to fix.');
+                    k.conf = ref && c.rating > rate(ref) ? 'a new best' : '';
+                    return k;
+                }
+                const refRatio = ref && this.num(ref.dose) > 0 && this.num(ref.yield) > 0 ? this.num(ref.yield) / this.num(ref.dose) : 0;
+                const round = g => Math.round(g * 2) / 2;
+                if (weakBits.length > strongBits.length) {
+                    // stronger: back toward your best cup's strength if it was stronger, else about a quarter more coffee
+                    const target = refRatio && refRatio < ratio * 0.95 ? refRatio : ratio / 1.25;
+                    const d = Math.max(round(water / target), round(dose + 0.5));
+                    k.mode = 'fix'; k.conf = 'from your notes';
+                    k.head = `Use a little more coffee: about ${this.fmtNum(d)} g in ${this.fmtNum(water, 0)} g.`; k.next = `${this.fmtNum(d)} g`;
+                    why.unshift(refRatio && refRatio < ratio * 0.95 ? `Your best cup of it ran 1:${Math.round(refRatio)}; this one was 1:${Math.round(ratio)}.` : `This was 1:${Math.round(ratio)}: more coffee in the same water fills it out.`);
+                    return k;
+                }
+                if (strongBits.length) {
+                    const temp = this.num(c.temp);
+                    k.mode = 'fix'; k.conf = 'from your notes';
+                    if (temp >= 96 && c.sub !== 'Iced') {
+                        k.head = 'Let the kettle sit a moment off the boil: about 90°C.'; k.next = '90°C';
+                        why.unshift(`Boiling water (${this.fmtNum(temp, 0)}°C) can taste scorched on instant; many jars suggest water just off the boil.`);
+                        return k;
+                    }
+                    const target = refRatio && refRatio > ratio * 1.05 ? refRatio : ratio * 1.25;
+                    const d = Math.max(0.5, Math.min(round(water / target), round(dose - 0.5)));
+                    k.head = `Use a little less coffee: about ${this.fmtNum(d)} g in ${this.fmtNum(water, 0)} g.`; k.next = `${this.fmtNum(d)} g`;
+                    why.unshift(refRatio && refRatio > ratio * 1.05 ? `Your best cup of it ran 1:${Math.round(refRatio)}; this one was 1:${Math.round(ratio)}.` : `This was 1:${Math.round(ratio)}: a little less coffee in the same water softens it.`);
+                    return k;
+                }
+                // nothing flagged and not a top cup: steer toward your best cup's recipe, if it differs
+                if (ref && refRatio && Math.abs(refRatio - ratio) / ratio > 0.1) {
+                    const d = round(water / refRatio);
+                    k.mode = 'toward'; k.conf = 'your best cup';
+                    k.head = `Try your best cup's strength: about ${this.fmtNum(d)} g in ${this.fmtNum(water, 0)} g.`; k.next = `${this.fmtNum(d)} g`;
+                    why.unshift(`Your best cup of it (${this.fmtNum(rate(ref))}★) ran 1:${Math.round(refRatio)}.`);
+                    return k;
+                }
+                k.head = 'Say how it tasted (too weak, too strong, bitter) and the next cup gets a change to try.';
+                return k;
             },
         };
         window.onload = () => app.init();

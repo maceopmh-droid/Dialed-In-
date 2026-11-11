@@ -929,6 +929,17 @@
         html[data-look="new"] .nl-specs .nl-spec-pill { display: inline-flex; align-items: center; gap: 2px; height: 28px; min-height: 0; width: auto; margin: 0; padding: 0 7px 0 10px; border-radius: 14px !important; font-size: 14.5px !important; background: color-mix(in srgb, var(--n) 10%, transparent) !important; color: var(--n) !important; border: 0 !important; box-shadow: none !important; font: inherit; font-size: 14.5px; font-weight: 600; letter-spacing: 0; text-transform: none; }
         html[data-look="new"] .nl-specs .nl-spec-pill.is-plain { padding-right: 10px; }
         html[data-look="new"] .nl-spec-ch.sm { width: 13px !important; height: 13px !important; }
+        /* v21.10: the card folds under its "Details" header (remembered per coffee); folded, a short line of what's in it */
+        html[data-look="new"] .nl-specs-head { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 42px; margin: 0; padding: 0 14px 0 16px; background: none !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; text-align: left; cursor: pointer; color: var(--n); -webkit-tap-highlight-color: transparent; }
+        html[data-look="new"] .nl-specs-head:active { background: color-mix(in srgb, var(--n) 7%, transparent) !important; }
+        html[data-look="new"] .nl-specs-t { flex: none; color: var(--n); font-size: 15.5px; font-weight: 600; }
+        html[data-look="new"] .nl-specs-sum { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--l); font-size: 14.5px; text-align: right; }
+        html[data-look="new"] .nl-specs:not(.is-closed) .nl-specs-sum { visibility: hidden; }
+        html[data-look="new"] .nl-specs-chev { width: 16px !important; height: 16px !important; color: var(--l); stroke: currentColor; flex: none; transform: rotate(180deg); transition: transform .2s ease; }
+        html[data-look="new"] .nl-specs.is-closed .nl-specs-chev { transform: none; }
+        html[data-look="new"] .nl-specs.is-closed .nl-specs-rows { display: none; }
+        html[data-look="new"] .nl-specs-rows .nl-spec:first-child { border-top: 1px solid color-mix(in srgb, var(--n) 9%, transparent) !important; }
+        @media (prefers-reduced-motion: reduce) { html[data-look="new"] .nl-specs-chev { transition: none; } }
         /* v21.3: the stars beside the coffee's tile (like the Coffees list), not on a row of their own */
         html[data-look="new"] #detail-view .nl-dtoprow { order: 0; display: flex; align-items: center; gap: 16px; margin: 6px 0 2px; position: relative; z-index: 2; }
         html[data-look="new"] #detail-view .nl-dtoprow .nl-dcover { margin: 0; flex: none; }

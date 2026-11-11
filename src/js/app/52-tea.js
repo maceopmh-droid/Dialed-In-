@@ -247,14 +247,7 @@
                     sel.value = list.includes(keep) ? keep : '';
                 }
                 if (form.dose) form.dose.required = !tea;   // v17.1: a tea's leaf is optional (a cup of several things, a teabag)
-                if (form.grind) {
-                    const wrap = form.grind.closest('div');
-                    if (wrap) wrap.hidden = tea;
-                    form.grind.required = !tea;
-                    if (tea) form.grind.value = '';
-                }
-                const grid = sel && sel.closest('.brew-grid-2'); if (grid) grid.classList.toggle('solo', tea);
-                const roast = modal && modal.querySelector('.roast-row'); if (roast) roast.hidden = tea;
+                if (this.paintMethodFields) this.paintMethodFields(sel ? sel.value : '');   // (no grind for tea; v21.10: or Instant)
                 if (modal) modal.querySelectorAll('.ns').forEach(row => {
                     const key = row.getAttribute('data-k'), label = this.tasteLabel(key, k);
                     const name = row.querySelector('.ns-name'); if (name && name.lastChild && name.lastChild.nodeType === 3) name.lastChild.textContent = label;

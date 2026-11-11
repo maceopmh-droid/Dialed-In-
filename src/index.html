@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v21.9 -->
+<!-- Dialed In v21.10 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="21.9">
+    <meta name="dialed-in-version" content="21.10">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -126,6 +126,7 @@
         <symbol id="i-method-moka-pot" viewBox="0 0 24 24"><path d="M8.2 3.5h7.6l1 5.5H7.2Z"/><path d="M7.2 9 5.5 20.5h13L16.8 9"/><path d="M6.4 14.2h11.2"/><path d="M16.8 5.2h1.7a1 1 0 0 1 1 1.1l-.6 3.4"/></symbol>
         <symbol id="i-method-aeropress" viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="5" rx="1.2"/><path d="M6.5 8h11M9 8v9.5h6V8"/><path d="M6.5 17.5h11M12 17.5v3.5"/></symbol>
         <symbol id="i-method-rapid" viewBox="0 0 24 24"><path d="M8.5 3.2h7M12 3.2v3"/><rect x="7.8" y="6.2" width="8.4" height="8.6" rx="1.6"/><path d="M6.6 14.8h10.8"/><path d="M8.2 15.4 9.3 20.8h5.4l1.1-5.4"/></symbol>
+        <symbol id="i-method-instant" viewBox="0 0 24 24"><rect x="7.4" y="3.4" width="9.2" height="3.1" rx="1"/><path d="M8 6.5h8l.9 2.4V19a2 2 0 0 1-2 2H9.1a2 2 0 0 1-2-2V8.9Z"/><path d="M7.1 11.4h9.8M7.1 16.2h9.8"/></symbol>
         <symbol id="i-method-cold-brew" viewBox="0 0 24 24"><path d="M6 4h12l-1.4 15.1a2 2 0 0 1-2 1.9H9.4a2 2 0 0 1-2-1.9Z"/><rect x="8.6" y="9" width="3" height="3" rx=".7"/><rect x="12.4" y="12.4" width="3" height="3" rx=".7"/><path d="M15.4 2.2l-1.4 5"/></symbol>
 
         <!-- v17.0: tea -->
@@ -533,7 +534,7 @@
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v21.9</div>
+            <div class="app-version">Dialed In · v21.10</div>
         </div>
     </div>
 
@@ -834,6 +835,7 @@
                             <option value="Aeropress">AeroPress</option>
                             <option value="Cold Brew">Cold Brew</option>
                             <option value="OXO Rapid Brewer">OXO Rapid Brewer</option>
+                            <option value="Instant">Instant</option>
                         </select>
                     </div>
                     <div id="master-grind-field"><label>Grind</label><input type="text" name="grind" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="24" placeholder="10.4 or 3B" required></div>
@@ -955,6 +957,7 @@
 @@include js/app/62-share-view.js
 @@include js/app/63-coffee-specs.js
 @@include js/app/64-producers.js
+@@include js/app/65-instant.js
 @@include js/app/99-end.js
 @@include js/99-boot.js
     </script>
