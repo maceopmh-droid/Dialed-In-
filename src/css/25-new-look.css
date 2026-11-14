@@ -1027,3 +1027,13 @@
         html[data-look="new"] :is(#session-view, #share-view, #producer-view)[data-fam] { background: var(--pg, var(--nl-page)); }
         /* v21.6: a comment's face keeps its whole ring (the thread clipped the left of it on the session page) */
         html[data-look="new"] .nls-social .thread { overflow: visible; }
+        /* v21.11: Edit on the You card in Settings (changing your name), and the editor in the card's place */
+        html[data-look="new"] #settings-modal .acct-row { grid-template-columns: auto minmax(0, 1fr) auto; }
+        html[data-look="new"] #settings-modal .acct-edit { width: auto; min-height: 44px; margin: 0; padding: 0 4px 0 12px; border: 0; background: none; box-shadow: none; font: inherit; font-size: 16px; font-weight: 650; letter-spacing: 0; text-transform: none; color: var(--nl-matcha); cursor: pointer; }
+        html[data-look="new"] #settings-modal .acct-row.is-editing { grid-template-columns: auto minmax(0, 1fr); align-items: start; }
+        html[data-look="new"] #settings-modal .acct-name-edit { display: grid; gap: 10px; min-width: 0; }
+        html[data-look="new"] #settings-modal .acct-name-in { width: 100%; min-height: 58px; margin: 0; padding: 0 14px; box-sizing: border-box; border-radius: 14px !important; background: var(--nl-surface2) !important; border: 1px solid var(--nl-line) !important; box-shadow: none !important; color: var(--nl-ink) !important; font-family: var(--nl-hand); font-weight: 600; font-size: 20px !important; }
+        html[data-look="new"] #settings-modal .acct-name-in:focus { outline: none; border-color: var(--nl-matcha) !important; }
+        html[data-look="new"] #settings-modal .acct-name-msg { margin: -2px 2px 0; font-size: 13.5px; font-weight: 600; color: var(--nl-ink2); }
+        html[data-look="new"] #settings-modal .acct-name-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        html[data-look="new"] #settings-modal .acct-name-actions button { width: 100%; min-height: 44px; margin: 0; padding: 0 12px; }

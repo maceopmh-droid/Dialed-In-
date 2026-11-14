@@ -829,6 +829,58 @@ ok(an.length === 1 && notes('aidan').items.every(i => i.kind !== 'report'), 'a r
 ok(/Something was reported/.test(one(`select internal.push_text(n)->>'body' from notifications n where kind = 'report' limit 1;`)) && !/Meanwordsmith/.test(one(`select internal.push_text(n)->>'body' from notifications n where kind = 'report' limit 1;`)),
    "...and the lock screen says something was reported, never who reported it");
 
+// --- v21.11: changing your name (set_name). Maceo, Nov 14: "please make it possible to change names".
+{
+  const me = () => JSON.parse(fx('newbie', 'select my_profile();'));
+  ok(me().name === 'Brew Buddy', 'v21.11: Brew Buddy before the change');
+  ok(/2 to 24/.test(fx('newbie', `select set_name('x');`)) && /2 to 24/.test(fx('newbie', `select set_name('__group__');`)) && /2 to 24/.test(fx('newbie', `select set_name('a<b');`)),
+     'a new name follows the sign-up rules: 2 to 24 characters, nothing reserved');
+  ok(/Pick another name/.test(fx('newbie', `select set_name('Meanword Fan');`)), 'the word filter applies');
+  ok(/taken/.test(fx('newbie', `select set_name('maceo');`)) && /taken/.test(fx('newbie', `select set_name('JULIAN');`)), "someone else's name (a Sheet-era one or a new one, any capitals) is taken");
+  const r1 = JSON.parse(fx('newbie', `select set_name('  Brew   Pal ');`));
+  ok(r1.name === 'Brew Pal' && r1.handle === 'brewpal' && me().name === 'Brew Pal', 'a new name (spaces tidied), a handle made from it, and my_profile says so');
+  ok(one(`select array_to_string(old_names, ',') from profiles where handle = 'brewpal';`) === 'Brew Buddy', 'the name left behind is kept as an old name');
+  psql(`insert into auth.users values ('aaaaaaaa-0000-0000-0000-000000000012');`); AUTH.late = 'aaaaaaaa-0000-0000-0000-000000000012';
+  ok(/taken/.test(fx('late', `select create_profile('brew buddy');`)), "nobody else can sign up with someone's old name");
+  ok(fx('late', `select create_profile('Late Comer');`).includes('Late Comer') && /taken/.test(fx('late', `select set_name('Brew Buddy');`)) && /taken/.test(fx('late', `select set_name('Brew Pal');`)),
+     '...or change to it, or to their name now');
+  // a phone that still knows them as Brew Buddy: its saves are still theirs
+  const T = new Date().toISOString();
+  push('newbie', { type: 'brew', id: 'rn1', beanId: '', user: 'Brew Buddy', owner: 'Brew Buddy', actor: 'Brew Buddy', method: 'Espresso', date: T, audience: 'everyone', likes: ['Brew Buddy'],
+                   comments: [{ id: 'c1', user: 'Brew Buddy', text: 'note to self', timestamp: T, likes: ['Brew Buddy'] }] });
+  ok(one(`select count(*) from sessions s join profiles p on p.id = s.owner_id where s.legacy_id = 'rn1' and p.display_name = 'Brew Pal';`) === '1', 'a new session saved under the old name is theirs (it used to be dropped)');
+  ok(one(`select count(*) from likes l join sessions s on s.id = l.session_id where s.legacy_id = 'rn1';`) === '1' && one(`select count(*) from comments c join sessions s on s.id = c.session_id join profiles p on p.id = c.author_id where s.legacy_id = 'rn1' and p.display_name = 'Brew Pal';`) === '1' &&
+     one(`select count(*) from comment_likes cl join comments c on c.id = cl.comment_id where c.legacy_ref = 'rn1#c1';`) === '1', '...and so are its like, its comment and the like on the comment');
+  push('newbie', { type: 'brew', id: 'rn1', beanId: '', user: 'Brew Pal', owner: 'Brew Pal', method: 'Espresso', date: T, audience: 'everyone', likes: ['Brew Pal'], comments: [{ id: 'c1', user: 'Brew Pal', text: 'note to self', timestamp: T, likes: ['Brew Pal'] }] });
+  const ev = pull('newbie').find(e => e.id === 'rn1');
+  ok(ev && ev.user === 'Brew Pal' && ev.owner === 'Brew Pal' && JSON.stringify(ev.likes) === '["Brew Pal"]' && ev.comments.length === 1 && ev.comments[0].user === 'Brew Pal' && one(`select count(*) from likes l join sessions s on s.id = l.session_id where s.legacy_id = 'rn1';`) === '1',
+     'pulled: everything says Brew Pal, and the same save from an up-to-date phone changes nothing');
+  ok(one(`select internal.renamed_ev('{"user":"Maceo","likes":["Maceo","brew buddy"],"comments":[{"user":"Julian","likes":["Brew Buddy"]}],"commentMeta":{"c9":{"p":"","l":["BREW BUDDY","Aidan"]}}}'::jsonb, array['Brew Buddy'], 'Brew Pal')::text;`) ===
+     '{"user": "Maceo", "likes": ["Maceo", "Brew Pal"], "comments": [{"user": "Julian", "likes": ["Brew Pal"]}], "commentMeta": {"c9": {"l": ["Brew Pal", "Aidan"], "p": ""}}}',
+     "only their old name changes in a save (any capitals); other people's names stay");
+  ok(fx('julian', `select follow('Brew Buddy');`) === 'following', 'someone whose phone still shows the old name can follow them by it');
+  fx('julian', `select unfollow('Brew Pal');`);
+  ok(/"name": "Brew pal"/.test(fx('newbie', `select set_name('Brew pal');`)) && one(`select array_to_string(old_names, ',') from profiles where handle = 'brewpal';`) === 'Brew Buddy', 'a change of capitals only: not kept as an old name');
+  ok(fx('newbie', `select set_name('Brew pal');`).includes('Brew pal'), 'the same name again: nothing to change');
+  fx('newbie', `select set_name('Brew Buddy');`);
+  ok(me().name === 'Brew Buddy' && one(`select array_to_string(old_names, ',') from profiles where handle = 'brewbuddy';`) === 'Brew pal', 'back to an old name of your own: allowed (it leaves the old names)');
+  ok(/a bit fast/.test(fx('newbie', `select set_name('Brew Fourth');`)) && me().name === 'Brew Buddy', 'three changes an hour: a fourth is refused with a plain message');
+  ok(/permission denied/.test(as('anon', `select set_name('Anon');`).err || ''), 'signed out: no name changes (permission denied)');
+  // the original crew: the Sheet-era name gives way; kept awards follow the new name
+  const CREW = '20000000-0000-0000-0000-000000000001';
+  const aw = () => JSON.parse(fx('julian', 'select my_frozen_awards();')).filter(x => x.scope === CREW).map(x => JSON.stringify(x.awards)).join(' ');
+  psql(`insert into frozen_awards (scope, month, awards) values ('g:${CREW}', '2026-01', '[{"key":"shot","title":"Shot","winners":["Aidan"],"runner":{"names":["Julian","aidan"],"value":3},"stat":"Aidan logged 3"}]'::jsonb) on conflict do nothing;`);
+  ok(/"Aidan"/.test(aw()), 'before: kept awards name Aidan');
+  ok(JSON.parse(fx('aidan', `select set_name('Aidan B');`)).name === 'Aidan B' && one(`select internal.name_of('${P.Aidan}');`) === 'Aidan B' && one(`select coalesce(legacy_name, '-') from profiles where id = '${P.Aidan}';`) === '-',
+     "one of the original crew changes his name: the Sheet-era name gives way to it");
+  const after = JSON.parse(fx('julian', 'select my_frozen_awards();')).find(x => x.scope === `${CREW}` && x.month === '2026-01');
+  ok(after && after.awards[0].winners[0] === 'Aidan B' && JSON.stringify(after.awards[0].runner.names) === '["Julian","Aidan B"]' && after.awards[0].stat === 'Aidan logged 3' && after.awards[0].runner.value === 3,
+     'kept awards: his wins and runner-up places follow the new name; the rest of each award stays as it was ' + JSON.stringify(after && after.awards[0]));
+  ok(pull('maceo').filter(e => e.owner === 'Aidan B').length > 0 && !pull('maceo').some(e => e.owner === 'Aidan'), "his friends' next pull shows the new name on all his things");
+  ok(fx('aidan', `select set_name('Aidan');`).includes('"Aidan"') && one(`select internal.name_of('${P.Aidan}');`) === 'Aidan', '...and back again');
+  psql(`delete from frozen_awards where month = '2026-01'; delete from internal.rate_log where kind = 'name';`);
+}
+
 // round trip: what the app pulls, pushed back unchanged by its owner, changes nothing
 const STATE = `select md5(string_agg(t::text, '' order by t::text)) from (select s.legacy_id, method, grind, dose, yield, time_s, rating, taste, tasted, flavor_notes, extras, equipment, master, brewed_at, n.body, p.path,
   (select count(*) from likes l where l.session_id = s.id), (select count(*) from comments c where c.session_id = s.id) from sessions s

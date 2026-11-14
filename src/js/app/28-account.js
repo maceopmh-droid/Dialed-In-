@@ -273,5 +273,8 @@
                 const sess = Supa.session() || {};
                 const email = sess.user && sess.user.email ? sess.user.email : '';
                 const color = this.getUserColor(this.user);
-                return `<div class="acct-row"><i class="acct-dot" data-face="${this.esc(this.user || '')}" style="background:${this.esc(color)}">${this.esc(this.feedInitial(this.user || '?'))}</i><span class="acct-who"><b>${this.esc(this.user || '')}</b>${email ? `<small>${this.esc(email)}</small>` : ''}</span></div>`;   // (v15.0: Sign out is at the bottom)
+                // v21.11: Edit changes your name (66-names.js)
+                const dot = `<i class="acct-dot" data-face="${this.esc(this.user || '')}" style="background:${this.esc(color)}">${this.esc(this.feedInitial(this.user || '?'))}</i>`;
+                if (this._nameEdit && this.nameEditHtml) return `<div class="acct-row is-editing">${dot}${this.nameEditHtml()}</div>`;
+                return `<div class="acct-row">${dot}<span class="acct-who"><b>${this.esc(this.user || '')}</b>${email ? `<small>${this.esc(email)}</small>` : ''}</span>${this.nameEditOpen ? '<button type="button" class="acct-edit" onclick="app.nameEditOpen()" aria-label="Change your name">Edit</button>' : ''}</div>`;   // (v15.0: Sign out is at the bottom)
             },

@@ -1,4 +1,5 @@
             openSettings() {
+                if (!document.getElementById('settings-modal').classList.contains('active')) this._nameEdit = false;   // v21.11: opens showing your name, not the editor
                 this.renderThemeControl();
                 if (this.paintAvatarSetting) this.paintAvatarSetting();   // v15.1
                 const list = document.getElementById('user-list');
