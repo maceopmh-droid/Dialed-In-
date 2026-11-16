@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v21.11 -->
+<!-- Dialed In v21.12 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="21.11">
+    <meta name="dialed-in-version" content="21.12">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -3741,6 +3741,9 @@
         .toast { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; background: rgba(22, 30, 24, 0.96) !important; }
         /* the coach's Next line breaks between its parts (grind · recipe · aim), never inside one ("aim 28–32" / "s") */
         .coach-next .cn { font-style: normal; white-space: nowrap; }
+        /* v21.12: ...except a part longer than the whole line (a tea's "Ginger 3 slices + Honey 1 tsp + … in 300 ml") wraps
+           inside itself; kept on one line it ran off the screen and let the tea's session page slide sideways (Maceo, Nov 16) */
+        .coach-next .cn { display: inline-block; max-width: 100%; white-space: normal; overflow-wrap: anywhere; vertical-align: top; }
         /* ===================== v15.1 ===================== */
         /* the bottom bar: the tab you're on sits in a soft pill, clear in light and dark */
         .mob-item { isolation: isolate; }
@@ -4384,6 +4387,8 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
 
         /* ---- the Session screen ---- */
         html[data-look="new"] #session-view { display: none; position: fixed; inset: 0; z-index: 5600; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+        /* v21.12: a page over the app only ever scrolls up and down: anything too wide is cut off rather than letting the page slide sideways */
+        html[data-look="new"] :is(#session-view, #share-view, #producer-view) { overflow-x: hidden; }
         html[data-look="new"] #session-view.active { display: block; animation: nlSlideIn 0.26s cubic-bezier(0.2, 0.8, 0.2, 1); }
         html[data-look="new"] #session-view.closing { transform: translateX(100%); transition: transform 0.2s ease-in; }
         @keyframes nlSlideIn { from { transform: translateX(36%); opacity: 0.4; } to { transform: none; opacity: 1; } }
@@ -5221,6 +5226,16 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         @media (min-width: 1024px) and (max-width: 1279px) {
             #sidebar { width: 240px; padding-left: 30px; padding-right: 30px; }
         }
+        /* v21.12: the one-time ask to turn on notifications */
+        html[data-look="new"] .push-ask-card { text-align: center; padding: 28px 22px calc(22px + env(safe-area-inset-bottom, 0px)) !important; }
+        html[data-look="new"] .push-ask-card .pa-icon { display: inline-grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: color-mix(in srgb, var(--nl-matcha) 16%, transparent); color: var(--nl-matcha); margin-bottom: 14px; }
+        html[data-look="new"] .push-ask-card .pa-icon .icon { width: 30px; height: 30px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+        html[data-look="new"] .push-ask-card .pa-h { margin: 0 0 8px; font-family: var(--nl-serif); font-weight: 500; font-size: 28px; line-height: 1.15; color: var(--nl-ink); }
+        html[data-look="new"] .push-ask-card .pa-p { margin: 0 auto 22px; max-width: 34ch; font-size: 15.5px; line-height: 1.45; color: var(--nl-muted); }
+        html[data-look="new"] .push-ask-card .pa-p b { color: var(--nl-ink); font-weight: 650; }
+        html[data-look="new"] .push-ask-card .pa-actions { display: grid; gap: 6px; }
+        html[data-look="new"] .push-ask-card .pa-actions .btn-primary { width: 100%; margin: 0; }
+        html[data-look="new"] .push-ask-card .pa-later { min-height: 44px; border: 0; background: none; box-shadow: none; font: inherit; font-size: 15.5px; font-weight: 600; color: var(--nl-muted); cursor: pointer; }
         /* ===================== v19.0: Learn =====================
            The New look's kit (claude/new-look-ds.css) plus the Learn screens' parts (claude/learn-mockups-src.md): pages tinted
            by their typical flavor family, names in the big serif, every section folding. All of it is the New look's. */
@@ -6457,6 +6472,10 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
             <div id="level-body"></div>
         </div>
     </div>
+    <!-- v21.12: the one-time ask to turn on notifications (67-push-ask.js) -->
+    <div id="push-ask-modal" class="modal" onclick="if(event.target===this) app.closePushAsk()">
+        <div class="modal-card push-ask-card" id="push-ask-body"></div>
+    </div>
     <!-- v15.8: choose your notifications -->
     <div id="notif-set-modal" class="modal" onclick="if(event.target===this) app.closeNotifSettings()">
         <div class="modal-card people-card">
@@ -6553,7 +6572,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v21.11</div>
+            <div class="app-version">Dialed In · v21.12</div>
         </div>
     </div>
 
@@ -11106,6 +11125,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     if (this.checkNotifications) this.checkNotifications();   // v14.4: the bell's unread count
                     if (this.loadFrozenAwards && !this._frozenLoaded) this.loadFrozenAwards();   // v21.8: finished months' awards, as first kept
                     if (this.checkMyName) this.checkMyName();   // v21.11: a new name, changed here or on another phone
+                    if (this.maybeAskPush) this.maybeAskPush();   // v21.12: once, ask to turn on notifications
                     if (this.checkShotDrafts) this.checkShotDrafts();   // v16.9: shots from your espresso machine
                     if (this.checkPendingJoin) this.checkPendingJoin();   // v14.4: an invite link opened before signing in
                     if (this.checkPendingProfile) this.checkPendingProfile();   // v14.5: a profile link
@@ -25890,7 +25910,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             // - Coffees: swipe left or right between Mine and All. Feed: between Following, Community and Discover.
             // A swipe never starts on a slider, a 3D flavor shape, a text box or a row that scrolls sideways (except from
             // the very left edge, for Back), and a mostly-up-and-down drag is always just scrolling.
-            swipeSheets() { return ['notif-modal', 'level-modal', 'notif-set-modal', 'shot-modal', 'bugs-modal', 'legal-modal', 'people-modal', 'settings-modal', 'shape-modal', 'achievement-modal', 'fab-modal', 'review-modal', 'brew-modal']; },   // (v21.2: the Log too: swiped away it's kept as a draft)
+            swipeSheets() { return ['notif-modal', 'level-modal', 'notif-set-modal', 'shot-modal', 'bugs-modal', 'legal-modal', 'people-modal', 'settings-modal', 'shape-modal', 'achievement-modal', 'fab-modal', 'review-modal', 'brew-modal', 'push-ask-modal']; },   // (v21.2: the Log too: swiped away it's kept as a draft)
 
             topSheet() {
                 const open = [...document.querySelectorAll('.modal.active')];
@@ -31463,6 +31483,55 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 if (note === 'settings') setTimeout(() => { if (!document.querySelector('.modal.active')) this.openSettings(); }, 300);
                 Supa.rpc('my_profile').then(p => { if (p && p.name && p.name !== Cloud.who()) this.adoptName(p, Cloud.who(), false); }).catch(() => { /* next launch */ });
             },
+            // ===================== v21.12: asking to turn on notifications =====================
+            // Maceo, Nov 16: "tell people to turn on notifications when they first get the app and send to everyone with
+            // notifs off rn". Once per phone, anyone signed in whose notifications are off on this phone (and who can turn
+            // them on here: the iPhone app, the Home Screen web app or a computer's browser) gets a small sheet once
+            // nothing else is on screen: someone new after the welcome and the tour, everyone else the next time they open
+            // the app. "Turn on notifications" asks the phone (it has to come from the tap); if they were turned off in the
+            // phone's own settings before, it says where to turn them back on instead. Answered either way, it's not asked
+            // again on this phone; Settings, Notifications still has the switch.
+            pushAskKey: 'dialed_push_ask',
+            async maybeAskPush() {
+                if (this._pushAskChecked) return;
+                this._pushAskChecked = true;
+                if (window.__storeShots || window.__tapProbe) return;   // (the simulator's screenshot and tap runs)
+                if (safeGet(this.pushAskKey) || !(this.acctOn && this.acctOn()) || !Supa.ready() || !this.pushSupported()) return;
+                await this.loadPushState(true);
+                const st = this.pushState();
+                if (!st.key || st.on) return;
+                // wait until the screen is free: not during the welcome, the tour, or any other sheet (up to 10 minutes)
+                const free = () => !this.welcomeOpen && !this.tour && !document.querySelector('.modal.active, .photo-sheet.active');
+                let calm = 0;
+                for (let i = 0; i < 400; i++) {
+                    await new Promise(r => setTimeout(r, 1500));
+                    if (safeGet(this.pushAskKey) || this.pushState().on) return;
+                    calm = free() ? calm + 1 : 0;
+                    if (calm >= 2) { this.openPushAsk(); return; }
+                }
+            },
+            pushAskDenied() {
+                const st = this.pushState();
+                return this.isNative && this.isNative() ? Boolean(st.denied) : (typeof Notification !== 'undefined' && Notification.permission === 'denied');
+            },
+            openPushAsk() {
+                const box = document.getElementById('push-ask-body'); if (!box) return;
+                safeSet(this.pushAskKey, String(Date.now()));   // shown once, whatever they answer
+                const apple = (this.isNative && this.isNative()) || /iPhone|iPad|iPod/.test(navigator.userAgent || '');
+                const why = 'Know when friends like or comment on your sessions, follow you, or answer when you ask for help.';
+                const icon = '<span class="pa-icon" aria-hidden="true"><svg class="icon"><use href="#i-bell"/></svg></span>';
+                box.innerHTML = this.pushAskDenied()
+                    ? `${icon}<h2 class="pa-h">Notifications are off</h2><p class="pa-p">${why} To turn them on: ${apple ? 'your iPhone\'s <b>Settings</b>, then <b>Notifications</b>, then <b>Dialed In</b>' : 'your browser\'s settings for this site'}.</p>
+                       <div class="pa-actions"><button type="button" class="btn-primary" onclick="app.closePushAsk()">OK</button></div>`
+                    : `${icon}<h2 class="pa-h">Turn on notifications?</h2><p class="pa-p">${why} You choose which ones in Settings.</p>
+                       <div class="pa-actions"><button type="button" class="btn-primary" id="pa-yes" onclick="app.pushAskYes()">Turn on notifications</button><button type="button" class="pa-later" onclick="app.closePushAsk()">Not now</button></div>`;
+                this.openModal('push-ask-modal');
+            },
+            async pushAskYes() {
+                const b = document.getElementById('pa-yes'); if (b) { b.disabled = true; b.textContent = 'Turning on…'; }
+                try { await this.setPush(true); } finally { this.closePushAsk(); }
+            },
+            closePushAsk() { const m = document.getElementById('push-ask-modal'); if (m) m.classList.remove('active'); },
         };
         window.onload = () => app.init();
     </script>
