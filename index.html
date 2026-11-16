@@ -1298,7 +1298,7 @@
         }
         .settings-gear { filter: none; }
 
-        @media (max-width: 1180px) and (min-width: 769px) {
+        @media (max-width: 1180px) and (min-width: 1024px) {
             .log-main {
                 grid-template-columns: minmax(0, 1fr) minmax(170px, 220px);
                 column-gap: 14px;
@@ -1405,7 +1405,7 @@
         }
 
         /* Responsive */
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
             #sidebar { display: none; }
             #mobile-nav { display: flex; }
             #mobile-nav { bottom: calc(8px + var(--safe-bottom)); }
@@ -1903,7 +1903,7 @@
         .ach-mini-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
         .ach-open { width: auto; padding: 10px 16px; min-height: 38px; font-size: 0.7rem; }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
             .profile-card { padding: 14px; border-radius: 16px; }
             .recap-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .ach-cards { grid-template-columns: 1fr; }
@@ -2459,7 +2459,7 @@
 
         /* ===== header (v11.4): heavier page title, compact achievements pill ===== */
         #view-title { font-weight: 800; letter-spacing: -0.02em; }
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
             .header-controls { gap: 6px; }
             /* count sits inside the pill: nothing overflows the frosted button */
             .locker-btn { height: 40px; min-height: 40px; padding: 0 9px; gap: 4px; border-radius: 12px; }
@@ -2758,7 +2758,7 @@
         .thread.compact .thread-body { background: var(--thr-bg); border-radius: 16px 0 16px 16px; padding: 8px 14px 14px; }
         /* v12.1: a little more room between feed cards (1.3x) */
         .feed-list { gap: 18px; }
-        @media (max-width: 768px) { .feed-list { gap: 13px; } }
+        @media (max-width: 1023px) { .feed-list { gap: 13px; } }
 
         /* ===== centered initials (v12.0) ===== */
         .feed-avatar, .cmt-avatar, .person-dot, .hero-avatar, .aw-face, .cq-face b, .thread-faces i, .wr-face, .wr-who b, .mrc-face, .dh-faces i { letter-spacing: 0; text-indent: 0; }
@@ -2802,7 +2802,7 @@
         /* flavor chips colored by family, shaded, no dots (coffee page + session cards) */
         .fam-chip { display: inline-flex; align-items: center; font-size: 0.74rem; font-weight: 700; line-height: 1.2; padding: 4px 10px; border-radius: 999px; color: var(--fc-ink); background: linear-gradient(180deg, rgba(var(--fc-rgb), 0.19), rgba(var(--fc-rgb), 0.1)); border: 1px solid rgba(var(--fc-rgb), 0.26); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 2px 6px rgba(var(--fc-rgb), 0.1); white-space: nowrap; }
         :root[data-theme="dark"] .fam-chip { color: var(--fc-ink-d); background: linear-gradient(180deg, rgba(var(--fc-rgb), 0.3), rgba(var(--fc-rgb), 0.16)); border-color: rgba(var(--fc-rgb), 0.38); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 2px 8px rgba(0, 0, 0, 0.2); }
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
             .detail-hero { padding: calc(1rem + var(--safe-top)) 1.05rem 1.2rem; }
             .dh-stars { margin-top: calc((1.8rem * 1.12 - 34px) / 2); }
         }
@@ -2874,7 +2874,7 @@
         .master-pill .master-note { margin-top: 9px; }
         /* roaster under the name */
         .lib-roaster { font-size: 0.86rem; font-weight: 500; color: var(--text-muted); margin: 2px 0 12px; }
-        @media (min-width: 769px) { .card-rating ~ .lib-name { padding-right: 92px; } }
+        @media (min-width: 1024px) { .card-rating ~ .lib-name { padding-right: 92px; } }
         .feed-card .fb-roaster { margin: 2px 0 8px; font-size: 0.78rem; font-weight: 600; color: var(--text-muted); }
         .fb-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
         .fb-tags .tag { margin: 0; }
@@ -3093,7 +3093,7 @@
         .ro-fab .fab-art b { font-family: var(--font-bean); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18); }
         
         :root[data-theme="dark"] .ro-merge { border-color: rgba(var(--matcha-rgb), 0.36); }
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
             .ro-page { padding: calc(1.6rem + var(--safe-top)) 1.05rem calc(140px + var(--safe-bottom)); }
             .roaster-list { max-width: none; }
         }
@@ -3267,7 +3267,7 @@
         .wl-final h4 { font-size: 1.35rem; }
         .wl-final-actions { display: grid; gap: 4px; margin-top: 18px; }
         .wl-final-actions .btn-primary { margin: 0; padding: 14px; border-radius: 14px; font-size: 1rem; }
-        @media (min-width: 769px) {
+        @media (min-width: 1024px) {
             .wl-wrap { max-width: 520px; padding-top: 48px; padding-bottom: 48px; justify-content: center; }
             .wl-step { flex: none; }
             .wl-actions { margin-top: 0; }
@@ -3282,7 +3282,7 @@
 
         /* ===== v14.0: desktop layout ===== */
         .bf-end > label:first-of-type { margin-top: 1.7rem; }   /* what .taste-card + label gave it before the columns */
-        @media (min-width: 769px) {
+        @media (min-width: 1024px) {
             #grid.roaster-list { max-width: none; }
             .profile-view { max-width: 1180px; }
         }
@@ -3567,10 +3567,10 @@
         .vs-track i.now { background: var(--matcha); box-shadow: 0 0 0 2px var(--surface); }
         .vs-flavors { margin-top: 12px; }
         .vs-flavor { font-size: 0.74rem; padding: 4px 10px; }
-        @media (min-width: 769px) { .vs-cols { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); align-items: start; } }
+        @media (min-width: 1024px) { .vs-cols { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); align-items: start; } }
         /* v14.6: on a computer, sessions read in one column everywhere (Feed, a profile's Sessions, a coffee's history), as
            wide as a phone's card looks good stretched, with the photo across the card like on a phone */
-        @media (min-width: 769px) {
+        @media (min-width: 1024px) {
             :root { --read-w: 640px; }
             #grid.feed-list { max-width: var(--read-w); }
             .profile-section[data-section="sessions"] { display: block; }
@@ -3598,7 +3598,7 @@
         #status-scrim::after { background: rgba(var(--paper-rgb), 0.12); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); -webkit-mask-image: linear-gradient(to bottom, #000 25%, transparent 75%); mask-image: linear-gradient(to bottom, #000 25%, transparent 75%); }
 
         /* v14.7: scrolling down on a phone tucks the top bar away and shrinks the bottom bar (body.bars-tucked) */
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
             .header-sticky { transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
             body.bars-tucked .header-sticky { transform: translateY(-100%); }
             #mobile-nav { transition: height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), max-width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
@@ -3626,7 +3626,7 @@
 
         /* v14.8: on a phone the top bar is see-through glass, so when the page is scrolled a little, what you see through
            it (like the Feed tabs) is what a tap reaches; only the bar's own buttons take taps */
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
             .header-sticky, .header-sticky .header-top, .header-sticky .header-top > div, .header-sticky h2 { pointer-events: none; }
             .header-sticky button, .header-sticky a, .header-sticky input, .header-sticky select, .header-sticky label, .header-sticky [onclick],
             .header-sticky .header-controls, .header-sticky .mobile-controls-panel, .header-sticky .status-badge { pointer-events: auto; }
@@ -3712,7 +3712,7 @@
         #settings-modal .acct-row .acct-dot { width: 46px; height: 46px; font-size: 1.15rem; }
         #settings-modal .acct-row .acct-who b { font-size: 1.08rem; }
         #settings-modal .app-version { margin-top: 1.2rem; }
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
             .modal-card .set-top { top: -1rem; margin: -1rem -0.82rem 0.6rem; padding: 1rem 0.82rem 0.6rem; }
         }
 
@@ -3731,7 +3731,7 @@
         /* iPhone home-screen app: while typing, a tap on Post or Save goes straight to the button (not through the tick) */
         html.typing label.hx { pointer-events: none; }
         /* while typing, the bottom bar steps aside instead of riding up on the keyboard */
-        @media (max-width: 768px) { html.typing #mobile-nav { opacity: 0; visibility: hidden; pointer-events: none; transition: none; } }
+        @media (max-width: 1023px) { html.typing #mobile-nav { opacity: 0; visibility: hidden; pointer-events: none; transition: none; } }
         /* Brew along: in a step's last 3 seconds the card pulses once on each number (3, 2, 1), in time with the countdown */
         .guide-soon .guide-card { animation: none; }
         .guide-card.beat { animation: guideBeat 0.75s ease-out; }
@@ -3921,9 +3921,10 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
 .bug-item .chip-btn { margin-top: 8px; }
 .lvl-tier { margin: 12px 0 2px; font-size: 0.74rem; font-weight: 750; letter-spacing: 0.02em; color: var(--text-muted); }
 
-/* v15.1: search in the header on a phone: a search button beside the menu; it opens a field where the title was */
+/* v15.1: search in the header on a phone: a search button beside the menu; it opens a field where the title was
+   (v21.11: on every screen: the wide layout's header is the phone's now, so its search is too) */
 .top-search, .top-search-btn { display: none; }
-@media (max-width: 768px) {
+@media all {
     .top-search-btn { display: inline-flex; }
     .top-search-btn .icon { width: 18px; height: 18px; }
     body.feed-mode .top-search-btn, body.search-open .top-search-btn { display: none !important; }
@@ -3990,7 +3991,7 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         :root { --card-gap: 14px; }
         #grid.grid { gap: var(--card-gap); }
         .roaster-list, .feed-list, .profile-feed { gap: var(--card-gap); }
-        @media (max-width: 768px) { .feed-list { gap: var(--card-gap); } }
+        @media (max-width: 1023px) { .feed-list { gap: var(--card-gap); } }
         .log-row { margin-bottom: var(--card-gap); }
         /* v16.6: Favorites, Favorite roasters and a profile's Coffees spilled into each other on Julian's iPhone 12 Pro.
            His Safari won't make a tile narrower than its longest line that can't wrap (the roaster name, which never
@@ -5201,6 +5202,25 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] #settings-modal .acct-name-msg { margin: -2px 2px 0; font-size: 13.5px; font-weight: 600; color: var(--nl-ink2); }
         html[data-look="new"] #settings-modal .acct-name-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         html[data-look="new"] #settings-modal .acct-name-actions button { width: 100%; min-height: 44px; margin: 0; padding: 0 12px; }
+        /* ===== v21.11: iPads and computers. Maceo, Nov 16 (an iPad screenshot of the Feed): "ipad looks really bad".
+           1. A screen under 1024 wide (an iPad held upright, a phone on its side) gets the phone's layout, which
+              stretches well; the sidebar layout starts at 1024 (an iPad on its side, a computer). The cut-off was 768,
+              everywhere it's written (the style files and three places in the app's code).
+           2. In the sidebar layout, a session's photo spans its card. An old rule for wide screens kept it 280 wide,
+              and the name, method and share button sit inside it, so the buttons covered the name.
+           3. In the sidebar layout, the header is the phone's: the title, then search and filters as buttons. The
+              older search box and method chips no longer fit in it (they pushed the title off the top). It lines up
+              with the page under it. */
+        @media (min-width: 1024px) {
+            html[data-look="new"] .nl-ph.session-photo-wrap, html[data-look="new"] .nl-lph.session-photo-wrap, html[data-look="new"] .nl-dphoto.session-photo-wrap { width: 100% !important; }
+            html[data-look="new"] .header-top .search-bar, html[data-look="new"] .header-top .filter-row { display: none !important; }
+            html[data-look="new"] .header-sticky { padding-left: 48px !important; padding-right: 48px !important; }
+            html[data-look="new"] .mobile-controls-panel { display: none; margin-top: 8px; padding: 12px; border-radius: 14px; background: rgba(var(--glass-rgb), 0.75); border: 1px solid rgba(var(--matcha-rgb), 0.15); box-shadow: 0 12px 26px rgba(var(--matcha-rgb), 0.12); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+            html[data-look="new"] body.mobile-controls-open .mobile-controls-panel { display: grid; gap: 10px; }
+        }
+        @media (min-width: 1024px) and (max-width: 1279px) {
+            #sidebar { width: 240px; padding-left: 30px; padding-right: 30px; }
+        }
         /* ===================== v19.0: Learn =====================
            The New look's kit (claude/new-look-ds.css) plus the Learn screens' parts (claude/learn-mockups-src.md): pages tinted
            by their typical flavor family, names in the big serif, every section folding. All of it is the New look's. */
@@ -16717,7 +16737,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
 
             // ---- the tour: a spotlight on each place, over the real app
             tourSteps() {
-                const desk = window.matchMedia && window.matchMedia('(min-width: 769px)').matches;
+                const desk = window.matchMedia && window.matchMedia('(min-width: 1024px)').matches;
                 const nl = !desk && !!(this.newLook && this.newLook());   // v18.7: the New look's Settings is the gear at the top
                 const nav = tab => desk ? `#sidebar .nav-btn[data-tab="${tab}"]` : `#mobile-nav .mob-item[data-tab="${tab}"]`;
                 const tea = !!(this.teaMode && this.teaMode()), w = this.drinkWords ? this.drinkWords(tea ? 'tea' : 'coffee') : { item: 'coffee', Items: 'Coffees', company: 'roaster', companies: 'roasters', Companies: 'Roasters' };
@@ -21165,7 +21185,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 if (toggleBtn) toggleBtn.style.display = 'inline-flex';
                 if (summary) summary.innerText = 'Using saved setup for this brew method.';
                 const selected = new Set(Array.isArray(selectedOverride) ? selectedOverride : (this.lastEquipment[method] || []));
-                const shouldCollapse = window.matchMedia('(max-width: 768px)').matches;
+                const shouldCollapse = window.matchMedia('(max-width: 1023px)').matches;
                 if (wrap) wrap.classList.toggle('collapsed', shouldCollapse);
                 if (toggleBtn) toggleBtn.innerText = shouldCollapse ? 'Switch Equipment' : 'Hide Equipment';
 
@@ -23507,7 +23527,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const sc = document.getElementById('main-content');
                 if (!sc || typeof sc.addEventListener !== 'function') return;
                 this._barsBound = true;
-                const phone = () => typeof matchMedia === 'function' && matchMedia('(max-width: 768px)').matches;
+                const phone = () => typeof matchMedia === 'function' && matchMedia('(max-width: 1023px)').matches;
                 const raf = typeof requestAnimationFrame === 'function' ? requestAnimationFrame : (f => setTimeout(f, 16));
                 let last = sc.scrollTop, down = 0, up = 0, queued = false;
                 const update = () => {

@@ -1037,3 +1037,22 @@
         html[data-look="new"] #settings-modal .acct-name-msg { margin: -2px 2px 0; font-size: 13.5px; font-weight: 600; color: var(--nl-ink2); }
         html[data-look="new"] #settings-modal .acct-name-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         html[data-look="new"] #settings-modal .acct-name-actions button { width: 100%; min-height: 44px; margin: 0; padding: 0 12px; }
+        /* ===== v21.11: iPads and computers. Maceo, Nov 16 (an iPad screenshot of the Feed): "ipad looks really bad".
+           1. A screen under 1024 wide (an iPad held upright, a phone on its side) gets the phone's layout, which
+              stretches well; the sidebar layout starts at 1024 (an iPad on its side, a computer). The cut-off was 768,
+              everywhere it's written (the style files and three places in the app's code).
+           2. In the sidebar layout, a session's photo spans its card. An old rule for wide screens kept it 280 wide,
+              and the name, method and share button sit inside it, so the buttons covered the name.
+           3. In the sidebar layout, the header is the phone's: the title, then search and filters as buttons. The
+              older search box and method chips no longer fit in it (they pushed the title off the top). It lines up
+              with the page under it. */
+        @media (min-width: 1024px) {
+            html[data-look="new"] .nl-ph.session-photo-wrap, html[data-look="new"] .nl-lph.session-photo-wrap, html[data-look="new"] .nl-dphoto.session-photo-wrap { width: 100% !important; }
+            html[data-look="new"] .header-top .search-bar, html[data-look="new"] .header-top .filter-row { display: none !important; }
+            html[data-look="new"] .header-sticky { padding-left: 48px !important; padding-right: 48px !important; }
+            html[data-look="new"] .mobile-controls-panel { display: none; margin-top: 8px; padding: 12px; border-radius: 14px; background: rgba(var(--glass-rgb), 0.75); border: 1px solid rgba(var(--matcha-rgb), 0.15); box-shadow: 0 12px 26px rgba(var(--matcha-rgb), 0.12); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+            html[data-look="new"] body.mobile-controls-open .mobile-controls-panel { display: grid; gap: 10px; }
+        }
+        @media (min-width: 1024px) and (max-width: 1279px) {
+            #sidebar { width: 240px; padding-left: 30px; padding-right: 30px; }
+        }

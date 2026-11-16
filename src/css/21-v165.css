@@ -6,5 +6,5 @@
         :root { --card-gap: 14px; }
         #grid.grid { gap: var(--card-gap); }
         .roaster-list, .feed-list, .profile-feed { gap: var(--card-gap); }
-        @media (max-width: 768px) { .feed-list { gap: var(--card-gap); } }
+        @media (max-width: 1023px) { .feed-list { gap: var(--card-gap); } }
         .log-row { margin-bottom: var(--card-gap); }

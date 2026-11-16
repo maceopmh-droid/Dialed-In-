@@ -240,7 +240,7 @@
 
         /* ===== header (v11.4): heavier page title, compact achievements pill ===== */
         #view-title { font-weight: 800; letter-spacing: -0.02em; }
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
             .header-controls { gap: 6px; }
             /* count sits inside the pill: nothing overflows the frosted button */
             .locker-btn { height: 40px; min-height: 40px; padding: 0 9px; gap: 4px; border-radius: 12px; }

@@ -374,7 +374,7 @@
 
             // ---- the tour: a spotlight on each place, over the real app
             tourSteps() {
-                const desk = window.matchMedia && window.matchMedia('(min-width: 769px)').matches;
+                const desk = window.matchMedia && window.matchMedia('(min-width: 1024px)').matches;
                 const nl = !desk && !!(this.newLook && this.newLook());   // v18.7: the New look's Settings is the gear at the top
                 const nav = tab => desk ? `#sidebar .nav-btn[data-tab="${tab}"]` : `#mobile-nav .mob-item[data-tab="${tab}"]`;
                 const tea = !!(this.teaMode && this.teaMode()), w = this.drinkWords ? this.drinkWords(tea ? 'tea' : 'coffee') : { item: 'coffee', Items: 'Coffees', company: 'roaster', companies: 'roasters', Companies: 'Roasters' };

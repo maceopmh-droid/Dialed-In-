@@ -45,9 +45,10 @@
 .bug-item .chip-btn { margin-top: 8px; }
 .lvl-tier { margin: 12px 0 2px; font-size: 0.74rem; font-weight: 750; letter-spacing: 0.02em; color: var(--text-muted); }
 
-/* v15.1: search in the header on a phone: a search button beside the menu; it opens a field where the title was */
+/* v15.1: search in the header on a phone: a search button beside the menu; it opens a field where the title was
+   (v21.11: on every screen: the wide layout's header is the phone's now, so its search is too) */
 .top-search, .top-search-btn { display: none; }
-@media (max-width: 768px) {
+@media all {
     .top-search-btn { display: inline-flex; }
     .top-search-btn .icon { width: 18px; height: 18px; }
     body.feed-mode .top-search-btn, body.search-open .top-search-btn { display: none !important; }
