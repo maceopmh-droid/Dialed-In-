@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v21.10 -->
+<!-- Dialed In v21.11 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="21.10">
+    <meta name="dialed-in-version" content="21.11">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -17,11 +17,21 @@
             document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
             var meta = document.querySelector('meta[name="theme-color"]');
             if (meta) meta.setAttribute('content', dark ? '#0C100D' : '#F3EEE4');
+            sendBg();
+        };
+        // v21.11: the iPhone app paints its own background (what shows past the page's end, e.g. above the keyboard)
+        // in this color; Maceo, Nov 11: "the weird white space above the keyboard". Only the iPhone app listens.
+        var sendBg = function () {
+            try {
+                var h = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.dialedBg;
+                if (h) h.postMessage(document.documentElement.getAttribute('data-theme') === 'dark' ? '#0C100D' : '#F3EEE4');
+            } catch (e) {}
         };
         window.__dialedTheme = {
             get pref() { return pref; },
             set: function (p) { pref = p; try { localStorage.setItem('dialed_theme', p); } catch (e) {} apply(); },
-            isDark: function () { return document.documentElement.getAttribute('data-theme') === 'dark'; }
+            isDark: function () { return document.documentElement.getAttribute('data-theme') === 'dark'; },
+            sendBg: sendBg
         };
         apply();
         var onChange = function () { if (pref === 'system') { apply(); if (typeof app !== 'undefined' && app.onThemeChange) app.onThemeChange(); } };
@@ -1288,7 +1298,7 @@
         }
         .settings-gear { filter: none; }
 
-        @media (max-width: 1180px) and (min-width: 769px) {
+        @media (max-width: 1180px) and (min-width: 1024px) {
             .log-main {
                 grid-template-columns: minmax(0, 1fr) minmax(170px, 220px);
                 column-gap: 14px;
@@ -1395,7 +1405,7 @@
         }
 
         /* Responsive */
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
             #sidebar { display: none; }
             #mobile-nav { display: flex; }
             #mobile-nav { bottom: calc(8px + var(--safe-bottom)); }
@@ -1893,7 +1903,7 @@
         .ach-mini-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
         .ach-open { width: auto; padding: 10px 16px; min-height: 38px; font-size: 0.7rem; }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
             .profile-card { padding: 14px; border-radius: 16px; }
             .recap-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .ach-cards { grid-template-columns: 1fr; }
@@ -2449,7 +2459,7 @@
 
         /* ===== header (v11.4): heavier page title, compact achievements pill ===== */
         #view-title { font-weight: 800; letter-spacing: -0.02em; }
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
             .header-controls { gap: 6px; }
             /* count sits inside the pill: nothing overflows the frosted button */
             .locker-btn { height: 40px; min-height: 40px; padding: 0 9px; gap: 4px; border-radius: 12px; }
@@ -2748,7 +2758,7 @@
         .thread.compact .thread-body { background: var(--thr-bg); border-radius: 16px 0 16px 16px; padding: 8px 14px 14px; }
         /* v12.1: a little more room between feed cards (1.3x) */
         .feed-list { gap: 18px; }
-        @media (max-width: 768px) { .feed-list { gap: 13px; } }
+        @media (max-width: 1023px) { .feed-list { gap: 13px; } }
 
         /* ===== centered initials (v12.0) ===== */
         .feed-avatar, .cmt-avatar, .person-dot, .hero-avatar, .aw-face, .cq-face b, .thread-faces i, .wr-face, .wr-who b, .mrc-face, .dh-faces i { letter-spacing: 0; text-indent: 0; }
@@ -2792,7 +2802,7 @@
         /* flavor chips colored by family, shaded, no dots (coffee page + session cards) */
         .fam-chip { display: inline-flex; align-items: center; font-size: 0.74rem; font-weight: 700; line-height: 1.2; padding: 4px 10px; border-radius: 999px; color: var(--fc-ink); background: linear-gradient(180deg, rgba(var(--fc-rgb), 0.19), rgba(var(--fc-rgb), 0.1)); border: 1px solid rgba(var(--fc-rgb), 0.26); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 2px 6px rgba(var(--fc-rgb), 0.1); white-space: nowrap; }
         :root[data-theme="dark"] .fam-chip { color: var(--fc-ink-d); background: linear-gradient(180deg, rgba(var(--fc-rgb), 0.3), rgba(var(--fc-rgb), 0.16)); border-color: rgba(var(--fc-rgb), 0.38); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 2px 8px rgba(0, 0, 0, 0.2); }
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
             .detail-hero { padding: calc(1rem + var(--safe-top)) 1.05rem 1.2rem; }
             .dh-stars { margin-top: calc((1.8rem * 1.12 - 34px) / 2); }
         }
@@ -2864,7 +2874,7 @@
         .master-pill .master-note { margin-top: 9px; }
         /* roaster under the name */
         .lib-roaster { font-size: 0.86rem; font-weight: 500; color: var(--text-muted); margin: 2px 0 12px; }
-        @media (min-width: 769px) { .card-rating ~ .lib-name { padding-right: 92px; } }
+        @media (min-width: 1024px) { .card-rating ~ .lib-name { padding-right: 92px; } }
         .feed-card .fb-roaster { margin: 2px 0 8px; font-size: 0.78rem; font-weight: 600; color: var(--text-muted); }
         .fb-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
         .fb-tags .tag { margin: 0; }
@@ -3083,7 +3093,7 @@
         .ro-fab .fab-art b { font-family: var(--font-bean); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18); }
         
         :root[data-theme="dark"] .ro-merge { border-color: rgba(var(--matcha-rgb), 0.36); }
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
             .ro-page { padding: calc(1.6rem + var(--safe-top)) 1.05rem calc(140px + var(--safe-bottom)); }
             .roaster-list { max-width: none; }
         }
@@ -3257,7 +3267,7 @@
         .wl-final h4 { font-size: 1.35rem; }
         .wl-final-actions { display: grid; gap: 4px; margin-top: 18px; }
         .wl-final-actions .btn-primary { margin: 0; padding: 14px; border-radius: 14px; font-size: 1rem; }
-        @media (min-width: 769px) {
+        @media (min-width: 1024px) {
             .wl-wrap { max-width: 520px; padding-top: 48px; padding-bottom: 48px; justify-content: center; }
             .wl-step { flex: none; }
             .wl-actions { margin-top: 0; }
@@ -3272,7 +3282,7 @@
 
         /* ===== v14.0: desktop layout ===== */
         .bf-end > label:first-of-type { margin-top: 1.7rem; }   /* what .taste-card + label gave it before the columns */
-        @media (min-width: 769px) {
+        @media (min-width: 1024px) {
             #grid.roaster-list { max-width: none; }
             .profile-view { max-width: 1180px; }
         }
@@ -3557,10 +3567,10 @@
         .vs-track i.now { background: var(--matcha); box-shadow: 0 0 0 2px var(--surface); }
         .vs-flavors { margin-top: 12px; }
         .vs-flavor { font-size: 0.74rem; padding: 4px 10px; }
-        @media (min-width: 769px) { .vs-cols { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); align-items: start; } }
+        @media (min-width: 1024px) { .vs-cols { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); align-items: start; } }
         /* v14.6: on a computer, sessions read in one column everywhere (Feed, a profile's Sessions, a coffee's history), as
            wide as a phone's card looks good stretched, with the photo across the card like on a phone */
-        @media (min-width: 769px) {
+        @media (min-width: 1024px) {
             :root { --read-w: 640px; }
             #grid.feed-list { max-width: var(--read-w); }
             .profile-section[data-section="sessions"] { display: block; }
@@ -3588,7 +3598,7 @@
         #status-scrim::after { background: rgba(var(--paper-rgb), 0.12); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); -webkit-mask-image: linear-gradient(to bottom, #000 25%, transparent 75%); mask-image: linear-gradient(to bottom, #000 25%, transparent 75%); }
 
         /* v14.7: scrolling down on a phone tucks the top bar away and shrinks the bottom bar (body.bars-tucked) */
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
             .header-sticky { transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
             body.bars-tucked .header-sticky { transform: translateY(-100%); }
             #mobile-nav { transition: height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), max-width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
@@ -3616,7 +3626,7 @@
 
         /* v14.8: on a phone the top bar is see-through glass, so when the page is scrolled a little, what you see through
            it (like the Feed tabs) is what a tap reaches; only the bar's own buttons take taps */
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
             .header-sticky, .header-sticky .header-top, .header-sticky .header-top > div, .header-sticky h2 { pointer-events: none; }
             .header-sticky button, .header-sticky a, .header-sticky input, .header-sticky select, .header-sticky label, .header-sticky [onclick],
             .header-sticky .header-controls, .header-sticky .mobile-controls-panel, .header-sticky .status-badge { pointer-events: auto; }
@@ -3702,7 +3712,7 @@
         #settings-modal .acct-row .acct-dot { width: 46px; height: 46px; font-size: 1.15rem; }
         #settings-modal .acct-row .acct-who b { font-size: 1.08rem; }
         #settings-modal .app-version { margin-top: 1.2rem; }
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
             .modal-card .set-top { top: -1rem; margin: -1rem -0.82rem 0.6rem; padding: 1rem 0.82rem 0.6rem; }
         }
 
@@ -3721,7 +3731,7 @@
         /* iPhone home-screen app: while typing, a tap on Post or Save goes straight to the button (not through the tick) */
         html.typing label.hx { pointer-events: none; }
         /* while typing, the bottom bar steps aside instead of riding up on the keyboard */
-        @media (max-width: 768px) { html.typing #mobile-nav { opacity: 0; visibility: hidden; pointer-events: none; transition: none; } }
+        @media (max-width: 1023px) { html.typing #mobile-nav { opacity: 0; visibility: hidden; pointer-events: none; transition: none; } }
         /* Brew along: in a step's last 3 seconds the card pulses once on each number (3, 2, 1), in time with the countdown */
         .guide-soon .guide-card { animation: none; }
         .guide-card.beat { animation: guideBeat 0.75s ease-out; }
@@ -3911,9 +3921,10 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
 .bug-item .chip-btn { margin-top: 8px; }
 .lvl-tier { margin: 12px 0 2px; font-size: 0.74rem; font-weight: 750; letter-spacing: 0.02em; color: var(--text-muted); }
 
-/* v15.1: search in the header on a phone: a search button beside the menu; it opens a field where the title was */
+/* v15.1: search in the header on a phone: a search button beside the menu; it opens a field where the title was
+   (v21.11: on every screen: the wide layout's header is the phone's now, so its search is too) */
 .top-search, .top-search-btn { display: none; }
-@media (max-width: 768px) {
+@media all {
     .top-search-btn { display: inline-flex; }
     .top-search-btn .icon { width: 18px; height: 18px; }
     body.feed-mode .top-search-btn, body.search-open .top-search-btn { display: none !important; }
@@ -3980,7 +3991,7 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         :root { --card-gap: 14px; }
         #grid.grid { gap: var(--card-gap); }
         .roaster-list, .feed-list, .profile-feed { gap: var(--card-gap); }
-        @media (max-width: 768px) { .feed-list { gap: var(--card-gap); } }
+        @media (max-width: 1023px) { .feed-list { gap: var(--card-gap); } }
         .log-row { margin-bottom: var(--card-gap); }
         /* v16.6: Favorites, Favorite roasters and a profile's Coffees spilled into each other on Julian's iPhone 12 Pro.
            His Safari won't make a tile narrower than its longest line that can't wrap (the roaster name, which never
@@ -5181,6 +5192,35 @@ body.roasters-mode .filter-row, body.roasters-mode .sort-dropdown, body.roasters
         html[data-look="new"] :is(#session-view, #share-view, #producer-view)[data-fam] { background: var(--pg, var(--nl-page)); }
         /* v21.6: a comment's face keeps its whole ring (the thread clipped the left of it on the session page) */
         html[data-look="new"] .nls-social .thread { overflow: visible; }
+        /* v21.11: Edit on the You card in Settings (changing your name), and the editor in the card's place */
+        html[data-look="new"] #settings-modal .acct-row { grid-template-columns: auto minmax(0, 1fr) auto; }
+        html[data-look="new"] #settings-modal .acct-edit { width: auto; min-height: 44px; margin: 0; padding: 0 4px 0 12px; border: 0; background: none; box-shadow: none; font: inherit; font-size: 16px; font-weight: 650; letter-spacing: 0; text-transform: none; color: var(--nl-matcha); cursor: pointer; }
+        html[data-look="new"] #settings-modal .acct-row.is-editing { grid-template-columns: auto minmax(0, 1fr); align-items: start; }
+        html[data-look="new"] #settings-modal .acct-name-edit { display: grid; gap: 10px; min-width: 0; }
+        html[data-look="new"] #settings-modal .acct-name-in { width: 100%; min-height: 58px; margin: 0; padding: 0 14px; box-sizing: border-box; border-radius: 14px !important; background: var(--nl-surface2) !important; border: 1px solid var(--nl-line) !important; box-shadow: none !important; color: var(--nl-ink) !important; font-family: var(--nl-hand); font-weight: 600; font-size: 20px !important; }
+        html[data-look="new"] #settings-modal .acct-name-in:focus { outline: none; border-color: var(--nl-matcha) !important; }
+        html[data-look="new"] #settings-modal .acct-name-msg { margin: -2px 2px 0; font-size: 13.5px; font-weight: 600; color: var(--nl-ink2); }
+        html[data-look="new"] #settings-modal .acct-name-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        html[data-look="new"] #settings-modal .acct-name-actions button { width: 100%; min-height: 44px; margin: 0; padding: 0 12px; }
+        /* ===== v21.11: iPads and computers. Maceo, Nov 16 (an iPad screenshot of the Feed): "ipad looks really bad".
+           1. A screen under 1024 wide (an iPad held upright, a phone on its side) gets the phone's layout, which
+              stretches well; the sidebar layout starts at 1024 (an iPad on its side, a computer). The cut-off was 768,
+              everywhere it's written (the style files and three places in the app's code).
+           2. In the sidebar layout, a session's photo spans its card. An old rule for wide screens kept it 280 wide,
+              and the name, method and share button sit inside it, so the buttons covered the name.
+           3. In the sidebar layout, the header is the phone's: the title, then search and filters as buttons. The
+              older search box and method chips no longer fit in it (they pushed the title off the top). It lines up
+              with the page under it. */
+        @media (min-width: 1024px) {
+            html[data-look="new"] .nl-ph.session-photo-wrap, html[data-look="new"] .nl-lph.session-photo-wrap, html[data-look="new"] .nl-dphoto.session-photo-wrap { width: 100% !important; }
+            html[data-look="new"] .header-top .search-bar, html[data-look="new"] .header-top .filter-row { display: none !important; }
+            html[data-look="new"] .header-sticky { padding-left: 48px !important; padding-right: 48px !important; }
+            html[data-look="new"] .mobile-controls-panel { display: none; margin-top: 8px; padding: 12px; border-radius: 14px; background: rgba(var(--glass-rgb), 0.75); border: 1px solid rgba(var(--matcha-rgb), 0.15); box-shadow: 0 12px 26px rgba(var(--matcha-rgb), 0.12); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+            html[data-look="new"] body.mobile-controls-open .mobile-controls-panel { display: grid; gap: 10px; }
+        }
+        @media (min-width: 1024px) and (max-width: 1279px) {
+            #sidebar { width: 240px; padding-left: 30px; padding-right: 30px; }
+        }
         /* ===================== v19.0: Learn =====================
            The New look's kit (claude/new-look-ds.css) plus the Learn screens' parts (claude/learn-mockups-src.md): pages tinted
            by their typical flavor family, names in the big serif, every section folding. All of it is the New look's. */
@@ -6513,7 +6553,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v21.10</div>
+            <div class="app-version">Dialed In · v21.11</div>
         </div>
     </div>
 
@@ -11065,6 +11105,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     if (this.adoptSheetOutbox && Cloud.confirms) this.adoptSheetOutbox();   // v14.2: saves made on the Sheet that never left this phone
                     if (this.checkNotifications) this.checkNotifications();   // v14.4: the bell's unread count
                     if (this.loadFrozenAwards && !this._frozenLoaded) this.loadFrozenAwards();   // v21.8: finished months' awards, as first kept
+                    if (this.checkMyName) this.checkMyName();   // v21.11: a new name, changed here or on another phone
                     if (this.checkShotDrafts) this.checkShotDrafts();   // v16.9: shots from your espresso machine
                     if (this.checkPendingJoin) this.checkPendingJoin();   // v14.4: an invite link opened before signing in
                     if (this.checkPendingProfile) this.checkPendingProfile();   // v14.5: a profile link
@@ -16492,7 +16533,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                         </div>
                     </div>`;
                 }
-                if (s.step === 'email' || s.step === 'code' || s.step === 'claim' || s.step === 'password') html = this.acctStepHtml(s);   // v14.2: signing in (new backend only)
+                if (s.step === 'email' || s.step === 'code' || s.step === 'claim' || s.step === 'password' || s.step === 'noacct') html = this.acctStepHtml(s);   // v14.2: signing in (new backend only; v21.11: no account for that email)
                 if (this.wlHeroView && this.wlHeroView.stop) this.wlHeroView.stop();
                 wrap.innerHTML = html;
                 const view = document.getElementById('welcome-view'); if (view) view.scrollTop = 0;
@@ -16696,7 +16737,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
 
             // ---- the tour: a spotlight on each place, over the real app
             tourSteps() {
-                const desk = window.matchMedia && window.matchMedia('(min-width: 769px)').matches;
+                const desk = window.matchMedia && window.matchMedia('(min-width: 1024px)').matches;
                 const nl = !desk && !!(this.newLook && this.newLook());   // v18.7: the New look's Settings is the gear at the top
                 const nav = tab => desk ? `#sidebar .nav-btn[data-tab="${tab}"]` : `#mobile-nav .mob-item[data-tab="${tab}"]`;
                 const tea = !!(this.teaMode && this.teaMode()), w = this.drinkWords ? this.drinkWords(tea ? 'tea' : 'coffee') : { item: 'coffee', Items: 'Coffees', company: 'roaster', companies: 'roasters', Companies: 'Roasters' };
@@ -20865,6 +20906,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             },
 
             openSettings() {
+                if (!document.getElementById('settings-modal').classList.contains('active')) this._nameEdit = false;   // v21.11: opens showing your name, not the editor
                 this.renderThemeControl();
                 if (this.paintAvatarSetting) this.paintAvatarSetting();   // v15.1
                 const list = document.getElementById('user-list');
@@ -21143,7 +21185,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 if (toggleBtn) toggleBtn.style.display = 'inline-flex';
                 if (summary) summary.innerText = 'Using saved setup for this brew method.';
                 const selected = new Set(Array.isArray(selectedOverride) ? selectedOverride : (this.lastEquipment[method] || []));
-                const shouldCollapse = window.matchMedia('(max-width: 768px)').matches;
+                const shouldCollapse = window.matchMedia('(max-width: 1023px)').matches;
                 if (wrap) wrap.classList.toggle('collapsed', shouldCollapse);
                 if (toggleBtn) toggleBtn.innerText = shouldCollapse ? 'Switch Equipment' : 'Hide Equipment';
 
@@ -21460,7 +21502,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 if (sess && sess.refresh_token && !sess.profile) {
                     // v18.6: signed in but no profile on this phone: maybe it just didn't come back when signing in (a dropped
                     // connection), so ask once before the claim or name step (both would say the account already has one)
-                    const next = () => { s.step = path === 'back' ? 'claim' : 'name'; this.renderWelcome(); };
+                    const next = () => { s.step = path === 'back' ? 'noacct' : 'name'; this.renderWelcome(); };
                     Supa.rpc('my_profile').then(p => {
                         if (!p) { next(); return; }
                         Supa.store(Supa.SESSION, { ...Supa.session(), profile: p });
@@ -21513,6 +21555,21 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                         <div class="wl-actions">
                             <button type="button" class="btn-primary wl-main" id="wl-busy" onclick="app.wlVerify()">Sign in</button>
                             <button type="button" class="wl-link" onclick="app.wlSendCode(true)">Send a new code</button>
+                        </div>
+                    </div>`;
+                }
+                // v21.11: "I've been here before" with an email that has no profile. Maceo, Nov 16: a new member signed back in
+                // with a different email than she signed up with and got the original crew's claim-code screen (every code
+                // was used long ago). Now it says so and offers the other email; someone actually new can still set up.
+                if (s.step === 'noacct') {
+                    const em = s.email || ((Supa.session() || {}).user || {}).email || '';
+                    return `<div class="wl-step">
+                        <h2 class="wl-h2">No account for that email.</h2>
+                        <p class="wl-sub">There's no Dialed In profile for ${em ? `<b>${esc(em)}</b>` : 'that email'}. If you signed up with a different email, sign in with that one.</p>
+                        ${msg}
+                        <div class="wl-actions">
+                            <button type="button" class="btn-primary wl-main" id="wl-busy" onclick="app.wlOtherEmail()">Use a different email</button>
+                            <button type="button" class="wl-link" onclick="app.wlGo('name')">I'm new: set up my profile</button>
                         </div>
                     </div>`;
                 }
@@ -21571,7 +21628,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     const was = (Supa.session() || {}).profile;
                     const p = await Supa.verify(s.email, code);
                     if (p) { this.acctReady(p, was); return; }
-                    s.step = s.path === 'back' ? 'claim' : 'name';
+                    s.step = s.path === 'back' ? 'noacct' : 'name';   // (v21.11: was the claim code, long since used)
                     this.renderWelcome();
                 });
             },
@@ -21590,6 +21647,14 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     s.step = 'name';
                     this.renderWelcome();
                 });
+            },
+
+            // v21.11: back to the email step for another address (the sign-in that found no profile is let go first)
+            wlOtherEmail() {
+                const s = this.wl; if (!s) return;
+                try { Supa.signOut(); } catch (e) { /* nothing to let go */ }
+                s.email = ''; s.path = 'back'; s.step = 'email';
+                this.renderWelcome();
             },
 
             wlClaim() {
@@ -21722,7 +21787,10 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const sess = Supa.session() || {};
                 const email = sess.user && sess.user.email ? sess.user.email : '';
                 const color = this.getUserColor(this.user);
-                return `<div class="acct-row"><i class="acct-dot" data-face="${this.esc(this.user || '')}" style="background:${this.esc(color)}">${this.esc(this.feedInitial(this.user || '?'))}</i><span class="acct-who"><b>${this.esc(this.user || '')}</b>${email ? `<small>${this.esc(email)}</small>` : ''}</span></div>`;   // (v15.0: Sign out is at the bottom)
+                // v21.11: Edit changes your name (66-names.js)
+                const dot = `<i class="acct-dot" data-face="${this.esc(this.user || '')}" style="background:${this.esc(color)}">${this.esc(this.feedInitial(this.user || '?'))}</i>`;
+                if (this._nameEdit && this.nameEditHtml) return `<div class="acct-row is-editing">${dot}${this.nameEditHtml()}</div>`;
+                return `<div class="acct-row">${dot}<span class="acct-who"><b>${this.esc(this.user || '')}</b>${email ? `<small>${this.esc(email)}</small>` : ''}</span>${this.nameEditOpen ? '<button type="button" class="acct-edit" onclick="app.nameEditOpen()" aria-label="Change your name">Edit</button>' : ''}</div>`;   // (v15.0: Sign out is at the bottom)
             },
             // ---- v14.4 (phase 3): People. Find people by name, follow them (friends = you follow each other), answer
             // follow requests when your profile is private, and block. New backend only: on the Sheet none of it shows.
@@ -23459,7 +23527,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const sc = document.getElementById('main-content');
                 if (!sc || typeof sc.addEventListener !== 'function') return;
                 this._barsBound = true;
-                const phone = () => typeof matchMedia === 'function' && matchMedia('(max-width: 768px)').matches;
+                const phone = () => typeof matchMedia === 'function' && matchMedia('(max-width: 1023px)').matches;
                 const raf = typeof requestAnimationFrame === 'function' ? requestAnimationFrame : (f => setTimeout(f, 16));
                 let last = sc.scrollTop, down = 0, up = 0, queued = false;
                 const update = () => {
@@ -31306,6 +31374,94 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 }
                 k.head = 'Say how it tasted (too weak, too strong, bitter) and the next cup gets a change to try.';
                 return k;
+            },
+            // ===================== v21.11: changing your name =====================
+            // Maceo, Nov 14 (a new member misspelled her own name at sign-up and couldn't find a way to fix it): "please make
+            // it possible to change names". Edit on the You card at the top of Settings. The server (set_name) checks the new
+            // name the way sign-up does, keeps the old one as yours (nobody else can take it, and a phone still using it is
+            // understood), and moves your kept awards over. This phone then starts fresh under the new name and comes back to
+            // Settings; another phone signed in to the same account notices at its next launch (checkMyName).
+            nameClean(v) { return String(v || '').trim().replace(/\s+/g, ' '); },
+            nameProblem(n) {
+                return n.length < 2 || n.length > 24 || /[<>\u0000-\u001f\u007f]/.test(n) || /^__/.test(n) || /^(unknown|undefined|null|everyone|system)$/i.test(n)
+                    ? 'Use 2 to 24 characters for your name.' : '';
+            },
+            // the You card while editing (what's typed so far survives Settings redrawing itself underneath)
+            nameEditHtml() {
+                const typed = document.getElementById('acct-name-in');
+                const v = typed ? typed.value : (this.user || '');
+                return `<span class="acct-name-edit">
+                    <input id="acct-name-in" class="acct-name-in" type="text" maxlength="24" autocomplete="nickname" autocapitalize="words" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="Your name" value="${this.esc(v)}"
+                        oninput="app.nameSay('')" onkeydown="if(event.key==='Enter'){event.preventDefault();app.nameEditSave()}else if(event.key==='Escape'){app.nameEditCancel()}">
+                    <small class="acct-name-msg" id="acct-name-msg" role="alert" hidden></small>
+                    <span class="acct-name-actions"><button type="button" class="btn-outline" onclick="app.nameEditCancel()">Cancel</button><button type="button" class="btn-primary" id="acct-name-save" onclick="app.nameEditSave()">Save</button></span>
+                </span>`;
+            },
+            nameSay(text) { const m = document.getElementById('acct-name-msg'); if (!m) return; m.hidden = !text; m.textContent = text || ''; },
+            paintAcctRow() {
+                const row = document.querySelector('#settings-modal .acct-row'); if (!row) return;
+                const d = document.createElement('div'); d.innerHTML = this.acctSettingsHtml();
+                row.replaceWith(d.firstElementChild);
+                if (this.noteFaces) this.noteFaces(document.querySelector('#settings-modal .acct-row'));
+            },
+            nameEditOpen() {
+                if (!(this.acctOn && this.acctOn()) || this._nameSaving) return;
+                this._nameEdit = true; this.paintAcctRow();
+                const i = document.getElementById('acct-name-in');
+                if (i) { i.focus(); try { i.setSelectionRange(i.value.length, i.value.length); } catch (e) { /* not a text box */ } }
+            },
+            nameEditCancel() { if (this._nameSaving) return; this._nameEdit = false; this.paintAcctRow(); },
+            async nameEditSave() {
+                if (this._nameSaving) return;
+                const i = document.getElementById('acct-name-in'); if (!i) return;
+                const n = this.nameClean(i.value), old = String(this.user || '');
+                if (n === old) { this.nameEditCancel(); return; }
+                const bad = this.nameProblem(n); if (bad) { this.nameSay(bad); i.focus(); return; }
+                const btn = document.getElementById('acct-name-save');
+                this._nameSaving = true; if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+                try {
+                    const p = await Supa.rpc('set_name', { name: n });
+                    if (!p || !p.name) throw new Error('That didn\'t work. Try again.');
+                    this._nameSaving = false;
+                    if (!this.adoptName(p, old, true)) { this._nameEdit = false; this.paintAcctRow(); }
+                } catch (e) {
+                    this._nameSaving = false;
+                    if (btn && btn.isConnected) { btn.disabled = false; btn.textContent = 'Save'; }
+                    const msg = e && e.message ? String(e.message) : '';
+                    this.nameSay(/taken|another name|2 to 24|a bit fast/i.test(msg) ? msg : 'That didn\'t save. Check your connection and try again.');
+                }
+            },
+            // the server knows this account by a new name (changed here, on another phone, or by us): this phone takes it on.
+            // What it keeps under the old name (your color, your picture) moves over; its copy of everything is started fresh
+            // (it was written with the old name), then the app opens again. Saves still waiting to go out keep the old name:
+            // the server reads them as yours.
+            adoptName(p, old, here) {
+                const nm = p && p.name ? String(p.name) : '', was = String(old || '');
+                if (!nm || nm === was || typeof Supa === 'undefined') return false;
+                const sess = Supa.session(); if (!sess) return false;
+                Supa.store(Supa.SESSION, { ...sess, profile: { ...(sess.profile || {}), ...p } });
+                if (Cloud.who() !== nm) { this.user = nm; return false; }   // this phone can't keep it: carry on as the new name without starting over
+                if (was) {
+                    const color = this.userColors && this.userColors[was];
+                    if (color) this.setUserColor(nm, color, true);
+                    try { const f = this.faceStore(), had = f.get(was.toLowerCase()); if (had) { f.set(nm.toLowerCase(), had); this.saveFaces(); } } catch (e) { /* no pictures kept */ }
+                    try { localStorage.removeItem(`dialed_frozen_awards:${was}`); } catch (e) { /* (fetched again) */ }
+                }
+                this.user = nm;
+                try { sessionStorage.setItem('dialed_renamed', here ? 'settings' : 'quiet'); } catch (e) { /* no note: it just opens */ }
+                const go = () => location.reload();
+                this.showToast(here ? `You're now ${nm}.` : `Your name is now ${nm}.`);
+                Promise.race([this.idbPut(this.cacheKey(), null).catch(() => {}), new Promise(r => setTimeout(r, 1500))]).then(() => setTimeout(go, 500));
+                return true;
+            },
+            // once a launch, after the first sync: is this phone's name still the account's? And after a change made in
+            // Settings, back to Settings with the new name showing.
+            checkMyName() {
+                if (this._nameChecked || !(this.acctOn && this.acctOn()) || !Supa.ready()) return;
+                this._nameChecked = true;
+                let note = ''; try { note = sessionStorage.getItem('dialed_renamed') || ''; sessionStorage.removeItem('dialed_renamed'); } catch (e) { /* none */ }
+                if (note === 'settings') setTimeout(() => { if (!document.querySelector('.modal.active')) this.openSettings(); }, 300);
+                Supa.rpc('my_profile').then(p => { if (p && p.name && p.name !== Cloud.who()) this.adoptName(p, Cloud.who(), false); }).catch(() => { /* next launch */ });
             },
         };
         window.onload = () => app.init();

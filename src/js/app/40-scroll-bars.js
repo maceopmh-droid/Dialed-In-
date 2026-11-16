@@ -5,7 +5,7 @@
                 const sc = document.getElementById('main-content');
                 if (!sc || typeof sc.addEventListener !== 'function') return;
                 this._barsBound = true;
-                const phone = () => typeof matchMedia === 'function' && matchMedia('(max-width: 768px)').matches;
+                const phone = () => typeof matchMedia === 'function' && matchMedia('(max-width: 1023px)').matches;
                 const raf = typeof requestAnimationFrame === 'function' ? requestAnimationFrame : (f => setTimeout(f, 16));
                 let last = sc.scrollTop, down = 0, up = 0, queued = false;
                 const update = () => {

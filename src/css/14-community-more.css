@@ -151,10 +151,10 @@
         .vs-track i.now { background: var(--matcha); box-shadow: 0 0 0 2px var(--surface); }
         .vs-flavors { margin-top: 12px; }
         .vs-flavor { font-size: 0.74rem; padding: 4px 10px; }
-        @media (min-width: 769px) { .vs-cols { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); align-items: start; } }
+        @media (min-width: 1024px) { .vs-cols { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); align-items: start; } }
         /* v14.6: on a computer, sessions read in one column everywhere (Feed, a profile's Sessions, a coffee's history), as
            wide as a phone's card looks good stretched, with the photo across the card like on a phone */
-        @media (min-width: 769px) {
+        @media (min-width: 1024px) {
             :root { --read-w: 640px; }
             #grid.feed-list { max-width: var(--read-w); }
             .profile-section[data-section="sessions"] { display: block; }
@@ -182,7 +182,7 @@
         #status-scrim::after { background: rgba(var(--paper-rgb), 0.12); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); -webkit-mask-image: linear-gradient(to bottom, #000 25%, transparent 75%); mask-image: linear-gradient(to bottom, #000 25%, transparent 75%); }
 
         /* v14.7: scrolling down on a phone tucks the top bar away and shrinks the bottom bar (body.bars-tucked) */
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
             .header-sticky { transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
             body.bars-tucked .header-sticky { transform: translateY(-100%); }
             #mobile-nav { transition: height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), max-width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
@@ -210,7 +210,7 @@
 
         /* v14.8: on a phone the top bar is see-through glass, so when the page is scrolled a little, what you see through
            it (like the Feed tabs) is what a tap reaches; only the bar's own buttons take taps */
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
             .header-sticky, .header-sticky .header-top, .header-sticky .header-top > div, .header-sticky h2 { pointer-events: none; }
             .header-sticky button, .header-sticky a, .header-sticky input, .header-sticky select, .header-sticky label, .header-sticky [onclick],
             .header-sticky .header-controls, .header-sticky .mobile-controls-panel, .header-sticky .status-badge { pointer-events: auto; }

@@ -1,4 +1,5 @@
             openSettings() {
+                if (!document.getElementById('settings-modal').classList.contains('active')) this._nameEdit = false;   // v21.11: opens showing your name, not the editor
                 this.renderThemeControl();
                 if (this.paintAvatarSetting) this.paintAvatarSetting();   // v15.1
                 const list = document.getElementById('user-list');
@@ -277,7 +278,7 @@
                 if (toggleBtn) toggleBtn.style.display = 'inline-flex';
                 if (summary) summary.innerText = 'Using saved setup for this brew method.';
                 const selected = new Set(Array.isArray(selectedOverride) ? selectedOverride : (this.lastEquipment[method] || []));
-                const shouldCollapse = window.matchMedia('(max-width: 768px)').matches;
+                const shouldCollapse = window.matchMedia('(max-width: 1023px)').matches;
                 if (wrap) wrap.classList.toggle('collapsed', shouldCollapse);
                 if (toggleBtn) toggleBtn.innerText = shouldCollapse ? 'Switch Equipment' : 'Hide Equipment';
 

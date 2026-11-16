@@ -11,7 +11,7 @@
                 if (sess && sess.refresh_token && !sess.profile) {
                     // v18.6: signed in but no profile on this phone: maybe it just didn't come back when signing in (a dropped
                     // connection), so ask once before the claim or name step (both would say the account already has one)
-                    const next = () => { s.step = path === 'back' ? 'claim' : 'name'; this.renderWelcome(); };
+                    const next = () => { s.step = path === 'back' ? 'noacct' : 'name'; this.renderWelcome(); };
                     Supa.rpc('my_profile').then(p => {
                         if (!p) { next(); return; }
                         Supa.store(Supa.SESSION, { ...Supa.session(), profile: p });
@@ -64,6 +64,21 @@
                         <div class="wl-actions">
                             <button type="button" class="btn-primary wl-main" id="wl-busy" onclick="app.wlVerify()">Sign in</button>
                             <button type="button" class="wl-link" onclick="app.wlSendCode(true)">Send a new code</button>
+                        </div>
+                    </div>`;
+                }
+                // v21.11: "I've been here before" with an email that has no profile. Maceo, Nov 16: a new member signed back in
+                // with a different email than she signed up with and got the original crew's claim-code screen (every code
+                // was used long ago). Now it says so and offers the other email; someone actually new can still set up.
+                if (s.step === 'noacct') {
+                    const em = s.email || ((Supa.session() || {}).user || {}).email || '';
+                    return `<div class="wl-step">
+                        <h2 class="wl-h2">No account for that email.</h2>
+                        <p class="wl-sub">There's no Dialed In profile for ${em ? `<b>${esc(em)}</b>` : 'that email'}. If you signed up with a different email, sign in with that one.</p>
+                        ${msg}
+                        <div class="wl-actions">
+                            <button type="button" class="btn-primary wl-main" id="wl-busy" onclick="app.wlOtherEmail()">Use a different email</button>
+                            <button type="button" class="wl-link" onclick="app.wlGo('name')">I'm new: set up my profile</button>
                         </div>
                     </div>`;
                 }
@@ -122,7 +137,7 @@
                     const was = (Supa.session() || {}).profile;
                     const p = await Supa.verify(s.email, code);
                     if (p) { this.acctReady(p, was); return; }
-                    s.step = s.path === 'back' ? 'claim' : 'name';
+                    s.step = s.path === 'back' ? 'noacct' : 'name';   // (v21.11: was the claim code, long since used)
                     this.renderWelcome();
                 });
             },
@@ -141,6 +156,14 @@
                     s.step = 'name';
                     this.renderWelcome();
                 });
+            },
+
+            // v21.11: back to the email step for another address (the sign-in that found no profile is let go first)
+            wlOtherEmail() {
+                const s = this.wl; if (!s) return;
+                try { Supa.signOut(); } catch (e) { /* nothing to let go */ }
+                s.email = ''; s.path = 'back'; s.step = 'email';
+                this.renderWelcome();
             },
 
             wlClaim() {
@@ -273,5 +296,8 @@
                 const sess = Supa.session() || {};
                 const email = sess.user && sess.user.email ? sess.user.email : '';
                 const color = this.getUserColor(this.user);
-                return `<div class="acct-row"><i class="acct-dot" data-face="${this.esc(this.user || '')}" style="background:${this.esc(color)}">${this.esc(this.feedInitial(this.user || '?'))}</i><span class="acct-who"><b>${this.esc(this.user || '')}</b>${email ? `<small>${this.esc(email)}</small>` : ''}</span></div>`;   // (v15.0: Sign out is at the bottom)
+                // v21.11: Edit changes your name (66-names.js)
+                const dot = `<i class="acct-dot" data-face="${this.esc(this.user || '')}" style="background:${this.esc(color)}">${this.esc(this.feedInitial(this.user || '?'))}</i>`;
+                if (this._nameEdit && this.nameEditHtml) return `<div class="acct-row is-editing">${dot}${this.nameEditHtml()}</div>`;
+                return `<div class="acct-row">${dot}<span class="acct-who"><b>${this.esc(this.user || '')}</b>${email ? `<small>${this.esc(email)}</small>` : ''}</span>${this.nameEditOpen ? '<button type="button" class="acct-edit" onclick="app.nameEditOpen()" aria-label="Change your name">Edit</button>' : ''}</div>`;   // (v15.0: Sign out is at the bottom)
             },

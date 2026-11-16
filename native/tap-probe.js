@@ -22,6 +22,37 @@
         const results = [];
         const tapAt = async (x, y, wait = 800) => { await ask(`/tap?x=${x.toFixed(1)}&y=${y.toFixed(1)}`); await sleep(wait); };
         const rect = el => el.getBoundingClientRect();
+        // v21.11 (Maceo, Nov 11: "the weird white space above the keyboard that shows sometimes when you type in log"):
+        // the Log with the keyboard up, in dark and light, the Time box low on the screen so iOS has to move the page;
+        // the runner takes a screenshot of the simulator for each (build/shots), and the page notes how far it moved
+        if (C.mode === 'keyboard') {
+            const own = [...app.beans.values()].find(b => String(b.owner || b.user) === app.user && !(app.isTeaBean && app.isTeaBean(b)));
+            for (const theme of ['dark', 'light']) {
+                window.__dialedTheme.set(theme); if (app.onThemeChange) app.onThemeChange(); await sleep(600);
+                app.openFeedTarget(own ? own.id : [...app.beans.keys()][0], '', false); await sleep(1500);
+                app.openBrewModal(); await sleep(1200);
+                const sel = document.getElementById('method-select'); sel.value = 'Espresso'; app.onMethodChange('Espresso'); await sleep(400);
+                const t = document.getElementById('time-input'), card = t.closest('.modal-card') || t.closest('.modal');
+                // scroll the Log so the Time box sits near the bottom of the screen
+                const scroller = [card, card && card.parentElement, document.getElementById('brew-modal')].find(el => el && el.scrollHeight > el.clientHeight + 4);
+                if (scroller) { scroller.scrollTop += rect(t).bottom - (innerHeight - 40); await sleep(500); }
+                const r = rect(t);
+                await log(`${theme}: Time box at ${Math.round(r.top)}-${Math.round(r.bottom)} of ${innerHeight}`);
+                await tapAt(r.left + 20, r.top + r.height / 2, 1800);
+                const vv = window.visualViewport;
+                await log(`${theme} keyboard up: focused ${document.activeElement === t}, visual viewport ${vv ? Math.round(vv.height) + ' tall, ' + Math.round(vv.offsetTop) + ' down' : '?'}, page scrolled ${Math.round(scrollY)}, inner ${innerHeight}`);
+                await ask(`/shot?name=${theme}_log_keyboard`); await sleep(500);
+                await ask('/text?t=1'); await sleep(600);
+                await ask(`/shot?name=${theme}_log_typed`); await sleep(500);
+                if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+                await sleep(800);
+                results.push({ at: `${theme}: Log with the keyboard up`, x: Math.round(r.left + 20), y: Math.round(r.top + r.height / 2), was: '-', now: document.documentElement.getAttribute('data-theme'), hit: 'time' });
+                app.closeModals(); await sleep(500); if (app.closeDetail) app.closeDetail(); await sleep(500);
+            }
+            await ask('/result?r=' + encodeURIComponent(JSON.stringify(results)));
+            await ask('/done');
+            return;
+        }
         const main = () => document.getElementById('main-content');
         const feedTop = async () => { app.setTab('feed'); app.setFeedMode('following'); main().scrollTop = 0; await sleep(900); };
         const navItem = tab => document.querySelector(`#mobile-nav .mob-item[data-tab="${tab}"]`);

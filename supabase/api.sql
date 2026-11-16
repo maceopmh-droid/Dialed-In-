@@ -11,6 +11,10 @@
 
 create schema if not exists internal;
 
+-- v21.11: names someone has had before (changing your name: set_name, near the end). Nobody else can take them, and a
+-- phone that still knows the person by one of them is understood (push_event).
+alter table profiles add column if not exists old_names text[] not null default '{}';
+
 -- how the app knows people: the Sheet-era name, else the profile's name (unique, ignoring capitals)
 create or replace function internal.name_of(pid uuid) returns text
 language sql stable security definer set search_path = public as $$
@@ -111,7 +115,9 @@ declare lim int[] := case what when 'comment' then array[20, 5, 300]       -- 20
                                when 'coffee' then array[50, 10, 300]
                                when 'report' then array[20, 60, 50]
                                when 'bug' then array[5, 60, 20]          -- v15.1: 5 an hour, 20 a day
-                               when 'group' then array[5, 60, 20] else array[100, 10, 1000] end;
+                               when 'group' then array[5, 60, 20]
+                               when 'name' then array[3, 60, 6]          -- v21.11: 3 an hour, 6 a day
+                               else array[100, 10, 1000] end;
 begin
   if pid is null then return; end if;
   -- carrying over saves made before (supabase/replay_late.js, from the database itself, never through the app's web
@@ -174,7 +180,7 @@ begin
     raise exception 'Use 2 to 24 characters for your name.' using errcode = '22023';
   end if;
   if not internal.name_ok(n) then raise exception 'Pick another name.' using errcode = '22023'; end if;   -- v14.6: the content filter
-  if exists (select 1 from profiles where lower(display_name) = lower(n) or lower(legacy_name) = lower(n)) then raise exception 'That name is taken.' using errcode = '23505'; end if;
+  if not internal.name_free(n, null) then raise exception 'That name is taken.' using errcode = '23505'; end if;   -- (v21.11: or someone's old name)
   h := left(lower(regexp_replace(n, '[^a-zA-Z0-9_]', '', 'g')), 20);
   if char_length(h) < 2 then h := 'brewer'; end if;
   while exists (select 1 from profiles where handle = h || case when i = 1 then '' else i::text end) loop i := i + 1; end loop;
@@ -1031,6 +1037,7 @@ begin
   if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
   if jsonb_typeof(ev) <> 'object' or coalesce(ev->>'id', '') = '' then raise exception 'A save needs a type and an id.' using errcode = '22023'; end if;
   me_nm := internal.name_of(me_id);
+  ev := internal.renamed_ev(ev, internal.old_names_of(me_id), me_nm);   -- v21.11: a phone still using an old name of yours
   -- your color travels on your own saves (a like on someone else's session carries their color, so only when you're the actor)
   if lower(btrim(coalesce(ev->>'actor', ''))) = lower(me_nm) and ev->>'actorColor' ~ '^#[0-9a-fA-F]{6}$' then
     update profiles set color = lower(ev->>'actorColor') where id = me_id and color is distinct from lower(ev->>'actorColor');
@@ -1051,7 +1058,10 @@ end $$;
 create or replace function internal.profile_by_name(nm text, viewer uuid) returns uuid
 language sql stable security definer set search_path = public as $$
   select p.id from profiles p
-  where lower(coalesce(p.legacy_name, p.display_name)) = lower(btrim(coalesce(nm, ''))) and p.id <> viewer and not private.blocked_either(viewer, p.id)
+  where (lower(coalesce(p.legacy_name, p.display_name)) = lower(btrim(coalesce(nm, '')))
+         or lower(btrim(coalesce(nm, ''))) = any (select lower(x) from unnest(p.old_names) x))   -- v21.11: an old name
+    and p.id <> viewer and not private.blocked_either(viewer, p.id)
+  order by (lower(coalesce(p.legacy_name, p.display_name)) = lower(btrim(coalesce(nm, '')))) desc
   limit 1;
 $$;
 
@@ -1748,7 +1758,8 @@ begin
   if me_id is null then raise exception 'Sign in first.' using errcode = '28000'; end if;
   if lower(btrim(coalesce(confirm_name, ''))) <> lower(internal.name_of(me_id)) then raise exception 'Type your name exactly to confirm.' using errcode = '22023'; end if;
   -- v21.8: kept awards that name them, and their Friends' copy, go (the next phone works those months out again without them)
-  delete from frozen_awards f where f.scope = 'f:' || me_id::text or position(to_jsonb(internal.name_of(me_id))::text in f.awards::text) > 0;
+  delete from frozen_awards f where f.scope = 'f:' || me_id::text or position(to_jsonb(internal.name_of(me_id))::text in f.awards::text) > 0
+    or exists (select 1 from unnest(internal.old_names_of(me_id)) x where position(to_jsonb(x)::text in f.awards::text) > 0);   -- (v21.11: or an old name)
   for g in select id from groups where owner_id = me_id loop perform leave_group(g.id); end loop;
   for k in select id from coffees where owner_id = me_id loop
     select s.owner_id into heir from sessions s where s.coffee_id = k.id and s.owner_id <> me_id order by s.brewed_at limit 1;
@@ -2732,6 +2743,97 @@ do $$ begin
   end if;
 end $$;
 
+-- ---------------------------------------------------------------- v21.11: changing your name
+-- Maceo, Nov 14: a new member misspelled her own name at sign-up and couldn't find a way to fix it; "please make it
+-- possible to change names". Everything on the server is kept by account, not by name, so a new name shows everywhere
+-- at the next pull. The same rules as signing up (2 to 24 characters, the word filter, nobody else's name, ignoring
+-- capitals). Names you've had stay yours: nobody else can take them, and a phone still using one is understood
+-- (push_event, below). Finished months' kept awards follow the new name. The original crew's Sheet-era name gives way
+-- to the new one (it's only kept for claiming, done long ago).
+create or replace function internal.old_names_of(pid uuid) returns text[]
+language sql stable security definer set search_path = public as $$ select coalesce((select old_names from profiles where id = pid), '{}'); $$;
+
+-- free for this person: nobody else has it, had it, or holds it from the Sheet era (ignoring capitals)
+create or replace function internal.name_free(n text, me_id uuid) returns boolean
+language sql stable security definer set search_path = public as $$
+  select not exists (select 1 from profiles p where p.id is distinct from me_id
+                       and (lower(p.display_name) = lower(n) or lower(p.legacy_name) = lower(n)
+                            or lower(n) = any (select lower(x) from unnest(p.old_names) x)));
+$$;
+
+-- one name in a save: an old name of yours becomes your name now
+create or replace function internal.rn_one(v jsonb, olds text[], nm text) returns jsonb language sql immutable as $$
+  select case when jsonb_typeof(v) = 'string' and lower(btrim(v #>> '{}')) = any (select lower(btrim(x)) from unnest(olds) x) then to_jsonb(nm) else v end;
+$$;
+create or replace function internal.rn_list(v jsonb, olds text[], nm text) returns jsonb language sql immutable as $$
+  select case when jsonb_typeof(v) = 'array' then coalesce((select jsonb_agg(internal.rn_one(x, olds, nm) order by i) from jsonb_array_elements(v) with ordinality as e(x, i)), '[]'::jsonb) else v end;
+$$;
+-- a save from a phone that still knows you by an old name: you (who saved it, whose it is, your likes, your comments
+-- and your likes on them, want-to-try, who's left out of a goal) under your name now. Other people's names stay.
+create or replace function internal.renamed_ev(ev jsonb, olds text[], nm text) returns jsonb
+language plpgsql immutable as $$
+declare k text;
+begin
+  if jsonb_typeof(ev) is distinct from 'object' or coalesce(array_length(olds, 1), 0) = 0 or nm is null then return ev; end if;
+  foreach k in array array['user', 'owner', 'actor'] loop
+    if ev ? k then ev := jsonb_set(ev, array[k], internal.rn_one(ev->k, olds, nm)); end if;
+  end loop;
+  foreach k in array array['likes', 'wantToTry', 'goalExclude'] loop
+    if ev ? k then ev := jsonb_set(ev, array[k], internal.rn_list(ev->k, olds, nm)); end if;
+  end loop;
+  if jsonb_typeof(ev->'comments') = 'array' then
+    ev := jsonb_set(ev, '{comments}', coalesce((select jsonb_agg(case when jsonb_typeof(c) = 'object' then
+              c || case when c ? 'user' then jsonb_build_object('user', internal.rn_one(c->'user', olds, nm)) else '{}'::jsonb end
+                || case when c ? 'likes' then jsonb_build_object('likes', internal.rn_list(c->'likes', olds, nm)) else '{}'::jsonb end
+              else c end order by i) from jsonb_array_elements(ev->'comments') with ordinality as e(c, i)), '[]'::jsonb));
+  end if;
+  if jsonb_typeof(ev->'commentMeta') = 'object' then
+    ev := jsonb_set(ev, '{commentMeta}', coalesce((select jsonb_object_agg(m.key, case when jsonb_typeof(m.value) = 'object' and m.value ? 'l'
+              then m.value || jsonb_build_object('l', internal.rn_list(m.value->'l', olds, nm)) else m.value end)
+            from jsonb_each(ev->'commentMeta') m), '{}'::jsonb));
+  end if;
+  return ev;
+end $$;
+
+-- kept awards: winners and runners-up named old are named nm (the rest of each award stays as it was)
+create or replace function internal.awards_renamed(list jsonb, old text, nm text) returns jsonb language sql immutable as $$
+  select case when jsonb_typeof(list) <> 'array' then list else coalesce((select jsonb_agg(case when jsonb_typeof(a) <> 'object' then a else
+           a || case when a ? 'winners' then jsonb_build_object('winners', internal.rn_list(a->'winners', array[old], nm)) else '{}'::jsonb end
+             || case when jsonb_typeof(a->'runner') = 'object' and a->'runner' ? 'names'
+                     then jsonb_build_object('runner', (a->'runner') || jsonb_build_object('names', internal.rn_list(a->'runner'->'names', array[old], nm))) else '{}'::jsonb end
+           end order by i) from jsonb_array_elements(list) with ordinality as e(a, i)), '[]'::jsonb) end;
+$$;
+
+-- your new name; returns your profile as my_profile() does
+create or replace function set_name(name text) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare me_id uuid := me(); n text := regexp_replace(btrim(coalesce(set_name.name, '')), '\s+', ' ', 'g'); old text; h text; i int := 1;
+begin
+  if me_id is null then raise exception 'Sign in and claim your name first.' using errcode = '28000'; end if;
+  if char_length(n) < 2 or char_length(n) > 24 or n ~ '[[:cntrl:]<>]' or n like '\_\_%' or n ~* '^(unknown|undefined|null|everyone|system)$' then
+    raise exception 'Use 2 to 24 characters for your name.' using errcode = '22023';
+  end if;
+  if not internal.name_ok(n) then raise exception 'Pick another name.' using errcode = '22023'; end if;   -- the content filter
+  old := internal.name_of(me_id);
+  if n = old then return my_profile(); end if;   -- nothing to change
+  if not internal.name_free(n, me_id) then raise exception 'That name is taken.' using errcode = '23505'; end if;
+  perform internal.rate_hit(me_id, 'name');
+  h := left(lower(regexp_replace(n, '[^a-zA-Z0-9_]', '', 'g')), 20);
+  if char_length(h) < 2 then h := 'brewer'; end if;
+  while exists (select 1 from profiles where handle = h || case when i = 1 then '' else i::text end and id <> me_id) loop i := i + 1; end loop;
+  begin
+    update profiles set display_name = n, legacy_name = null, handle = h || case when i = 1 then '' else i::text end,
+      -- the name you're leaving joins your old names (only a change of capitals isn't a different name)
+      old_names = array(select x from unnest(old_names) x where lower(x) <> lower(n) and lower(x) <> lower(old))
+                  || case when lower(old) = lower(n) then '{}'::text[] else array[old] end
+    where id = me_id;
+  exception when unique_violation then   -- someone took it a moment ago
+    raise exception 'That name is taken.' using errcode = '23505';
+  end;
+  update frozen_awards set awards = internal.awards_renamed(awards, old, n) where position(lower(to_jsonb(old)::text) in lower(awards::text)) > 0;
+  return my_profile();
+end $$;
+
 -- push_event and friends run as the signed-in person (so the row rules apply to every write) and use the helpers in
 -- "internal", so signed-in people need them; the app's web address doesn't serve that schema, so they can't be called
 -- directly.
@@ -2745,7 +2847,7 @@ revoke execute on function pull_events(), push_event(jsonb), claim_name(text), c
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version(),
   coffee_catalog(text, int), set_avatar(text), faces(jsonb), set_crema(int), report_bug(text, jsonb), review_bugs(int), close_bug(uuid, boolean), my_notification_prefs(), set_notification_pref(text, boolean),
-  my_shots(int), post_shot(uuid), shot_later(uuid), dismiss_shot(uuid), shot_for_session(text), learn_community(jsonb), learn_overview(), my_frozen_awards(), freeze_awards(text, text, jsonb) from public, anon;
+  my_shots(int), post_shot(uuid), shot_later(uuid), dismiss_shot(uuid), shot_for_session(text), learn_community(jsonb), learn_overview(), my_frozen_awards(), freeze_awards(text, text, jsonb), set_name(text) from public, anon;
 grant execute on function pull_events(), push_event(jsonb), claim_name(text), create_profile(text, text), my_profile(), set_private(boolean), community_feed(timestamptz, int, text, text, uuid), discover_feed(timestamptz, int, int, text, text, boolean), coffee_community(text, text, timestamptz, int), monthly_highlights(date), report_item(text, text, text),
   profile_page(text, timestamptz, int), suggest_people(int), everyone_people(), review_reports(), resolve_report(text, uuid, text),
   push_key(), push_ready(), save_push(jsonb), remove_push(text),
@@ -2753,7 +2855,7 @@ grant execute on function pull_events(), push_event(jsonb), claim_name(text), cr
   create_group(text, boolean), join_group(text), leave_group(uuid), new_invite(uuid), remove_member(uuid, text), set_member_role(uuid, text, text), my_groups(), find_groups(text),
   my_notifications(int), mark_notifications_read(bigint), report(text, uuid, text), export_my_data(), delete_account(text), community_goal(text), data_version(),
   coffee_catalog(text, int), set_avatar(text), faces(jsonb), set_crema(int), report_bug(text, jsonb), review_bugs(int), close_bug(uuid, boolean), my_notification_prefs(), set_notification_pref(text, boolean),
-  my_shots(int), post_shot(uuid), shot_later(uuid), dismiss_shot(uuid), shot_for_session(text), learn_community(jsonb), learn_overview(), my_frozen_awards(), freeze_awards(text, text, jsonb) to authenticated;
+  my_shots(int), post_shot(uuid), shot_later(uuid), dismiss_shot(uuid), shot_for_session(text), learn_community(jsonb), learn_overview(), my_frozen_awards(), freeze_awards(text, text, jsonb), set_name(text) to authenticated;
 revoke execute on all functions in schema internal from public, anon;
 revoke execute on function internal.push_payload(bigint, text), internal.push_text(notifications) from authenticated;   -- the sender's alone (it has the phones' addresses and the VAPID key)
 -- v16.9: the machine functions' alone (they take a machine's token and act as its owner), and making machines

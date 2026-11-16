@@ -136,7 +136,7 @@
         .wl-final h4 { font-size: 1.35rem; }
         .wl-final-actions { display: grid; gap: 4px; margin-top: 18px; }
         .wl-final-actions .btn-primary { margin: 0; padding: 14px; border-radius: 14px; font-size: 1rem; }
-        @media (min-width: 769px) {
+        @media (min-width: 1024px) {
             .wl-wrap { max-width: 520px; padding-top: 48px; padding-bottom: 48px; justify-content: center; }
             .wl-step { flex: none; }
             .wl-actions { margin-top: 0; }
@@ -151,7 +151,7 @@
 
         /* ===== v14.0: desktop layout ===== */
         .bf-end > label:first-of-type { margin-top: 1.7rem; }   /* what .taste-card + label gave it before the columns */
-        @media (min-width: 769px) {
+        @media (min-width: 1024px) {
             #grid.roaster-list { max-width: none; }
             .profile-view { max-width: 1180px; }
         }
