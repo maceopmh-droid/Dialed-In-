@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v21.11 -->
+<!-- Dialed In v21.12 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="21.11">
+    <meta name="dialed-in-version" content="21.12">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -438,6 +438,10 @@
             <div id="level-body"></div>
         </div>
     </div>
+    <!-- v21.12: the one-time ask to turn on notifications (67-push-ask.js) -->
+    <div id="push-ask-modal" class="modal" onclick="if(event.target===this) app.closePushAsk()">
+        <div class="modal-card push-ask-card" id="push-ask-body"></div>
+    </div>
     <!-- v15.8: choose your notifications -->
     <div id="notif-set-modal" class="modal" onclick="if(event.target===this) app.closeNotifSettings()">
         <div class="modal-card people-card">
@@ -534,7 +538,7 @@
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v21.11</div>
+            <div class="app-version">Dialed In · v21.12</div>
         </div>
     </div>
 
@@ -959,6 +963,7 @@
 @@include js/app/64-producers.js
 @@include js/app/65-instant.js
 @@include js/app/66-names.js
+@@include js/app/67-push-ask.js
 @@include js/app/99-end.js
 @@include js/99-boot.js
     </script>

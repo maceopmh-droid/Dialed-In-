@@ -219,6 +219,8 @@
 
         /* ---- the Session screen ---- */
         html[data-look="new"] #session-view { display: none; position: fixed; inset: 0; z-index: 5600; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+        /* v21.12: a page over the app only ever scrolls up and down: anything too wide is cut off rather than letting the page slide sideways */
+        html[data-look="new"] :is(#session-view, #share-view, #producer-view) { overflow-x: hidden; }
         html[data-look="new"] #session-view.active { display: block; animation: nlSlideIn 0.26s cubic-bezier(0.2, 0.8, 0.2, 1); }
         html[data-look="new"] #session-view.closing { transform: translateX(100%); transition: transform 0.2s ease-in; }
         @keyframes nlSlideIn { from { transform: translateX(36%); opacity: 0.4; } to { transform: none; opacity: 1; } }
@@ -1056,3 +1058,13 @@
         @media (min-width: 1024px) and (max-width: 1279px) {
             #sidebar { width: 240px; padding-left: 30px; padding-right: 30px; }
         }
+        /* v21.12: the one-time ask to turn on notifications */
+        html[data-look="new"] .push-ask-card { text-align: center; padding: 28px 22px calc(22px + env(safe-area-inset-bottom, 0px)) !important; }
+        html[data-look="new"] .push-ask-card .pa-icon { display: inline-grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: color-mix(in srgb, var(--nl-matcha) 16%, transparent); color: var(--nl-matcha); margin-bottom: 14px; }
+        html[data-look="new"] .push-ask-card .pa-icon .icon { width: 30px; height: 30px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+        html[data-look="new"] .push-ask-card .pa-h { margin: 0 0 8px; font-family: var(--nl-serif); font-weight: 500; font-size: 28px; line-height: 1.15; color: var(--nl-ink); }
+        html[data-look="new"] .push-ask-card .pa-p { margin: 0 auto 22px; max-width: 34ch; font-size: 15.5px; line-height: 1.45; color: var(--nl-muted); }
+        html[data-look="new"] .push-ask-card .pa-p b { color: var(--nl-ink); font-weight: 650; }
+        html[data-look="new"] .push-ask-card .pa-actions { display: grid; gap: 6px; }
+        html[data-look="new"] .push-ask-card .pa-actions .btn-primary { width: 100%; margin: 0; }
+        html[data-look="new"] .push-ask-card .pa-later { min-height: 44px; border: 0; background: none; box-shadow: none; font: inherit; font-size: 15.5px; font-weight: 600; color: var(--nl-muted); cursor: pointer; }

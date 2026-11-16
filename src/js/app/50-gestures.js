@@ -7,7 +7,7 @@
             // - Coffees: swipe left or right between Mine and All. Feed: between Following, Community and Discover.
             // A swipe never starts on a slider, a 3D flavor shape, a text box or a row that scrolls sideways (except from
             // the very left edge, for Back), and a mostly-up-and-down drag is always just scrolling.
-            swipeSheets() { return ['notif-modal', 'level-modal', 'notif-set-modal', 'shot-modal', 'bugs-modal', 'legal-modal', 'people-modal', 'settings-modal', 'shape-modal', 'achievement-modal', 'fab-modal', 'review-modal', 'brew-modal']; },   // (v21.2: the Log too: swiped away it's kept as a draft)
+            swipeSheets() { return ['notif-modal', 'level-modal', 'notif-set-modal', 'shot-modal', 'bugs-modal', 'legal-modal', 'people-modal', 'settings-modal', 'shape-modal', 'achievement-modal', 'fab-modal', 'review-modal', 'brew-modal', 'push-ask-modal']; },   // (v21.2: the Log too: swiped away it's kept as a draft)
 
             topSheet() {
                 const open = [...document.querySelectorAll('.modal.active')];

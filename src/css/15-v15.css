@@ -104,3 +104,6 @@
         .toast { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; background: rgba(22, 30, 24, 0.96) !important; }
         /* the coach's Next line breaks between its parts (grind · recipe · aim), never inside one ("aim 28–32" / "s") */
         .coach-next .cn { font-style: normal; white-space: nowrap; }
+        /* v21.12: ...except a part longer than the whole line (a tea's "Ginger 3 slices + Honey 1 tsp + … in 300 ml") wraps
+           inside itself; kept on one line it ran off the screen and let the tea's session page slide sideways (Maceo, Nov 16) */
+        .coach-next .cn { display: inline-block; max-width: 100%; white-space: normal; overflow-wrap: anywhere; vertical-align: top; }

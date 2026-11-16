@@ -230,6 +230,7 @@
                     if (this.checkNotifications) this.checkNotifications();   // v14.4: the bell's unread count
                     if (this.loadFrozenAwards && !this._frozenLoaded) this.loadFrozenAwards();   // v21.8: finished months' awards, as first kept
                     if (this.checkMyName) this.checkMyName();   // v21.11: a new name, changed here or on another phone
+                    if (this.maybeAskPush) this.maybeAskPush();   // v21.12: once, ask to turn on notifications
                     if (this.checkShotDrafts) this.checkShotDrafts();   // v16.9: shots from your espresso machine
                     if (this.checkPendingJoin) this.checkPendingJoin();   // v14.4: an invite link opened before signing in
                     if (this.checkPendingProfile) this.checkPendingProfile();   // v14.5: a profile link
