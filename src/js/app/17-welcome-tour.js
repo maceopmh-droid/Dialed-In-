@@ -170,7 +170,7 @@
                         </div>
                     </div>`;
                 }
-                if (s.step === 'email' || s.step === 'code' || s.step === 'claim' || s.step === 'password') html = this.acctStepHtml(s);   // v14.2: signing in (new backend only)
+                if (s.step === 'email' || s.step === 'code' || s.step === 'claim' || s.step === 'password' || s.step === 'noacct') html = this.acctStepHtml(s);   // v14.2: signing in (new backend only; v21.11: no account for that email)
                 if (this.wlHeroView && this.wlHeroView.stop) this.wlHeroView.stop();
                 wrap.innerHTML = html;
                 const view = document.getElementById('welcome-view'); if (view) view.scrollTop = 0;
