@@ -41,7 +41,9 @@
             },
             kindOfBrew(brew) { return this.isTeaBrew(brew) ? 'tea' : 'coffee'; },
             methodsFor(kind) { return kind === 'tea' ? TEA_METHODS : COFFEE_METHODS; },
-            methodLabel(m) { return m === 'Aeropress' ? 'AeroPress' : String(m || ''); },
+            methodLabel(m) { return m === 'Aeropress' ? 'AeroPress' : m === 'Phin' ? 'Vietnamese Phin' : String(m || ''); },   // (v21.13)
+            // v21.13: the Log's method menu is half the width: a phin is just "Phin" there (its pill and page say Vietnamese Phin)
+            methodMenuLabel(m) { return m === 'Phin' ? 'Phin' : this.methodLabel(m); },
             // v21.6: an espresso's kind names it ("Turbo", "Soup"); other methods keep their name (their kind is in the extras line)
             methodShort(m, sub) { return m === 'Espresso' && sub && (METHOD_KINDS.Espresso || []).includes(sub) ? (/^(Turbo|Soup|Salami)$/.test(sub) ? `${sub} shot` : sub) : (this.methodLabel(m) || 'Espresso'); },
             tasteMetaFor(kind) { return kind === 'tea' ? TEA_TASTE_META : TASTE_META; },
@@ -243,7 +245,7 @@
                 if (sel && sel.getAttribute('data-kind') !== sig) {
                     const keep = sel.value;
                     sel.setAttribute('data-kind', sig);
-                    sel.innerHTML = `<option value="">Select Method</option>` + list.map(m => `<option value="${this.esc(m)}">${this.esc(this.methodLabel(m))}</option>`).join('');
+                    sel.innerHTML = `<option value="">Select Method</option>` + list.map(m => `<option value="${this.esc(m)}">${this.esc(this.methodMenuLabel(m))}</option>`).join('');
                     sel.value = list.includes(keep) ? keep : '';
                 }
                 if (form.dose) form.dose.required = !tea;   // v17.1: a tea's leaf is optional (a cup of several things, a teabag)

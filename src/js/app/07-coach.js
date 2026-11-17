@@ -60,7 +60,7 @@
             },
 
             coachFromBrew(brew) {
-                return { id: String(brew.id), owner: this.getBrewOwner(brew), beanKey: this.groupKeyOfBrew(brew), beanId: String(brew.beanId || ''), method: brew.method || '', sub: brew.sub || '', temp: this.num(brew.temp), date: brew.date,
+                return { id: String(brew.id), owner: this.getBrewOwner(brew), beanKey: this.groupKeyOfBrew(brew), beanId: String(brew.beanId || ''), method: brew.method || '', sub: brew.sub || '', temp: this.num(brew.temp), press: brew.press || '', date: brew.date,
                     grind: brew.grind, dose: this.num(brew.dose), yield: this.num(brew.yield), time: this.num(brew.time), rating: this.normalizeRating(brew.rating),
                     text: this.getBrewNotes(brew), flavors: this.extractFlavors(brew), values: this.shapeValues(brew), tasted: this.tastedKeys(brew), tastedExplicit: Array.isArray(brew.tasted) && brew.tasted.length > 0,   /* v16.2: an empty list is no list (see tasteValue) */ verdict: String(brew.verdict || ''), grinder: this.grinderFor(brew) };
             },
@@ -71,7 +71,7 @@
                 const existing = editing ? this.brews.get(editing) : null;
                 const r = this.readFormRecipe();
                 return { id: editing, owner: this.user, beanKey: this.activeGroup ? this.beanGroupKey(this.activeGroup.meta) : '', beanId: String(this.activeId || ''), method: r.method, sub: (this.methodExtras && (METHOD_KINDS[r.method] || []).includes(this.methodExtras.sub)) ? this.methodExtras.sub : '',
-                    temp: this.tempC ? this.tempC((this.methodExtras || {}).temp) : 0, date: existing ? existing.date : new Date().toISOString(), grind: form && form.grind ? form.grind.value : '', dose: this.num(r.dose), yield: this.num(r.yield), time: this.num(r.time),
+                    temp: this.tempC ? this.tempC((this.methodExtras || {}).temp) : 0, press: (this.methodExtras || {}).press || '', date: existing ? existing.date : new Date().toISOString(), grind: form && form.grind ? form.grind.value : '', dose: this.num(r.dose), yield: this.num(r.yield), time: this.num(r.time),
                     rating: form && form.rating ? this.normalizeRating(form.rating.value) : 0, text: form && form.notes ? form.notes.value : '', flavors: [...this.selFlavors],
                     values: this.formTasteValues(), tasted: [...this.tasteTouched], tastedExplicit: true, grinder: this.formGrinder(r.method) };
             },
@@ -191,6 +191,8 @@
             coach(c) {
                 if (c.method === 'Instant' && this.instantCoach) return this.instantCoach(c);   // v21.10: no grind or time to steer by
                 const esp = c.method === 'Espresso';
+                const dripT = this.methodProfile(c.method).drip || null;   // v21.13: a phin's drip time is its dial (like a shot's time)
+                const screw = dripT && c.press === 'Screw-down';
                 const past = this.coachPast(c);
                 const rate = b => this.normalizeRating(b.rating);
                 let ref = null;
@@ -241,6 +243,15 @@
                 }
                 if (esp && ref && dT !== null) { if (dT <= -4) tU += dT <= -7 ? 1.2 : 0.8; else if (dT >= 6) tO += dT >= 9 ? 1.2 : 0.8; }
                 if (esp && c.time > 0 && c.time < 20) tU = Math.max(tU, 1.6);   // v11.7: under 20 s is fast, whatever the best shot did
+                // v21.13: a phin: most guides have the first drops by about 2 minutes and the last at about 4 to 6. Through in under 3
+                // minutes is fast (grind finer); over 8 is slow (coarser, or the press is too tight). Against your best: a minute either way.
+                if (dripT && c.time > 0) {
+                    if (ref && refT > 0) {
+                        if (c.time <= refT - 60) { tU += c.time <= refT - 120 ? 1.2 : 0.8; ev.push({ side: 'under', text: `Dripped through in ${this.clock(c.time)}, faster than your best (${this.clock(refT)})` }); }
+                        else if (c.time >= refT + 60) { tO += c.time >= refT + 150 ? 1.2 : 0.8; ev.push({ side: 'over', text: `Dripped for ${this.clock(c.time)}, slower than your best (${this.clock(refT)})` }); }
+                    } else if (c.time < 180) { tU += c.time < 150 ? 1.2 : 0.8; ev.push({ side: 'under', text: `Dripped through fast (${this.clock(c.time)})` }); }
+                    else if (c.time > 480) { tO += c.time > 600 ? 1.2 : 0.8; ev.push({ side: 'over', text: `Dripped slowly (${this.clock(c.time)})` }); }
+                }
                 // time supports the taste; it only adds weight when the notes don't strongly say the opposite
                 const U0 = U, O0 = O;
                 if (O0 < 1.2) U += tU;
@@ -263,7 +274,9 @@
                 let aimBase = refOut ? usual.t : (refT || (cof ? cof.tm : pal ? (pal.t0 + pal.t1) / 2 : 30));
                 if (!usual) aimBase = Math.min(Math.max(aimBase, 24), 45);
                 let aim = esp ? [Math.round(aimBase), Math.round(aimBase + (drift ? 6 : 4))] : null;
-                const recipe = (grindStr, d, y) => [grindStr, d > 0 && y > 0 ? `${this.fmtNum(d, 1)} g \u2192 ${this.fmtNum(y, 1)} g (1:${this.fmtNum(y / d, 1)})` : '', aim ? `aim ${aim[0]}\u2013${aim[1]} s` : ''].filter(Boolean).join(' \u00b7 ');
+                // v21.13: a phin aims at its drip time: about your best's (within the usual 4 to 6 minutes), else 4 to 6 minutes
+                const dripAim = dripT ? (refT >= dripT[0] - 60 && refT <= dripT[1] + 60 ? [Math.max(150, refT - 30), refT + 30] : dripT) : null;
+                const recipe = (grindStr, d, y) => [grindStr, d > 0 && y > 0 ? `${this.fmtNum(d, 1)} g \u2192 ${this.fmtNum(y, 1)} g (1:${this.fmtNum(y / d, 1)})` : '', aim ? `aim ${aim[0]}\u2013${aim[1]} s` : dripAim ? `drips ${this.clock(dripAim[0])}\u2013${this.clock(dripAim[1])}` : ''].filter(Boolean).join(' \u00b7 ');
                 const keepG = this.grindText(c.grind) ? `grind ${this.grindText(c.grind)}` : '';
                 const backYield = dose > 0 && tRatio ? Math.round(dose * tRatio) : c.yield;
                 const finer = this.nextGrind(c.grind, 'finer', gm), coarser = this.nextGrind(c.grind, 'coarser', gm);
@@ -311,9 +324,10 @@
                         next = recipe(keepG, c.dose, c.yield + 3);
                         why.push(words('under') || 'It read sour.', `At ${this.fmtNum(c.time)} s a finer grind would choke it; letting a bit more coffee through (or brewing a few degrees hotter) extracts more instead.`);
                     } else {
-                        head = esp ? `Under-extracted: ${goDir('finer', finer)}.` : `Under-extracted: ${goDir('finer', finer)}, or brew a little longer.`;
+                        head = esp ? `Under-extracted: ${goDir('finer', finer)}.` : dripT ? `Under-extracted: ${goDir('finer', finer)}, so it drips longer.` : `Under-extracted: ${goDir('finer', finer)}, or brew a little longer.`;
                         next = recipe(finer, dose, esp ? backYield : c.yield);
                         why.push(words('under') || 'It read sour.');
+                        if (dripT) why.push(screw ? 'A phin\'s grind sets how long the water stays on the coffee; screwing the press down a little more also slows it.' : 'A phin\'s grind sets how long the water stays on the coffee: finer drips slower and pulls out more sweetness.');
                     }
                     if (drift) why.push(`At ${keepG || 'this grind'} your shots ran ${this.fmtNum(drift.from)} s on ${this.shortDate(drift.first.date)} and ${this.fmtNum(drift.lo)}\u2013${this.fmtNum(drift.hi)} s lately: the coffee is aging, so it needs a finer grind to hit the same time.`);
                     else if (dT !== null && dT <= -4) why.push(`It ran ${this.fmtNum(-dT)} s faster than ${tLabelShot}.`);
@@ -330,9 +344,10 @@
                         why.push(words('over') || 'It read bitter.', `It ran ${this.fmtNum(c.time)} s, which is fast; bitterness at that speed means water found a channel. Prep the puck (WDT, level, even tamp).`);
                         if (drift) why.push(`At ${keepG || 'this grind'} your shots ran ${this.fmtNum(drift.from)} s on ${this.shortDate(drift.first.date)} and ${this.fmtNum(drift.lo)}\u2013${this.fmtNum(drift.hi)} s lately: the coffee is aging, so it needs a finer grind to hold the same time.`);
                     } else {
-                        head = esp ? `Over-extracted: ${goDir('coarser', coarser)}.` : `Over-extracted: ${goDir('coarser', coarser)}, or brew a little shorter.`;
+                        head = esp ? `Over-extracted: ${goDir('coarser', coarser)}.` : dripT ? `Over-extracted: ${goDir('coarser', coarser)}${screw ? ', or loosen the press a little' : ''}.` : `Over-extracted: ${goDir('coarser', coarser)}, or brew a little shorter.`;
                         next = recipe(coarser, dose, esp ? backYield : c.yield);
                         why.push(words('over') || 'It read bitter.');
+                        if (dripT && c.time > 600) why.push('If it stalls on fresh coffee, the gas is holding the water up: lift the press with a spoon and let it settle back.');
                         if (dT !== null && dT >= 6) why.push(`It ran ${this.fmtNum(dT)} s slower than ${tLabelShot}.`);
                     }
                 } else if (weak >= 1 || strong >= 1) {

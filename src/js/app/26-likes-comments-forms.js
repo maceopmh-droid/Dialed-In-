@@ -419,7 +419,7 @@
                     ...(seedMaster ? { masterGrind: String(seedMaster.grind || '') } : {})
                 }, existing);
                 if (existing) {   // fields this form doesn't show (and ones future versions add) stay as they were
-                    const managed = new Set([...Object.keys(payload), 'temp', 'brewer', 'inverted', 'heat', 'preheated', 'sub', 'recipeName', 'timeUnit', 'steeps', 'teabag', 'bags', 'rinse', 'style', 'milk', 'mix', 'actor', 'actorColor', 'eventAt', 'commentMeta']);   // (v17.0: a tea's steeps, teabags, rinse, matcha style and milk too)
+                    const managed = new Set([...Object.keys(payload), 'temp', 'brewer', 'inverted', 'heat', 'preheated', 'sub', 'press', 'condensed', 'recipeName', 'timeUnit', 'steeps', 'teabag', 'bags', 'rinse', 'style', 'milk', 'mix', 'actor', 'actorColor', 'eventAt', 'commentMeta']);   // (v17.0: a tea's steeps, teabags, rinse, matcha style and milk too)
                     Object.keys(existing).forEach(k => { if (!managed.has(k) && existing[k] !== undefined) payload[k] = existing[k]; });
                 }
 
@@ -444,7 +444,7 @@
                 form.elements.id.value = brew.id;
                 // v17.0: a tea's master recipe: the tea methods, and no grind
                 const tea = this.isTeaBrew(brew), methods = this.methodsFor(tea ? 'tea' : 'coffee');
-                form.method.innerHTML = methods.map(m => `<option value="${this.esc(m)}">${this.esc(this.methodLabel(m))}</option>`).join('');
+                form.method.innerHTML = methods.map(m => `<option value="${this.esc(m)}">${this.esc(this.methodMenuLabel ? this.methodMenuLabel(m) : this.methodLabel(m))}</option>`).join('');
                 form.method.value = methods.includes(profile.method) ? profile.method : methods.includes(brew.method) ? brew.method : methods[0];
                 form.grind.value = profile.grind ?? '';
                 form.dose.value = profile.dose ?? '';
