@@ -16,6 +16,7 @@ struct DialedProvider: TimelineProvider {
     }
 }
 
+// MARK: mark (from here to "end of mark" is plain SwiftUI: .github/workflows/widget-render.yml draws it on a Mac to check it)
 // the shape, in a box 1 wide and 0.7969 tall: 48 points around the outline (a smooth curve runs through them) and the peak
 enum DialedShape {
     static let aspect: CGFloat = 1.2548   // width / height
@@ -84,6 +85,8 @@ struct DialedSolidMark: View {
         .frame(width: width, height: width / DialedShape.aspect)
     }
 }
+
+// MARK: end of mark
 
 // iOS 17 and later want a widget to name its background
 extension View {
