@@ -5,11 +5,19 @@
 #            access), APPLE_TEAM_ID (developer.apple.com, Membership)
 #   variable IOS_BUNDLE_ID (Settings, Variables; defaults to com.dialedincoffeeapp.ios): must match the app in App Store Connect
 # Runs when pushed to the `ios` branch, or by hand (Actions, ios, Run workflow). Nothing here touches the website.
+# v21.13: the app carries a lock screen widget (native/widget, its own bundle ID <app>.widget and its own profile). Run
+# by hand with upload "no", it signs and checks everything but sends nothing to TestFlight (the certificate is taken back).
 name: ios
 on:
   push:
     branches: [ios]
   workflow_dispatch:
+    inputs:
+      upload:
+        description: 'Send the build to TestFlight'
+        type: choice
+        options: ['yes', 'no']
+        default: 'yes'
 
 jobs:
   # a quick check of the App Store Connect key with Apple itself (a minute, on Linux), so a key problem is reported in
@@ -41,7 +49,7 @@ jobs:
           if [ "${{ steps.apple.outputs.asc_from }}" = "APNS" ]; then ASC_KEY_ID="$APNS_KEY_ID"; ASC_KEY_P8="$APNS_KEY_P8"; fi
           k="$RUNNER_TEMP/k.p8"; body=$(printf '%s' "$ASC_KEY_P8" | tr -d '\r"' | sed -e 's/-----BEGIN [A-Z ]*-----//g' -e 's/-----END [A-Z ]*-----//g' | tr -d ' \n\t')
           { echo "-----BEGIN PRIVATE KEY-----"; printf '%s\n' "$body" | fold -w 64; echo "-----END PRIVATE KEY-----"; } > "$k"
-          ASC_KEY_ID="$ASC_KEY_ID" ASC_KEY_FILE="$k" node native/scripts/apple-sign.js --dry; rc=$?; rm -f "$k"; exit $rc
+          ASC_KEY_ID="$ASC_KEY_ID" ASC_KEY_FILE="$k" WIDGET_BUNDLE_ID="$BUNDLE_ID.widget" node native/scripts/apple-sign.js --dry; rc=$?; rm -f "$k"; exit $rc
 
   build:
     needs: check
@@ -112,9 +120,13 @@ jobs:
           S="$RUNNER_TEMP/sign"; mkdir -p "$S"
           printf 'ASC_KEY_ID=%s\nASC_ISSUER_ID=%s\nASC_KEY_FILE=%s\n' "$ASC_KEY_ID" "$ASC_ISSUER_ID" "$key" > "$S/asc.env"
 
-          # this run's distribution certificate and App Store profile, made through the App Store Connect API
-          ASC_KEY_ID="$ASC_KEY_ID" ASC_ISSUER_ID="$ASC_ISSUER_ID" ASC_KEY_FILE="$key" RUN_NUMBER="${{ github.run_number }}" node scripts/apple-sign.js "$S"
+          # this run's distribution certificate and App Store profiles (the app's, and the widget's when the project has it),
+          # made through the App Store Connect API
+          WIDGET=""; grep -q 'DialedInWidget' ios/App/App.xcodeproj/project.pbxproj && WIDGET="$BUNDLE_ID.widget"
+          ASC_KEY_ID="$ASC_KEY_ID" ASC_ISSUER_ID="$ASC_ISSUER_ID" ASC_KEY_FILE="$key" RUN_NUMBER="${{ github.run_number }}" WIDGET_BUNDLE_ID="$WIDGET" node scripts/apple-sign.js "$S"
           PROFILE_NAME=$(grep '^PROFILE_NAME=' "$S/profile.env" | cut -d= -f2-); PROFILE_UUID=$(grep '^PROFILE_UUID=' "$S/profile.env" | cut -d= -f2-)
+          WIDGET_PROFILE_NAME=$(grep '^WIDGET_PROFILE_NAME=' "$S/profile.env" | cut -d= -f2- || true); WIDGET_PROFILE_UUID=$(grep '^WIDGET_PROFILE_UUID=' "$S/profile.env" | cut -d= -f2- || true)
+          if [ -n "$WIDGET" ] && [ -z "$WIDGET_PROFILE_NAME" ]; then echo "::error title=Signing::The widget's profile wasn't made."; exit 1; fi
 
           # a keychain of its own for the certificate (the runner is thrown away afterwards)
           KC="$RUNNER_TEMP/sign.keychain-db"; KCPW=$(openssl rand -hex 16); P12PW=$(openssl rand -hex 16)
@@ -127,21 +139,32 @@ jobs:
           security list-keychains -d user -s "$KC" $(security list-keychains -d user | sed 's/"//g')
           ids=$(security find-identity -v -p codesigning "$KC" | grep -c "Apple Distribution" || true)
           [ "$ids" -ge 1 ] || { echo "::error title=Signing::The distribution certificate didn't install as a signing identity."; exit 1; }
-          for d in "$HOME/Library/MobileDevice/Provisioning Profiles" "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles"; do mkdir -p "$d"; cp "$S/profile.mobileprovision" "$d/$PROFILE_UUID.mobileprovision"; done
+          for d in "$HOME/Library/MobileDevice/Provisioning Profiles" "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles"; do
+            mkdir -p "$d"; cp "$S/profile.mobileprovision" "$d/$PROFILE_UUID.mobileprovision"
+            if [ -n "$WIDGET_PROFILE_UUID" ]; then cp "$S/widget.mobileprovision" "$d/$WIDGET_PROFILE_UUID.mobileprovision"; fi
+          done
 
-          # the app (only the App target) signs by hand with them
-          python3 - "$APPLE_TEAM_ID" "$PROFILE_NAME" "$BUNDLE_ID" <<'PY'
+          # the app and its widget sign by hand with them (each its own bundle ID and profile; only the app has entitlements)
+          python3 - "$APPLE_TEAM_ID" "$PROFILE_NAME" "$BUNDLE_ID" "$WIDGET_PROFILE_NAME" <<'PY'
           import re, sys
-          team, profile, bundle = sys.argv[1:4]
+          team, profile, bundle, wprofile = sys.argv[1:5]
           p = 'ios/App/App.xcodeproj/project.pbxproj'
           s = open(p).read()
           s = re.sub(r'\n\s*(CODE_SIGN_STYLE|DEVELOPMENT_TEAM|PROVISIONING_PROFILE_SPECIFIER|"?CODE_SIGN_IDENTITY(\[sdk=iphoneos\*\])?"?|CODE_SIGN_ENTITLEMENTS) = [^;]*;', '', s)
-          add = (f'CODE_SIGN_STYLE = Manual; DEVELOPMENT_TEAM = {team}; PROVISIONING_PROFILE_SPECIFIER = "{profile}"; '
-                 f'CODE_SIGN_IDENTITY = "Apple Distribution"; "CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution"; CODE_SIGN_ENTITLEMENTS = App/App.entitlements; ')
-          s, n = re.subn(r'(\n(\s*)PRODUCT_BUNDLE_IDENTIFIER = )[^;]*;', lambda m: f'{m.group(1)}{bundle};\n{m.group(2)}' + add.replace('; ', ';\n' + m.group(2)).rstrip(), s)
+          count = {'app': 0, 'widget': 0}
+          def sign(m):
+              lead, ind, cur = m.group(1), m.group(2), m.group(3).strip().strip('"')
+              widget = cur.endswith('.widget')
+              if widget and not wprofile: sys.exit('the widget has no profile')
+              count['widget' if widget else 'app'] += 1
+              add = [f'CODE_SIGN_STYLE = Manual;', f'DEVELOPMENT_TEAM = {team};', f'PROVISIONING_PROFILE_SPECIFIER = "{wprofile if widget else profile}";',
+                     'CODE_SIGN_IDENTITY = "Apple Distribution";', '"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";']
+              if not widget: add.append('CODE_SIGN_ENTITLEMENTS = App/App.entitlements;')
+              return f'{lead}{bundle}{".widget" if widget else ""};' + ''.join(f'\n{ind}{a}' for a in add)
+          s = re.sub(r'(\n(\s*)PRODUCT_BUNDLE_IDENTIFIER = )([^;]*);', sign, s)
           open(p, 'w').write(s)
-          print(f'App target configurations set to sign by hand: {n}')
-          if n < 1: sys.exit(1)
+          print(f"Set to sign by hand: {count['app']} app configurations, {count['widget']} widget configurations")
+          if count['app'] < 1 or (wprofile and count['widget'] < 1): sys.exit(1)
           PY
 
           xcodebuild $XC -scheme App -configuration Release -destination 'generic/platform=iOS' -archivePath build/App.xcarchive \
@@ -157,13 +180,26 @@ jobs:
             <key>teamID</key><string>$APPLE_TEAM_ID</string>
             <key>signingStyle</key><string>manual</string>
             <key>signingCertificate</key><string>Apple Distribution</string>
-            <key>provisioningProfiles</key><dict><key>$BUNDLE_ID</key><string>$PROFILE_NAME</string></dict>
+            <key>provisioningProfiles</key><dict><key>$BUNDLE_ID</key><string>$PROFILE_NAME</string>${WIDGET_PROFILE_NAME:+<key>$BUNDLE_ID.widget</key><string>$WIDGET_PROFILE_NAME</string>}</dict>
             <key>manageAppVersionAndBuildNumber</key><false/>
             <key>uploadSymbols</key><true/>
           </dict></plist>
           PLIST
           xcodebuild -exportArchive -archivePath build/App.xcarchive -exportOptionsPlist build/ExportOptions.plist -exportPath build/out > build/export.log 2>&1 || { grep -E "error|Error" build/export.log | head -15 | while IFS= read -r l; do echo "::error title=Export::$l"; done; tail -40 build/export.log; exit 1; }
           ipa=$(ls build/out/*.ipa | head -1); echo "app file: $(basename "$ipa"), $(du -h "$ipa" | cut -f1)"
+          # v21.13: the widget went in, signed, with the app's version numbers (Apple refuses an upload where they differ)
+          if [ -n "$WIDGET" ]; then
+            X="$RUNNER_TEMP/ipa"; rm -rf "$X"; mkdir -p "$X"; unzip -q "$ipa" -d "$X"
+            A=$(ls -d "$X"/Payload/*.app | head -1); W="$A/PlugIns/DialedInWidget.appex"
+            [ -d "$W" ] || { echo "::error title=Widget::The app file has no widget in it."; exit 1; }
+            pv() { /usr/libexec/PlistBuddy -c "Print :$2" "$1/Info.plist" 2>/dev/null; }
+            [ "$(pv "$W" CFBundleShortVersionString)" = "$(pv "$A" CFBundleShortVersionString)" ] && [ "$(pv "$W" CFBundleVersion)" = "$(pv "$A" CFBundleVersion)" ] || { echo "::error title=Widget::The widget's version ($(pv "$W" CFBundleShortVersionString) build $(pv "$W" CFBundleVersion)) doesn't match the app's."; exit 1; }
+            codesign --verify --strict "$W" || { echo "::error title=Widget::The widget isn't signed properly."; exit 1; }
+            wid=$(security cms -D -i "$W/embedded.mobileprovision" 2>/dev/null | plutil -extract Entitlements.application-identifier raw - 2>/dev/null | cut -d. -f2-)
+            [ "$wid" = "$BUNDLE_ID.widget" ] || { echo "::error title=Widget::The widget's profile is for '$wid', not $BUNDLE_ID.widget."; exit 1; }
+            echo "::notice title=Widget::In the app file: $(pv "$W" CFBundleIdentifier), v$(pv "$W" CFBundleShortVersionString) build $(pv "$W" CFBundleVersion), signed with its own App Store profile."
+          fi
+          if [ "${{ github.event.inputs.upload }}" = "no" ]; then echo "::notice title=TestFlight::A check run: signed and checked, not sent (this run's certificate is taken back)."; exit 0; fi
           # the upload (the key is found by its Key ID in ~/.appstoreconnect/private_keys)
           xcrun altool --upload-app -f "$ipa" -t ios --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID" > build/upload.log 2>&1 || { grep -iE "error|fail|invalid" build/upload.log | grep -v "$ASC_KEY_ID" | head -15 | while IFS= read -r l; do echo "::error title=Upload::$l"; done; tail -20 build/upload.log | grep -v "$ASC_KEY_ID"; exit 1; }
           grep -iE "UPLOAD SUCCEEDED|No errors" build/upload.log | head -3 || true

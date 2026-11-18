@@ -155,4 +155,11 @@ for P in ios/App/CapApp-SPM/Package.swift; do
 done
 if grep -qE 'IPHONEOS_DEPLOYMENT_TARGET = (1[0-4]|[0-9])\.' "$PBX"; then echo "ios-setup: the app still targets an iOS below 15" >&2; exit 1; fi
 
-echo "ios-setup: Info.plist, push hooks, background color, entitlement, icon, launch screen, iOS 15 or later"
+# v21.13: the lock screen widget (Maceo, Nov 18): a WidgetKit extension that shows the icon's flavor shape and opens the
+# app when tapped (native/widget). Added to the project with the xcodeproj tool (it comes with CocoaPods; installed if not).
+ruby -e 'require "xcodeproj"' 2>/dev/null || gem install xcodeproj --no-document --user-install >/dev/null
+BID=$(node -p "require('./capacitor.config.json').appId")
+ruby widget/add-widget.rb "$BID"
+grep -q 'DialedInWidget.appex in Embed Foundation Extensions' ios/App/App.xcodeproj/project.pbxproj || { echo "ios-setup: the widget didn't go into the project" >&2; exit 1; }
+
+echo "ios-setup: Info.plist, push hooks, background color, entitlement, icon, launch screen, iOS 15 or later, lock screen widget"
