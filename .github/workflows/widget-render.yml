@@ -27,8 +27,6 @@ jobs:
           cat > build/main.swift <<'SWIFT'
           import SwiftUI
           import AppKit
-          // stand-in for the lock screen's round frosted background (AccessoryWidgetBackground is iPhone-only)
-          struct Disc: View { var body: some View { Circle().fill(Color.white.opacity(0.16)) } }
           @MainActor func save<V: View>(_ v: V, _ name: String, w: CGFloat, h: CGFloat, light: Bool) {
               let bg = light ? Color(red: 0.86, green: 0.88, blue: 0.84) : Color(red: 0.06, green: 0.13, blue: 0.11)
               let r = ImageRenderer(content: ZStack { bg; v }.frame(width: w, height: h).foregroundStyle(Color.white).environment(\.colorScheme, .dark))
@@ -41,11 +39,7 @@ jobs:
           MainActor.assumeIsolated {
               for light in [false, true] {
                   let t = light ? "light" : "dark"
-                  save(ZStack { Disc(); DialedRingsMark(width: 46) }.frame(width: 72, height: 72), "A_rings_\(t)", w: 96, h: 96, light: light)
-                  save(ZStack { Disc(); DialedSolidMark(width: 44) }.frame(width: 72, height: 72), "B_solid_\(t)", w: 96, h: 96, light: light)
-                  save(DialedRingsMark(width: 62, line: 1.9).frame(width: 72, height: 72), "C_float_\(t)", w: 96, h: 96, light: light)
-                  save(HStack(spacing: 12) { DialedRingsMark(width: 40); Text("Dialed In").font(.system(size: 15, weight: .semibold)).tracking(3.2).lineLimit(1); Spacer(minLength: 0) }
-                       .padding(.leading, 6).frame(width: 160, height: 72), "D_name_\(t)", w: 184, h: 96, light: light)
+                  save(DialedRingsMark(width: 62).frame(width: 72, height: 72), "widget_\(t)", w: 96, h: 96, light: light)
               }
           }
           SWIFT

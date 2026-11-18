@@ -1,8 +1,9 @@
 // Dialed In's lock screen widget (v21.13). Maceo, Nov 18: "I want just a more general aesthetic little thing that you
 // can tap on and open the app but it's on your lock screen". No data, nothing to refresh: the app icon's flavor shape,
-// seen from above (its outline, two inner rings and the peak, traced from the icon), and a tap opens the app. Lock screen
-// widgets are drawn by iOS in one color, matched to the clock. Four looks to try on a real lock screen (the gallery
-// lists them all); the one Maceo picks stays. Built into the iPhone app by native/ios-setup.sh (add-widget.rb).
+// seen from above (its outline and two inner rings, traced from the icon), and a tap opens the app. Lock screen widgets
+// are drawn by iOS in one color, matched to the clock. The look Maceo picked from four mockups: "C but get rid of the
+// tiny dot in the center it looks weird" (the rings on their own, no frosted circle, no peak dot). Built into the iPhone
+// app by native/ios-setup.sh (add-widget.rb).
 import SwiftUI
 import WidgetKit
 
@@ -45,18 +46,10 @@ struct DialedRing: Shape {
     }
 }
 
-struct DialedPeak: Shape {
-    var radius: CGFloat
-    func path(in rect: CGRect) -> Path {
-        let c = CGPoint(x: rect.minX + DialedShape.peak.0 * rect.width, y: rect.minY + DialedShape.peak.1 * rect.height)
-        return Path(ellipseIn: CGRect(x: c.x - radius, y: c.y - radius, width: radius * 2, height: radius * 2))
-    }
-}
-
-// the rings look: outline bright, the two inner rings softer, the peak a dot (line widths in points)
+// the mark: the outline bright, the two inner rings softer (line widths in points)
 struct DialedRingsMark: View {
     var width: CGFloat
-    var line: CGFloat = 1.7
+    var line: CGFloat = 1.9
     var body: some View {
         let style = StrokeStyle(lineWidth: line, lineCap: .round, lineJoin: .round)
         let inner = StrokeStyle(lineWidth: line * 0.72, lineCap: .round, lineJoin: .round)
@@ -64,98 +57,29 @@ struct DialedRingsMark: View {
             DialedRing(scale: 1).stroke(style: style).opacity(0.96)
             DialedRing(scale: 0.66).stroke(style: inner).opacity(0.58)
             DialedRing(scale: 0.36).stroke(style: inner).opacity(0.58)
-            DialedPeak(radius: 1.5)
         }
-        .frame(width: width, height: width / DialedShape.aspect)
-    }
-}
-
-// the solid look: the shape filled, with the rings and the peak cut out of it
-struct DialedSolidMark: View {
-    var width: CGFloat
-    var body: some View {
-        ZStack {
-            DialedRing(scale: 1).fill()
-            DialedRing(scale: 0.66).stroke(lineWidth: 1.3).blendMode(.destinationOut)
-            DialedRing(scale: 0.36).stroke(lineWidth: 1.3).blendMode(.destinationOut)
-            DialedPeak(radius: 1.7).blendMode(.destinationOut)
-        }
-        .compositingGroup()
-        .opacity(0.94)
         .frame(width: width, height: width / DialedShape.aspect)
     }
 }
 
 // MARK: end of mark
 
-// iOS 17 and later want a widget to name its background
-extension View {
-    @ViewBuilder func dialedBackground(circle: Bool) -> some View {
+struct DialedInWidgetView: View {
+    var body: some View {
         if #available(iOS 17.0, *) {
-            if circle { self.containerBackground(for: .widget) { AccessoryWidgetBackground() } }
-            else { self.containerBackground(for: .widget) { Color.clear } }
+            DialedRingsMark(width: 62).containerBackground(for: .widget) { Color.clear }   // (iOS 17 and later want it named)
         } else {
-            if circle { ZStack { AccessoryWidgetBackground(); self } } else { self }
+            DialedRingsMark(width: 62)
         }
-    }
-}
-
-struct DialedRingsWidget: Widget {
-    var body: some WidgetConfiguration {
-        StaticConfiguration(kind: "DialedInRings", provider: DialedProvider()) { _ in
-            DialedRingsMark(width: 46).dialedBackground(circle: true)
-        }
-        .configurationDisplayName("Dialed In · Rings")
-        .description("Tap to open Dialed In.")
-        .supportedFamilies([.accessoryCircular])
-    }
-}
-
-struct DialedSolidWidget: Widget {
-    var body: some WidgetConfiguration {
-        StaticConfiguration(kind: "DialedInSolid", provider: DialedProvider()) { _ in
-            DialedSolidMark(width: 44).dialedBackground(circle: true)
-        }
-        .configurationDisplayName("Dialed In · Solid")
-        .description("Tap to open Dialed In.")
-        .supportedFamilies([.accessoryCircular])
-    }
-}
-
-struct DialedFloatWidget: Widget {
-    var body: some WidgetConfiguration {
-        StaticConfiguration(kind: "DialedInFloat", provider: DialedProvider()) { _ in
-            DialedRingsMark(width: 62, line: 1.9).dialedBackground(circle: false)
-        }
-        .configurationDisplayName("Dialed In · Rings, no circle")
-        .description("Tap to open Dialed In.")
-        .supportedFamilies([.accessoryCircular])
-    }
-}
-
-struct DialedNameWidget: Widget {
-    var body: some WidgetConfiguration {
-        StaticConfiguration(kind: "DialedInName", provider: DialedProvider()) { _ in
-            HStack(spacing: 12) {
-                DialedRingsMark(width: 40)
-                Text("Dialed In").font(.system(size: 15, weight: .semibold)).tracking(3.2).lineLimit(1)
-                Spacer(minLength: 0)
-            }
-            .padding(.leading, 6)
-            .dialedBackground(circle: false)
-        }
-        .configurationDisplayName("Dialed In · Rings and name")
-        .description("Tap to open Dialed In.")
-        .supportedFamilies([.accessoryRectangular])
     }
 }
 
 @main
-struct DialedInWidgets: WidgetBundle {
-    var body: some Widget {
-        DialedRingsWidget()
-        DialedSolidWidget()
-        DialedFloatWidget()
-        DialedNameWidget()
+struct DialedInWidget: Widget {
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: "DialedIn", provider: DialedProvider()) { _ in DialedInWidgetView() }
+            .configurationDisplayName("Dialed In")
+            .description("Tap to open Dialed In.")
+            .supportedFamilies([.accessoryCircular])
     }
 }
