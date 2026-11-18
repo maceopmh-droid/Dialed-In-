@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- Dialed In v21.12 -->
+<!-- Dialed In v21.13 -->
 <html lang="en">
 <head>
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="dialed-in-version" content="21.12">
+    <meta name="dialed-in-version" content="21.13">
     <meta charset="UTF-8">
     <meta name="theme-color" content="#F3EEE4">
     <script id="theme-boot">
@@ -6160,6 +6160,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
         <symbol id="i-method-moka-pot" viewBox="0 0 24 24"><path d="M8.2 3.5h7.6l1 5.5H7.2Z"/><path d="M7.2 9 5.5 20.5h13L16.8 9"/><path d="M6.4 14.2h11.2"/><path d="M16.8 5.2h1.7a1 1 0 0 1 1 1.1l-.6 3.4"/></symbol>
         <symbol id="i-method-aeropress" viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="5" rx="1.2"/><path d="M6.5 8h11M9 8v9.5h6V8"/><path d="M6.5 17.5h11M12 17.5v3.5"/></symbol>
         <symbol id="i-method-rapid" viewBox="0 0 24 24"><path d="M8.5 3.2h7M12 3.2v3"/><rect x="7.8" y="6.2" width="8.4" height="8.6" rx="1.6"/><path d="M6.6 14.8h10.8"/><path d="M8.2 15.4 9.3 20.8h5.4l1.1-5.4"/></symbol>
+        <symbol id="i-method-phin" viewBox="0 0 24 24"><path d="M7.4 3.6h9.2"/><path d="M8 6.2h8l-.7 6.6H8.7Z"/><path d="M4.6 12.8h14.8"/><path d="M11 15v1.2M13 15v1.2"/><path d="M7.4 17.4h9.2l-.9 3.2H8.3Z"/></symbol>
         <symbol id="i-method-instant" viewBox="0 0 24 24"><rect x="7.4" y="3.4" width="9.2" height="3.1" rx="1"/><path d="M8 6.5h8l.9 2.4V19a2 2 0 0 1-2 2H9.1a2 2 0 0 1-2-2V8.9Z"/><path d="M7.1 11.4h9.8M7.1 16.2h9.8"/></symbol>
         <symbol id="i-method-cold-brew" viewBox="0 0 24 24"><path d="M6 4h12l-1.4 15.1a2 2 0 0 1-2 1.9H9.4a2 2 0 0 1-2-1.9Z"/><rect x="8.6" y="9" width="3" height="3" rx=".7"/><rect x="12.4" y="12.4" width="3" height="3" rx=".7"/><path d="M15.4 2.2l-1.4 5"/></symbol>
 
@@ -6572,7 +6573,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                 </div>
             </div>
 
-            <div class="app-version">Dialed In · v21.12</div>
+            <div class="app-version">Dialed In · v21.13</div>
         </div>
     </div>
 
@@ -6873,6 +6874,7 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
                             <option value="Aeropress">AeroPress</option>
                             <option value="Cold Brew">Cold Brew</option>
                             <option value="OXO Rapid Brewer">OXO Rapid Brewer</option>
+                            <option value="Phin">Phin</option>
                             <option value="Instant">Instant</option>
                         </select>
                     </div>
@@ -6956,7 +6958,14 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
             'OXO Rapid Brewer': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Steep (s)', ratio: 8, extras: ['sub', 'temp'], recipes: true },
             // v21.10 (Maceo, Nov 11: "add instant as a brew type"): instant coffee, stirred into water: no grind and no brew time
             // (noGrind / noTime / noRoastDate hide those in the Log: a jar has no roast date); about 2 g to 180 g, hot or iced
-            'Instant': { dose: 'Coffee (g)', yld: 'Water (g)', time: 'Time (s)', ratio: 90, extras: ['sub', 'temp'], recipes: false, noGrind: true, noTime: true, noRoastDate: true }
+            'Instant': { dose: 'Coffee (g)', yld: 'Water (g)', time: 'Time (s)', ratio: 90, extras: ['sub', 'temp'], recipes: false, noGrind: true, noTime: true, noRoastDate: true },
+            // v21.13 (Maceo, Nov 17: "put vietnamese phin brewing as a method figure out how people do it and what factors matter"):
+            // a small metal drip filter set on the cup. Medium-fine coffee (between pour over and espresso), a short bloom, then
+            // filled to the top with water just off the boil; it drips through by gravity, under a press resting on the grounds
+            // or screwed down onto them. Strong: about 1:4 to 1:6 (20 g to 100 g). The drip time is the dial: first drops by about
+            // 2 min, done at about 4 to 6 min; faster means grind finer, slower means coarser (or the press is too tight). Served
+            // hot or over ice, black or with sweetened condensed milk (ca phe sua da: about 2 tbsp in the glass, then ice).
+            'Phin': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Drip time (s)', ratio: 5, extras: ['sub', 'temp', 'press', 'condensed'], recipes: true, drip: [240, 360] }
         };
         // v21.6: the kinds of each method (Maceo, Nov 4: "different types of espressos like turbo shots soup shots salami maybe as a
         // sub catagory of espresso ... and add subcategories for other brew methods if it's applicable"). Optional; nothing picked
@@ -6966,9 +6975,12 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
             'Pour Over': ['Iced'],
             'Cold Brew': ['Immersion', 'Slow drip'],
             'OXO Rapid Brewer': ['Hot', 'Cold'],
-            'Instant': ['Iced']
+            'Instant': ['Iced'],
+            'Phin': ['Iced']   // v21.13
         };
-        const METHOD_KIND_NONE = { 'Espresso': 'Regular shot', 'Pour Over': 'Hot', 'Cold Brew': 'Choose…', 'OXO Rapid Brewer': 'Choose…', 'Instant': 'Hot' };
+        const METHOD_KIND_NONE = { 'Espresso': 'Regular shot', 'Pour Over': 'Hot', 'Cold Brew': 'Choose…', 'OXO Rapid Brewer': 'Choose…', 'Instant': 'Hot', 'Phin': 'Hot' };
+        // v21.13: a phin's press insert: resting on the grounds by its own weight, or screwed down onto them (tighter drips slower)
+        const PHIN_PRESSES = ['Gravity', 'Screw-down'];
         const STEP_KINDS = {
             pour: { label: 'Pour', color: '#4F86D9' }, wait: { label: 'Wait', color: '#8A958C' }, swirl: { label: 'Swirl', color: '#D9A03A' },
             stir: { label: 'Stir', color: '#D9A03A' }, drawdown: { label: 'Drawdown', color: '#3E8F62' }, steep: { label: 'Steep', color: '#8A63C4' },
@@ -6997,7 +7009,14 @@ try { if (window.DIBlob) window.DIBlob.mount(document.querySelector('#boot-scree
             { id: 'oxo-rapid-hot', name: 'Rapid Brewer, hot', method: 'OXO Rapid Brewer', sub: 'Hot', dose: 20, water: 160, temp: 96, credit: 'OXO\'s guide: concentrate, dilute 1:2 to 1:3', steps: [
                 { k: 'pour', d: 15, s: 1, n: 'Hot water to the fill line' }, { k: 'steep', d: 120, n: 'Pump on, let it steep' }, { k: 'press', d: 30, n: 'Unlock and pump until it stops dripping' }] },
             { id: 'oxo-rapid-cold', name: 'Rapid Brewer, cold', method: 'OXO Rapid Brewer', sub: 'Cold', dose: 40, water: 160, credit: 'OXO\'s guide: concentrate, dilute 1:2 to 1:3', steps: [
-                { k: 'pour', d: 15, s: 1, n: 'Cold or room-temperature water to the fill line' }, { k: 'steep', d: 300, n: 'Pump on, let it steep' }, { k: 'press', d: 30, n: 'Unlock and pump until it stops dripping' }] }
+                { k: 'pour', d: 15, s: 1, n: 'Cold or room-temperature water to the fill line' }, { k: 'steep', d: 300, n: 'Pump on, let it steep' }, { k: 'press', d: 30, n: 'Unlock and pump until it stops dripping' }] },
+            // v21.13: the phin (the common guides: a short bloom, filled to the top, about 5 minutes of dripping)
+            { id: 'phin-classic', name: 'Phin, hot', method: 'Phin', dose: 20, water: 100, temp: 94, credit: 'Bloom, fill to the top, lid on, let it drip', steps: [
+                { k: 'pour', d: 10, s: 0.25, n: 'Bloom: just enough to wet the grounds' }, { k: 'wait', d: 40, n: 'Fresh coffee swells; let it settle' },
+                { k: 'pour', d: 15, s: 1, n: 'Fill to the top, then the lid on' }, { k: 'drawdown', d: 240, n: 'Hands off: first drops by about 2 minutes' }] },
+            { id: 'phin-sua-da', name: 'Cà phê sữa đá', method: 'Phin', sub: 'Iced', dose: 20, water: 90, temp: 94, credit: 'About 2 tbsp condensed milk in the glass; stir, then pour over ice', steps: [
+                { k: 'pour', d: 10, s: 0.25, n: 'Bloom: just enough to wet the grounds' }, { k: 'wait', d: 40, n: 'Fresh coffee swells; let it settle' },
+                { k: 'pour', d: 15, s: 1, n: 'Fill to the top, then the lid on' }, { k: 'drawdown', d: 240, n: 'Drips onto the condensed milk' }, { k: 'stir', d: 15, n: 'Stir, then pour over a glass of ice' }] }
         ];
 
         // ===================== Flavor shape engine (v10) =====================
@@ -8362,7 +8381,7 @@ const SUPABASE = { url: 'https://glombusdjwlrgjihnylk.supabase.co', anonKey: 'sb
             { key: 'latte', label: 'Latte', short: 'Latte', ratio: 30, milk: true, usual: '2 g in 60 ml, then 150 ml milk' },
             { key: 'iced', label: 'Iced latte', short: 'Iced latte', ratio: 30, milk: true, usual: '2 g in 60 ml, then 150 ml cold milk over ice' }
         ];
-        const COFFEE_METHODS = ['Espresso', 'Pour Over', 'French Press', 'Moka Pot', 'Aeropress', 'Cold Brew', 'OXO Rapid Brewer', 'Instant'];
+        const COFFEE_METHODS = ['Espresso', 'Pour Over', 'French Press', 'Moka Pot', 'Aeropress', 'Cold Brew', 'OXO Rapid Brewer', 'Phin', 'Instant'];   // (v21.13: Phin)
         // the six sliders keep their places (and storage keys); tea reads them in tea words. Acidity's place is astringency.
         const TEA_TASTE_META = [
             ['acidity', 'Astringency', ['Soft', 'Some grip', 'Drying']],
@@ -10028,6 +10047,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     'Cold Brew': '#i-method-cold-brew',
                     'OXO Rapid Brewer': '#i-method-rapid',   // v21.6
                     'Instant': '#i-method-instant',   // v21.10
+                    'Phin': '#i-method-phin',   // v21.13
                     'Western': '#i-method-western', 'Gongfu': '#i-method-gongfu', 'Matcha': '#i-method-matcha', 'Cold Steep': '#i-method-cold-steep'   // v17.0
                 };
                 return map[method] || '#i-method-espresso';
@@ -12061,7 +12081,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             },
 
             coachFromBrew(brew) {
-                return { id: String(brew.id), owner: this.getBrewOwner(brew), beanKey: this.groupKeyOfBrew(brew), beanId: String(brew.beanId || ''), method: brew.method || '', sub: brew.sub || '', temp: this.num(brew.temp), date: brew.date,
+                return { id: String(brew.id), owner: this.getBrewOwner(brew), beanKey: this.groupKeyOfBrew(brew), beanId: String(brew.beanId || ''), method: brew.method || '', sub: brew.sub || '', temp: this.num(brew.temp), press: brew.press || '', date: brew.date,
                     grind: brew.grind, dose: this.num(brew.dose), yield: this.num(brew.yield), time: this.num(brew.time), rating: this.normalizeRating(brew.rating),
                     text: this.getBrewNotes(brew), flavors: this.extractFlavors(brew), values: this.shapeValues(brew), tasted: this.tastedKeys(brew), tastedExplicit: Array.isArray(brew.tasted) && brew.tasted.length > 0,   /* v16.2: an empty list is no list (see tasteValue) */ verdict: String(brew.verdict || ''), grinder: this.grinderFor(brew) };
             },
@@ -12072,7 +12092,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 const existing = editing ? this.brews.get(editing) : null;
                 const r = this.readFormRecipe();
                 return { id: editing, owner: this.user, beanKey: this.activeGroup ? this.beanGroupKey(this.activeGroup.meta) : '', beanId: String(this.activeId || ''), method: r.method, sub: (this.methodExtras && (METHOD_KINDS[r.method] || []).includes(this.methodExtras.sub)) ? this.methodExtras.sub : '',
-                    temp: this.tempC ? this.tempC((this.methodExtras || {}).temp) : 0, date: existing ? existing.date : new Date().toISOString(), grind: form && form.grind ? form.grind.value : '', dose: this.num(r.dose), yield: this.num(r.yield), time: this.num(r.time),
+                    temp: this.tempC ? this.tempC((this.methodExtras || {}).temp) : 0, press: (this.methodExtras || {}).press || '', date: existing ? existing.date : new Date().toISOString(), grind: form && form.grind ? form.grind.value : '', dose: this.num(r.dose), yield: this.num(r.yield), time: this.num(r.time),
                     rating: form && form.rating ? this.normalizeRating(form.rating.value) : 0, text: form && form.notes ? form.notes.value : '', flavors: [...this.selFlavors],
                     values: this.formTasteValues(), tasted: [...this.tasteTouched], tastedExplicit: true, grinder: this.formGrinder(r.method) };
             },
@@ -12192,6 +12212,8 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             coach(c) {
                 if (c.method === 'Instant' && this.instantCoach) return this.instantCoach(c);   // v21.10: no grind or time to steer by
                 const esp = c.method === 'Espresso';
+                const dripT = this.methodProfile(c.method).drip || null;   // v21.13: a phin's drip time is its dial (like a shot's time)
+                const screw = dripT && c.press === 'Screw-down';
                 const past = this.coachPast(c);
                 const rate = b => this.normalizeRating(b.rating);
                 let ref = null;
@@ -12242,6 +12264,15 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 }
                 if (esp && ref && dT !== null) { if (dT <= -4) tU += dT <= -7 ? 1.2 : 0.8; else if (dT >= 6) tO += dT >= 9 ? 1.2 : 0.8; }
                 if (esp && c.time > 0 && c.time < 20) tU = Math.max(tU, 1.6);   // v11.7: under 20 s is fast, whatever the best shot did
+                // v21.13: a phin: most guides have the first drops by about 2 minutes and the last at about 4 to 6. Through in under 3
+                // minutes is fast (grind finer); over 8 is slow (coarser, or the press is too tight). Against your best: a minute either way.
+                if (dripT && c.time > 0) {
+                    if (ref && refT > 0) {
+                        if (c.time <= refT - 60) { tU += c.time <= refT - 120 ? 1.2 : 0.8; ev.push({ side: 'under', text: `Dripped through in ${this.clock(c.time)}, faster than your best (${this.clock(refT)})` }); }
+                        else if (c.time >= refT + 60) { tO += c.time >= refT + 150 ? 1.2 : 0.8; ev.push({ side: 'over', text: `Dripped for ${this.clock(c.time)}, slower than your best (${this.clock(refT)})` }); }
+                    } else if (c.time < 180) { tU += c.time < 150 ? 1.2 : 0.8; ev.push({ side: 'under', text: `Dripped through fast (${this.clock(c.time)})` }); }
+                    else if (c.time > 480) { tO += c.time > 600 ? 1.2 : 0.8; ev.push({ side: 'over', text: `Dripped slowly (${this.clock(c.time)})` }); }
+                }
                 // time supports the taste; it only adds weight when the notes don't strongly say the opposite
                 const U0 = U, O0 = O;
                 if (O0 < 1.2) U += tU;
@@ -12264,7 +12295,9 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 let aimBase = refOut ? usual.t : (refT || (cof ? cof.tm : pal ? (pal.t0 + pal.t1) / 2 : 30));
                 if (!usual) aimBase = Math.min(Math.max(aimBase, 24), 45);
                 let aim = esp ? [Math.round(aimBase), Math.round(aimBase + (drift ? 6 : 4))] : null;
-                const recipe = (grindStr, d, y) => [grindStr, d > 0 && y > 0 ? `${this.fmtNum(d, 1)} g \u2192 ${this.fmtNum(y, 1)} g (1:${this.fmtNum(y / d, 1)})` : '', aim ? `aim ${aim[0]}\u2013${aim[1]} s` : ''].filter(Boolean).join(' \u00b7 ');
+                // v21.13: a phin aims at its drip time: about your best's (within the usual 4 to 6 minutes), else 4 to 6 minutes
+                const dripAim = dripT ? (refT >= dripT[0] - 60 && refT <= dripT[1] + 60 ? [Math.max(150, refT - 30), refT + 30] : dripT) : null;
+                const recipe = (grindStr, d, y) => [grindStr, d > 0 && y > 0 ? `${this.fmtNum(d, 1)} g \u2192 ${this.fmtNum(y, 1)} g (1:${this.fmtNum(y / d, 1)})` : '', aim ? `aim ${aim[0]}\u2013${aim[1]} s` : dripAim ? `drips ${this.clock(dripAim[0])}\u2013${this.clock(dripAim[1])}` : ''].filter(Boolean).join(' \u00b7 ');
                 const keepG = this.grindText(c.grind) ? `grind ${this.grindText(c.grind)}` : '';
                 const backYield = dose > 0 && tRatio ? Math.round(dose * tRatio) : c.yield;
                 const finer = this.nextGrind(c.grind, 'finer', gm), coarser = this.nextGrind(c.grind, 'coarser', gm);
@@ -12312,9 +12345,10 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                         next = recipe(keepG, c.dose, c.yield + 3);
                         why.push(words('under') || 'It read sour.', `At ${this.fmtNum(c.time)} s a finer grind would choke it; letting a bit more coffee through (or brewing a few degrees hotter) extracts more instead.`);
                     } else {
-                        head = esp ? `Under-extracted: ${goDir('finer', finer)}.` : `Under-extracted: ${goDir('finer', finer)}, or brew a little longer.`;
+                        head = esp ? `Under-extracted: ${goDir('finer', finer)}.` : dripT ? `Under-extracted: ${goDir('finer', finer)}, so it drips longer.` : `Under-extracted: ${goDir('finer', finer)}, or brew a little longer.`;
                         next = recipe(finer, dose, esp ? backYield : c.yield);
                         why.push(words('under') || 'It read sour.');
+                        if (dripT) why.push(screw ? 'A phin\'s grind sets how long the water stays on the coffee; screwing the press down a little more also slows it.' : 'A phin\'s grind sets how long the water stays on the coffee: finer drips slower and pulls out more sweetness.');
                     }
                     if (drift) why.push(`At ${keepG || 'this grind'} your shots ran ${this.fmtNum(drift.from)} s on ${this.shortDate(drift.first.date)} and ${this.fmtNum(drift.lo)}\u2013${this.fmtNum(drift.hi)} s lately: the coffee is aging, so it needs a finer grind to hit the same time.`);
                     else if (dT !== null && dT <= -4) why.push(`It ran ${this.fmtNum(-dT)} s faster than ${tLabelShot}.`);
@@ -12331,9 +12365,10 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                         why.push(words('over') || 'It read bitter.', `It ran ${this.fmtNum(c.time)} s, which is fast; bitterness at that speed means water found a channel. Prep the puck (WDT, level, even tamp).`);
                         if (drift) why.push(`At ${keepG || 'this grind'} your shots ran ${this.fmtNum(drift.from)} s on ${this.shortDate(drift.first.date)} and ${this.fmtNum(drift.lo)}\u2013${this.fmtNum(drift.hi)} s lately: the coffee is aging, so it needs a finer grind to hold the same time.`);
                     } else {
-                        head = esp ? `Over-extracted: ${goDir('coarser', coarser)}.` : `Over-extracted: ${goDir('coarser', coarser)}, or brew a little shorter.`;
+                        head = esp ? `Over-extracted: ${goDir('coarser', coarser)}.` : dripT ? `Over-extracted: ${goDir('coarser', coarser)}${screw ? ', or loosen the press a little' : ''}.` : `Over-extracted: ${goDir('coarser', coarser)}, or brew a little shorter.`;
                         next = recipe(coarser, dose, esp ? backYield : c.yield);
                         why.push(words('over') || 'It read bitter.');
+                        if (dripT && c.time > 600) why.push('If it stalls on fresh coffee, the gas is holding the water up: lift the press with a spoon and let it settle back.');
                         if (dT !== null && dT >= 6) why.push(`It ran ${this.fmtNum(dT)} s slower than ${tLabelShot}.`);
                     }
                 } else if (weak >= 1 || strong >= 1) {
@@ -14327,7 +14362,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             extrasFrom(brew) {
                 const b = brew || {};
                 return { temp: b.temp || '', brewer: b.brewer || '', inverted: !!b.inverted, heat: b.heat || '', preheated: !!b.preheated, steeps: Array.isArray(b.steeps) ? b.steeps.map(Number).filter(v => v > 0) : [],
-                    teabag: !!b.teabag, bags: Number(b.bags) || 0, rinse: !!b.rinse, style: b.style || '', milk: b.milk || '', sub: b.sub || '',
+                    teabag: !!b.teabag, bags: Number(b.bags) || 0, rinse: !!b.rinse, style: b.style || '', milk: b.milk || '', sub: b.sub || '', press: b.press || '', condensed: b.condensed || '',
                     mix: Array.isArray(b.mix) ? b.mix.filter(it => it && it.name).map(it => ({ name: String(it.name), amount: it.amount ?? '', unit: it.unit || 'g', ...(it.ref ? { ref: String(it.ref) } : {}) })) : [] };   // (v17.0: a tea's steeps, teabags, rinse, matcha style and milk; v17.1: what went in the cup)
             },
 
@@ -14382,7 +14417,10 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     steeps: p.tea && this.steepsFieldHtml ? this.steepsFieldHtml(x.steeps) : '',   // v17.0
                     heat: `<div><label>Heat</label><select name="heat" onchange="app.methodExtras.heat = this.value">${['', 'Low', 'Medium', 'High'].map(v => `<option value="${v}"${v === x.heat ? ' selected' : ''}>${v || 'Choose…'}</option>`).join('')}</select></div>`,
                     inverted: `<label class="method-check"><input type="checkbox" name="inverted"${x.inverted ? ' checked' : ''} onchange="app.methodExtras.inverted = this.checked"> Inverted</label>`,
-                    preheated: `<label class="method-check"><input type="checkbox" name="preheated"${x.preheated ? ' checked' : ''} onchange="app.methodExtras.preheated = this.checked"> Hot water in the base</label>`
+                    preheated: `<label class="method-check"><input type="checkbox" name="preheated"${x.preheated ? ' checked' : ''} onchange="app.methodExtras.preheated = this.checked"> Hot water in the base</label>`,
+                    // v21.13: the phin's press insert, and the sweetened condensed milk in the cup (none: black)
+                    press: `<div><label>Press</label><select name="press" onchange="app.methodExtras.press = this.value">${['', ...PHIN_PRESSES].map(v => `<option value="${v}"${v === (x.press || '') ? ' selected' : ''}>${v ? (v === 'Gravity' ? 'Gravity (rests on top)' : 'Screw-down') : 'Choose…'}</option>`).join('')}</select></div>`,
+                    condensed: `<div><label>Condensed milk (tbsp)</label><input type="number" name="condensed" min="0" max="10" step="0.5" inputmode="decimal" placeholder="none" value="${this.esc(x.condensed)}" oninput="app.methodExtras.condensed = this.value"></div>`
                 };
                 box.innerHTML = p.extras.map(k => field[k]).join('');
                 box.hidden = !p.extras.length;
@@ -14405,6 +14443,8 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     else if (k === 'mix') { const list = this.cleanMix ? this.cleanMix(x.mix) : []; if (list.length) out.mix = list; }
                     else if (k === 'inverted' || k === 'preheated') out[k] = !!x[k];
                     else if (k === 'sub') { if ((METHOD_KINDS[method] || []).includes(x.sub)) out.sub = x.sub; }   // v21.6
+                    else if (k === 'press') { if (PHIN_PRESSES.includes(x.press)) out.press = x.press; }   // v21.13
+                    else if (k === 'condensed') { const t = Number(x.condensed); if (t > 0 && t <= 10) out.condensed = Math.round(t * 2) / 2; }   // v21.13: tablespoons, to the half
                     else if (k === 'steeps') { const list = (Array.isArray(x.steeps) ? x.steeps : []).map(Number).filter(v => v > 0 && v <= 3600).slice(0, 30); if (list.length) out.steeps = list; }   // v17.0
                     else if (x[k]) out[k] = String(x[k]).slice(0, 30);
                 });
@@ -15591,6 +15631,8 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 if (b.temp && !(this.isTeaBrew && this.isTeaBrew(b))) out.push(`${this.fmtNum(b.temp)}°C`);   // (a tea's temperature is in its strip)
                 if (b.heat) out.push(`${b.heat} heat`);
                 if (b.inverted) out.push('Inverted');
+                if (b.press) out.push(`${b.press} press`);   // v21.13: a phin's
+                if (Number(b.condensed) > 0) out.push(`${this.fmtNum(b.condensed)} tbsp condensed milk`);
                 if (this.isTeaBrew && this.isTeaBrew(b)) {   // v17.0: how a tea was made
                     const st = b.method === 'Matcha' && this.matchaStyle ? this.matchaStyle(b) : null;
                     if (st) out.push(st.milk && Number(b.milk) > 0 ? `${st.short} · ${this.fmtNum(b.milk, 0)} ml milk` : st.short);
@@ -20571,7 +20613,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                     ...(seedMaster ? { masterGrind: String(seedMaster.grind || '') } : {})
                 }, existing);
                 if (existing) {   // fields this form doesn't show (and ones future versions add) stay as they were
-                    const managed = new Set([...Object.keys(payload), 'temp', 'brewer', 'inverted', 'heat', 'preheated', 'sub', 'recipeName', 'timeUnit', 'steeps', 'teabag', 'bags', 'rinse', 'style', 'milk', 'mix', 'actor', 'actorColor', 'eventAt', 'commentMeta']);   // (v17.0: a tea's steeps, teabags, rinse, matcha style and milk too)
+                    const managed = new Set([...Object.keys(payload), 'temp', 'brewer', 'inverted', 'heat', 'preheated', 'sub', 'press', 'condensed', 'recipeName', 'timeUnit', 'steeps', 'teabag', 'bags', 'rinse', 'style', 'milk', 'mix', 'actor', 'actorColor', 'eventAt', 'commentMeta']);   // (v17.0: a tea's steeps, teabags, rinse, matcha style and milk too)
                     Object.keys(existing).forEach(k => { if (!managed.has(k) && existing[k] !== undefined) payload[k] = existing[k]; });
                 }
 
@@ -20596,7 +20638,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 form.elements.id.value = brew.id;
                 // v17.0: a tea's master recipe: the tea methods, and no grind
                 const tea = this.isTeaBrew(brew), methods = this.methodsFor(tea ? 'tea' : 'coffee');
-                form.method.innerHTML = methods.map(m => `<option value="${this.esc(m)}">${this.esc(this.methodLabel(m))}</option>`).join('');
+                form.method.innerHTML = methods.map(m => `<option value="${this.esc(m)}">${this.esc(this.methodMenuLabel ? this.methodMenuLabel(m) : this.methodLabel(m))}</option>`).join('');
                 form.method.value = methods.includes(profile.method) ? profile.method : methods.includes(brew.method) ? brew.method : methods[0];
                 form.grind.value = profile.grind ?? '';
                 form.dose.value = profile.dose ?? '';
@@ -22863,7 +22905,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             // ---- Discover's filters: Help, New here, one method
             commFilterHtml() {
                 const st = this.commState(), f = st.filter || '';
-                const opts = [['', 'All'], ['help', 'Help'], ['new', 'New here'], ...['Espresso', 'Pour Over', 'French Press', 'AeroPress', 'Moka Pot', 'Cold Brew', 'OXO Rapid Brewer', 'Instant'].map(m => ['m:' + m, m])];
+                const opts = [['', 'All'], ['help', 'Help'], ['new', 'New here'], ...['Espresso', 'Pour Over', 'French Press', 'AeroPress', 'Moka Pot', 'Cold Brew', 'OXO Rapid Brewer', 'Phin', 'Instant'].map(m => ['m:' + m, m])];
                 return `<div class="comm-filters" role="tablist" aria-label="Show">${opts.map(([k, l]) => `<button type="button" class="comm-chip${k === f ? ' on' : ''}" role="tab" aria-selected="${k === f}" data-f="${this.esc(k)}" onclick="app.setCommFilter(this.getAttribute('data-f'))">${this.esc(l)}</button>`).join('')}</div>`;
             },
 
@@ -26429,7 +26471,9 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
             },
             kindOfBrew(brew) { return this.isTeaBrew(brew) ? 'tea' : 'coffee'; },
             methodsFor(kind) { return kind === 'tea' ? TEA_METHODS : COFFEE_METHODS; },
-            methodLabel(m) { return m === 'Aeropress' ? 'AeroPress' : String(m || ''); },
+            methodLabel(m) { return m === 'Aeropress' ? 'AeroPress' : m === 'Phin' ? 'Vietnamese Phin' : String(m || ''); },   // (v21.13)
+            // v21.13: the Log's method menu is half the width: a phin is just "Phin" there (its pill and page say Vietnamese Phin)
+            methodMenuLabel(m) { return m === 'Phin' ? 'Phin' : this.methodLabel(m); },
             // v21.6: an espresso's kind names it ("Turbo", "Soup"); other methods keep their name (their kind is in the extras line)
             methodShort(m, sub) { return m === 'Espresso' && sub && (METHOD_KINDS.Espresso || []).includes(sub) ? (/^(Turbo|Soup|Salami)$/.test(sub) ? `${sub} shot` : sub) : (this.methodLabel(m) || 'Espresso'); },
             tasteMetaFor(kind) { return kind === 'tea' ? TEA_TASTE_META : TASTE_META; },
@@ -26631,7 +26675,7 @@ decaf|Decaf|decaf;decaffeinated;decaffeinato;descafeinado`;
                 if (sel && sel.getAttribute('data-kind') !== sig) {
                     const keep = sel.value;
                     sel.setAttribute('data-kind', sig);
-                    sel.innerHTML = `<option value="">Select Method</option>` + list.map(m => `<option value="${this.esc(m)}">${this.esc(this.methodLabel(m))}</option>`).join('');
+                    sel.innerHTML = `<option value="">Select Method</option>` + list.map(m => `<option value="${this.esc(m)}">${this.esc(this.methodMenuLabel(m))}</option>`).join('');
                     sel.value = list.includes(keep) ? keep : '';
                 }
                 if (form.dose) form.dose.required = !tea;   // v17.1: a tea's leaf is optional (a cup of several things, a teabag)

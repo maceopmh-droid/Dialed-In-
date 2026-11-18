@@ -33,7 +33,14 @@
             'OXO Rapid Brewer': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Steep (s)', ratio: 8, extras: ['sub', 'temp'], recipes: true },
             // v21.10 (Maceo, Nov 11: "add instant as a brew type"): instant coffee, stirred into water: no grind and no brew time
             // (noGrind / noTime / noRoastDate hide those in the Log: a jar has no roast date); about 2 g to 180 g, hot or iced
-            'Instant': { dose: 'Coffee (g)', yld: 'Water (g)', time: 'Time (s)', ratio: 90, extras: ['sub', 'temp'], recipes: false, noGrind: true, noTime: true, noRoastDate: true }
+            'Instant': { dose: 'Coffee (g)', yld: 'Water (g)', time: 'Time (s)', ratio: 90, extras: ['sub', 'temp'], recipes: false, noGrind: true, noTime: true, noRoastDate: true },
+            // v21.13 (Maceo, Nov 17: "put vietnamese phin brewing as a method figure out how people do it and what factors matter"):
+            // a small metal drip filter set on the cup. Medium-fine coffee (between pour over and espresso), a short bloom, then
+            // filled to the top with water just off the boil; it drips through by gravity, under a press resting on the grounds
+            // or screwed down onto them. Strong: about 1:4 to 1:6 (20 g to 100 g). The drip time is the dial: first drops by about
+            // 2 min, done at about 4 to 6 min; faster means grind finer, slower means coarser (or the press is too tight). Served
+            // hot or over ice, black or with sweetened condensed milk (ca phe sua da: about 2 tbsp in the glass, then ice).
+            'Phin': { dose: 'Dose (g)', yld: 'Water (g)', time: 'Drip time (s)', ratio: 5, extras: ['sub', 'temp', 'press', 'condensed'], recipes: true, drip: [240, 360] }
         };
         // v21.6: the kinds of each method (Maceo, Nov 4: "different types of espressos like turbo shots soup shots salami maybe as a
         // sub catagory of espresso ... and add subcategories for other brew methods if it's applicable"). Optional; nothing picked
@@ -43,9 +50,12 @@
             'Pour Over': ['Iced'],
             'Cold Brew': ['Immersion', 'Slow drip'],
             'OXO Rapid Brewer': ['Hot', 'Cold'],
-            'Instant': ['Iced']
+            'Instant': ['Iced'],
+            'Phin': ['Iced']   // v21.13
         };
-        const METHOD_KIND_NONE = { 'Espresso': 'Regular shot', 'Pour Over': 'Hot', 'Cold Brew': 'Choose…', 'OXO Rapid Brewer': 'Choose…', 'Instant': 'Hot' };
+        const METHOD_KIND_NONE = { 'Espresso': 'Regular shot', 'Pour Over': 'Hot', 'Cold Brew': 'Choose…', 'OXO Rapid Brewer': 'Choose…', 'Instant': 'Hot', 'Phin': 'Hot' };
+        // v21.13: a phin's press insert: resting on the grounds by its own weight, or screwed down onto them (tighter drips slower)
+        const PHIN_PRESSES = ['Gravity', 'Screw-down'];
         const STEP_KINDS = {
             pour: { label: 'Pour', color: '#4F86D9' }, wait: { label: 'Wait', color: '#8A958C' }, swirl: { label: 'Swirl', color: '#D9A03A' },
             stir: { label: 'Stir', color: '#D9A03A' }, drawdown: { label: 'Drawdown', color: '#3E8F62' }, steep: { label: 'Steep', color: '#8A63C4' },
@@ -74,6 +84,13 @@
             { id: 'oxo-rapid-hot', name: 'Rapid Brewer, hot', method: 'OXO Rapid Brewer', sub: 'Hot', dose: 20, water: 160, temp: 96, credit: 'OXO\'s guide: concentrate, dilute 1:2 to 1:3', steps: [
                 { k: 'pour', d: 15, s: 1, n: 'Hot water to the fill line' }, { k: 'steep', d: 120, n: 'Pump on, let it steep' }, { k: 'press', d: 30, n: 'Unlock and pump until it stops dripping' }] },
             { id: 'oxo-rapid-cold', name: 'Rapid Brewer, cold', method: 'OXO Rapid Brewer', sub: 'Cold', dose: 40, water: 160, credit: 'OXO\'s guide: concentrate, dilute 1:2 to 1:3', steps: [
-                { k: 'pour', d: 15, s: 1, n: 'Cold or room-temperature water to the fill line' }, { k: 'steep', d: 300, n: 'Pump on, let it steep' }, { k: 'press', d: 30, n: 'Unlock and pump until it stops dripping' }] }
+                { k: 'pour', d: 15, s: 1, n: 'Cold or room-temperature water to the fill line' }, { k: 'steep', d: 300, n: 'Pump on, let it steep' }, { k: 'press', d: 30, n: 'Unlock and pump until it stops dripping' }] },
+            // v21.13: the phin (the common guides: a short bloom, filled to the top, about 5 minutes of dripping)
+            { id: 'phin-classic', name: 'Phin, hot', method: 'Phin', dose: 20, water: 100, temp: 94, credit: 'Bloom, fill to the top, lid on, let it drip', steps: [
+                { k: 'pour', d: 10, s: 0.25, n: 'Bloom: just enough to wet the grounds' }, { k: 'wait', d: 40, n: 'Fresh coffee swells; let it settle' },
+                { k: 'pour', d: 15, s: 1, n: 'Fill to the top, then the lid on' }, { k: 'drawdown', d: 240, n: 'Hands off: first drops by about 2 minutes' }] },
+            { id: 'phin-sua-da', name: 'Cà phê sữa đá', method: 'Phin', sub: 'Iced', dose: 20, water: 90, temp: 94, credit: 'About 2 tbsp condensed milk in the glass; stir, then pour over ice', steps: [
+                { k: 'pour', d: 10, s: 0.25, n: 'Bloom: just enough to wet the grounds' }, { k: 'wait', d: 40, n: 'Fresh coffee swells; let it settle' },
+                { k: 'pour', d: 15, s: 1, n: 'Fill to the top, then the lid on' }, { k: 'drawdown', d: 240, n: 'Drips onto the condensed milk' }, { k: 'stir', d: 15, n: 'Stir, then pour over a glass of ice' }] }
         ];
 

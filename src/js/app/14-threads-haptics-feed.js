@@ -496,6 +496,8 @@
                 if (b.temp && !(this.isTeaBrew && this.isTeaBrew(b))) out.push(`${this.fmtNum(b.temp)}°C`);   // (a tea's temperature is in its strip)
                 if (b.heat) out.push(`${b.heat} heat`);
                 if (b.inverted) out.push('Inverted');
+                if (b.press) out.push(`${b.press} press`);   // v21.13: a phin's
+                if (Number(b.condensed) > 0) out.push(`${this.fmtNum(b.condensed)} tbsp condensed milk`);
                 if (this.isTeaBrew && this.isTeaBrew(b)) {   // v17.0: how a tea was made
                     const st = b.method === 'Matcha' && this.matchaStyle ? this.matchaStyle(b) : null;
                     if (st) out.push(st.milk && Number(b.milk) > 0 ? `${st.short} · ${this.fmtNum(b.milk, 0)} ml milk` : st.short);

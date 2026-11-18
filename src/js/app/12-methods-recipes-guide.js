@@ -42,7 +42,7 @@
             extrasFrom(brew) {
                 const b = brew || {};
                 return { temp: b.temp || '', brewer: b.brewer || '', inverted: !!b.inverted, heat: b.heat || '', preheated: !!b.preheated, steeps: Array.isArray(b.steeps) ? b.steeps.map(Number).filter(v => v > 0) : [],
-                    teabag: !!b.teabag, bags: Number(b.bags) || 0, rinse: !!b.rinse, style: b.style || '', milk: b.milk || '', sub: b.sub || '',
+                    teabag: !!b.teabag, bags: Number(b.bags) || 0, rinse: !!b.rinse, style: b.style || '', milk: b.milk || '', sub: b.sub || '', press: b.press || '', condensed: b.condensed || '',
                     mix: Array.isArray(b.mix) ? b.mix.filter(it => it && it.name).map(it => ({ name: String(it.name), amount: it.amount ?? '', unit: it.unit || 'g', ...(it.ref ? { ref: String(it.ref) } : {}) })) : [] };   // (v17.0: a tea's steeps, teabags, rinse, matcha style and milk; v17.1: what went in the cup)
             },
 
@@ -97,7 +97,10 @@
                     steeps: p.tea && this.steepsFieldHtml ? this.steepsFieldHtml(x.steeps) : '',   // v17.0
                     heat: `<div><label>Heat</label><select name="heat" onchange="app.methodExtras.heat = this.value">${['', 'Low', 'Medium', 'High'].map(v => `<option value="${v}"${v === x.heat ? ' selected' : ''}>${v || 'Choose…'}</option>`).join('')}</select></div>`,
                     inverted: `<label class="method-check"><input type="checkbox" name="inverted"${x.inverted ? ' checked' : ''} onchange="app.methodExtras.inverted = this.checked"> Inverted</label>`,
-                    preheated: `<label class="method-check"><input type="checkbox" name="preheated"${x.preheated ? ' checked' : ''} onchange="app.methodExtras.preheated = this.checked"> Hot water in the base</label>`
+                    preheated: `<label class="method-check"><input type="checkbox" name="preheated"${x.preheated ? ' checked' : ''} onchange="app.methodExtras.preheated = this.checked"> Hot water in the base</label>`,
+                    // v21.13: the phin's press insert, and the sweetened condensed milk in the cup (none: black)
+                    press: `<div><label>Press</label><select name="press" onchange="app.methodExtras.press = this.value">${['', ...PHIN_PRESSES].map(v => `<option value="${v}"${v === (x.press || '') ? ' selected' : ''}>${v ? (v === 'Gravity' ? 'Gravity (rests on top)' : 'Screw-down') : 'Choose…'}</option>`).join('')}</select></div>`,
+                    condensed: `<div><label>Condensed milk (tbsp)</label><input type="number" name="condensed" min="0" max="10" step="0.5" inputmode="decimal" placeholder="none" value="${this.esc(x.condensed)}" oninput="app.methodExtras.condensed = this.value"></div>`
                 };
                 box.innerHTML = p.extras.map(k => field[k]).join('');
                 box.hidden = !p.extras.length;
@@ -120,6 +123,8 @@
                     else if (k === 'mix') { const list = this.cleanMix ? this.cleanMix(x.mix) : []; if (list.length) out.mix = list; }
                     else if (k === 'inverted' || k === 'preheated') out[k] = !!x[k];
                     else if (k === 'sub') { if ((METHOD_KINDS[method] || []).includes(x.sub)) out.sub = x.sub; }   // v21.6
+                    else if (k === 'press') { if (PHIN_PRESSES.includes(x.press)) out.press = x.press; }   // v21.13
+                    else if (k === 'condensed') { const t = Number(x.condensed); if (t > 0 && t <= 10) out.condensed = Math.round(t * 2) / 2; }   // v21.13: tablespoons, to the half
                     else if (k === 'steeps') { const list = (Array.isArray(x.steeps) ? x.steeps : []).map(Number).filter(v => v > 0 && v <= 3600).slice(0, 30); if (list.length) out.steeps = list; }   // v17.0
                     else if (x[k]) out[k] = String(x[k]).slice(0, 30);
                 });

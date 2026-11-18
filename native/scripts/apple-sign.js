@@ -5,12 +5,15 @@
 // found through their profiles: those more than 40 minutes old (Apple has long finished processing their builds) are
 // revoked and deleted first. Nothing else on the account is touched. Prints only counts (GitHub Actions logs are public).
 //   env ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_FILE (a proper .p8 file), BUNDLE_ID, RUN_NUMBER
-// usage: node apple-sign.js <outDir>   writes key.pem, cert.cer, profile.mobileprovision, profile.env (PROFILE_NAME, PROFILE_UUID)
+//       WIDGET_BUNDLE_ID (v21.13, optional: the lock screen widget's bundle ID; registered if it isn't yet, and given its own
+//       App Store profile with the same certificate)
+// usage: node apple-sign.js <outDir>   writes key.pem, cert.cer, profile.mobileprovision, profile.env (PROFILE_NAME, PROFILE_UUID;
+//        with a widget also widget.mobileprovision, WIDGET_PROFILE_NAME, WIDGET_PROFILE_UUID)
 //        node apple-sign.js --undo <outDir>   when the upload didn't happen: revokes this run's certificate and profile
 //        node apple-sign.js --dry             only the look-ups (no changes): what a run would clean up
 const crypto = require('crypto'), fs = require('fs'), path = require('path'), { execFileSync } = require('child_process');
 const clean = v => String(v || '').replace(/["'\s]/g, '');
-const KID = clean(process.env.ASC_KEY_ID), ISS = clean(process.env.ASC_ISSUER_ID), BUNDLE = clean(process.env.BUNDLE_ID);
+const KID = clean(process.env.ASC_KEY_ID), ISS = clean(process.env.ASC_ISSUER_ID), BUNDLE = clean(process.env.BUNDLE_ID), WIDGET = clean(process.env.WIDGET_BUNDLE_ID);
 const UNDO = process.argv[2] === '--undo', DRY = process.argv[2] === '--dry';
 const OUT = UNDO ? process.argv[3] : DRY ? null : process.argv[2];
 const PROFILE_PREFIX = 'Dialed In CI';
@@ -36,7 +39,7 @@ async function undo() {
   const env = Object.fromEntries(String(fs.existsSync(path.join(OUT, 'profile.env')) ? fs.readFileSync(path.join(OUT, 'profile.env'), 'utf8') : '').split('\n').filter(Boolean).map(l => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1)]));
   if (!env.CERT_ID) return;
   const profiles = await api('GET', '/v1/profiles?limit=200&fields[profiles]=name');
-  for (const p of (profiles.status === 200 ? profiles.j.data : []) || []) if (p.attributes.name === env.PROFILE_NAME) await api('DELETE', `/v1/profiles/${p.id}`);
+  for (const p of (profiles.status === 200 ? profiles.j.data : []) || []) if (p.attributes.name === env.PROFILE_NAME || (env.WIDGET_PROFILE_NAME && p.attributes.name === env.WIDGET_PROFILE_NAME)) await api('DELETE', `/v1/profiles/${p.id}`);
   const r = await api('DELETE', `/v1/certificates/${env.CERT_ID}`);
   note('Signing', r.status < 300 ? 'Nothing was uploaded, so this run\'s certificate and profile were removed again.' : `Couldn't remove this run's certificate (${why(r)}); the next run cleans it up.`);
 }
@@ -53,6 +56,19 @@ if (UNDO) { undo().catch(e => note('Signing', 'cleanup skipped: ' + String(e && 
     const r = await api('POST', '/v1/bundleIdCapabilities', { data: { type: 'bundleIdCapabilities', attributes: { capabilityType: 'PUSH_NOTIFICATIONS' }, relationships: { bundleId: { data: { type: 'bundleIds', id: b.id } } } } });
     if (r.status >= 300) fail('Signing', `Push notifications aren't on for the bundle ID and couldn't be turned on (${why(r)}).`);
     note('Signing', 'Turned on push notifications for the bundle ID.');
+  }
+
+  // v21.13: the lock screen widget's bundle ID (an app extension needs its own); registered the first time
+  let wb = null;
+  if (WIDGET) {
+    const wr = await api('GET', `/v1/bundleIds?filter[identifier]=${encodeURIComponent(WIDGET)}&limit=10`);
+    wb = wr.status === 200 && (wr.j.data || []).find(x => x.attributes.identifier === WIDGET);
+    if (!wb && DRY) note('Signing (dry run)', `The widget's bundle ID ${WIDGET} isn't registered yet; a run would register it.`);
+    else if (!wb) {
+      const r = await api('POST', '/v1/bundleIds', { data: { type: 'bundleIds', attributes: { identifier: WIDGET, name: 'Dialed In Widget', platform: 'IOS' } } });
+      if (r.status >= 300) fail('Signing', `The widget's bundle ID ${WIDGET} couldn't be registered (${why(r)}).`);
+      wb = r.j.data; note('Signing', `Registered the widget's bundle ID ${WIDGET}.`);
+    }
   }
 
   // clean up what earlier runs made: their profiles (more than 40 minutes old) and the certificate in each
@@ -95,6 +111,17 @@ if (UNDO) { undo().catch(e => note('Signing', 'cleanup skipped: ' + String(e && 
     bundleId: { data: { type: 'bundleIds', id: b.id } }, certificates: { data: [{ type: 'certificates', id: cert.j.data.id }] } } } });
   if (prof.status >= 300) fail('Signing', `Making the App Store profile failed (${why(prof)}).`);
   fs.writeFileSync(path.join(OUT, 'profile.mobileprovision'), Buffer.from(prof.j.data.attributes.profileContent, 'base64'));
-  fs.writeFileSync(path.join(OUT, 'profile.env'), `PROFILE_NAME=${name}\nPROFILE_UUID=${prof.j.data.attributes.uuid}\nCERT_ID=${cert.j.data.id}\n`);
-  note('Signing', `Made this run's distribution certificate and App Store profile (cleaned up from earlier runs: ${revoked} certificates, ${removed} profiles; distribution certificates before this run: ${dist}).`);
+  let env = `PROFILE_NAME=${name}\nPROFILE_UUID=${prof.j.data.attributes.uuid}\nCERT_ID=${cert.j.data.id}\n`;
+  fs.writeFileSync(path.join(OUT, 'profile.env'), env);   // (written now too, so a failure below still cleans up the app's)
+  // v21.13: the widget's App Store profile, with the same certificate (its name starts the same, so later runs clean it up)
+  if (wb) {
+    const wname = `${PROFILE_PREFIX} widget ${process.env.RUN_NUMBER || ''} ${new Date().toISOString().slice(0, 16)}`.replace(/\s+/g, ' ').trim();
+    const wp = await api('POST', '/v1/profiles', { data: { type: 'profiles', attributes: { name: wname, profileType: 'IOS_APP_STORE' }, relationships: {
+      bundleId: { data: { type: 'bundleIds', id: wb.id } }, certificates: { data: [{ type: 'certificates', id: cert.j.data.id }] } } } });
+    if (wp.status >= 300) fail('Signing', `Making the widget's App Store profile failed (${why(wp)}).`);
+    fs.writeFileSync(path.join(OUT, 'widget.mobileprovision'), Buffer.from(wp.j.data.attributes.profileContent, 'base64'));
+    env += `WIDGET_PROFILE_NAME=${wname}\nWIDGET_PROFILE_UUID=${wp.j.data.attributes.uuid}\n`;
+    fs.writeFileSync(path.join(OUT, 'profile.env'), env);
+  }
+  note('Signing', `Made this run's distribution certificate and App Store profile${wb ? 's (the app\'s and the widget\'s)' : ''} (cleaned up from earlier runs: ${revoked} certificates, ${removed} profiles; distribution certificates before this run: ${dist}).`);
 })().catch(e => fail('Signing', 'The signing setup failed: ' + String(e && e.message || e).slice(0, 200)));
